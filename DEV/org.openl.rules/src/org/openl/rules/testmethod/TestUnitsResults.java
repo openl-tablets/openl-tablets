@@ -22,11 +22,14 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.AOpenField;
+import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.vm.IRuntimeEnv;
 
 /**
- * Test units results for the test table.
- * Consist of the test suit method itself. And a number of test units that were represented in test table.
- *
+ * Test units results for the test table. Consist of the test suit method
+ * itself. And a number of test units that were represented in test table.
+ * 
  */
 public class TestUnitsResults implements INamedThing {
 
@@ -60,14 +63,42 @@ public class TestUnitsResults implements INamedThing {
             testUnits.add(testUnit);
         }
     }
-    
+
+    private static int getArrayIndex(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
+
+        return Integer.parseInt(txtIndex);
+    }
+
+    private static String getArrayName(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        return fieldName.substring(0, fieldName.indexOf("["));
+    }
+
+    private class WrapClassWithThisField extends AOpenField {
+
+        protected WrapClassWithThisField(IOpenClass clazz) {
+            super("this", clazz);
+        }
+
+        public Object get(Object target, IRuntimeEnv env) {
+            return target;
+        }
+
+        public void set(Object target, Object value, IRuntimeEnv env) {
+            throw new RuntimeException("Can not assign to 'this'");
+        }
+    }
+
     /**
-     * Creates the list of test unit results. 
+     * Creates the list of test unit results.
      * 
      * @param testUnit test unit
      * @return list of test unit results
      * 
-     * FIXME it should be moved to compile phase and all info about bean comparator should be located in {@link TestDescription}
+     *         FIXME it should be moved to compile phase and all info about bean
+     *         comparator should be located in {@link TestDescription}
      */
     public TestUnit updateTestUnit(TestUnit testUnit) {
         ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
@@ -79,43 +110,74 @@ public class TestUnitsResults implements INamedThing {
 
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length > 1 && TestMethodHelper.EXPECTED_RESULT_NAME.equals(nodes[0].getIdentifier())) {
+                if (nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
                     if (columnDescriptor.isReference()) {
                         if (!resultType.isSimple()) {
                             fieldsToTest.addAll(resultType.getFields().values());
                         }
                     } else {
-                        // get the field name next to _res_ field, e.g.
-                        // "_res_.$Value$Name"
-                        if (nodes.length > 2) {
-                            IOpenField[] fieldSequence = new IOpenField[nodes.length - 1];
-                            IOpenClass currentType = resultType;
-                            for (int i = 0; i < fieldSequence.length; i++) {
-                                fieldSequence[i] = currentType.getField(nodes[i + 1].getIdentifier());
+                        IOpenField[] fieldSequence = null;
+                        boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
+                        int startIndex = 0;
+                        IOpenClass currentType = resultType;
 
-                                if (fieldSequence[i] == null) {
-                                    if (nodes[i + 1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                                        precision = DataTableBindHelper.getPrecisionValue(nodes[i + 1]);
-                                        fieldSequence = (IOpenField[]) ArrayUtils.remove(fieldSequence, i);
+                        if (resIsArray) {
+                            startIndex = 1;
+                            fieldSequence = new IOpenField[nodes.length];
+                            IOpenField arrayField = new WrapClassWithThisField(resultType);
+                            int arrayIndex = getArrayIndex(nodes[0]);
+                            IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
+                            if (arrayAccessField.getType().isArray()) {
+                                currentType = arrayAccessField.getType().getComponentClass();
+                            } else {
+                                currentType = arrayAccessField.getType();
+                            }
+                            fieldSequence[0] = arrayAccessField;
+                        } else {
+                            fieldSequence = new IOpenField[nodes.length - 1];
+                        }
 
-                                        break;
-                                    }
+                        if (fieldSequence.length == 0) {
+                            continue;// optimization and exclude additional
+                                     // conditions
+                        }
+
+                        for (int i = startIndex; i < fieldSequence.length; i++) {
+                            boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
+                                .matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
+                            if (isArray) {
+                                IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
+                                int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
+                                IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
+                                fieldSequence[i] = arrayAccessField;
+                            } else {
+                                fieldSequence[i] = currentType.getField(nodes[i + 1 - startIndex].getIdentifier());
+                            }
+
+                            if (fieldSequence[i] == null) {
+                                if (nodes[i + 1 - startIndex].getIdentifier()
+                                    .matches(DataTableBindHelper.PRECISION_PATTERN)) {
+                                    precision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
+                                    fieldSequence = (IOpenField[]) ArrayUtils.remove(fieldSequence, i);
+                                    break;
                                 }
+                            }
 
+                            if (fieldSequence[i].getType().isArray() && isArray) {
+                                currentType = fieldSequence[i].getType().getComponentClass();
+                            } else {
                                 currentType = fieldSequence[i].getType();
                             }
-
-                            if (precision != null) {
-                                fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, precision));
+                        }
+                        if (fieldSequence.length > 0) {
+                            if (fieldSequence.length > 1 || precision != null) {
+                                if (precision != null) {
+                                    fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, precision));
+                                } else {
+                                    fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                                }
                             } else {
-                                fieldsToTest.add(new FieldChain(currentType, fieldSequence));
-                            }
-                        } else {
-                            if (nodes[1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                                precision = DataTableBindHelper.getPrecisionValue(nodes[1]);
-                                continue;
-                            } else {
-                                fieldsToTest.add(resultType.getField(nodes[1].getIdentifier()));
+                                fieldsToTest.add(fieldSequence[0]);
                             }
                         }
                     }
@@ -126,7 +188,7 @@ public class TestUnitsResults implements INamedThing {
         if (fieldsToTest.size() > 0) {
             TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
-        } else if (precision != null){
+        } else if (precision != null) {
             testUnit.setPrecision(precision);
         }
         return testUnit;
@@ -156,7 +218,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean hasDescription() {
-        for (TestUnit testUnit: testUnits) {
+        for (TestUnit testUnit : testUnits) {
             if (testUnit.getTest().getDescription() != null) {
                 return true;
             }
@@ -165,7 +227,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean hasContext() {
-        for (TestUnit testUnit: testUnits) {
+        for (TestUnit testUnit : testUnits) {
             if (testUnit.getTest().isRuntimeContextDefined()) {
                 return true;
             }
@@ -174,7 +236,9 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean isSpreadsheetResultTester() {
-        return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(), SpreadsheetResult.class, false);
+        return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(),
+            SpreadsheetResult.class,
+            false);
     }
 
     public boolean isRunmethod() {
@@ -246,14 +310,22 @@ public class TestUnitsResults implements INamedThing {
             return sb.append(" - ").append(getNumberOfTestUnits()).append(" tests ALL OK!");
         }
 
-        sb.append(" - ").append(getNumberOfTestUnits()).append(" tests / ").append(getNumberOfFailures())
-                .append(" FAILED!");
+        sb.append(" - ")
+            .append(getNumberOfTestUnits())
+            .append(" tests / ")
+            .append(getNumberOfFailures())
+            .append(" FAILED!");
 
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
-                sb.append('\n').append(i + 1).append(". ").append(testUnits.get(i).getDescription()).append("\t")
-                        .append(testUnits.get(i).getExpectedResult()).append(" / ")
-                        .append(testUnits.get(i).getActualResult());
+                sb.append('\n')
+                    .append(i + 1)
+                    .append(". ")
+                    .append(testUnits.get(i).getDescription())
+                    .append("\t")
+                    .append(testUnits.get(i).getExpectedResult())
+                    .append(" / ")
+                    .append(testUnits.get(i).getActualResult());
             }
         }
 

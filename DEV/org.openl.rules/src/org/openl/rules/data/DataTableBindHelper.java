@@ -38,7 +38,7 @@ public class DataTableBindHelper {
     private static final String LINK_DELIMETERS = ".";
 
     // patter for field like addressArry[0]
-    private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
 
     /**
