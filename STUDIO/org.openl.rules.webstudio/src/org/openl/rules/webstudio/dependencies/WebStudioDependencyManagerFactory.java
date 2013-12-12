@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.dependencies;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -16,40 +15,29 @@ public class WebStudioDependencyManagerFactory {
 
     private final WebStudio studio;
 
-    private ProjectDescriptor lastProject;
-    private IDependencyManager lastDependencyManager;
-
     public WebStudioDependencyManagerFactory(WebStudio studio) {
         this.studio = studio;
     }
 
-    public IDependencyManager getDependencyManager(Module module, boolean includeDependentProjects) {
-        ProjectDescriptor project = module.getProject();
+    public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
+        List<ProjectDescriptor> projectDescriptors = getDependentProjects(module);
 
-        if (lastDependencyManager != null && lastProject == project) {
-            return lastDependencyManager;
-        }
-
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
-        projectDescriptors.add(project);
-
-        if (includeDependentProjects) {
-            addDependentProjects(projectDescriptors, project);
-        }
-
-        WebStudioWorkspaceRelatedDependencyManager dependencyManager = new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors);
+        WebStudioWorkspaceRelatedDependencyManager dependencyManager = new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors, singleModuleMode);
         dependencyManager.setExternalParameters(studio.getSystemConfigManager().getProperties());
         dependencyManager.setExecutionMode(false);
-
-        lastProject = project;
-        lastDependencyManager = dependencyManager;
 
         return dependencyManager;
     }
 
-    public void reset() {
-        lastProject = null;
-        lastDependencyManager = null;
+    public List<ProjectDescriptor> getDependentProjects(Module module) {
+        ProjectDescriptor project = module.getProject();
+
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        projectDescriptors.add(project);
+
+        addDependentProjects(projectDescriptors, project);
+
+        return projectDescriptors;
     }
 
     private void addDependentProjects(List<ProjectDescriptor> projectDescriptors, ProjectDescriptor project) {

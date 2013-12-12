@@ -13,8 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -127,7 +125,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
     private List<TableSyntaxNode> getSyntaxNodes() {
         if (executableTables == null) {
-            TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
+            TableSyntaxNode[] syntaxNodes = WizardUtils.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
             
             executableTables = new ArrayList<TableSyntaxNode>();
             for (TableSyntaxNode syntaxNode : syntaxNodes) {

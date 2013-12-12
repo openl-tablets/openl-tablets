@@ -25,7 +25,9 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
     private final Collection<Module> modules;
     private volatile CompiledDependency compiledDependency = null;
 
-    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules) {
+    private final boolean singleModuleMode;
+
+    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode) {
         if (dependencyName == null) {
             throw new IllegalArgumentException("dependencyName arg can't be null!");
         }
@@ -34,6 +36,7 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
         }
         this.dependencyName = dependencyName;
         this.modules = modules;
+        this.singleModuleMode = singleModuleMode;
     }
 
     @Override
@@ -76,8 +79,11 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
                             throw new IllegalStateException("Modules collection can't be empty");
                         }
                     }
-                    Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                            modules);
+                    Map<String, Object> parameters = dependencyManager.getExternalParameters();
+                    if (!singleModuleMode) {
+                        parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(parameters,
+                                modules);
+                    }
                     rulesInstantiationStrategy.setExternalParameters(parameters);
                     rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent interface generation
                     try {

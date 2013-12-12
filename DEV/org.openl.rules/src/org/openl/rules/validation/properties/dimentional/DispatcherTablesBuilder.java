@@ -7,7 +7,6 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
@@ -57,20 +56,25 @@ public class DispatcherTablesBuilder {
         }
     }
 
-	private void build(MatchingOpenMethodDispatcher dispatcher) {
-		Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext, 
-				moduleOpenClass, dispatcher);
-		TableSyntaxNode tsn = tsnDispatcherBuilder.build();
-		if (tsn != null) {
-			if (!isVirtualWorkbook()) {
-				addNewTsnToTopNode(tsn);
-			}
-			if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
-				((OverloadedMethodsDispatcherTable) dispatcher)
-						.setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
-			}
-		}
-	}
+    private void build(MatchingOpenMethodDispatcher dispatcher) {
+        Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext,
+                moduleOpenClass, dispatcher);
+        TableSyntaxNode tsn = tsnDispatcherBuilder.build();
+        if (tsn != null) {
+            if (!isVirtualWorkbook()) {
+                for (IOpenMethod method : dispatcher.getCandidates()) {
+                    if (moduleOpenClass.equals(method.getDeclaringClass())) {
+                        addNewTsnToTopNode(tsn);
+                        break;
+                    }
+                }
+            }
+            if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
+                ((OverloadedMethodsDispatcherTable) dispatcher)
+                        .setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
+            }
+        }
+    }
     
     private boolean isVirtualWorkbook(){
         return moduleOpenClass.getXlsMetaInfo().getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
@@ -78,7 +82,7 @@ public class DispatcherTablesBuilder {
     
     private void addNewTsnToTopNode(TableSyntaxNode tsn) {        
         XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
-        ((WorkbookSyntaxNode)xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0])
+        xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
             .getWorksheetSyntaxNodes()[0].addNode(tsn);     
     }
     
