@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestHelper;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 
 /*
  * @author PTarasevich

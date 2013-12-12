@@ -2,7 +2,7 @@ package org.openl.rules.testmethod.result;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class OpenLBeanResultComparator extends BeanResultComparator {
     }
 
     private static Map<String, IOpenField> makeFieldMap(List<IOpenField> fields) {
-        Map<String, IOpenField> fieldMap = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fieldMap = new LinkedHashMap<String, IOpenField>();
         for (IOpenField field : fields) {
             fieldMap.put(field.getName(), field);
         }
