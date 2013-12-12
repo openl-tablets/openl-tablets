@@ -164,16 +164,28 @@
                 </div>
             </div>
 
-            <h:panelGroup rendered="#{!empty project.dependencies}">
-            <div class="block">
-                <h3>Dependencies</h3>
+            <h:panelGroup rendered="#{true or !empty project.dependencies}">
+            <div class="block editable">
+                <h3>
+                    <span>Dependencies</span>
+                    <h:panelGroup rendered="#{studio.model.editable}">
+                        <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
+                           onclick="showManageDependenciesPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                    </h:panelGroup>
+                </h3>
                 <div class="block-content">
                     <div class="list">
                         <ui:repeat var="dependency" value="#{project.dependencies}">
                             <div class="list-item">
+                                <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
                                 <a href="#project.xhtml?name=#{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
-                                <h:panelGroup rendered="#{dependency.autoIncluded}">
-                                    <img src="webresource/images/ok.png" style="margin-left:21px" />
+                                <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
+                                    All Modules
+                                </h:panelGroup>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{empty studio.getProjectByName(dependency.name)}">
+                                    <span>#{dependency.name}</span>
+                                    <span class="path" style="color:red">Could not find the project</span>
                                 </h:panelGroup>
                             </div>
                         </ui:repeat>
@@ -224,20 +236,54 @@
                     validator="#{projectBean.validateProjectName}" />
                 <h:outputText />
                 <a4j:outputPanel ajaxRendered="true">
-                        <h:message for="projectName" styleClass="error" />
+                    <h:message for="projectName" styleClass="error" />
                 </a4j:outputPanel>
                 <span>Description</span>
                 <h:inputTextarea id="projectDescription" value="#{project.comment}" style="width:340px;height:150px" />
             </h:panelGrid>
 
-            <hr />
-
-            <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="0" cellspacing="0">
+            <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                     styleClass="button-primary"
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo('project.xhtml?name=' + encodeURIComponent('#{project.name}'), true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
-            </h:panelGrid>
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <rich:popupPanel id="manageDependenciesPopup" width="510" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Manage Dependencies" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="ws.ui.hide('manageDependenciesPopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false" id="manageDependenciesForm">
+            <div style="overflow:auto; height:350px">
+                <table id="dependenciesTable" class="table table-over w100">
+                    <tr>
+                        <th>Project Name</th>
+                        <th style="width:67px">All Modules</th>
+                    </tr>
+                    <ui:repeat value="#{projectBean.dependencies}" var="dependency2">
+                        <tr class="#{dependency2.selected ? 'active' : ''}">
+                            <td><label><h:selectBooleanCheckbox value="#{dependency2.selected}" /> #{dependency2.item.name}</label></td>
+                            <td style="text-align:center"><h:selectBooleanCheckbox value="#{dependency2.item.autoIncluded}"
+                                title="Include all modules" /></td>
+                        </tr>
+                    </ui:repeat>
+                </table>
+            </div>
+
+            <footer>
+                <a4j:commandButton id="editDependenciesBtn" value="Save" action="#{projectBean.editDependencies}"
+                    styleClass="button-primary"
+                    oncomplete="ws.ui.hide('manageDependenciesPopup');reloadCurrent()" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('manageDependenciesPopup');" />
+            </footer>
         </h:form>
     </rich:popupPanel>
 
@@ -246,21 +292,68 @@
         var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
         var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
 
+        var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
+        var initDependencies2 = $j("#dependenciesTable tr.active > td:last-child input").map(function(){return this.checked}).get();
+
         function showEditProjectPopup() {
-            $j("#editProjectBtn").prop("disabled", true);
+            var btn = $j("#editProjectBtn");
+
+            btn.prop("disabled", true);
             $j("#projectName").val(initProjectName);
             $j("#projectDescription").val(initProjectDescription);
             $j("#editProjectForm span.error").remove();
 
             ws.ui.show("editProjectPopup");
 
-            var btn = $j("#editProjectBtn");
-
             $j("#projectName, #projectDescription").on("keyup", function() {
                 var name = $j("#projectName").val();
                 var description = $j("#projectDescription").val();
                 btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription));
             })
+        }
+
+        function showManageDependenciesPopup() {
+            var btn = $j("#editDependenciesBtn");
+
+            btn.prop("disabled", true);
+            $j("#dependenciesTable tr > td:first-child input").each(function() {
+                var init = initDependencies.indexOf(this) > -1;
+                this.checked = init;
+                var row = $j(this).closest("tr");
+                row.toggleClass("active", init);
+                row.find("td:last-child input").prop("disabled", !init);
+                if (init) {
+                    row.find("td:last-child input").prop("checked", initDependencies2[initDependencies.indexOf(this)]);
+                } else {
+                    row.find("td:last-child input").prop("checked", true);
+                }
+            });
+
+            $j("#dependenciesTable tr > td:first-child input").on("change", function() {
+                var row = $j(this).closest("tr");
+                row.toggleClass("active", this.checked);
+                row.find("td:last-child input").prop("disabled", !this.checked);
+
+                var changed = false;
+                var checked = $j("#dependenciesTable tr > td:first-child input:checked");
+                if (checked.length != initDependencies.length) {
+                    changed = true;
+                } else {
+                    checked.each(function() {
+                        if (!(initDependencies.indexOf(this) > -1)) {
+                            changed = true;
+                        }
+                    });
+                }
+                btn.prop("disabled", !changed);
+            });
+
+            $j("#dependenciesTable tr > td:last-child input").on("change", function() {
+                var projectCheck = $j(this).closest("tr").find("td:first-child input").get(0);
+                btn.prop("disabled", initDependencies2[initDependencies.indexOf(projectCheck)] == this.checked);
+            });
+
+            ws.ui.show("manageDependenciesPopup");
         }
 
       //]]>

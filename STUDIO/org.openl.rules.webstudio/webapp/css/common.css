@@ -43,10 +43,10 @@ input[type='text'], input[type='password'], textarea {
 input[type='submit'], input[type='reset'],
 input[type='button'], button,
 .button, .imageButton {
-    padding: 4px 6px;
+    padding: 5px 8px;
     border: 1px solid #e5e5e5;
     background: #fbfbfb;
-    color: #444444;
+    color: #444;
     margin-right: 4px;
     cursor: pointer;
     box-shadow: 0 0 2px #fff inset;
@@ -198,6 +198,10 @@ a {
     padding: 2px 12px;
 }
 
+.w100 {
+    width: 100%;
+}
+
 form {
     margin: 0;
 }
@@ -288,7 +292,8 @@ fieldset {
     cursor: pointer;
 }
 
-.table .row-selected {
+.table .row-selected,
+.table tr.active > td {
     background: #59c !important;
     color: #fff !important;
     font-weight: bold !important;
@@ -609,8 +614,6 @@ form.standard table.buttonPanel {
     padding: 17px 11px;
     opacity: 0.8;
     text-align: center;
-    -moz-transition: all .4s ease-out;
-    -webkit-transition: all .4s ease-out;
     transition: all .4s ease-out;
     word-wrap: break-word;
 }
@@ -930,6 +933,17 @@ form.standard table.buttonPanel {
 
 .rf-pp-shdw {
     display: none !important;
+}
+
+.rf-pp-cnt footer {
+    border-top: 1px solid #ddd;
+    margin-top: 14px;
+    padding: 11px 0 2px;
+    text-align: right;
+}
+
+.rf-pp-cnt footer > input {
+    margin: 0 0 0 2px;
 }
 
 .rf-pp-cnt-scrlr {

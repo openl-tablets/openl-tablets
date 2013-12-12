@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.set.MapBackedSet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +27,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
@@ -433,6 +435,15 @@ public class WebStudio {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
             public boolean evaluate(Object project) {
                 return ((ProjectDescriptor) project).getName().equals(name);
+            }
+        });
+    }
+
+    public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
+        List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
+        return (ProjectDependencyDescriptor) CollectionUtils.find(dependencies, new Predicate() {
+            public boolean evaluate(Object dependency) {
+                return ((ProjectDependencyDescriptor) dependency).getName().equals(dependencyName);
             }
         });
     }
