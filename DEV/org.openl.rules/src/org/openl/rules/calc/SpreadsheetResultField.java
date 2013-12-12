@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -28,12 +29,19 @@ public class SpreadsheetResultField extends AOpenField {
 
     @Override
     public boolean isWritable() {
-        return false;
+        return true;
     }
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException();
+        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
+        String name = getName();
+
+        if (!spreadsheetResult.hasField(name)) {
+            throw new OpenLRuntimeException(String.format("Field '%s' does not exist in SpreadsheetResult", name));
+        }
+        Point fieldCoordinates = spreadsheetResult.getFieldsCoordinates().get(name);
+        spreadsheetResult.setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
     }
 
     @Override
