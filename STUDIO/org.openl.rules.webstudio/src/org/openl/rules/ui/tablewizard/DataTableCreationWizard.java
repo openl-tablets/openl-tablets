@@ -123,7 +123,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
         allDataTables = new ArrayList<TableSyntaxNode>();
-        for (TableSyntaxNode tbl : WizardUtils.getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes()) {
+        for (TableSyntaxNode tbl : WizardUtils.getTableSyntaxNodes()) {
             if (XlsNodeTypes.XLS_DATA.toString().equals(tbl.getType())) {
                 allDataTables.add(tbl);
             }
