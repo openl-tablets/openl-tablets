@@ -205,10 +205,15 @@
                 },
 
                 ui: {
-                    show: function(id) {
+                    show: function(id, params) {
                         // RichFaces Popup
                         if ($j("#" + id + "_container").length) {
                             RichFaces.$(id).show();
+
+                            if (!params || (params && params.focus !== false)) {
+                                // Focus the first visible enabled input
+                                $j("#" + id + "_container :input:enabled:visible:first").focus();
+                            }
                         }
                     },
                     hide: function(id) {
