@@ -195,26 +195,26 @@
             </h:panelGroup>
         </div>
 
-        <h:panelGroup rendered="#{!empty project.classpath}">
         <div class="block-column">
-            <div class="block">
-                <h3>Sources</h3>
+            <div class="block editable">
+                <h3>
+                    <span>Sources</span>
+                    <h:panelGroup rendered="#{studio.model.editable}">
+                        <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
+                           onclick="showManageSourcesPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                    </h:panelGroup>
+                </h3>
                 <div class="block-content">
                     <ul class="enum">
                     <ui:repeat var="path" value="#{project.classpath}">
                         <li>
                             <h:outputText value="#{path.path}" />
-                            <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteClasspath(path)}"
-                                rendered="#{editable}">
-                                <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
-                            </a4j:commandLink>
                         </li>
                     </ui:repeat>
                     </ul>
                 </div>
             </div>
         </div>
-        </h:panelGroup>
     </div>
 
     <h:panelGroup rendered="#{studio.model.editable}">
@@ -287,6 +287,27 @@
         </h:form>
     </rich:popupPanel>
 
+    <rich:popupPanel id="manageSourcesPopup" width="330" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Manage Sources" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="ws.ui.hide('manageSourcesPopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false" id="manageSourcesForm">
+            <h:inputTextarea id="sources" value="#{projectBean.sources}" style="width:310px;height:150px" />
+            <footer>
+                <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
+                    styleClass="button-primary"
+                    oncomplete="ws.ui.hide('manageSourcesPopup');reloadCurrent()" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
     <script>
       //<![CDATA[
         var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
@@ -294,6 +315,8 @@
 
         var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
         var initDependencies2 = $j("#dependenciesTable tr.active > td:last-child input").map(function(){return this.checked}).get();
+
+        var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
 
         function showEditProjectPopup() {
             var btn = $j("#editProjectBtn");
@@ -354,6 +377,19 @@
             });
 
             ws.ui.show("manageDependenciesPopup");
+        }
+
+        function showManageSourcesPopup() {
+            var btn = $j("#editSourcesBtn");
+
+            btn.prop("disabled", true);
+            $j("#sources").val(initSources);
+
+            ws.ui.show("manageSourcesPopup");
+
+            $j("#sources").on("keyup", function() {
+                btn.prop("disabled", $j("#sources").val() == initSources);
+            })
         }
 
       //]]>

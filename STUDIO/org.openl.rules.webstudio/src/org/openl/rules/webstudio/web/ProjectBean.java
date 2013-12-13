@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web;
 import com.rits.cloning.Cloner;
 import com.sdicons.json.model.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ManagedBean
@@ -45,6 +47,7 @@ public class ProjectBean {
     private final Log log = LogFactory.getLog(ProjectBean.class);
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
+    private String sources;
 
     public void init() throws Exception {
         String projectName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_NAME);
@@ -84,6 +87,24 @@ public class ProjectBean {
             }
         }
         return dependencies;
+    }
+
+    public String getSources() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        List<PathEntry> sourceList = currentProject.getClasspath();
+        if (sourceList != null) {
+            sources  = "";
+            for (PathEntry source : sourceList) {
+                sources += source.getPath() + "\n";
+            }
+        }
+
+        return sources;
+    }
+
+    public void setSources(String sources) {
+        this.sources = sources;
     }
 
     // TODO Move messages to ValidationMessages.properties
@@ -134,6 +155,31 @@ public class ProjectBean {
         }
 
         newProjectDescriptor.setDependencies(!resultDependencies.isEmpty() ? resultDependencies : null);
+
+        save(newProjectDescriptor);
+    }
+
+    public void editSources() {
+        List<PathEntry> sourceList = new ArrayList<PathEntry>();
+        String[] sourceArray = sources.split("\n");
+
+        if (ArrayUtils.isNotEmpty(sourceArray)) {
+            for (String source : sourceArray) {
+                if (StringUtils.isNotBlank(source)) {
+                    PathEntry sourcePath = new PathEntry(source);
+                    sourceList.add(sourcePath);
+                }
+            }
+        }
+
+        WebStudio studio = WebStudioUtils.getWebStudio();
+
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+
+        clean(newProjectDescriptor);
+
+        newProjectDescriptor.setClasspath(!sourceList.isEmpty() ? sourceList : null);
 
         save(newProjectDescriptor);
     }
