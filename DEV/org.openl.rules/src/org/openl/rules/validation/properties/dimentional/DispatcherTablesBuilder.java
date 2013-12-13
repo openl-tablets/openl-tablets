@@ -62,12 +62,7 @@ public class DispatcherTablesBuilder {
         TableSyntaxNode tsn = tsnDispatcherBuilder.build();
         if (tsn != null) {
             if (!isVirtualWorkbook()) {
-                for (IOpenMethod method : dispatcher.getCandidates()) {
-                    if (moduleOpenClass.equals(method.getDeclaringClass())) {
-                        addNewTsnToTopNode(tsn);
-                        break;
-                    }
-                }
+                addNewTsnToTopNode(tsn);
             }
             if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
                 ((OverloadedMethodsDispatcherTable) dispatcher)
