@@ -906,14 +906,15 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-hdr {
-    background: #f7f7f7 !important;
-    padding: 7px 0 !important;
-    border-bottom: 1px solid #eee;
+    background: #fff !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .rf-pp-hdr-cnt {
-    color: #222222 !important;
-    font-size: 12px !important;
+    color: #555 !important;
+    font-size: 13px !important;
+    font-weight: normal !important;
 }
 
 .rf-pp-hdr-cntrls {
@@ -938,7 +939,7 @@ form.standard table.buttonPanel {
 .rf-pp-cnt footer {
     border-top: 1px solid #ddd;
     margin-top: 14px;
-    padding: 11px 0 2px;
+    padding: 13px 1px 4px;
     text-align: right;
 }
 
@@ -947,7 +948,7 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-cnt-scrlr {
-    background: #fefefe !important;
+    background: #fff !important;
 }
 
 .rf-fu {
@@ -966,7 +967,7 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-hdr-cntrls .close {
-    margin: 4px;
+    margin: 8px 4px;
 }
 
 /* Twitter Bootstrap styles */
