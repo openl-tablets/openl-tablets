@@ -27,9 +27,6 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -157,7 +154,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     protected void initWorkbooks() {
         workbooks = new HashMap<String, XlsWorkbookSourceCodeModule>();
 
-        WorkbookSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getWorkbookSyntaxNodes();
+        WorkbookSyntaxNode[] syntaxNodes = WizardUtils.getWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);

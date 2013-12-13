@@ -9,7 +9,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.code.IDependency;
 
 public abstract class DependencyManager implements IDependencyManager {
-    
+
     private boolean executionMode;
     private Map<String, Object> externalParameters;
     
@@ -79,15 +79,15 @@ public abstract class DependencyManager implements IDependencyManager {
     }
     
     private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) throws OpenLCompilationException{
-        
+
         for (IDependencyLoader loader : loaders) {
             CompiledDependency dependency = loader.load(dependencyName, this);
-            
+
             if (dependency != null) {
                 return dependency;
             }
         }
-        
+
         return null;
     }
     
