@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -42,32 +45,43 @@ public class BeanResultComparator implements TestResultComparator {
                 ComparedResult fieldComparisonResults = new ComparedResult();
                 fieldComparisonResults.setFieldName(fieldToCompare);
 
-                Object actualFieldValue = getFieldValue(actualResult, fieldToCompare);
-                Object expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
+                Object actualFieldValue = null;
+                try {
+                    actualFieldValue = getFieldValue(actualResult, fieldToCompare);
+                } catch (NullPointerException e) {
+                    actualFieldValue = null;
+                }
+                Object expectedFieldValue = null;
+                try {
+                    expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
+                } catch (NullPointerException e) {
+                    expectedFieldValue = null;
+                }
 
                 if (this instanceof OpenLBeanResultComparator) {
-                    IOpenField field = ((OpenLBeanResultComparator)this).getField(fieldToCompare);
+                    IOpenField field = ((OpenLBeanResultComparator) this).getField(fieldToCompare);
 
-                    //Get delta for field if setted
+                    // Get delta for field if setted
                     if (field instanceof PrecisionFieldChain) {
-                        if (((PrecisionFieldChain)field).hasDelta()) {
-                            columnDelta = ((PrecisionFieldChain)field).getDelta();
+                        if (((PrecisionFieldChain) field).hasDelta()) {
+                            columnDelta = ((PrecisionFieldChain) field).getDelta();
                         }
                     }
+                }
+
+                // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on compilation state.
+                if (expectedFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass() && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
+                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
+                    expectedFieldValue = convertor.parse((String) expectedFieldValue, null, null);
                 }
 
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
 
                 TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                        expectedFieldValue);
+                    expectedFieldValue);
+
                 boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
-
-                if (compare && actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
-                    comparator = new ArrayComparator();
-
-                    compare = comparator.compareResult(actualResult, expectedResult, delta);
-                }
 
                 if (!compare) {
                     fieldComparisonResults.setStatus(TestStatus.TR_NEQ);

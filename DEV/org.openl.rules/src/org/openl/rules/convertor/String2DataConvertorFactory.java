@@ -30,7 +30,7 @@ public class String2DataConvertorFactory {
 
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor>();
-
+        convertors.put(Object.class, new String2StringConvertor());
         convertors.put(int.class, new String2IntConvertor());
         convertors.put(double.class, new String2DoubleConvertor());
         convertors.put(char.class, new String2CharConvertor());
