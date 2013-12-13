@@ -113,7 +113,12 @@ public class TestUnitsResults implements INamedThing {
                 if (nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
                     if (columnDescriptor.isReference()) {
                         if (!resultType.isSimple()) {
-                            fieldsToTest.addAll(resultType.getFields().values());
+                            if (resultType.isArray()) {
+                                IOpenField arrayField = new WrapClassWithThisField(resultType);
+                                fieldsToTest.add(arrayField);
+                            } else {
+                                fieldsToTest.addAll(resultType.getFields().values());
+                            }
                         }
                     } else {
                         IOpenField[] fieldSequence = null;
