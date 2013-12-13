@@ -83,12 +83,6 @@ public class BeanResultComparator implements TestResultComparator {
 
                 boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
 
-                if (compare && actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
-                    comparator = new ArrayComparator();
-
-                    compare = comparator.compareResult(actualResult, expectedResult, delta);
-                }
-
                 if (!compare) {
                     fieldComparisonResults.setStatus(TestStatus.TR_NEQ);
                     success = false;
