@@ -26,7 +26,7 @@ import org.openl.vm.IRuntimeEnv;
 @Executable
 public class Spreadsheet extends ExecutableRulesMethod {
 
-    protected IResultBuilder resultBuilder;
+    private IResultBuilder resultBuilder;
 
     private SpreadsheetCell[][] cells;
     private String[] rowNames;
