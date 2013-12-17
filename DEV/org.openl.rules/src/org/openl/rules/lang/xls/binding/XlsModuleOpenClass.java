@@ -116,7 +116,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
             private ThreadLocal<Boolean> cachedMatchedMethodFound = new ThreadLocal<Boolean>() {
                 protected Boolean initialValue() {
                     return Boolean.FALSE;
-                };
+                }
             };
             private ThreadLocal<Boolean> invockedFromTop = new ThreadLocal<Boolean>() {
                 @Override
@@ -149,7 +149,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                             try {
                                 invockedFromTop.set(Boolean.TRUE);
                                 Boolean found = cachedMatchedMethodFound.get();
-                                IOpenMethod matchedMethod = null;
+                                IOpenMethod matchedMethod;
                                 if (found == null || Boolean.FALSE.equals(found)) {
                                     matchedMethod = topModule.getMatchingMethod(openMethod.getName(),
                                         openMethod.getSignature().getParameterTypes());
@@ -186,58 +186,52 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 }
             }
         });
+
+        // Since all methods are delegated, we should not hold references to constructor parameters in enhanced classes.
+        // That's why we pass nulls to constructors.
         if (openMethod instanceof DeferredMethod) {
-            DeferredMethod m = (DeferredMethod) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { String.class,
                     IOpenClass.class,
                     IMethodSignature.class,
                     IOpenClass.class,
                     ISyntaxNode.class },
-                new Object[] { m.getName(), m.getType(), m.getSignature(), m.getDeclaringClass(), m.getMethodBodyNode() });
+                new Object[] { null, null, null, null, null });
         }
         if (openMethod instanceof CompositeMethod) {
-            CompositeMethod m = (CompositeMethod) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, IBoundMethodNode.class },
-                new Object[] { m.getHeader(), m.getMethodBodyBoundNode() });
+                new Object[] { null, null });
         }
         if (openMethod instanceof Algorithm) {
-            Algorithm m = (Algorithm) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AlgorithmBoundNode.class },
-                new Object[] { m.getHeader(), m.getBoundNode() });
+                new Object[] { null, null });
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
-            AlgorithmSubroutineMethod m = (AlgorithmSubroutineMethod) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class },
-                new Object[] { m.getHeader() });
+                new Object[] { null });
         }
         if (openMethod instanceof DecisionTable) {
-            DecisionTable m = (DecisionTable) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AMethodBasedNode.class },
-                new Object[] { m.getHeader(), m.getBoundNode() });
+                new Object[] { null, null });
         }
         if (openMethod instanceof ColumnMatch) {
-            ColumnMatch m = (ColumnMatch) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, ColumnMatchBoundNode.class },
-                new Object[] { m.getHeader(), m.getBoundNode() });
+                new Object[] { null, null });
         }
         if (openMethod instanceof Spreadsheet) {
-            Spreadsheet m = (Spreadsheet) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class,
                     SpreadsheetBoundNode.class,
-                    boolean.class }, new Object[] { m.getHeader(), m.getBoundNode(), m.isCustomSpreadsheetType() });
+                    boolean.class }, new Object[] { null, null, false });
         }
         if (openMethod instanceof TableMethod) {
-            TableMethod m = (TableMethod) openMethod;
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class,
                     IBoundMethodNode.class,
-                    MethodTableBoundNode.class }, new Object[] { m.getHeader(),
-                    m.getCompositeMethod().getMethodBodyBoundNode(),
-                    m.getBoundNode() });
+                    MethodTableBoundNode.class }, new Object[] { null,
+                    null,
+                    null });
         }
 
         if (openMethod instanceof JavaOpenMethod) {
-            JavaOpenMethod m = (JavaOpenMethod) openMethod;
-            return (IOpenMethod) enhancer.create(new Class[] { Method.class }, new Object[] { m.getMethod() });
+            return (IOpenMethod) enhancer.create(new Class[] { Method.class }, new Object[] { null });
         }
 
         /*
@@ -296,8 +290,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
             } else {
                 boolean differentVersionsOfTheTable = false;
                 if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
-                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) existedMethod);
-                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
+                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(existedMethod);
+                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(method);
                     differentVersionsOfTheTable = newMethodPropertiesKey.equals(existedMethodPropertiesKey);
                 }
                 if (differentVersionsOfTheTable) {
@@ -338,7 +332,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * In case we have several versions of one table we should add only the
      * newest or active version of table.
      * 
-     * @param method The methods that we are trying to add.
+     * @param newMethod The methods that we are trying to add.
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
      */
