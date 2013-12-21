@@ -57,10 +57,6 @@ public class InstantiationStrategyFactory {
         this.dependencyManagerFactory = new WebStudioDependencyManagerFactory(studio);
     }
 
-    public Set<Module> getModules() {
-        return moduleInstantiators.keySet();
-    }
-
     /**
      * Gets cached instantiation strategy for the module or creates it in cache.
      * 
@@ -69,7 +65,7 @@ public class InstantiationStrategyFactory {
      * @return Instantiation strategy for the module.
      */
     public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean singleModuleMode) {
-        ModuleInstantiator instantiator = singleModuleMode ? moduleInstantiators.get(module) : multiModuleInstantiators.get(module.getProject());
+        ModuleInstantiator instantiator = getFromCache(module, singleModuleMode);
 
         if (instantiator != null && singleModuleMode != isSingleModuleModeStrategy(instantiator.getInstantiationStrategy())) {
             // Changed single/multi module mode
@@ -79,11 +75,7 @@ public class InstantiationStrategyFactory {
 
         if (instantiator == null) {
             instantiator = createModuleInstantiator(module, singleModuleMode);
-            if (singleModuleMode) {
-                moduleInstantiators.put(module, instantiator);
-            } else {
-                multiModuleInstantiators.put(module.getProject(), instantiator);
-            }
+            putToCache(module, singleModuleMode, instantiator);
         }
 
         return instantiator.getInstantiationStrategy();
@@ -110,12 +102,13 @@ public class InstantiationStrategyFactory {
     }
 
     public XlsModuleSyntaxNode getModuleSyntaxNodeInMultiModuleProject(Module module)  {
-        IDependencyManager dependencyManager = multiModuleInstantiators.get(module.getProject()).getDependencyManager();
-        if (dependencyManager == null) {
-            ModuleInstantiator moduleInstantiator = createModuleInstantiator(module, false);
-            multiModuleInstantiators.put(module.getProject(), moduleInstantiator);
-            dependencyManager = moduleInstantiator.getDependencyManager();
+        ModuleInstantiator moduleInstantiator = getFromCache(module, false);
+        if (moduleInstantiator == null) {
+            moduleInstantiator = createModuleInstantiator(module, false);
+            putToCache(module, false, moduleInstantiator);
         }
+
+        IDependencyManager dependencyManager = moduleInstantiator.getDependencyManager();
 
         try {
             Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
@@ -125,6 +118,18 @@ public class InstantiationStrategyFactory {
             return xmi.getXlsModuleNode();
         } catch (OpenLCompilationException e) {
             throw new OpenLRuntimeException(e);
+        }
+    }
+
+    private ModuleInstantiator getFromCache(Module module, boolean singleModuleMode) {
+        return singleModuleMode ? moduleInstantiators.get(module) : multiModuleInstantiators.get(module.getProject());
+    }
+
+    private void putToCache(Module module, boolean singleModuleMode, ModuleInstantiator instantiator) {
+        if (singleModuleMode) {
+            moduleInstantiators.put(module, instantiator);
+        } else {
+            multiModuleInstantiators.put(module.getProject(), instantiator);
         }
     }
 
