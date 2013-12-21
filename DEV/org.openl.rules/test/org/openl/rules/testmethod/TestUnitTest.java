@@ -19,7 +19,7 @@ public class TestUnitTest {
 
         TestUnit unit = new TestUnit(test, testResult, null);
 
-        assertEquals(new DoubleValue(0.9), unit.getActualResult());
+        assertEquals(new DoubleValue(0.93), unit.getActualResult());
         assertEquals(0, unit.compareResult());
 
         // check that original value is not changed

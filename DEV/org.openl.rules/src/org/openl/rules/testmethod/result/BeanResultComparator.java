@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -48,14 +49,18 @@ public class BeanResultComparator implements TestResultComparator {
                 Object actualFieldValue = null;
                 try {
                     actualFieldValue = getFieldValue(actualResult, fieldToCompare);
+                } catch (OpenLRuntimeException e) {
+                    actualFieldValue = null;
                 } catch (NullPointerException e) {
                     actualFieldValue = null;
                 }
                 Object expectedFieldValue = null;
                 try {
                     expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
+                } catch (OpenLRuntimeException e) {
+                    actualFieldValue = null;
                 } catch (NullPointerException e) {
-                    expectedFieldValue = null;
+                    actualFieldValue = null;
                 }
 
                 if (this instanceof OpenLBeanResultComparator) {
@@ -70,7 +75,7 @@ public class BeanResultComparator implements TestResultComparator {
                 }
 
                 // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on compilation state.
-                if (expectedFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass() && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
+                if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
                     expectedFieldValue = convertor.parse((String) expectedFieldValue, null, null);
                 }

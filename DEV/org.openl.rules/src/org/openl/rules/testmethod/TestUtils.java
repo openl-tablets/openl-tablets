@@ -17,7 +17,8 @@ public final class TestUtils {
     
             for (int i = 0; i < testMethod.getColumnsCount(); i++) {
                 String columnName = testMethod.getColumnName(i);
-                if (columnName.startsWith(TestMethodHelper.CONTEXT_NAME)) {
+                if (columnName != null && columnName.startsWith(TestMethodHelper.CONTEXT_NAME)) {
+
                     params.add(new ParameterWithValueDeclaration(
                             columnName,
                             context.getValue(columnName.replace(TestMethodHelper.CONTEXT_NAME + ".", "")),

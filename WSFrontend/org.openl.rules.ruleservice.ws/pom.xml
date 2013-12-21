@@ -31,7 +31,6 @@
 					<warSourceDirectory>webapps</warSourceDirectory>
 					<warName>${war.name}-${project.version}</warName>
 					<packagingExcludes>
-						WEB-INF/lib/commons-logging*.jar,
 						WEB-INF/lib/geronimo-servlet*.jar,
 						WEB-INF/lib/poi-2.5.1-*.jar
 					</packagingExcludes>
