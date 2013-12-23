@@ -299,11 +299,25 @@
                 }
              }
 
+             // TODO Refactor
              function loadContent(page) {
                 var page = page || getCurrentPage();
 
                 if (page) {
-                    $j("#content").load(page);
+                    if (page.indexOf("table.xhtml") > -1) {
+                        $j.when(
+                            $j.get(page),
+                            $j.get(urlRewrite.prefix + "tableDetailsData.xhtml?" + $location.utils.getParamsQuery(page))
+                        ).done(function(res1, res2) {
+                             mainLayout.show("east");
+                             $j("#content").html(res1[0]);
+                             $j("#tableProperties").html(res2[0]);
+                             openTreeNode(page);
+                        });
+                    } else {
+                        $j("#content").load(page);
+                        mainLayout.hide("east");
+                    }
 
                     if (page.indexOf(HOME_PAGE) > -1 || page.indexOf("project.xhtml") > -1) {
                         toProjectsPanel();
@@ -319,16 +333,6 @@
                             header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
                         }
                         toRulesPanel(header);
-                    }
-
-                    if (page.indexOf("table.xhtml") > -1) {
-                        mainLayout.show("east");
-                        $j("#tableProperties").load(
-                                urlRewrite.prefix + "tableDetailsData.xhtml?"
-                                + $location.utils.getParamsQuery(page));
-                        openTreeNode(page);
-                    } else {
-                        mainLayout.hide("east");
                     }
                 } else {
                     ws.nav.home();
