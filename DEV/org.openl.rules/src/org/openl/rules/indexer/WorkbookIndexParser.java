@@ -1,7 +1,5 @@
 package org.openl.rules.indexer;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 
@@ -34,16 +32,12 @@ public class WorkbookIndexParser implements IIndexParser {
      */
     public XlsSheetSourceCodeModule[] parseWorkbook(XlsWorkbookSourceCodeModule wbSrc) {
 
-    	Workbook wb = wbSrc.getWorkbook();
-        int nsheets = wb.getNumberOfSheets();
+        int nsheets = wbSrc.getWorkbookLoader().getNumberOfSheets();
 
         XlsSheetSourceCodeModule[] sheets = new XlsSheetSourceCodeModule[nsheets];
 
         for (int i = 0; i < nsheets; i++) {
-            Sheet sheet = wb.getSheetAt(i);
-            String sheetName = wb.getSheetName(i);
-
-            sheets[i] = new XlsSheetSourceCodeModule(sheet, sheetName, wbSrc);
+            sheets[i] = new XlsSheetSourceCodeModule(i, wbSrc);
         }
 
         return sheets;

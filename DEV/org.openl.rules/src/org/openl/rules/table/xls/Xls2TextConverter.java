@@ -3,13 +3,9 @@ package org.openl.rules.table.xls;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.IGrid;
@@ -20,8 +16,6 @@ import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 
 public class Xls2TextConverter {
 
@@ -58,45 +52,27 @@ public class Xls2TextConverter {
     }
 
     public void convert(IOpenSourceCodeModule source, PrintWriter out) throws Exception {
-        InputStream is = null;
-        try {
-            is = source.getByteStream();
-            Workbook wb = WorkbookFactory.create(is);
+        XlsWorkbookSourceCodeModule srcIndex = new XlsWorkbookSourceCodeModule(source);
+        Workbook wb = srcIndex.getWorkbook();
 
-            XlsWorkbookSourceCodeModule srcIndex = new XlsWorkbookSourceCodeModule(source, wb);
+        int nsheets = wb.getNumberOfSheets();
 
-            int nsheets = wb.getNumberOfSheets();
+        for (int i = 0; i < nsheets; i++) {
+            String sheetName = wb.getSheetName(i);
 
-            for (int i = 0; i < nsheets; i++) {
-				Sheet sheet = wb.getSheetAt(i);
-                String sheetName = wb.getSheetName(i);
+            XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, srcIndex);
 
-                XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(sheet, sheetName, srcIndex);
+            XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
 
-                XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
+            printSheetName(sheetName, out);
 
-                printSheetName(sheetName, out);
+            IGridTable[] tables = xlsGrid.getTables();
 
-                IGridTable[] tables = xlsGrid.getTables();
-
-                for (int j = 0; j < tables.length; j++) {
-                    printTable(tables[j], out);
-
-                }
+            for (IGridTable table : tables) {
+                printTable(table, out);
 
             }
 
-        } catch (IOException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-
-            } catch (Throwable e) {
-                Log.error("Error trying close input stream:", e);
-            }
         }
 
     }

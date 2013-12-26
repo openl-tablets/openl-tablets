@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
@@ -51,7 +52,7 @@ public class XlsWorkbookSourceCodeModuleTest {
         doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
 
         try {
-            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src, workbook);
+            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src, new SimpleWorkbookLoader(workbook));
             module.saveAs(TEST_FILE_NAME);
         } catch (OutOfMemoryError ignored) {
         }

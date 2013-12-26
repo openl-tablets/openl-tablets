@@ -7,6 +7,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.util.export.IExporter;
 
@@ -53,9 +55,9 @@ public class XlsSheetGridHelper {
         if (StringUtils.isBlank(virtualExcelFile)) {
             virtualExcelFile = getDefaultFileName(sheet);
         }
-        XlsWorkbookSourceCodeModule mockWorkbookSource = 
-            new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(virtualExcelFile, null), sheet.getWorkbook());
-        XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(sheet, sheet.getSheetName(), mockWorkbookSource);
+        XlsWorkbookSourceCodeModule mockWorkbookSource =
+                new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(virtualExcelFile, null), new SimpleWorkbookLoader(sheet.getWorkbook()));
+        XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), mockWorkbookSource);
         
         return new XlsSheetGridModel(mockSheetSource);
     }
