@@ -3,7 +3,6 @@ package org.openl.rules.table;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -27,10 +26,7 @@ public class TablesTest extends TestCase {
 
         for (int i = 0; i < nsheets; i++) {
 
-            Sheet sheet = wb.getSheetAt(i);
-            String name = wb.getSheetName(i);
-
-            XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
+            XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(i, wbSrc);
 
             XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
