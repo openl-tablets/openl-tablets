@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.load;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -29,7 +30,8 @@ final class WorkbookLoadUtils {
         } catch (Exception e) {
             log.error("Error while preprocessing workbook", e);
 
-            String message = "Can't open source file or file is corrupted";
+            String message = "Can't open source file or file is corrupted: " +
+                    ExceptionUtils.getRootCause(e).getMessage();
             OpenLRuntimeException error = new OpenLRuntimeException(message, e);
             OpenLMessagesUtils.addError(error);
 
