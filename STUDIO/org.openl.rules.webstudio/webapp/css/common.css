@@ -467,10 +467,6 @@ fieldset {
 }
 
 table.properties td {
-    border-collapse: collapse;
-}
-
-table.properties td {
     padding: 4px 2px 4px 0;
     vertical-align: top;
 }
@@ -479,6 +475,37 @@ table.properties td:first-child {
     width: 110px;
     color: #777;
     padding-right: 5px;
+    font-family: Verdana, Helvetica, Arial !important; /* Rewrite RichFaces styles */
+}
+
+table.properties-form td {
+    padding: 1px 2px 1px 0;
+}
+
+table.properties-form td:first-child {
+    color: #444;
+    padding-top: 6px;
+}
+
+table.properties-form input[type="text"],
+table.properties-form select,
+table.properties-form textarea {
+    width: 170px;
+}
+
+table.properties-form textarea {
+    height: 120px;
+}
+
+table.properties-form.wide input[type="text"],
+table.properties-form.wide select,
+table.properties-form.wide textarea {
+    width: 315px;
+}
+
+table td.delimeter {
+    padding: 0 !important;
+    height: 10px;
 }
 
 ul.enum {
@@ -545,12 +572,14 @@ ul.enum li {
     margin-right: 10px;
 }
 
+/* Deprecated, use .properties instead */
 form .formfields {
     vertical-align: top;
     border: none;
     width: 99%;
 }
 
+/* Deprecated, use .properties instead */
 .label {
     color: #3f3f3f;
     padding-right: 5px;
@@ -934,6 +963,10 @@ form.standard table.buttonPanel {
 
 .rf-pp-shdw {
     display: none !important;
+}
+
+.rf-pp-cnt {
+    padding-top: 12px !important;
 }
 
 .rf-pp-cnt footer {

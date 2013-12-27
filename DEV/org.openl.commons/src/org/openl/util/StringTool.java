@@ -17,6 +17,8 @@ import org.apache.commons.lang.StringUtils;
 
 public class StringTool {
 
+    public static final String NEW_LINE = "\n";
+
     public interface Convertor {
         void convert(char c, int idx, StringBuilder out);
     }

@@ -13,6 +13,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -276,4 +277,15 @@ public abstract class FacesUtils {
     public static FacesMessage createInfoMessage(String summary, String detail) {
         return new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail);
     }
+
+    public static void throwValidationError(String message) {
+        throw new ValidatorException(new FacesMessage(message));
+    }
+
+    public static void validate(boolean condition, String message) {
+        if (!condition) {
+            throwValidationError(message);
+        }
+    }
+
 }
