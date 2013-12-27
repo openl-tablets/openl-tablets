@@ -12,12 +12,12 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.rules.table.xls.XlsCell;
 import org.openl.source.impl.FileSourceCodeModule;
 
 import static org.junit.Assert.*;
@@ -188,10 +188,9 @@ public class MergedRegionsTest {
         String secondValue = second.getStringValue();
         if (firstValue != null) {
             return firstValue.equals(secondValue);
-        } else if (secondValue != null) {
-            return secondValue.equals(firstValue);
+        } else {
+            return secondValue == null;
         }
-        return firstValue == secondValue;
     }
 
     private boolean isEqualCellsInPOI(Cell first, Cell second) {
@@ -208,10 +207,9 @@ public class MergedRegionsTest {
         Object secondValue = extractCellValue(second);
         if (firstValue != null) {
             return firstValue.equals(secondValue);
-        } else if (secondValue != null) {
-            return secondValue.equals(firstValue);
+        } else {
+            return secondValue == null;
         }
-        return firstValue == secondValue;
     }
 
     private Object extractCellValue(Cell cell) {
@@ -220,7 +218,7 @@ public class MergedRegionsTest {
             case Cell.CELL_TYPE_BLANK:
                 return null;
             case Cell.CELL_TYPE_BOOLEAN:
-                return Boolean.valueOf(cell.getBooleanCellValue());
+                return cell.getBooleanCellValue();
             case Cell.CELL_TYPE_NUMERIC:
                 return cell.getNumericCellValue();
             case Cell.CELL_TYPE_STRING:
@@ -256,8 +254,8 @@ public class MergedRegionsTest {
     @Test
     public void testDeleteRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(workbook.getWorkbook().getSheet("DeleteRows"),
-                "DeleteRows", workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
+                workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(8, tests.size());
@@ -272,8 +270,8 @@ public class MergedRegionsTest {
     @Test
     public void testInsertRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(workbook.getWorkbook().getSheet("InsertRows"),
-                "InsertRows", workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
+                workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
@@ -288,8 +286,8 @@ public class MergedRegionsTest {
     @Test
     public void testDeleteColumns() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(workbook.getWorkbook().getSheet("DeleteColumns"),
-                "DeleteColumns", workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
+                workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(6, tests.size());
@@ -304,8 +302,8 @@ public class MergedRegionsTest {
     @Test
     public void testInsertColumn() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(workbook.getWorkbook().getSheet("InsertColumns"),
-                "InsertColumns", workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
+                workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());

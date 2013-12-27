@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -66,11 +67,10 @@ public abstract class TableCreationWizard extends BaseWizard {
         XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
         if (newWorksheet) {
             Sheet sheet = module.getWorkbook().createSheet(getNewWorksheetName());
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, getNewWorksheetName(), module);
+            sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), module);
         } else {
             Sheet sheet = module.getWorkbook().getSheetAt(getWorksheetIndex());
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(
-                    getWorksheetIndex()), module);
+            sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), module);
         }
         return sourceCodeModule;
     }
