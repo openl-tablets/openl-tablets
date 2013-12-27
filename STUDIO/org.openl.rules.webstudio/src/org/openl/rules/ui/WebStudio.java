@@ -372,17 +372,25 @@ public class WebStudio {
             project = getProjectByName(projectName);
         }
         if (project != null) {
-            for (Module module : project.getModules()) {
-                if (module.getName().equals(moduleName)) {
-                    setCurrentModule(module);
-                    return;
-                }
+            Module module = getModule(project, moduleName);
+            if (module != null) {
+                setCurrentModule(module);
+                return;
             }
         }
 
         if (getAllProjects().size() > 0) {
             setCurrentModule(getAllProjects().get(0).getModules().get(0));
         }
+    }
+
+    public Module getModule(ProjectDescriptor project, String moduleName) {
+        for (Module module : project.getModules()) {
+            if (module.getName().equals(moduleName)) {
+                return module;
+            }
+        }
+        return null;
     }
 
     public String updateModule() {

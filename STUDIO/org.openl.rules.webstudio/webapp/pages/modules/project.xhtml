@@ -10,6 +10,15 @@
         .page img {
             vertical-align: -3px;
         }
+        .list-modules .list-item {
+            position: relative;
+        }
+        .list-modules .list-item .editable-link {
+            position: absolute;
+            top: 30%;
+            right: -30px;
+            padding-left: 11px;
+        }
         .list > .list-item .path {
             color: #999;
             padding-left: 20px;
@@ -29,7 +38,7 @@
                 <span>#{project.name}</span>
                 <h:panelGroup rendered="#{studio.model.editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
-                   onclick="showEditProjectPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                   onclick="editProject()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                 </h:panelGroup>
             </h1>
 
@@ -93,11 +102,11 @@
             <div class="block">
                 <h3>Modules</h3>
                 <div class="block-content">
-                    <div class="list">
+                    <div class="list list-modules">
                         <ui:repeat var="module" value="#{project.modules}" varStatus="i">
                             <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
 
-                            <div id="#{i.index}currentModule" class="list-item">
+                            <div id="#{i.index}currentModule" class="list-item editable">
                                 <div>
                                     <h:form style="display: inline">
                                         <a4j:commandLink action="#{mainBean.selectModule}"
@@ -136,30 +145,13 @@
                                     </h:panelGroup>
                                 </div>
                                 </h:panelGroup>
+                                <h:panelGroup rendered="#{studio.model.editable}">
+                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link"
+                                        onclick="editModule({name:'#{module.name}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                            src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                                </h:panelGroup>
                             </div>
-
-                            <h:panelGroup rendered="#{editable}">
-                                <h:inputText  maxlength="100" size="40" value="#{module.name}" />
-                                <h:selectOneMenu  value="#{module.type}">
-                                    <ui:remove>
-                                        <f:ajax event="change" execute="#{i.index}currentModule" render="#{i.index}currentModule" />
-                                    </ui:remove>
-                                    <f:selectItem itemValue="STATIC" itemLabel="Static" />
-                                    <f:selectItem itemValue="DYNAMIC" itemLabel="Dynamic" />
-                                    <f:selectItem itemValue="API" itemLabel="API" />
-                                </h:selectOneMenu>
-                                <h:inputText maxlength="100" size="40" value="#{module.classname}" rendered="#{needJavaClassName}"/>
-                                <h:inputText maxlength="100" size="40" value="#{module.rulesRootPath.path}" />
-                                <h:inputText maxlength="100" size="40" value="#{module.methodFilter.includes}" />
-                                <h:inputText maxlength="100" size="40" value="#{module.methodFilter.excludes}" />
-
-                                <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteModule(module)}">
-                                    <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
-                                </a4j:commandLink>
-                            </h:panelGroup>
                         </ui:repeat>
-                        <a4j:commandLink action="#{repositoryProjectRulesConfig.addModule}" rendered="#{editable}"
-                            value="Add new module" title="Add new module"/>
                     </div>
                 </div>
             </div>
@@ -170,7 +162,7 @@
                     <span>Dependencies</span>
                     <h:panelGroup rendered="#{studio.model.editable}">
                         <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
-                           onclick="showManageDependenciesPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                           onclick="manageDependencies()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
@@ -201,7 +193,7 @@
                     <span>Sources</span>
                     <h:panelGroup rendered="#{studio.model.editable}">
                         <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
-                           onclick="showManageSourcesPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                           onclick="manageSources()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
@@ -230,23 +222,88 @@
         </f:facet>
 
         <h:form prependId="false" id="editProjectForm">
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                <span class="required">Name</span>
-                <h:inputText id="projectName" value="#{project.name}" style="width: 340px"
-                    validator="#{projectBean.validateProjectName}" />
-                <h:outputText />
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="projectName" styleClass="error" />
-                </a4j:outputPanel>
-                <span>Description</span>
-                <h:inputTextarea id="projectDescription" value="#{project.comment}" style="width:340px;height:150px" />
-            </h:panelGrid>
+            <table class="properties properties-form wide">
+                <tr>
+                    <td class="required">Name</td>
+                    <td><h:inputText id="projectName" value="#{project.name}"
+                        validator="#{projectBean.validateProjectName}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="projectName" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px" /></td>
+                </tr>
+            </table>
 
             <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                     styleClass="button-primary"
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo('project.xhtml?name=' + encodeURIComponent('#{project.name}'), true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <rich:popupPanel id="editModulePopup" width="470" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Edit Module" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                 onclick="ws.ui.hide('editModulePopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false" id="editModuleForm">
+            <input type="hidden" id="moduleNameOld" name="moduleNameOld" />
+
+            <table class="properties properties-form wide">
+                <tr>
+                    <td class="required">Name</td>
+                    <td><h:inputText id="moduleName"
+                        validator="#{projectBean.validateModuleName}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="moduleName" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td class="required">Type</td>
+                    <td>
+                        <h:selectOneMenu id="moduleType">
+                            <f:selectItem itemValue="API" itemLabel="API" />
+                            <f:selectItem itemValue="STATIC" itemLabel="Static" />
+                            <f:selectItem itemValue="DYNAMIC" itemLabel="Dynamic" />
+                        </h:selectOneMenu>
+                    </td>
+                </tr>
+                <tr id="classRow">
+                    <td class="required">Class</td>
+                    <td><h:inputText id="moduleClass" /></td>
+                </tr>
+                <tr><td class="delimeter"></td></tr>
+                <tr>
+                    <td>Included Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleIncludes" /></td>
+                </tr>
+                <tr>
+                    <td>Excluded Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleExcludes" /></td>
+                </tr>
+            </table>
+
+            <footer>
+                <a4j:commandButton id="editModuleBtn" value="Update" action="#{projectBean.editModule}"
+                    styleClass="button-primary"
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');reloadCurrent()}" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />
             </footer>
         </h:form>
     </rich:popupPanel>
@@ -309,7 +366,7 @@
     </rich:popupPanel>
 
     <script>
-      //<![CDATA[
+    //<![CDATA[
         var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
         var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
 
@@ -318,7 +375,7 @@
 
         var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
 
-        function showEditProjectPopup() {
+        function editProject() {
             var btn = $j("#editProjectBtn");
 
             btn.prop("disabled", true);
@@ -335,7 +392,46 @@
             })
         }
 
-        function showManageDependenciesPopup() {
+        function editModule(module) {
+            var btn = $j("#editModuleBtn");
+
+            btn.prop("disabled", true);
+
+            $j("#moduleNameOld").val(module.name);
+            $j("#moduleName").val(module.name);
+            $j("#moduleType").val(module.type);
+            $j("#moduleClass").val(module.class);
+            $j('#classRow').toggle(module.type != 'API');
+            if (module.includes) {
+                module.includes = module.includes.substr(1, module.includes.length - 2).replace(/, /g, "\n");
+                $j("#moduleIncludes").val(module.includes);
+            }
+            if (module.excludes) {
+                module.excludes = module.excludes.substr(1, module.excludes.length - 2).replace(/, /g, "\n");
+                $j("#moduleExcludes").val(module.excludes);
+            }
+
+            $j("#editModuleForm span.error").remove();
+
+            $j("#editModuleForm .properties :input").on("keyup change", function() {
+                var changed =
+                        module.name != $j("#moduleName").val()
+                     || module.type != $j("#moduleType").val()
+                     || module.class != $j("#moduleClass").val()
+                     || module.includes != $j("#moduleIncludes").val()
+                     || module.excludes != $j("#moduleExcludes").val();
+
+                btn.prop("disabled", !changed);
+
+                if (this.id == "moduleType") {
+                    $j('#classRow').toggle(this.value != 'API');
+                }
+            })
+
+            ws.ui.show("editModulePopup");
+        }
+
+        function manageDependencies() {
             var btn = $j("#editDependenciesBtn");
 
             btn.prop("disabled", true);
@@ -379,7 +475,7 @@
             ws.ui.show("manageDependenciesPopup");
         }
 
-        function showManageSourcesPopup() {
+        function manageSources() {
             var btn = $j("#editSourcesBtn");
 
             btn.prop("disabled", true);
@@ -392,7 +488,7 @@
             })
         }
 
-      //]]>
+    //]]>
     </script>
 
     </h:panelGroup>

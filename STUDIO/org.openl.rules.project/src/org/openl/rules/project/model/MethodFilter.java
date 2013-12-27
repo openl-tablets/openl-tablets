@@ -24,21 +24,25 @@ public class MethodFilter {
         this.includes = includes;
     }
 
-    public void addIncludePattern(String pattern) {
-        if (includes == null) {
-            includes = new HashSet<String>();
-        }
-        if (pattern != null) {
-            includes.add(pattern);
+    public void addIncludePattern(String ... patterns) {
+        if (patterns != null && patterns.length > 0) {
+            if (includes == null) {
+                includes = new HashSet<String>();
+            }
+            for (String pattern : patterns) {
+                includes.add(pattern);
+            }
         }
     }
 
-    public void addExcludePattern(String pattern) {
-        if (excludes == null) {
-            excludes = new HashSet<String>();
-        }
-        if (pattern != null) {
-            excludes.add(pattern);
+    public void addExcludePattern(String ... patterns) {
+        if (patterns != null && patterns.length > 0) {
+            if (excludes == null) {
+                excludes = new HashSet<String>();
+            }
+            for (String pattern : patterns) {
+                excludes.add(pattern);
+            }
         }
     }
 

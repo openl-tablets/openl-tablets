@@ -1,22 +1,17 @@
 package org.openl.rules.webstudio.web;
 
 import com.rits.cloning.Cloner;
-import com.sdicons.json.model.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectDependency;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.ui.Message;
@@ -25,24 +20,21 @@ import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+
+    private WebStudio studio = WebStudioUtils.getWebStudio();
 
     private final Log log = LogFactory.getLog(ProjectBean.class);
 
@@ -51,7 +43,6 @@ public class ProjectBean {
 
     public void init() throws Exception {
         String projectName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_NAME);
-        WebStudio studio = WebStudioUtils.getWebStudio();
         studio.selectProject(projectName);
     }
 
@@ -69,7 +60,6 @@ public class ProjectBean {
 
     public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {
         dependencies = new ArrayList<ListItem<ProjectDependencyDescriptor>>();
-        WebStudio studio = WebStudioUtils.getWebStudio();
 
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         List<ProjectDependencyDescriptor> projectDependencies = currentProject.getDependencies();
@@ -90,13 +80,12 @@ public class ProjectBean {
     }
 
     public String getSources() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         List<PathEntry> sourceList = currentProject.getClasspath();
         if (sourceList != null) {
             sources  = "";
             for (PathEntry source : sourceList) {
-                sources += source.getPath() + "\n";
+                sources += source.getPath() + StringTool.NEW_LINE;
             }
         }
 
@@ -109,38 +98,77 @@ public class ProjectBean {
 
     // TODO Move messages to ValidationMessages.properties
     public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
-        if (StringUtils.isBlank((String) value)) {
-            throw new ValidatorException(
-                    new FacesMessage("Can not be empty"));
+        String name = (String) value;
+
+        FacesUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+
+        if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
+            FacesUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
+            FacesUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
         }
+    }
 
-        if  (!WebStudioUtils.getWebStudio().getCurrentProjectDescriptor().getName().equals((String) value)) {
-            if (!NameChecker.checkName((String) value)) {
-                throw new ValidatorException(
-                        new FacesMessage(NameChecker.BAD_PROJECT_NAME_MSG));
-            }
+    // TODO Move messages to ValidationMessages.properties
+    public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
+        String newName = (String) value;
+        String oldName = FacesUtils.getRequestParameter("moduleNameOld");
 
-            if (WebStudioUtils.getWebStudio().isProjectExists((String) value)) {
-                throw new ValidatorException(
-                        new FacesMessage("Project with such name already exists"));
-            }
+        FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+
+        if (!oldName.equals(newName)) {
+            FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+
+            Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
+            FacesUtils.validate(module == null, "Module with such name already exists");
         }
     }
 
     public void editName() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
 
         clean(newProjectDescriptor);
+        save(newProjectDescriptor);
+    }
 
+    public void editModule() {
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+
+        String oldName = FacesUtils.getRequestParameter("moduleNameOld");
+        String name = FacesUtils.getRequestParameter("moduleName");
+        String type = FacesUtils.getRequestParameter("moduleType");
+        String clazz = FacesUtils.getRequestParameter("moduleClass");
+        String includes = FacesUtils.getRequestParameter("moduleIncludes");
+        String excludes = FacesUtils.getRequestParameter("moduleExcludes");
+
+        Module module = studio.getModule(newProjectDescriptor, oldName);
+        module.setName(name);
+        module.setType(ModuleType.valueOf(type));
+        if (ModuleType.valueOf(type) != ModuleType.API) {
+            module.setClassname(clazz);
+        }
+
+        MethodFilter filter = module.getMethodFilter();
+        if (filter == null) {
+            filter = new MethodFilter();
+            module.setMethodFilter(filter);
+        }
+        filter.setIncludes(null);
+        filter.setExcludes(null);
+
+        if (StringUtils.isNotBlank(includes)) {
+            filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
+        }
+        if (StringUtils.isNotBlank(excludes)) {
+            filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+        }
+
+        clean(newProjectDescriptor);
         save(newProjectDescriptor);
     }
 
     public void editDependencies() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
 
@@ -161,7 +189,7 @@ public class ProjectBean {
 
     public void editSources() {
         List<PathEntry> sourceList = new ArrayList<PathEntry>();
-        String[] sourceArray = sources.split("\n");
+        String[] sourceArray = sources.split(StringTool.NEW_LINE);
 
         if (ArrayUtils.isNotEmpty(sourceArray)) {
             for (String source : sourceArray) {
@@ -171,8 +199,6 @@ public class ProjectBean {
                 }
             }
         }
-
-        WebStudio studio = WebStudioUtils.getWebStudio();
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
@@ -184,8 +210,9 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
+
+
     private void save(ProjectDescriptor projectDescriptor) {
-        WebStudio studio = WebStudioUtils.getWebStudio();
         UserWorkspaceProject project = studio.getCurrentProject();
 
         final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
@@ -238,6 +265,10 @@ public class ProjectBean {
                 if (CollectionUtils.isEmpty(methodFilter.getIncludes())
                         && CollectionUtils.isEmpty(methodFilter.getExcludes())) {
                     module.setMethodFilter(null);
+                } else if (CollectionUtils.isEmpty(methodFilter.getIncludes())) {
+                    methodFilter.setIncludes(null);
+                } else if (CollectionUtils.isEmpty(methodFilter.getExcludes())) {
+                    methodFilter.setExcludes(null);
                 }
             }
         }
