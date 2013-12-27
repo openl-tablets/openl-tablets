@@ -7,7 +7,14 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1037,8 +1044,18 @@ public class ProjectModel {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
         for (int i = 0; i < tests.length; i++) {
-            results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
+            if (!isParallel) {
+                results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
+            }else {
+                results[i] = new TestSuite(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
+                    @Override
+                    public IRuntimeEnv buildIRuntimeEnv() {
+                        return new SimpleVM().getRuntimeEnv();
+                    }
+                }, 1);
+            }
         }
         return results;
     }
@@ -1046,9 +1063,10 @@ public class ProjectModel {
     public TestUnitsResults[] runAllTests(String forTable) {
         IOpenMethod[] tests = getTestMethods(forTable);
         if (tests != null) {
+            boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]));
+                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]), isParallel);
             }
             return results;
         }
@@ -1057,7 +1075,8 @@ public class ProjectModel {
 
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        return runTest(new TestSuite(testMethod));
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        return runTest(new TestSuite(testMethod), isParallel);
     }
 
     public TestUnitsResults runTest(String testUri, int... caseNumbers) {
@@ -1073,14 +1092,23 @@ public class ProjectModel {
         } else { // Method without cases
             test = new TestSuite(new TestDescription(testMethod, new Object[] {}));
         }
-
-        return runTest(test);
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        return runTest(test, isParallel);
     }
 
-    public TestUnitsResults runTest(TestSuite test) {
+    public TestUnitsResults runTest(TestSuite test, boolean isParallel) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        return test.invoke(target, env, 1);
+        if (!isParallel){
+            return test.invoke(target, env, 1);
+        }else {
+            return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
+                @Override
+                public IRuntimeEnv buildIRuntimeEnv() {
+                    return new SimpleVM().getRuntimeEnv();
+                }
+            }, 1);
+        }
     }
 
     public TestUnit runTestCase(String testUri, String caseNumber) {
@@ -1218,7 +1246,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
-                runTest(testSuite);
+                runTest(testSuite,false);
             } finally {
                 Tracer.setTracer(null);
             }

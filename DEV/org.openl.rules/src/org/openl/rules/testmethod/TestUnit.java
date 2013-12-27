@@ -1,7 +1,5 @@
 package org.openl.rules.testmethod;
 
-import org.openl.meta.DoubleValue;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 
 /**
