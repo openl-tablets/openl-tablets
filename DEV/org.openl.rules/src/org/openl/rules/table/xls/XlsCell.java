@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.lang.xls.load.CellLoader;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -27,23 +28,23 @@ public class XlsCell implements ICell {
     private int column;
     private int row;
     private IGridRegion region;
-    private Cell cell;
+    private CellLoader cellLoader;
 
     private int width = 1;
     private int height = 1;
 
     private XlsSheetGridModel gridModel;
-    
+
     /**
      * Usually there is a parameter duplication: the same column and row exist in cell object.
      * But sometimes cell is null, so we will have just the coordinates of the cell.
      */
-    private XlsCell(int column, int row, IGridRegion region, Cell cell) {
+    private XlsCell(int column, int row, IGridRegion region, CellLoader cellLoader) {
         this.column = column;
         this.row = row;
         this.region = region;
-        this.cell = cell;
-        
+        this.cellLoader = cellLoader;
+
         if (region != null && region.getLeft() == column && region.getTop() == row) {
             this.width = region.getRight() - region.getLeft() + 1;
             this.height = region.getBottom() - region.getTop() + 1;
@@ -52,11 +53,12 @@ public class XlsCell implements ICell {
 
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
         this(column, row, gridModel.getRegionContaining(column, row),
-                PoiExcelHelper.getCell(column, row, gridModel.getSheetSource().getSheet()));
+                gridModel.getSheetSource().getSheetLoader().getCellLoader(column, row));
         this.gridModel = gridModel;
     }
 
     public ICellStyle getStyle() {
+        Cell cell = getCell();
         if (cell == null) return null;
         return getCellStyle(cell);
     }
@@ -82,6 +84,7 @@ public class XlsCell implements ICell {
     }
 
     public ICellFont getFont() {
+        Cell cell = getCell();
         if (cell == null) return null;
         Font font = gridModel.getSheetSource().getSheet().getWorkbook().getFontAt(cell.getCellStyle().getFontIndex());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
@@ -104,9 +107,10 @@ public class XlsCell implements ICell {
     }
 
     public Object getObjectValue() {
+        Cell cell = getCell();
         if (cell == null && region == null) {
             return null;
-        } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.                
+        } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.
             return extractValueFromRegion();
         } else {
             return extractCellValue(true);
@@ -115,6 +119,7 @@ public class XlsCell implements ICell {
 
     @SuppressWarnings("deprecation")
     public void setObjectValue(Object value) {
+        Cell cell = getCell();
         if (value != null) {
             boolean writeCellMetaInfo = true;
 
@@ -123,7 +128,7 @@ public class XlsCell implements ICell {
             if (gridModel.hasEnumDomainMetaInfo(column, row)) {
                 writeCellMetaInfo = false;
             }
-            
+
             // Don't write meta info for predefined String arrays to avoid
             // removing Range Domain meta info.
             if (gridModel.hasRangeDomainMetaInfo(column, row)) {
@@ -150,17 +155,17 @@ public class XlsCell implements ICell {
     }
 
     public void setStringValue(String value) {
-        cell.setCellValue(value);
+        getCell().setCellValue(value);
     }
 
     public String getFormattedValue() {
         String formattedValue = null;
-        
+
         Object value = getObjectValue();
 
         if (value != null) {
             IFormatter cellDataFormatter = getDataFormatter();
-    
+
             if (cellDataFormatter != null) {
                 formattedValue = cellDataFormatter.format(value);
             }
@@ -196,7 +201,7 @@ public class XlsCell implements ICell {
         return false;
     }
 
-    private Object extractValueFromRegion() {   
+    private Object extractValueFromRegion() {
         // If the top left cell is the current cell instance, we just extract it`s value.
         // In other case get string value of top left cell of the region.
         if (isCurrentCellATopLeftCellInRegion()) {
@@ -204,10 +209,11 @@ public class XlsCell implements ICell {
         } else {
             ICell topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getObjectValue();
-        }            
+        }
     }
 
     private Object extractCellValue(boolean useCachedValue) {
+        Cell cell = getCell();
         if (cell != null) {
             int type = cell.getCellType();
             if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
@@ -216,7 +222,7 @@ public class XlsCell implements ICell {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
                 case Cell.CELL_TYPE_BOOLEAN:
-                    return Boolean.valueOf(cell.getBooleanCellValue());
+                    return cell.getBooleanCellValue();
                 case Cell.CELL_TYPE_NUMERIC:
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue();
@@ -240,16 +246,16 @@ public class XlsCell implements ICell {
     }
 
     public String getFormula() {
-        if (cell == null && region == null) {
+        if (getCell() == null && region == null) {
             return null;
-        } else if (region != null) {                
+        } else if (region != null) {
             return getFormulaFromRegion();
         } else {
             return cellFormula();
         }
     }
 
-    private String getFormulaFromRegion() {            
+    private String getFormulaFromRegion() {
         if (isCurrentCellATopLeftCellInRegion()) {
             return cellFormula();
         }
@@ -258,10 +264,12 @@ public class XlsCell implements ICell {
     }
 
     private String cellFormula() {
+        Cell cell = getCell();
         return cell.getCellType() == IGrid.CELL_TYPE_FORMULA ? cell.getCellFormula() : null;
     }
 
     public int getType() {
+        Cell cell = getCell();
         if (cell == null && region == null) {
             return Cell.CELL_TYPE_BLANK;
         } else if (region != null) {
@@ -269,12 +277,12 @@ public class XlsCell implements ICell {
         } else {
             return cell.getCellType();
         }
-        
+
     }
 
     private int getTypeFromRegion() {
         if (isCurrentCellATopLeftCellInRegion()) {
-            return cell.getCellType();
+            return getCell().getCellType();
         }
         ICell topLeftCell = getTopLeftCellFromRegion();
         return topLeftCell.getType();
@@ -289,13 +297,15 @@ public class XlsCell implements ICell {
     }
 
     public double getNativeNumber() {
+        Cell cell = getCell();
         if (cell == null) {
             return 0;
         }
         return cell.getNumericCellValue();
     }
-        
+
     public int getNativeType() {
+        Cell cell = getCell();
         if (cell == null) {
             return IGrid.CELL_TYPE_BLANK;
         }
@@ -310,13 +320,14 @@ public class XlsCell implements ICell {
     public boolean hasNativeType() {
         return true;
     }
-    
+
     /**
      * @return date value if cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is formatted in excel as date.<br>
      * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      * @throws IllegalStateException is the cell is of type {@link IGrid#CELL_TYPE_STRING}
      */
     public Date getNativeDate() {
+        Cell cell = getCell();
         if (cell == null) {
             return null;
         }
@@ -341,6 +352,7 @@ public class XlsCell implements ICell {
     }
 
     public ICellComment getComment() {
+        Cell cell = getCell();
         if (cell != null) {
             Comment comment = cell.getCellComment();
             if (comment != null) {
@@ -354,7 +366,10 @@ public class XlsCell implements ICell {
     }
 
     public Cell getXlsCell() {
-        return cell;
+        return getCell();
     }
 
+    private Cell getCell() {
+        return cellLoader.getCell();
+    }
 }

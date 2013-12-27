@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,14 +21,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
+import org.openl.rules.lang.xls.load.*;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
@@ -46,47 +44,28 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         }
     };
 
-    private Workbook workbook;
+    private WorkbookLoader workbookLoader;
 
-	private Set<Short> wbColors = new TreeSet<Short>();
+    private Set<Short> wbColors = new TreeSet<Short>();
 
     private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
     
     private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
     
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
-        this(src, loadWorkbook(src));
+        this(src, WorkbookLoaders.getWorkbookLoader(src));
     }
 
-    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
+    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, WorkbookLoader workbookLoader) {
         super(src);
-        this.workbook = workbook;
-        if (workbook instanceof HSSFWorkbook) {
+        this.workbookLoader = workbookLoader;
+        if (getWorkbook() instanceof HSSFWorkbook) {
             initWorkbookColors();
         }
     }
 
-    private static Workbook loadWorkbook(IOpenSourceCodeModule src) {
-    	final Log log = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
-        InputStream is = null;
-        try {
-            is = src.getByteStream();
-            return WorkbookFactory.create(is);
-        } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-
-            } catch (Throwable e) {
-                log.error("Error trying close input stream:", e);
-            }
-        }
-    }
-
     private void initWorkbookColors() {
+        Workbook workbook = getWorkbook();
         short numStyles = workbook.getNumCellStyles();
         for (short i = 0; i < numStyles; i++) {
             CellStyle cellStyle = workbook.getCellStyleAt(i);
@@ -136,14 +115,18 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     public Workbook getWorkbook() {
-        return workbook;
+        return workbookLoader.getWorkbook();
+    }
+
+    public WorkbookLoader getWorkbookLoader() {
+        return workbookLoader;
     }
 
     /**
      * Synch object for file accessing. It is necessary to prevent getting
      * isModified info before save operation will be finished.
      */
-    private Object fileAccessLock = new Object();
+    private final Object fileAccessLock = new Object();
 
     public File getSourceFile() {
         synchronized (fileAccessLock) {
@@ -200,7 +183,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         }
 
         OutputStream fileOut = new DeferredCreateFileOutputStream(fileName);
-        workbook.write(fileOut);
+        getWorkbook().write(fileOut);
         fileOut.close();
 
         for (XlsWorkbookListener wl : listeners) {

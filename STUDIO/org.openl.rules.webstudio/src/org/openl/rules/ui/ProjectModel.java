@@ -33,6 +33,8 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
+import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -1163,6 +1165,16 @@ public class ProjectModel {
             return;
         }
 
+        if (moduleInfo != this.moduleInfo) {
+            // Current module changed - mark the previous one as read only
+            XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode.get();
+            if (moduleSyntaxNode != null) {
+                for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
+                    workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
+                }
+            }
+        }
+
         if (reloadType != ReloadType.NO) {
             instantiationStrategyFactory.removeCachedModule(moduleInfo);
             uriTableCache.clear();
@@ -1210,7 +1222,24 @@ public class ProjectModel {
             } else if (reloadType != ReloadType.NO) {
                 instantiationStrategy.reset();
             }
+
+            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
+            WorkbookLoaders.setCurrentFactory(factory);
+            factory.disallowUnload();
+
             compiledOpenClass = instantiationStrategy.compile();
+
+            factory.allowUnload();
+            WorkbookLoaders.resetCurrentFactory();
+
+            // Edit current module, others should be read only
+            // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
+            for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
+                XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
+                boolean currentModule = module.getSourceFile().getName().equals(
+                        FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
+                module.getWorkbookLoader().setCanUnload(!currentModule);
+            }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
 

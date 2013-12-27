@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -26,12 +24,7 @@ public class XlsCellTest {
         FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/XlsCellTest.xls", null);
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
-        Workbook wb = wbSrc.getWorkbook();
-
-        Sheet sheet = wb.getSheetAt(0);
-        String name = wb.getSheetName(0);
-
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
+        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         xsGrid = new XlsSheetGridModel(sheetSrc);
     }
