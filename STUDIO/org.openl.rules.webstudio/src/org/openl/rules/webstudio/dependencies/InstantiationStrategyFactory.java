@@ -73,6 +73,14 @@ public class InstantiationStrategyFactory {
             instantiator = null;
         }
 
+        if (!singleModuleMode && isOpenedAsSingleMode(module)) {
+            // Changed from single to multi module mode - remove old cached modules
+            for (Module m : module.getProject().getModules()) {
+                removeCachedModule(m);
+            }
+            instantiator = null;
+        }
+
         if (instantiator == null) {
             instantiator = createModuleInstantiator(module, singleModuleMode);
             putToCache(module, singleModuleMode, instantiator);
@@ -119,6 +127,19 @@ public class InstantiationStrategyFactory {
         } catch (OpenLCompilationException e) {
             throw new OpenLRuntimeException(e);
         }
+    }
+
+    public boolean isOpenedAsSingleMode(Module module) {
+        for (Module m : module.getProject().getModules()) {
+            if (moduleInstantiators.containsKey(m)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isOpenedAsMultiMode(Module module) {
+        return multiModuleInstantiators.containsKey(module.getProject());
     }
 
     private ModuleInstantiator getFromCache(Module module, boolean singleModuleMode) {
