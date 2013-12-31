@@ -52,6 +52,7 @@ import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
+import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -126,8 +127,6 @@ public class ProjectModel {
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correct place
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
-
-    private boolean singleModuleMode = true;
 
     public boolean hasTestSuitesToRun() {
         return testSuitesToRun.size() > 0;
@@ -799,7 +798,7 @@ public class ProjectModel {
                 if (xsn != null)
                     return xsn;
 
-                if (singleModuleMode) {
+                if (isSingleModuleMode()) {
                     XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                     xsn = xmi.getXlsModuleNode();
                 } else {
@@ -813,7 +812,7 @@ public class ProjectModel {
 
     /**
      * Returns if current project is read only.
-     * 
+     *
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
@@ -1161,6 +1160,10 @@ public class ProjectModel {
 
     // TODO Remove "throws Exception"
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
+        setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
+    }
+
+    public void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
         }
@@ -1405,11 +1408,11 @@ public class ProjectModel {
     }
 
     public boolean isSingleModuleMode() {
-        return singleModuleMode;
+        return !isVirtualWorkbook();
     }
 
-    public void setSingleModuleMode(boolean singleModuleMode) {
-        this.singleModuleMode = singleModuleMode;
+    public void setSingleModuleMode(boolean singleModuleMode) throws Exception {
+        setModuleInfo(moduleInfo, ReloadType.SINGLE, singleModuleMode);
     }
 
     private static class EditXlsModificationChecker implements ModificationChecker {
@@ -1503,5 +1506,28 @@ public class ProjectModel {
     public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
         TableSyntaxNode tsn = getNode(uri);
         return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
+    }
+
+    private boolean isVirtualWorkbook(){
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        return xmi.getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
+    }
+
+    /**
+     * Determine if we should open in single module mode or multi module mode
+     *
+     * @param module opening module
+     * @return if true - single module mode, if false - multi module mode
+     */
+    private boolean shouldOpenInSingleMode(Module module) {
+        if (module != null) {
+            if (instantiationStrategyFactory.isOpenedAsSingleMode(module)) {
+                return true;
+            }
+            if (instantiationStrategyFactory.isOpenedAsMultiMode(module)) {
+                return false;
+            }
+        }
+        return studio.isSingleModuleModeByDefault();
     }
 }
