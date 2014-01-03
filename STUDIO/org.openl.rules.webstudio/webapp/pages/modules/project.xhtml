@@ -13,7 +13,7 @@
         .list-modules .list-item {
             position: relative;
         }
-        .list-modules .list-item .editable-link {
+        .list-modules .list-item .editable-link-inner {
             position: absolute;
             top: 30%;
             right: -30px;
@@ -99,14 +99,20 @@
                 </div>
             </div>
 
-            <div class="block">
-                <h3>Modules</h3>
+            <div class="block editable">
+                <h3>
+                    <span>Modules</span>
+                    <h:panelGroup rendered="#{studio.model.editable}">
+                        <a href="javascript:void(0)" title="Add Module" class="editable-link"
+                           onclick="addModule()"><img src="webresource/images/add.png" style="opacity:0.4" /></a>
+                    </h:panelGroup>
+                </h3>
                 <div class="block-content">
                     <div class="list list-modules">
                         <ui:repeat var="module" value="#{project.modules}" varStatus="i">
                             <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
 
-                            <div id="#{i.index}currentModule" class="list-item editable">
+                            <div id="#{i.index}currentModule" class="list-item editable-inner">
                                 <div>
                                     <h:form style="display: inline">
                                         <a4j:commandLink action="#{mainBean.selectModule}"
@@ -146,9 +152,12 @@
                                 </div>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{studio.model.editable}">
-                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link"
-                                        onclick="editModule({name:'#{module.name}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
+                                        onclick="editModule({name:'#{module.name}',path:'#{projectBean.getModulePath(module)}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                                    <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
+                                       onclick="removeModule('#{module.name}')" style="right:-55px;padding-left: 5px"><img
+                                            src="webresource/images/remove.png" style="opacity:0.4" /></a>
                                 </h:panelGroup>
                             </div>
                         </ui:repeat>
@@ -251,7 +260,7 @@
 
     <rich:popupPanel id="editModulePopup" width="470" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Edit Module" />
+            <h:outputText id="moduleHeader" value="Edit Module" />
         </f:facet>
 
         <f:facet name="controls">
@@ -272,6 +281,17 @@
                     <td></td>
                     <td><a4j:outputPanel ajaxRendered="true">
                         <h:message for="moduleName" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td class="required">Path</td>
+                    <td><h:inputText id="modulePath"
+                        validator="#{projectBean.validateModulePath}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="modulePath" styleClass="error" />
                     </a4j:outputPanel></td>
                 </tr>
                 <tr>
@@ -300,10 +320,36 @@
             </table>
 
             <footer>
-                <a4j:commandButton id="editModuleBtn" value="Update" action="#{projectBean.editModule}"
+                <a4j:commandButton id="editModuleBtn" value="Save" action="#{projectBean.editModule}"
                     styleClass="button-primary"
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');reloadCurrent()}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <rich:popupPanel id="removeModulePopup" width="290" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Remove Module" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="ws.ui.hide('removeModulePopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false">
+            <input type="hidden" id="moduleToRemove" name="moduleToRemove" />
+            <div>
+                <br />
+                Are you sure you want to remove this module?
+                <br /><br />
+            </div>
+            <footer>
+                <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
+                    styleClass="button-primary"
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');reloadCurrent();message('Module was removed successfully!', 7000);}" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');" />
             </footer>
         </h:form>
     </rich:popupPanel>
@@ -392,30 +438,56 @@
             })
         }
 
+        function addModule() {
+            editModule();
+        }
+
+        function removeModule(module) {
+            $j("#moduleToRemove").val(module);
+            ws.ui.show("removeModulePopup");
+        }
+
         function editModule(module) {
-            var btn = $j("#editModuleBtn");
+            var add = !module;
 
-            btn.prop("disabled", true);
+            if (add) {
+                module = {
+                    name: "",
+                    path: "",
+                    type: "API",
+                    class: "",
+                    includes: "",
+                    excludes: ""
+                };
+            }
 
-            $j("#moduleNameOld").val(module.name);
-            $j("#moduleName").val(module.name);
-            $j("#moduleType").val(module.type);
-            $j("#moduleClass").val(module.class);
-            $j('#classRow').toggle(module.type != 'API');
             if (module.includes) {
                 module.includes = module.includes.substr(1, module.includes.length - 2).replace(/, /g, "\n");
-                $j("#moduleIncludes").val(module.includes);
             }
             if (module.excludes) {
                 module.excludes = module.excludes.substr(1, module.excludes.length - 2).replace(/, /g, "\n");
-                $j("#moduleExcludes").val(module.excludes);
             }
+
+            var btn = $j("#editModuleBtn");
+            btn.prop("disabled", true);
+
+            $j("#moduleHeader").text((add ? "Add" : "Edit") + " Module");
+
+            $j("#moduleNameOld").val(module.name);
+            $j("#moduleName").val(module.name);
+            $j("#modulePath").val(module.path);
+            $j("#moduleType").val(module.type);
+            $j("#moduleClass").val(module.class);
+            $j('#classRow').toggle(module.type != 'API');
+            $j("#moduleIncludes").val(module.includes);
+            $j("#moduleExcludes").val(module.excludes);
 
             $j("#editModuleForm span.error").remove();
 
             $j("#editModuleForm .properties :input").on("keyup change", function() {
                 var changed =
                         module.name != $j("#moduleName").val()
+                     || module.path != $j("#modulePath").val()
                      || module.type != $j("#moduleType").val()
                      || module.class != $j("#moduleClass").val()
                      || module.includes != $j("#moduleIncludes").val()

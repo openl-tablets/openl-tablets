@@ -115,12 +115,19 @@ public class ProjectBean {
 
         FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
 
-        if (!oldName.equals(newName)) {
+        if (StringUtils.isBlank(oldName)       // Add new Module
+                || !oldName.equals(newName)) { // Edit current Module
             FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
             Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
             FacesUtils.validate(module == null, "Module with such name already exists");
         }
+    }
+
+    // TODO Move messages to ValidationMessages.properties
+    public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
+        String path = (String) value;
+        FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
     }
 
     public void editName() {
@@ -137,31 +144,71 @@ public class ProjectBean {
 
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
         String name = FacesUtils.getRequestParameter("moduleName");
+        String path = FacesUtils.getRequestParameter("modulePath");
         String type = FacesUtils.getRequestParameter("moduleType");
         String clazz = FacesUtils.getRequestParameter("moduleClass");
         String includes = FacesUtils.getRequestParameter("moduleIncludes");
         String excludes = FacesUtils.getRequestParameter("moduleExcludes");
 
-        Module module = studio.getModule(newProjectDescriptor, oldName);
-        module.setName(name);
-        module.setType(ModuleType.valueOf(type));
-        if (ModuleType.valueOf(type) != ModuleType.API) {
-            module.setClassname(clazz);
+        Module module = null;
+
+        // Add new Module
+        if (StringUtils.isBlank(oldName)) {
+            module = new Module();
+            module.setProject(newProjectDescriptor);
+            newProjectDescriptor.getModules().add(module);
+        // Edit current Module
+        } else {
+            module = studio.getModule(newProjectDescriptor, oldName);
         }
 
-        MethodFilter filter = module.getMethodFilter();
-        if (filter == null) {
-            filter = new MethodFilter();
-            module.setMethodFilter(filter);
-        }
-        filter.setIncludes(null);
-        filter.setExcludes(null);
+        if (module != null) {
+            module.setName(name);
 
-        if (StringUtils.isNotBlank(includes)) {
-            filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
+            PathEntry pathEntry = module.getRulesRootPath();
+            if (pathEntry == null) {
+                pathEntry = new PathEntry();
+                module.setRulesRootPath(pathEntry);
+            }
+            pathEntry.setPath(path);
+
+            module.setType(ModuleType.valueOf(type));
+            if (ModuleType.valueOf(type) != ModuleType.API) {
+                module.setClassname(clazz);
+            }
+
+            MethodFilter filter = module.getMethodFilter();
+            if (filter == null) {
+                filter = new MethodFilter();
+                module.setMethodFilter(filter);
+            }
+            filter.setIncludes(null);
+            filter.setExcludes(null);
+
+            if (StringUtils.isNotBlank(includes)) {
+                filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
+            }
+            if (StringUtils.isNotBlank(excludes)) {
+                filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+            }
+
+            clean(newProjectDescriptor);
+            save(newProjectDescriptor);
         }
-        if (StringUtils.isNotBlank(excludes)) {
-            filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+    }
+
+    public void removeModule() {
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+
+        String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
+
+        List<Module> modules = newProjectDescriptor.getModules();
+        for (Module module : modules) {
+            if (module.getName().equals(toRemove)) {
+                modules.remove(module);
+                break;
+            }
         }
 
         clean(newProjectDescriptor);
@@ -234,7 +281,7 @@ public class ProjectBean {
             studio.reset(ReloadType.FORCED);
         } catch (Exception e) {
             log.error(e);
-            throw new Message("Error while updating project");
+            throw new Message("Error while saving the project");
         }
         //postProcess(descriptor);
     }
