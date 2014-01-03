@@ -519,7 +519,8 @@ ul.enum li {
     padding-bottom: 4px;
 }
 
-.editable .editable-link {
+.editable .editable-link,
+.editable-inner .editable-link-inner {
     visibility: hidden;
     opacity: 0;
     padding-left: 4px;
@@ -527,7 +528,8 @@ ul.enum li {
     transition: visibility 0.1s linear, opacity 0.2s ease-out;
 }
 
-.editable:hover .editable-link {
+.editable:hover .editable-link,
+.editable-inner:hover .editable-link-inner {
     visibility: visible;
     opacity: 1;
 }
