@@ -127,6 +127,21 @@
 
                     <span style="margin-left: 13px;" />
 
+                    <h:panelGroup style="margin-left: 17px;" rendered="#{!empty rProject}" class="dropdown">
+                        <a4j:ajax oncomplete="reloadCurrent()">
+                            <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
+                                #{studio.model.singleModuleMode ? "Single module mode" : "Multi module mode"}<b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <h:panelGroup rendered="#{!empty rProject}">
+                                    <li><h:commandLink action="#{studio.model.setSingleModuleMode(true)}">Single module mode</h:commandLink></li>
+                                    <li class="divider"></li>
+                                </h:panelGroup>
+                                <li><h:commandLink action="#{studio.model.setSingleModuleMode(false)}">Multi module mode</h:commandLink></li>
+                            </ul>
+                        </a4j:ajax>
+                    </h:panelGroup>
+
                     <h:panelGroup id="topMorePanel" class="dropdown">
                         <h:form>
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">

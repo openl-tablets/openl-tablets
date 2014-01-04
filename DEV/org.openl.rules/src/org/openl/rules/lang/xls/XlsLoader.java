@@ -4,7 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +15,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
@@ -120,15 +115,13 @@ public class XlsLoader {
     private List<IDependency> dependencies = new ArrayList<IDependency>();
 
     /**
-     * @deprecated use {@link XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {}
-     * @param ucxt
-     * @param searchPath
+     * @deprecated use {@link #XlsLoader(IncludeSearcher, IUserContext)}  {}
      */
     @Deprecated
     public XlsLoader(IConfigurableResourceContext ucxt, String searchPath) {
         this.includeSeeker = new IncludeSearcher(ucxt, searchPath);        
     }
-    
+
     public XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {
         this.includeSeeker = includeSeeker;
 //        this.userContext = userContext;
@@ -378,37 +371,12 @@ public class XlsLoader {
 
         preprocessedWorkBooks.add(uri);
 
-        InputStream is = null;
-        Workbook workbook = null;
-
-        try {
-            is = source.getByteStream();
-            workbook = WorkbookFactory.create(is);
-        } catch (Exception e) {
-            log.error("Error while preprocessing workbook", e);
-            
-            String message = "Can't open source file or file is corrupted";
-            OpenLRuntimeException error = new OpenLRuntimeException(message);
-            OpenLMessagesUtils.addError(error);
-
-            throw error;
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (Throwable e) {
-                log.error("Error trying close input stream:", e);
-            }
-        }
-
-        XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source, workbook);
-        int nsheets = workbook.getNumberOfSheets();
+        XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
+        int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
         WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
 
         for (int i = 0; i < nsheets; i++) {
-            Sheet sheet = workbook.getSheetAt(i);
-            XlsSheetSourceCodeModule sheetSource = preprocessSheet(sheet, workbookSourceModule);
+            XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
             IGridTable[] tables = getAllGridTables(sheetSource);
             List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
@@ -457,13 +425,6 @@ public class XlsLoader {
         IGridTable[] tables = xlsGrid.getTables();
 
         return tables;
-    }
-
-    private XlsSheetSourceCodeModule preprocessSheet(Sheet sheet, XlsWorkbookSourceCodeModule workbookSourceModule) {
-
-        String sheetName = sheet.getSheetName();
-
-        return new XlsSheetSourceCodeModule(sheet, sheetName, workbookSourceModule);
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {

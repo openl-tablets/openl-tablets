@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -20,35 +20,46 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.tika.io.IOUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.openl.config.ConfigurationManager;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 
+@RunWith(Parameterized.class)
 public class DatatypeChangeTest {
     private static final String SHEET_NAME = "Test";
-    private static final String RULES_PATH = "test/rules/datatype.change/";
-    private static final String EXPENSE_MODULE_FILE_NAME = "test/rules/datatype.change/ExpenseModule.xls";
-    private static final String MAIN_MODULE_FILE_NAME = "test/rules/datatype.change/MainModule.xls";
+    private static final String EXPENSE_MODULE_FILE_NAME = "ExpenseModule.xls";
+    private static final String MAIN_MODULE_FILE_NAME = "MainModule.xls";
 
     private ProjectModel pm;
     private Module expenseModule;
     private Module mainModule;
 
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Parameterized.Parameter
+    public boolean singleModuleMode;
+
+    @Parameterized.Parameters(name = "singleModuleMode: {0}")
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][]{{true}, {false}});
+    }
+
     @Before
     public void init() throws Exception {
-        new File(RULES_PATH).mkdirs();
         createExpenseModule();
         createMainModule(); // main module depends on expense module
 
-        File rulesFolder = new File(RULES_PATH);
+        File rulesFolder = tempFolder.getRoot();
         ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath().isRulesProject(
                 rulesFolder);
         List<Module> modules = resolvingStrategy.resolveProject(rulesFolder).getModules();
@@ -57,6 +68,7 @@ public class DatatypeChangeTest {
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
 
         pm = new ProjectModel(ws);
+        pm.setSingleModuleMode(singleModuleMode);
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {
                 expenseModule = module;
@@ -65,12 +77,6 @@ public class DatatypeChangeTest {
                 mainModule = module;
             }
         }
-    }
-
-    @After
-    public void tearDown() {
-        new File(EXPENSE_MODULE_FILE_NAME).delete();
-        new File(MAIN_MODULE_FILE_NAME).delete();
     }
 
     @Test
@@ -135,9 +141,7 @@ public class DatatypeChangeTest {
     }
 
     private Workbook getWorkbook() {
-        XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) pm.getCompiledOpenClass().getOpenClassWithErrors()
-                .getMetaInfo()).getXlsModuleNode();
-        WorkbookSyntaxNode[] workbookNodes = xlsModuleNode.getWorkbookSyntaxNodes();
+        WorkbookSyntaxNode[] workbookNodes = pm.getWorkbookNodes();
         return workbookNodes[0].getWorkbookSourceCodeModule().getWorkbook();
     }
 
@@ -185,7 +189,7 @@ public class DatatypeChangeTest {
     private void writeBook(Workbook wb, String file) throws IOException {
         OutputStream os = null;
         try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
+            os = new BufferedOutputStream(new FileOutputStream(new File(tempFolder.getRoot(), file)));
             wb.write(os);
         } finally {
             IOUtils.closeQuietly(os);

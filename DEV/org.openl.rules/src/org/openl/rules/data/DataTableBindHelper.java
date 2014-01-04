@@ -10,6 +10,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
+import org.openl.rules.calc.SpreadsheetResultField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -21,6 +22,7 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 
 public class DataTableBindHelper {
@@ -38,7 +40,7 @@ public class DataTableBindHelper {
     private static final String LINK_DELIMETERS = ".";
 
     // patter for field like addressArry[0]
-    private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
 
     /**
@@ -516,7 +518,7 @@ public class DataTableBindHelper {
                 //Skip creation of IOpenField
                 continue;
             }
-
+            
             if (arrayAccess) {
                 hasAccessByArrayId = arrayAccess;
                 fieldInChain = getWritableArrayElement(fieldNameNode, table, loadedFieldType);
@@ -530,12 +532,12 @@ public class DataTableBindHelper {
                 break;
             }
 
-            if (fieldInChain.getType().isArray() && arrayAccess) {
+            if (fieldInChain.getType() != null && fieldInChain.getType().isArray() && arrayAccess) {
                 loadedFieldType = fieldInChain.getType().getComponentClass();
             } else {
                 loadedFieldType = fieldInChain.getType();
             }
-
+            
             fieldAccessorChain[fieldIndex] = fieldInChain;
         }
         if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
@@ -637,6 +639,12 @@ public class DataTableBindHelper {
         String arrayName = getArrayName(currentFieldNameNode);
         int arrayIndex = getArrayIndex(currentFieldNameNode);
         IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
+        if (!field.getType().isArray()) {
+            String message = String.format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType().toString());
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+            processError(table, error);
+            return null;
+        }
         IOpenField arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
         
         if (!arrayAccessField.isWritable()) {

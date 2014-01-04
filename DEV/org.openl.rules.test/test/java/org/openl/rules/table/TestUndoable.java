@@ -9,14 +9,10 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
 
@@ -34,9 +30,7 @@ public class TestUndoable extends TestCase {
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbSrc.getWorkbook();
 
-        Sheet sheet = wb.getSheetAt(0);
-        String name = wb.getSheetName(0);
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
+        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
@@ -73,9 +67,7 @@ public class TestUndoable extends TestCase {
 
         Workbook wb = wbSrc.getWorkbook();
 
-        Sheet sheet = wb.getSheetAt(0);
-        String name = wb.getSheetName(0);
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
+        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
@@ -99,9 +91,7 @@ public class TestUndoable extends TestCase {
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbSrc.getWorkbook();
 
-        Sheet sheet = wb.getSheetAt(0);
-        String name = wb.getSheetName(0);
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
+        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);
 
         XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 

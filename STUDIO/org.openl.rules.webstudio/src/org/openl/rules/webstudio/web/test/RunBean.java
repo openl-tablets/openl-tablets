@@ -55,9 +55,9 @@ public class RunBean {
 
     private void runTestMethod(TestSuite testSuite) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-
+        boolean isParallel = studio.getSystemConfigManager().getBooleanProperty("test.run.parallel");
         if (testSuite != null) {
-            results = studio.getModel().runTest(testSuite);
+            results = studio.getModel().runTest(testSuite, isParallel);
         }
     }
 

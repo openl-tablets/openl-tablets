@@ -25,11 +25,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -69,11 +67,10 @@ public abstract class TableCreationWizard extends BaseWizard {
         XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
         if (newWorksheet) {
             Sheet sheet = module.getWorkbook().createSheet(getNewWorksheetName());
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, getNewWorksheetName(), module);
+            sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), module);
         } else {
             Sheet sheet = module.getWorkbook().getSheetAt(getWorksheetIndex());
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(
-                    getWorksheetIndex()), module);
+            sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), module);
         }
         return sourceCodeModule;
     }
@@ -157,7 +154,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     protected void initWorkbooks() {
         workbooks = new HashMap<String, XlsWorkbookSourceCodeModule>();
 
-        WorkbookSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getWorkbookSyntaxNodes();
+        WorkbookSyntaxNode[] syntaxNodes = WizardUtils.getWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);

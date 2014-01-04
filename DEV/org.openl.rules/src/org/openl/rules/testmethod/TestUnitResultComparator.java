@@ -70,6 +70,8 @@ public class TestUnitResultComparator {
         return TestStatus.TR_NEQ.getStatus();
     }
 
+    private Boolean comapreResult = null;
+    
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
 
         if (actualResult == expectedResult) {
@@ -89,8 +91,12 @@ public class TestUnitResultComparator {
         if (actualResult == null) {
             return false;
         }
+        
+        if (comapreResult == null) {
+            comapreResult = resultComparator.compareResult(actualResult, expectedResult, delta);
+        }
 
-        return resultComparator.compareResult(actualResult, expectedResult, delta);
+        return comapreResult.booleanValue();
     }
 
     private int compareExceptionResult(TestUnit testUnit, Double delta) {

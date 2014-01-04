@@ -23,18 +23,26 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
     private List<IDependencyLoader> dependencyLoaders;
 
     private List<ProjectDescriptor> dependentProjects;
+    private boolean singleModuleMode;
 
-    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects) {
+    private List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
+
+    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects, boolean singleModuleMode) {
         if (dependentProjects == null) {
             throw new IllegalArgumentException("dependentProjects can't be null!");
         }
 
         this.dependentProjects = dependentProjects;
+        this.singleModuleMode = singleModuleMode;
     }
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+        for (DependencyManagerListener listener : listeners) {
+            listener.onLoadDependency(dependency);
+        }
+
         String dependencyName = dependency.getNode().getIdentifier();
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
         if (compiledDependency == null) {
@@ -74,6 +82,10 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
         throw new IllegalStateException();
     }
 
+    public void removeClassLoader(String projectName) {
+        classLoaders.remove(projectName);
+    }
+
     @Override
     public synchronized List<IDependencyLoader> getDependencyLoaders() {
         if (dependencyLoaders != null) {
@@ -85,12 +97,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
                 Collection<Module> modulesOfProject = project.getModules();
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
-                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(), Arrays.asList(m)));
+                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(), Arrays.asList(m), singleModuleMode));
                     }
                 }
 
                 String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
-                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName, project.getModules());
+                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName, project.getModules(), singleModuleMode);
                 dependencyLoaders.add(projectLoader);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
@@ -105,19 +117,53 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
 
     @Override
     public void reset(IDependency dependency) {
+        for (DependencyManagerListener listener : listeners) {
+            listener.onResetDependency(dependency);
+        }
+
         if (dependencyLoaders == null) {
             return;
         }
 
         String dependencyName = dependency.getNode().getIdentifier();
 
-        for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-            WebStudioDependencyLoader loader = (WebStudioDependencyLoader) dependencyLoader;
-            if (dependencyName.equals(loader.getDependencyName())) {
-                loader.reset();
+        ProjectDescriptor projectToReset = null;
+
+        searchProject:
+        for (ProjectDescriptor project : dependentProjects) {
+            if (dependencyName.equals(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()))) {
+                projectToReset = project;
                 break;
             }
+
+            for (Module module : project.getModules()) {
+                if (dependencyName.equals(module.getName())) {
+                    projectToReset = project;
+                    break searchProject;
+                }
+            }
         }
+
+        if (projectToReset != null) {
+            removeClassLoader(projectToReset.getName());
+            String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectToReset.getName());
+
+            for (IDependencyLoader dependencyLoader : dependencyLoaders) {
+                WebStudioDependencyLoader loader = (WebStudioDependencyLoader) dependencyLoader;
+                String loaderDependencyName = loader.getDependencyName();
+
+                if (loaderDependencyName.equals(projectDependency)) {
+                    loader.reset();
+                }
+
+                for (Module module : projectToReset.getModules()) {
+                    if (loaderDependencyName.equals(module.getName())) {
+                        loader.reset();
+                    }
+                }
+            }
+        }
+
     }
 
     @Override
@@ -126,8 +172,30 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
             return;
         }
 
+        classLoaders.clear();
+
         for (IDependencyLoader dependencyLoader : dependencyLoaders) {
             ((WebStudioDependencyLoader) dependencyLoader).reset();
         }
     }
+
+    public void addListener(DependencyManagerListener listener) {
+        for (DependencyManagerListener l : listeners) {
+            if (l == listener) {
+                // Already added
+                return;
+            }
+        }
+        listeners.add(listener);
+    }
+
+    public void removeListener(DependencyManagerListener listener) {
+        for (Iterator<DependencyManagerListener> iterator = listeners.iterator(); iterator.hasNext(); ) {
+            DependencyManagerListener next = iterator.next();
+            if (next == listener) {
+                iterator.remove();
+            }
+        }
+    }
+
 }

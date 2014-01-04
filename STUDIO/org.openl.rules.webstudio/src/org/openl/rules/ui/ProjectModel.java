@@ -6,7 +6,15 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
-import java.util.*;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,7 +22,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
-import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
@@ -26,13 +33,13 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
+import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -45,6 +52,7 @@ import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
+import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -64,12 +72,9 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.webstudio.dependencies.WebStudioDependencyManagerFactory;
+import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.source.SourceHistoryManager;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -95,9 +100,11 @@ public class ProjectModel {
      */
     private CompiledOpenClass compiledOpenClass;
 
+    private WeakReference<XlsModuleSyntaxNode> xlsModuleSyntaxNode = new WeakReference<XlsModuleSyntaxNode>(null);
+
     private Module moduleInfo;
 
-    private ModulesCache modulesCache = new ModulesCache();
+    private InstantiationStrategyFactory instantiationStrategyFactory;
 
     private ProjectIndexer indexer;
 
@@ -121,8 +128,6 @@ public class ProjectModel {
     // TODO move this object to the correct place
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
-    private WebStudioDependencyManagerFactory dependencyManagerFactory;
-
     public boolean hasTestSuitesToRun() {
         return testSuitesToRun.size() > 0;
     }
@@ -141,7 +146,7 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
-        this.dependencyManagerFactory = new WebStudioDependencyManagerFactory(studio);
+        this.instantiationStrategyFactory = new InstantiationStrategyFactory(studio);
     }
 
     public RulesProject getProject() {
@@ -732,20 +737,12 @@ public class ProjectModel {
         return null;
     }
 
-    // TODO Refactor
-    private WorkbookSyntaxNode[] getWorkbookNodes() {
+    public WorkbookSyntaxNode[] getWorkbookNodes() {
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
 
-        if (compiledOpenClass != null) {
-            XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
-                    .getXlsModuleNode();
-            WorkbookSyntaxNode[] workbookNodes = xlsModuleNode.getWorkbookSyntaxNodes();
-            return workbookNodes;
-        }
-
-        return null;
+        return getXlsModuleNode().getWorkbookSyntaxNodes();
     }
 
     public boolean isSourceModified() {
@@ -794,14 +791,28 @@ public class ProjectModel {
             return null;
         }
 
-        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+        XlsModuleSyntaxNode xsn = xlsModuleSyntaxNode.get();
+        if (xsn == null) {
+            synchronized (this) {
+                xsn = xlsModuleSyntaxNode.get();
+                if (xsn != null)
+                    return xsn;
+
+                if (isSingleModuleMode()) {
+                    XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+                    xsn = xmi.getXlsModuleNode();
+                } else {
+                    xsn = instantiationStrategyFactory.getModuleSyntaxNodeInMultiModuleProject(moduleInfo);
+                }
+                xlsModuleSyntaxNode = new WeakReference<XlsModuleSyntaxNode>(xsn);
+            }
+        }
         return xsn;
     }
 
     /**
      * Returns if current project is read only.
-     * 
+     *
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
@@ -1017,16 +1028,12 @@ public class ProjectModel {
                 OpenL.reset();
                 OpenLConfiguration.reset();
                 ClassLoaderFactory.reset();
+                // falls through
             case RELOAD:
-                modulesCache.reset();
+                instantiationStrategyFactory.reset();
+                // falls through
             case SINGLE:
-                if (moduleInfo != null) {
-                    // Clear the cache of dependency manager, as the project has
-                    // been modified
-                    getDependencyManager().reset(
-                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(),
-                                    null)));
-                }
+                // do nothing
                 break;
         }
         setModuleInfo(moduleInfo, reloadType);
@@ -1038,8 +1045,18 @@ public class ProjectModel {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
         for (int i = 0; i < tests.length; i++) {
-            results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
+            if (!isParallel) {
+                results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
+            }else {
+                results[i] = new TestSuite(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
+                    @Override
+                    public IRuntimeEnv buildIRuntimeEnv() {
+                        return new SimpleVM().getRuntimeEnv();
+                    }
+                }, 1);
+            }
         }
         return results;
     }
@@ -1047,9 +1064,10 @@ public class ProjectModel {
     public TestUnitsResults[] runAllTests(String forTable) {
         IOpenMethod[] tests = getTestMethods(forTable);
         if (tests != null) {
+            boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]));
+                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]), isParallel);
             }
             return results;
         }
@@ -1058,7 +1076,8 @@ public class ProjectModel {
 
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        return runTest(new TestSuite(testMethod));
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        return runTest(new TestSuite(testMethod), isParallel);
     }
 
     public TestUnitsResults runTest(String testUri, int... caseNumbers) {
@@ -1074,14 +1093,23 @@ public class ProjectModel {
         } else { // Method without cases
             test = new TestSuite(new TestDescription(testMethod, new Object[] {}));
         }
-
-        return runTest(test);
+        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        return runTest(test, isParallel);
     }
 
-    public TestUnitsResults runTest(TestSuite test) {
+    public TestUnitsResults runTest(TestSuite test, boolean isParallel) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        return test.invoke(target, env, 1);
+        if (!isParallel){
+            return test.invoke(target, env, 1);
+        }else {
+            return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
+                @Override
+                public IRuntimeEnv buildIRuntimeEnv() {
+                    return new SimpleVM().getRuntimeEnv();
+                }
+            }, 1);
+        }
     }
 
     public TestUnit runTestCase(String testUri, String caseNumber) {
@@ -1132,12 +1160,26 @@ public class ProjectModel {
 
     // TODO Remove "throws Exception"
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
+        setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
+    }
+
+    public void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
         }
 
+        if (moduleInfo != this.moduleInfo) {
+            // Current module changed - mark the previous one as read only
+            XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode.get();
+            if (moduleSyntaxNode != null) {
+                for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
+                    workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
+                }
+            }
+        }
+
         if (reloadType != ReloadType.NO) {
-            modulesCache.removeCachedModule(moduleInfo);
+            instantiationStrategyFactory.removeCachedModule(moduleInfo);
             uriTableCache.clear();
         }
 
@@ -1170,14 +1212,12 @@ public class ProjectModel {
 
         compiledOpenClass = null;
         projectRoot = null;
+        xlsModuleSyntaxNode.clear();
 
-        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo,
-                getDependencyManager());
-        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
-                studio.getSystemConfigManager().getProperties(),
-                Arrays.asList(this.moduleInfo)
+        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getInstantiationStrategy(
+                this.moduleInfo,
+                singleModuleMode
         );
-        instantiationStrategy.setExternalParameters(externalParameters);
 
         try {
             if (reloadType == ReloadType.FORCED) {
@@ -1185,7 +1225,24 @@ public class ProjectModel {
             } else if (reloadType != ReloadType.NO) {
                 instantiationStrategy.reset();
             }
+
+            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
+            WorkbookLoaders.setCurrentFactory(factory);
+            factory.disallowUnload();
+
             compiledOpenClass = instantiationStrategy.compile();
+
+            factory.allowUnload();
+            WorkbookLoaders.resetCurrentFactory();
+
+            // Edit current module, others should be read only
+            // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
+            for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
+                XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
+                boolean currentModule = module.getSourceFile().getName().equals(
+                        FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
+                module.getWorkbookLoader().setCanUnload(!currentModule);
+            }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
 
@@ -1221,7 +1278,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
-                runTest(testSuite);
+                runTest(testSuite,false);
             } finally {
                 Tracer.setTracer(null);
             }
@@ -1350,6 +1407,14 @@ public class ProjectModel {
         return null;
     }
 
+    public boolean isSingleModuleMode() {
+        return !isVirtualWorkbook();
+    }
+
+    public void setSingleModuleMode(boolean singleModuleMode) throws Exception {
+        setModuleInfo(moduleInfo, ReloadType.SINGLE, singleModuleMode);
+    }
+
     private static class EditXlsModificationChecker implements ModificationChecker {
         private final XlsWorkbookSourceCodeModule module;
         private final File sourceFile;
@@ -1438,13 +1503,31 @@ public class ProjectModel {
         }
     }
 
-    private IDependencyManager getDependencyManager() {
-        IDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(moduleInfo, true);
-        return modulesCache.wrapToCollectDependencies(dependencyManager, moduleInfo);
-    }
-
     public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
         TableSyntaxNode tsn = getNode(uri);
         return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
+    }
+
+    private boolean isVirtualWorkbook(){
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        return xmi.getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
+    }
+
+    /**
+     * Determine if we should open in single module mode or multi module mode
+     *
+     * @param module opening module
+     * @return if true - single module mode, if false - multi module mode
+     */
+    private boolean shouldOpenInSingleMode(Module module) {
+        if (module != null) {
+            if (instantiationStrategyFactory.isOpenedAsSingleMode(module)) {
+                return true;
+            }
+            if (instantiationStrategyFactory.isOpenedAsMultiMode(module)) {
+                return false;
+            }
+        }
+        return studio.isSingleModuleModeByDefault();
     }
 }

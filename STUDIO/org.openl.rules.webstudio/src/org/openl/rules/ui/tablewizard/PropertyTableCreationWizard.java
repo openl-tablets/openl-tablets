@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -77,7 +75,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     // Not sure, probably method can be removed 
     private Set<String> getAllCategories() {
         Set<String> categories = new TreeSet<String>();
-        TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
+        TableSyntaxNode[] syntaxNodes = WizardUtils.getTableSyntaxNodes();
         
         for (TableSyntaxNode node : syntaxNodes) {
             ITableProperties tableProperties = node.getTableProperties();
@@ -105,7 +103,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     
     private Set<String> getAllSpecificCategories() {
         Set<String> specificCategories = new TreeSet<String>();
-        TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
+        TableSyntaxNode[] syntaxNodes = WizardUtils.getTableSyntaxNodes();
 
         for (TableSyntaxNode node : syntaxNodes) {
 

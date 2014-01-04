@@ -7,22 +7,24 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
+import org.openl.rules.lang.xls.load.SheetLoader;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.StringTool;
 
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
-    private String sheetName;
-
     private XlsWorkbookSourceCodeModule workbookSource;
 
-	private Sheet sheet;
-	
-	private Map<String, Object> params;
+    private SheetLoader sheetLoader;
 
-    public XlsSheetSourceCodeModule(Sheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
-        this.sheet = sheet;
-        this.sheetName = sheetName;
+    private Map<String, Object> params;
+
+    public XlsSheetSourceCodeModule(int sheetIndex, XlsWorkbookSourceCodeModule workbookSource) {
+        this(workbookSource.getWorkbookLoader().getSheetLoader(sheetIndex), workbookSource);
+    }
+
+    public XlsSheetSourceCodeModule(SheetLoader sheetLoader, XlsWorkbookSourceCodeModule workbookSource) {
+        this.sheetLoader = sheetLoader;
         this.workbookSource = workbookSource;
     }
 
@@ -44,19 +46,23 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     }
 
     public String getDisplayName() {
-        return sheetName;
+        return getSheetName();
     }
 
     public String getIndexedText() {
-        return sheetName;
+        return getSheetName();
     }
 
     public Sheet getSheet() {
-        return sheet;
+        return sheetLoader.getSheet();
     }
 
     public String getSheetName() {
-        return sheetName;
+        return sheetLoader.getSheetName();
+    }
+
+    public SheetLoader getSheetLoader() {
+        return sheetLoader;
     }
 
     public int getStartPosition() {
@@ -76,7 +82,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     }
 
     public String getUri(int textpos) {
-        return workbookSource.getUri(0) + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(sheetName);
+        return workbookSource.getUri(0) + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(getSheetName());
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSource() {

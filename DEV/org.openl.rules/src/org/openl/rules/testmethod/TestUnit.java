@@ -1,7 +1,5 @@
 package org.openl.rules.testmethod;
 
-import org.openl.meta.DoubleValue;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 
 /**
@@ -60,7 +58,7 @@ public class TestUnit {
             return;
         }
 
-        if (NumberUtils.isFloatPointNumber(runningResult) && test.isExpectedResultDefined()) {
+        /*if (NumberUtils.isFloatPointNumber(runningResult) && test.isExpectedResultDefined()) {
             DoubleValue result = NumberUtils.convertToDoubleValue(runningResult);
             Double expectedResult = NumberUtils.convertToDouble(getExpectedResult());
 
@@ -68,7 +66,7 @@ public class TestUnit {
             DoubleValue roundedResult = DoubleValue.round(result, scale);
             actualResult = roundedResult;
             return;
-        }
+        }*/
 /*
         // TODO This is a temporary implementation. Delta for doubles compare
         // should be configurable.
