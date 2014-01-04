@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
-import org.openl.meta.IMetaInfo;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.classes.ClassFinder;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -45,18 +45,20 @@ public class WizardUtils {
         return null;
     }
 
-    public static XlsMetaInfo getMetaInfo() {
-        if (getProjectOpenClass() instanceof NullOpenClass) {
-            // module wasn`t loaded successfully.
-            //
-            throw new IllegalArgumentException("Module is corrupted.");
-        } else {
-            return (XlsMetaInfo) getProjectOpenClass().getMetaInfo();
-        }
+    public static IOpenClass getProjectOpenClass() {
+        return WebStudioUtils.getProjectModel().getCompiledOpenClass().getOpenClassWithErrors();
     }
 
-    public static IOpenClass getProjectOpenClass() {
-        return WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClassWithErrors();
+    public static WorkbookSyntaxNode[] getWorkbookNodes() {
+        return WebStudioUtils.getProjectModel().getWorkbookNodes();
+    }
+
+    public static XlsModuleSyntaxNode getXlsModuleNode() {
+        return WebStudioUtils.getProjectModel().getXlsModuleNode();
+    }
+
+    public static TableSyntaxNode[] getTableSyntaxNodes() {
+        return WebStudioUtils.getProjectModel().getTableSyntaxNodes();
     }
 
     /**
@@ -83,10 +85,8 @@ public class WizardUtils {
             }
         });        
         
-        IMetaInfo projectInfo = getProjectOpenClass().getMetaInfo();
-                
         ClassFinder finder = new ClassFinder();
-        for (String packageName : ((XlsMetaInfo) projectInfo).getXlsModuleNode().getAllImports()) {
+        for (String packageName : getXlsModuleNode().getAllImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {
                 // This package is added automatically in XlsLoader.addInnerImports() for inner usage, not for user.
                 continue;
@@ -125,12 +125,9 @@ public class WizardUtils {
         }
 
         Map<String, IOpenField> fields = openType.getFields();
-        if (fields.size() <= 1) {
-            // Every field has a "class" field. We skip a classes that doesn't
-            // have any other field.
-            return false;
-        }
+        // Every field has a "class" field. We skip a classes that doesn't
+        // have any other field.
+        return fields.size() > 1;
 
-        return true;
     }
 }

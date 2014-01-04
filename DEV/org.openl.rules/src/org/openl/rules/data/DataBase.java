@@ -22,29 +22,32 @@ public class DataBase implements IDataBase {
 
     private Map<String, ITable> tables = new HashMap<String, ITable>();
 
-    public synchronized ITable getTable(String name) {
-        return tables.get(name);
+    private final Object lock = new Object();
+
+    public ITable getTable(String name) {
+        synchronized (lock) {
+            return tables.get(name);
+        }
     }
 
     public ITable addNewTable(String tableName, TableSyntaxNode tsn) throws DuplicatedTableException {
+        synchronized (lock) {
+            ITable table = getTable(tableName);
 
-        ITable table = getTable(tableName);
+            if (table != null) {
+                throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
+            }
 
-        if (table != null) {
-            throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
+            table = makeNewTable(tableName, tsn);
+            tables.put(tableName, table);
+
+            return table;
         }
-
-        table = makeNewTable(tableName, tsn);
-        tables.put(tableName, table);
-
-        return table;
     }
 
-    protected ITable makeNewTable(String tableName, TableSyntaxNode tsn)
-    {
-    	return new Table(tableName, tsn);
+    protected ITable makeNewTable(String tableName, TableSyntaxNode tsn) {
+        return new Table(tableName, tsn);
     }
-    
 
     public void preLoadTable(ITable table,
             ITableModel dataModel,

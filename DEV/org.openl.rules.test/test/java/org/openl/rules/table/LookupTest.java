@@ -5,7 +5,6 @@ import java.net.URL;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -26,10 +25,9 @@ public class LookupTest extends TestCase {
 
         for (int i = 0; i < nsheets; i++) {
 
-            Sheet sheet = wb.getSheetAt(i);
             String name = wb.getSheetName(i);
 
-            XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbsrc);
+            XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(i, wbsrc);
             XlsSheetGridModel xsGrid = new XlsSheetGridModel(sheetSrc);
 
             IGridTable[] tables = xsGrid.getTables();

@@ -141,13 +141,13 @@ public class TestBean {
 
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-
+        boolean isParallel = studio.getSystemConfigManager().getBooleanProperty("test.run.parallel");
         if (model.hasTestSuitesToRun()) {
             // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while (model.hasTestSuitesToRun()){
                 TestSuite test = model.popLastTest();
-                results.add(model.runTest(test));
+                results.add(model.runTest(test, isParallel));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);

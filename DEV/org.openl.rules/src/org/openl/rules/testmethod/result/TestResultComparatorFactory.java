@@ -12,8 +12,8 @@ public class TestResultComparatorFactory {
         if (NumberUtils.isFloatPointNumber(actualResult)) {
             return new NumberComparator();
         }
-
-        if (actualResult instanceof Comparable) {
+        //Expected result and actual result can be different types (StubSpreadsheet)
+        if (actualResult instanceof Comparable && (expectedResult == null || actualResult.getClass().equals(expectedResult.getClass()))) {
             return new ComparableResultComparator();
         }
 

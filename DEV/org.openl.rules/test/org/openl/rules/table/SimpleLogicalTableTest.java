@@ -3,8 +3,6 @@ package org.openl.rules.table;
 import static org.junit.Assert.*;
 import org.junit.Assert;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -18,13 +16,7 @@ public class SimpleLogicalTableTest {
         FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls", null);
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
-        Workbook wb = wbSrc.getWorkbook();
-
-        Sheet sheet = wb.getSheetAt(0);
-        String name = wb.getSheetName(0);
-
-        XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(sheet, name, wbSrc);
-        return sheetSrc;
+        return new XlsSheetSourceCodeModule(0, wbSrc);
     }
     
     @Test

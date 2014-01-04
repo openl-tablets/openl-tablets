@@ -83,20 +83,19 @@ public class OpenLMessagesUtils {
     public static List<OpenLMessage> newMessages(Throwable exception) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
-        if (exception instanceof OpenLException) {
-            OpenLException openLException = (OpenLException) exception;
-            OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
-            
-            messages.add(errorMessage);
-        } else if (exception instanceof CompositeSyntaxNodeException) {
+        if (exception instanceof CompositeSyntaxNodeException) {
             CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
             OpenLException[] exceptions = compositeException.getErrors();
-            
+
             for (OpenLException openLException : exceptions) {
                 OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
                 messages.add(errorMessage);
             }
 
+        } else if (exception instanceof OpenLException) {
+            OpenLException openLException = (OpenLException) exception;
+            OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
+            messages.add(errorMessage);
         } else {
             OpenLMessage message = new OpenLMessage(ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY,
                 Severity.ERROR);
