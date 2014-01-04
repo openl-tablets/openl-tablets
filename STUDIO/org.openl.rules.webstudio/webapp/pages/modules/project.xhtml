@@ -175,6 +175,9 @@
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
+                    <h:panelGroup rendered="#{studio.model.editable and empty project.dependencies}">
+                        <a class="link-ref" href="javascript:void(0)" onclick="manageDependencies()">Click to add dependencies</a>
+                    </h:panelGroup>
                     <div class="list">
                         <ui:repeat var="dependency" value="#{project.dependencies}">
                             <div class="list-item">
@@ -206,6 +209,9 @@
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
+                    <h:panelGroup rendered="#{studio.model.editable and empty project.classpath}">
+                        <a class="link-ref" href="javascript:void(0)" onclick="manageSources()">Click to add sources</a>
+                    </h:panelGroup>
                     <ul class="enum">
                     <ui:repeat var="path" value="#{project.classpath}">
                         <li>

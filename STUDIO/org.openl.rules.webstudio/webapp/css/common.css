@@ -183,6 +183,14 @@ a {
     color: #1199ee;
 }
 
+a.link-ref {
+    text-decoration: none;
+    color: #aaa;
+    border-bottom: 1px dashed #eee;
+    font-style: italic;
+    padding-bottom: 2px;
+}
+
 .link-dropdown {
     color: #1199ee;
     text-decoration: none;
@@ -424,7 +432,7 @@ fieldset {
 .block-column {
     display: inline-block;
     vertical-align: top;
-    margin-right: 95px;
+    margin-right: 105px;
 }
 
 .block {
