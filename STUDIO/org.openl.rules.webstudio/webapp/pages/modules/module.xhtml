@@ -98,7 +98,7 @@
                             <td>Type</td>
                             <td><span class="badge">#{module.type}</span></td>
                         </tr>
-                        <h:panelGroup rendered="#{!empty module.classname}">
+                        <h:panelGroup rendered="#{module.type != 'API' and !empty module.classname}">
                         <tr>
                             <td>Class</td>
                             <td>#{module.classname}</td>
