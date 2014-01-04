@@ -816,12 +816,13 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        RulesProject project = getProject();
+        if (isGranted(PRIVILEGE_EDIT_PROJECTS)) {
+            RulesProject project = getProject();
 
-        if (project != null) {
-            return (project.isOpenedForEditing() || project.isLocalOnly()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
+            if (project != null) {
+                return project.isLocalOnly() || project.isOpenedForEditing();
+            }
         }
-
         return false;
     }
 

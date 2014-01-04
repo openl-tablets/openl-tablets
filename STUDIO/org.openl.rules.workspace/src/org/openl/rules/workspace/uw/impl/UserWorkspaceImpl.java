@@ -141,7 +141,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public RulesProject getProject(String name) throws ProjectException {
-        refreshRulesProjects();
+        return getProject(name, true);
+    }
+
+    public RulesProject getProject(String name, boolean refreshBefore) throws ProjectException {
+        if (refreshBefore) {
+            refreshRulesProjects();
+        }
+
         RulesProject uwp;
         synchronized (userRulesProjects) {
             uwp = userRulesProjects.get(name);

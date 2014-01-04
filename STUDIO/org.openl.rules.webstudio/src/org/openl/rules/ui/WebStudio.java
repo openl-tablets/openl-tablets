@@ -208,7 +208,7 @@ public class WebStudio {
             try {
                 String projectFolder = currentProject.getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
+                RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
                 return project;
             } catch (Exception e) {
                 log.error("Error when trying to get current project", e);
