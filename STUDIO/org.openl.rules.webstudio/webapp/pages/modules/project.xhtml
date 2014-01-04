@@ -28,7 +28,7 @@
 
     <f:event type="preRenderView" listener="#{projectBean.init()}" />
 
-    <ui:param name="editable" value="false" />
+    <ui:param name="editable" value="#{studio.model.editable}" />
     <ui:param name="project" value="#{studio.currentProjectDescriptor}" />
     <ui:param name="projectData" value="#{studio.currentProject}" />
 
@@ -36,7 +36,7 @@
         <div class="editable">
             <h1>
                 <span>#{project.name}</span>
-                <h:panelGroup rendered="#{studio.model.editable}">
+                <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
                    onclick="editProject()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                 </h:panelGroup>
@@ -102,7 +102,7 @@
             <div class="block editable">
                 <h3>
                     <span>Modules</span>
-                    <h:panelGroup rendered="#{studio.model.editable}">
+                    <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Add Module" class="editable-link"
                            onclick="addModule()"><img src="webresource/images/add.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
@@ -151,7 +151,7 @@
                                     </h:panelGroup>
                                 </div>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{studio.model.editable}">
+                                <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
                                         onclick="editModule({name:'#{module.name}',path:'#{projectBean.getModulePath(module)}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
@@ -165,17 +165,17 @@
                 </div>
             </div>
 
-            <h:panelGroup rendered="#{true or !empty project.dependencies}">
+            <h:panelGroup rendered="#{!empty project.dependencies or editable}">
             <div class="block editable">
                 <h3>
                     <span>Dependencies</span>
-                    <h:panelGroup rendered="#{studio.model.editable}">
+                    <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
                            onclick="manageDependencies()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
-                    <h:panelGroup rendered="#{studio.model.editable and empty project.dependencies}">
+                    <h:panelGroup rendered="#{editable and empty project.dependencies}">
                         <a class="link-ref" href="javascript:void(0)" onclick="manageDependencies()">Click to add dependencies</a>
                     </h:panelGroup>
                     <div class="list">
@@ -199,17 +199,18 @@
             </h:panelGroup>
         </div>
 
+        <h:panelGroup rendered="#{!empty project.classpath or editable}">
         <div class="block-column">
             <div class="block editable">
                 <h3>
                     <span>Sources</span>
-                    <h:panelGroup rendered="#{studio.model.editable}">
+                    <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
                            onclick="manageSources()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
-                    <h:panelGroup rendered="#{studio.model.editable and empty project.classpath}">
+                    <h:panelGroup rendered="#{editable and empty project.classpath}">
                         <a class="link-ref" href="javascript:void(0)" onclick="manageSources()">Click to add sources</a>
                     </h:panelGroup>
                     <ul class="enum">
@@ -222,9 +223,10 @@
                 </div>
             </div>
         </div>
+        </h:panelGroup>
     </div>
 
-    <h:panelGroup rendered="#{studio.model.editable}">
+    <h:panelGroup rendered="#{editable}">
 
     <rich:popupPanel id="editProjectPopup" width="460" autosized="true">
         <f:facet name="header">
