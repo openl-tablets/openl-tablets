@@ -48,8 +48,10 @@ public interface UserWorkspace extends ProjectsContainer {
     void uploadLocalProject(String name) throws ProjectException;
     
     WorkspaceUser getUser();
-    
+
     RulesProject getProject(String name) throws ProjectException;
-    
+
+    RulesProject getProject(String name, boolean refreshBefore) throws ProjectException;
+
     Collection<RulesProject> getProjects();
 }
