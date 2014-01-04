@@ -9,10 +9,11 @@
 
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
+    <ui:param name="module" value="#{studio.currentModule}" />
 
     <div class="page">
 
-        <h1>#{studio.currentModule.name}</h1>
+        <h1>#{module.name}</h1>
 
         <div class="block-column">
             <div class="block">
@@ -22,6 +23,10 @@
                         <tr>
                             <td>Project</td>
                             <td><a href="#project.xhtml?name=#{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Path</td>
+                            <td>#{projectBean.getModulePath(module)}</td>
                         </tr>
                         <tr>
                             <td>#{msg['ws.module.tables']}</td>
@@ -82,6 +87,48 @@
                     </div>
                 </div>
             </h:panelGroup>
+        </div>
+
+        <div class="block-column">
+            <div class="block">
+                <h3>Deploy Info</h3>
+                <div class="block-content">
+                    <table class="properties">
+                        <tr>
+                            <td>Type</td>
+                            <td><span class="badge">#{module.type}</span></td>
+                        </tr>
+                        <h:panelGroup rendered="#{!empty module.classname}">
+                        <tr>
+                            <td>Class</td>
+                            <td>#{module.classname}</td>
+                        </tr>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
+                            <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
+                                <tr>
+                                    <td>Included Methods</td>
+                                    <td>
+                                        <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                            #{include}
+                                        </a4j:repeat>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
+                                <tr>
+                                    <td>Excluded Methods</td>
+                                    <td>
+                                        <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                            #{exclude}
+                                        </a4j:repeat>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
