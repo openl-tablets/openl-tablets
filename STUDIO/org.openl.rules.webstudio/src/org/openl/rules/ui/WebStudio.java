@@ -350,10 +350,11 @@ public class WebStudio {
         if (currentProject == null && getAllProjects().size() > 0) {
             currentProject = getAllProjects().get(0);
         }
+
+        currentModule = null;
     }
 
-    public void
-    selectModule(String projectName, String moduleName) throws Exception {
+    public void selectModule(String projectName, String moduleName) throws Exception {
         if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
             if (currentModule != null) {
                 return;

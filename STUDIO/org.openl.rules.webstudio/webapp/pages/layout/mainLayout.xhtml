@@ -331,6 +331,7 @@
                         if (page.indexOf("module.xhtml") > -1) {
                             var headerParts = $location.utils.getParamsQuery(page).split("/");
                             header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
+                            reloadTop();
                         }
                         toRulesPanel(header);
                     }

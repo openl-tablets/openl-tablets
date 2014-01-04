@@ -11,6 +11,7 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
+    <c:set var="module" value="#{studio.currentModule}" />
 
     <h:panelGroup id="topPanel" layout="block">
         <div style="float: right; position: relative;margin-right: 35px">
@@ -28,12 +29,12 @@
 
                         <h:commandLink onclick="openUpdateModuleDialog();return false;"
                             title="Update module"
-                            rendered="#{!empty rProject and studio.model.editable}"
+                            rendered="#{!empty module and studio.model.editable}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/update.png')"/>
                         <h:commandLink onclick="openExportModuleDialog();return false;"
                             title="Export module"
-                            rendered="#{!empty rProject and studio.model.editable}"
+                            rendered="#{!empty module and studio.model.editable}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/export.png')"/>
                         <h:commandLink action="#{mainBean.saveProject}"
@@ -50,11 +51,11 @@
 
 					<h:outputLink value="#test/test.xhtml"
 						title="Run #{treeBean.projectTestsCount} Test(s)"
-						rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}"
+						rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}"
 						styleClass="imageButton button-dropdown" onclick="test(event)"
 						style="background:url('webresource/images/test_ok.gif')" />
                     <h:panelGroup class="dropdown dropdown-form"
-                            rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}">
+                            rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
                         <ul id="testSettings" class="dropdown-menu" role="menu" style="margin:7px 0 0 -34px">
                             <li onclick="event.stopPropagation()">
@@ -117,7 +118,7 @@
                         }
                     </script>
 
-                    <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditProject}">
+                    <h:panelGroup style="margin-left: 17px;" rendered="#{!empty module and (studio.model.canCreateTable or studio.model.canEditProject)}">
                         <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
                             title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
                         <h:outputLink id="topRevertLink" rendered="#{studio.model.canEditProject}"
@@ -132,7 +133,7 @@
                             More<b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                            <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
+                            <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
                             <li><a tabindex="-1" href="#rulesDependencies.xhtml">Table Dependency Graph</a></li>
                             <li class="divider"></li>
                             </h:panelGroup>
