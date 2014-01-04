@@ -55,7 +55,10 @@ public class ProjectBean {
         String moduleFullPath = modulePath.getPath();
         String projectFullPath = module.getProject().getProjectFolder().getAbsolutePath();
 
-        return moduleFullPath.replace(projectFullPath, "").substring(1);
+        if (moduleFullPath.contains(projectFullPath)) {
+            return moduleFullPath.replace(projectFullPath, "").substring(1);
+        }
+        return moduleFullPath;
     }
 
     public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {

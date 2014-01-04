@@ -133,21 +133,21 @@
                                 <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
                                 <div style="margin-top:4px">
                                     <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
-                                        <span title="Included Methods">
+                                        <div title="Included Methods">
                                             <img src="webresource/images/include.png" style="opacity:0.6" />
                                             <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
                                                 #{include}
                                             </a4j:repeat>
-                                        </span>
+                                        </div>
                                     </h:panelGroup>
 
                                     <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
-                                        <span title="Excluded Methods">
+                                        <div title="Excluded Methods">
                                             <img src="webresource/images/exclude.png" style="opacity:0.6" />
                                             <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
                                                 #{exclude}
                                             </a4j:repeat>
-                                        </span>
+                                        </div>
                                     </h:panelGroup>
                                 </div>
                                 </h:panelGroup>

@@ -962,8 +962,8 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-cntr {
-    border-color: #ddd !important;
-    box-shadow: 0 1px 31px #ddd;
+    border: none !important;
+    box-shadow: 0 1px 31px #dadada;
 }
 
 .rf-pp-shade {
