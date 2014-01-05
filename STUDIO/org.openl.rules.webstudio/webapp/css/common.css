@@ -266,7 +266,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 18px 10px;
+    padding: 10px 10px;
 }
 
 .table {
@@ -1116,4 +1116,14 @@ form.standard table.buttonPanel {
 .dropdown-form .dropdown-menu > li > span > span {
     display: inline-block;
     min-width: 103px;
+}
+
+.tooltip-inner {
+    border-radius: 2px;
+    background: #191919;
+    padding: 8px 9px;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #191919;
 }

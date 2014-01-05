@@ -6,21 +6,19 @@ html, body {
 }
 
 #header {
-    background: #f9f9f9;
-    height: 31px;
+    background: #fff;
+    height: 46px;
 }
 
 #top {
     border-top: 1px solid #f3f3f3;
     border-bottom: 1px solid #ddd;
-    height: 49px;
+    height: 34px;
     position: relative;
 }
 
 #center {
-	height: -moz-calc(100% - 114px);
-    height: -webkit-calc(100% - 114px);
-    height: calc(100% - 114px);
+    height: calc(100% - 118px);
 }
 
 #center > div {
@@ -36,8 +34,9 @@ html, body {
 }
 
 #footer {
-	border-top: 1px solid #dddddd;
-    background: #f9f9f9;
+	border-top: 1px solid #ccc;
+    background: #fff;
+    color: #666;
 }
 
 .ui-layout-resizer	{
