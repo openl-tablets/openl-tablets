@@ -136,7 +136,7 @@ var Tooltip = Class.create({
             }
         }
 
-        tooltipDiv.addClassName("tooltip");
+        tooltipDiv.addClassName("ctooltip");
         tooltipDiv.addClassName(skinClass);
         tooltipDiv.addClassName("corner_all");
         tooltipDiv.addClassName("shadow_all");
