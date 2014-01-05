@@ -45,7 +45,10 @@
         </div>
 
         <div id="rb">
-            <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}" class="dropdown">
+            <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
+            </h:panelGroup>
+
+            <span class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <authz:authentication operation="username" /><b class="caret"></b>
                 </a>
@@ -53,13 +56,13 @@
                     <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
                     <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
-                    <li><a tabindex="-1" href="#{contextPath}/security_logout" title="#{msg['ws.header.signout.title']}"
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
+                    <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
+                    <li><a tabindex="-1" href="#{contextPath}/security_logout"
                             onclick="return confirm('#{msg['ws.header.signout.confirm']}')">#{msg['ws.header.signout']}</a></li>
+                    </h:panelGroup>
                 </ul>
-            </h:panelGroup>
-
-            <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                title="#{msg['ws.header.help.title']}">#{msg['ws.header.help']}</a>
+            </span>
         </div>
 
         <div id="ll" style="position: absolute; top: 8px; right: 355px;">
@@ -71,9 +74,9 @@
                 <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="#{msg['ws.header.admin.title']}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}" style="position: relative">
+            <span style="position: relative">
                 <ui:include src="/pages/modules/userAccount.xhtml" />
-            </h:panelGroup>
+            </span>
         </div>
     </div>
 </ui:composition>
