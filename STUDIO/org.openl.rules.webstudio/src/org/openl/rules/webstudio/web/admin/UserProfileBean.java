@@ -130,7 +130,7 @@ public class UserProfileBean extends UsersBean {
             }
 
             if (!userPasswordHash.equals(enteredPasswordHash)) {
-                throw new ValidatorException(new FacesMessage("Incorect current password!"));
+                throw new ValidatorException(new FacesMessage("Incorrect current password!"));
             }
         }
     }
