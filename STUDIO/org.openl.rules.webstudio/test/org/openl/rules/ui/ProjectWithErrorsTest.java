@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
+        when(ws.getProjectResolver()).thenReturn(RulesProjectResolver.loadProjectResolverFromClassPath());
 
         pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
@@ -50,6 +53,13 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
         assertEquals(1, pm.getAllTestMethods().length);
         assertEquals(1, pm.getCompiledOpenClass().getOpenClassWithErrors().getTypes().size());
+    }
+
+    @Test
+    public void testSingleModuleModeNotChangedAfterReset() throws Exception {
+        assertEquals(singleModuleMode, pm.isSingleModuleMode());
+        pm.reset(ReloadType.FORCED);
+        assertEquals(singleModuleMode, pm.isSingleModuleMode());
     }
 
     private void createMainModule() throws IOException {
