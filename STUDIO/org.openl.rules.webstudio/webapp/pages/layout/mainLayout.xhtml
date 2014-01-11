@@ -370,8 +370,6 @@
             function toProjectsPanel() {
                 sessionStorage.removeItem(NAVI_HEADER_ITEM);
                 sessionStorage.removeItem(SHOW_HISTORY_ITEM);
-                $j("#navigationHeader").text("Projects");
-                $j("#navigationHeader").removeAttr("title");
 
                 $j("#projectsTreePanel").show();
                 $j("#rulesTreePanel").hide();
@@ -390,8 +388,6 @@
 
                 if (header) {
                     sessionStorage.setItem(NAVI_HEADER_ITEM, header);
-                    $j("#navigationHeader").text(header);
-                    $j("#navigationHeader").attr("title", header);    
                 }
 
                 $j("#projectsTreePanel").hide();
@@ -401,9 +397,6 @@
 
             function toHistoryPanel() {
                 header = sessionStorage.getItem(NAVI_HEADER_ITEM);
-                
-                $j("#navigationHeader").text(header);
-                $j("#navigationHeader").attr("title", header);
 
                 $j("#projectsTreePanel").hide();
                 $j("#rulesTreePanel").hide();
