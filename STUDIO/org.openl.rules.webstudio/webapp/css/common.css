@@ -43,10 +43,10 @@ input[type='text'], input[type='password'], textarea {
 input[type='submit'], input[type='reset'],
 input[type='button'], button,
 .button, .imageButton {
-    padding: 4px 6px;
+    padding: 5px 8px;
     border: 1px solid #e5e5e5;
     background: #fbfbfb;
-    color: #444444;
+    color: #444;
     margin-right: 4px;
     cursor: pointer;
     box-shadow: 0 0 2px #fff inset;
@@ -183,6 +183,14 @@ a {
     color: #1199ee;
 }
 
+a.link-ref {
+    text-decoration: none;
+    color: #aaa;
+    border-bottom: 1px dashed #eee;
+    font-style: italic;
+    padding-bottom: 2px;
+}
+
 .link-dropdown {
     color: #1199ee;
     text-decoration: none;
@@ -196,6 +204,10 @@ a {
 
 .link-dropdown-menu > li > a {
     padding: 2px 12px;
+}
+
+.w100 {
+    width: 100%;
 }
 
 form {
@@ -288,7 +300,8 @@ fieldset {
     cursor: pointer;
 }
 
-.table .row-selected {
+.table .row-selected,
+.table tr.active > td {
     background: #59c !important;
     color: #fff !important;
     font-weight: bold !important;
@@ -318,6 +331,10 @@ fieldset {
 
 .badge-warning {
     background: #FFD200;
+}
+
+.badge-success {
+    background: #5cb85c;
 }
 
 .badge-info {
@@ -391,6 +408,11 @@ fieldset {
     padding: 15px 25px 15px 125px;
 }
 
+.page {
+    padding: 7px 21px 15px;
+}
+
+/* TODO Merge with .block */
 .fields section {
     margin-bottom: 31px;
 }
@@ -405,6 +427,119 @@ fieldset {
 .fields section > div {
     margin-left: 11px;
     color: rgb(71,71,71);
+}
+
+.block-column {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 105px;
+}
+
+.block {
+    margin-top: 25px;
+    margin-bottom: 37px;
+}
+
+.block:last-child {
+    margin-bottom: 0;
+}
+
+.block > h3 {
+    color: #578;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.block > .block-content {
+    padding-left: 7px;
+    padding-top: 2px;
+}
+
+.block > .block-content > .list {
+    margin-top: -5px;
+}
+
+.block > .block-content > .properties {
+    margin-top: -2px;
+}
+
+.list > .list-item {
+    display: block;
+    width: 100%;
+    padding: 8px 3px 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.list > .list-item:last-child {
+    border-bottom: none;
+}
+
+table.properties td {
+    padding: 4px 2px 4px 0;
+    vertical-align: top;
+}
+
+table.properties td:first-child {
+    width: 110px;
+    color: #777;
+    padding-right: 5px;
+    font-family: Verdana, Helvetica, Arial !important; /* Rewrite RichFaces styles */
+}
+
+table.properties-form td {
+    padding: 1px 2px 1px 0;
+}
+
+table.properties-form td:first-child {
+    color: #444;
+    padding-top: 6px;
+}
+
+table.properties-form input[type="text"],
+table.properties-form select,
+table.properties-form textarea {
+    width: 170px;
+}
+
+table.properties-form textarea {
+    height: 120px;
+}
+
+table.properties-form.wide input[type="text"],
+table.properties-form.wide select,
+table.properties-form.wide textarea {
+    width: 315px;
+}
+
+table td.delimeter {
+    padding: 0 !important;
+    height: 10px;
+}
+
+ul.enum {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+ul.enum li {
+    padding-top: 3px;
+    padding-bottom: 4px;
+}
+
+.editable .editable-link,
+.editable-inner .editable-link-inner {
+    visibility: hidden;
+    opacity: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    transition: visibility 0.1s linear, opacity 0.2s ease-out;
+}
+
+.editable:hover .editable-link,
+.editable-inner:hover .editable-link-inner {
+    visibility: visible;
+    opacity: 1;
 }
 
 .code {
@@ -447,12 +582,14 @@ fieldset {
     margin-right: 10px;
 }
 
+/* Deprecated, use .properties instead */
 form .formfields {
     vertical-align: top;
     border: none;
     width: 99%;
 }
 
+/* Deprecated, use .properties instead */
 .label {
     color: #3f3f3f;
     padding-right: 5px;
@@ -516,8 +653,6 @@ form.standard table.buttonPanel {
     padding: 17px 11px;
     opacity: 0.8;
     text-align: center;
-    -moz-transition: all .4s ease-out;
-    -webkit-transition: all .4s ease-out;
     transition: all .4s ease-out;
     word-wrap: break-word;
 }
@@ -810,14 +945,15 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-hdr {
-    background: #f7f7f7 !important;
-    padding: 7px 0 !important;
-    border-bottom: 1px solid #eee;
+    background: #fff !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .rf-pp-hdr-cnt {
-    color: #222222 !important;
-    font-size: 12px !important;
+    color: #555 !important;
+    font-size: 13px !important;
+    font-weight: normal !important;
 }
 
 .rf-pp-hdr-cntrls {
@@ -826,21 +962,36 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-cntr {
-    border-color: #ddd !important;
-    box-shadow: 0 1px 31px #ddd;
+    border: none !important;
+    box-shadow: 0 1px 31px #dadada;
 }
 
 .rf-pp-shade {
-    background-color: #f3f3f3 !important;
-    opacity: 0.8 !important;
+    background-color: #f5f5f5 !important;
+    opacity: 0.7 !important;
 }
 
 .rf-pp-shdw {
     display: none !important;
 }
 
+.rf-pp-cnt {
+    padding-top: 12px !important;
+}
+
+.rf-pp-cnt footer {
+    border-top: 1px solid #ddd;
+    margin-top: 14px;
+    padding: 13px 1px 4px;
+    text-align: right;
+}
+
+.rf-pp-cnt footer > input {
+    margin: 0 0 0 2px;
+}
+
 .rf-pp-cnt-scrlr {
-    background: #fefefe !important;
+    background: #fff !important;
 }
 
 .rf-fu {
@@ -856,6 +1007,10 @@ form.standard table.buttonPanel {
 .rf-fu-btn-add, .rf-fu-btn-upl, .rf-fu-btn-clr {
     height: 21px !important;
     background: #f7f7f7 !important;
+}
+
+.rf-pp-hdr-cntrls .close {
+    margin: 8px 4px;
 }
 
 /* Twitter Bootstrap styles */

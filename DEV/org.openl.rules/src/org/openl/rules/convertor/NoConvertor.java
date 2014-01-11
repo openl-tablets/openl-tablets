@@ -4,10 +4,10 @@ import org.openl.binding.IBindingContext;
 
 public class NoConvertor implements IString2DataConvertor {
 
-    private Class<?> clazz;
+    private final String className;
 
     public NoConvertor(Class<?> clazz) {
-        this.clazz = clazz;
+        this.className = clazz.getName();
     }
 
     public String format(Object data, String format) {
@@ -18,7 +18,7 @@ public class NoConvertor implements IString2DataConvertor {
         // FIXME: Wrong exception type. The error about not existing
         // converter must be thrown in corresponding factory. Throwing error
         // from looks like ugly design.
-        throw new IllegalArgumentException("Convertor or Public Constructor " + clazz.getName() + "(String s) does not exist");
+        throw new IllegalArgumentException("Convertor or Public Constructor " + className + "(String s) does not exist");
     }
 
 }

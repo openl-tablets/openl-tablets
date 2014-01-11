@@ -66,8 +66,7 @@ public class NameChecker {
         // check for special chars
         for (int i = 0; i < artefactName.length(); i++) {
             if (artefactName.charAt(i) < 32) {
-                // contains (bad) special characters (\t, \n, all that less than
-                // <space>)
+                // contains (bad) special characters (\t, \n, all that less than <space>)
                 return false;
             }
         }
@@ -78,7 +77,7 @@ public class NameChecker {
 
     public static String getForbiddenCharacters() {
         if (forbiddenChars == null) {
-            // generate string: "\, /, :, ;, <, >, ?, *, %"
+            // generate string: "\, /, :, ;, <, >, ?, *, %, ', [, ]"
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < FORBIDDEN_CHARS.length; i++) {
                 if (i > 0) {

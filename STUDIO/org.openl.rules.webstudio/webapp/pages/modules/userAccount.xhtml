@@ -4,7 +4,8 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
     <style>
         .fields {
@@ -38,11 +39,17 @@
                             <div>
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
                                     <label>Username</label>
+                                    <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
                                     <h:outputText id="username" style="font-weight: bold" value="#{userProfileBean.user.username}"/>
                                     <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{systemConfig['user.mode'] == 'single'}">
+                                    <span style="font-weight: bold"><authz:authentication operation="username" /></span>
+                                    </h:panelGroup>
                                 </h:panelGrid>
                             </div>
                         </section>
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -52,7 +59,7 @@
                                     <a4j:outputPanel ajaxRendered="false" id="firstNameError">
                                         <h:message for="firstName" styleClass="error" />
                                     </a4j:outputPanel>
-                    
+
                                     <label>Last Name</label>
                                     <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}"/>
                                     <a4j:outputPanel ajaxRendered="true" id="lastNameError">
@@ -64,27 +71,27 @@
                         <section>
                             <h3>Change Password</h3>
                             <div>
-                            
+
                             <div style="text-align: center; margin: 2px;">
                               <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
-                                <h:message for="newPassword" styleClass="error" ajaxRendered="true" />          
+                                <h:message for="newPassword" styleClass="error" ajaxRendered="true" />
                                </a4j:outputPanel>
                             </div>
-        
+
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
                                     <label>Current password</label>
                                     <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" />
                                     <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
                                         <h:message for="currentPassword" styleClass="error" />
                                     </a4j:outputPanel>
-                    
+
                                     <label>New password</label>
                                     <h:inputSecret  id="newPassword" value="#{userProfileBean.newPassword}" validator="#{userProfileBean.passwordsValidator}" >
                                         <f:attribute name="confirmPassword" value="#{confirmPassword}" />
                                         <f:attribute name="currentPassword" value="#{currentPassword}" />
                                     </h:inputSecret>
                                    <h:outputText value="" />
-                    
+
                                     <label>Confirm password</label>
                                     <h:inputSecret  id="confirmPassword" value="#{userProfileBean.confirmPassword}" binding="#{confirmPassword}" />
                                     <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
@@ -93,10 +100,20 @@
                                 </h:panelGrid>
                             </div>
                         </section>
+                        </h:panelGroup>
                     </div>
                 </rich:tab>
                 <rich:tab header="Settings" id="userProfileSettings">
                     <div class="fields">
+                        <section>
+                            <h3>Project Settings</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <label>Open project in Single module mode</label>
+                                    <h:selectBooleanCheckbox id="singleModuleMode" value="#{studio.singleModuleModeByDefault}" />
+                                </h:panelGrid>
+                            </div>
+                        </section>
                         <section>
                             <h3>Table Settings</h3>
                             <div>
@@ -105,8 +122,6 @@
                                     <h:selectBooleanCheckbox id="showHeader" value="#{studio.showHeader}" />
                                     <label>Show Formulas</label>
                                     <h:selectBooleanCheckbox id="showFormulas" value="#{studio.showFormulas}" />
-                                    <label>Open project in single module mode by default</label>
-                                    <h:selectBooleanCheckbox id="singleModuleMode" value="#{studio.singleModuleModeByDefault}" />
                                 </h:panelGrid>
                             </div>
                         </section>
@@ -114,13 +129,14 @@
                 </rich:tab>
             </rich:tabPanel>
 
-            <hr />
-
-            <div style="margin: 14px 0 4px">
-                <a4j:commandButton value="Save" action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
+            <footer>
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single'}" value="Save"
+                    action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideUserProfile()" render=":userProfileForm" styleClass="button-primary" />
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
+                    oncomplete="hideUserProfile()" styleClass="button-primary" />
                 <input type="button" value="Cancel" onclick="hideUserProfile()" />
-            </div>
+            </footer>
         </h:form>
 
     </rich:popupPanel>

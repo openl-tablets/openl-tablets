@@ -1,86 +1,135 @@
 <ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-     xmlns:a4j="http://richfaces.org/a4j">
-
-    <style>
-        .module-imports {
-            margin-top: 15px;
-        }
-
-        .module-imports ul {
-            list-style-type: none;
-            padding-left: 8px;
-            margin-top: 3px;
-            margin-bottom:3px;
-        }
-
-       .module-imports ul li {
-           pdding-top: 5px;
-           padding-bottom:5px;
-       }
-
-    </style>
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
+    <ui:param name="module" value="#{studio.currentModule}" />
 
-    <div class="content" style="margin: 11px 14px">
-        <h:panelGrid columns="2" cellspacing="6" columnClasses="">
-            <h:outputText value="#{msg['ws.module.project.name']}: " style="font-weight: bold" />
-            <h:outputText value="#{studio.currentModule.project.name}"  />
-            <h:outputText value="#{msg['ws.module.name']}: " style="font-weight: bold" />
-            <h:outputText value="#{studio.currentModule.name}"  />
+    <div class="page">
 
-            <h:outputText value="#{msg['ws.module.tables']}: " style="font-weight: bold" />
-            <h:panelGroup>
-                <h:outputText value="#{fn:length(studio.model.tableSyntaxNodes)}" />
-                <h:outputText value="#{studio.model.errorNodesNumber} #{msg['ws.module.tables.failed']}" styleClass="badge badge-error"
-                    rendered="#{studio.model.errorNodesNumber > 0}" style="margin-left: 7px" />
+        <h1>#{module.name}</h1>
 
+        <div class="block-column">
+            <div class="block">
+                <h3>Summary</h3>
+                <div class="block-content">
+                    <table class="properties">
+                        <tr>
+                            <td>Project</td>
+                            <td><a href="#project.xhtml?name=#{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Path</td>
+                            <td>#{projectBean.getModulePath(module)}</td>
+                        </tr>
+                        <tr>
+                            <td>#{msg['ws.module.tables']}</td>
+                            <td>#{fn:length(studio.model.tableSyntaxNodes)}
+                                <h:panelGroup rendered="#{studio.model.errorNodesNumber > 0}">
+                                <span class="badge badge-error"
+                                      style="margin-left:2px">#{studio.model.errorNodesNumber} #{msg['ws.module.tables.failed']}</span>
+                            </h:panelGroup></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}">
+                <div class="block">
+                    <h3>#{msg['ws.module.includes']}</h3>
+                    <div class="block-content">
+                        <div class="list">
+                            <a4j:repeat value="#{modulePageBean.includes}" var="key">
+                            <div class="list-item">
+                                <h:form style="display: inline">
+                                    <a4j:commandLink action="#{mainBean.selectModule}"
+                                        oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(studio.currentProject.name)}/#{jsffn:encodeURL(key)}', true)">
+                                        #{key}
+                                        <f:param name="project" value="#{studio.currentProject.name}" />
+                                        <f:param name="module" value="#{key}" />
+                                    </a4j:commandLink>
+                                </h:form>
+                            </div>
+                            </a4j:repeat>
+                        </div>
+                    </div>
+                </div>
             </h:panelGroup>
 
-            <h:outputText value="" />
-            <h:outputText value="" />
+            <h:panelGroup rendered="#{modulePageBean.dependencies.size() > 0}">
+            <div class="block">
+                <h3>#{msg['ws.module.dependencies']}</h3>
+                <div class="block-content">
+                    <div class="list">
+                        <a4j:repeat value="#{modulePageBean.dependencies}" var="key">
+                            <div class="list-item">#{key}</div>
+                        </a4j:repeat>
+                    </div>
+                </div>
+            </div>
+            </h:panelGroup>
 
-      </h:panelGrid>
+            <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}">
+                <div class="block">
+                    <h3>#{msg['ws.module.imports']}</h3>
+                    <div class="block-content">
+                        <div class="list">
+                            <a4j:repeat value="#{modulePageBean.imports}" var="key">
+                                <div class="list-item">#{key}</div>
+                            </a4j:repeat>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </div>
 
-	  <h:panelGroup rendered="#{modulePageBean.dependencies.size() > 0}" layout="block" styleClass="module-imports">
-           <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">#{msg['ws.module.dependencies']}:</div>
-          <div>
-              <ul>
-                  <a4j:repeat value="#{modulePageBean.dependencies}" var="keys" >
-                      <li>#{keys}</li>
-                  </a4j:repeat>
-              </ul>
-          </div>
-      </h:panelGroup>
-
-	  <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}" layout="block" styleClass="module-imports">
-	      <div style="font-weight: bold; margin-left: 7px;">#{msg['ws.module.includes']}:</div>
-	      <div>
-	          <ul>
-	           <a4j:repeat value="#{modulePageBean.includes}" var="keys">
-	                  <li>#{keys}</li>
-	           </a4j:repeat>
-	           </ul>
-	          </div>
-	   </h:panelGroup>
-
-	   <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}" layout="block" styleClass="module-imports">
-	       <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">#{msg['ws.module.imports']}:</div>
- 	      <div>
-	          <ul>
-	              <a4j:repeat value="#{modulePageBean.imports}" var="keys" >
-	                  <li>#{keys}</li>
-	              </a4j:repeat>
-	          </ul>
-	      </div>
-	  </h:panelGroup>
+        <div class="block-column">
+            <div class="block">
+                <h3>Deploy Info</h3>
+                <div class="block-content">
+                    <table class="properties">
+                        <tr>
+                            <td>Type</td>
+                            <td><span class="badge">#{module.type}</span></td>
+                        </tr>
+                        <h:panelGroup rendered="#{module.type != 'API' and !empty module.classname}">
+                        <tr>
+                            <td>Class</td>
+                            <td>#{module.classname}</td>
+                        </tr>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
+                            <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
+                                <tr>
+                                    <td>Included Methods</td>
+                                    <td>
+                                        <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                            #{include}
+                                        </a4j:repeat>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
+                                <tr>
+                                    <td>Excluded Methods</td>
+                                    <td>
+                                        <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                            #{exclude}
+                                        </a4j:repeat>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </table>
+                </div>
+            </div>
+        </div>
 
     </div>
 

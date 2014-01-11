@@ -7,6 +7,9 @@ import java.util.Map;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.OpenL;
+import org.openl.conf.ClassLoaderFactory;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleService;
@@ -97,6 +100,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private void processServices() {
+        resetOpenL();
+
         Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
         undeployUnnecessary(newServices);
         deployServices(newServices);
@@ -172,6 +177,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             }
 
         }
+    }
+
+    private void resetOpenL() {
+        // TODO Refactor the classes below to not have static HashMap fields: it's bad for multithreading and memory-leak prone.
+        OpenL.reset();
+        OpenLConfiguration.reset();
+        ClassLoaderFactory.reset();
     }
 
 }

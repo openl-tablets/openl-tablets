@@ -105,12 +105,13 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
                     serviceName));
         }
         try {
-            runningServices.get(service).stop();
+            runningServices.get(service).destroy();
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName,
                         baseAddress + service.getUrl()));
             }
             runningServices.remove(service);
+            service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }

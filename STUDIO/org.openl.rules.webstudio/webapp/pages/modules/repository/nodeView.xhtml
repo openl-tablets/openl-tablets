@@ -213,11 +213,6 @@
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
     --></ui:remove>
-    <rich:tab id="rulesConfiguration" name="RulesConfiguration" header="Rules Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
-      <h:panelGroup rendered="#{node.type == 'project'}">
-        <ui:include src="/pages/modules/repository/node/rulesConfiguration.xhtml" />
-      </h:panelGroup>
-    </rich:tab>
     <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
       <h:panelGroup rendered="#{node.type == 'project'}">
         <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />

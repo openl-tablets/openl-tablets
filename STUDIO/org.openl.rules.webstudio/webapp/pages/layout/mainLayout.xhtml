@@ -188,7 +188,45 @@
                 }
             }
 
+            var ws = {
+                nav: {
+                    reload: function(params) {
+                        if (!params) {
+                            loadContent();
+                        } else {
+                            var currentPage = getCurrentPage();
+                            var newPage = $location.utils.setParams(currentPage, params);
+                            goTo(newPage);
+                        }
+                    },
+                    home: function() {
+                        loadContent(urlRewrite.prefix + HOME_PAGE);
+                    }
+                },
+
+                ui: {
+                    show: function(id, params) {
+                        // RichFaces Popup
+                        if ($j("#" + id + "_container").length) {
+                            RichFaces.$(id).show();
+
+                            if (!params || (params && params.focus !== false)) {
+                                // Focus the first visible enabled input
+                                $j("#" + id + "_container :input:enabled:visible:first").focus();
+                            }
+                        }
+                    },
+                    hide: function(id) {
+                        // RichFaces Popup
+                        if ($j("#" + id + "_container").length) {
+                            RichFaces.$(id).hide();
+                        }
+                    }
+                }
+            }
+
             // Deprecated
+            // TODO Move to ws.nav namespace
             function search(params) {
                 var query;
 
@@ -207,6 +245,7 @@
             }
 
             // Deprecated
+            // TODO Move to ws.nas namespace
             function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
@@ -225,26 +264,8 @@
                 }
             }
 
-            var ws = {
-                nav: {
-                    reload: function(params) {
-                        if (!params) {
-                            loadContent();
-                        } else {
-                            var currentPage = getCurrentPage();
-                            var newPage = $location.utils.setParams(currentPage, params);
-                            goTo(newPage);
-                        }
-                    }
-                }
-            }
-
             // Deprecated
-            function goHome() {
-                loadContent(urlRewrite.prefix + HOME_PAGE);
-            }
-
-            // Deprecated
+            // TODO Move to ws.nas namespace
             function reloadCurrent() {
                 reloadTop();
                 reloadLeft();
@@ -266,7 +287,8 @@
                 $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
             }
 
-            // Deprecated
+             // Deprecated
+             // TODO Move to ws namespace
              function getCurrentPage() {
                 if (location.hash) {
                     var page = lastSavedHash;
@@ -275,15 +297,29 @@
                     }
                     return page;
                 }
-            }
+             }
 
-              function loadContent(page) {
+             // TODO Refactor
+             function loadContent(page) {
                 var page = page || getCurrentPage();
 
                 if (page) {
-                    $j("#content").load(page);
+                    if (page.indexOf("table.xhtml") > -1) {
+                        $j.when(
+                            $j.get(page),
+                            $j.get(urlRewrite.prefix + "tableDetailsData.xhtml?" + $location.utils.getParamsQuery(page))
+                        ).done(function(res1, res2) {
+                             mainLayout.show("east");
+                             $j("#content").html(res1[0]);
+                             $j("#tableProperties").html(res2[0]);
+                             openTreeNode(page);
+                        });
+                    } else {
+                        $j("#content").load(page);
+                        mainLayout.hide("east");
+                    }
 
-                    if (page.indexOf(HOME_PAGE) > -1) {
+                    if (page.indexOf(HOME_PAGE) > -1 || page.indexOf("project.xhtml") > -1) {
                         toProjectsPanel();
                         reloadTop();
                         $j("#rulesTree, #problemsTree").hide();
@@ -295,21 +331,12 @@
                         if (page.indexOf("module.xhtml") > -1) {
                             var headerParts = $location.utils.getParamsQuery(page).split("/");
                             header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
+                            reloadTop();
                         }
                         toRulesPanel(header);
                     }
-
-                    if (page.indexOf("table.xhtml") > -1) {
-                        mainLayout.show("east");
-                        $j("#tableProperties").load(
-                                urlRewrite.prefix + "tableDetailsData.xhtml?"
-                                + $location.utils.getParamsQuery(page));
-                        openTreeNode(page);
-                    } else {
-                        mainLayout.hide("east");
-                    }
                 } else {
-                    goHome();
+                    ws.nav.home();
                 }
             }
 
@@ -403,6 +430,8 @@
                 }
             }
 
+            // Deprecated
+            // TODO Move to ws.ui namespace
             function showPopupMenu(event, popupId, elem, params) {
                 var elem = $j(elem);
                 var elemPos = elem.position();
@@ -425,6 +454,8 @@
                 $j("#" + popupId).popup(popupParams);
             }
 
+            // Deprecated
+            // TODO Move to ws.ui namespace
             function message(content, life, closable) {
                 var messages = $j(".message");
 

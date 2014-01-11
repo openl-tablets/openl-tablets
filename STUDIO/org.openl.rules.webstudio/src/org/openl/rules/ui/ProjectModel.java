@@ -816,12 +816,13 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        RulesProject project = getProject();
+        if (isGranted(PRIVILEGE_EDIT_PROJECTS)) {
+            RulesProject project = getProject();
 
-        if (project != null) {
-            return (project.isOpenedForEditing() || project.isLocalOnly()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
+            if (project != null) {
+                return project.isLocalOnly() || project.isOpenedForEditing();
+            }
         }
-
         return false;
     }
 
@@ -1023,6 +1024,7 @@ public class ProjectModel {
     }
 
     public void reset(ReloadType reloadType) throws Exception {
+        boolean singleModuleMode = shouldOpenInSingleMode(moduleInfo);
         switch (reloadType) {
             case FORCED:
                 OpenL.reset();
@@ -1036,7 +1038,7 @@ public class ProjectModel {
                 // do nothing
                 break;
         }
-        setModuleInfo(moduleInfo, reloadType);
+        setModuleInfo(moduleInfo, reloadType, singleModuleMode);
         projectRoot = null;
     }
 
@@ -1188,17 +1190,19 @@ public class ProjectModel {
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-            this.moduleInfo = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
+            Module reloadedModule;
+            reloadedModule = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
             // When moduleInfo cannot be found by class name, it is searched by
             // module name
-            if (this.moduleInfo == null) {
+            if (reloadedModule == null) {
                 for (Module module : projectDescriptor.getModules()) {
                     if (moduleInfo.getName().equals(module.getName())) {
-                        this.moduleInfo = module;
+                        reloadedModule = module;
                         break;
                     }
                 }
             }
+            this.moduleInfo = reloadedModule;
         } else {
             this.moduleInfo = moduleInfo;
         }
