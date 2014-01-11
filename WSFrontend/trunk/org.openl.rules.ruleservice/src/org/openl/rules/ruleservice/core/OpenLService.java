@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * Class designed for storing settings for service configuration and compiled
@@ -228,6 +231,21 @@ public final class OpenLService {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Unregister ClassLoaders of this service.
+     */
+    public void destroy() {
+        if (serviceClass != null) {
+            ClassLoader classLoader = serviceClass.getClassLoader();
+            while (classLoader instanceof SimpleBundleClassLoader) {
+                JavaOpenClass.resetClassloader(classLoader);
+                String2DataConvertorFactory.unregisterClassLoader(classLoader);
+
+                classLoader = classLoader.getParent();
+            }
+        }
     }
 
     /**
