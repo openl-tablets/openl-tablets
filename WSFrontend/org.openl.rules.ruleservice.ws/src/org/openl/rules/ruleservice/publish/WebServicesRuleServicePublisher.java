@@ -98,8 +98,9 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
                     serviceName));
         }
         try {
-            runningServices.get(service).getServer().stop();
+            runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
+            service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }

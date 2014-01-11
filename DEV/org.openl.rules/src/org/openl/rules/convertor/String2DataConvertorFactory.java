@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
@@ -26,7 +28,12 @@ import org.openl.types.IOpenClass;
  */
 public class String2DataConvertorFactory {
 
+    /**
+     * Strong reference to converters
+     */
     private static HashMap<Class<?>, IString2DataConvertor> convertors;
+
+    private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
 
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor>();
@@ -59,16 +66,20 @@ public class String2DataConvertorFactory {
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
+
+        convertorsCache.putAll(convertors);
     }
 
     public static synchronized IString2DataConvertor getConvertor(Class<?> clazz) {
 
-        IString2DataConvertor convertor = convertors.get(clazz);
+        IString2DataConvertor convertor = convertorsCache.get(clazz);
 
         if (convertor != null) {
             return convertor;
         }
 
+        // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference 
+        // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
             convertor = new String2EnumConvertor(clazz);
         } else if (clazz.isArray()) {
@@ -84,13 +95,13 @@ public class String2DataConvertorFactory {
             }
         }
 
-        convertors.put(clazz, convertor);
+        convertorsCache.put(clazz, convertor);
 
         return convertor;
     }
 
     public static void registerConvertor(Class<?> clazz, IString2DataConvertor conv) {
-        convertors.put(clazz, conv);
+        convertorsCache.put(clazz, conv);
     }
 
     /**
@@ -99,7 +110,7 @@ public class String2DataConvertorFactory {
      * @param clazz Class to unregister.
      */
     public static void unregisterConvertorForClass(Class<?> clazz) {
-        convertors.remove(clazz);
+        convertorsCache.remove(clazz);
     }
 
     /**
@@ -109,7 +120,7 @@ public class String2DataConvertorFactory {
      */
     public static void unregisterClassLoader(ClassLoader classLoader) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
-        for (Class<?> clazz : convertors.keySet()) {
+        for (Class<?> clazz : convertorsCache.keySet()) {
             if (clazz.getClassLoader() == classLoader) {
                 toRemove.add(clazz);
             }
