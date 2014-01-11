@@ -1,7 +1,7 @@
 package org.openl.rules.testmethod;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -12,23 +12,24 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TestSuite implements INamedThing {
     private static final int QUEUE_SIZE = 2000;
-
+    private static int THREAD_COUNT = 4;
     static ThreadPoolExecutor threadPoolExecutor;
     static {
         try {
-            int threadCount = OpenLSystemProperties.getTestRunThreadCount(null);
-            threadPoolExecutor = new ThreadPoolExecutor(threadCount,
-                threadCount,
+            THREAD_COUNT = OpenLSystemProperties.getTestRunThreadCount(null);
+            threadPoolExecutor = new ThreadPoolExecutor(THREAD_COUNT,
+                THREAD_COUNT,
                 1l,
                 TimeUnit.MINUTES,
-                new PriorityBlockingQueue<Runnable>(QUEUE_SIZE),
+                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         } catch (Exception e) {
-            threadPoolExecutor = new ThreadPoolExecutor(4,
-                4,
+            THREAD_COUNT = 4;
+            threadPoolExecutor = new ThreadPoolExecutor(THREAD_COUNT,
+                THREAD_COUNT,
                 1l,
                 TimeUnit.MINUTES,
-                new PriorityBlockingQueue<Runnable>(QUEUE_SIZE),
+                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         }
     }
@@ -68,16 +69,22 @@ public class TestSuite implements INamedThing {
 
     public TestUnitsResults invokeParallel(final Object target, final IRuntimeEnvFactory envFactory, final long ntimes) {
         final TestUnitsResults testUnitResults = new TestUnitsResults(this);
-        final CountDownLatch countDownLatch = new CountDownLatch(getNumberOfTests());
+        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         final TestUnit[] testUnitResultsArray = new TestUnit[getNumberOfTests()];
-        for (int i = 0; i < getNumberOfTests(); i++) {
-            final TestDescription currentTest = getTest(i);
-            final int index = i;
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            final int numThread = i;
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        testUnitResultsArray[index] = currentTest.runTest(target, envFactory.buildIRuntimeEnv(), ntimes);
+                        for (int j = 0; j < getNumberOfTests(); j++) {
+                            if (j % THREAD_COUNT == numThread) {
+                                final TestDescription currentTest = getTest(j);
+                                testUnitResultsArray[j] = currentTest.runTest(target,
+                                    envFactory.buildIRuntimeEnv(),
+                                    ntimes);
+                            }
+                        }
                     } finally {
                         countDownLatch.countDown();
                     }
