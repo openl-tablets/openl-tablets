@@ -81,13 +81,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private void initDependencies() throws OpenLCompilationException {    
         for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                // commented as there is no need to add each datatype to upper module.
-                // as now it`s will be impossible to validate from which module the datatype is.
-                //
-                //addTypes(dependency);
-                addMethods(dependency);
-            }            
+            // commented as there is no need to add each datatype to upper module.
+            // as now it`s will be impossible to validate from which module the datatype is.
+            //
+            //addTypes(dependency);
+            addMethods(dependency);
         }
     }
     
@@ -111,7 +109,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @param dependency compiled dependency module
      */
     private void addMethods(CompiledOpenClass dependency) {
-        for (IOpenMethod depMethod : dependency.getOpenClass().getMethods()) {
+        for (IOpenMethod depMethod : dependency.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
             if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
@@ -206,8 +204,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Set compiled module dependencies for current module.
-     * 
-     * @param moduleDependencies
      */
     public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
         if (moduleDependencies != null) {
@@ -233,9 +229,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     public Map<String, IOpenClass> getTypes() {
         Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
         for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                currentModuleDatatypes.putAll(dependency.getTypes());
-            }
+            currentModuleDatatypes.putAll(dependency.getTypes());
         }
         
         return currentModuleDatatypes;
@@ -278,7 +272,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * 
      * @param type
      *            IOpenClass instance
-     * @throws Exception
+     * @throws OpenLCompilationException
      *             if an error had occurred.
      */
     @Override

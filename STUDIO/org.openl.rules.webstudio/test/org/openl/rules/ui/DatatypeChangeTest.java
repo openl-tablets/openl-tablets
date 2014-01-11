@@ -1,40 +1,31 @@
 package org.openl.rules.ui;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.tika.io.IOUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 
 @RunWith(Parameterized.class)
-public class DatatypeChangeTest {
+public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private static final String SHEET_NAME = "Test";
     private static final String EXPENSE_MODULE_FILE_NAME = "ExpenseModule.xls";
     private static final String MAIN_MODULE_FILE_NAME = "MainModule.xls";
@@ -42,9 +33,6 @@ public class DatatypeChangeTest {
     private ProjectModel pm;
     private Module expenseModule;
     private Module mainModule;
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Parameterized.Parameter
     public boolean singleModuleMode;
@@ -59,16 +47,12 @@ public class DatatypeChangeTest {
         createExpenseModule();
         createMainModule(); // main module depends on expense module
 
-        File rulesFolder = tempFolder.getRoot();
-        ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath().isRulesProject(
-                rulesFolder);
-        List<Module> modules = resolvingStrategy.resolveProject(rulesFolder).getModules();
+        List<Module> modules = getModules();
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
 
         pm = new ProjectModel(ws);
-        pm.setSingleModuleMode(singleModuleMode);
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {
                 expenseModule = module;
@@ -83,6 +67,9 @@ public class DatatypeChangeTest {
     public void testSetModule() throws Exception {
         // Initial field name
         pm.setModuleInfo(expenseModule);
+        pm.setSingleModuleMode(singleModuleMode);
+        assertEquals(singleModuleMode, pm.isSingleModuleMode());
+
         Method methods[] = getExpenseInstanceClass(pm).getMethods();
         assertTrue(contains(methods, "setArea"));
         assertTrue(contains(methods, "getArea"));
@@ -100,6 +87,9 @@ public class DatatypeChangeTest {
     public void testDependencyOwnerRebuild() throws Exception {
         // Initial field name
         pm.setModuleInfo(mainModule);
+        pm.setSingleModuleMode(singleModuleMode);
+        assertEquals(singleModuleMode, pm.isSingleModuleMode());
+
         assertFalse(pm.getCompiledOpenClass().hasErrors());
 
         // Try to change a field name of dependent module and reload only that
@@ -174,25 +164,4 @@ public class DatatypeChangeTest {
         writeBook(book, MAIN_MODULE_FILE_NAME);
     }
 
-    private void createTable(Sheet sheet, String table[][]) {
-        int firstRow = sheet.getLastRowNum() + 2;
-        for (int i = 0; i < table.length; i++) {
-            Row row = sheet.createRow(firstRow + i);
-            for (int j = 0; j < table[i].length; j++) {
-                Cell cell = row.createCell(j);
-                cell.setCellValue(table[i][j]);
-            }
-        }
-
-    }
-
-    private void writeBook(Workbook wb, String file) throws IOException {
-        OutputStream os = null;
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(new File(tempFolder.getRoot(), file)));
-            wb.write(os);
-        } finally {
-            IOUtils.closeQuietly(os);
-        }
-    }
 }
