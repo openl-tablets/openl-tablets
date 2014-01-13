@@ -43,6 +43,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
@@ -1243,8 +1244,8 @@ public class ProjectModel {
             // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
             for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
                 XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-                boolean currentModule = module.getSourceFile().getName().equals(
-                        FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
+                boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
+                        module.getSourceFile().getName().equals(FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
                 module.getWorkbookLoader().setCanUnload(!currentModule);
             }
         } catch (Throwable t) {
@@ -1401,10 +1402,12 @@ public class ProjectModel {
     }
 
     public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
+        PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
+
         for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (module.getSourceFile().getName().equals(
-                    FilenameUtils.getName(studio.getCurrentModule().getRulesRootPath().getPath()))) {
+            if (rulesRootPath != null &&
+                    module.getSourceFile().getName().equals(FilenameUtils.getName(rulesRootPath.getPath()))) {
                 return module;
             }
         }
@@ -1412,6 +1415,9 @@ public class ProjectModel {
     }
 
     public boolean isSingleModuleMode() {
+        if (compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass) {
+            return shouldOpenInSingleMode(moduleInfo);
+        }
         return !isVirtualWorkbook();
     }
 
