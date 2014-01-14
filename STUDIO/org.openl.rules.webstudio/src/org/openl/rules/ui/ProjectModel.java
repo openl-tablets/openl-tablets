@@ -1031,6 +1031,7 @@ public class ProjectModel {
                 OpenL.reset();
                 OpenLConfiguration.reset();
                 ClassLoaderFactory.reset();
+                this.moduleInfo = studio.getCurrentModule();
                 // falls through
             case RELOAD:
                 instantiationStrategyFactory.reset();
