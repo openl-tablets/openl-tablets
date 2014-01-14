@@ -146,7 +146,7 @@ public class WebStudio {
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-        singleModuleModeByDefault = userSettingsManager.getBooleanProperty("project.modules.single");
+        singleModuleModeByDefault = userSettingsManager.getBooleanProperty("project.dependency.modules.single");
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -576,7 +576,7 @@ public class WebStudio {
 
     public void setSingleModuleModeByDefault(boolean singleModuleModeByDefault) {
         this.singleModuleModeByDefault = singleModuleModeByDefault;
-        userSettingsManager.setProperty("project.modules.single", singleModuleModeByDefault);
+        userSettingsManager.setProperty("project.dependency.modules.single", singleModuleModeByDefault);
     }
 
     public String getModuleId(Module module) {
