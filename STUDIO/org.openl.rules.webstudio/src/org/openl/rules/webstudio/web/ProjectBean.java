@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ManagedBean
 @RequestScoped
@@ -74,7 +75,7 @@ public class ProjectBean {
                 ProjectDependencyDescriptor dependency = new ProjectDependencyDescriptor();
                 ProjectDependencyDescriptor projectDependency = studio.getProjectDependency(name);
                 dependency.setName(name);
-                dependency.setAutoIncluded(projectDependency != null ? projectDependency.isAutoIncluded() : true);
+                dependency.setAutoIncluded(projectDependency == null || projectDependency.isAutoIncluded());
                 dependencies.add(
                         new ListItem<ProjectDependencyDescriptor>(projectDependency != null, dependency));
             }
@@ -135,7 +136,7 @@ public class ProjectBean {
 
     public void editName() {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
@@ -143,7 +144,7 @@ public class ProjectBean {
 
     public void editModule() {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
         String name = FacesUtils.getRequestParameter("moduleName");
@@ -153,7 +154,7 @@ public class ProjectBean {
         String includes = FacesUtils.getRequestParameter("moduleIncludes");
         String excludes = FacesUtils.getRequestParameter("moduleExcludes");
 
-        Module module = null;
+        Module module;
 
         // Add new Module
         if (StringUtils.isBlank(oldName)) {
@@ -202,7 +203,7 @@ public class ProjectBean {
 
     public void removeModule() {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
 
@@ -220,7 +221,7 @@ public class ProjectBean {
 
     public void editDependencies() {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -228,7 +229,7 @@ public class ProjectBean {
 
         for (ListItem<ProjectDependencyDescriptor> dependency : dependencies) {
             if (dependency.isSelected()) {
-                resultDependencies.add((ProjectDependencyDescriptor) dependency.getItem());
+                resultDependencies.add(dependency.getItem());
             }
         }
 
@@ -251,7 +252,7 @@ public class ProjectBean {
         }
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = new Cloner().deepClone(projectDescriptor);
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -324,6 +325,22 @@ public class ProjectBean {
         }
 
         descriptor.setProjectFolder(null);
+    }
+
+    private ProjectDescriptor cloneProjectDescriptor(ProjectDescriptor projectDescriptor) {
+        return new Cloner() {
+            @Override
+            public <T> T cloneInternal(T o, Map<Object, Object> clones) throws IllegalAccessException {
+                if (o instanceof Log) {
+                    dontClone(o.getClass());
+                }
+                if (o instanceof ClassLoader) {
+                    // There is no need to clone ClassLoader
+                    return null;
+                }
+                return super.cloneInternal(o, clones);
+            }
+        }.deepClone(projectDescriptor);
     }
 
 }
