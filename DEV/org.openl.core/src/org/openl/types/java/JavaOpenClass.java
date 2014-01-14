@@ -254,16 +254,14 @@ public class JavaOpenClass extends AOpenClass {
 
     public static synchronized void resetClassloader(ClassLoader cl) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
-        for (Iterator<Class<?>> iter = getClassCache().keySet().iterator(); iter.hasNext();) {
-            Class<?> c = iter.next();
+        for (Class<?> c : getClassCache().keySet()) {
             if (c.getClassLoader() == cl) {
                 toRemove.add(c);
             }
 
         }
 
-        for (Iterator<Class<?>> iter = toRemove.iterator(); iter.hasNext();) {
-            Class<?> c = iter.next();
+        for (Class<?> c : toRemove) {
             getClassCache().remove(c);
 
             // System.out.println("Removing " + printClass(c));
