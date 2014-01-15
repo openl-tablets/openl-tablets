@@ -22,6 +22,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
@@ -1049,7 +1050,7 @@ public class ProjectModel {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         for (int i = 0; i < tests.length; i++) {
             if (!isParallel) {
                 results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
@@ -1068,7 +1069,7 @@ public class ProjectModel {
     public TestUnitsResults[] runAllTests(String forTable) {
         IOpenMethod[] tests = getTestMethods(forTable);
         if (tests != null) {
-            boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+            boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
                 results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]), isParallel);
@@ -1080,7 +1081,7 @@ public class ProjectModel {
 
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         return runTest(new TestSuite(testMethod), isParallel);
     }
 
@@ -1097,7 +1098,7 @@ public class ProjectModel {
         } else { // Method without cases
             test = new TestSuite(new TestDescription(testMethod, new Object[] {}));
         }
-        boolean isParallel = getStudio().getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
     }
 

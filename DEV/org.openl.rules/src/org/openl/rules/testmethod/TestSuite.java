@@ -1,39 +1,13 @@
 package org.openl.rules.testmethod;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuite implements INamedThing {
-    private static final int QUEUE_SIZE = 2000;
-    private static int THREAD_COUNT = 4;
-    static ThreadPoolExecutor threadPoolExecutor;
-    static {
-        try {
-            THREAD_COUNT = OpenLSystemProperties.getTestRunThreadCount(null);
-            threadPoolExecutor = new ThreadPoolExecutor(THREAD_COUNT,
-                THREAD_COUNT,
-                1l,
-                TimeUnit.MINUTES,
-                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
-                new ThreadPoolExecutor.CallerRunsPolicy());
-        } catch (Exception e) {
-            THREAD_COUNT = 4;
-            threadPoolExecutor = new ThreadPoolExecutor(THREAD_COUNT,
-                THREAD_COUNT,
-                1l,
-                TimeUnit.MINUTES,
-                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
-                new ThreadPoolExecutor.CallerRunsPolicy());
-        }
-    }
-
     public static String VIRTUAL_TEST_SUITE = "Virtual test suite";
     private TestSuiteMethod testSuiteMethod;
     private TestDescription[] tests;
@@ -68,6 +42,10 @@ public class TestSuite implements INamedThing {
     }
 
     public TestUnitsResults invokeParallel(final Object target, final IRuntimeEnvFactory envFactory, final long ntimes) {
+        TestSuiteExecutor testSuiteExecutor = TestSuiteExecutor.getInstance();
+        final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
+        Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
+
         final TestUnitsResults testUnitResults = new TestUnitsResults(this);
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         final TestUnit[] testUnitResultsArray = new TestUnit[getNumberOfTests()];
@@ -94,7 +72,7 @@ public class TestSuite implements INamedThing {
         }
         try {
             countDownLatch.await();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         }
         for (int i = 0; i < getNumberOfTests(); i++) {
             testUnitResults.addTestUnit(testUnitResultsArray[i]);
