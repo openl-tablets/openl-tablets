@@ -265,6 +265,22 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
 
+    public boolean isRunTestsInParallel() {
+        return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
+    }
+
+    public void setRunTestsInParallel(boolean runTestsInParallel) {
+        configManager.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
+    }
+
+    public int getTestRunThreadCount() {
+        return OpenLSystemProperties.getTestRunThreadCount(configManager.getProperties());
+    }
+
+    public void setTestRunThreadCount(int testRunThreadCount) {
+        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
+    }
+
     public String getRulesDispatchingMode() {
         return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
     }
