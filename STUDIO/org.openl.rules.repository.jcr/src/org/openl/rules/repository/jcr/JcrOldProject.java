@@ -1,6 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -8,7 +7,6 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
@@ -18,7 +16,6 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
 
 
     private JcrOldFolder rootFolder;
-    private JcrDependencies dependencies;
 
     public JcrOldProject(String name, Node node, CommonVersion version) throws RepositoryException {
         super(null, name, node);
@@ -27,8 +24,6 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
         Node files = NodeUtil.normalizeOldNode(node.getNode(JcrProject.NODE_FILES), version);
         rootFolder = new JcrOldFolder(this, null, files, version);
 
-        Node deps = node.getNode(JcrProject.NODE_DEPENDENCIES);
-        dependencies = new JcrDependencies(deps);
     }
 
     public void commit(CommonUser user) throws RRepositoryException {
@@ -41,10 +36,6 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
 
     public void erase(CommonUser user) throws RRepositoryException {
         notSupported();
-    }
-
-    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
-        return dependencies.getDependencies();
     }
 
     public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
@@ -61,10 +52,6 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
     }
 
     public void riseVersion(int major, int minor) throws RRepositoryException {
-        notSupported();
-    }
-
-    public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         notSupported();
     }
 

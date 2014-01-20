@@ -4,14 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
@@ -69,10 +65,7 @@ public class TreeFolder extends AbstractTreeNode {
                 Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
                 for (AProjectArtefact artefact : folder.getArtefacts()) {
                     if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
-                        /*FIX ME*/
-                        if (!artefact.getName().equals(ArtefactProperties.DEPENDENCIES_FILE)) {
-                            filteredArtefacts.add(artefact);
-                        }
+                        filteredArtefacts.add(artefact);
                     }
                 }
 

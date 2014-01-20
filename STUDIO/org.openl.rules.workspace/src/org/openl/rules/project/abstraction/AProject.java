@@ -1,20 +1,11 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
-import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
@@ -32,44 +23,6 @@ public class AProject extends AProjectFolder {
     @Override
     public AProject getProject() {
         return this;
-    }
-
-    public List<ProjectDependency> getDependencies() {
-        List<ProjectDependency> dependencies = new ArrayList<ProjectDependency>();
-        if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-            InputStream content = null;
-            try {
-                content = ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE)).getContent();
-                dependencies = ProjectDependencyHelper.deserialize(content);
-            } catch (Exception e) {
-                log.warn("Could not load dependencies", e);
-            } finally {
-                IOUtils.closeQuietly(content);
-            }
-        }
-
-        return dependencies;
-    }
-
-    public void setDependencies(List<ProjectDependency> dependencies) throws ProjectException {
-        if (CollectionUtils.isEmpty(dependencies)) {
-            if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                deleteArtefact(ArtefactProperties.DEPENDENCIES_FILE);
-            }
-        } else {
-            String dependenciesAsString = ProjectDependencyHelper.serialize(dependencies);
-            try {
-                if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                    ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE))
-                            .setContent(new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
-                } else {
-                    addResource(ArtefactProperties.DEPENDENCIES_FILE,
-                            new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
-                }
-            } catch (Exception e) {
-                log.warn("Could not set dependencies", e);
-            }
-        }
     }
 
     @Override
@@ -160,10 +113,8 @@ public class AProject extends AProjectFolder {
 
     @Override
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        AProject project = (AProject) artefact;
         UserTransaction transaction = beginTransaction();
         try {
-            setDependencies(project.getDependencies());
             super.update(artefact, user);
         } catch (Exception e) {
             rollbackTransaction(transaction);
@@ -174,10 +125,8 @@ public class AProject extends AProjectFolder {
     
     @Override
     public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
-        AProject project = (AProject) artefact;
         UserTransaction transaction = beginTransaction();
         try {
-            setDependencies(project.getDependencies());
             super.update(artefact, user, revision);
         } catch (Exception e) {
             rollbackTransaction(transaction);
@@ -189,10 +138,8 @@ public class AProject extends AProjectFolder {
     @Override
     public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         if (artefact.isModified()) {
-            AProject project = (AProject) artefact;
             UserTransaction transaction = beginTransaction();
             try {
-                setDependencies(project.getDependencies());
                 super.smartUpdate(artefact, user);
             } catch (Exception e) {
                 rollbackTransaction(transaction);
