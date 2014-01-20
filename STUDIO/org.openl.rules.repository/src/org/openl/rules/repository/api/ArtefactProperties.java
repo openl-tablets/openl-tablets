@@ -32,8 +32,6 @@ public interface ArtefactProperties {
     String PROP_PRJ_COMMENT = "comment";
     String PROP_PRJ_MARKED_4_DELETION = "marked4deletion";
     
-    //dependenices for project
-    String DEPENDENCIES_FILE = "openl_repository_dependencies.xml";
     // Deployment Descriptor
     String DESCRIPTORS_FILE = "openl_repository_descriptors.xml";
     String VERSION_COMMENT = "versionComment";

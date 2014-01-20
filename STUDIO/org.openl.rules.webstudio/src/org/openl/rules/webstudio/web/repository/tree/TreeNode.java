@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.webstudio.web.repository.DependencyBean;
 
 /**
  * @author Andrei Astrouski
@@ -43,8 +42,6 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
 
     AProjectArtefact getData();
     void setData(AProjectArtefact data);
-
-    List<DependencyBean> getDependencies();
 
     String getId();
 

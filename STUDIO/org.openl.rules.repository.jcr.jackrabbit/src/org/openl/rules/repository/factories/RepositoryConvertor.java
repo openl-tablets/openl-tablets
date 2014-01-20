@@ -24,8 +24,6 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
-import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
 import org.openl.rules.common.Property;
@@ -173,22 +171,6 @@ public class RepositoryConvertor {
                     RProject oldProject = version.compareTo(project.getActiveVersion()) == 0 ? project : project
                             .getProjectVersion(version);
                     copyFolder(oldProject, jcrProject);
-                    if (!CollectionUtils.isEmpty(oldProject.getDependencies())) {
-                        List<ProjectDependency> dependencies = new ArrayList<ProjectDependency>(
-                                oldProject.getDependencies());
-                        String dependenciesAsString = ProjectDependencyHelper.serialize(dependencies);
-                        if (!jcrProject.hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                            jcrProject.addResource(ArtefactProperties.DEPENDENCIES_FILE, new ByteArrayInputStream(
-                                    dependenciesAsString.getBytes("UTF-8")));
-                        } else {
-                            ((ResourceAPI) jcrProject.getArtefact(ArtefactProperties.DEPENDENCIES_FILE))
-                                    .setContent(new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
-                        }
-                    } else {
-                        if (jcrProject.hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                            jcrProject.getArtefact(ArtefactProperties.DEPENDENCIES_FILE).delete();
-                        }
-                    }
                     Property modifiedBy = oldProject
                             .getProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_MODIFIED_BY);
                     CommonUser user;

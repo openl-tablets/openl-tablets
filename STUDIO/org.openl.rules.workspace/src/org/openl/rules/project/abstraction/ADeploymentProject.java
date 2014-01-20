@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -192,10 +191,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
         descriptors = null;
     }
 
-    public boolean getCanDeploy() {
-        return !isOpenedForEditing();
-    }
-    
     public boolean isModifiedDescriptors() {
         return modifiedDescriptors;
     }

@@ -1,19 +1,13 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
 import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectDependency;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Collection;
-import java.util.ArrayList;
 
 /**
  * Represents OpenL project in a tree.
@@ -24,8 +18,6 @@ import java.util.ArrayList;
 public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
-
-    private List<DependencyBean> dependencies;
 
     protected static String generateComments(UserWorkspaceProject userProject) {
         if (userProject.isLocalOnly()) {
@@ -81,19 +73,6 @@ public class TreeProject extends TreeFolder {
         super(id, name, filter);
     }
 
-    public synchronized boolean addDependency(ProjectDependency dep) throws ProjectException {
-        Collection<ProjectDependency> dependencies = getProject().getDependencies();
-        if (dependencies.contains(dep)) {
-            return false;
-        }
-
-        List<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
-        newDeps.add(dep);
-        ((AProject) getData()).setDependencies(newDeps);
-        this.dependencies = null;
-        return true;
-    }
-
     public String getComments() {
         return generateComments(getProject());
     }
@@ -137,25 +116,6 @@ public class TreeProject extends TreeFolder {
 
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedBy() : null;
-    }
-
-    @Override
-    public synchronized List<DependencyBean> getDependencies() {
-        if (dependencies == null) {
-            Collection<ProjectDependency> deps = getProject().getDependencies();
-            dependencies = new ArrayList<DependencyBean>(deps.size());
-            for (ProjectDependency pd : deps) {
-                DependencyBean depBean = new DependencyBean();
-                depBean.setProjectName(pd.getProjectName());
-                depBean.setLowerVersion(pd.getLowerLimit().getVersionName());
-                if (pd.hasUpperLimit()) {
-                    depBean.setUpperVersion(pd.getUpperLimit().getVersionName());
-                }
-                dependencies.add(depBean);
-            }
-        }
-
-        return dependencies;
     }
 
     @Override
@@ -211,26 +171,4 @@ public class TreeProject extends TreeFolder {
         return projectVersion.getVersionName();
     }
 
-    public synchronized void removeDependency(String dependency) throws ProjectException {
-        List<ProjectDependency> dependencies = getProject().getDependencies();
-        List<ProjectDependency> newDeps = new ArrayList<ProjectDependency>();
-        boolean changed = false;
-        for (ProjectDependency d : dependencies) {
-            if (d.getProjectName().equals(dependency)) {
-                changed = true;
-            } else {
-                newDeps.add(d);
-            }
-        }
-        if (changed) {
-            this.dependencies = null;
-            getProject().setDependencies(newDeps);
-        }
-    }
-
-    @Override
-    public void refresh() {
-        super.refresh();
-        dependencies = null;
-    }
 }
