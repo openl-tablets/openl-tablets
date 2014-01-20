@@ -3,8 +3,8 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -19,7 +19,7 @@ public class RecentlyVisitedTables {
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
-    public Deque<VisitedTableWrapper> tables = new LinkedList<VisitedTableWrapper>();
+    public Deque<VisitedTableWrapper> tables = new LinkedBlockingDeque<VisitedTableWrapper>();
 
     public RecentlyVisitedTables() {
         size = DEFAULT_SIZE;

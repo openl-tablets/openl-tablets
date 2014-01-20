@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.set.MapBackedSet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +29,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -101,11 +101,15 @@ public class WebStudio {
 
     private boolean needRestart = false;
 
+    private TemporaryRevisionsStorage temporaryRevisionsStorage;
+
     private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
 
     public WebStudio(HttpSession session) {
         systemConfigManager = (ConfigurationManager) WebApplicationContextUtils.getWebApplicationContext(
                 session.getServletContext()).getBean("configManager");
+        temporaryRevisionsStorage = (TemporaryRevisionsStorage) WebApplicationContextUtils.getWebApplicationContext(
+                session.getServletContext()).getBean("temporaryRevisionsStorage");
 
         initWorkspace(session);
         initUserSettings(session);
@@ -299,6 +303,7 @@ public class WebStudio {
 
     public synchronized void invalidateProjects() {
         projects = null;
+        temporaryRevisionsStorage.clear();
     }
 
     public synchronized List<ProjectDescriptor> getAllProjects() {

@@ -2,19 +2,13 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.impl.ProjectDependencyImpl;
 import org.openl.rules.common.impl.PropertyImpl;
-import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -125,31 +119,6 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         } catch (ProjectException e) {
             // ok
         }
-    }
-
-    public void testProjectDependency() throws WorkspaceException, ProjectException {
-        ProjectDependency[] dependencies = {
-                new ProjectDependencyImpl("project1", new RepositoryProjectVersionImpl(0, null)),
-                new ProjectDependencyImpl("project2", new RepositoryProjectVersionImpl(0, null),
-                        new RepositoryProjectVersionImpl(0, null)) };
-
-        localProject.setDependencies(Arrays.asList(dependencies));
-        localProject.save(TestHelper.getWorkspaceUser());
-
-        AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
-        List<ProjectDependency> deps = new ArrayList<ProjectDependency>(project.getDependencies());
-        assertEquals("dependency collection size changed", dependencies.length, deps.size());
-        for (int i = 0; i < dependencies.length; i++) {
-            assertEquals("dependency is incorrect in position " + i, dependencies[i], deps.get(i));
-        }
-    }
-
-    public void testProjectDependencyNotNull() throws ProjectException, WorkspaceException {
-        localProject.save(TestHelper.getWorkspaceUser());
-
-        AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
-        assertNotNull("dependencies are null", project.getDependencies());
-        assertEquals("dependencies are not empty", 0, project.getDependencies().size());
     }
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {

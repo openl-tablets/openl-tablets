@@ -9,13 +9,13 @@
             <div class="view_header">
                 <span>
                     <a4j:commandLink id="designRepoLink" value="Design" oncomplete="goToRepo('design', 'production')"
-                    render="projectTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency"
+                    render="projectTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
                     action="#{repositoryTreeState.rulesRepositorySelection}"
                     styleClass="view-header-link" title="Design Repository" />
                 </span>
                 <span>-</span>
                 <span><a4j:commandLink id="productionRepoLink" value="Production" oncomplete="goToRepo('production', 'design')"
-                    render="prodTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency" title="Production Repository"
+                    render="prodTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData" title="Production Repository"
                     action="#{productionRepositoriesTreeController.tabChange('production')}"
                     styleClass="view-header-link view-header-link-inactive" /></span>
             </div>
