@@ -1,10 +1,6 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.*;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -19,10 +15,12 @@ public class RecentlyVisitedTables {
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
-    public Deque<VisitedTableWrapper> tables = new LinkedBlockingDeque<VisitedTableWrapper>();
+    public Deque<VisitedTableWrapper> tables = new LinkedList<VisitedTableWrapper>();
+
+    private final Object lock = new Object();
 
     public RecentlyVisitedTables() {
-        size = DEFAULT_SIZE;
+        this(DEFAULT_SIZE);
     }
 
     public RecentlyVisitedTables(int size) {
@@ -34,35 +32,52 @@ public class RecentlyVisitedTables {
 
     public void add(IOpenLTable table) {
         VisitedTableWrapper vtw = new VisitedTableWrapper(table);
-        
-        if (tables.contains(vtw)) {
-            tables.remove(vtw);
-        }
 
-        if (tables.size() >= size) {
-            tables.removeLast();
-        }
+        synchronized (lock) {
+            if (tables.contains(vtw)) {
+                tables.remove(vtw);
+            }
 
-        tables.addFirst(vtw);
+            if (tables.size() >= size) {
+                tables.removeLast();
+            }
+
+            tables.addFirst(vtw);
+        }
     }
 
+    /**
+     * Returns the copy of recently visited tables.
+     *
+     * @return copy of recently visited tables
+     */
     public Collection<VisitedTableWrapper> getTables() {
-        checkTableAvailability();
+        Collection<VisitedTableWrapper> tablesCopy;
+        synchronized (lock) {
+            checkTableAvailability();
 
-        return tables;
+            tablesCopy = new LinkedList<VisitedTableWrapper>(tables);
+        }
+        return tablesCopy;
     }
 
     public void clear() {
-        tables.clear();
+        synchronized (lock) {
+            tables.clear();
+        }
     }
 
     public int getSize() {
-        return tables.size();
+        int length;
+        synchronized (lock) {
+            length = tables.size();
+        }
+        return length;
     }
-    
-    public void checkTableAvailability() {
+
+    private void checkTableAvailability() {
         List<VisitedTableWrapper> tableForRemove = new ArrayList<VisitedTableWrapper>();
-        
+
         for (VisitedTableWrapper table : tables) {
             WebStudio studio = WebStudioUtils.getWebStudio();
             IOpenLTable refreshTable = studio.getModel().getTable(table.getUri());
@@ -71,22 +86,29 @@ public class RecentlyVisitedTables {
                 tableForRemove.add(table);
             }
         }
-        
+
         tables.removeAll(tableForRemove);
+    }
+
+    public void remove(IOpenLTable table) {
+        synchronized (lock) {
+            checkTableAvailability();
+            tables.remove(new VisitedTableWrapper(table));
+        }
     }
 
     public VisitedTableWrapper getLastVisitedTable() {
         return lastVisitedTable;
     }
-    
+
     public void setLastVisitedTable(VisitedTableWrapper lastVisitedTable) {
         this.lastVisitedTable = lastVisitedTable;
     }
-    
+
     public void setLastVisitedTable(IOpenLTable lastVisitedTable) {
-        this.lastVisitedTable = new VisitedTableWrapper(lastVisitedTable);
+        setLastVisitedTable(new VisitedTableWrapper(lastVisitedTable));
     }
-    
+
     /*
      * This is the class wrapper. It is used for the properly name showing
      */
@@ -125,11 +147,11 @@ public class RecentlyVisitedTables {
             String dimension = "";
             
             if (tableProps != null) {
-                for (int i=0; i < dimensionProps.length; i++) {
-                    String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
-                    
+                for (String dimensionProp : dimensionProps) {
+                    String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+
                     if (propValue != null && !propValue.isEmpty()) {
-                        dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                        dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProp + " = " + propValue;
                     }
                 }
             }
