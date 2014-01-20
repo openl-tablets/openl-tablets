@@ -26,6 +26,9 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -56,6 +59,9 @@ public class DeploymentController {
 
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
+
+    @ManagedProperty("#{temporaryRevisionsStorage}")
+    private TemporaryRevisionsStorage temporaryRevisionsStorage;
 
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
@@ -95,10 +101,23 @@ public class DeploymentController {
             return;
         }
 
-        DependencyChecker checker = new DependencyChecker();
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        DependencyChecker checker = new DependencyChecker(new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage));
         ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         checker.check(items);
+    }
+
+    public boolean isCanDeploy() {
+        if (!repositoryTreeState.getCanDeploy()) {
+            return false;
+        }
+
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        DependencyChecker checker = new DependencyChecker(new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage));
+        ADeploymentProject project = getSelectedProject();
+        checker.addProjects(project);
+        return checker.check();
     }
 
     public String save() {
@@ -328,6 +347,10 @@ public class DeploymentController {
 
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
+    }
+
+    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
+        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 
     public void setProjectName(String projectName) {

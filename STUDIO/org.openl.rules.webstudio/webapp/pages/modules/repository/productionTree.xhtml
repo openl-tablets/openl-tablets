@@ -36,7 +36,7 @@
     <ui:define name="workspace">
         <rich:tree id="prodTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{productionRepositoriesTreeState.processSelection}"
          value="#{productionRepositoriesTreeState.root}" var="item" nodeType="#{item.type}"
-         render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency">
+         render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData">
             <rich:treeNode type="prodrepository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
                 ontoggle="prodFilterProjects($j('#prodNameFilter input').val())">
                 <h:outputText value="#{item.name}" />
