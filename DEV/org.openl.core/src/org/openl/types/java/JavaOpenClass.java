@@ -36,6 +36,7 @@ import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -255,10 +256,15 @@ public class JavaOpenClass extends AOpenClass {
     public static synchronized void resetClassloader(ClassLoader cl) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
         for (Class<?> c : getClassCache().keySet()) {
-            if (c.getClassLoader() == cl) {
+            ClassLoader classLoader = c.getClassLoader();
+            if (classLoader == cl) {
                 toRemove.add(c);
             }
-
+            if (cl instanceof OpenLBundleClassLoader) {
+                if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
+                    toRemove.add(c);
+                }
+            }
         }
 
         for (Class<?> c : toRemove) {
