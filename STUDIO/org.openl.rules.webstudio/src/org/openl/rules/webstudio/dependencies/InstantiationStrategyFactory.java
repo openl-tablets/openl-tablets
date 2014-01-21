@@ -5,10 +5,6 @@ import java.util.*;
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -17,10 +13,8 @@ import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
-import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.impl.IdentifierNode;
 
 
 /**
@@ -64,7 +58,7 @@ public class InstantiationStrategyFactory {
      * @param singleModuleMode if true - function will return single module instantiation strategy and multi module otherwise
      * @return Instantiation strategy for the module.
      */
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean singleModuleMode) {
+    public ModuleInstantiator getInstantiationStrategy(Module module, boolean singleModuleMode) {
         ModuleInstantiator instantiator = getFromCache(module, singleModuleMode);
 
         if (instantiator != null && singleModuleMode != isSingleModuleModeStrategy(instantiator.getInstantiationStrategy())) {
@@ -86,7 +80,7 @@ public class InstantiationStrategyFactory {
             putToCache(module, singleModuleMode, instantiator);
         }
 
-        return instantiator.getInstantiationStrategy();
+        return instantiator;
     }
 
     /**
@@ -107,26 +101,6 @@ public class InstantiationStrategyFactory {
         moduleInstantiators.clear();
         multiModuleInstantiators.clear();
         dependencyUsages.clear();
-    }
-
-    public XlsModuleSyntaxNode getModuleSyntaxNodeInMultiModuleProject(Module module)  {
-        ModuleInstantiator moduleInstantiator = getFromCache(module, false);
-        if (moduleInstantiator == null) {
-            moduleInstantiator = createModuleInstantiator(module, false);
-            putToCache(module, false, moduleInstantiator);
-        }
-
-        IDependencyManager dependencyManager = moduleInstantiator.getDependencyManager();
-
-        try {
-            Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
-
-            XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                    .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-            return xmi.getXlsModuleNode();
-        } catch (OpenLCompilationException e) {
-            throw new OpenLRuntimeException(e);
-        }
     }
 
     public boolean isOpenedAsSingleMode(Module module) {
@@ -238,7 +212,7 @@ public class InstantiationStrategyFactory {
         }
     }
 
-    private static class ModuleInstantiator {
+    public static class ModuleInstantiator {
         private final RulesInstantiationStrategy instantiationStrategy;
         private final IDependencyManager dependencyManager;
 
