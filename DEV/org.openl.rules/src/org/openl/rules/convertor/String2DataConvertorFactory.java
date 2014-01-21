@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -121,8 +122,14 @@ public class String2DataConvertorFactory {
     public static void unregisterClassLoader(ClassLoader classLoader) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
         for (Class<?> clazz : convertorsCache.keySet()) {
-            if (clazz.getClassLoader() == classLoader) {
+            ClassLoader cl = clazz.getClassLoader();
+            if (cl == classLoader) {
                 toRemove.add(clazz);
+            }
+            if (classLoader instanceof OpenLBundleClassLoader) {
+                if (((OpenLBundleClassLoader) classLoader).containsClassLoader(cl)) {
+                    toRemove.add(clazz);
+                }
             }
         }
         for (Class<?> clazz : toRemove) {
