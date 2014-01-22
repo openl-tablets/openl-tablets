@@ -45,11 +45,12 @@ input[type='button'], button,
 .button, .imageButton {
     padding: 5px 8px;
     border: 1px solid #e5e5e5;
-    background: #fbfbfb;
-    color: #444;
+    background: #fff;
+    color: #555;
     margin-right: 4px;
     cursor: pointer;
     box-shadow: 0 0 2px #fff inset;
+    background-image: linear-gradient(to top, #f9f9f9 0%, #fff 37%, #fff 100%);
 }
 
 input[type='submit']:hover, input[type='reset']:hover,
@@ -70,7 +71,7 @@ input[type='button']:disabled, button:disabled,
 .button:disabled, .imageButton:disabled {
     border-color: #eeeeee !important;
     color: #999999 !important;
-    background: #fbfbfb !important;
+    background: #fff !important;
     cursor: default;
 }
 
@@ -91,8 +92,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-primary {
-    background: #ff8111 !important;
-    border-color: #ff8111 !important;
+    background: #7c2 !important;
+    border-color: #7c2 !important;
 }
 
 .button-secondary {
@@ -113,13 +114,14 @@ a.button-secondary {
     padding: 5px 16px;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    background-color: #fbfbfb !important;
+    background-color: #fff !important;
+    border: 0;
+    margin-right: 0;
 }
 
 .button + .dropdown-menu,
 .button-primary + .dropdown-menu,
 .button-secondary + .dropdown-menu {
-    margin-top: 7px;
     margin-left: 2px;
 }
 
@@ -129,11 +131,35 @@ a.button-secondary {
     margin-left: 4px;
 }
 
-.buttonPanel .button,
-.buttonPanel .button-primary,
-.buttonPanel .button-secondary,
-.buttonPanel .imageButton {
-    margin: 0px 2px;
+.buttonPanel > .button,
+.buttonPanel > .button-primary,
+.buttonPanel > .button-secondary,
+.buttonPanel > .imageButton,
+.buttonPanel > span > .button,
+.buttonPanel > span > .button-primary,
+.buttonPanel > span > .button-secondary,
+.buttonPanel > span > .imageButton{
+    margin: 0px 3px;
+    border: 0;
+    background-color: transparent !important;
+    color: #777;
+    box-shadow: none;
+    background-image: none;
+}
+
+.buttonPanel > .button-primary,
+.buttonPanel > span > .button-primary {
+    color: #7c2 !important;
+}
+
+#refreshBtn,
+#designRepoRefresh,
+#productionRepoRefresh {
+    opacity: 0.7;
+}
+
+.buttonPanel .delimeter {
+    margin-left: 13px;
 }
 
 .button-dropdown {
@@ -141,10 +167,16 @@ a.button-secondary {
 }
 
 .button-dropdown + .dropdown >.dropdown-toggle {
-    padding: 5px 2px 5px 0;
     border: 1px solid #ddd;
     border-left: 0;
     background: #fbfbfb;
+}
+
+.buttonPanel .button-dropdown + .dropdown >.dropdown-toggle {
+    padding-left: 4px;
+    border: 0;
+    border-left: 1px solid #eee;
+    background: transparent;
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) { 
@@ -266,7 +298,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 18px 10px;
+    padding: 10px 7px 10px 15px;
 }
 
 .table {
@@ -334,7 +366,7 @@ fieldset {
 }
 
 .badge-success {
-    background: #5cb85c;
+    background: #6b3;
 }
 
 .badge-info {
@@ -418,7 +450,7 @@ fieldset {
 }
 
 .fields section > h3 {
-    color: #ee8811;
+    color: #578;
     font: normal 110% Verdana;
     margin: 5px 0;
     padding-bottom: 3px;
@@ -700,7 +732,7 @@ form.standard table.buttonPanel {
      text-overflow: ellipsis;
      overflow: hidden;
      border-bottom: 1px solid #f9f9f9;
-     background: rgba(220, 220, 220, 0.1);
+     background: #fff;
 }
 
 .view-header-link {
@@ -870,6 +902,46 @@ form.standard table.buttonPanel {
     display: none;
 }
 
+.breadcrumbs {
+    position: relative;
+}
+
+.breadcrumbs::before {
+    border-bottom: 17px solid transparent;
+    border-top: 17px solid transparent;
+    border-left: 9px solid #ddd;
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: -10px;
+    right: -9px;
+}
+
+.breadcrumbs::after {
+    border-bottom: 16px solid transparent;
+    border-top: 16px solid transparent;
+    border-left: 8px solid #fff;
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: -9px;
+    right: -8px;
+}
+
+.breadcrumbs a {
+    text-decoration: none;
+}
+
+.breadcrumbs .delimeter {
+    margin-left: 5px;
+    margin-right: 4px;
+}
+
+.breadcrumbs .delimeter::after {
+    content: '/';
+    color: #bbb;
+}
+
 /* RichFaces styles */
 
 .rf-trn, .rf-tr-nd {
@@ -1016,16 +1088,65 @@ form.standard table.buttonPanel {
 /* Twitter Bootstrap styles */
 
 .caret {
-    border-top-color: #333;
+    border-top: 5px solid #111;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    position: relative;
 }
+
+.caret::before {
+    display: inline-block;
+    border-top: 3px solid #fff;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -4px;
+}
+
 .dropdown .caret {
-    margin-top: 6px;
+    margin-top: 5px;
 }
 
 .dropdown-menu {
-    border-radius: 1px;
-    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    border: 1px solid #eaeaea;
+    box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.05);
     min-width: 100px;
+    margin-top: 11px;
+}
+
+.dropdown-menu::before {
+    border-bottom: 7px solid rgba(0, 0, 0, 0.15);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    content: "";
+    display: inline-block;
+    left: 9px;
+    position: absolute;
+    top: -7px;
+}
+
+.dropdown-menu::after {
+    border-bottom: 6px solid #fff;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    content: "";
+    display: inline-block;
+    left: 10px;
+    position: absolute;
+    top: -6px;
+}
+
+.dropdown-menu.pull-right::before {
+    left: auto;
+    right: 9px;
+}
+
+.dropdown-menu.pull-right::after {
+    left: auto;
+    right: 10px;
 }
 
 .dropdown-menu > li > a {
@@ -1093,6 +1214,16 @@ form.standard table.buttonPanel {
 .pagination ul > li > a,
 .pagination ul > li > span {
 	border: 0;
+}
+
+.tooltip-inner {
+    border-radius: 1px;
+    background: #191919;
+    padding: 8px 9px;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #191919;
 }
 
 /* OpenL Tablets Bootstrap styles */

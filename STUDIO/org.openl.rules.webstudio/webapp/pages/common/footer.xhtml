@@ -2,12 +2,12 @@
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <div style="text-align: center; padding: 9px">
-        &#169;
-        <a style="text-decoration: none" href="#{versionProperties['openl.url']}" target="_blank">OpenL Tablets</a>
-        WebStudio
-        <i>v#{versionProperties['openl.version']}</i>,
-        #{versionProperties['openl.copyrightyear']}
-    </div>
+    <div style="text-align: center; padding:11px">
+        &#169; #{versionProperties['openl.copyrightyear']}
+        <a style="text-decoration:none; color:#666" href="#{versionProperties['openl.url']}" target="_blank">OpenL Tablets</a>
+        <span style="margin: 0 10px">|</span>
+        <a style="text-decoration: none" href="mailto:openltablets@exigeninsurance.com?subject=OpenL Tablets Feedback">Report a problem</a>
 
+        <i style="position:absolute;right:13px;">v#{versionProperties['openl.version']}</i>
+    </div>
 </ui:composition>
