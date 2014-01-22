@@ -2,14 +2,13 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static org.openl.engine.OpenLSystemProperties.*;
 
 /**
  * The class contains system settings property names for settings edited in "Administration" page.
- * 
+ *
  * @author NSamatov
  */
 public final class AdministrationSettings {
@@ -27,10 +26,12 @@ public final class AdministrationSettings {
     public static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
     public static final String DESIGN_REPOSITORY_CONFIG_FILE = "design-repository.config";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
-    
+    public static final String MAX_CACHED_PROJECTS_COUNT = "cache.projects.count";
+    public static final String CACHED_PROJECT_IDLE_TIME = "cache.projects.timeToIdleSeconds";
+
     static {
         List<String> settingNames = new ArrayList<String>();
-        
+
         for (Field field : AdministrationSettings.class.getFields()) {
             int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
@@ -45,12 +46,19 @@ public final class AdministrationSettings {
             }
         }
 
+        settingNames.addAll(Arrays.asList(
+                CUSTOM_SPREADSHEET_TYPE_PROPERTY,
+                RUN_TESTS_IN_PARALLEL,
+                TEST_RUN_THREAD_COUNT_PROPERTY,
+                DISPATCHING_MODE_PROPERTY
+        ));
+
         allSettings = Collections.unmodifiableCollection(settingNames);
     }
 
     /**
      * Get all settings edited in "Administration" page
-     * 
+     *
      * @return setting property names edited in "Administration" page
      */
     public static Collection<String> getAllSettings() {
