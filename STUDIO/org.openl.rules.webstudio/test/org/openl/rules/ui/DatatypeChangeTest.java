@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +53,8 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
 
+        EhCacheUtils.createCache();
+
         pm = new ProjectModel(ws);
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {
@@ -61,6 +64,11 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
                 mainModule = module;
             }
         }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        EhCacheUtils.shutdownCache();
     }
 
     @Test

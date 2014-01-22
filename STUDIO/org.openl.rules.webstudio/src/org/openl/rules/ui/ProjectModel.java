@@ -1159,7 +1159,7 @@ public class ProjectModel {
         // Clear project messages (errors, warnings)
         clearOpenLMessages();
 
-        destroy(); // prevent memory leak
+        clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
         projectRoot = null;
@@ -1221,7 +1221,7 @@ public class ProjectModel {
         // Clear project messages (errors, warnings)
         clearOpenLMessages();
 
-        destroy(); // prevent memory leak
+        clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
         projectRoot = null;
@@ -1486,6 +1486,11 @@ public class ProjectModel {
     }
 
     public void destroy() {
+        instantiationStrategyFactory.reset();
+        clearModuleInfo();
+    }
+
+    private void clearModuleResources() {
         removeListeners();
 
         if (compiledOpenClass != null) {
