@@ -1162,6 +1162,7 @@ public class ProjectModel {
         clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
+        xlsModuleSyntaxNode = null;
         projectRoot = null;
     }
 
