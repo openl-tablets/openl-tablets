@@ -98,17 +98,4 @@
     </constructor-arg>
     </bean>
 
-    <bean id="instantiationStrategiesCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-        <property name="cacheManager" ref="cacheManager"/>
-        <property name="diskPersistent" value="false"/>
-        <property name="overflowToDisk" value="false"/>
-        <property name="timeToLive" value="0"/>
-        <property name="timeToIdle" value="#{systemConfig['cache.projects.timeToIdleSeconds']}"/>
-        <property name="maxElementsInMemory" value="#{systemConfig['cache.projects.count']}"/>
-    </bean>
-
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="WEB-INF/conf/webstudio-ehcache.xml"/>
-    </bean>
-
 </beans>
