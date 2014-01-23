@@ -1,96 +1,98 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  template="/pages/layout/simpleView.xhtml">
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <ui:define name="workspace">
-  <style>
-    #content {
-        padding: 0;
-    }
-  </style>
+    <style>
+        #content {
+            padding: 0;
+        }
+    </style>
 
-  <rich:dataTable value="#{repositoryTreeController.deploymentProjects}" var="prj"
-    styleClass="table table-striped">
-    <f:facet name="header">
-      <rich:columnGroup>
-        <rich:column>
-          <h:outputText value="Name" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Revision" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Status" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Modified By" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Modified At" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Actions" />
-        </rich:column>
-      </rich:columnGroup>
-    </f:facet>
+    <div class="page">
+        <h1>Deploy Configurations</h1>
 
-      <rich:column>
-        <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
-          <f:param name="projectName" value="#{prj.name}" />
-        </h:commandLink>
-      </rich:column>
-      <rich:column style="text-align:center">
-        <h:outputText value="#{prj.version}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{prj.status}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
-        	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
-        </h:outputText>
-      </rich:column>
-      <rich:column>
-        <h:panelGroup rendered="#{!prj.data.deleted}">
-          &#160;
-          <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}" 
-                onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" 
-                title="Copy Deploy Configuration">
-            <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
-          </h:commandLink>
-          <h:panelGroup rendered="#{repositoryTreeController.canUnlockDeployment and prj.data.locked and not prj.data.lockedByMe}">
-              &#160;
-              <h:commandLink immediate="true"
-                  action="#{repositoryTreeController.unlockDeploymentConfiguration}"
-                  onclick="if(!window.confirm('Are you sure you want to unlock the Deploy Configuration?')) {return false;}"
-                  title="Unlock Deploy Configuration">
-                  <f:param name="deploymentProjectName" value="#{prj.name}" />
-                  <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
-              </h:commandLink>
-          </h:panelGroup>
-          <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and (not prj.data.locked or prj.data.lockedByMe)}">
-            &#160;
-            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Archive Deploy Configuration" 
-              onclick="if(!window.confirm('Are you sure you want to archive the Deploy Configuration?')) {return false;}">
-              <f:param name="deploymentProjectName" value="#{prj.name}" />
-              <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
-            </h:commandLink>
-          </h:panelGroup>
-        </h:panelGroup>
-      </rich:column>
+        <div class="block">
 
-  </rich:dataTable>
+            <rich:dataTable value="#{repositoryTreeController.deploymentProjects}" var="prj" styleClass="table">
+            <f:facet name="header">
+              <rich:columnGroup>
+                <rich:column>
+                  <h:outputText value="Name" />
+                </rich:column>
+                <rich:column>
+                  <h:outputText value="Revision" />
+                </rich:column>
+                <rich:column>
+                  <h:outputText value="Status" />
+                </rich:column>
+                <rich:column>
+                  <h:outputText value="Modified By" />
+                </rich:column>
+                <rich:column>
+                  <h:outputText value="Modified At" />
+                </rich:column>
+                <rich:column>
+                  <h:outputText value="Actions" />
+                </rich:column>
+              </rich:columnGroup>
+            </f:facet>
 
-  <h:panelGroup rendered="#{empty repositoryTreeController.deploymentProjects}" styleClass="noEntries">
-    <h:outputText value="No entries found" />
-  </h:panelGroup>
-</ui:define>
+              <rich:column>
+                <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectDeploymentProject}">
+                  <f:param name="projectName" value="#{prj.name}" />
+                </h:commandLink>
+              </rich:column>
+              <rich:column style="text-align:center">
+                <h:outputText value="#{prj.version}" />
+              </rich:column>
+              <rich:column>
+                <h:outputText value="#{prj.status}" />
+              </rich:column>
+              <rich:column>
+                <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
+              </rich:column>
+              <rich:column>
+                <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
+                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
+                </h:outputText>
+              </rich:column>
+              <rich:column>
+                <h:panelGroup rendered="#{!prj.data.deleted}">
+                  &#160;
+                  <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}"
+                        onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;"
+                        title="Copy Deploy Configuration">
+                    <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
+                  </h:commandLink>
+                  <h:panelGroup rendered="#{repositoryTreeController.canUnlockDeployment and prj.data.locked and not prj.data.lockedByMe}">
+                      &#160;
+                      <h:commandLink immediate="true"
+                          action="#{repositoryTreeController.unlockDeploymentConfiguration}"
+                          onclick="if(!window.confirm('Are you sure you want to unlock the Deploy Configuration?')) {return false;}"
+                          title="Unlock Deploy Configuration">
+                          <f:param name="deploymentProjectName" value="#{prj.name}" />
+                          <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
+                      </h:commandLink>
+                  </h:panelGroup>
+                  <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and (not prj.data.locked or prj.data.lockedByMe)}">
+                    &#160;
+                    <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Archive Deploy Configuration"
+                      onclick="if(!window.confirm('Are you sure you want to archive the Deploy Configuration?')) {return false;}">
+                      <f:param name="deploymentProjectName" value="#{prj.name}" />
+                      <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
+                    </h:commandLink>
+                  </h:panelGroup>
+                </h:panelGroup>
+              </rich:column>
+
+            </rich:dataTable>
+
+            <h:panelGroup rendered="#{empty repositoryTreeController.deploymentProjects}" styleClass="noEntries">
+                <h:outputText value="No entries found" />
+            </h:panelGroup>
+        </div>
+    </div>
 
 </ui:composition>

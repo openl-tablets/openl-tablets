@@ -14,11 +14,12 @@ table, input, textarea {
 }
 
 input[type='text'], input[type='password'], textarea, select {
-    border-width: 1px !important;
-    border-style: solid !important;
-    border-color: #c7c7c7 #ddd #ddd #c7c7c7 !important;
-    border-radius: 1px !important;
-    background: #ffffff !important;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #c7c7c7 #ddd #ddd #c7c7c7;
+    border-radius: 1px;
+    background: #ffffff;
+    color: #333;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
@@ -73,6 +74,17 @@ input[type='button']:disabled, button:disabled,
     color: #999999 !important;
     background: #fff !important;
     cursor: default;
+}
+
+.input-container {
+    width: 100%;
+    height: 100%;
+    border: 0 !important;
+    font: inherit;
+}
+
+.input-container:focus {
+    outline: none !important;
 }
 
 .button,
@@ -230,6 +242,11 @@ a.link-ref {
     padding: 1px 2px;
 }
 
+.link-text {
+    color: #777;
+    text-decoration: none;
+}
+
 .link-dropdown-menu {
     margin: 6px 0 0 -9px;
 }
@@ -321,10 +338,6 @@ fieldset {
     border: 1px dotted #ccc;
     padding: 4px 7px;
     line-height: 15px;
-}
-
-.table-striped tbody tr:nth-child(2n+1) td {
-    background: #fafafa;
 }
 
 .table-over tr:hover td {
@@ -723,6 +736,32 @@ form.standard table.buttonPanel {
     font-style: italic;
 }
 
+.panel > .panel-header {
+    height: 30px;
+    font-size: 110%;
+    color: #333;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #f9f9f9;
+    background: #fff;
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+}
+
+.panel > .panel-body {
+    width: 100%;
+    overflow: auto;
+    position: absolute;
+    bottom: 0;
+    top: 30px; /*- header height */
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+}
+
+.panel > .container {
+    padding: 7px;
+}
+
 .view_header {
      font-size: 110%;
      height: 14px;
@@ -746,47 +785,17 @@ form.standard table.buttonPanel {
     border-bottom: 1px dashed #ccc;
 }
 
-.view_toolbar {
-    height: 34px;
-}
-
-.view_toolbar > div {
-    padding: 7px 5px 6px 7px;
-}
-
-.view_workspace,
 .simpleView_workspace {
     width: 100%;
     overflow: auto;
     position: absolute;
     bottom: 0;
-}
-
-.view_workspace {
-    top: 64px; /* 14px - header height
-                + 16px - header padding
-                + 34px - toolbar height
-               */
-}
-
-.simpleView_workspace {
     top: 30px; /* 14px - header height
-                + 16px - header padding
-               */
+                + 16px - header padding */
 }
 
-.view_workspace > div,
 .simpleView_workspace > div {
     padding: 5px 7px;
-}
-
-/*Columns style for toolbar of the project tree*/
-.rules_tree_view_first_col {
-    width: 100%;
-}
-
-.rules_tree_view_second_col {
-    width: 20px;
 }
 
 .field-description {
