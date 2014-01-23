@@ -72,15 +72,13 @@ public class SmartRedeployController {
 
     private AProject currentProject;
 
+    private boolean loading = true;
+
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null) {
+        if (project == null || project != currentProject) {
             reset();
             return null;
-        }
-        if (project != currentProject) {
-            reset();
-            currentProject = project;
         }
 
         if (items == null) {
@@ -455,10 +453,13 @@ public class SmartRedeployController {
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
+        loading = true;
     }
 
     public void openDialogListener(AjaxBehaviorEvent event) {
         reset();
+        currentProject = getSelectedProject();
+        loading = false;
     }
 
     public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
@@ -469,4 +470,7 @@ public class SmartRedeployController {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 
+    public boolean isLoading() {
+        return loading;
+    }
 }
