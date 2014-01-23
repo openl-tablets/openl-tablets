@@ -1,5 +1,6 @@
 package org.openl.rules.project.resolving;
 
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
@@ -10,13 +11,14 @@ import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
+import org.springframework.beans.factory.DisposableBean;
 
 import java.io.File;
 
 import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 import static org.apache.commons.io.FilenameUtils.concat;
 
-public class TemporaryRevisionsStorage {
+public class TemporaryRevisionsStorage implements DisposableBean {
     private final Log log = LogFactory.getLog(TemporaryRevisionsStorage.class);
     private static final String DEFAULT_STORAGE_PATH = concat(getTempDirectoryPath() + "/", "openl_repo/");
 
@@ -35,6 +37,22 @@ public class TemporaryRevisionsStorage {
             extractRevision(project, revisionFolder);
         }
         return revisionFolder;
+    }
+
+    public void deleteRevisions(FolderAPI project) {
+        String projectName = project.getName();
+
+        File folder = getStorageFolder();
+        String revisionFolders[] = folder.list(new PrefixFileFilter(projectName));
+
+        if (revisionFolders != null) {
+            for (String revisionFolder : revisionFolders) {
+                // Folder name example: projectName_v123
+                if (revisionFolder.substring(projectName.length()).matches("_v\\d+")) {
+                    FolderHelper.deleteFolder(new File(folder, revisionFolder));
+                }
+            }
+        }
     }
 
     public void clear() {
