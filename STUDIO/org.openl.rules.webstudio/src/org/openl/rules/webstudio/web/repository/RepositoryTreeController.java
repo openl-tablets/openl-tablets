@@ -47,6 +47,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -97,6 +98,9 @@ public class RepositoryTreeController {
 
     @ManagedProperty(value = "#{zipFilter}")
     private PathFilter zipFilter;
+
+    @ManagedProperty("#{temporaryRevisionsStorage}")
+    private TemporaryRevisionsStorage temporaryRevisionsStorage;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -544,6 +548,7 @@ public class RepositoryTreeController {
         }
 
         try {
+            temporaryRevisionsStorage.deleteRevisions(project.getAPI());
             project.erase();
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
@@ -1401,6 +1406,10 @@ public class RepositoryTreeController {
 
     public boolean getCanDeleteDeployment() {
         return isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
+    }
+
+    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
+        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 
     private void resetStudioModel() {

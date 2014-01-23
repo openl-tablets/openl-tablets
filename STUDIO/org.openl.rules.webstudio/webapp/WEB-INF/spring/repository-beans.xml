@@ -40,6 +40,5 @@
     <property name="designRepository" ref="designTimeRepository" />
   </bean>
 
-  <bean id="temporaryRevisionsStorage" class="org.openl.rules.project.resolving.TemporaryRevisionsStorage"
-        destroy-method="destroy"/>
+  <bean id="temporaryRevisionsStorage" class="org.openl.rules.project.resolving.TemporaryRevisionsStorage"/>
 </beans>
