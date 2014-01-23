@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +42,16 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
         when(ws.getProjectResolver()).thenReturn(RulesProjectResolver.loadProjectResolverFromClassPath());
 
+        EhCacheUtils.createCache();
+
         pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
         pm.setSingleModuleMode(singleModuleMode);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        EhCacheUtils.shutdownCache();
     }
 
     @Test

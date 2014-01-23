@@ -1,14 +1,15 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 
-import org.apache.commons.collections.map.AbstractReferenceMap;
-import org.apache.commons.collections.map.ReferenceMap;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -17,10 +18,8 @@ import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
-import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.impl.IdentifierNode;
 
 
 /**
@@ -29,18 +28,10 @@ import org.openl.syntax.impl.IdentifierNode;
  * @author PUdalau
  */
 public class InstantiationStrategyFactory {
-    @SuppressWarnings("unchecked")
-    /**
-     * Memory-sensitive cache.
-     */
-    private Map<Module, ModuleInstantiator> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.WEAK,
-            AbstractReferenceMap.SOFT);
-    /**
-     * Memory-sensitive cache.
-     */
-    @SuppressWarnings("unchecked")
-    private Map<ProjectDescriptor, ModuleInstantiator> multiModuleInstantiators = new ReferenceMap(AbstractReferenceMap.WEAK,
-            AbstractReferenceMap.SOFT);
+    public static final String STUDIO_CACHE_MANAGER = "studioCacheManager";
+    public static final String INSTANTIATION_STRATEGIES_CACHE = "instantiationStrategiesCache";
+
+    private Cache cache = CacheManager.getCacheManager(STUDIO_CACHE_MANAGER).getCache(INSTANTIATION_STRATEGIES_CACHE);
 
     /**
      * Cache of dependent modules usages.
@@ -64,7 +55,7 @@ public class InstantiationStrategyFactory {
      * @param singleModuleMode if true - function will return single module instantiation strategy and multi module otherwise
      * @return Instantiation strategy for the module.
      */
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean singleModuleMode) {
+    public ModuleInstantiator getInstantiationStrategy(Module module, boolean singleModuleMode) {
         ModuleInstantiator instantiator = getFromCache(module, singleModuleMode);
 
         if (instantiator != null && singleModuleMode != isSingleModuleModeStrategy(instantiator.getInstantiationStrategy())) {
@@ -86,7 +77,7 @@ public class InstantiationStrategyFactory {
             putToCache(module, singleModuleMode, instantiator);
         }
 
-        return instantiator.getInstantiationStrategy();
+        return instantiator;
     }
 
     /**
@@ -95,8 +86,8 @@ public class InstantiationStrategyFactory {
      * @param module Module
      */
     public void removeCachedModule(Module module) {
-        moduleInstantiators.remove(module);
-        multiModuleInstantiators.remove(module.getProject());
+        cache.remove(new Key(this, module));
+        cache.remove(new Key(this, module.getProject()));
         removeModuleDependencies(module);
     }
 
@@ -104,34 +95,20 @@ public class InstantiationStrategyFactory {
      * Removes all cached instantiation strategies.
      */
     public void reset() {
-        moduleInstantiators.clear();
-        multiModuleInstantiators.clear();
+        for (Object key : cache.getKeys()) {
+            Key k = (Key) key;
+            InstantiationStrategyFactory factory = k.getFactory();
+            if (factory == this || factory == null) {
+                // As far as cache.getKeys() returns the copy of key list, we can remove from cache while iterating the list
+                cache.remove(key);
+            }
+        }
         dependencyUsages.clear();
-    }
-
-    public XlsModuleSyntaxNode getModuleSyntaxNodeInMultiModuleProject(Module module)  {
-        ModuleInstantiator moduleInstantiator = getFromCache(module, false);
-        if (moduleInstantiator == null) {
-            moduleInstantiator = createModuleInstantiator(module, false);
-            putToCache(module, false, moduleInstantiator);
-        }
-
-        IDependencyManager dependencyManager = moduleInstantiator.getDependencyManager();
-
-        try {
-            Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
-
-            XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                    .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-            return xmi.getXlsModuleNode();
-        } catch (OpenLCompilationException e) {
-            throw new OpenLRuntimeException(e);
-        }
     }
 
     public boolean isOpenedAsSingleMode(Module module) {
         for (Module m : module.getProject().getModules()) {
-            if (moduleInstantiators.containsKey(m)) {
+            if (getFromCache(m, true) != null) {
                 return true;
             }
         }
@@ -139,19 +116,35 @@ public class InstantiationStrategyFactory {
     }
 
     public boolean isOpenedAsMultiMode(Module module) {
-        return multiModuleInstantiators.containsKey(module.getProject());
+        return getFromCache(module, false) != null;
     }
 
     private ModuleInstantiator getFromCache(Module module, boolean singleModuleMode) {
-        return singleModuleMode ? moduleInstantiators.get(module) : multiModuleInstantiators.get(module.getProject());
+        Key key = singleModuleMode ? new Key(this, module) : new Key(this, module.getProject());
+        Element element = cache.get(key);
+
+        if (element == null) {
+            return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        ModuleInstantiator instantiator = ((SoftReference<ModuleInstantiator>) element.getObjectValue()).get();
+        if (instantiator == null) {
+            cache.remove(key);
+            removeModuleDependencies(module);
+        }
+
+        return instantiator;
     }
 
     private void putToCache(Module module, boolean singleModuleMode, ModuleInstantiator instantiator) {
+        Key key;
         if (singleModuleMode) {
-            moduleInstantiators.put(module, instantiator);
+            key = new Key(this, module);
         } else {
-            multiModuleInstantiators.put(module.getProject(), instantiator);
+            key = new Key(this, module.getProject());
         }
+        cache.put(new Element(key, new SoftReference<ModuleInstantiator>(instantiator)));
     }
 
     private ModuleInstantiator createModuleInstantiator(Module module, boolean singleModuleMode) {
@@ -238,7 +231,93 @@ public class InstantiationStrategyFactory {
         }
     }
 
-    private static class ModuleInstantiator {
+    private static final class Key {
+        private final WeakReference<InstantiationStrategyFactory> referenceToFactory;
+        private final WeakReference<Module> referenceToModule;
+        private final WeakReference<ProjectDescriptor> referenceToProject;
+        private final int hash;
+
+        private final ReferenceQueue<Object> referenceQueue = new ReferenceQueue<Object>();
+
+        public Key(InstantiationStrategyFactory factory, Module module) {
+            this.referenceToFactory = new WeakReference<InstantiationStrategyFactory>(factory, referenceQueue);
+            this.referenceToModule = new WeakReference<Module>(module, referenceQueue);
+            this.referenceToProject = new WeakReference<ProjectDescriptor>(null);
+
+            hash = hash(factory, module, null);
+        }
+
+        public Key(InstantiationStrategyFactory factory, ProjectDescriptor project) {
+            this.referenceToFactory = new WeakReference<InstantiationStrategyFactory>(factory);
+            this.referenceToModule = new WeakReference<Module>(null);
+            this.referenceToProject = new WeakReference<ProjectDescriptor>(project, referenceQueue);
+            hash = hash(factory, null, project);
+        }
+
+        public InstantiationStrategyFactory getFactory() {
+            return referenceToFactory.get();
+        }
+
+        private void purge() {
+            Reference<?> reference = referenceQueue.poll();
+            if (reference != null) {
+                // This key not needed anymore - clear the memory
+                referenceToFactory.clear();
+                referenceToModule.clear();
+                referenceToProject.clear();
+
+                while (reference != null) {
+                    reference = referenceQueue.poll();
+                }
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            purge();
+
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Key key = (Key) o;
+
+            InstantiationStrategyFactory factory = referenceToFactory.get();
+            InstantiationStrategyFactory keyFactory = key.referenceToFactory.get();
+
+            Module module = referenceToModule.get();
+            Module keyModule = key.referenceToModule.get();
+
+            ProjectDescriptor project = referenceToProject.get();
+            ProjectDescriptor keyProject = key.referenceToProject.get();
+
+            if (factory == null && module == null && project == null) {
+                // Content of this object GC-ed, it will be removed from cache.
+                return false;
+            }
+
+            if (factory != null ? !factory.equals(keyFactory) : keyFactory != null) return false;
+            if (module != null ? !module.equals(keyModule) : keyModule != null) return false;
+            if (project != null ? !project.equals(keyProject) : keyProject != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            purge();
+
+            return hash;
+        }
+
+        private int hash(InstantiationStrategyFactory factory, Module module, ProjectDescriptor project) {
+            int result = factory != null ? factory.hashCode() : 0;
+            result = 31 * result + (module != null ? module.hashCode() : 0);
+            result = 31 * result + (project != null ? project.hashCode() : 0);
+            return result;
+        }
+    }
+
+    public static class ModuleInstantiator {
         private final RulesInstantiationStrategy instantiationStrategy;
         private final IDependencyManager dependencyManager;
 
