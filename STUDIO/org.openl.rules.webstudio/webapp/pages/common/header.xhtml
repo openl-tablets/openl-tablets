@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:authz="http://rules.openl.org/taglibs/acegi"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
     <style>
         #rb {
@@ -44,6 +42,7 @@
             padding: 18px 15px 14px;
             font-size: 110%;
             color: #777;
+            margin-left: 3px;
         }
 
         #ll .active {
@@ -91,16 +90,14 @@
             </span>
         </div>
 
+        <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
         <div id="ll">
             <a href="#{contextPath}" class="nav-editor#{menu=='rules' ? ' active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}"
-                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a>
-            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
+                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a><a
+                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
                 data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}" title=""
-                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a>
-
-            <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
-            <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
-                <a href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''}"
+                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a><h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}"><a
+                href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''}"
                    data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}" title=""
                    onclick="#{menu=='admin' ? 'return false' : ''}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
