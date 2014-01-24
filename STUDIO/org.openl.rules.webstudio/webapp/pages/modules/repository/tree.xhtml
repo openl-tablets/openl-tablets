@@ -1,110 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/view.xhtml">
+    xmlns:rich="http://richfaces.org/rich">
 
-    <ui:define name="toolbar">
-        <style>
-            #nameFilter {
-                position: relative;
-            }
-            #nameFilter input {
-                width: -webkit-calc(100% - 26px);
-                width: calc(100% - 26px);
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-                padding-right: 20px;
-            }
-            #nameFilter img {
-                position: absolute;
-                right: 10px;
-                top: 3px;
-                cursor: pointer;
-                opacity: 0.5;
-            }
-            #filterButton {
-                background: url('webresource/images/filter.png');
-                border: 0;
-                background-color: transparent !important;
-                margin: 0;
-                -moz-margin-start: 4px;
-                padding: 5px 11px;
-            }
-        </style>
-        <span id="nameFilter">
-            <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
-            <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
-        </span>
-        <a id="filterButton" title="Advanced Filter" class="imageButton"
-            onclick="showRepFilterDialog();return false;" />
-    </ui:define>
+    <style>
+        .filter-name {
+            display: inline-block;
+            width: calc(100% - 40px);
+            height: 100%;
+            -moz-box-sizing: border-box;
+                 box-sizing: border-box;
+            padding-left: 12px;
+        }
+        #filterButton {
+            background: url('webresource/images/sections.png');
+            border: 0;
+            background-color: transparent !important;
+            margin: 0;
+            -moz-margin-start: 4px;
+            padding: 5px 7px;
+            opacity: 0.5;
+        }
+    </style>
 
-    <ui:define name="workspace">
-        <h:panelGroup layout="block" style="padding-bottom: 7px;">
-        <rich:tree id="projectTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{repositoryTreeState.processSelection}"
-          render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
-          value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}">
+    <div class="panel">
+        <div class="panel-header">
+            <div class="filter-name">
+                <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
+                       placeholder="#{msg['ws.projects.filter']}" class="input-container" />
+            </div>
+            <a id="filterButton" title="Advanced Filter" class="imageButton"
+                onclick="showRepFilterDialog();return false;" />
+        </div>
 
-          <rich:treeNode type="repository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
-            ontoggle="filterProjects($j('#nameFilter input').val())">
-            <h:outputText value="#{item.name}" />
-          </rich:treeNode>
-          <rich:treeNode type="project" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
-            <a4j:outputPanel>
-             <h:outputText value="#{item.name}"/>
-             <a4j:outputPanel rendered="#{not empty item.comments}">
-               <h:outputText value="  [#{item.comments}]" />
-             </a4j:outputPanel>
-             <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-                 <a4j:repeat value="#{item.dimensionProps}" var="row">
-                     <ui:param name="prop" value="#{row.data}" />
-                     <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
-                 </a4j:repeat>
-             </rich:tooltip>
-            </a4j:outputPanel>
-          </rich:treeNode>
-          <rich:treeNode type="folder" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
-            <a4j:outputPanel>
-             <h:outputText value="#{item.name}" />
-             <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-                 <a4j:repeat value="#{item.dimensionProps}" var="row">
-                     <ui:param name="prop" value="#{row.data}" />
-                     <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
-                 </a4j:repeat>
-             </rich:tooltip>
-            </a4j:outputPanel>
-          </rich:treeNode>
-          <rich:treeNode type="file" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
-            <a4j:outputPanel>
-             <h:outputText value="#{item.name}" />
-             <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-                 <a4j:repeat value="#{item.dimensionProps}" var="row">
-                     <ui:param name="prop" value="#{row.data}" />
-                     <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
-                 </a4j:repeat>
-             </rich:tooltip>
-            </a4j:outputPanel>
-          </rich:treeNode>
-          <rich:treeNode type="drepository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
-            ontoggle="filterProjects($j('#nameFilter input').val())">
-            <h:outputText value="#{item.name}" />
-          </rich:treeNode>
-          <rich:treeNode type="deployment" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
-            <a4j:outputPanel>
-              <h:outputText value="#{item.name}" />
-              <a4j:outputPanel rendered="#{not empty item.comments}">
-                <h:outputText value="  [#{item.comments}]"/>
-              </a4j:outputPanel>
-            </a4j:outputPanel>
-          </rich:treeNode>
-        </rich:tree>
-        </h:panelGroup>
+        <div class="panel-body container">
+            <h:panelGroup layout="block" style="padding-bottom: 7px;">
+            <rich:tree id="projectTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{repositoryTreeState.processSelection}"
+              render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
+              value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}">
 
-    </ui:define>
+              <rich:treeNode type="repository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
+                ontoggle="filterProjects($j('#nameFilter').val())">
+                <h:outputText value="#{item.name}" />
+              </rich:treeNode>
+              <rich:treeNode type="project" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
+                <a4j:outputPanel>
+                 <h:outputText value="#{item.name}"/>
+                 <a4j:outputPanel rendered="#{not empty item.comments}">
+                   <h:outputText value="  [#{item.comments}]" />
+                 </a4j:outputPanel>
+                 <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
+                     <a4j:repeat value="#{item.dimensionProps}" var="row">
+                         <ui:param name="prop" value="#{row.data}" />
+                         <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
+                     </a4j:repeat>
+                 </rich:tooltip>
+                </a4j:outputPanel>
+              </rich:treeNode>
+              <rich:treeNode type="folder" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
+                <a4j:outputPanel>
+                 <h:outputText value="#{item.name}" />
+                 <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
+                     <a4j:repeat value="#{item.dimensionProps}" var="row">
+                         <ui:param name="prop" value="#{row.data}" />
+                         <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
+                     </a4j:repeat>
+                 </rich:tooltip>
+                </a4j:outputPanel>
+              </rich:treeNode>
+              <rich:treeNode type="file" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
+                <a4j:outputPanel>
+                 <h:outputText value="#{item.name}" />
+                 <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
+                     <a4j:repeat value="#{item.dimensionProps}" var="row">
+                         <ui:param name="prop" value="#{row.data}" />
+                         <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
+                     </a4j:repeat>
+                 </rich:tooltip>
+                </a4j:outputPanel>
+              </rich:treeNode>
+              <rich:treeNode type="drepository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
+                ontoggle="filterProjects($j('#nameFilter').val())">
+                <h:outputText value="#{item.name}" />
+              </rich:treeNode>
+              <rich:treeNode type="deployment" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
+                <a4j:outputPanel>
+                  <h:outputText value="#{item.name}" />
+                  <a4j:outputPanel rendered="#{not empty item.comments}">
+                    <h:outputText value="  [#{item.comments}]"/>
+                  </a4j:outputPanel>
+                </a4j:outputPanel>
+              </rich:treeNode>
+            </rich:tree>
+            </h:panelGroup>
+
+        </div>
+    </div>
 
 </ui:composition>

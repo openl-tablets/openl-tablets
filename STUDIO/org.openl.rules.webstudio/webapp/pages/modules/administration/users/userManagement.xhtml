@@ -4,59 +4,58 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
-    template="/pages/layout/simpleView.xhtml">
-
-    <ui:define name="workspace">
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <script>
-      $j(function() {
-          $j('#tab-container-users').easytabs({
-              animate: false,
-              tabActiveClass: "selected-tab",
-              panelActiveClass: "displayed"
-          });
-      });
+        $j(function() {
+            $j('#tab-container-users').easytabs({
+                animate: false,
+                tabActiveClass: "selected-tab",
+                panelActiveClass: "displayed"
+            });
+        });
     </script>
 
-    <div id="tab-container-users" class="tab-panel-vertical">
-        <ul>
-            <li>
-                <a href="#users">
-                    <h:graphicImage url="/webresource/images/admin/users/users.png" alt="Users" />
-                    <span>Users</span>
-                </a>
-            </li>
-            <li>
-                <a href="#groups">
-                    <h:graphicImage url="/webresource/images/admin/users/groups.png" alt="Groups &amp; Privileges" />
-                    <span>Groups &amp; Privileges</span>
-                </a>
-            </li>
-            <br style="clear:both;" />
-        </ul>
-        <div class="data-container">
-            <div id="users">
-                <div class="fields">
-                    <section>
-                        <div>
-                            <ui:include src="/pages/modules/administration/users/users.xhtml" />
+    <div class="simpleView_workspace">
+        <div>
+            <div id="tab-container-users" class="tab-panel-vertical">
+                <ul>
+                    <li>
+                        <a href="#users">
+                            <h:graphicImage url="/webresource/images/admin/users/users.png" alt="Users" />
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#groups">
+                            <h:graphicImage url="/webresource/images/admin/users/groups.png" alt="Groups &amp; Privileges" />
+                            <span>Groups &amp; Privileges</span>
+                        </a>
+                    </li>
+                    <br style="clear:both;" />
+                </ul>
+                <div class="data-container">
+                    <div id="users">
+                        <div class="fields">
+                            <section>
+                                <div>
+                                    <ui:include src="/pages/modules/administration/users/users.xhtml" />
+                                </div>
+                            </section>
                         </div>
-                    </section>
-                </div>
-            </div>
-            <div id="groups">
-                <div class="fields">
-                    <section>
-                        <div>
-                            <ui:include src="/pages/modules/administration/users/groups.xhtml" />
+                    </div>
+                    <div id="groups">
+                        <div class="fields">
+                            <section>
+                                <div>
+                                    <ui:include src="/pages/modules/administration/users/groups.xhtml" />
+                                </div>
+                            </section>
                         </div>
-                    </section>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    </ui:define>
 
 </ui:composition>

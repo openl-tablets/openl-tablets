@@ -1,102 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    template="/pages/layout/simpleView.xhtml">
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <ui:define name="workspace">
-        <script src="webresource/js/tooltip.js"></script>
+    <script src="webresource/js/tooltip.js"></script>
 
-        <style>
-            .table-data td {
-                padding: 4px 0;
-            }
-            .table-data-name {
-                color: #333;
-                min-width: 55px;
-            }
-            .table-data-value {
-                font-weight: bold;
-            }
-            .propsGroupHeader {
-                color: #1199EE;
-                font-size: 110%;
-                padding: 8px 0 3px 1px;
-            }
-            .editableProp {
-                cursor: pointer;
-            }
-            .inheritedProp {
-                background: rgba(190, 220, 255, 0.3);
-            }
-            .deprecatedProp {
-                background: rgba(255, 250, 70, 0.5);
-            }
-            .inheritedProp .propData a {
-                margin-left: 30px;
-            }
-            .propName {
-                color: #555555;
-                padding: 3px 0 2px 3px;
-                min-width: 75px;
-            }
-            .propData {
-                padding: 3px 0 1px;
-                width: 100%;
-            }
-            .propValue {
-                margin-left: 5px;
-            }
-            .propEditor {
-                margin-left: 2px;
-            }
-            .propEditor input[type="text"],
-            .propEditor input[type="password"],
-            .propEditor textarea {
-                padding: 1px;
-                width: 91%;
-            }
-            .editableProp .propValue {
-                border-bottom: 1px dashed #cccccc;
-            }
-            .propDescription {
-                display: none;
-            }
-            .propHide {
-                display: none;
-            }
-            #savePropsButton {
-                display: none;
-            }
-        </style>
+    <style>
+        .table-data td {
+            padding: 4px 0;
+        }
+        .table-data-name {
+            color: #333;
+            min-width: 55px;
+        }
+        .table-data-value {
+            font-weight: bold;
+        }
+        .propsGroupHeader {
+            color: #1199EE;
+            font-size: 110%;
+            padding: 8px 0 3px 1px;
+        }
+        .editableProp {
+            cursor: pointer;
+        }
+        .inheritedProp {
+            background: rgba(190, 220, 255, 0.3);
+        }
+        .deprecatedProp {
+            background: rgba(255, 250, 70, 0.5);
+        }
+        .inheritedProp .propData a {
+            margin-left: 30px;
+        }
+        .propName {
+            color: #555555;
+            padding: 3px 0 2px 3px;
+            min-width: 75px;
+        }
+        .propData {
+            padding: 3px 0 1px;
+            width: 100%;
+        }
+        .propValue {
+            margin-left: 5px;
+        }
+        .propEditor {
+            margin-left: 2px;
+        }
+        .propEditor input[type="text"],
+        .propEditor input[type="password"],
+        .propEditor textarea {
+            padding: 1px;
+            width: 91%;
+        }
+        .editableProp .propValue {
+            border-bottom: 1px dashed #cccccc;
+        }
+        .propDescription {
+            display: none;
+        }
+        .propHide {
+            display: none;
+        }
+        #savePropsButton {
+            display: none;
+        }
+    </style>
 
-        <script>
-            function editProperty(elem) {
-                elem = $j(elem);
-                elem.removeClass("editableProp");
-                elem.find(".propValue").hide();
-                elem.find(".propEditor").show();
-                $j("#savePropsButton").show();
+    <script>
+        function editProperty(elem) {
+            elem = $j(elem);
+            elem.removeClass("editableProp");
+            elem.find(".propValue").hide();
+            elem.find(".propEditor").show();
+            $j("#savePropsButton").show();
 
-                var tooltipData = elem.find(".propEditor .propDescription").html();
-                if (tooltipData) {
-                    var tooltipElemId = elem.find(".propEditor input,.propEditor select").attr("id");
-                    new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
-                }
+            var tooltipData = elem.find(".propEditor .propDescription").html();
+            if (tooltipData) {
+                var tooltipElemId = elem.find(".propEditor input,.propEditor select").attr("id");
+                new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
             }
+        }
 
-            function showRemoveBtn(row, deprecated) {
-                if (!deprecated)
-                    $j(row).find("a[id*='removePropBtn']").show();
-            }
-            function hideRemoveBtn(row, deprecated) {
-                if (!deprecated)
-                    $j(row).find("a[id*='removePropBtn']").hide();
-            }
-        </script>
+        function showRemoveBtn(row, deprecated) {
+            if (!deprecated)
+                $j(row).find("a[id*='removePropBtn']").show();
+        }
+        function hideRemoveBtn(row, deprecated) {
+            if (!deprecated)
+                $j(row).find("a[id*='removePropBtn']").hide();
+        }
+    </script>
 
-        <div id="tableProperties"></div>
+    <div class="panel">
+        <div class="panel-header container" style="padding-left: 18px">
+            <span>#{msg['ws.table.details']}</span>
+        </div>
 
-    </ui:define>
+        <div class="panel-body container">
+            <div id="tableProperties"></div>
+        </div>
+    </div>
 
 </ui:composition>
