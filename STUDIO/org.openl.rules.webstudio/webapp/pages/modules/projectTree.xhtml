@@ -21,10 +21,10 @@
         #projects ul {
             list-style: none;
             margin: 0;
-            padding-left: 2px;
+            padding-left: 0;
         }
         #projects > ul > li {
-            padding: 5px 4px;
+            padding: 7px 0;
             border-bottom: 1px solid #f7f7f7;
         }
         #projects > ul > li:last-child {
@@ -32,23 +32,22 @@
         }
         #projects > ul > li:hover {
             background: #f7f7f7;
-            border-right: 1px solid orange;
+            border-right: 1px solid #8c2;
         }
         #projects > ul ul {
             margin-top: 2px;
         }
-        #projects > ul ul > li {
-            padding: 1px 0;
-        }
         #projects a {
             color: #111111;
             text-decoration: none;
+            display: inline-block;
+            width: calc(100% - 26px);
+            padding: 2px 13px;
         }
         #projects a:hover {
-            background: #e9e9e9;
+            background: #f0f0f0;
         }
         #projects .selected {
-            background: #EAF0F8;
             font-weight: bold;
         }
         #projects .projectName {
@@ -67,7 +66,7 @@
             </h:panelGroup>
         </div>
 
-        <div class="panel-body container">
+        <div class="panel-body">
             <h:form prependId="false" id="projects-tree">
                 <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
                     <ul>
