@@ -104,8 +104,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-primary {
-    background: #7c2 !important;
-    border-color: #7c2 !important;
+    background: #8c2 !important;
+    border-color: #8c2 !important;
 }
 
 .button-secondary {
@@ -161,7 +161,7 @@ a.button-secondary {
 
 .buttonPanel > .button-primary,
 .buttonPanel > span > .button-primary {
-    color: #7c2 !important;
+    color: #8c2 !important;
 }
 
 #refreshBtn,
@@ -951,6 +951,12 @@ form.standard table.buttonPanel {
     color: #bbb;
 }
 
+.breadcrumbs .dropdown-menu {
+    max-height: 370px;
+    overflow: auto;
+    left: -20px;
+}
+
 /* RichFaces styles */
 
 .rf-trn, .rf-tr-nd {
@@ -1197,9 +1203,10 @@ form.standard table.buttonPanel {
 }
 
 .dropdown .dropdown-menu .nav-header {
-    padding: 6px 20px;
-    color: #888;
+    padding: 6px 15px;
+    color: #999;
     white-space: nowrap;
+    font-size: 12px;
 }
 
 .typeahead {

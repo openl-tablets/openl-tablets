@@ -21,11 +21,42 @@
                     <span><a href="#home.xhtml">Projects</a></span>
                     <h:panelGroup rendered="#{!empty rProject.name}">
                     <span class="delimeter"></span>
-                    <span><a href="#project.xhtml?name=#{jsffn:encodeURL(rProject.name)}">#{rProject.name}</a></span>
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            #{rProject.name}
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="nav-header">Current Project</li>
+                            <li><a href="#project.xhtml?name=#{jsffn:encodeURL(rProject.name)}">#{rProject.name}</a></li>
+                            <li class="divider"></li>
+                            <li class="nav-header">All Projects</li>
+                            <ui:repeat value="#{studio.allProjects}" var="pr">
+                            <li><a href="#project.xhtml?name=#{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
+                            </ui:repeat>
+                        </ul>
+                    </span>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module.name}">
                     <span class="delimeter"></span>
-                    <span><a href="#module.xhtml?#{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></span>
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            #{module.name}
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="nav-header">Current Module</li>
+                            <li><a href="#module.xhtml?#{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
+                            <li class="divider"></li>
+                            <li class="nav-header">All Modules</li>
+                            <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
+                                <li><a4j:commandLink action="#{mainBean.selectModule}"
+                                        oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(m.name)}', true)">
+                                        #{m.name}
+                                        <f:param name="project" value="#{rProject.name}" />
+                                        <f:param name="module" value="#{m.name}" />
+                                    </a4j:commandLink></li>
+                            </ui:repeat>
+                        </ul>
+                    </span>
                     </h:panelGroup>
                     <span style="margin-left:4px;">
                         <a4j:ajax oncomplete="reloadCurrent()">
