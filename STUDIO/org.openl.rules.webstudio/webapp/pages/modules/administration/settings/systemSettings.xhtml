@@ -6,10 +6,7 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
-    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    template="/pages/layout/simpleView.xhtml">
-
-    <ui:define name="workspace">
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <c:set var="emptyHistoryDir" value="#{fn:length(projectsInHistory.projects) == 0}" />
 
@@ -78,358 +75,370 @@
     </style>
 
     <script>
-      //<![CDATA[
-      $j(function() {
-          $j('#tab-container').easytabs({
-              animate: false,
-              tabActiveClass: "selected-tab",
-              panelActiveClass: "displayed"
-          });
-          if (#{emptyHistoryDir}) {
-              $j("#cleanHistoryHref").hide();
-          }
-      });
+        //<![CDATA[
+        $j(function() {
+            $j('#tab-container').easytabs({
+                animate: false,
+                tabActiveClass: "selected-tab",
+                panelActiveClass: "displayed"
+            });
+            if (#{emptyHistoryDir}) {
+                $j("#cleanHistoryHref").hide();
+            }
+        });
 
-      function showMaxCountInHistory() {
-          maxNumberHistory = $j("#systemSettingsForm\\:history-count");
-          hideMaxCountInHistory();
-          if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
-              $j("#systemSettingsForm\\:maxCountInHistory").show();
-              maxNumberHistory.focus();
-              maxNumberHistory.val("30");
-              maxNumberHistory.select();
-          }
-      };
+        function showMaxCountInHistory() {
+            maxNumberHistory = $j("#systemSettingsForm\\:history-count");
+            hideMaxCountInHistory();
+            if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
+                $j("#systemSettingsForm\\:maxCountInHistory").show();
+                maxNumberHistory.focus();
+                maxNumberHistory.val("30");
+                maxNumberHistory.select();
+            }
+        };
 
-      function hideMaxCountInHistory() {
-          if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
-              $j("#systemSettingsForm\\:maxCountInHistory").hide();
-              $j("#systemSettingsForm\\:history-count").val("0");
-          }
-      }
+        function hideMaxCountInHistory() {
+            if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
+                $j("#systemSettingsForm\\:maxCountInHistory").hide();
+                $j("#systemSettingsForm\\:history-count").val("0");
+            }
+        }
 
-      function changeStatus(element) {
-          $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
-          if (element.checked) {
-              $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
-          } else {
-              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-          }
-      };
+        function changeStatus(element) {
+            $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
+            if (element.checked) {
+                $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
+            } else {
+                $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
+            }
+        };
 
-      function showAvaliableProjectsInHistory(showHistory) {
-          if (showHistory) {
-              $j("#avaliableProjectsInHistory").show();
-              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-          } else {
-              $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
-              $j("#avaliableProjectsInHistory").hide();
-          }
-          if (#{emptyHistoryDir}) {
-              $j("#cleanHistoryHref").hide();
-          }
-          hideMaxCountInHistory();
-      };
+        function showAvaliableProjectsInHistory(showHistory) {
+            if (showHistory) {
+                $j("#avaliableProjectsInHistory").show();
+                $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
+            } else {
+                $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
+                $j("#avaliableProjectsInHistory").hide();
+            }
+            if (#{emptyHistoryDir}) {
+                $j("#cleanHistoryHref").hide();
+            }
+            hideMaxCountInHistory();
+        };
 
-      function changeAllProjectCheck(element) {
-          checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").size();
-          allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").size() - 1;
+        function changeAllProjectCheck(element) {
+            checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").size();
+            allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").size() - 1;
 
-          if (checkedCount == allCount && !$j("#systemSettingsForm\\:selectAll").is(':checked')) {
-              $j("#systemSettingsForm\\:selectAll").attr('checked', true);
-          } else {
-              $j("#systemSettingsForm\\:selectAll").attr('checked', false);
-          }
-          if (element.checked) {
-              $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
-          } else {
-              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
-          }
-      };
+            if (checkedCount == allCount && !$j("#systemSettingsForm\\:selectAll").is(':checked')) {
+                $j("#systemSettingsForm\\:selectAll").attr('checked', true);
+            } else {
+                $j("#systemSettingsForm\\:selectAll").attr('checked', false);
+            }
+            if (element.checked) {
+                $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
+            } else {
+                $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
+            }
+        };
 
-      function changeRunTestsInParallel(element) {
-          if (element.checked) {
-              $j("#systemSettingsForm\\:testRunThreadCount").show();
-          } else {
-              $j("#systemSettingsForm\\:testRunThreadCount").hide();
-          }
-      }
-      //]]>
+        function changeRunTestsInParallel(element) {
+            if (element.checked) {
+                $j("#systemSettingsForm\\:testRunThreadCount").show();
+            } else {
+                $j("#systemSettingsForm\\:testRunThreadCount").hide();
+            }
+        }
+        //]]>
     </script>
 
-    <h:form id="systemSettingsForm">
+    <div class="simpleView_workspace">
+        <div>
+            <h:form id="systemSettingsForm">
 
-    <h:panelGroup id="restartMessage" layout="block" styleClass="restartMessage">
-        <h:panelGroup rendered="#{studio.needRestart}" layout="block" styleClass="problem-warning">
-            <b>System settings were changed!</b>
-            <br/>Refresh the page.
-        </h:panelGroup>
-    </h:panelGroup>
+            <h:panelGroup id="restartMessage" layout="block" styleClass="restartMessage">
+                <h:panelGroup rendered="#{studio.needRestart}" layout="block" styleClass="problem-warning">
+                    <b>System settings were changed!</b>
+                    <br/>Refresh the page.
+                </h:panelGroup>
+            </h:panelGroup>
 
-    <div id="tab-container" class="tab-panel-vertical">
-        <ul>
-            <li>
-                <a href="#common">
-                    <h:graphicImage url="/webresource/images/admin/systemSettings/common.png" alt="Common" />
-                    <span>Common</span>
-                </a>
-            </li>
-            <li>
-                <a href="#repository">
-                    <h:graphicImage url="/webresource/images/admin/systemSettings/repository.png" alt="Repository" />
-                    <span>Repository</span>
-                </a>
-            </li>
-            <li>
-                <a href="#system">
-                    <h:graphicImage url="/webresource/images/admin/systemSettings/java_system.png" alt="Java System" />
-                    <span>System</span>
-                </a>
-            </li>
-            <br style="clear:both;" />
-        </ul>
-        <div class="data-container">
-            <div id="common">
-                <h:panelGroup id="commonProps" styleClass="fields" layout="block">
-                    <section>
-                        <h3>User Workspace</h3>
-                        <div>
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Workspace Directory:" />
-                                <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}" styleClass="pathInput"
-                                    disabled="#{jsffn:isSystemProp('user.workspace.home')}"
-                                    validator="#{systemSettingsBean.workSpaceDirValidator}"/>
-                            </h:panelGrid>
-                        </div>
-                    </section>
-                    <section>
-                        <h3>History</h3>
-                        <div id="history">
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="History Directory:" />
-                                <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
-                                    disabled="#{jsffn:isSystemProp('project.history.home')}"
-                                   validator="#{systemSettingsBean.historyDirValidator}"/>
-                            </h:panelGrid>
-                            <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
-                                <h:outputText value="The maximum count of saved changes for each project:" />
-                                <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
-                                    disabled="#{jsffn:isSystemProp('project.history.count')}"
-                                    validator="#{systemSettingsBean.historyCountValidator}"/>
-                            </h:panelGrid>
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Unlimited numbers of copies" />
-                                <h:selectBooleanCheckbox id="unlimitHistory" value="#{systemSettingsBean.unlimitHistory}"
-                                    disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="showMaxCountInHistory()"/>
-                            </h:panelGrid>
-                            <h:panelGrid rendered="#{!emptyHistoryDir}">
-                                <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
-                            </h:panelGrid>
-                        </div>
-                        <div id="avaliableProjectsInHistory" class="history" style="display:none">
-                            <h:panelGroup id="projectsInHistoryPanel" layout="block">
-                                <div class="historyHeader">
-                                    <b>Clean projects history</b>
-                                </div>
-                                <div class="historyCheckAll">
-                                    <h:panelGrid columns="2" >
-                                        <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" onclick="changeStatus(this);"/>
-                                        <h:outputText value="Name" style="font-weight:bold"/>
-                                    </h:panelGrid>
-                                </div>
-                                <div class="historyChecks">
-                                    <ui:repeat value="#{projectsInHistory.projects}" var="project">
-                                        <h:panelGrid columns="2">
-                                            <h:selectBooleanCheckbox value="#{project.selected}" onclick="changeAllProjectCheck(this)"/>
-                                            <h:outputText value="#{project.projectName}" />
-                                        </h:panelGrid>
-                                    </ui:repeat>
-                                </div>
+            <div id="tab-container" class="tab-panel-vertical">
+                <ul>
+                    <li>
+                        <a href="#common">
+                            <h:graphicImage url="/webresource/images/admin/systemSettings/common.png" alt="Common" />
+                            <span>Common</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#repository">
+                            <h:graphicImage url="/webresource/images/admin/systemSettings/repository.png" alt="Repository" />
+                            <span>Repository</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#system">
+                            <h:graphicImage url="/webresource/images/admin/systemSettings/java_system.png" alt="Java System" />
+                            <span>System</span>
+                        </a>
+                    </li>
+                    <br style="clear:both;" />
+                </ul>
+                <div class="data-container">
+                    <div id="common">
+                        <h:panelGroup id="commonProps" styleClass="fields" layout="block">
+                            <section>
+                                <h3>User Workspace</h3>
                                 <div>
-                                    <h:panelGrid columns="2">
-                                        <a4j:commandButton id="sbtClean" value="Clean" title="Clean projects history" action="#{projectsInHistory.deleteProjects}"
-                                            render="commonProps" oncomplete="showAvaliableProjectsInHistory(false)"/>
-                                        <input type="button" value="Cancel" title="Cancel" onclick="showAvaliableProjectsInHistory(false)"/>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Workspace Directory:" />
+                                        <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}" styleClass="pathInput"
+                                            disabled="#{jsffn:isSystemProp('user.workspace.home')}"
+                                            validator="#{systemSettingsBean.workSpaceDirValidator}"/>
                                     </h:panelGrid>
                                 </div>
-                            </h:panelGroup>
-                        </div>
-                    </section>
-                    <section>
-                        <h3>Other</h3>
-                        <div>
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Update table properties ('createdOn', 'modifiedBy' etc.) on editing: " />
-                                <h:selectBooleanCheckbox value="#{systemSettingsBean.updateSystemProperties}"
-                                    disabled="#{jsffn:isSystemProp('update.system.properties')}"/>
-                                <h:outputText value="Date Format:" />
-                                <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
-                                    disabled="#{jsffn:isSystemProp('data.format.date')}"
-                                    validator = "#{systemSettingsBean.dateFormatValidator}"/>
-                            </h:panelGrid>
-                        </div>
-                    </section>
-                </h:panelGroup>
-            </div>
-            <div id="repository">
-                <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
-                    <section>
-                        <h3>Design Repository</h3>
-                        <div>
-                        <table><tr><td>
-                            <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Name:" />
-                                <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" styleClass="repoFieldWidth"/>
-                                <h:outputText value="Type:" />
-                                <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
-                                    <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
-                                    <f:selectItem itemValue="local" itemLabel="Local" />
-                                    <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                    <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                </h:selectOneMenu>
-                                <h:outputText id="designRepositoryPathTitle"
-                                    value="#{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
-                                <h:inputText id="designRepositoryPath"
-                                    value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
-                                        disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
-                                <h:outputLabel value="Secure connection" for="secureConnection" />
-                                <h:selectBooleanCheckbox id="secureConnection" value="#{systemSettingsBean.secureDesignRepo}"
-                                onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
-                                    <f:ajax event="change" execute="@form" render="designInfoPanel" />
-                                </h:selectBooleanCheckbox>
+                            </section>
+                            <section>
+                                <h3>History</h3>
+                                <div id="history">
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="History Directory:" />
+                                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
+                                            disabled="#{jsffn:isSystemProp('project.history.home')}"
+                                           validator="#{systemSettingsBean.historyDirValidator}"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
+                                        <h:outputText value="The maximum count of saved changes for each project:" />
+                                        <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
+                                            disabled="#{jsffn:isSystemProp('project.history.count')}"
+                                            validator="#{systemSettingsBean.historyCountValidator}"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Unlimited numbers of copies" />
+                                        <h:selectBooleanCheckbox id="unlimitHistory" value="#{systemSettingsBean.unlimitHistory}"
+                                            disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="showMaxCountInHistory()"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid rendered="#{!emptyHistoryDir}">
+                                        <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
+                                    </h:panelGrid>
+                                </div>
+                                <div id="avaliableProjectsInHistory" class="history" style="display:none">
+                                    <h:panelGroup id="projectsInHistoryPanel" layout="block">
+                                        <div class="historyHeader">
+                                            <b>Clean projects history</b>
+                                        </div>
+                                        <div class="historyCheckAll">
+                                            <h:panelGrid columns="2" >
+                                                <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" onclick="changeStatus(this);"/>
+                                                <h:outputText value="Name" style="font-weight:bold"/>
+                                            </h:panelGrid>
+                                        </div>
+                                        <div class="historyChecks">
+                                            <ui:repeat value="#{projectsInHistory.projects}" var="project">
+                                                <h:panelGrid columns="2">
+                                                    <h:selectBooleanCheckbox value="#{project.selected}" onclick="changeAllProjectCheck(this)"/>
+                                                    <h:outputText value="#{project.projectName}" />
+                                                </h:panelGrid>
+                                            </ui:repeat>
+                                        </div>
+                                        <div>
+                                            <h:panelGrid columns="2">
+                                                <a4j:commandButton id="sbtClean" value="Clean" title="Clean projects history" action="#{projectsInHistory.deleteProjects}"
+                                                    render="commonProps" oncomplete="showAvaliableProjectsInHistory(false)"/>
+                                                <input type="button" value="Cancel" title="Cancel" onclick="showAvaliableProjectsInHistory(false)"/>
+                                            </h:panelGrid>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </section>
+                            <section>
+                                <h3>Other</h3>
+                                <div>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Update table properties ('createdOn', 'modifiedBy' etc.) on editing: " />
+                                        <h:selectBooleanCheckbox value="#{systemSettingsBean.updateSystemProperties}"
+                                            disabled="#{jsffn:isSystemProp('update.system.properties')}"/>
+                                        <h:outputText value="Date Format:" />
+                                        <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
+                                            disabled="#{jsffn:isSystemProp('data.format.date')}"
+                                            validator = "#{systemSettingsBean.dateFormatValidator}"/>
+                                    </h:panelGrid>
+                                </div>
+                            </section>
+                        </h:panelGroup>
+                    </div>
+                    <div id="repository">
+                        <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
+                            <section>
+                                <h3>Design Repository</h3>
+                                <div>
+                                <table><tr><td>
+                                    <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Name:" />
+                                        <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" styleClass="repoFieldWidth"/>
+                                        <h:outputText value="Type:" />
+                                        <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
+                                            <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
+                                            <f:selectItem itemValue="local" itemLabel="Local" />
+                                            <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                            <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                        </h:selectOneMenu>
+                                        <h:outputText id="designRepositoryPathTitle"
+                                            value="#{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
+                                        <h:inputText id="designRepositoryPath"
+                                            value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
+                                                disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
+                                        <h:outputLabel value="Secure connection" for="secureConnection" />
+                                        <h:selectBooleanCheckbox id="secureConnection" value="#{systemSettingsBean.secureDesignRepo}"
+                                        onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+                                            <f:ajax event="change" execute="@form" render="designInfoPanel" />
+                                        </h:selectBooleanCheckbox>
+                                        <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
+                                        <h:outputText value="Login:"
+                                        rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                        <h:inputText value="#{systemSettingsBean.designRepositoryLogin}" styleClass="repoFieldWidth"
+                                        rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                        <h:outputText value="Password:"
+                                        rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                        <h:inputSecret value="#{systemSettingsBean.designRepositoryPass}" styleClass="repoFieldWidth"
+                                        rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                    </h:panelGrid>
+                                </td></tr></table>
+                                </div>
+                            </section>
+                            <section>
+                                <h3>Production Repositories</h3>
+                                <div class="repositoryConfig">
                                 <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
-                                <h:outputText value="Login:"
-                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                                <h:inputText value="#{systemSettingsBean.designRepositoryLogin}" styleClass="repoFieldWidth"
-                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                                <h:outputText value="Password:"
-                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                                <h:inputSecret value="#{systemSettingsBean.designRepositoryPass}" styleClass="repoFieldWidth"
-                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                            </h:panelGrid>
-                        </td></tr></table>
-                        </div>
-                    </section>
-                    <section>
-                        <h3>Production Repositories</h3>
-                        <div class="repositoryConfig">
-                        <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
-                        <a4j:repeat value="#{productionRepos}" var="repository">
-                            <div>
-                                <table>
-                                <tr>
-                                <td>
-                                <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
-                                    <h:outputText value="Name:" />
-                                    <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
-                                    <h:outputText value="Type:" />
-                                    <h:selectOneMenu value="#{repository.type}">
-                                        <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
-                                        <f:selectItem itemValue="local" itemLabel="Local" />
-                                        <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                        <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                    </h:selectOneMenu>
-                                    <h:outputText id="productionRepositoryPathTitle"
-                                        value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />
-                                    <h:inputText id="productionRepositoryPath"
-                                        value="#{repository.path}" styleClass="pathInput"
-                                        disabled="#{repository.productionRepositoryPathSystem}" />
-                                    <h:outputLabel value="Secure connection" for="secureConnection" />
-                                    <h:selectBooleanCheckbox id="secureConnection" value="#{repository.secure}"
-                                    onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
-                                        <f:ajax event="change" execute="@form" render="repoInfoPanel" />
-                                    </h:selectBooleanCheckbox>
-                                    <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
-                                    <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
-                                    <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
-                                    <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
-                                </h:panelGrid>
-                                </td>
-                                <td class="repositoryConfigButton">
-                                    <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
-                                        title="Delete Production Repository Connection" styleClass="toolbarButton menuButton"
-                                        render="repositoryProps" rendered="#{productionRepos.size() > 1}"
-                                        onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" >
-                                        <img src="webresource/images/delete.png" alt="Delete Repository" />
-                                    </a4j:commandLink>
-                                </td>
-                                </tr>
-                                </table>
+                                <a4j:repeat value="#{productionRepos}" var="repository">
+                                    <div>
+                                        <table>
+                                        <tr>
+                                        <td>
+                                        <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
+                                            <h:outputText value="Name:" />
+                                            <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
+                                            <h:outputText value="Type:" />
+                                            <h:selectOneMenu value="#{repository.type}">
+                                                <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
+                                                <f:selectItem itemValue="local" itemLabel="Local" />
+                                                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                            </h:selectOneMenu>
+                                            <h:outputText id="productionRepositoryPathTitle"
+                                                value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />
+                                            <h:inputText id="productionRepositoryPath"
+                                                value="#{repository.path}" styleClass="pathInput"
+                                                disabled="#{repository.productionRepositoryPathSystem}" />
+                                            <h:outputLabel value="Secure connection" for="secureConnection" />
+                                            <h:selectBooleanCheckbox id="secureConnection" value="#{repository.secure}"
+                                            onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+                                                <f:ajax event="change" execute="@form" render="repoInfoPanel" />
+                                            </h:selectBooleanCheckbox>
+                                            <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
+                                            <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
+                                            <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
+                                            <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
+                                        </h:panelGrid>
+                                        </td>
+                                        <td class="repositoryConfigButton">
+                                            <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
+                                                title="Delete Production Repository Connection" styleClass="toolbarButton menuButton"
+                                                render="repositoryProps" rendered="#{productionRepos.size() > 1}"
+                                                onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
+                                                onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" >
+                                                <img src="webresource/images/delete.png" alt="Delete Repository" />
+                                            </a4j:commandLink>
+                                        </td>
+                                        </tr>
+                                        </table>
+                                    </div>
+                                </a4j:repeat>
                             </div>
-                        </a4j:repeat>
-                    </div>
 
-                    <div class="addRepositoryConfig">
-                        <a4j:commandButton onclick="#{rich:component('modalCreateRepo')}.show();return false;"
-                            title="Create local production repository"
-                            styleClass="toolbarButton menuButton" render="repositoryProps"
-                            value="Create Production Repository" >
-                        </a4j:commandButton>
-                        <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
-                            title="Add connection to production repository"
-                            styleClass="toolbarButton menuButton" render="repositoryProps"
-                            value="Connect To Production Repository">
-                        </a4j:commandButton>
-                    </div>
-
-                    </section>
-                </h:panelGroup>
-            </div>
-            <div id="system">
-                <h:panelGroup id="javaProps" styleClass="fields" layout="block">
-                    <section>
-                        <h3>System</h3>
-                            <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <h:outputText value="Custom Spreadsheet Type:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.customSpreadsheetType}" title="Turn on/off the Custom Spreadsheet Type feature"/>
-                                    <h:outputText value="Rules Dispatching Mode:" />
-                                    <h:selectOneMenu value="#{systemSettingsBean.rulesDispatchingMode}" title="Select the rule tables dispatching mode">
-                                        <f:selectItem itemLabel="Decision Table" itemValue="dt"/>
-                                        <f:selectItem itemLabel="Java" itemValue="java"/>
-                                    </h:selectOneMenu>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <h:outputText value="Run test cases of the test in parallel:" />
-                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.runTestsInParallel}" title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature" onclick="changeRunTestsInParallel(this)"/>
-                                </h:panelGrid>
-                                <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
-                                    <h:outputText value="Thread count for tests" />
-                                    <h:inputText value="#{systemSettingsBean.testRunThreadCount}"/>
-                                </h:panelGrid>
-                                <h:panelGrid id="maxCachedProjectsCount" columns="2" columnClasses="titleColumn">
-                                    <h:outputText value="The maximum number of cached projects" />
-                                    <h:inputText value="#{systemSettingsBean.maxCachedProjectsCount}" title="The maximum number of cached projects in memory, before they are evicted (0 == no limit)."
-                                            validator="#{systemSettingsBean.maxCachedProjectsCountValidator}"/>
-                                </h:panelGrid>
-                                <h:panelGrid id="cachedProjectIdleTime" columns="2" columnClasses="titleColumn">
-                                    <h:outputText value="The time to store a project in cache (in seconds)" />
-                                    <h:inputText value="#{systemSettingsBean.cachedProjectIdleTime}" title="The maximum amount of time to store a project in cache from its last opened time. A value of 0 means that a project can stay in cache for infinity."
-                                            validator="#{systemSettingsBean.cachedProjectIdleTimeValidator}"/>
-                                </h:panelGrid>
+                            <div class="addRepositoryConfig">
+                                <a4j:commandButton onclick="#{rich:component('modalCreateRepo')}.show();return false;"
+                                    title="Create local production repository"
+                                    styleClass="toolbarButton menuButton" render="repositoryProps"
+                                    value="Create Production Repository" >
+                                </a4j:commandButton>
+                                <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
+                                    title="Add connection to production repository"
+                                    styleClass="toolbarButton menuButton" render="repositoryProps"
+                                    value="Connect To Production Repository">
+                                </a4j:commandButton>
                             </div>
-                    </section>
-                </h:panelGroup>
+
+                            </section>
+                        </h:panelGroup>
+                    </div>
+                    <div id="system">
+                        <h:panelGroup id="javaProps" styleClass="fields" layout="block">
+                            <section>
+                                <h3>Core</h3>
+                                    <div>
+                                        <h:panelGrid columns="2" columnClasses="titleColumn">
+                                            <h:outputText value="Custom Spreadsheet Type:" />
+                                            <h:selectBooleanCheckbox value="#{systemSettingsBean.customSpreadsheetType}" title="Turn on/off the Custom Spreadsheet Type feature"/>
+                                            <h:outputText value="Rules Dispatching Mode:" />
+                                            <h:selectOneMenu value="#{systemSettingsBean.rulesDispatchingMode}" title="Select the rule tables dispatching mode">
+                                                <f:selectItem itemLabel="Decision Table" itemValue="dt"/>
+                                                <f:selectItem itemLabel="Java" itemValue="java"/>
+                                            </h:selectOneMenu>
+                                        </h:panelGrid>
+                                    </div>
+                            </section>
+                            <section>
+                                <h3>Project</h3>
+                                <div>
+                                    <h:panelGrid id="maxCachedProjectsCount" columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="The maximum number of cached projects" />
+                                        <h:inputText value="#{systemSettingsBean.maxCachedProjectsCount}" title="The maximum number of cached projects in memory, before they are evicted (0 == no limit)."
+                                                     validator="#{systemSettingsBean.maxCachedProjectsCountValidator}"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid id="cachedProjectIdleTime" columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="The time to store a project in cache (in seconds)" />
+                                        <h:inputText value="#{systemSettingsBean.cachedProjectIdleTime}" title="The maximum amount of time to store a project in cache from its last opened time. A value of 0 means that a project can stay in cache for infinity."
+                                                     validator="#{systemSettingsBean.cachedProjectIdleTimeValidator}"/>
+                                    </h:panelGrid>
+                                </div>
+                            </section>
+                            <section>
+                                <h3>Testing</h3>
+                                <div>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Run test cases of the test in parallel:" />
+                                        <h:selectBooleanCheckbox value="#{systemSettingsBean.runTestsInParallel}" title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature" onclick="changeRunTestsInParallel(this)"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
+                                        <h:outputText value="Thread count for tests" />
+                                        <h:inputText value="#{systemSettingsBean.testRunThreadCount}"/>
+                                    </h:panelGrid>
+                                </div>
+                            </section>
+                        </h:panelGroup>
+                    </div>
+                </div>
             </div>
+
+            <div style="padding-left: 125px; margin-bottom: 15px">
+                <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+                    execute="@this" render="commonProps repositoryProps javaProps restartMessage"
+                    onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
+                <h:outputText value=" " />
+                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+                    onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
+                    styleClass="button-primary" title = "Apply changes"/>
+            </div>
+
+            </h:form>
+            <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
+            <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
         </div>
     </div>
-
-    <div style="padding-left: 125px; margin-bottom: 15px">
-        <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
-            execute="@this" render="commonProps repositoryProps javaProps restartMessage"
-            onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
-        <h:outputText value=" " />
-        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
-            onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
-            styleClass="button-primary" title = "Apply changes"/>
-    </div>
-
-    </h:form>
-    <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
-    <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
-    </ui:define>
-
 
 </ui:composition>

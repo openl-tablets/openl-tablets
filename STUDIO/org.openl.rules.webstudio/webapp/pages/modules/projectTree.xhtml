@@ -4,146 +4,138 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
-    template="/pages/layout/view.xhtml">
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <ui:define name="toolbar">
-        <style>
-            #nameFilter {
-                position: relative;
-            }
-            #nameFilter input {
-                width: 100%;
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-                padding-right: 20px;
-            }
-            #nameFilter img {
-                position: absolute;
-                right: 10px;
-                top: 3px;
-                cursor: pointer;
-                opacity: 0.5;
-            }
-        </style>
-        <h:panelGroup rendered="#{not empty studio.allProjects}" layout="block">
-            <span id="nameFilter">
-                <input type="text" onkeyup="filterProjects(this.value)" placeholder="#{msg['ws.projects.filter']}" />
-                <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
-            </span>
-        </h:panelGroup>
-    </ui:define>
+    <style>
+        .filter-name {
+            width: 100%;
+            height: 100%;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding-left: 12px;
+            padding-right: 15px;
+        }
 
-    <ui:define name="workspace">
-        <style>
-            #projects ul {
-                list-style: none;
-                margin: 0;
-                padding-left: 2px;
-            }
-            #projects > ul > li {
-                padding: 5px 4px;
-                border-bottom: 1px solid #f7f7f7;
-            }
-            #projects > ul > li:last-child {
-                border-bottom: 0;
-            }
-            #projects > ul > li:hover {
-                background: #f7f7f7;
-                border-right: 1px solid orange;
-            }
-            #projects > ul ul {
-                margin-top: 2px;
-            }
-            #projects > ul ul > li {
-                padding: 1px 0;
-            }
-            #projects a {
-                color: #111111;
-                text-decoration: none;
-            }
-            #projects a:hover {
-                background: #e9e9e9;
-            }
-            #projects .selected {
-                background: #EAF0F8;
-                font-weight: bold;
-            }
-            #projects .projectName {
-                color: #1199EE;
-                font-size: 110%;
-            }
-        </style>
+        #projects ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 2px;
+        }
+        #projects > ul > li {
+            padding: 5px 4px;
+            border-bottom: 1px solid #f7f7f7;
+        }
+        #projects > ul > li:last-child {
+            border-bottom: 0;
+        }
+        #projects > ul > li:hover {
+            background: #f7f7f7;
+            border-right: 1px solid orange;
+        }
+        #projects > ul ul {
+            margin-top: 2px;
+        }
+        #projects > ul ul > li {
+            padding: 1px 0;
+        }
+        #projects a {
+            color: #111111;
+            text-decoration: none;
+        }
+        #projects a:hover {
+            background: #e9e9e9;
+        }
+        #projects .selected {
+            background: #EAF0F8;
+            font-weight: bold;
+        }
+        #projects .projectName {
+            color: #1199EE;
+            font-size: 110%;
+        }
+    </style>
 
-        <h:form prependId="false" id="projects-tree">
-            <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
-                <ul>
-                    <a4j:repeat value="#{studio.allProjects}" var="project" id="iterate-projects">
-                    <li>
-                        <a class="projectName" href="#project.xhtml?name=#{jsffn:encodeURL(project.name)}">#{project.name}</a>
-                        <ul>
-                            <a4j:repeat value="#{project.modules}" var="module" id="iterate-modules">
-                            <li>
-                                <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)" id="module"
-                                                                   oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
-                                #{module.name}
-                                <f:param name="project" value="#{project.name}" />
-                                <f:param name="module" value="#{module.name}" />
-                            </a4j:commandLink>
-                            </li>
-                            </a4j:repeat>
-                        </ul>
-                    </li>
-                    </a4j:repeat>
-                </ul>
+    <div class="panel">
+        <div class="panel-header">
+            <h:panelGroup rendered="#{not empty studio.allProjects}">
+                <div class="filter-name">
+                    <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
+                        placeholder="#{msg['ws.projects.filter']}" class="input-container" />
+                </div>
+            </h:panelGroup>
+        </div>
 
-                <script>
-                  //<![CDATA[
-                    var selected;
-                    var FILTER_PATTERN_ITEM = "filterPattern";
+        <div class="panel-body container">
+            <h:form prependId="false" id="projects-tree">
+                <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
+                    <ul>
+                        <a4j:repeat value="#{studio.allProjects}" var="project" id="iterate-projects">
+                        <li>
+                            <a class="projectName" href="#project.xhtml?name=#{jsffn:encodeURL(project.name)}">#{project.name}</a>
+                            <ul>
+                                <a4j:repeat value="#{project.modules}" var="module" id="iterate-modules">
+                                <li>
+                                    <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)" id="module"
+                                                                       oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
+                                    #{module.name}
+                                    <f:param name="project" value="#{project.name}" />
+                                    <f:param name="module" value="#{module.name}" />
+                                </a4j:commandLink>
+                                </li>
+                                </a4j:repeat>
+                            </ul>
+                        </li>
+                        </a4j:repeat>
+                    </ul>
 
-                    var projects = $j("#projects > ul > li");
+                    <script>
+                      //<![CDATA[
+                        var selected;
+                        var FILTER_PATTERN_ITEM = "filterPattern";
 
-                    var filterPattern = $j("#nameFilter input").val()
-                        || sessionStorage.getItem(FILTER_PATTERN_ITEM);
-                    if (filterPattern) {
-                        $j("#nameFilter input").val(filterPattern);
-                        filterProjects(filterPattern);
-                    }
+                        var projects = $j("#projects > ul > li");
 
-                    function selectModule(link) {
-                        if (selected) {
-                            selected.removeClass('selected');
+                        var filterPattern = $j("#nameFilter").val()
+                            || sessionStorage.getItem(FILTER_PATTERN_ITEM);
+                        if (filterPattern) {
+                            $j("#nameFilter").val(filterPattern);
+                            filterProjects(filterPattern);
                         }
-                        $j(link).addClass('selected');
-                        selected = $j(link);
-                    }
 
-                    function filterProjects(pattern) {
-                        sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
-                        projects.each(function() {
-                            var projectName = $j(this).find(">a").text();
-                            $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
-                        });
-                    }
-                  //]]>
-                </script>
-            </h:panelGroup>
+                        function selectModule(link) {
+                            if (selected) {
+                                selected.removeClass('selected');
+                            }
+                            $j(link).addClass('selected');
+                            selected = $j(link);
+                        }
 
-            <h:panelGroup rendered="#{empty studio.allProjects}">
-                <h:outputText value="#{msg['ws.projects.no']}" style="color:red; font-weight: bold" />
-                <br />
-                <c:if test="true">
-                    #{msg['ws.projects.no.goto1']}
-                    <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
-                        title="Repository">#{msg['ws.projects.no.goto2']}</a>
-                    #{msg['ws.projects.no.goto3']}
-                </c:if>
-            </h:panelGroup>
-        </h:form>
+                        function filterProjects(pattern) {
+                            sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
+                            projects.each(function() {
+                                var projectName = $j(this).find(">a").text();
+                                $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+                            });
+                        }
+                      //]]>
+                    </script>
+                </h:panelGroup>
 
-    </ui:define>
+                <h:panelGroup rendered="#{empty studio.allProjects}">
+                    <h:outputText value="#{msg['ws.projects.no']}" style="color:red; font-weight: bold" />
+                    <br />
+                    <c:if test="true">
+                        #{msg['ws.projects.no.goto1']}
+                        <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
+                            title="Repository">#{msg['ws.projects.no.goto2']}</a>
+                        #{msg['ws.projects.no.goto3']}
+                    </c:if>
+                </h:panelGroup>
+            </h:form>
+
+        </div>
+    </div>
 
 </ui:composition>
