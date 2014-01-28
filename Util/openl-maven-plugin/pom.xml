@@ -44,6 +44,11 @@
   </dependency>
 
   <dependency>
+   <groupId>org.apache.velocity</groupId>
+   <artifactId>velocity</artifactId>
+  </dependency>
+
+  <dependency>
    <groupId>org.openl.rules</groupId>
    <!-- TODO Move dependent classes to org.openl.rules.project -->
    <artifactId>org.openl.rules.webstudio</artifactId>
