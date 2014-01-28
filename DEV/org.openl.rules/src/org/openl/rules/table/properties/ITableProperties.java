@@ -186,7 +186,8 @@ public interface ITableProperties {
 	
     void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties);
     
-    void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);    
+    void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);  
+    
     void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties);
     
     void setPropertiesAppliedByDefault(Map<String, Object> defaultProperties);    

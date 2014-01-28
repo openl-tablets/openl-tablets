@@ -3,6 +3,7 @@ package org.openl.rules.table.properties.inherit;
 public enum InheritanceLevel {
     PROJECT("Project"),
     FOLDER("Folder"),
+    EXTERNAL("External"),
     FILE("File"),
     MODULE("Module"),
     CATEGORY("Category"), 
