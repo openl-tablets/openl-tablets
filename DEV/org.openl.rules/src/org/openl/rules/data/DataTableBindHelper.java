@@ -155,6 +155,15 @@ public class DataTableBindHelper {
             //
             fieldName = StringUtils.trim(fieldName);
             
+            //if it is field chain get first token
+            if (fieldName.indexOf(".") > 0) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("."));
+            }
+            //if it is array field correct field name
+            if (fieldName.indexOf("[") > 0) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("["));
+            }
+            
             IOpenField field = findField(fieldName, null, tableType);
 
             if (field != null && !field.isConst() && field.isWritable()) {
