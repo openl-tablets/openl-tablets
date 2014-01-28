@@ -18,9 +18,6 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     private boolean ignoreNonJavaTypes;
     private boolean ignoreTestMethods;
 
-    private String srcFile;
-    private String deplSrcFile;
-
     private JavaInterfaceGenerator(Builder builder) {
         this.moduleOpenClass = builder.moduleOpenClass;
         this.targetClassName = builder.targetClassName;
@@ -29,8 +26,6 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         this.fieldsToGenerate = builder.fieldsToGenerate;
         this.ignoreNonJavaTypes = builder.ignoreNonJavaTypes;
         this.ignoreTestMethods = builder.ignoreTestMethods;
-        this.srcFile = builder.srcFile;
-        this.deplSrcFile = builder.deplSrcFile;
     }
 
     @Override
@@ -47,9 +42,6 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         buf.append(JavaClassGeneratorHelper.getInterfaceDeclaration(targetClassName));
 
         buf.append(" {\n");
-
-        // Add source file path static field
-        buf.append(JavaWrapperGenerator.getSourceFilePathField(srcFile, deplSrcFile));
 
         addFieldMethods(buf);
 
@@ -103,8 +95,6 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         private String[] methodsToGenerate;
         private String[] fieldsToGenerate;
         private boolean ignoreNonJavaTypes;
-        private String srcFile;
-        private String deplSrcFile;
         private boolean ignoreTestMethods;
 
         public Builder(IOpenClass moduleOpenClass, String targetClass) {
@@ -139,16 +129,6 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
         public Builder ignoreTestMethods(boolean ignoreTestMethods) {
             this.ignoreTestMethods = ignoreTestMethods;
-            return this;
-        }
-
-        public Builder srcFile(String srcFile) {
-            this.srcFile = srcFile;
-            return this;
-        }
-
-        public Builder deplSrcFile(String deplSrcFile) {
-            this.deplSrcFile = deplSrcFile;
             return this;
         }
 

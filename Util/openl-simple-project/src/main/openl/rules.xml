@@ -7,10 +7,6 @@
       <type>dynamic</type>
       <classname>template.Wrapper</classname>
       <rules-root path="rules/TemplateRules.xls"/>
-      <method-filter>
-        <includes/>
-        <excludes/>
-      </method-filter>
     </module>
   </modules>
   <classpath>

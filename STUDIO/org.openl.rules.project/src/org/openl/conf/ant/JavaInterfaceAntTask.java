@@ -17,7 +17,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     private static final String RULES_XML = "rules.xml";    
     private static final String DEFAULT_CLASSPATH = "./bin";
 
-    private boolean ignoreTestMethods = false;
+    private boolean ignoreTestMethods = true;
     private String defaultProjectId;
     private String defaultProjectName;
     private String defaultClasspaths[] = {DEFAULT_CLASSPATH};
@@ -51,7 +51,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     protected OpenLToJavaGenerator getJavaGenerator() {
         return new JavaInterfaceGenerator.Builder(getOpenClass(), getTargetClass())
         .methodsToGenerate(getMethods()).fieldsToGenerate(getFields()).ignoreNonJavaTypes(isIgnoreNonJavaTypes())
-        .ignoreTestMethods(isIgnoreTestMethods()).srcFile(getSrcFile()).deplSrcFile(getDeplSrcFile()).build();
+        .ignoreTestMethods(isIgnoreTestMethods()).build();
     }
 
     @Override
@@ -66,7 +66,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
         File rulesDescriptor = new File(getResourcesPath() + RULES_XML);
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
 
-        ProjectDescriptor projectToWrite = null;
+        ProjectDescriptor projectToWrite;
         List<Module> modulesToWrite = new ArrayList<Module>();
         long timeSinceModification = System.currentTimeMillis() - rulesDescriptor.lastModified();
 
@@ -79,7 +79,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
             // There is a previously created project descriptor, with modules in it.
             // The time was small enough to consider that it was modified/created by the generator.
             // Add current module to existed project.
-            ProjectDescriptor existedDescriptor = null;
+            ProjectDescriptor existedDescriptor;
             try {
                 existedDescriptor = manager.readOriginalDescriptor(rulesDescriptor);
                 Module newModule = createNewModule();
@@ -98,6 +98,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
                 log("Error while reading previously created rules.xml", e, Project.MSG_ERR);
+                throw new IllegalStateException(e);
             }
         } else {
             // Create new project and add new module
@@ -117,7 +118,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     /**
      * Copy the module without {@link Module#getProject()}, as it prevents
      * to Circular dependency.
-     * @param module
+     * @param module income module
      * @return copy of income module without project field
      */
     private Module copyOf(Module module) {

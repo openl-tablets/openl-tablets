@@ -6,7 +6,7 @@ package template;
 
 
 public interface Wrapper {
-  public static java.lang.String __src = "rules/TemplateRules.xls";
+  java.lang.String hello2(int hour);
 
   void hello1(int hour);
 
