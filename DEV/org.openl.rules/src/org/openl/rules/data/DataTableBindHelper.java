@@ -144,7 +144,7 @@ public class DataTableBindHelper {
         int width = dataTable.getWidth();
 
         for (int i = 0; i < width; ++i) {
-
+            
             String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
@@ -154,6 +154,16 @@ public class DataTableBindHelper {
             // Remove extra spaces.
             //
             fieldName = StringUtils.trim(fieldName);
+            
+            //if it is field chain get first token
+            if (fieldName.indexOf(".") > 0) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("."));
+            }
+            //if it is array field correct field name
+            if (fieldName.indexOf("[") > 0) {
+                fieldName = fieldName.substring(0, fieldName.indexOf("["));
+            }
+            
             IOpenField field = findField(fieldName, null, tableType);
 
             if (field != null && !field.isConst() && field.isWritable()) {

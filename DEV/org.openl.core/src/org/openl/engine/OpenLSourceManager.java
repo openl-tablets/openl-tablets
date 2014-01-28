@@ -35,7 +35,10 @@ import org.openl.syntax.exception.SyntaxNodeException;
 public class OpenLSourceManager extends OpenLHolder {
 
     private static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
-    
+
+    public static final String PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY = "properties-file-name-pattern-warn-messages";
+    public static final String PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY = "properties-file-name-pattern-error-messages";
+
     private OpenLParseManager parseManager;
     private OpenLBindManager bindManager;
 
@@ -71,8 +74,9 @@ public class OpenLSourceManager extends OpenLHolder {
      * @param sourceType type of source
      * @return processed code descriptor
      */
-    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
-        IDependencyManager dependencyManager) {
+    public ProcessedCode processSource(IOpenSourceCodeModule source,
+            SourceType sourceType,
+            IDependencyManager dependencyManager) {
         return processSource(source, sourceType, null, false, dependencyManager);
     }
 
@@ -87,8 +91,11 @@ public class OpenLSourceManager extends OpenLHolder {
      * @return processed code descriptor
      */
     @SuppressWarnings("unchecked")
-	public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
-        IBindingContextDelegator bindingContextDelegator, boolean ignoreErrors, IDependencyManager dependencyManager) {
+    public ProcessedCode processSource(IOpenSourceCodeModule source,
+            SourceType sourceType,
+            IBindingContextDelegator bindingContextDelegator,
+            boolean ignoreErrors,
+            IDependencyManager dependencyManager) {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
         SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
@@ -102,10 +109,10 @@ public class OpenLSourceManager extends OpenLHolder {
 
             Set<CompiledOpenClass> compiledDependencies = new LinkedHashSet<CompiledOpenClass>();
             List<IDependency> externalDependencies = getExternalDependencies(source);
-            Collection<IDependency> dependencies = CollectionUtils.union(externalDependencies, Arrays.asList(parsedCode.getDependencies()));
-            
+            Collection<IDependency> dependencies = CollectionUtils.union(externalDependencies,
+                Arrays.asList(parsedCode.getDependencies()));
+
             List<OpenLMessage> messagesRelatedToDependencies = new ArrayList<OpenLMessage>();
-            
 
             if (dependencies != null && dependencies.size() > 0) {
                 if (dependencyManager != null) {
@@ -115,19 +122,23 @@ public class OpenLSourceManager extends OpenLHolder {
                             validateDependency(loadedDependency);
                             OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
                                 .getContextClassLoader();
-                            if (loadedDependency.getClassLoader() != currentClassLoader){
+                            if (loadedDependency.getClassLoader() != currentClassLoader) {
                                 currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             }
                             compiledDependencies.add(loadedDependency.getCompiledOpenClass());
-                            OpenLMessages.getCurrentInstance().clear();//clear all messages from dependency
+                            OpenLMessages.getCurrentInstance().clear();// clear
+                                                                       // all
+                                                                       // messages
+                                                                       // from
+                                                                       // dependency
                         } catch (Exception e) {
-                            messagesRelatedToDependencies.addAll(OpenLMessagesUtils.newMessages(e));                           
+                            messagesRelatedToDependencies.addAll(OpenLMessagesUtils.newMessages(e));
                         }
                     }
                     OpenLMessages.getCurrentInstance().addMessages(messagesRelatedToDependencies);
 
                 } else {
-                    OpenLMessagesUtils.addError("Cannot load dependency. Dependency manager is not defined.");                    
+                    OpenLMessagesUtils.addError("Cannot load dependency. Dependency manager is not defined.");
                 }
             }
 
@@ -138,6 +149,18 @@ public class OpenLSourceManager extends OpenLHolder {
 
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
+            if (externalParams.containsKey(PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY)) {
+                Set<String> warnMessages = (Set<String>) externalParams.get(PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY);
+                for (String warnMessage : warnMessages) {
+                    OpenLMessagesUtils.addWarn(warnMessage);
+                }
+            }
+            if (externalParams.containsKey(PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY)) {
+                Set<String> warnMessages = (Set<String>) externalParams.get(PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY);
+                for (String warnMessage : warnMessages) {
+                    OpenLMessagesUtils.addError(warnMessage);
+                }
+            }
         }
 
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
@@ -157,14 +180,14 @@ public class OpenLSourceManager extends OpenLHolder {
 
     private void validateDependency(CompiledDependency compiledDependency) {
         if (compiledDependency.getCompiledOpenClass().hasErrors()) {
-            String message = String.format("Dependency module %s has critical errors", 
+            String message = String.format("Dependency module %s has critical errors",
                 compiledDependency.getDependencyName());
             OpenLMessagesUtils.addError(message);
         }
     }
 
     @SuppressWarnings("unchecked")
-	private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
+    private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
 
         List<IDependency> dependencies = new ArrayList<IDependency>();
         Map<String, Object> params = source.getParams();
