@@ -9,6 +9,7 @@ import java.util.*;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -95,12 +96,14 @@ public class InstantiationStrategyFactory {
      * Removes all cached instantiation strategies.
      */
     public void reset() {
-        for (Object key : cache.getKeys()) {
-            Key k = (Key) key;
-            InstantiationStrategyFactory factory = k.getFactory();
-            if (factory == this || factory == null) {
-                // As far as cache.getKeys() returns the copy of key list, we can remove from cache while iterating the list
-                cache.remove(key);
+        if (cache.getStatus() == Status.STATUS_ALIVE) {
+            for (Object key : cache.getKeys()) {
+                Key k = (Key) key;
+                InstantiationStrategyFactory factory = k.getFactory();
+                if (factory == this || factory == null) {
+                    // As far as cache.getKeys() returns the copy of key list, we can remove from cache while iterating the list
+                    cache.remove(key);
+                }
             }
         }
         dependencyUsages.clear();
