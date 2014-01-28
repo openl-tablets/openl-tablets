@@ -116,9 +116,13 @@ public class TableProperty {
     public boolean isCategoryLevelProperty() {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
     }
+    
+    public boolean isExternalPropery() {
+        return InheritanceLevel.EXTERNAL.equals(inheritanceLevel);
+    }
 
     public boolean isInheritedProperty() {
-        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty();
+        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalPropery();
     }
 
     public String getDisplayName() {

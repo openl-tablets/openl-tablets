@@ -67,7 +67,7 @@
                     </h:panelGroup>
                 </td>
                 <td style="padding: 0 7px">
-                    <h:panelGroup rendered="#{prop.inheritedProperty}">
+                    <h:panelGroup rendered="#{prop.inheritedProperty and !prop.externalPropery}">
                         <a href="#table.xhtml?uri=#{prop.inheritedTableUri}"
                             title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
                     </h:panelGroup>

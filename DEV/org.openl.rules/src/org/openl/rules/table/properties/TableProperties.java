@@ -329,6 +329,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
             result = InheritanceLevel.CATEGORY;
         } else if (getPropertiesAppliedForModule().containsKey(propertyName)) {
             result = InheritanceLevel.MODULE;
+        }else if (getExternalPropertiesAppliedForModule().containsKey(propertyName)) {
+            result = InheritanceLevel.EXTERNAL;
         }
         return result;
     }

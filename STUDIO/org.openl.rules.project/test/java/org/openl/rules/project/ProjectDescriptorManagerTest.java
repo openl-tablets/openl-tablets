@@ -34,7 +34,8 @@ public class ProjectDescriptorManagerTest {
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
-
+        assertEquals("{lob}", descriptor.getDefaultPropertiesFileNamePattern());
+        assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getDefaultPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
         assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
@@ -97,7 +98,9 @@ public class ProjectDescriptorManagerTest {
         descriptor.setId("id1");
         descriptor.setName("name1");
         descriptor.setComment("comment1");
-        
+        descriptor.setDefaultPropertiesFileNamePattern("{lob}");
+        descriptor.setDefaultPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
+
         List<ProjectDependencyDescriptor> dependencies = new ArrayList<ProjectDependencyDescriptor>();
         ProjectDependencyDescriptor dependencyDescriptor = new ProjectDependencyDescriptor();
         dependencyDescriptor.setName("someProjectName");
@@ -160,6 +163,8 @@ public class ProjectDescriptorManagerTest {
                         "      <autoIncluded>false</autoIncluded>" + "\n" +
                         "    </dependency>" + "\n" +
                         "  </dependencies>" + "\n" +
+                        "  <default-properties-file-name-pattern>{lob}</default-properties-file-name-pattern>" + "\n" +
+                        "  <default-properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</default-properties-file-name-processor>" + "\n" +
                         "</project>";
         assertEquals(expected, dest.toString());
     }
