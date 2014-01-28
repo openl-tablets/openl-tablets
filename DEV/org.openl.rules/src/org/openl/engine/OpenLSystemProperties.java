@@ -2,11 +2,13 @@ package org.openl.engine;
 
 import java.util.Map;
 
+import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.util.BooleanUtils;
 
 public class OpenLSystemProperties {
 
     public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";
+    public static final String RUN_TESTS_IN_PARALLEL = "test.run.parallel";
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
     public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
     public static final String DISPATCHING_MODE_JAVA = "java";
@@ -49,12 +51,24 @@ public class OpenLSystemProperties {
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_DT);
     }
 
+    public static boolean isRunTestsInParallel(Map<String, Object> externalParameters) {
+        String runTestsInParallel;
+        if (externalParameters != null && externalParameters.containsKey(RUN_TESTS_IN_PARALLEL)) {
+            runTestsInParallel = externalParameters.get(RUN_TESTS_IN_PARALLEL).toString();
+        } else {
+            runTestsInParallel = System.getProperty(RUN_TESTS_IN_PARALLEL);
+        }
+
+        return BooleanUtils.toBoolean(runTestsInParallel);
+    }
+
     public static int getTestRunThreadCount(Map<String, Object> externalParameters) {
         Integer testRunTheadCount = null;
         if (externalParameters != null && externalParameters.containsKey(TEST_RUN_THREAD_COUNT_PROPERTY)) {
             testRunTheadCount = Integer.valueOf(externalParameters.get(TEST_RUN_THREAD_COUNT_PROPERTY).toString());
         } else {
-            testRunTheadCount = Integer.valueOf(System.getProperty(TEST_RUN_THREAD_COUNT_PROPERTY));
+            String property = System.getProperty(TEST_RUN_THREAD_COUNT_PROPERTY);
+            testRunTheadCount = property != null ? Integer.valueOf(property) : TestSuiteExecutor.DEFAULT_THREAD_COUNT;
         }
         return testRunTheadCount;
     }

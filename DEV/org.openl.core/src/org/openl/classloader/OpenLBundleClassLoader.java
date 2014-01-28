@@ -33,5 +33,20 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
     protected Set<ClassLoader> getBundleClassLoaders() {
         return Collections.unmodifiableSet(bundleClassLoaders);
     }
-    
+
+    public boolean containsClassLoader(ClassLoader classLoader) {
+        if (bundleClassLoaders.contains(classLoader)) {
+            return true;
+        }
+
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (bundleClassLoader instanceof OpenLBundleClassLoader) {
+                if (((OpenLBundleClassLoader) bundleClassLoader).containsClassLoader(classLoader)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

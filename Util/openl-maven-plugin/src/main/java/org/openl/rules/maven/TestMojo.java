@@ -78,8 +78,8 @@ public class TestMojo extends BaseOpenLMojo {
                 TestSuiteMethod[] tests = ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
                 IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
                 Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-                for (int i = 0; i < tests.length; i++) {
-                    TestUnitsResults result = new TestSuite(tests[i]).invoke(target, env, 1);
+                for (TestSuiteMethod test : tests) {
+                    TestUnitsResults result = new TestSuite(test).invoke(target, env, 1);
                     runTests += result.getNumberOfTestUnits();
                     if (result.getNumberOfFailures() > 0) {
                         failedTests += result.getNumberOfFailures();

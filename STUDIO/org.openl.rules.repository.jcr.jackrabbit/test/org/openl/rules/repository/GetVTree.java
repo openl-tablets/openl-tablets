@@ -6,10 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class GetVTree {
@@ -66,11 +64,6 @@ public class GetVTree {
     private static void printProject(RProject prj) throws RRepositoryException, IOException {
         out.println("  P " + prj.getPath() + "    ver=" + prj.getActiveVersion().getVersionName() + " lob="
                 + prj.getLineOfBusiness());
-
-        Collection<ProjectDependency> deps = prj.getDependencies();
-        for (ProjectDependency d : deps) {
-            out.println("  d " + d.getProjectName() + " " + d.getLowerLimit().getVersionName());
-        }
 
         printTree(prj.getRootFolder());
     }

@@ -325,12 +325,12 @@
 				<repository>
 					<id>internal-minsk</id>
 					<name>Release Repository</name>
-					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-release/</url>
+					<url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
 				</repository>
 				<snapshotRepository>
 					<id>internal-minsk</id>
 					<name>Snapshot Repository</name>
-					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-snapshot/</url>
+					<url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>

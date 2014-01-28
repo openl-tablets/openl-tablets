@@ -3,16 +3,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <h:panelGroup id="bottomPanel" layout="block">
-        <div>
-            <div class="view_header" style="padding-left: 24px">
-                <span>#{msg['ws.problems']}</span>
-            </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/problems.xhtml" />
-                </div>
-            </div>
-        </div>
+        <ui:include src="/pages/modules/problems.xhtml" />
     </h:panelGroup>
 
 </ui:composition>

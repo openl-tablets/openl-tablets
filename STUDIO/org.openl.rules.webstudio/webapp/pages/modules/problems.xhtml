@@ -2,38 +2,42 @@
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/simpleView.xhtml">
+    xmlns:rich="http://richfaces.org/rich">
 
-    <ui:define name="workspace">
-        <style>
-            .tree-problems .rf-trn-ico {
-                display: none;
-            }
-        </style>
+    <style>
+        .tree-problems .rf-trn-ico {
+            display: none;
+        }
+    </style>
 
-        <rich:tree id="problemsTree" styleClass="tree tree-problems" value="#{problemsBean.tree}" var="node"
-            nodeType="#{node.type}" toggleType="client">
-            <rich:treeNode type="errors" id="problemsTree-errors">
-                <h:outputText value="#{node.name}" />
-                <span class="badge badge-small badge-error">#{node.numErrors}</span>
-            </rich:treeNode>
-            <rich:treeNode type="error">
-                <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-error problem-small">
+    <div class="panel">
+        <div class="panel-header container" style="padding-left: 24px">
+            <span>#{msg['ws.problems']}</span>
+        </div>
+
+        <div class="panel-body container">
+            <rich:tree id="problemsTree" styleClass="tree tree-problems" value="#{problemsBean.tree}" var="node"
+                nodeType="#{node.type}" toggleType="client">
+                <rich:treeNode type="errors" id="problemsTree-errors">
                     <h:outputText value="#{node.name}" />
-                </h:outputLink>
-            </rich:treeNode>
-            <rich:treeNode type="warnings" id="problemsTree-warnings">
-                <h:outputText value="#{node.name}" />
-                <span class="badge badge-small badge-warning">#{node.numErrors}</span>
-            </rich:treeNode>
-            <rich:treeNode type="warning">
-                <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-warning problem-small">
+                    <span class="badge badge-small badge-error">#{node.numErrors}</span>
+                </rich:treeNode>
+                <rich:treeNode type="error">
+                    <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-error problem-small">
+                        <h:outputText value="#{node.name}" />
+                    </h:outputLink>
+                </rich:treeNode>
+                <rich:treeNode type="warnings" id="problemsTree-warnings">
                     <h:outputText value="#{node.name}" />
-                </h:outputLink>
-            </rich:treeNode>
-        </rich:tree>
-
-    </ui:define>
+                    <span class="badge badge-small badge-warning">#{node.numErrors}</span>
+                </rich:treeNode>
+                <rich:treeNode type="warning">
+                    <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-warning problem-small">
+                        <h:outputText value="#{node.name}" />
+                    </h:outputLink>
+                </rich:treeNode>
+            </rich:tree>
+        </div>
+    </div>
 
 </ui:composition>

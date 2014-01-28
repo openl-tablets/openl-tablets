@@ -16,6 +16,7 @@ package org.openl.rules.maven;
  * limitations under the License.
  */
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -29,13 +30,12 @@ import org.openl.conf.ant.JavaAntTask;
 import org.openl.conf.ant.JavaInterfaceAntTask;
 
 /**
- * Generate OpenL interface, domain classes and project descriptor
+ * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends BaseOpenLMojo {
     /**
-     * Tasks that will generate classes. By default the type is
-     * {@link JavaInterfaceAntTask}.
+     * Tasks that will generate classes.
      * <p>
      * <b>Object Properties</b>
      * <table border="1">
@@ -105,7 +105,25 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>boolean</td>
      * <td>false</td>
      * <td>If true - test methods will not be added to interface class. Used
-     * only in JavaInterfaceAntTask. Default value is: false.</td>
+     * only in JavaInterfaceAntTask. Default value is: true.</td>
+     * </tr>
+     * <tr>
+     * <td>generateUnitTests</td>
+     * <td>boolean</td>
+     * <td>false</td>
+     * <td>Overwrites base {@link #generateUnitTests} value</td>
+     * </tr>
+     * <tr>
+     * <td>unitTestTemplatePath</td>
+     * <td>String</td>
+     * <td>false</td>
+     * <td>Overwrites base {@link #unitTestTemplatePath} value</td>
+     * </tr>
+     * <tr>
+     * <td>overwriteUnitTests</td>
+     * <td>boolean</td>
+     * <td>false</td>
+     * <td>Overwrites base {@link #overwriteUnitTests} value</td>
      * </tr>
      * </table>
      * <p>
@@ -114,11 +132,22 @@ public class GenerateMojo extends BaseOpenLMojo {
     private JavaAntTask[] generateInterfaces;
 
     /**
-     * If true - rules.xml will be regenerated from scratch on each run. If
+     * If true - rules.xml will be generated if it doesn't exist. If
      * false, rules.xml will not be generated. Default value is "true".
+     * @see #overwriteProjectDescriptor
      */
     @Parameter(defaultValue = "true")
     private boolean createProjectDescriptor;
+
+    /**
+     * If true - rules.xml will be overwritten on each run. If
+     * false, rules.xml generation will be skipped if it exists.
+     * Makes sense only if {@link #createProjectDescriptor} == true.
+     * Default value is "true".
+     * @see #createProjectDescriptor
+     */
+    @Parameter(defaultValue = "true")
+    private boolean overwriteProjectDescriptor;
 
     /**
      * Default project id in rules.xml. If omitted - the name of a first module
@@ -142,6 +171,58 @@ public class GenerateMojo extends BaseOpenLMojo {
     @Parameter
     private String[] classpaths = { "." };
 
+    /**
+     * If true - JUnit tests for OpenL Tablets Test tables will be generated.
+     * Default value is "false"
+     */
+    @Parameter(defaultValue = "false")
+    private Boolean generateUnitTests;
+
+    /**
+     * Path to Velocity template for generated unit tests.
+     * If omitted - default template will be used.
+     * Available in template variables:
+     * <table border="1">
+     * <tr>
+     * <th>Name</th>
+     * <th>Description</th>
+     * </tr>
+     * <tr>
+     * <td>openlInterfacePackage</td>
+     * <td>Package of generated interface class</td>
+     * </tr>
+     * <tr>
+     * <td>openlInterfaceClass</td>
+     * <td>Generated interface class name</td>
+     * </tr>
+     * <tr>
+     * <td>testMethodNames</td>
+     * <td>Available test method names</td>
+     * </tr>
+     * <tr>
+     * <td>projectRoot</td>
+     * <td>Root directory of OpenL project</td>
+     * </tr>
+     * <tr>
+     * <td>srcFile</td>
+     * <td>Reference to the Excel file for which an interface class must be
+     * generated.</td>
+     * </tr>
+     * <tr>
+     * <td>StringUtils</td>
+     * <td>Apache commons utility class</td>
+     * </tr>
+     * </table>
+     */
+    @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
+    private String unitTestTemplatePath;
+
+    /**
+     * If true - existing JUnit tests will be overwritten. If false - only absent tests will be generated, others will be skipped.
+     */
+    @Parameter(defaultValue = "false")
+    private Boolean overwriteUnitTests;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (getLog().isInfoEnabled()) {
@@ -149,7 +230,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         }
         for (JavaAntTask task : generateInterfaces) {
             if (getLog().isInfoEnabled()) {
-                getLog().info(String.format("Generating classes for module '%s'", task.getSrcFile()));
+                getLog().info(String.format("Generating classes for module '%s'...", task.getSrcFile()));
             }
             initDefaultValues(task);
             task.execute();
@@ -172,11 +253,36 @@ public class GenerateMojo extends BaseOpenLMojo {
 
         if (task instanceof JavaInterfaceAntTask) {
             JavaInterfaceAntTask interfaceTask = (JavaInterfaceAntTask) task;
-            interfaceTask.setCreateProjectDescriptor(createProjectDescriptor);
+            initCreateProjectDescriptorState(interfaceTask);
             interfaceTask.setDefaultProjectId(projectId);
             interfaceTask.setDefaultProjectName(projectName);
             interfaceTask.setDefaultClasspaths(classpaths);
+
+            if (task instanceof GenerateInterface) {
+                GenerateInterface generateInterface = (GenerateInterface) task;
+                generateInterface.setLog(getLog());
+                generateInterface.setTestSourceDirectory(project.getBuild().getTestSourceDirectory());
+                if (generateInterface.getGenerateUnitTests() == null) {
+                    generateInterface.setGenerateUnitTests(generateUnitTests);
+                }
+                if (generateInterface.getUnitTestTemplatePath() == null) {
+                    generateInterface.setUnitTestTemplatePath(unitTestTemplatePath);
+                }
+                if (generateInterface.getOverwriteUnitTests() == null) {
+                    generateInterface.setOverwriteUnitTests(overwriteUnitTests);
+                }
+            }
         }
+    }
+
+    private void initCreateProjectDescriptorState(JavaInterfaceAntTask task) {
+        if (createProjectDescriptor) {
+            if (new File(task.getResourcesPath(), "rules.xml").exists()) {
+                task.setCreateProjectDescriptor(overwriteProjectDescriptor);
+                return;
+            }
+        }
+        task.setCreateProjectDescriptor(createProjectDescriptor);
     }
 
     private void initResourcePath(JavaAntTask task) {

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:authz="http://rules.openl.org/taglibs/acegi"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
     <style>
         #rb {
             text-align: right;
-            padding: 8px 11px;
+            padding: 17px 10px;
         }
         #rb a {
             text-decoration: none;
@@ -22,23 +20,50 @@
         }
         #rb .dropdown-toggle {
             color: #444;
+            font-size: 12px;
         }
+        #ll {
+            position: absolute;
+            top: 16px;
+            right: 210px;
+            padding-right: 80px;
+        }
+
+        #ll .tooltip.bottom {
+            margin-top: 9px;
+        }
+
+        #ll .tooltip-inner {
+            max-width: 150px;
+        }
+
         #ll a {
             text-decoration: none;
-            padding: 6px 15px 7px;
+            padding: 18px 15px 14px;
             font-size: 110%;
-            color: #1199ee;
+            color: #777;
+            margin-left: 3px;
         }
+
         #ll .active {
-            color: #555;
             cursor: default;
-            background: #f9f9f9;
+        }
+        #ll .nav-editor:hover,
+        #ll .nav-editor.active {
             border-bottom: 2px solid #4af;
         }
+        #ll .nav-repo:hover,
+        #ll .nav-repo.active {
+            border-bottom: 2px solid #77d100;
+        }
+        #ll .nav-admin:hover,
+        #ll .nav-admin.active {
+            border-bottom: 2px solid #f00;
+        }
     </style>
-  
+
     <div>
-        <div style="position: absolute; left: 11px; top: 4px">
+        <div style="position: absolute; left: 15px; top: 11px">
             <a href="#{contextPath}" style="text-decoration: none">
                 <ui:include src="/pages/common/logo.xhtml" />
             </a>
@@ -65,13 +90,16 @@
             </span>
         </div>
 
-        <div id="ll" style="position: absolute; top: 8px; right: 355px;">
-            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}" title="#{msg['ws.header.editor.title']}">#{msg['ws.header.editor']}</a>
-            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}" title="#{msg['ws.header.repo.title']}">#{msg['ws.header.repo']}</a>
-
-            <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
-            <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
-                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="#{msg['ws.header.admin.title']}">#{msg['ws.header.admin']}</a>
+        <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
+        <div id="ll">
+            <a href="#{contextPath}" class="nav-editor#{menu=='rules' ? ' active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}"
+                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a><a
+                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
+                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}" title=""
+                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a><h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}"><a
+                href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''}"
+                   data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}" title=""
+                   onclick="#{menu=='admin' ? 'return false' : ''}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
 
             <span style="position: relative">
@@ -79,4 +107,10 @@
             </span>
         </div>
     </div>
+
+    <script>
+        $j(function () {
+            $j("[data-original-title]").tooltip();
+        });
+    </script>
 </ui:composition>

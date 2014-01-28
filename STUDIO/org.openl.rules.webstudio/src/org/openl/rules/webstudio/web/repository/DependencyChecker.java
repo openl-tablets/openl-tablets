@@ -3,17 +3,16 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.resolving.DependencyResolverForRevision;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -24,31 +23,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  *
  */
 public class DependencyChecker {
-    private class VersionRange {
-        private CommonVersion lower;
-        private CommonVersion upper;
-
-        private VersionRange(CommonVersion lower, CommonVersion upper) {
-            this.lower = lower;
-            this.upper = upper;
-        }
-
-        private boolean isInRange(CommonVersion version) {
-            boolean a = (lower.compareTo(version) <= 0);
-            boolean b = (upper == null) || (upper.compareTo(version) >= 0);
-
-            return (a && b);
-        }
-
-        @Override
-        public String toString() {
-            if (upper == null) {
-                return lower.getVersionName() + " - ...";
-            } else {
-                return lower.getVersionName() + " - " + upper.getVersionName();
-            }
-        }
-    }
 
     private final Log log = LogFactory.getLog(DependencyChecker.class);
     /**
@@ -56,28 +30,29 @@ public class DependencyChecker {
      * <p>
      * value can be <code>null</code> if such project wasn't found in DTR
      */
-    private Map<String, CommonVersion> projectVersions;
+    private Map<String, CommonVersion> projectVersions = new HashMap<String, CommonVersion>();
 
     /**
-     * project-name -> [dependent-project, version-range]
+     * project name -> dependencies list
      */
-    private Map<String, Map<String, VersionRange>> projectDependencies;
+    private Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<String, List<ProjectDependencyDescriptor>>();
 
-    public DependencyChecker() {
-        projectVersions = new HashMap<String, CommonVersion>();
-        projectDependencies = new HashMap<String, Map<String, VersionRange>>();
+    private final DependencyResolverForRevision dependencyResolverForRevision;
+
+    public DependencyChecker(DependencyResolverForRevision dependencyResolverForRevision) {
+        this.dependencyResolverForRevision = dependencyResolverForRevision;
     }
 
     public void addProject(AProject project) {
         String projectName = project.getName();
-        projectVersions.put(projectName, project.getVersion());
-
-        Map<String, VersionRange> dependencies = new TreeMap<String, VersionRange>();
-        projectDependencies.put(projectName, dependencies);
-
-        for (ProjectDependency dependency : project.getDependencies()) {
-            dependencies.put(dependency.getProjectName(), new VersionRange(dependency.getLowerLimit(), dependency
-                    .getUpperLimit()));
+        try {
+            projectDependencies.put(projectName, dependencyResolverForRevision.getDependencies(project));
+            projectVersions.put(projectName, project.getVersion());
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            projectVersions.put(projectName, null);
         }
     }
 
@@ -147,37 +122,17 @@ public class DependencyChecker {
             return false;
         }
 
-        Map<String, VersionRange> dependencies = projectDependencies.get(projectName);
-
-        // check version conflicts
-        for (Entry<String, VersionRange> entry : dependencies.entrySet()) {
-            String dependentName = entry.getKey();
-            VersionRange range = entry.getValue();
-
-            CommonVersion version = projectVersions.get(dependentName);
-            if (version == null) {
-                // absence will be checked later
-                // version conflicts have higher priority
-                continue;
-            }
-
-            if (!range.isInRange(version)) {
-                // version conflict
-                if (item != null) {
-                    item.setMessages("Conflicting with project <b>" + StringEscapeUtils.escapeHtml(dependentName)
-                            + "</b>! Valid versions are " + range.toString());
-                    item.setStyleForMessages(UiConst.STYLE_ERROR);
-                }
-                return false;
-            }
+        List<ProjectDependencyDescriptor> dependencies = projectDependencies.get(projectName);
+        if (dependencies == null) {
+            return true;
         }
 
         // check whether all dependent projects are here
-        for (String dependentProject : dependencies.keySet()) {
-            if (!projectVersions.containsKey(dependentProject)) {
+        for (ProjectDependencyDescriptor dependentProject : dependencies) {
+            if (!projectVersions.containsKey(dependentProject.getName())) {
                 // dependent project is absent
                 if (item != null) {
-                    item.setMessages("Dependent project <b>" + StringEscapeUtils.escapeHtml(dependentProject)
+                    item.setMessages("Dependent project <b>" + StringEscapeUtils.escapeHtml(dependentProject.getName())
                             + "</b> should be added too!");
                     item.setStyleForMessages(UiConst.STYLE_WARNING);
                 }

@@ -25,7 +25,7 @@
 
 /* Common Tooltip styles */
 
-.tooltip {
+.ctooltip {
     position: absolute;
     z-index: 9101;
     left: -1000px;
@@ -36,8 +36,8 @@
 
 /* Tooltip pointer styles */
 
-.tooltip .tooltip_pointer,
-.tooltip .tooltip_pointer_body {
+.ctooltip .tooltip_pointer,
+.ctooltip .tooltip_pointer_body {
     position: absolute;
     width: 0;
     height: 0;

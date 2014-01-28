@@ -17,29 +17,11 @@
     </style>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
-        <div>
-            <div class="view_header">
-                <span>Projects</span>
-            </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/repository/projects.xhtml" />
-                </div>
-            </div>
-        </div>
+        <ui:include src="/pages/modules/repository/projects.xhtml" />
     </h:panelGroup>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository' || node.type == 'proddeployment'}">
-        <div>
-            <div class="view_header">
-                <span>#{node.name} - <h:outputText value="Projects" rendered="#{node.type == 'proddeployment'}" /><h:outputText value="Deploy Configurations" rendered="#{node.type == 'prodrepository'}" /></span>
-            </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/repository/projectsProduction.xhtml" />
-                </div>
-            </div>
-        </div>
+        <ui:include src="/pages/modules/repository/projectsProduction.xhtml" />
     </h:panelGroup>
 
 	<c:set var="deleteMessage" value="Archive project" />
@@ -204,10 +186,7 @@
     <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file' and node.type != 'prodfile'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
-    <rich:tab id="dependencies" name="Dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
-      <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
-    </rich:tab>
-    
+
     <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961 
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
@@ -221,16 +200,7 @@
   </rich:tabPanel>
 
     <h:panelGroup layout="block" rendered="#{node.type == 'drepository'}">
-        <div>
-            <div class="view_header">
-                <span>Deploy Configurations</span>
-            </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/repository/projectsD.xhtml" />
-                </div>
-            </div>
-        </div>
+        <ui:include src="/pages/modules/repository/projectsD.xhtml" />
     </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'deployment'}">
@@ -246,7 +216,7 @@
       </h:panelGrid>
     </h:panelGroup>
     <h:panelGrid columns="7" cellpadding="3" cellspacing="0" rendered="#{not artefact.deleted}">
-      <h:commandButton id="deployId" rendered="#{repositoryTreeState.canDeploy}" value="Deploy" onclick="openSelectRepositoryDialog();return false;">
+      <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy" onclick="openSelectRepositoryDialog();return false;">
           <rich:tooltip showDelay="500">Deploy into operations or staging</rich:tooltip>
       </h:commandButton>
 

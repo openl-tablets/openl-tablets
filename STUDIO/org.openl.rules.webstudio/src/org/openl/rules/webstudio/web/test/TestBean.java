@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -141,7 +142,7 @@ public class TestBean {
 
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        boolean isParallel = studio.getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         if (model.hasTestSuitesToRun()) {
             // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();

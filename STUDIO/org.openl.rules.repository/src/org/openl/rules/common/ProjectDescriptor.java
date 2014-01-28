@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.common.impl.ProjectDependencyImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 
 import com.thoughtworks.xstream.XStream;
@@ -56,6 +55,7 @@ public interface ProjectDescriptor<T extends CommonVersion> {
             return XSTREAM.toXML(descriptors);
         }
 
+        @SuppressWarnings("unchecked")
         public static List<ProjectDescriptor> deserialize(InputStream source) {
             return (List<ProjectDescriptor>) XSTREAM.fromXML(source);
         }
