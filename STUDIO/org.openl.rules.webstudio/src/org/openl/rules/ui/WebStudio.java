@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.set.MapBackedSet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -146,7 +145,7 @@ public class WebStudio {
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-        singleModuleModeByDefault = userSettingsManager.getBooleanProperty("project.modules.single");
+        singleModuleModeByDefault = userSettingsManager.getBooleanProperty("project.dependency.modules.single");
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -320,6 +319,13 @@ public class WebStudio {
         try {
             if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
+                if (currentProject != null && currentModule != null) {
+                    String projectName = currentProject.getName();
+                    String moduleName = currentModule.getName();
+                    currentProject = null;
+                    currentModule = null;
+                    selectModule(projectName, moduleName);
+                }
             }
             model.reset(reloadType);
             for (StudioListener listener : listeners) {
@@ -576,7 +582,7 @@ public class WebStudio {
 
     public void setSingleModuleModeByDefault(boolean singleModuleModeByDefault) {
         this.singleModuleModeByDefault = singleModuleModeByDefault;
-        userSettingsManager.setProperty("project.modules.single", singleModuleModeByDefault);
+        userSettingsManager.setProperty("project.dependency.modules.single", singleModuleModeByDefault);
     }
 
     public String getModuleId(Module module) {

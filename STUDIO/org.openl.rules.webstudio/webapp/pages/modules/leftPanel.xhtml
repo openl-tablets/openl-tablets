@@ -4,19 +4,14 @@
 
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
-            <div class="view_header" style="padding-right: 12px">
-                <span id="navigationHeader" onclick="goTo('home.xhtml', true)" style="cursor: pointer"></span>
+            <div id="projectsTreePanel" style="display: none">
+                <ui:include src="/pages/modules/projectTree.xhtml" />
             </div>
-            <div>
-                <div id="projectsTreePanel" style="display: none">
-                    <ui:include src="/pages/modules/projectTree.xhtml" />
-                </div>
-                <div id="rulesTreePanel" style="display: none">
-                    <ui:include src="/pages/modules/tree.xhtml" />
-                </div>
-                <div id="recentVisitedTablesPanel" style="display: none">
-                    <ui:include src="/pages/modules/history.xhtml" />
-                </div>
+            <div id="rulesTreePanel" style="display: none">
+                <ui:include src="/pages/modules/tree.xhtml" />
+            </div>
+            <div id="recentVisitedTablesPanel" style="display: none">
+                <ui:include src="/pages/modules/history.xhtml" />
             </div>
         </div>
     </h:panelGroup>

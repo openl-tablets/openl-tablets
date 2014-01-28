@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+       default-autowire="no">
+
+    <bean id="instantiationStrategiesCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager" ref="cacheManager"/>
+        <property name="diskPersistent" value="false"/>
+        <property name="overflowToDisk" value="false"/>
+        <property name="timeToLive" value="0"/>
+        <property name="timeToIdle" value="#{systemConfig['cache.projects.timeToIdleSeconds']}"/>
+        <property name="maxElementsInMemory" value="#{systemConfig['cache.projects.count']}"/>
+    </bean>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="WEB-INF/conf/webstudio-ehcache.xml"/>
+    </bean>
+
+</beans>

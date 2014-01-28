@@ -5,24 +5,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
 
 public class TreeProductProject extends TreeProductFolder {
     private Map<Object, TreeNode> elements;
-    private List<DependencyBean> dependencies;
 
     public TreeProductProject(String id, String name, IFilter<AProjectArtefact> filter) {
         super(id, name, filter);
@@ -83,15 +77,6 @@ public class TreeProductProject extends TreeProductFolder {
         return (vi != null) ? vi.getCreatedBy() : null;
     }
 
-    @Override
-    public synchronized List<DependencyBean> getDependencies() {
-        if (dependencies == null) {
-            dependencies = new ArrayList<DependencyBean>();
-        }
-
-        return dependencies;
-    }
-    
     @Override
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {

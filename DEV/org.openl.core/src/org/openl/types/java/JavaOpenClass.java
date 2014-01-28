@@ -36,6 +36,7 @@ import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -114,44 +115,47 @@ public class JavaOpenClass extends AOpenClass {
     private static Map<Class<?>, JavaOpenClass> getClassCache() {
         if (javaClassCache == null) {
             cacheLock.lock();
-            if (javaClassCache == null) {
-                javaClassCache = new HashMap<Class<?>, JavaOpenClass>();
-                javaClassCache.put(int.class, INT);
-                javaClassCache.put(Integer.class, new JavaOpenClass(Integer.class, null, true));
-                javaClassCache.put(long.class, LONG);
-                javaClassCache.put(Long.class, new JavaOpenClass(Long.class, null, true));
-                javaClassCache.put(double.class, DOUBLE);
-                javaClassCache.put(Double.class, new JavaOpenClass(Double.class, null, true));
-                javaClassCache.put(float.class, FLOAT);
-                javaClassCache.put(Float.class, new JavaOpenClass(Float.class, null, true));
-                javaClassCache.put(short.class, SHORT);
-                javaClassCache.put(Short.class, new JavaOpenClass(Short.class, null, true));
-                javaClassCache.put(char.class, CHAR);
-                javaClassCache.put(Character.class, new JavaOpenClass(Character.class, null, true));
-                javaClassCache.put(byte.class, BYTE);
-                javaClassCache.put(Byte.class, new JavaOpenClass(Byte.class, null, true));
-                javaClassCache.put(boolean.class, BOOLEAN);
-                javaClassCache.put(Boolean.class, new JavaOpenClass(Boolean.class, null, true));
-                javaClassCache.put(void.class, VOID);
-                javaClassCache.put(String.class, STRING);
-                javaClassCache.put(Object.class, OBJECT);
-                javaClassCache.put(Class.class, CLASS);
-                javaClassCache.put(Date.class, new JavaOpenClass(Date.class, null, true));
-                javaClassCache.put(BigInteger.class, new JavaOpenClass(BigInteger.class, null, true));
-                javaClassCache.put(BigDecimal.class, new JavaOpenClass(BigDecimal.class, null, true));
-                javaClassCache.put(BigDecimalValue.class, new JavaOpenClass(BigDecimalValue.class, null, true));
-                javaClassCache.put(BigIntegerValue.class, new JavaOpenClass(BigIntegerValue.class, null, true));
-                javaClassCache.put(ByteValue.class, new JavaOpenClass(ByteValue.class, null, true));
-                javaClassCache.put(DoubleValue.class, new JavaOpenClass(DoubleValue.class, null, true));
-                javaClassCache.put(FloatValue.class, new JavaOpenClass(FloatValue.class, null, true));
-                javaClassCache.put(IntValue.class, new JavaOpenClass(IntValue.class, null, true));
-                javaClassCache.put(LongValue.class, new JavaOpenClass(LongValue.class, null, true));
-                javaClassCache.put(ShortValue.class, new JavaOpenClass(ShortValue.class, null, true));
-                javaClassCache.put(org.openl.meta.StringValue.class, new JavaOpenClass(org.openl.meta.StringValue.class, null, true));
-                
-                classCache.putAll(javaClassCache);
+            try {
+                if (javaClassCache == null) {
+                    javaClassCache = new HashMap<Class<?>, JavaOpenClass>();
+                    javaClassCache.put(int.class, INT);
+                    javaClassCache.put(Integer.class, new JavaOpenClass(Integer.class, null, true));
+                    javaClassCache.put(long.class, LONG);
+                    javaClassCache.put(Long.class, new JavaOpenClass(Long.class, null, true));
+                    javaClassCache.put(double.class, DOUBLE);
+                    javaClassCache.put(Double.class, new JavaOpenClass(Double.class, null, true));
+                    javaClassCache.put(float.class, FLOAT);
+                    javaClassCache.put(Float.class, new JavaOpenClass(Float.class, null, true));
+                    javaClassCache.put(short.class, SHORT);
+                    javaClassCache.put(Short.class, new JavaOpenClass(Short.class, null, true));
+                    javaClassCache.put(char.class, CHAR);
+                    javaClassCache.put(Character.class, new JavaOpenClass(Character.class, null, true));
+                    javaClassCache.put(byte.class, BYTE);
+                    javaClassCache.put(Byte.class, new JavaOpenClass(Byte.class, null, true));
+                    javaClassCache.put(boolean.class, BOOLEAN);
+                    javaClassCache.put(Boolean.class, new JavaOpenClass(Boolean.class, null, true));
+                    javaClassCache.put(void.class, VOID);
+                    javaClassCache.put(String.class, STRING);
+                    javaClassCache.put(Object.class, OBJECT);
+                    javaClassCache.put(Class.class, CLASS);
+                    javaClassCache.put(Date.class, new JavaOpenClass(Date.class, null, true));
+                    javaClassCache.put(BigInteger.class, new JavaOpenClass(BigInteger.class, null, true));
+                    javaClassCache.put(BigDecimal.class, new JavaOpenClass(BigDecimal.class, null, true));
+                    javaClassCache.put(BigDecimalValue.class, new JavaOpenClass(BigDecimalValue.class, null, true));
+                    javaClassCache.put(BigIntegerValue.class, new JavaOpenClass(BigIntegerValue.class, null, true));
+                    javaClassCache.put(ByteValue.class, new JavaOpenClass(ByteValue.class, null, true));
+                    javaClassCache.put(DoubleValue.class, new JavaOpenClass(DoubleValue.class, null, true));
+                    javaClassCache.put(FloatValue.class, new JavaOpenClass(FloatValue.class, null, true));
+                    javaClassCache.put(IntValue.class, new JavaOpenClass(IntValue.class, null, true));
+                    javaClassCache.put(LongValue.class, new JavaOpenClass(LongValue.class, null, true));
+                    javaClassCache.put(ShortValue.class, new JavaOpenClass(ShortValue.class, null, true));
+                    javaClassCache.put(org.openl.meta.StringValue.class, new JavaOpenClass(org.openl.meta.StringValue.class, null, true));
+
+                    classCache.putAll(javaClassCache);
+                }
+            } finally {
+                cacheLock.unlock();
             }
-            cacheLock.unlock();
         }
         return classCache;
 
@@ -254,16 +258,19 @@ public class JavaOpenClass extends AOpenClass {
 
     public static synchronized void resetClassloader(ClassLoader cl) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
-        for (Iterator<Class<?>> iter = getClassCache().keySet().iterator(); iter.hasNext();) {
-            Class<?> c = iter.next();
-            if (c.getClassLoader() == cl) {
+        for (Class<?> c : getClassCache().keySet()) {
+            ClassLoader classLoader = c.getClassLoader();
+            if (classLoader == cl) {
                 toRemove.add(c);
             }
-
+            if (cl instanceof OpenLBundleClassLoader) {
+                if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
+                    toRemove.add(c);
+                }
+            }
         }
 
-        for (Iterator<Class<?>> iter = toRemove.iterator(); iter.hasNext();) {
-            Class<?> c = iter.next();
+        for (Class<?> c : toRemove) {
             getClassCache().remove(c);
 
             // System.out.println("Removing " + printClass(c));

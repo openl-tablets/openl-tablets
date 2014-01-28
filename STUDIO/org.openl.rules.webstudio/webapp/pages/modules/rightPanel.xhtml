@@ -3,16 +3,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <h:panelGroup id="rightPanel" layout="block">
-        <div>
-            <div class="view_header" style="padding-left: 18px">
-                <span>#{msg['ws.table.details']}</span>
-            </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/tableDetails.xhtml" />
-                </div>
-            </div>
-        </div>
+        <ui:include src="/pages/modules/tableDetails.xhtml" />
     </h:panelGroup>
 
 </ui:composition>

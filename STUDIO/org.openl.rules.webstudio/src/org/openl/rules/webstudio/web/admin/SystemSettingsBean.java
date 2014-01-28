@@ -265,12 +265,46 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
 
+    public boolean isRunTestsInParallel() {
+        return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
+    }
+
+    public void setRunTestsInParallel(boolean runTestsInParallel) {
+        configManager.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
+    }
+
+    public int getTestRunThreadCount() {
+        return OpenLSystemProperties.getTestRunThreadCount(configManager.getProperties());
+    }
+
+    public void setTestRunThreadCount(int testRunThreadCount) {
+        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
+    }
+
     public String getRulesDispatchingMode() {
         return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
     }
 
     public void setRulesDispatchingMode(String dispatchingMode) {
         configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
+    }
+
+    public String getMaxCachedProjectsCount() {
+        return Integer.toString(configManager.getIntegerProperty(MAX_CACHED_PROJECTS_COUNT));
+    }
+
+    public void setMaxCachedProjectsCount(String count) {
+        int value = StringUtils.isBlank(count) ? 0 : Integer.parseInt(StringUtils.trim(count));
+        configManager.setProperty(MAX_CACHED_PROJECTS_COUNT, value);
+    }
+
+    public String getCachedProjectIdleTime() {
+        return Integer.toString(configManager.getIntegerProperty(CACHED_PROJECT_IDLE_TIME));
+    }
+
+    public void setCachedProjectIdleTime(String count) {
+        int value = StringUtils.isBlank(count) ? 0 : Integer.parseInt(StringUtils.trim(count));
+        configManager.setProperty(CACHED_PROJECT_IDLE_TIME, value);
     }
 
     public void applyChanges() {
@@ -646,6 +680,30 @@ public class SystemSettingsBean {
         String directoryType = "Production Repositories directory";
         isPathNull(value, directoryType);
         workingDirValidator((String) value, directoryType);
+    }
+
+    public void maxCachedProjectsCountValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String count = (String) value;
+        validateGreaterThanZero(count, "The maximum number of cached projects");
+    }
+
+    public void cachedProjectIdleTimeValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String count = (String) value;
+        validateGreaterThanZero(count, "The time to store a project in cache");
+    }
+
+    private void validateGreaterThanZero(String count, String target) {
+        String message = target + " should be positive integer";
+        try {
+            int v = Integer.parseInt(StringUtils.trim(count));
+            if (v < 0) {
+                FacesUtils.addErrorMessage(message);
+                throw new ValidatorException(new FacesMessage(message));
+            }
+        } catch (NumberFormatException e) {
+            FacesUtils.addErrorMessage(message);
+            throw new ValidatorException(new FacesMessage(message));
+        }
     }
 
     public void workingDirValidator(String value, String folderType) {

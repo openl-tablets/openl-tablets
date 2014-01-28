@@ -2,7 +2,6 @@ package org.openl.rules.repository.jcr;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RFolder;
@@ -10,7 +9,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import java.util.Collection;
 import java.util.List;
 
 public class JcrProductionProject extends JcrProductionEntity implements RProject {
@@ -77,10 +75,6 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
         throw new UnsupportedOperationException();
     }
 
-    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
     public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -106,10 +100,6 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
     }
 
     public void riseVersion(int major, int minor) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 

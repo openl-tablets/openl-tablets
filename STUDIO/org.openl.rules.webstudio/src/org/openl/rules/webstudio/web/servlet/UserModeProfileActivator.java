@@ -22,6 +22,7 @@ public class UserModeProfileActivator implements ApplicationContextInitializer<C
             ((XmlWebApplicationContext) applicationContext).setConfigLocations(new String[] {
                 "/WEB-INF/spring/webstudio-beans.xml",
                 "/WEB-INF/spring/system-config-beans.xml",
+                "/WEB-INF/spring/cache-beans.xml",
                 "/WEB-INF/spring/repository-beans.xml",
                 "/WEB-INF/spring/security-beans.xml",
                 "/WEB-INF/spring/security/security-" + userMode + ".xml"

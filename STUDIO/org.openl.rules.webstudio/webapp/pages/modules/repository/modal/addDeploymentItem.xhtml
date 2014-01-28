@@ -26,7 +26,7 @@
 
         <div style="margin-top: 13px; max-height: 270px; overflow: auto;">
             <h:panelGrid styleClass="formfields" rendered="#{not empty availableProjects}" >
-                <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table table-striped"
+                <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table"
             	    columnClasses="padding" style="width: 100%">
             	    <f:facet name="header">
             	      <rich:columnGroup>

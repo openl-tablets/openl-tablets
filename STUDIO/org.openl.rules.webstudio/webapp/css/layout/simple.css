@@ -6,19 +6,20 @@ html, body {
 
 #header {
     border-bottom: 1px solid #f3f3f3;
-    padding: 4px 11px;
-    background: #f9f9f9;
-    height: 32px;
+    padding: 11px 13px;
+    background: #fff;
+    height: 47px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
 #content {
-    height: calc(100% - 64px);
+    height: calc(100% - 83px);
     overflow: auto;
 }
 
 #footer {
-    border-top: 1px solid #dddddd;
-    background: #f9f9f9;
+    border-top: 1px solid #ccc;
+    background: #fff;
+    color: #666;
 }

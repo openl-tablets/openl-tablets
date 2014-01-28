@@ -429,7 +429,7 @@ public class TableBean {
             new TableServiceImpl(true).removeTable(gridTable);
             studio.rebuildModel();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
-            visitedTables.getTables().remove(table);
+            visitedTables.remove(table);
         } catch (Exception e) {
             throw e.getCause();
         }

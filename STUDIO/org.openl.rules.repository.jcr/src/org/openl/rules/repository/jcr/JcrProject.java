@@ -1,6 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
@@ -25,11 +23,9 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class JcrProject extends JcrEntity implements RProject {
     // TODO: candidate to move into JcrNT
     public static final String NODE_FILES = "files";
-    public static final String NODE_DEPENDENCIES = "dependencies";
 
     /** Project's root folder or project->files. */
     private JcrFolder rootFolder;
-    private JcrDependencies dependencies;
 
     private JcrCommonProject project;
 
@@ -51,7 +47,6 @@ public class JcrProject extends JcrEntity implements RProject {
         n.setProperty(ArtefactProperties.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
 
         NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, true);
-        NodeUtil.createNode(n, NODE_DEPENDENCIES, JcrNT.NT_DEPENDENCIES, false);
 
         parentNode.save();
         n.checkin();
@@ -67,8 +62,6 @@ public class JcrProject extends JcrEntity implements RProject {
 
         Node files = node.getNode(NODE_FILES);
         rootFolder = new JcrFolder(files);
-        Node deps = node.getNode(NODE_DEPENDENCIES);
-        dependencies = new JcrDependencies(deps);
 
         project = new JcrCommonProject(node);
     }
@@ -90,10 +83,6 @@ public class JcrProject extends JcrEntity implements RProject {
         project.erase(user);
     }
 
-    public Collection<ProjectDependency> getDependencies() throws RRepositoryException {
-        return dependencies.getDependencies();
-    }
-
     public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
@@ -110,10 +99,6 @@ public class JcrProject extends JcrEntity implements RProject {
 
     public boolean isMarked4Deletion() throws RRepositoryException {
         return project.isMarked4Deletion();
-    }
-
-    public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
-        this.dependencies.updateDependencies(dependencies);
     }
 
     public void undelete(CommonUser user) throws RRepositoryException {

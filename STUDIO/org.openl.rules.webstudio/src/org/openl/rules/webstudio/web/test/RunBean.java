@@ -7,6 +7,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -55,7 +56,7 @@ public class RunBean {
 
     private void runTestMethod(TestSuite testSuite) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        boolean isParallel = studio.getSystemConfigManager().getBooleanProperty("test.run.parallel");
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         if (testSuite != null) {
             results = studio.getModel().runTest(testSuite, isParallel);
         }
