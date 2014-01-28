@@ -86,7 +86,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         return stack;
     }
 
-    public ClassLoader getClassLoader(Collection<Module> modules) {
+    protected ClassLoader getClassLoader(Collection<Module> modules) {
         Set<String> projectNames = new HashSet<String>();
         for (Module module : modules) {
             projectNames.add(module.getProject().getName());
