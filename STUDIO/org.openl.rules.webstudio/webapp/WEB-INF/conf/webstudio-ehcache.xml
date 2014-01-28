@@ -1,5 +1,5 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" name="studioCacheManager">
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" name="studioCacheManager" updateCheck="false">
 
     <!--
 
@@ -33,7 +33,7 @@
 
 
 -->
-    <diskStore path="java.io.tmpdir"/>
+    <diskStore path="java.io.tmpdir/studio-cache"/>
 
 <!--
     Cache configuration

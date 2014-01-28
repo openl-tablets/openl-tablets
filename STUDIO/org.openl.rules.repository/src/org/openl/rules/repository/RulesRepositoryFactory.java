@@ -156,14 +156,6 @@ public class RulesRepositoryFactory {
     }
 
     /**
-     * @deprecated use instance methods instead. For example, obtain class instance using spring
-     */
-    @Deprecated
-    public static void setConfig(ConfigSet config) {
-        getInstance().setConfigSet(config);
-    }
-
-    /**
      * Deprecated stuff, used internally. Only for backward compatibility.
      *
      * @return RulesRepositoryFactory instance
