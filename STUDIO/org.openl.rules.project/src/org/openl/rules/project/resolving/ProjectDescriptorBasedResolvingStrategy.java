@@ -2,12 +2,24 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.classloader.OpenLClassLoaderHelper;
+import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.ProjectDescriptorManager;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesLoader;
 
 public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrategy {
 
@@ -29,11 +41,68 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         }
     }
 
+    protected ClassLoader getClassLoader(ProjectDescriptor projectDescriptor) {
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
+        URL[] urls = projectDescriptor.getClassPathUrls();
+        classLoader.addClassLoader(projectDescriptor.getClassLoader(false));
+        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+        return classLoader;
+    }
+
     protected ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException {
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
+        Set<String> globalErrorMessages = new LinkedHashSet<String>();
+        Set<String> globalWarnMessages = new LinkedHashSet<String>();
         try {
-            return descriptorManager.readDescriptor(descriptorFile);
+            ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
+            PropertiesFileNameProcessor processor = buildProcessor(globalErrorMessages, projectDescriptor);
+            if (processor != null) {
+                for (Module module : projectDescriptor.getModules()) {
+                    Set<String> moduleWarnMessages = new HashSet<String>(globalErrorMessages);
+                    Set<String> moduleErrorMessages = new HashSet<String>(globalWarnMessages);
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    try {
+                        ITableProperties tableProperties = processor.process(module,
+                            projectDescriptor.getDefaultPropertiesFileNamePattern());
+                        params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
+                    } catch (NoMatchFileNameException e) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Module file name doesn't match to file name pattern!");
+                            if (e.getMessage() != null) {
+                                log.warn(e.getMessage());
+                            }
+                        }
+                        if (e.getMessage() == null) {
+                            moduleWarnMessages.add("Module file name doesn't match to file name pattern!");
+                        } else {
+                            if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
+                                moduleWarnMessages.add("Module file name doesn't match to file name pattern!");
+                            }
+                            moduleWarnMessages.add(e.getMessage());
+                        }
+                    } catch (InvalidFileNamePatternException e) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("File name pattern is invalid!");
+                            if (e.getMessage() != null) {
+                                log.warn(e.getMessage());
+                            }
+                        }
+                        if (e.getMessage() == null) {
+                            moduleErrorMessages.add("File name pattern is invalid!");
+                        } else {
+                            if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
+                                moduleErrorMessages.add("File name pattern is invalid!");
+                            }
+                            moduleErrorMessages.add(e.getMessage());
+                        }
+                    }
+                    params.put(OpenLSourceManager.PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY, moduleErrorMessages);
+                    params.put(OpenLSourceManager.PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY, moduleWarnMessages);
+                    module.setProperties(params);
+                }
+            }
+            return projectDescriptor;
         } catch (ValidationException ex) {
             throw new ProjectResolvingException("Project descriptor is invalid. Please, verify " + PROJECT_DESCRIPTOR_FILE_NAME + " file format.",
                 ex);
@@ -45,4 +114,37 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         }
     }
 
+    private PropertiesFileNameProcessor buildProcessor(Set<String> globalErrorMessages,
+            ProjectDescriptor projectDescriptor) throws ClassNotFoundException,
+                                                InstantiationException,
+                                                IllegalAccessException {
+        ClassLoader classLoader = getClassLoader(projectDescriptor);
+        PropertiesFileNameProcessor processor = null;
+        if (projectDescriptor.getDefaultPropertiesFileNameProcessor() != null && !projectDescriptor.getDefaultPropertiesFileNameProcessor()
+            .isEmpty()) {
+            try {
+                Class<?> clazz = classLoader.loadClass(projectDescriptor.getDefaultPropertiesFileNameProcessor());
+                processor = (PropertiesFileNameProcessor) clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                String message = "Properties file name processor class '" + projectDescriptor.getDefaultPropertiesFileNameProcessor() + "' wasn't found!";
+                if (log.isWarnEnabled()) {
+                    log.warn(message);
+                }
+                globalErrorMessages.add("Properties file name processor class '" + projectDescriptor.getDefaultPropertiesFileNameProcessor() + "' wasn't found!");
+            } catch (Exception e) {
+                String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface!";
+                if (log.isWarnEnabled()) {
+                    log.warn(message);
+                }
+                globalErrorMessages.add(message);
+            }
+        } else {
+            if (projectDescriptor.getDefaultPropertiesFileNamePattern() != null && !projectDescriptor.getDefaultPropertiesFileNamePattern()
+                .isEmpty()) {
+                Class<?> clazz = classLoader.loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
+                processor = (PropertiesFileNameProcessor) clazz.newInstance();
+            }
+        }
+        return processor;
+    }
 }

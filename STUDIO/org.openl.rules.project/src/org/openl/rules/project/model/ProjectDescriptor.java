@@ -21,7 +21,24 @@ public class ProjectDescriptor {
     private List<PathEntry> classpath;
     private List<ProjectDependencyDescriptor> dependencies;
     private ClassLoader classLoader;
+    private String defaultPropertiesFileNamePattern;
+    private String defaultPropertiesFileNameProcessor;
     
+    public String getDefaultPropertiesFileNamePattern() {
+        return defaultPropertiesFileNamePattern;
+    }
+    
+    public void setDefaultPropertiesFileNamePattern(String defaultPropertiesFileNamePattern) {
+        this.defaultPropertiesFileNamePattern = defaultPropertiesFileNamePattern;
+    }
+    
+    public String getDefaultPropertiesFileNameProcessor() {
+        return defaultPropertiesFileNameProcessor;
+    }
+    
+    public void setDefaultPropertiesFileNameProcessor(String defaultPropertiesFileNameProcessor) {
+        this.defaultPropertiesFileNameProcessor = defaultPropertiesFileNameProcessor;
+    }
     
     public List<ProjectDependencyDescriptor> getDependencies() {
         return dependencies;

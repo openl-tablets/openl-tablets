@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -62,7 +63,7 @@ public class PropertiesLoader {
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
-        if (propertiesSection != null) {            
+        if (propertiesSection != null) {
             dataNodeBinder.processTable(module,
                 propertyTable,
                 propertiesSection,
@@ -95,8 +96,7 @@ public class PropertiesLoader {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         String category = getCategory(tableSyntaxNode);
-        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(
-                RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
 
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
@@ -146,14 +146,12 @@ public class PropertiesLoader {
         }
 
         ITableProperties properties = tableSyntaxNode.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
-            .getPropertiesToBeSetByDefault();
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
             String defaultPropertyName = propertyWithDefaultValue.getName();
-            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
-                .getPropertyByName(defaultPropertyName);
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName);
             Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
 
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
@@ -198,21 +196,34 @@ public class PropertiesLoader {
             loadDefaultProperties(tsn);
         }
     }
-    
+
     private void loadExternalProperties(TableSyntaxNode tsn) {
-        
+
+        ITableProperties tableProperties = tsn.getTableProperties();
+        TableSyntaxNode modulePropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        ITableProperties moduleProperties = null;
+        if (tableProperties != null && modulePropertiesTsn != null) {
+            moduleProperties = modulePropertiesTsn.getTableProperties();
+        }
+
         Map<String, Object> externalParams = cxt.getExternalParams();
-        
-        if (externalParams != null 
-                && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) != null 
-                && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
-            
+
+        if (externalParams != null && externalParams.containsKey(EXTERNAL_MODULE_PROPERTIES_KEY) && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
+
             if (tsn.getTableProperties() == null) {
                 createTableProperties(tsn);
             }
 
             ITableProperties properties = tsn.getTableProperties();
             ITableProperties externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
+            if (moduleProperties != null) {
+                for (String key : externalProperties.getAllProperties().keySet()) {
+                    if (moduleProperties.getAllProperties().keySet().contains(key)) {
+                        OpenLMessagesUtils.addError("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
+                    }
+                }
+            }
+
             properties.setExternalPropertiesAppliedForModule(externalProperties.getAllProperties());
         }
     }

@@ -23,6 +23,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String PROPERTY_TAG = "property";
     private static final String METHOD_FILTER_TAG = "method-filter";
     private static final String DEPENDENCY_TAG = "dependency";
+    private static final String DEFAULT_PROPERTIES_FILE_NAME_PATTERN = "default-properties-file-name-pattern";
+    private static final String DEFAULT_PROPERTIES_FILE_NAME_PROCESSOR = "default-properties-file-name-processor";
 
     private XStream xstream;
 
@@ -38,6 +40,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.aliasType(PROPERTY_TAG, Property.class);
+        xstream.aliasField(DEFAULT_PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor.class, "defaultPropertiesFileNamePattern");
+        xstream.aliasField(DEFAULT_PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "defaultPropertiesFileNameProcessor");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
         xstream.alias("value", String.class);
 
