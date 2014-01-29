@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets Demo
 Bundle-SymbolicName: org.openl.rules.demo
-Bundle-Version: 5.11.1.1
+Bundle-Version: 5.11.2
 Bundle-Vendor: OpenL
