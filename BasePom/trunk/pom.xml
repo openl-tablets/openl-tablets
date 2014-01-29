@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.11.2-SNAPSHOT</version>
+  <version>5.11.1.1</version>
   <name>OpenL BasePom SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
