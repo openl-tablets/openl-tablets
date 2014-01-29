@@ -6,14 +6,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -72,19 +77,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         this.destinationDirectory = destinationDirectory;
     }
 
-    private static String getPathJar(Resource resource) throws IllegalStateException, IOException {
-        URL location = resource.getURL();
-        String jarPath = location.getPath();
-        if (jarPath.lastIndexOf("!") == -1) {
-            return null;
-        }
-        String path = jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
-
-        // Workaround for WebSphere 8.5
-        path = path.replaceAll("%20", " ");
-
-        return path;
-    }
+    /*
+     * private static String getPathJar(Resource resource) throws
+     * IllegalStateException, IOException { URL location = resource.getURL();
+     * String jarPath = location.getPath(); if (jarPath.lastIndexOf("!") == -1)
+     * { return null; } String path = jarPath.substring("file:".length(),
+     * jarPath.lastIndexOf("!"));
+     * 
+     * // Workaround for WebSphere 8.5 path = path.replaceAll("%20", " ");
+     * 
+     * return path; }
+     */
 
     private static void unpack(File jarFile, String destDir) throws IOException {
         File newProjectDir = new File(destDir, FilenameUtils.getBaseName(jarFile.getCanonicalPath()));
@@ -116,11 +119,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 bufferedInputStream.close();
             }
         } finally {
-            if (jar != null){
-                try{
+            if (jar != null) {
+                try {
                     jar.close();
-                }catch(IOException e){
-                   
+                } catch (IOException e) {
+
                 }
             }
         }
@@ -131,6 +134,43 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             return true;
         } else {
             return location.mkdirs();
+        }
+    }
+
+    private void extractJarForJboss(URL resourceURL, File desFile) throws IOException,
+                                                                  NoSuchMethodException,
+                                                                  InvocationTargetException,
+                                                                  IllegalAccessException,
+                                                                  ClassNotFoundException {
+        // This reflection implementation for JBoss vfs
+        URLConnection conn = resourceURL.openConnection();
+        Object content = conn.getContent();
+        Class<?> clazz = content.getClass();
+        if ("org.jboss.vfs.VirtualFile".equals(clazz.getName())) {
+            String urlString = resourceURL.toString();
+            urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
+            Object jarFile = new URL(urlString).openConnection().getContent();
+            java.lang.reflect.Method getChildrenMethod = clazz.getMethod("getChildren");
+            List<?> children = (List<?>) getChildrenMethod.invoke(jarFile);
+            if (!children.isEmpty()) {
+                Method getNameMethod = clazz.getMethod("getName");
+                String name = (String) getNameMethod.invoke(jarFile);
+                File newProjectDir = new File(desFile, FilenameUtils.getBaseName(name));
+                Class<?> VFSUtilsClazz = Thread.currentThread()
+                    .getContextClassLoader()
+                    .loadClass("org.jboss.vfs.VFSUtils");
+                java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
+                    clazz,
+                    File.class);
+                newProjectDir.mkdirs();
+                for (Object child : children) {
+                    recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
+                }
+            } else {
+                throw new RuleServiceRuntimeException("Protocol VFS supported only for JBoss VFS. URL content should be org.jboss.vfs.VirtualFile!");
+            }
+        } else {
+            throw new RuleServiceRuntimeException("Protocol VFS supported only for JBoss VFS. URL content should be org.jboss.vfs.VirtualFile!");
         }
     }
 
@@ -147,8 +187,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
 
             if (!desFile.isDirectory()) {
-                throw new IOException("Destination path isn't a directory on file system. Path: "
-                        + getDestinationDirectory());
+                throw new IOException("Destination path isn't a directory on file system. Path: " + getDestinationDirectory());
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
@@ -163,28 +202,47 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
-                + RULES_FILE_NAME);
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
         if (!FolderHelper.clearFolder(new File(getDestinationDirectory()))) {
             if (log.isWarnEnabled()) {
                 log.warn(String.format("Failed on a folder clear. Path: \"%s\"", getDestinationDirectory()));
             }
         }
         for (Resource rulesXmlResource : resources) {
-            String path = getPathJar(rulesXmlResource);
-            if (path != null) {
-                File file = new File(path);
-
-                if (!file.exists()) {
-                    throw new IOException("File not found. File: " + path);
+            File file = null;
+            try {
+                final URL resourceURL = rulesXmlResource.getURL();
+                if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
+                    URL jarUrl = org.springframework.util.ResourceUtils.extractJarFileURL(resourceURL);
+                    file = org.springframework.util.ResourceUtils.getFile(jarUrl);
+                } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
+                    // This reflection implementation for JBoss vfs
+                    extractJarForJboss(resourceURL, desFile);
+                    if (log.isInfoEnabled()) {
+                        log.info(String.format("Unpacking \"" + resourceURL.toString() + "\" into \"%s\" was completed",
+                            getDestinationDirectory()));
+                    }
+                    continue;
+                } else {
+                    throw new RuleServiceRuntimeException("Protocol for URL doesn't supported! URL: " + resourceURL.toString());
                 }
-
-                unpack(file, getDestinationDirectory());
-
-                if (log.isInfoEnabled()) {
-                    log.info(String.format("Unpacking jars into \"%s\" was completed", getDestinationDirectory()));
+            } catch (Exception e) {
+                if (log.isErrorEnabled()) {
+                    log.error("Invalid resource!", e);
                 }
+                throw new IOException("Invalid resource", e);
             }
+            if (!file.exists()) {
+                throw new IOException("File not found. File: " + file.getAbsolutePath());
+            }
+
+            unpack(file, getDestinationDirectory());
+
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Unpacking \"" + file.getAbsolutePath() + "\" into \"%s\" was completed",
+                    getDestinationDirectory()));
+            }
+            // }
         }
     }
 }
