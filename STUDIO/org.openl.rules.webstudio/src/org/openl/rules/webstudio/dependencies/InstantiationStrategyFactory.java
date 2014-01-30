@@ -17,6 +17,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.syntax.code.DependencyType;
@@ -40,6 +41,12 @@ public class InstantiationStrategyFactory {
      * References to the modules are weak reference objects.
      */
     private Map<String, Set<Module>> dependencyUsages = new HashMap<String, Set<Module>>();
+    /**
+     * Cache of dependent project usages.
+     * Key is dependent project name, value is a set of project that depend on that project.
+     * References to the projects are weak reference objects.
+     */
+    private Map<String, Set<ProjectDescriptor>> projectDependencyUsages = new HashMap<String, Set<ProjectDescriptor>>();
 
     private WebStudio studio;
     private WebStudioDependencyManagerFactory dependencyManagerFactory;
@@ -90,6 +97,7 @@ public class InstantiationStrategyFactory {
         cache.remove(new Key(this, module));
         cache.remove(new Key(this, module.getProject()));
         removeModuleDependencies(module);
+        removeProjectDependencies(module.getProject());
     }
 
     /**
@@ -107,6 +115,7 @@ public class InstantiationStrategyFactory {
             }
         }
         dependencyUsages.clear();
+        projectDependencyUsages.clear();
     }
 
     public boolean isOpenedAsSingleMode(Module module) {
@@ -142,12 +151,24 @@ public class InstantiationStrategyFactory {
 
     private void putToCache(Module module, boolean singleModuleMode, ModuleInstantiator instantiator) {
         Key key;
+        ProjectDescriptor project = module.getProject();
         if (singleModuleMode) {
             key = new Key(this, module);
         } else {
-            key = new Key(this, module.getProject());
+            key = new Key(this, project);
         }
         cache.put(new Element(key, new SoftReference<ModuleInstantiator>(instantiator)));
+
+        if (project.getDependencies() != null) {
+            for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
+                Set<ProjectDescriptor> projects = projectDependencyUsages.get(dependencyDescriptor.getName());
+                if (projects == null) {
+                    projects = Collections.newSetFromMap(new WeakHashMap<ProjectDescriptor, Boolean>());
+                    projectDependencyUsages.put(dependencyDescriptor.getName(), projects);
+                }
+                projects.add(project);
+            }
+        }
     }
 
     private ModuleInstantiator createModuleInstantiator(Module module, boolean singleModuleMode) {
@@ -190,6 +211,24 @@ public class InstantiationStrategyFactory {
         }
         for (Collection<Module> modules : dependencyUsages.values()) {
             modules.remove(module);
+        }
+    }
+
+    /**
+     * Remove instantiation strategies, depending on specified project, from the cache
+     *
+     * @param project depending project
+     */
+    private void removeProjectDependencies(ProjectDescriptor project) {
+        Collection<ProjectDescriptor> projectsUsingTheProject = projectDependencyUsages.get(project.getName());
+        if (projectsUsingTheProject != null) {
+            projectDependencyUsages.remove(project.getName());
+            for (ProjectDescriptor parentProject : new HashSet<ProjectDescriptor>(projectsUsingTheProject)) {
+                cache.remove(new Key(this, parentProject));
+            }
+        }
+        for (Collection<ProjectDescriptor> projects : projectDependencyUsages.values()) {
+            projects.remove(project);
         }
     }
 
