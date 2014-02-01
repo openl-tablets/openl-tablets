@@ -149,7 +149,7 @@ public class TestExecutionControl2 extends TestCase {
         }
 
     }
-    private final String TEST_FILE = "\\test.serialize";
+    private final String TEST_FILE = "test.serialize";
 
     private IntExpArray x, xplus, xminus;
 
@@ -288,7 +288,7 @@ public class TestExecutionControl2 extends TestCase {
         Constrainer C = new Constrainer("TestConstraintExpEqualsExp");
         Object label = null;
         try {
-            prepareChessProblem(C, 500);
+            prepareChessProblem(C, 700);
             C.setTimeLimit(4);
             try {
                 C.execute(new GoalGenerate(x, new IntVarSelectorMinSizeMin(x), true), false);

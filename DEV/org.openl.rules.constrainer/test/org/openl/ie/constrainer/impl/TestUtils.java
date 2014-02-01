@@ -28,6 +28,13 @@ import org.openl.ie.tools.FastVector;
  */
 
 public class TestUtils {
+    public static boolean contains(int[] sub, int n) {
+        for (int i = 0; i < sub.length; ++i)
+            if (sub[i] == n)
+                return true;
+        return false;
+    }
+
     static public class Finder {
         private int[] _array;
         private int _start, _end;

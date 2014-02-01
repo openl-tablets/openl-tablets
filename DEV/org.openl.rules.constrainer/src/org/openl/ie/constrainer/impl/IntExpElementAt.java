@@ -105,7 +105,7 @@ public final class IntExpElementAt extends IntExpImpl {
 
         @Override
         public int subscriberMask() {
-            return IntEvent.VALUE;
+            return IntEvent.ALL;
         }
 
         @Override
@@ -440,11 +440,11 @@ public final class IntExpElementAt extends IntExpImpl {
         int size = values.length;
         int nHoles = (max - min + 1) - size;
 
-        if (nHoles < 10) {
-            createElement1(values);
-        } else {
+//        if (nHoles < 10) {
+//            createElement1(values);
+//        } else {
             createElement2(values);
-        }
+//        }
     }
 
     void createElement1(int[] values) throws Failure {
