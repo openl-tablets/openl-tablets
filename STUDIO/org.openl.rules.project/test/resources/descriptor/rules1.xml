@@ -47,6 +47,6 @@
 			<autoIncluded>false</autoIncluded>
 		</dependency>
 	</dependencies>
-	<default-properties-file-name-pattern>{lob}</default-properties-file-name-pattern>
-	<default-properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</default-properties-file-name-processor>
+	<properties-file-name-pattern>{lob}</properties-file-name-pattern>
+	<properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
 </project>
