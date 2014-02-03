@@ -82,19 +82,23 @@
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGrid columns="10" cellpadding="3" cellspacing="0">
         <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{not (systemConfig['user.mode'] == 'single' and artefact.opened)}">
-          <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}">
+          <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}"
+                           onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
-                    
-          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" type="button" onclick="openOpenVersionDialog();return false;">
+
+          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" type="button" onclick="openOpenVersionDialog()">
               <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
+              <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
           </h:commandButton>
 
-          <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}">
+          <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}"
+                           onclick="#{repositoryTreeController.hasDependingProjects ? rich:component('modalCloseProject').concat('.show();return false;') : ''}">
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
 
-          <h:commandButton id="editId1" rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}">
+          <h:commandButton id="editId1" rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}"
+                           onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalEditProject').concat('.show();return false;') : ''}">
               <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>
@@ -104,8 +108,9 @@
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
 	      
-	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();return false;">
+	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();">
 	          <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
+              <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
 	      </h:commandButton>
 
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;">
@@ -220,8 +225,9 @@
           <rich:tooltip showDelay="500">Deploy into operations or staging</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();return false;">
+      <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();">
           <rich:tooltip showDelay="500">Open the specified project revision</rich:tooltip>
+          <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
       </h:commandButton>
 
       <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}">
