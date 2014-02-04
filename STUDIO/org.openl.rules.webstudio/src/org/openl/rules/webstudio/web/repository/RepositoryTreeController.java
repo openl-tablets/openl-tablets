@@ -123,6 +123,8 @@ public class RepositoryTreeController {
     private boolean openDependencies = true;
     private AProject currentProject;
 
+    private Map<String, String[]> templateNamesCache = new HashMap<String, String[]>();
+
     public PathFilter getZipFilter() {
         return zipFilter;
     }
@@ -1184,7 +1186,7 @@ public class RepositoryTreeController {
 
         this.setFileName(FilenameUtils.getName(file.getName()));
 
-        if (fileName.indexOf(".") > -1) {
+        if (fileName.contains(".")) {
             this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
         } else {
             this.setProjectName(fileName);
@@ -1358,7 +1360,7 @@ public class RepositoryTreeController {
     }
 
     private String createProject() {
-        String errorMessage = null;
+        String errorMessage;
 
         if (StringUtils.isNotBlank(projectName)) {
             if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
@@ -1444,7 +1446,7 @@ public class RepositoryTreeController {
     }
 
     private String uploadProject() {
-        String errorMessage = null;
+        String errorMessage;
 
         if (StringUtils.isNotBlank(projectName)) {
             UploadedFile uploadedItem = getLastUploadedFile();
@@ -1483,9 +1485,14 @@ public class RepositoryTreeController {
     }
 
     public String[] getProjectTemplates(String category) {
+        String[] names = templateNamesCache.get(category);
+        if (names != null) {
+            return names;
+        }
+
         List<String> templateNames = new ArrayList<String>();
         ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-        Resource[] templates = null;
+        Resource[] templates;
 
         try {
             // JAR file
@@ -1512,7 +1519,9 @@ public class RepositoryTreeController {
             log.error("Failed to get project templates", e);
         }
 
-        return templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[0]);
+        names = templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[templateNames.size()]);
+        templateNamesCache.put(category, names);
+        return names;
     }
 
     private ProjectFile[] getProjectTemplateFiles(String url) {
@@ -1532,7 +1541,7 @@ public class RepositoryTreeController {
             log.error("Failed to get project template: " + url, e);
         }
 
-        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[0]);
+        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
     }
 
     public boolean getCanDelete() {
