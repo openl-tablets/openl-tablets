@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -66,6 +67,8 @@ public class SmartRedeployController {
     @ManagedProperty("#{temporaryRevisionsStorage}")
     private TemporaryRevisionsStorage temporaryRevisionsStorage;
 
+    private DependencyResolverForRevision dependencyResolver;
+
     private List<DeploymentProjectItem> items;
 
     private String repositoryConfigName;
@@ -107,9 +110,6 @@ public class SmartRedeployController {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
         List<DeploymentProjectItem> result = new LinkedList<DeploymentProjectItem>();
-
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        DependencyResolverForRevision dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
 
         // FIXME take latest deployment projects from DTR not from user scope
         // get all deployment projects
@@ -341,7 +341,7 @@ public class SmartRedeployController {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
-    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
+    public synchronized void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
         this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 
@@ -472,5 +472,11 @@ public class SmartRedeployController {
 
     public boolean isLoading() {
         return loading;
+    }
+
+    @PostConstruct
+    public synchronized void init() {
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 }

@@ -166,12 +166,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public UserWorkspaceProject getSelectedProject() {
-        Object artefact = getSelectedNode().getData();
+        AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact;
-        } else if (artefact instanceof AProjectArtefact) {
-            if (((AProjectArtefact)artefact).getProject() instanceof UserWorkspaceProject)
-                return (UserWorkspaceProject) ((AProjectArtefact)artefact).getProject();
+        } else if (artefact != null) {
+            if (artefact.getProject() instanceof UserWorkspaceProject)
+                return (UserWorkspaceProject) artefact.getProject();
         } 
 
         return null;
@@ -255,7 +255,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Moves selection to the parent of the current selected node.
      */
     public void moveSelectionToParentNode() {
-        if (getSelectedNode().getParent() instanceof TreeNode) {
+        if (getSelectedNode().getParent() != null) {
             setSelectedNode(getSelectedNode().getParent());
         } else {
             invalidateSelection();
@@ -374,7 +374,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     // For any project
     public boolean getCanEdit() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
 
@@ -444,7 +444,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {
             return false;
         }
 
@@ -452,7 +452,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public boolean getCanOpenOtherVersion() {
-        UserWorkspaceProject selectedProject = getSelectedProject(); 
+        UserWorkspaceProject selectedProject = getSelectedProject();
+
+        if (selectedProject == null) {
+            return false;
+        }
         
         if (!selectedProject.isLocalOnly()) {
             return isGranted(PRIVILEGE_VIEW_PROJECTS);

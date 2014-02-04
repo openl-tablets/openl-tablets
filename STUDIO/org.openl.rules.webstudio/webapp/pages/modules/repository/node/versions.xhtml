@@ -62,10 +62,10 @@
   <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
     <h:outputText value="No version history" />
   </h:panelGroup>
-  
+
   <script>
   function backToPropsTab(){
-      if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository.")) {
+      if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository. Dependent projects will be opened too.")) {
           /*$j("#nodeTabPanel-value").value return undefined */
           document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
           return true;

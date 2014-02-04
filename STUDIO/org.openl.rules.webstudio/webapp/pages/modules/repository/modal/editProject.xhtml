@@ -16,7 +16,13 @@
 
     <h:form id="editProjectForm">
       <h:panelGroup id="modalEditProjectData">
-        <h:outputText value="NOTE: Project data in the workspace will be replaced by data that will be opened from repository." />
+        <h:outputText value="NOTE: Project data in the workspace will be replaced by data that will be opened from repository."  rendered="#{repositoryTreeState.canEdit and not repositoryTreeController.hasDependencies}"/>
+
+        <h:panelGrid columns="3" rendered="#{repositoryTreeState.canEdit and repositoryTreeController.hasDependencies}">
+          <h:outputText value="Also open dependencies:"/>
+          <ui:repeat value="#{repositoryTreeController.dependencies}" var="project">#{project} </ui:repeat>
+          <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" />
+        </h:panelGrid>
       </h:panelGroup>
 
       <hr />
