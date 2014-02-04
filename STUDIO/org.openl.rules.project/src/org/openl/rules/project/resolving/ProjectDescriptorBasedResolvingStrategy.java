@@ -64,7 +64,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                     Map<String, Object> params = new HashMap<String, Object>();
                     try {
                         ITableProperties tableProperties = processor.process(module,
-                            projectDescriptor.getDefaultPropertiesFileNamePattern());
+                            projectDescriptor.getPropertiesFileNamePattern());
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
                         if (log.isWarnEnabled()) {
@@ -120,17 +120,17 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                                                 IllegalAccessException {
         ClassLoader classLoader = getClassLoader(projectDescriptor);
         PropertiesFileNameProcessor processor = null;
-        if (projectDescriptor.getDefaultPropertiesFileNameProcessor() != null && !projectDescriptor.getDefaultPropertiesFileNameProcessor()
+        if (projectDescriptor.getPropertiesFileNameProcessor() != null && !projectDescriptor.getPropertiesFileNameProcessor()
             .isEmpty()) {
             try {
-                Class<?> clazz = classLoader.loadClass(projectDescriptor.getDefaultPropertiesFileNameProcessor());
+                Class<?> clazz = classLoader.loadClass(projectDescriptor.getPropertiesFileNameProcessor());
                 processor = (PropertiesFileNameProcessor) clazz.newInstance();
             } catch (ClassNotFoundException e) {
-                String message = "Properties file name processor class '" + projectDescriptor.getDefaultPropertiesFileNameProcessor() + "' wasn't found!";
+                String message = "Properties file name processor class '" + projectDescriptor.getPropertiesFileNameProcessor() + "' wasn't found!";
                 if (log.isWarnEnabled()) {
                     log.warn(message);
                 }
-                globalErrorMessages.add("Properties file name processor class '" + projectDescriptor.getDefaultPropertiesFileNameProcessor() + "' wasn't found!");
+                globalErrorMessages.add("Properties file name processor class '" + projectDescriptor.getPropertiesFileNameProcessor() + "' wasn't found!");
             } catch (Exception e) {
                 String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface!";
                 if (log.isWarnEnabled()) {
@@ -139,7 +139,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                 globalErrorMessages.add(message);
             }
         } else {
-            if (projectDescriptor.getDefaultPropertiesFileNamePattern() != null && !projectDescriptor.getDefaultPropertiesFileNamePattern()
+            if (projectDescriptor.getPropertiesFileNamePattern() != null && !projectDescriptor.getPropertiesFileNamePattern()
                 .isEmpty()) {
                 Class<?> clazz = classLoader.loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
                 processor = (PropertiesFileNameProcessor) clazz.newInstance();

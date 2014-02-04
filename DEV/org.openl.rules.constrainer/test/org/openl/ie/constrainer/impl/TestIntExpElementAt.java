@@ -43,8 +43,17 @@ public class TestIntExpElementAt extends TestCase {
         super(name);
     }
 
-    public void testContainsMinMax() {
-        int[] array = { -100, 75, -50, 25, 0, -25, 50, -75, 100 };
+    public void testContainsMinMax(){
+        int[] array = { -100, 75, -50, 25, 0, -25, 50, -75, 100};
+        runTestContainsMinMax(array);
+        int[] array2 = { -100, 75, -50, 25, 0, -25, 50, -75, 100, -100};
+        runTestContainsMinMax(array2);
+        int[] array3 = { 298, 300, 298};
+        runTestContainsMinMax(array3);
+    }
+
+
+    public void runTestContainsMinMax(int[] array) {
         IntArray intarray = new IntArray(C, array);
 
         IntVar cursor = C.addIntVar(0, array.length);
@@ -59,15 +68,17 @@ public class TestIntExpElementAt extends TestCase {
                 fail("test failed due to incorrect behsviour of IntVar.setMin(int)");
             }
 
+            int[] sub = TestUtils.subArray(array, i, array.length - 1);
             // check min() max()
-            assertEquals(TestUtils.min(TestUtils.subArray(array, i, array.length - 1)), elemAt.min());
-            assertEquals(TestUtils.max(TestUtils.subArray(array, i, array.length - 1)), elemAt.max());
+            assertEquals("step: " + i , TestUtils.min(sub), elemAt.min());
+            assertEquals("step: " + i , TestUtils.max(sub), elemAt.max());
 
             for (int j = i; j < array.length; j++) {
-                assertTrue("cursor.setMin caused crush", elemAt.contains(array[j]));
+                assertTrue("step: " + i + " element does not contain " + array[j], elemAt.contains(array[j]));
             }
             for (int j = 0; j < i; j++) {
-                assertTrue("cursor.setMin caused crush", !elemAt.contains(array[j]));
+                if (!TestUtils.contains(sub, array[j]))
+                    assertTrue("step: " + i + " element should not contain " + array[j], !elemAt.contains(array[j]));
             }
         }
         // ---------------------------------------------------------------------------------
@@ -81,16 +92,18 @@ public class TestIntExpElementAt extends TestCase {
             } catch (Failure f) {
                 fail("test failed due to incorrect behaviour of IntVar.removeValue(int)");
             }
+            int[] sub = TestUtils.subArray(array, i+1, array.length - 1);
 
             // check min() max()
-            assertEquals(TestUtils.min(TestUtils.subArray(array, i + 1, array.length - 1)), elemAt.min());
-            assertEquals(TestUtils.max(TestUtils.subArray(array, i + 1, array.length - 1)), elemAt.max());
+            assertEquals("step: " + i , TestUtils.min(sub), elemAt.min());
+            assertEquals("step: " + i , TestUtils.max(sub), elemAt.max());
 
             for (int j = i + 1; j < array.length; j++) {
-                assertTrue("cursor.removeValue caused crush ", elemAt.contains(array[j]));
+                assertTrue("step: " + i + " " + "cursor.removeValue caused crush ", elemAt.contains(array[j]));
             }
             for (int j = 0; j <= i; j++) {
-                assertTrue("cursor.removeValue caused crush ", !elemAt.contains(array[j]));
+                if (!TestUtils.contains(sub, array[j]))
+                  assertTrue("step: " + i + " " + "cursor.removeValue caused crush ", !elemAt.contains(array[j]));
             }
         }
         // ---------------------------------------------------------------------------------
@@ -106,14 +119,17 @@ public class TestIntExpElementAt extends TestCase {
             }
 
             // check min() max()
-            assertEquals(TestUtils.min(TestUtils.subArray(array, 0, array.length - 1 - i)), elemAt.min());
-            assertEquals(TestUtils.max(TestUtils.subArray(array, 0, array.length - 1 - i)), elemAt.max());
+            int[] sub = TestUtils.subArray(array, 0, array.length - 1 - i);
+
+            assertEquals("step: " + i , TestUtils.min(sub), elemAt.min());
+            assertEquals("step: " + i , TestUtils.max(sub), elemAt.max());
 
             for (int j = array.length - i; j < array.length; j++) {
-                assertTrue("cursor.setMax caused crush", !elemAt.contains(array[j]));
+                if (!TestUtils.contains(sub, array[j]))
+                   assertTrue("cursor.setMax caused crush", !elemAt.contains(array[j]));
             }
             for (int j = 0; j < array.length - i; j++) {
-                assertTrue("cursor.setMax caused crush", elemAt.contains(array[j]));
+                    assertTrue("cursor.setMax caused crush", elemAt.contains(array[j]));
             }
         }
     }
