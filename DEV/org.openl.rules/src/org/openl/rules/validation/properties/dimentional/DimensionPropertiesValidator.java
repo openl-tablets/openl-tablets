@@ -11,16 +11,14 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.ExecutableMethod;
-
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
@@ -145,8 +143,8 @@ public class DimensionPropertiesValidator extends TablesValidator {
     private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {        
         List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
         for (IOpenMethod method : methods) {
-            if (method instanceof ExecutableRulesMethod) {
-                properties.add(((ExecutableMethod) method).getProperties());
+            if (method instanceof ITablePropertiesMethod) {
+                properties.add(((ITablePropertiesMethod) method).getProperties());
             }
         }
         return properties;
