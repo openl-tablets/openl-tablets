@@ -11,18 +11,14 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,6 +43,10 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
@@ -59,6 +59,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
@@ -102,6 +103,9 @@ public class RepositoryTreeController {
     @ManagedProperty("#{temporaryRevisionsStorage}")
     private TemporaryRevisionsStorage temporaryRevisionsStorage;
 
+    private RulesProjectResolver projectResolver;
+    private DependencyResolverForRevision dependencyResolver;
+
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     private String projectName;
@@ -116,6 +120,11 @@ public class RepositoryTreeController {
     private String filterString;
     private boolean hideDeleted;
 
+    private boolean openDependencies = true;
+    private AProject currentProject;
+
+    private Map<String, String[]> templateNamesCache = new HashMap<String, String[]>();
+
     public PathFilter getZipFilter() {
         return zipFilter;
     }
@@ -126,8 +135,6 @@ public class RepositoryTreeController {
 
     /**
      * Adds new file to active node (project or folder).
-     * 
-     * @return
      */
     public String addFile() {
         if (getLastUploadedFile() == null) {
@@ -209,6 +216,7 @@ public class RepositoryTreeController {
     public String editProject() {
         try {
             repositoryTreeState.getSelectedProject().edit();
+            openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -234,6 +242,134 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
+    }
+
+    public boolean getHasDependingProjects() {
+        return !getDependingProjects().isEmpty();
+    }
+
+    public List<String> getDependingProjects() {
+        List<String> projects = new ArrayList<String>();
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        if (selectedProject != null) {
+            String name = selectedProject.getName();
+
+            for (ProjectDescriptor projectDescriptor : studio.getAllProjects()) {
+                if (projectDescriptor.getDependencies() != null) {
+                    for (ProjectDependencyDescriptor dependency : projectDescriptor.getDependencies()) {
+                        if (dependency.getName().equals(name)) {
+                            projects.add(projectDescriptor.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return projects;
+    }
+
+    public boolean getHasDependencies() {
+       return !getDependencies(getSelectedProject(), false).isEmpty();
+    }
+
+    public boolean getHasDependenciesForVersion() {
+        if (!getIsOpenVersionDialogOpened()) {
+            return false;
+        }
+        if (version == null) {
+            return false;
+        }
+        try {
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                    new CommonVersionImpl(version));
+            return !getDependencies(newVersion, false).isEmpty();
+        } catch (ProjectException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            return false;
+        }
+    }
+
+    public Collection<String> getDependencies() {
+        if (!repositoryTreeState.getCanOpen() && !repositoryTreeState.getCanEdit()) {
+            // Because ui:repeat ignores the "rendered" property, here is a workaround to reduce performance drop.
+            return Collections.emptyList();
+        }
+        List<String> dependencies = new ArrayList<String>(getDependencies(getSelectedProject(), true));
+        Collections.sort(dependencies);
+        return dependencies;
+    }
+
+    public Collection<String> getDependenciesForVersion() {
+        if (version == null || !getIsOpenVersionDialogOpened()) {
+            // Because ui:repeat ignores the "rendered" property, here is a workaround to reduce performance drop.
+            return Collections.emptyList();
+        }
+        try {
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                    new CommonVersionImpl(version));
+            List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
+            Collections.sort(dependencies);
+            return dependencies;
+        } catch (RepositoryException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            return Collections.emptyList();
+        }
+    }
+
+    private Collection<String> getDependencies(AProject project, boolean recursive) {
+        Collection<String> dependencies = new HashSet<String>();
+        if (project != null) {
+            calcDependencies(dependencies, project, recursive);
+        }
+        return dependencies;
+    }
+
+    private void calcDependencies(Collection<String> result, AProject project, boolean recursive) {
+        List<ProjectDependencyDescriptor> dependencies;
+        try {
+            dependencies = dependencyResolver.getDependencies(project);
+            if (dependencies == null) {
+                return;
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            // Skip this dependency
+            return;
+        }
+
+        for (ProjectDependencyDescriptor dependency : dependencies) {
+            try {
+                AProject dependentProject = userWorkspace.getProject(dependency.getName(), false);
+                if (canOpen(dependentProject)) {
+                    result.add(dependency.getName());
+                }
+
+                if (recursive) {
+                    calcDependencies(result, dependentProject, true);
+                }
+            } catch (ProjectException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    private boolean canOpen(AProject theProject) {
+        if (!(theProject instanceof UserWorkspaceProject)) {
+            return false;
+        }
+
+        UserWorkspaceProject project = (UserWorkspaceProject) theProject;
+        return !project.isLocalOnly() && !project.isOpenedForEditing() && !project.isOpened() && !project.isDeleted();
     }
 
     public String copyDeploymentProject() {
@@ -897,6 +1033,7 @@ public class RepositoryTreeController {
     public String openProject() {
         try {
             repositoryTreeState.getSelectedProject().open();
+            openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -907,6 +1044,14 @@ public class RepositoryTreeController {
         return null;
     }
 
+    private void openDependenciesIfNeeded() throws ProjectException {
+        if (openDependencies) {
+            for (String dependency : getDependencies(getSelectedProject(), true)) {
+                userWorkspace.getProject(dependency).open();
+            }
+        }
+    }
+
     public String openProjectVersion() {
         try {
             if (repositoryTreeState.getSelectedProject().isOpenedForEditing()) {
@@ -914,6 +1059,7 @@ public class RepositoryTreeController {
             }
 
             repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
+            openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -926,6 +1072,7 @@ public class RepositoryTreeController {
 
     public String openProjectVersion(String version) {
         this.version = version;
+        openDependencies = true;
         openProjectVersion();
 
         return null;
@@ -1039,7 +1186,7 @@ public class RepositoryTreeController {
 
         this.setFileName(FilenameUtils.getName(file.getName()));
 
-        if (fileName.indexOf(".") > -1) {
+        if (fileName.contains(".")) {
             this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
         } else {
             this.setProjectName(fileName);
@@ -1158,8 +1305,6 @@ public class RepositoryTreeController {
 
     /**
      * Updates file (active node)
-     * 
-     * @return
      */
     public String updateFile() {
         String errorMessage = uploadAndUpdateFile();
@@ -1215,7 +1360,7 @@ public class RepositoryTreeController {
     }
 
     private String createProject() {
-        String errorMessage = null;
+        String errorMessage;
 
         if (StringUtils.isNotBlank(projectName)) {
             if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
@@ -1301,7 +1446,7 @@ public class RepositoryTreeController {
     }
 
     private String uploadProject() {
-        String errorMessage = null;
+        String errorMessage;
 
         if (StringUtils.isNotBlank(projectName)) {
             UploadedFile uploadedItem = getLastUploadedFile();
@@ -1340,9 +1485,14 @@ public class RepositoryTreeController {
     }
 
     public String[] getProjectTemplates(String category) {
+        String[] names = templateNamesCache.get(category);
+        if (names != null) {
+            return names;
+        }
+
         List<String> templateNames = new ArrayList<String>();
         ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-        Resource[] templates = null;
+        Resource[] templates;
 
         try {
             // JAR file
@@ -1369,7 +1519,9 @@ public class RepositoryTreeController {
             log.error("Failed to get project templates", e);
         }
 
-        return templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[0]);
+        names = templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[templateNames.size()]);
+        templateNamesCache.put(category, names);
+        return names;
     }
 
     private ProjectFile[] getProjectTemplateFiles(String url) {
@@ -1389,7 +1541,7 @@ public class RepositoryTreeController {
             log.error("Failed to get project template: " + url, e);
         }
 
-        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[0]);
+        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
     }
 
     public boolean getCanDelete() {
@@ -1415,4 +1567,41 @@ public class RepositoryTreeController {
     private void resetStudioModel() {
         studio.reset(ReloadType.FORCED);
     }
+
+    public boolean isOpenDependencies() {
+        return openDependencies;
+    }
+
+    public void setOpenDependencies(boolean openDependencies) {
+        this.openDependencies = openDependencies;
+    }
+
+    private AProject getSelectedProject() {
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
+        if (artefact instanceof AProject) {
+            return (AProject) artefact;
+        }
+        return null;
+    }
+
+    @PostConstruct
+    public void init() {
+        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
+    }
+
+    public boolean getIsOpenVersionDialogOpened() {
+        if (currentProject != getSelectedProject()) {
+            currentProject = null;
+            version = null;
+            return false;
+        }
+        return true;
+    }
+
+    public void openVersionDialogListener(AjaxBehaviorEvent event) {
+        currentProject = getSelectedProject();
+        version = currentProject.getVersion().getVersionName();
+    }
+
 }
