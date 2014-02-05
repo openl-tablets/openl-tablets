@@ -22,7 +22,13 @@
             <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision" />
             <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
                 <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
+                <f:ajax event="change" render="@form" execute="@form"/>
             </h:selectOneMenu>
+            <h:panelGroup rendered="#{repositoryTreeController.hasDependenciesForVersion}">
+                <h:outputText value="Also open dependencies: "/>
+                <ui:repeat value="#{repositoryTreeController.dependenciesForVersion}" var="project">#{project} </ui:repeat>
+            </h:panelGroup>
+            <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" rendered="#{repositoryTreeController.hasDependenciesForVersion}"/>
           </h:panelGrid>
     
           <h:panelGroup rendered="#{node.type == 'project' and artefact.opened and systemConfig['user.mode'] == 'single'}">

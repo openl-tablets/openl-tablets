@@ -16,7 +16,14 @@
 
     <h:form id="closeProjectForm">
       <h:panelGroup id="modalCloseProjectData">
-        <h:outputText value="NOTE: Project '#{node.name}' will be removed from the workspace." />
+        <h:outputText value="Project '#{node.name}' will be removed from the workspace." />
+        <h:panelGroup rendered="#{repositoryTreeState.canClose and repositoryTreeController.hasDependingProjects}">
+            <div>
+            NOTE: Projects
+            <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project">#{project}</ui:repeat>
+            which have dependency on this project are still opened.
+            </div>
+        </h:panelGroup>
       </h:panelGroup>
 
       <hr />
