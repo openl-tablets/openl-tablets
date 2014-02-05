@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.lang.xls.binding.TableVersionComparator;
+import org.openl.rules.method.ITablePropertiesMethod;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -123,7 +127,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return this;
     }
 
-	public List<IOpenMethod> getCandidates() {
+    public List<IOpenMethod> getCandidates() {
         return candidates;
     }
 
@@ -137,7 +141,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         IRuntimeContext context = env.getContext();
 
         if (context == null) {
-            //Using empty context: all methods will be matched by properties.
+            // Using empty context: all methods will be matched by properties.
             context = new DefaultRulesRuntimeContext();
         }
 
@@ -155,13 +159,52 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             sb.append("\n");
             sb.append("Context: ");
             sb.append(context.toString());
-            
-            String message = String.format("Appropriate overloaded method for '%1$s' not found. Details: \n%2$s", getName(), sb.toString());
-            
+
+            String message = String.format("Appropriate overloaded method for '%1$s' not found. Details: \n%2$s",
+                getName(),
+                sb.toString());
+
             throw new OpenLRuntimeException(message);
         }
 
         return method.invoke(target, params, env);
+    }
+
+    /**
+     * In case we have several versions of one table we should add only the
+     * newest or active version of table.
+     * 
+     * @param newMethod The methods that we are trying to add.
+     * @param key Method key of these methods based on signature.
+     * @param existedMethod The existing method.
+     */
+    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) throws DuplicatedMethodException {
+        int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
+        if (compareResult > 0) {
+            return newMethod;
+        } else if (compareResult == 0) {
+            if (newMethod != existedMethod) {
+                throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status and properties set!",
+                    existedMethod.getName()),
+                    existedMethod);
+            }
+        }
+        return existedMethod;
+    }
+    
+    private int searchTheSameMethod(IOpenMethod candidate) {
+        int i = 0;
+        for (IOpenMethod existedMethod : candidates) {
+            if (existedMethod instanceof ITablePropertiesMethod && candidate instanceof ITablePropertiesMethod) {
+                DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(existedMethod);
+                DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(candidate);
+                if (newMethodPropertiesKey.equals(existedMethodPropertiesKey)) {
+                    return i;
+                }
+            }
+            i++;
+        }
+        return -1;
     }
 
     /**
@@ -180,7 +223,14 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // methods and delegate cannot be overloaded by candidate.
         //
         if (delegateKey.equals(candidateKey)) {
-            candidates.add(candidate);
+            int i = searchTheSameMethod(candidate);
+            if (i < 0) {
+                candidates.add(candidate);
+            } else {
+                IOpenMethod existedMethod = candidates.get(i); 
+                candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
+                candidates.set(i, candidate);
+            }
         } else {
             // Throw appropriate exception.
             //

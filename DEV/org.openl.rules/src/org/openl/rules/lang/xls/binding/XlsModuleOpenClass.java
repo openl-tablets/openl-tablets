@@ -27,10 +27,8 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.ColumnMatchBoundNode;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
-import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -187,15 +185,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
             }
         });
 
-        // Since all methods are delegated, we should not hold references to constructor parameters in enhanced classes.
+        // Since all methods are delegated, we should not hold references to
+        // constructor parameters in enhanced classes.
         // That's why we pass nulls to constructors.
         if (openMethod instanceof DeferredMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { String.class,
                     IOpenClass.class,
                     IMethodSignature.class,
                     IOpenClass.class,
-                    ISyntaxNode.class },
-                new Object[] { null, null, null, null, null });
+                    ISyntaxNode.class }, new Object[] { null, null, null, null, null });
         }
         if (openMethod instanceof CompositeMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, IBoundMethodNode.class },
@@ -206,8 +204,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 new Object[] { null, null });
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class },
-                new Object[] { null });
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class }, new Object[] { null });
         }
         if (openMethod instanceof DecisionTable) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AMethodBasedNode.class },
@@ -225,9 +222,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         if (openMethod instanceof TableMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class,
                     IBoundMethodNode.class,
-                    MethodTableBoundNode.class }, new Object[] { null,
-                    null,
-                    null });
+                    MethodTableBoundNode.class }, new Object[] { null, null, null });
         }
 
         if (openMethod instanceof JavaOpenMethod) {
@@ -288,18 +283,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 IOpenMethod m = decorateForMultimoduleDispatching(method);
                 decorator.addMethod(m);
             } else {
-                boolean differentVersionsOfTheTable = false;
-                if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
-                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(existedMethod);
-                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(method);
-                    differentVersionsOfTheTable = newMethodPropertiesKey.equals(existedMethodPropertiesKey);
-                }
-                if (differentVersionsOfTheTable) {
-                    useActiveOrNewerVersion((ExecutableRulesMethod) existedMethod, (ExecutableRulesMethod) method, key);
-                } else {
-                    IOpenMethod m = decorateForMultimoduleDispatching(method);
-                    createMethodDispatcher(m, key, existedMethod);
-                }
+                IOpenMethod m = decorateForMultimoduleDispatching(method);
+                createMethodDispatcher(m, key, existedMethod);
             }
         } else {
             // Just add original method.
@@ -325,23 +310,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     public void addDispatcherMethod(OpenMethodDispatcher dispatcher) {
         for (IOpenMethod candidate : dispatcher.getCandidates()) {
             addMethod(candidate);
-        }
-    }
-
-    /**
-     * In case we have several versions of one table we should add only the
-     * newest or active version of table.
-     * 
-     * @param newMethod The methods that we are trying to add.
-     * @param key Method key of these methods based on signature.
-     * @param existedMethod The existing method.
-     */
-    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod,
-            ExecutableRulesMethod newMethod,
-            MethodKey key) {
-        if (new TableVersionComparator().compare(existedMethod, newMethod) >= 0) {
-            IOpenMethod m = decorateForMultimoduleDispatching(newMethod);
-            methodMap().put(key, m);
         }
     }
 

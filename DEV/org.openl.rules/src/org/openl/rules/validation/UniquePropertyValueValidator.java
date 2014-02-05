@@ -14,6 +14,7 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -126,8 +127,8 @@ public class UniquePropertyValueValidator extends TablesValidator {
             public boolean evaluate(Object arg0) {
                 IOpenMethod method = (IOpenMethod) arg0;
                 
-                if (method instanceof ExecutableRulesMethod) {
-                    ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) method;
+                if (method instanceof ITablePropertiesMethod) {
+                    ITablePropertiesMethod executableMethod = (ITablePropertiesMethod) method;
                     if (executableMethod.getMethodProperties() == null || 
                             executableMethod.getMethodProperties().getActive() == null) {
                         // if property is not mentioned, consider it is true by default.

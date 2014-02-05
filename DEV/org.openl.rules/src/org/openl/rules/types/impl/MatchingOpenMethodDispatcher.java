@@ -42,7 +42,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private XlsModuleOpenClass moduleOpenClass;
 
     private List<IOpenMethod> candidatesSorted;
-    
+
     private ATableTracerNode traceObject;
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
@@ -58,38 +58,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     public void addMethod(IOpenMethod candidate) {
-        int pos = searchForTheSameTable(candidate);
-        if (pos == -1) {
-            // add new candidate
-            super.addMethod(candidate);
-            candidatesSorted = null;
-        } else {
-            // replace by newer or active
-            if (new TableVersionComparator().compare(getCandidates().get(pos), candidate) > 0) {
-                getCandidates().set(pos, candidate);
-            }
-        }
+        super.addMethod(candidate);
+        candidatesSorted = null;
     }
-
-    /**
-     * For different versions of the some table we should use in dispatching
-     * only the newest or active table.
-     */
-    private int searchForTheSameTable(IOpenMethod method) {
-        DimensionPropertiesMethodKey methodKey = new DimensionPropertiesMethodKey(method);
-        for (int i = 0; i < getCandidates().size(); i++) {
-            IOpenMethod candidate = getCandidates().get(i);
-            if (methodKey.equals(new DimensionPropertiesMethodKey(candidate))) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-    	Object returnResult = null;
-    	traceObject = null;
+        Object returnResult = null;
+        traceObject = null;
         Tracer tracer = Tracer.getTracer();
 
         /**
@@ -102,9 +77,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         traceObject = getTracedObject(selected, params);
         tracer.push(traceObject);
         try {
-        	returnResult = super.invoke(target, params, env);
+            returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
-            traceObject.setError(e);            
+            traceObject.setError(e);
             throw e;
         } finally {
             tracer.pop();
@@ -136,7 +111,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
             } catch (OpenLRuntimeException e) {
                 ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0],
-                        params);
+                    params);
                 traceObject.setError(e);
                 return traceObject;
             }
@@ -157,30 +132,30 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new OpenLRuntimeException(String.format(
-                        "No matching methods for the context. Details: \n%1$s\nContext: %2$s", toString(candidates),
-                        context.toString()));
+                throw new OpenLRuntimeException(String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
+                    toString(candidates),
+                    context.toString()));
 
             case 1:
-            	
-            	IOpenMethod matchingMethod = selected.iterator().next();
-            	// TODO : refactor
-            	// traceObject shouldn`t be the field of the class.
-            	// trace information should be set only into trace method.
-            	//
-            	if (Tracer.isTracerOn()) {
+
+                IOpenMethod matchingMethod = selected.iterator().next();
+                // TODO : refactor
+                // traceObject shouldn`t be the field of the class.
+                // trace information should be set only into trace method.
+                //
+                if (Tracer.isTracerOn()) {
                     traceObject.setResult(matchingMethod);
                 }
-            	
+
                 return matchingMethod;
 
             default:
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new OpenLRuntimeException(String.format(
-                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(selected),
-                        context.toString()));
+                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
+                    toString(selected),
+                    context.toString()));
         }
 
     }
@@ -206,15 +181,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        //If more that one method
+        // If more that one method
         if (selected.size() > 1) {
             List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
 
             List<String> notNullPropertyNames = getNotNullPropertyNames(context);
-            //Find the most high priority method
+            // Find the most high priority method
             IOpenMethod mostPriority = null;
             ITableProperties mostPriorityProperties = null;
-
 
             for (IOpenMethod candidate : selected) {
                 if (mostPriority == null) {
@@ -223,7 +197,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 } else {
                     boolean nested = false;
                     boolean contains = false;
-                    
+
                     ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
                     int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
                     if (cmp < 0) {
@@ -268,7 +242,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             selected.removeAll(notPriorMethods);
         }
     }
-    
+
     private int compareMaxMinPriorities(ITableProperties properties1, ITableProperties properties2) {
         for (Comparator<ITableProperties> comparator : prioritySorter.getMaxMinPriorityRules()) {
             int cmp = comparator.compare(properties1, properties2);
@@ -279,7 +253,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return 0;
     }
 
-     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
 
         List<String> notNullPropertyNames = getNotNullPropertyNames(context);
@@ -327,7 +301,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return candidatesSorted;
     }
 
-// <<< INSERT MatchingProperties >>>
+    // <<< INSERT MatchingProperties >>>
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
         List<String> propNames = new ArrayList<String>();
 
@@ -368,5 +342,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }

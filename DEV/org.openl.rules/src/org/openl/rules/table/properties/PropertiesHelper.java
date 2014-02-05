@@ -3,7 +3,7 @@ package org.openl.rules.table.properties;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
@@ -31,8 +31,8 @@ public class PropertiesHelper {
     }
 
     public static ITableProperties getTableProperties(IOpenMethod method) {
-        if (method instanceof ExecutableRulesMethod) {
-            return ((ExecutableRulesMethod) method).getMethodProperties();
+        if (method instanceof ITablePropertiesMethod) {
+            return ((ITablePropertiesMethod) method).getMethodProperties();
         } else if (method.getInfo() != null) {
             TableProperties properties = new TableProperties();
             Map<String, Object> definedInTable = method.getInfo().getProperties();
@@ -52,8 +52,8 @@ public class PropertiesHelper {
     }
 
     public static Map<String, Object> getMethodProperties(IOpenMethod method) {
-        if (method instanceof ExecutableRulesMethod) {
-            return ((ExecutableRulesMethod) method).getProperties();
+        if (method instanceof ITablePropertiesMethod) {
+            return ((ITablePropertiesMethod) method).getProperties();
         } else if (method.getInfo() != null) {
             return method.getInfo().getProperties();
         } else if (method instanceof MethodDelegator) {

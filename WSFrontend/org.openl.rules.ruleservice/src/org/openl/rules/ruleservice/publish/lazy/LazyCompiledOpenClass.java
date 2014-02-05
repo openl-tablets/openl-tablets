@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;

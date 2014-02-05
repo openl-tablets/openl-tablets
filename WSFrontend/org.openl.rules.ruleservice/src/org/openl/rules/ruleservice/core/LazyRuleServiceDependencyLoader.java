@@ -16,6 +16,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -27,6 +28,7 @@ import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClassCache;
 import org.openl.rules.ruleservice.publish.lazy.LazyField;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
+import org.openl.rules.ruleservice.publish.lazy.TablePropertiesLazyMethod;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -59,7 +61,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     public CompiledOpenClass compile(final String dependencyName,
-            final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException{
+            final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException {
         CompiledOpenClass compiledOpenClass = LazyCompiledOpenClassCache.getInstance().get(deployment, dependencyName);
         if (compiledOpenClass != null) {
             if (log.isDebugEnabled()) {
@@ -157,23 +159,43 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                                 for (int i = 0; i < argTypes.length; i++) {
                                     argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
                                 }
-                                return new LazyMethod(method.getName(),
-                                    argTypes,
-                                    method,
-                                    dependencyManager,
-                                    classLoader,
-                                    true,
-                                    parameters) {
-                                    @Override
-                                    public DeploymentDescription getDeployment(IRuntimeEnv env) {
-                                        return deployment;
-                                    }
+                                if (method instanceof ITablePropertiesMethod) {
+                                    return new TablePropertiesLazyMethod(method.getName(),
+                                        argTypes,
+                                        method,
+                                        dependencyManager,
+                                        classLoader,
+                                        true,
+                                        parameters) {
+                                        @Override
+                                        public DeploymentDescription getDeployment(IRuntimeEnv env) {
+                                            return deployment;
+                                        }
 
-                                    @Override
-                                    public Module getModule(IRuntimeEnv env) {
-                                        return declaringModule;
-                                    }
-                                };
+                                        @Override
+                                        public Module getModule(IRuntimeEnv env) {
+                                            return declaringModule;
+                                        }
+                                    };
+                                } else {
+                                    return new LazyMethod(method.getName(),
+                                        argTypes,
+                                        method,
+                                        dependencyManager,
+                                        classLoader,
+                                        true,
+                                        parameters) {
+                                        @Override
+                                        public DeploymentDescription getDeployment(IRuntimeEnv env) {
+                                            return deployment;
+                                        }
+
+                                        @Override
+                                        public Module getModule(IRuntimeEnv env) {
+                                            return declaringModule;
+                                        }
+                                    };
+                                }
                             }
 
                             private LazyField makeLazyField(IOpenField field) {
@@ -246,7 +268,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 isCompiledOnce = true;
             }
             if (lazyCompiledDependency == null) {
-                CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager, this,
+                CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager,
+                    this,
                     new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)));
                 lazyCompiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             }
