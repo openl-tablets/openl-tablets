@@ -136,6 +136,23 @@
                             var newPage = $location.utils.setParams(currentPage, params);
                             goTo(newPage);
                         }
+                    },
+                    // prefixPage wiil be removed when Global Search will be implemented
+                    search: function(params, prefixPage) {
+                        var query;
+
+                        if (params) {
+                            // Simple Search by text
+                            if (params.constructor === String) {
+                                query = "query=" + encodeURIComponent(params);
+
+                                // Advanced Search
+                            } else {
+                                query = $j.param(params);
+                            }
+                        }
+
+                        goTo(prefixPage + "search" + (query ? "?" + query : ""));
                     }
                 },
 
@@ -296,25 +313,6 @@
             } else {
                 message("#{msg['ws.common.error.500']}", 7000);
             }
-        }
-
-        // Deprecated
-        // TODO Move to ws.nav namespace
-        function search(params) {
-            var query;
-
-            if (params) {
-                // Simple Search by text
-                if (params.constructor === String) {
-                    query = "query=" + encodeURIComponent(params);
-
-                    // Advanced Search
-                } else {
-                    query = $j.param(params);
-                }
-            }
-
-            goTo("search" + (query ? "?" + query : ""));
         }
 
         // Deprecated
