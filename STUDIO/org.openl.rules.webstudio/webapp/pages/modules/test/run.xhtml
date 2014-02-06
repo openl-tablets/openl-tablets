@@ -17,7 +17,7 @@
 
     <div class="view_header">
         <h:outputText value="Results of running "/>
-        <h:outputLink value="#table.xhtml">
+        <h:outputLink value="#{studio.url('table')}">
             <f:param name="uri" value="#{runBean.uri}" />
             <h:outputText value="#{runBean.tableName}" />
         </h:outputLink>

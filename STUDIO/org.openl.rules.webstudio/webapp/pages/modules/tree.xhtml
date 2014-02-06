@@ -43,7 +43,7 @@
                     </div>
                     <h:commandLink title="Recently visited tables" styleClass="imageButton"
                         style="background:url('webresource/images/menu.png'); border: 0; background-color: transparent !important; margin: 0 0 0 2px; padding: 5px 11px;opacity:0.5"
-                        onclick="sessionStorage.setItem(SHOW_HISTORY_ITEM,'true'); reloadLeft(); return false;" />
+                        onclick="reloadLeft(toHistoryPanel); return false;" />
                 </h:panelGroup>
             </h:form>
         </div>

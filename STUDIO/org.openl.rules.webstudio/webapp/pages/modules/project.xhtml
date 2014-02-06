@@ -114,14 +114,7 @@
 
                             <div id="#{i.index}currentModule" class="list-item editable-inner">
                                 <div>
-                                    <h:form style="display: inline">
-                                        <a4j:commandLink action="#{mainBean.selectModule}"
-                                            oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
-                                            #{module.name}
-                                            <f:param name="project" value="#{project.name}" />
-                                            <f:param name="module" value="#{module.name}" />
-                                        </a4j:commandLink>
-                                    </h:form>
+                                    <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
                                 <h:panelGroup rendered="#{needJavaClassName}">
@@ -260,7 +253,7 @@
             <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo('project.xhtml?name=' + encodeURIComponent('#{project.name}'), true)}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo(encodeURIComponent('#{project.name}'), true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </footer>
         </h:form>

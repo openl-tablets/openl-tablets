@@ -7,7 +7,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.util.StringTool;
 
 public class MessageHandler {
-    
+
     /**
      * Gets the url to the source of message.
      * 
@@ -18,7 +18,7 @@ public class MessageHandler {
     public String getSourceUrl(OpenLMessage message, ProjectModel model) {
         String url = null;
         String errorUri = getUri(message);
-        String tableUri = errorUri;//WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
+        String tableUri = errorUri; //WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
         if (StringUtils.isNotBlank(tableUri)) {
             url = getUrl(model, tableUri, errorUri, message);
         }
@@ -31,39 +31,43 @@ public class MessageHandler {
      * @param message
      * @return
      */
-    public String getUrlForEmptySource(OpenLMessage message) {
-        return "#message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
+    public String getUrlForEmptySource(OpenLMessage message, ProjectModel model) {
+        return model.getStudio().url("message" + "?type" + "=" + message.getSeverity().name()
+                + "&summary" + "=" + StringTool.encodeURL(message.getSummary()));
     }
     
     protected String getUri(OpenLMessage message) {
-        //Default implementation
+        // Default implementation
         return null;
     }
     
     protected String getUrl(ProjectModel model, String tableUri, String errorUri, OpenLMessage message) {
         String url = null;
-        if (model.tableBelongsToCurrentModule(tableUri)) { // table belongs to current module.
-            url = getUrlForCurrentModule(errorUri, tableUri);
-        } else { // table belongs to dependency module.                    
-            url = getUrlForDependencyModule(message);
+        if (model.tableBelongsToCurrentModule(tableUri)) {
+            // Table belongs to current module
+            url = getUrlForCurrentModule(errorUri, tableUri, model);
+        } else {
+            // Table belongs to dependent module
+            url = getErrorUrlForDependency(message, model);
         }
         return url;
     }    
-    
-    private String getUrlForCurrentModule(String errorUri, String tableUri) {
+
+    private String getUrlForCurrentModule(String errorUri, String tableUri, ProjectModel model) {
         String url = null;        
 
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        url = "#table.xhtml?uri=" + StringTool.encodeURL(tableUri);
+        url = "table?uri=" + StringTool.encodeURL(tableUri);
         if (StringUtils.isNotBlank(uriParser.cell)) {
             url += "&errorCell=" + uriParser.cell;
         }
-        return url;
+        return model.getStudio().url(url);
     }
-    
-    private String getUrlForDependencyModule(OpenLMessage message) {
-        return DependencyModuleUrlStub.getUrlForError(message);
+
+    private String getErrorUrlForDependency(OpenLMessage message, ProjectModel model) {
+        return model.getStudio().url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "="
+                + StringTool.encodeURL(String.format("Dependency error: %s", message.getSummary())));
     }
 
 }

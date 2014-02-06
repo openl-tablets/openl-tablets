@@ -40,6 +40,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -620,6 +621,38 @@ public class WebStudio {
     public void destroy() {
         if (model != null) {
             model.destroy();
+        }
+    }
+
+    /**
+     * Normalizes page urls: inserts project and module names.
+     *
+     * Example:
+     *   Page Url =       create/
+     *   Normalized Url = #tutorial1/rules/create/
+     */
+    public String url(String pageUrl) {
+        if (StringUtils.isBlank(pageUrl)) {
+            return StringUtils.EMPTY;
+        }
+
+        try {
+        String projectName = getCurrentProjectDescriptor().getName();
+        String moduleName = getCurrentModule().getName();
+
+        if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
+            return "#" + pageUrl;
+        }
+
+        return new StringBuilder()
+                .append("#")
+                .append(StringTool.encodeURL(projectName)).append("/")
+                .append(StringTool.encodeURL(moduleName)).append("/")
+                .append(pageUrl)
+                .toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
         }
     }
 

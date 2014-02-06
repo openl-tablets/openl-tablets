@@ -102,7 +102,7 @@ public class ProblemsBean {
         url = messageHandler.getSourceUrl(message, model);
 
         if (StringUtils.isBlank(url)) {
-            url = messageHandler.getUrlForEmptySource(message);
+            url = messageHandler.getUrlForEmptySource(message, model);
         }
 
         return url;
