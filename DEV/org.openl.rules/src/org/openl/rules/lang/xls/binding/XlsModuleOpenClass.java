@@ -125,7 +125,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
             @Override
             public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-                if (method.getName().equals("invoke")) {
+                if ("hashCode".equals(method.getName()) && args.length == 0) { // Methods
+                                                                               // doesn't
+                                                                               // override
+                                                                               // equals
+                                                                               // and
+                                                                               // hashCode
+                                                                               // methods
+                    return System.identityHashCode(object);
+                }
+                if ("equals".equals(method.getName()) && args.length == 1) {
+                    return object == args[0];
+                }
+                if ("invoke".equals(method.getName())) {
                     AOpenClass topModule = topModuleRef.get();
                     if (topModule == null) {
                         boolean access = method.isAccessible();
