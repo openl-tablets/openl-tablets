@@ -92,7 +92,7 @@
             	data="#{facesContext.maximumSeverity}"
                 oncomplete="if(!event.data)  go('property/step3.xhtml')" />
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
-                oncomplete="goTo('create/index.xhtml')" />
+                oncomplete="go('step0.xhtml')" />
         </h:form>
 
         <rich:popupPanel id="newPropertyDlg" width="290" top="100" left="200" autosized="true">

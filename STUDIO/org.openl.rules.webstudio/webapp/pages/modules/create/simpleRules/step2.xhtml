@@ -175,7 +175,7 @@
                 data="#{facesContext.maximumSeverity}"
                 oncomplete="if(!event.data) go('simpleRules/step3.xhtml')" />
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
-                oncomplete="goTo('create/index.xhtml')" />
+                oncomplete="go('step0.xhtml')" />
 
         </h:form>
         <div id="srtPopupDiv" style="display: none">

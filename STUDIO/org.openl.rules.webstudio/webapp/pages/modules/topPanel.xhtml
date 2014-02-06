@@ -7,18 +7,20 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
-    <ui:include src="/pages/modules/updateModule.xhtml" />
-    <ui:include src="/pages/modules/exportModule.xhtml" />
-
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
     <c:set var="module" value="#{studio.currentModule}" />
+
+    <h:panelGroup rendered="#{!empty module and studio.model.editable}">
+        <ui:include src="/pages/modules/updateModule.xhtml" />
+        <ui:include src="/pages/modules/exportModule.xhtml" />
+    </h:panelGroup>
 
     <h:panelGroup id="topPanel" layout="block">
         <h:form id="headerForm" prependId="false">
             <div class="buttonPanel">
                 <span class="breadcrumbs" style="margin-right:30px">
-                    <span><a href="#home.xhtml">Projects</a></span>
+                    <span><a href="#{contextPath}">Projects</a></span>
                     <h:panelGroup rendered="#{!empty rProject.name}">
                     <span class="delimeter"></span>
                     <span class="dropdown">
@@ -27,39 +29,30 @@
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-header">Current Project</li>
-                            <li><a href="#project.xhtml?name=#{jsffn:encodeURL(rProject.name)}">#{rProject.name}</a></li>
+                            <li><a href="##{jsffn:encodeURL(rProject.name)}">#{rProject.name}</a></li>
                             <li class="divider"></li>
                             <li class="nav-header">All Projects</li>
                             <ui:repeat value="#{studio.allProjects}" var="pr">
-                            <li><a href="#project.xhtml?name=#{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
+                            <li><a href="##{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
                             </ui:repeat>
                         </ul>
                     </span>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module.name}">
                     <span class="delimeter"></span>
-                    <span>
-                        <h:form style="display:inline">
-                            <span class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    #{module.name}
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li class="nav-header">Current Module</li>
-                                    <li><a href="#module.xhtml?#{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
-                                    <li class="divider"></li>
-                                    <li class="nav-header">All Modules</li>
-                                    <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
-                                        <li><a4j:commandLink action="#{mainBean.selectModule}"
-                                                oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(m.name)}', true)">
-                                                #{m.name}
-                                                <f:param name="project" value="#{rProject.name}" />
-                                                <f:param name="module" value="#{m.name}" />
-                                            </a4j:commandLink></li>
-                                    </ui:repeat>
-                                </ul>
-                            </span>
-                        </h:form>
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            #{module.name}
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="nav-header">Current Module</li>
+                            <li><a href="##{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
+                            <li class="divider"></li>
+                            <li class="nav-header">All Modules</li>
+                            <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
+                                <li><a href="##{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(m.name)}">#{m.name}</a></li>
+                            </ui:repeat>
+                        </ul>
                     </span>
                     </h:panelGroup>
                     <span style="margin-left:4px;">
@@ -85,10 +78,10 @@
                         rendered="#{!empty module and studio.model.editable}" />
                 </a4j:ajax>
 
-                <h:outputLink value="#test/test.xhtml"
+                <h:outputLink value="#{studio.url('test/test')}"
                     title="Run #{treeBean.projectTestsCount} Test(s)"
                     rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}"
-                    styleClass="button button-dropdown" onclick="test(event)">Test</h:outputLink>
+                    styleClass="button button-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test</h:outputLink>
                 <h:panelGroup class="dropdown dropdown-form"
                         rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
@@ -136,7 +129,7 @@
                         <li class="divider"></li>
                         <li>
                             <span style="padding:6px 18px 7px">
-                                <a href="#test/test.xhtml" class="button" onclick="test(event)">Test</a>
+                                <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
                             </span>
                         </li>
                     </ul>
@@ -144,10 +137,11 @@
 
                 <h:panelGroup rendered="#{!empty module and (studio.model.canCreateTable or studio.model.canEditProject)}">
                     <span class="delimeter"></span>
-                    <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
+                    <h:outputLink rendered="#{studio.model.canCreateTable}" value="#{studio.url('create/index')}"
                         title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
                     <h:outputLink id="topRevertLink" rendered="#{studio.model.canEditProject}"
-                        value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button">Revert</h:outputLink>
+                        value="#{studio.url('revert')}" title="Compare and/or roll back module changes against a specific date"
+                        styleClass="button">Revert</h:outputLink>
                 </h:panelGroup>
 
                 <span class="delimeter"></span>
@@ -158,7 +152,7 @@
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
-                        <li><a tabindex="-1" href="#rulesDependencies.xhtml">Table Dependencies</a></li>
+                        <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
                         </h:panelGroup>
                         <li><a tabindex="-1" target="_blank"
                             onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
@@ -181,7 +175,7 @@
                 </h:panelGroup>
 
                 <div style="float:right;position:relative;margin-right:20px;display:inline-block">
-                    <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
+                    <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
                         <ui:include src="/pages/modules/searchForm.xhtml" />
                     </h:panelGroup>
                 </div>
@@ -191,10 +185,10 @@
 
     <script>
         // TODO Add to namespace
-        function test(e) {
+        function test(e, testUrl) {
             e.preventDefault();
             var query = $j("#testSettings").find("select,input").serialize();
-            goTo("test/test.xhtml?" + query);
+            goTo(testUrl + "?" + query);
         }
     </script>
 

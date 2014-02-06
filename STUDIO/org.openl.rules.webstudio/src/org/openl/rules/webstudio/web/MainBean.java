@@ -8,7 +8,8 @@ import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.rules.project.instantiation.ReloadType;
-//import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -34,6 +35,35 @@ public class MainBean {
         return StringUtils.EMPTY;
     }
 
+    public void init() throws Exception {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+
+        String projectName = FacesUtils.getRequestParameter("project");
+        String moduleName = FacesUtils.getRequestParameter("module");
+
+        if (StringUtils.isNotBlank(projectName)) {
+            ProjectDescriptor project = studio.getCurrentProjectDescriptor();
+
+            // Select project
+            if (StringUtils.isNotBlank(moduleName)) {
+                Module module = studio.getCurrentModule();
+                if (project != null && module != null
+                        && !project.getName().equals(projectName)
+                        && !module.getName().equals(moduleName))
+                // Delete all previous cached config
+                OpenL.reset();
+                OpenLConfiguration.reset();
+                studio.selectModule(projectName, moduleName);
+
+            // Select module
+            } else {
+                if (project != null && !project.getName().equals(projectName)) {
+                    studio.selectProject(projectName);
+                }
+            }
+        }
+    }
+
     public void saveProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.saveProject(FacesUtils.getSession());
@@ -53,17 +83,6 @@ public class MainBean {
                                             // frames is asynchronous and we
                                             // should build tree before the
                                             // 'content' frame
-    }
-
-    public void selectModule() throws Exception {
-        /* delete all previous cached config */
-        OpenL.reset();
-        OpenLConfiguration.reset();
-        
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        String projectName = FacesUtils.getRequestParameter("project");
-        String moduleName = FacesUtils.getRequestParameter("module");
-        studio.selectModule(projectName, moduleName);
     }
 
     public void clearModule() throws Exception {
