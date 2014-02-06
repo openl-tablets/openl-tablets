@@ -117,6 +117,25 @@ public class ParserTest extends TestCase {
         return (T) it.select(ASelector.selectClass(nodeType)).next();
     }
 
+
+    public void _testErrorMsg(String src, String messageStart)
+    {
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+
+        SyntaxNodeException[] errors = pc.getErrors();
+
+        if (errors.length == 0)
+          throw new RuntimeException("This expression must produce an error!");
+
+        String message = errors[0].getMessage();
+
+        if (!message.startsWith(messageStart))
+            throw new RuntimeException(String.format("'%s' should start with '%s'", message, messageStart));
+
+
+    }
+
     @SuppressWarnings("unchecked")
     public void _testType(String src, final String type) throws OpenConfigurationException {
 
@@ -178,12 +197,33 @@ public class ParserTest extends TestCase {
         _testType("sin(5, 10)", "function");
     }
 
+    public void testErr1() throws OpenConfigurationException {
+
+        _testErrorMsg("sin(5, 10", "Need to close '('");
+    }
+
+    public void testErr2() throws OpenConfigurationException {
+        _testErrorMsg("\"abc", "Need to close");
+    }
+
+    public void testErr3() throws OpenConfigurationException {
+        _testErrorMsg("x=y{y=z}", "Encountered");
+    }
+
+    public void testErr4() throws OpenConfigurationException {
+        _testErrorMsg("return u", "Encountered");
+    }
+
+    public void testErr5() throws OpenConfigurationException {
+        _testErrorMsg("\"ab\\zc\"", "Unexpected symbol 'z'");
+    }
+
     public void testIf() {
         _testType("if (x) a();", "control.if");
     }
-    
-    
-    
+
+
+
 
     public void testLiteral() throws OpenConfigurationException {
         // we should remove suffix the next line produces NumberFormatException
