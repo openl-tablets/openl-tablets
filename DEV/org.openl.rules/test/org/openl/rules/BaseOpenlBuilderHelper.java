@@ -1,5 +1,6 @@
 package org.openl.rules;
 
+import java.io.File;
 import java.util.Map.Entry;
 
 import org.junit.Assert;
@@ -114,7 +115,22 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     public void build(String fileToBuildWrapper) {
-        buildXlsModuleSyntaxNode(fileToBuildWrapper);
+
+       String file = checkExist(fileToBuildWrapper);
+
+
+        buildXlsModuleSyntaxNode(file);
+    }
+
+    protected String checkExist(String fileToBuildWrapper) {
+        File f = new File(fileToBuildWrapper);
+        if (f.exists())
+            return fileToBuildWrapper;
+        // to accomodate IDEA project default dir
+        String ideaFile = "DEV/org.openl.rules/" + fileToBuildWrapper;
+        if (new File(ideaFile).exists())
+            return ideaFile;
+        throw new RuntimeException("Can not find files " + new File(fileToBuildWrapper).getAbsolutePath() + " or " + new File(ideaFile).getAbsolutePath());
     }
 
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {

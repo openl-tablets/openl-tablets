@@ -129,7 +129,7 @@ public class DateDifferenceTest {
     public void testDayDifference2() {
         Date startDate = getDate(dateFormatWithHours, "31/12/1971 11:00");
         
-        Date endDate = getDate(dateFormatWithHours, "01/01/1972 00:00");
+        Date endDate = getDate(dateFormatWithHours, "01/01/1972 10:59");
         
         assertEquals(0, DateDifference.getDifferenceInDays(endDate, startDate));
     }

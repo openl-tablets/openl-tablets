@@ -97,7 +97,7 @@ import org.openl.ie.constrainer.*;
           new GoalGenerate (openWarehouses),
           new GoalGenerate (storeAssign)
         ),
-        cost
+        cost,true, false
       )
     );
     System.out.println("Optimal cost    :" + cost.toString ());
