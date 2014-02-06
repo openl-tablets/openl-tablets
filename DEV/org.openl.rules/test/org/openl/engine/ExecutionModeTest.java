@@ -12,6 +12,7 @@ import java.util.Calendar;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -26,7 +27,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class ExecutionModeTest {
+public class ExecutionModeTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDTExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Tutorial_4_Test.xls");
@@ -41,7 +42,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testMethodExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Tutorial_4_Test.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(checkExist("./test/rules/Tutorial_4_Test.xls"));
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -74,7 +75,7 @@ public class ExecutionModeTest {
     public void testSpreadsheetExecution() throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
-                "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
+                checkExist("./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls"));
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -92,7 +93,7 @@ public class ExecutionModeTest {
     @Test
     public void testColumnMatchExecution() throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/cmatch1/match4-1.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(checkExist("./test/rules/cmatch1/match4-1.xls"));
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();

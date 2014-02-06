@@ -54,6 +54,11 @@
    <artifactId>org.openl.rules.webstudio</artifactId>
    <version>${project.version}</version>
   </dependency>
+
+     <dependency>
+         <groupId>org.apache.velocity</groupId>
+         <artifactId>velocity</artifactId>
+     </dependency>
  </dependencies>
 
  <build>

@@ -16,7 +16,7 @@ package scheduler;
 ///////////////////////////////////////////////////////////////////////////////
 
 import org.openl.ie.constrainer.*;
-import com.exigen.ie.scheduler.*;
+import org.openl.ie.scheduler.*;
 
 /**
  */

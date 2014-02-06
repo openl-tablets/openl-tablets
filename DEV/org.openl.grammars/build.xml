@@ -2,7 +2,7 @@
 <!-- 
 basedir is eclipse.project.dir 
 -->
-<project name="pre.build" default="build.all" basedir="..">
+<project name="pre.build" default="build.all" basedir="../org.openl.grammars">
 
 <property name="grammar.dir" value="grammar"/>
 <property name="grammar.src.output.dir" value="src/org/openl/grammar"/>

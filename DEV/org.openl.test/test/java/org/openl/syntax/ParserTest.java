@@ -178,11 +178,31 @@ public class ParserTest extends TestCase {
         _testType("sin(5, 10)", "function");
     }
 
+    public void testErr1() throws OpenConfigurationException {
+        _testType("sin(5, 10", "function");
+    }
+
+    public void testErr2() throws OpenConfigurationException {
+        _testType("\"abc", "function");
+    }
+
+    public void testErr3() throws OpenConfigurationException {
+        _testType("x=y{y=z}", "function");
+    }
+
+    public void testErr4() throws OpenConfigurationException {
+        _testType("return u", "function");
+    }
+    
+    public void testErr5() throws OpenConfigurationException {
+        _testType("\"ab\\zc\"", "function");
+    }
+    
     public void testIf() {
         _testType("if (x) a();", "control.if");
     }
-    
-    
+
+
     
 
     public void testLiteral() throws OpenConfigurationException {
@@ -261,5 +281,9 @@ public class ParserTest extends TestCase {
         _testNumberParseAndBind(new DoubleNodeBinder(), "1e+308", Double.valueOf("1e+308"), double.class);
         _testNumberParseAndBind(new DoubleNodeBinder(), "2e+308", new BigDecimal("2e+308"), BigDecimal.class);
     }
+
+
+
+
 
 }
