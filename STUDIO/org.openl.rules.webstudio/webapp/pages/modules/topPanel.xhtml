@@ -9,6 +9,7 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
+    <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
     <h:panelGroup rendered="#{!empty module and studio.model.editable}">
@@ -25,16 +26,20 @@
                     <span class="delimeter"></span>
                     <span class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            #{rProject.name}
+                            #{project.name}
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-header">Current Project</li>
-                            <li><a href="##{jsffn:encodeURL(rProject.name)}">#{rProject.name}</a></li>
+                            <li><a href="##{jsffn:encodeURL(project.name)}">#{project.name}</a></li>
+                            <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
                             <li class="divider"></li>
                             <li class="nav-header">All Projects</li>
                             <ui:repeat value="#{studio.allProjects}" var="pr">
+                            <h:panelGroup rendered="#{pr.name != project.name}">
                             <li><a href="##{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
+                            </h:panelGroup>
                             </ui:repeat>
+                            </h:panelGroup>
                         </ul>
                     </span>
                     </h:panelGroup>
@@ -46,12 +51,16 @@
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-header">Current Module</li>
-                            <li><a href="##{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
+                            <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
+                            <h:panelGroup rendered="#{studio.currentProjectDescriptor.modules.size() > 1}">
                             <li class="divider"></li>
                             <li class="nav-header">All Modules</li>
                             <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
-                                <li><a href="##{jsffn:encodeURL(rProject.name)}/#{jsffn:encodeURL(m.name)}">#{m.name}</a></li>
+                                <h:panelGroup rendered="#{m.name != module.name}">
+                                <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(m.name)}">#{m.name}</a></li>
+                                </h:panelGroup>
                             </ui:repeat>
+                            </h:panelGroup>
                         </ul>
                     </span>
                     </h:panelGroup>
