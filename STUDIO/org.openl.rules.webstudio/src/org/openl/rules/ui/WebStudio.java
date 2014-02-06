@@ -633,14 +633,14 @@ public class WebStudio {
      */
     public String url(String pageUrl) {
         if (StringUtils.isBlank(pageUrl)) {
-            return StringUtils.EMPTY;
+            pageUrl = StringUtils.EMPTY;
         }
 
-        try {
         String projectName = getCurrentProjectDescriptor().getName();
         String moduleName = getCurrentModule().getName();
 
-        if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
+        if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName))
+                && StringUtils.isNotBlank(pageUrl)) {
             return "#" + pageUrl;
         }
 
@@ -650,10 +650,6 @@ public class WebStudio {
                 .append(StringTool.encodeURL(moduleName)).append("/")
                 .append(pageUrl)
                 .toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
 }
