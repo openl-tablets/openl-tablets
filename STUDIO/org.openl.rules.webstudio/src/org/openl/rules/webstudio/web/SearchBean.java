@@ -73,7 +73,7 @@ public class SearchBean {
         initProperties();
 
         if (((HttpServletRequest) FacesUtils.getRequest())
-                .getRequestURI().contains("search?"))  {
+                .getRequestURI().contains("search.xhtml"))  {
             initSearchQuery();
             search();
         }
