@@ -71,8 +71,6 @@ protected org.openl.util.text.TextInterval pos(Token t1, Token t2)
 
         }
 
-
-//
 public void parseTopNode(String type)
 {
         try
@@ -93,7 +91,6 @@ public void parseTopNode(String type)
         }
         catch (ParseException pe)
         {
-
                 //pe.printStackTrace();
                 //throw pe;
                 syntaxBuilder.addError(
@@ -895,26 +892,7 @@ String func = null;
                    syntaxBuilder.nop("identifier.sequence", null, args);
   }
 
-//void FilterExpression() :
-//{Token x1; int args = 1;}
-//{
-//	SimpleFilter() ("or" | "and") FilterExpression()
-//	|
-//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  
-//}
-//
-//void SimpleFilter() :
-//{}
-//{
-//	Word("identifier.filter")
-//}
-//
-//
-//void SimpleNotFilter() :
-//{}
-//{
-//	"not" Word("identifier.filter.not")
-//}
+//void FilterExpression() ://{Token x1; int args = 1;}//{//	SimpleFilter() ("or" | "and") FilterExpression()//	|//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  //}////void SimpleFilter() ://{}//{//	Word("identifier.filter")//}//////void SimpleNotFilter() ://{}//{//	"not" Word("identifier.filter.not")//}
   final public void Word(String type) throws ParseException {
  Token x1;
     x1 = jj_consume_token(IDENTIFIER);
@@ -3526,6 +3504,17 @@ String func = null;
     finally { jj_save(33, xla); }
   }
 
+  private boolean jj_3R_79() {
+    if (jj_scan_token(TIME_FORMAT_LITERAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_213() {
+    if (jj_scan_token(TILDE)) return true;
+    if (jj_3R_209()) return true;
+    return false;
+  }
+
   private boolean jj_3_25() {
     if (jj_3R_59()) return true;
     return false;
@@ -5806,17 +5795,6 @@ String func = null;
   private boolean jj_3R_214() {
     if (jj_scan_token(BANG)) return true;
     if (jj_3R_209()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_213() {
-    if (jj_scan_token(TILDE)) return true;
-    if (jj_3R_209()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_79() {
-    if (jj_scan_token(TIME_FORMAT_LITERAL)) return true;
     return false;
   }
 

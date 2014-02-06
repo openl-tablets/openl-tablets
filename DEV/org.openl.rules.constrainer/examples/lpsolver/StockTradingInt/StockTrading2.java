@@ -280,7 +280,7 @@ public class StockTrading2 {
       problem.addVar((IntVar)sellingOrders.get(i));
     }
 
-    DataOutputStream fstr = new DataOutputStream(new FileOutputStream("c:\\temp\\StockTradingOut.txt"));
+    DataOutputStream fstr = new DataOutputStream(new FileOutputStream("d:\\output\\StockTrading\\out.txt"));
     fstr.writeBytes("Variables: \n");
     for (int i=0;i<problem.nbVars();i++){
       fstr.writeBytes("" + i + ":" + problem.getVar(i).name()+"\n");

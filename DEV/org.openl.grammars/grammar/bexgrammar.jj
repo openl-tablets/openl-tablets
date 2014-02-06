@@ -86,8 +86,6 @@ protected org.openl.util.text.TextInterval pos(Token t1, Token t2)
 
 	}
 
-
-
 public void parseTopNode(String type)
 {
 	try
@@ -478,11 +476,7 @@ TOKEN :
 	<RANGE_VARIABLE: <IDENTIFIER> ":" <IDENTIFIER>>    
 }
 
-//
-//TOKEN :
-//{
-//  < LABEL: <IDENTIFIER> <COLON> >
-//}
+////TOKEN ://{//  < LABEL: <IDENTIFIER> <COLON> >//}
 
 
 
@@ -641,8 +635,7 @@ void EqualityExpression() :
       	| x = "does not equal to"
       	| x = "is different from") { func="ne"; }
       |(x = <STRICT_EQ>) { func="strict_eq"; }
-   	  |(x = <STRICT_NE>) { func="strict_ne"; }
-	)
+   	  |(x = <STRICT_NE>) { func="strict_ne"; }	)
     RelationalExpression()
     {syntaxBuilder.bop("op.binary." + func, pos(x));}
   )*
@@ -867,10 +860,7 @@ void PrimaryPrefix() :
 |
  LOOKAHEAD( function() ) function()
 
-//|
-//LOOKAHEAD(2) 
-//
-//FilterExpression() IdentifierSequence() 
+//|//LOOKAHEAD(2) ////FilterExpression() IdentifierSequence() 
 
 |
 LOOKAHEAD(2)
@@ -924,26 +914,7 @@ void IdentifierSequence() :
 }
 
 
-//void FilterExpression() :
-//{Token x1; int args = 1;}
-//{
-//	SimpleFilter() ("or" | "and") FilterExpression()
-//	|
-//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  
-//}
-//
-//void SimpleFilter() :
-//{}
-//{
-//	Word("identifier.filter")
-//}
-//
-//
-//void SimpleNotFilter() :
-//{}
-//{
-//	"not" Word("identifier.filter.not")
-//}
+//void FilterExpression() ://{Token x1; int args = 1;}//{//	SimpleFilter() ("or" | "and") FilterExpression()//	|//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  //}////void SimpleFilter() ://{}//{//	Word("identifier.filter")//}//////void SimpleNotFilter() ://{}//{//	"not" Word("identifier.filter.not")//}
 
 
 void Word(String type) :
@@ -1259,9 +1230,7 @@ void Literal() :
   <INTEGER_LITERAL>         
   { syntaxBuilder.literal("literal.integer", pos(token), token.image); }
   |
-//  LOOKAHEAD(LiteralBI() "-")
-//  RangeLiteralBinary()
-//  |
+//  LOOKAHEAD(LiteralBI() "-")//  RangeLiteralBinary()//  |
   <BUSINESS_INTEGER_LITERAL>         
   { syntaxBuilder.literal("literal.integer.business", pos(token), token.image); }
   |
@@ -1321,8 +1290,7 @@ void NegLiteralFloat():
 
 void NegLiteralBI():
 {
-  Token x;
-}
+  Token x;}
 {
   x = < MINUS>
   LiteralBI()
@@ -1363,8 +1331,7 @@ void RangeNumber():
 {
 }
 {
-	(
-	  LiteralBI() | NegLiteralBI())
+	(	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.number", null);}
 }
 
@@ -1380,8 +1347,7 @@ void RangePrefix():
 	  x = "<=" {op="le";} |
 	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
 	  x =">=" {op="ge";})
-	(
-	  LiteralBI() | NegLiteralBI())
+	(	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
 }
 
@@ -1391,9 +1357,7 @@ void RangeSuffix():
 	String op; 
 }
 {
-	(
-	  
-	  LiteralBI() | NegLiteralBI())
+	(	  	  LiteralBI() | NegLiteralBI())
 	(x="<" {op="lt";} |
 	x = "<=" {op="le";} | x = "or less" {op="or.less";} | 
 	x = ">" {op="gt";}  |

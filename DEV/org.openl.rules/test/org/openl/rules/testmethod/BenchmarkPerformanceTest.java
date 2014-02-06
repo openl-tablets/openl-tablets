@@ -47,7 +47,7 @@ public class BenchmarkPerformanceTest extends TestCase {
     public void testBenchmark1() throws Exception {
         measureRatio("largeTableTestTestAll", "largeTableIndTestTestAll", 1);  //50 NOT ANYMORE :)
 
-        measureRatio("ampmTo24TestTestAll", "ampmTo24Ind1TestTestAll", 1);
+        measureRatio("ampmTo24TestTestAll", "ampmTo24Ind1TestTestAll", 3);
         measureRatio("ampmTo24TestTestAll", "ampmTo24Ind2TestTestAll", 3);
 
         measureRatio("regionTestTestAll", "regionIndTestTestAll", 3);
