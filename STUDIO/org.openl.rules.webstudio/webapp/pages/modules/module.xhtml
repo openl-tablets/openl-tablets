@@ -7,6 +7,8 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
+    <f:event type="preRenderView" listener="#{modulePageBean.init()}" />
+
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
     <ui:param name="module" value="#{studio.currentModule}" />
@@ -22,7 +24,7 @@
                     <table class="properties">
                         <tr>
                             <td>Project</td>
-                            <td><a href="#project.xhtml?name=#{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
+                            <td><a href="##{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
                         </tr>
                         <tr>
                             <td>Path</td>
@@ -47,14 +49,7 @@
                         <div class="list">
                             <a4j:repeat value="#{modulePageBean.includes}" var="key">
                             <div class="list-item">
-                                <h:form style="display: inline">
-                                    <a4j:commandLink action="#{mainBean.selectModule}"
-                                        oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(studio.currentProject.name)}/#{jsffn:encodeURL(key)}', true)">
-                                        #{key}
-                                        <f:param name="project" value="#{studio.currentProject.name}" />
-                                        <f:param name="module" value="#{key}" />
-                                    </a4j:commandLink>
-                                </h:form>
+                                <a href="##{jsffn:encodeURL(studio.currentProject.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
                             </div>
                             </a4j:repeat>
                         </div>

@@ -68,7 +68,7 @@
                 </td>
                 <td style="padding: 0 7px">
                     <h:panelGroup rendered="#{prop.inheritedProperty and !prop.externalPropery}">
-                        <a href="#table.xhtml?uri=#{prop.inheritedTableUri}"
+                        <a href="#{studio.url('table')}?uri=#{prop.inheritedTableUri}"
                             title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
@@ -89,11 +89,17 @@
         <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}" style="margin: 8px 0" layout="block">
             <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tableDetailsBean.changed ? 'display:inline' : 'display:none'}"
                 action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableUri}"
-                oncomplete="goTo('table.xhtml?uri=' + encodeURIComponent(event.data), true)" />
+                oncomplete="saveComplete(event.data)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
                 rendered="#{!empty tableDetailsBean.propertiesToAdd}" style="margin-left: 4px">Add Property</h:outputLink>
         </h:panelGroup>
     </h:panelGroup>
+
+    <script>
+        function saveComplete(data) {
+            goTo("#{studio.url('table')}?uri=" + encodeURIComponent(data), true);
+        }
+    </script>
 
     <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}">
         <h:panelGroup id="addPropsPanel" layout="block"
