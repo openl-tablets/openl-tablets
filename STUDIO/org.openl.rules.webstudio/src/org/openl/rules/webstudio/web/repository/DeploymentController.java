@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -63,6 +64,8 @@ public class DeploymentController {
     @ManagedProperty("#{temporaryRevisionsStorage}")
     private TemporaryRevisionsStorage temporaryRevisionsStorage;
 
+    private DependencyResolverForRevision dependencyResolver;
+
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
 
@@ -101,20 +104,18 @@ public class DeploymentController {
             return;
         }
 
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        DependencyChecker checker = new DependencyChecker(new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage));
+        DependencyChecker checker = new DependencyChecker(dependencyResolver);
         ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         checker.check(items);
     }
 
-    public boolean isCanDeploy() {
+    public synchronized boolean isCanDeploy() {
         if (!repositoryTreeState.getCanDeploy()) {
             return false;
         }
 
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        DependencyChecker checker = new DependencyChecker(new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage));
+        DependencyChecker checker = new DependencyChecker(dependencyResolver);
         ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         return checker.check();
@@ -349,7 +350,7 @@ public class DeploymentController {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
-    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
+    public synchronized void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
         this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 
@@ -399,4 +400,9 @@ public class DeploymentController {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 
+    @PostConstruct
+    public synchronized void init() {
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
+    }
 }

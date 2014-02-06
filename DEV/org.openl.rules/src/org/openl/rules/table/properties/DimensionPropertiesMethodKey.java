@@ -20,14 +20,14 @@ import org.openl.types.impl.MethodKey;
  */
 public class DimensionPropertiesMethodKey {
     
-    private IOpenMethod executableMethod;
+    private IOpenMethod method;
     
     public DimensionPropertiesMethodKey(IOpenMethod method) {
-        this.executableMethod = method;
+        this.method = method;
     }
 
     public IOpenMethod getMethod() {
-        return executableMethod;
+        return method;
     }
     
     @Override
@@ -38,10 +38,10 @@ public class DimensionPropertiesMethodKey {
         DimensionPropertiesMethodKey key = (DimensionPropertiesMethodKey) obj;
 
         EqualsBuilder equalsBuilder = new EqualsBuilder();
-        equalsBuilder.append(new MethodKey(executableMethod), new MethodKey(key.getMethod()));
+        equalsBuilder.append(new MethodKey(method), new MethodKey(key.getMethod()));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            Object propertyValue1 = PropertiesHelper.getMethodProperties(executableMethod).get(
+            Object propertyValue1 = PropertiesHelper.getMethodProperties(method).get(
                     dimensionalPropertyNames[i]);
             Object propertyValue2 = PropertiesHelper.getMethodProperties(key.getMethod()).get(
                     dimensionalPropertyNames[i]);
@@ -60,9 +60,9 @@ public class DimensionPropertiesMethodKey {
     @Override
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(new MethodKey(executableMethod));
+        hashCodeBuilder.append(new MethodKey(method));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(executableMethod);
+        Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
         if (methodProperties != null) {
             for (int i = 0; i < dimensionalPropertyNames.length; i++) {
                 hashCodeBuilder.append(methodProperties.get(dimensionalPropertyNames[i]));
@@ -74,17 +74,17 @@ public class DimensionPropertiesMethodKey {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(new MethodKey(executableMethod));
+        stringBuilder.append(new MethodKey(method));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         
         stringBuilder.append('[');
-        if (PropertiesHelper.getMethodProperties(executableMethod) != null) {
+        if (PropertiesHelper.getMethodProperties(method) != null) {
             for (int i = 0; i < dimensionalPropertyNames.length; i++) {
                 if (i != 0) {
                     stringBuilder.append(',');
                 }
                 stringBuilder.append(dimensionalPropertyNames[i]).append('=');
-                stringBuilder.append(PropertiesHelper.getTableProperties(executableMethod)
+                stringBuilder.append(PropertiesHelper.getTableProperties(method)
                     .getPropertyValueAsString(dimensionalPropertyNames[i]));
             }
         }        

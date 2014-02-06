@@ -16,9 +16,16 @@
 
     <h:form id="openProjectForm">
       <h:panelGroup id="modalOpenProjectData">
-        <h:outputText value="NOTE: Project data in the workspace will be replaced by data of the last version." />
-        </h:panelGroup>
+        <h:outputText value="NOTE: Project data in the workspace will be replaced by data of the last version."  rendered="#{repositoryTreeState.canOpen and not repositoryTreeController.hasDependencies}"/>
 
+        <h:panelGrid columns="2" rendered="#{repositoryTreeState.canOpen and repositoryTreeController.hasDependencies}">
+          <h:panelGroup>
+            <h:outputText value="Also open dependencies:"/>
+            <ui:repeat value="#{repositoryTreeController.dependencies}" var="project">#{project} </ui:repeat>
+          </h:panelGroup>
+          <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" />
+        </h:panelGrid>
+      </h:panelGroup>
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">

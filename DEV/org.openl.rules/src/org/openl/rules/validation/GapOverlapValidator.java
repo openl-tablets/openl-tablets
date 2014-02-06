@@ -58,8 +58,6 @@ public class GapOverlapValidator extends TablesValidator {
                             addError(decisionTable.getSyntaxNode(), dtValidResult.toString());
                         else
                             addWarning(decisionTable.getSyntaxNode(), dtValidResult.toString());
-                           
-                            
                     }
                 }
             }

@@ -113,6 +113,15 @@ public class ProjectBean {
     }
 
     // TODO Move messages to ValidationMessages.properties
+    public void validatePropertiesFileNameProcessor(FacesContext context, UIComponent toValidate, Object value) {
+        String className = (String) value;
+
+        if (!StringUtils.isBlank(className)) {
+            FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+        }
+    }
+
+    // TODO Move messages to ValidationMessages.properties
     public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
@@ -293,6 +302,14 @@ public class ProjectBean {
     private void clean(ProjectDescriptor descriptor) {
         if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
             descriptor.setClasspath(null);
+        }
+
+        if (StringUtils.isBlank(descriptor.getPropertiesFileNamePattern())) {
+            descriptor.setPropertiesFileNamePattern(null);
+        }
+
+        if (StringUtils.isBlank(descriptor.getPropertiesFileNameProcessor())) {
+            descriptor.setPropertiesFileNameProcessor(null);
         }
 
         List<Module> modules = descriptor.getModules();

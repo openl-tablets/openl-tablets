@@ -248,6 +248,21 @@
                     <td>Description</td>
                     <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px" /></td>
                 </tr>
+                <tr>
+                    <td>Properties pattern for a file name</td>
+                    <td><h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}" /></td>
+                </tr>
+                <tr>
+                    <td>File name processor class</td>
+                    <td><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
+                                     validator="#{projectBean.validatePropertiesFileNameProcessor}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="propertiesFileNameProcessor" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
             </table>
 
             <footer>
@@ -421,6 +436,8 @@
         var initDependencies2 = $j("#dependenciesTable tr.active > td:last-child input").map(function(){return this.checked}).get();
 
         var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
+        var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
+        var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
         function editProject() {
             var btn = $j("#editProjectBtn");
@@ -428,14 +445,20 @@
             btn.prop("disabled", true);
             $j("#projectName").val(initProjectName);
             $j("#projectDescription").val(initProjectDescription);
+            $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
+            $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
             $j("#editProjectForm span.error").remove();
 
             ws.ui.show("editProjectPopup");
 
-            $j("#projectName, #projectDescription").on("keyup", function() {
+            $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("keyup", function() {
                 var name = $j("#projectName").val();
                 var description = $j("#projectDescription").val();
-                btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription));
+                var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
+                var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
+                btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription &&
+                                propertiesFileNamePattern == initPropertiesFileNamePattern &&
+                                propertiesFileNameProcessor == initPropertiesFileNameProcessor));
             })
         }
 

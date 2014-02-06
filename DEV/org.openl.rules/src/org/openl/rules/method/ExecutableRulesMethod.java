@@ -13,7 +13,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod {
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod{
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be

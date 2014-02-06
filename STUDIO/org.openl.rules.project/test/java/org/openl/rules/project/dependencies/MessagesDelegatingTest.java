@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
@@ -26,7 +27,7 @@ public class MessagesDelegatingTest {
     private RulesProjectDependencyManager dependencyManager;
 
     @Before
-    public void init() throws Exception{
+    public void init() throws Exception {
         rulesFolder = new File("test/resources/modules_with_errors/");
         ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath()
             .isRulesProject(rulesFolder);
@@ -75,13 +76,26 @@ public class MessagesDelegatingTest {
 
     @Test
     public void testMessagesGatheringInMultimodule() throws Exception {
-        List<Module> forGrouping = new ArrayList<Module>(); 
+        List<Module> forGrouping = new ArrayList<Module>();
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
         CompiledOpenClass compiledMultiModule = strategy.compile();
-        for(Module module: modules){
+        for (Module module : modules) {
+            CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
+            compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
+        }
+    }
+
+    @Test(expected = DuplicatedMethodException.class)
+    public void testDublicateTableDefenitionInMultimodule() throws Exception {
+        List<Module> forGrouping = new ArrayList<Module>();
+        forGrouping.add(findModuleByName("Rules3"));
+        forGrouping.add(findModuleByName("Rules6"));
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
+        CompiledOpenClass compiledMultiModule = strategy.compile();
+        for (Module module : modules) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }

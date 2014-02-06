@@ -122,7 +122,7 @@ public class TableBean {
             }
 
             initProblems();
-            initTests(model);        
+            initTests(model);
             initParams();
 
             //Save last visited table
@@ -237,7 +237,7 @@ public class TableBean {
     }
 
     public boolean isDispatcherValidationNode() {
-        return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+        return table != null && table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
     public String getEncodedUri() {
@@ -362,7 +362,7 @@ public class TableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        return table.isExecutable() && isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
+        return table != null && table.isExecutable() && isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
 
     public boolean isEditable() {
