@@ -14,7 +14,8 @@ import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Lazy method that will return real object from dependency manager. Dependency Manager is responsible for loading/unloading modules.
+ * Lazy method that will return real object from dependency manager. Dependency
+ * Manager is responsible for loading/unloading modules.
  * 
  * @author PUdalau, Marat Kamalov
  */
@@ -56,5 +57,4 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return getMember(env).invoke(target, params, env);
     }
-
 }

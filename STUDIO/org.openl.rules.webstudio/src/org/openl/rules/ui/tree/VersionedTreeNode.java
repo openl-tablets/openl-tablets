@@ -18,16 +18,21 @@ import org.openl.rules.ui.IProjectTypes;
  * @author PUdalau
  */
 public class VersionedTreeNode extends ProjectTreeNode {
-    
+
     private TableSyntaxNode linkedChild;
 
     public VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
-        super(displayName, String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(), null, null, 0, null);
+        super(displayName,
+            String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(),
+            null,
+            null,
+            0,
+            null);
     }
 
     @Override
     public String getType() {
-    	return String.format("%s.%s", IProjectTypes.PT_TABLE, linkedChild.getType()).intern();        
+        return String.format("%s.%s", IProjectTypes.PT_TABLE, linkedChild.getType()).intern();
     }
 
     @Override
@@ -83,6 +88,6 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     public static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
-        return new TableVersionComparator().compare(first, second);
+        return TableVersionComparator.getInstance().compare(first, second);
     }
 }

@@ -56,7 +56,7 @@ public class TableDetailsBean {
 
         IOpenLTable table = getTable();
 
-        if (table.isCanContainProperties()) {
+        if (table != null && table.isCanContainProperties()) {
             editable = WebStudioUtils.getProjectModel().isCanEditTable(uri) && !table.getTechnicalName().startsWith(
                     DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
             initPropertyGroups(table, table.getProperties());

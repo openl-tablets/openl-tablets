@@ -111,6 +111,8 @@ public class ProjectModel {
 
     private Module moduleInfo;
 
+    private boolean openedInSingleModuleMode;
+
     private InstantiationStrategyFactory instantiationStrategyFactory;
 
     private ProjectIndexer indexer;
@@ -154,6 +156,7 @@ public class ProjectModel {
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
         this.instantiationStrategyFactory = new InstantiationStrategyFactory(studio);
+        this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
     }
 
     public RulesProject getProject() {
@@ -1032,13 +1035,13 @@ public class ProjectModel {
     }
 
     public void reset(ReloadType reloadType) throws Exception {
-        boolean singleModuleMode = shouldOpenInSingleMode(moduleInfo);
+        Module moduleToOpen = moduleInfo;
         switch (reloadType) {
             case FORCED:
                 OpenL.reset();
                 OpenLConfiguration.reset();
                 ClassLoaderFactory.reset();
-                this.moduleInfo = studio.getCurrentModule();
+                moduleToOpen = studio.getCurrentModule();
                 // falls through
             case RELOAD:
                 instantiationStrategyFactory.reset();
@@ -1047,7 +1050,7 @@ public class ProjectModel {
                 // do nothing
                 break;
         }
-        setModuleInfo(moduleInfo, reloadType, singleModuleMode);
+        setModuleInfo(moduleToOpen, reloadType);
         projectRoot = null;
     }
 
@@ -1216,6 +1219,7 @@ public class ProjectModel {
         } else {
             this.moduleInfo = moduleInfo;
         }
+        openedInSingleModuleMode = singleModuleMode;
 
         indexer = new ProjectIndexer(projectFolder.getAbsolutePath());
 
@@ -1551,6 +1555,14 @@ public class ProjectModel {
      */
     private boolean shouldOpenInSingleMode(Module module) {
         if (module != null) {
+            if (moduleInfo != null) {
+                ProjectDescriptor project = moduleInfo.getProject();
+                ProjectDescriptor newProject = module.getProject();
+                if (project.getName().equals(newProject.getName())) {
+                    return openedInSingleModuleMode;
+                }
+            }
+
             if (instantiationStrategyFactory.isOpenedAsSingleMode(module)) {
                 return true;
             }

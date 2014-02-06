@@ -17,8 +17,17 @@ import org.openl.util.conf.Version;
  * @return -1 if the first later or "active", 1 if second later "active" and 0
  *         if tables are "inactive" and have similar versions
  */
-public class TableVersionComparator implements Comparator<ITableProperties> {
+public final class TableVersionComparator implements Comparator<ITableProperties> {
 
+    private static final TableVersionComparator INSTANCE = new TableVersionComparator();
+
+    public static TableVersionComparator getInstance() {
+        return INSTANCE;
+    }
+    
+    private TableVersionComparator() {
+    }
+    
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
             throw new IllegalArgumentException("Uncomparable tables. Tasbles should have similar name,signature and dimension properties.");
@@ -33,7 +42,7 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
     public int compare(ITableProperties first, ITableProperties second) {
         boolean firstActive = first.getActive() == null || first.getActive();
         boolean secondActive = second.getActive() == null || second.getActive();
-        
+
         if (firstActive != secondActive) {
             if (firstActive) {
                 return -1;
@@ -42,13 +51,14 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
             }
         }
         Version firstNodeVersion = parseVersionForComparison(first.getVersion());
-        Version secondNodeVersion =parseVersionForComparison(second.getVersion());
+        Version secondNodeVersion = parseVersionForComparison(second.getVersion());
         return secondNodeVersion.compareTo(firstNodeVersion);
     }
 
-    private static Version DEFAULT_VERSION = Version.parseVersion("0.0.0",0, "..");
-    private static Version parseVersionForComparison(String version){
-    	Log log = LogFactory.getLog(TableVersionComparator.class);
+    private static Version DEFAULT_VERSION = Version.parseVersion("0.0.0", 0, "..");
+
+    private static Version parseVersionForComparison(String version) {
+        Log log = LogFactory.getLog(TableVersionComparator.class);
         try {
             return Version.parseVersion(version, 0, "..");
         } catch (RuntimeException e) {

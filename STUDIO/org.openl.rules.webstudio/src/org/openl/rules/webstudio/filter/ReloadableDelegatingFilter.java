@@ -118,6 +118,11 @@ public class ReloadableDelegatingFilter implements Filter {
                 }
                 filterChain.doFilter(request, response);
             }
+        } catch (ServletException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            throw e;
         } finally {
             read.unlock();
         }

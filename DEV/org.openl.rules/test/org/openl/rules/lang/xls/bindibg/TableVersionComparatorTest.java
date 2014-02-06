@@ -15,7 +15,7 @@ public class TableVersionComparatorTest {
 
     @Before
     public void setUp() {
-        comparator = new TableVersionComparator();
+        comparator = TableVersionComparator.getInstance();
         first = new TableProperties();
         second = new TableProperties();
     }
