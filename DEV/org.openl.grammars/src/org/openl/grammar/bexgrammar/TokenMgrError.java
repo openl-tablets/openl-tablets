@@ -2,8 +2,10 @@
 /* JavaCCOptions: */
 package org.openl.grammar.bexgrammar;
 
+import org.openl.grammar.BaseTokenMgrError;
+
 /** Token Manager Error. */
-public class TokenMgrError extends Error
+public class TokenMgrError extends BaseTokenMgrError
 {
 
   /**
@@ -141,7 +143,7 @@ public class TokenMgrError extends Error
 
   /** Full Constructor. */
   public TokenMgrError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar, int reason) {
-    this(LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
+	super(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar, reason, LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar));
   }
 }
 /* JavaCC - OriginalChecksum=e1bafb503a3f6829e044853e46953834 (do not edit this line) */
