@@ -63,7 +63,7 @@ public class MainBean {
 
             // Select module
             } else {
-                if (project != null && !project.getName().equals(projectName)) {
+                if (project == null || !project.getName().equals(projectName)) {
                     studio.selectProject(projectName);
                 }
             }

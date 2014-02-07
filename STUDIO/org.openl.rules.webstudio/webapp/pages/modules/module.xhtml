@@ -7,8 +7,6 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
-    <f:event type="preRenderView" listener="#{modulePageBean.init()}" />
-
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
     <ui:param name="module" value="#{studio.currentModule}" />
