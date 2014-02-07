@@ -41,6 +41,12 @@ public class MainBean {
         String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
 
+        if (StringUtils.isBlank(projectName) && StringUtils.isBlank(moduleName)) {
+            // Clear project/module on Home page
+            studio.setCurrentModule(null);
+            return;
+        }
+
         if (StringUtils.isNotBlank(projectName)) {
             ProjectDescriptor project = studio.getCurrentProjectDescriptor();
 
@@ -83,11 +89,6 @@ public class MainBean {
                                             // frames is asynchronous and we
                                             // should build tree before the
                                             // 'content' frame
-    }
-
-    public void clearModule() throws Exception {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setCurrentModule(null);
     }
 
 }
