@@ -635,7 +635,7 @@ public class WebStudio {
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;
         }
-        try {
+
         String projectName = getCurrentProjectDescriptor().getName();
         String moduleName = getCurrentModule().getName();
 
@@ -650,10 +650,6 @@ public class WebStudio {
                 .append(StringTool.encodeURL(moduleName)).append("/")
                 .append(pageUrl)
                 .toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
 }
