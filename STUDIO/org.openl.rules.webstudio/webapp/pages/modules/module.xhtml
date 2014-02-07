@@ -22,7 +22,7 @@
                     <table class="properties">
                         <tr>
                             <td>Project</td>
-                            <td><a href="##{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
+                            <td><a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}">#{studio.currentProjectDescriptor.name}</a></td>
                         </tr>
                         <tr>
                             <td>Path</td>
@@ -47,7 +47,7 @@
                         <div class="list">
                             <a4j:repeat value="#{modulePageBean.includes}" var="key">
                             <div class="list-item">
-                                <a href="##{jsffn:encodeURL(studio.currentProject.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
+                                <a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
                             </div>
                             </a4j:repeat>
                         </div>
