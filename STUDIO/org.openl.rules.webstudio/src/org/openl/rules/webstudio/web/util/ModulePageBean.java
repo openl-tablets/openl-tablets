@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.WebStudio;
 
@@ -17,14 +16,6 @@ import org.openl.rules.ui.WebStudio;
 @RequestScoped
 public class ModulePageBean {
     private WebStudio studio = WebStudioUtils.getWebStudio();
-
-    public void init() throws Exception {
-        String projectName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PROJECT);
-        String moduleName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_NAME);
-        if (projectName != null && moduleName != null) {
-            studio.selectModule(projectName, moduleName);
-        }
-    }
 
     /**
      * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table

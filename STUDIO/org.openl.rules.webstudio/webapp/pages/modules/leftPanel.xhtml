@@ -8,19 +8,19 @@
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
             <div id="projectsTreePanel">
-                <h:panelGroup rendered="#{empty curmodule}">
+                <c:if test="#{empty curmodule}">
                 <ui:include src="/pages/modules/projectTree.xhtml" />
-                </h:panelGroup>
+                </c:if>
             </div>
             <div id="rulesTreePanel">
-                <h:panelGroup rendered="#{!empty curmodule}">
+                <c:if test="#{!empty curmodule}">
                 <ui:include src="/pages/modules/tree.xhtml" />
-                </h:panelGroup>
+                </c:if>
             </div>
             <div id="recentVisitedTablesPanel" style="display:none">
-                <h:panelGroup rendered="#{!empty curmodule}">
+                <c:if test="#{!empty curmodule}">
                 <ui:include src="/pages/modules/history.xhtml" />
-                </h:panelGroup>
+                </c:if>
             </div>
         </div>
     </h:panelGroup>

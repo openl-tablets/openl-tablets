@@ -48,4 +48,7 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
         
     }
 
+    public RootFolderExtractor getFolderExtractor() {
+        return folderExtractor;
+    }
 }

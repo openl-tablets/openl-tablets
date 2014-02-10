@@ -7,8 +7,6 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
-    <f:event type="preRenderView" listener="#{modulePageBean.init()}" />
-
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
     <ui:param name="module" value="#{studio.currentModule}" />
@@ -24,7 +22,7 @@
                     <table class="properties">
                         <tr>
                             <td>Project</td>
-                            <td><a href="##{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></td>
+                            <td><a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}">#{studio.currentProjectDescriptor.name}</a></td>
                         </tr>
                         <tr>
                             <td>Path</td>
@@ -49,7 +47,7 @@
                         <div class="list">
                             <a4j:repeat value="#{modulePageBean.includes}" var="key">
                             <div class="list-item">
-                                <a href="##{jsffn:encodeURL(studio.currentProject.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
+                                <a href="##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}/#{jsffn:encodeURL(key)}">#{key}</a>
                             </div>
                             </a4j:repeat>
                         </div>
