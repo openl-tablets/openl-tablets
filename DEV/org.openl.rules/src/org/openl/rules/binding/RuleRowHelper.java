@@ -130,6 +130,8 @@ public class RuleRowHelper {
             for (int i = 0; i < valuesArraySize; i++) {
                 Array.set(arrayValues, i, values.get(i));
             }
+        }else {
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
         }
 
         return arrayValues;
