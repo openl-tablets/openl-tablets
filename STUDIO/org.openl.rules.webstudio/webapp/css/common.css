@@ -279,7 +279,7 @@ fieldset {
 
 #loadingPanel img {
     position: fixed;
-    top: 3px;
+    top: 11px;
     right: 750px;
     z-index: 10001;
 }
