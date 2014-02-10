@@ -182,14 +182,14 @@
                         </ul>
                     </a4j:ajax>
                 </h:panelGroup>
-
-                <div style="float:right;position:relative;margin-right:20px;display:inline-block">
-                    <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
-                        <ui:include src="/pages/modules/searchForm.xhtml" />
-                    </h:panelGroup>
-                </div>
             </div>
         </h:form>
+
+        <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:223px">
+            <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
+                <ui:include src="/pages/modules/searchForm.xhtml" />
+            </h:panelGroup>
+        </div>
     </h:panelGroup>
 
     <script>

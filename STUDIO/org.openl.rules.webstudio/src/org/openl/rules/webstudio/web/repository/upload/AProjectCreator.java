@@ -67,4 +67,6 @@ public abstract class AProjectCreator {
     
     protected abstract RulesProjectBuilder getProjectBuilder() throws ProjectException ;
 
+    public abstract void destroy();
+
 }

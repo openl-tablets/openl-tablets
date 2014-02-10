@@ -53,29 +53,30 @@
                 crossroads.ignoreState = true;
 
                 // Home page
-                crossroads.addRoute("/", function() {
+                crossroads.addRoute("/", function(reload) {
                     render("home.xhtml");
                 });
                 // Project page
-                crossroads.addRoute("{project}", function(project) {
+                crossroads.addRoute("{project}", function(reload, project) {
                     var url = "project.xhtml?name=" + project;
                     render(url, { project: project });
                 })
                 // Module page
-                crossroads.addRoute("{project}/{module}", function(project, module) {
+                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
                     var url = "module.xhtml?project=" + project + "&name=" + module;
                     render(url, { project: project, module: module }, { bottom: true });
                 });
                 // Table page
-                crossroads.addRoute("{project}/{module}/table?{query}", function(project, module, query) {
+                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
                     var url = [
                         { url: "table.xhtml?" + query },
                         { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
                     ];
-                    render(url, { project: project, module: module }, { top: false, left: false, bottom: true, right: true }, openTreeNode);
+                    var toReload = { top: false, left: reload == "true", bottom: true, right: true };
+                    render(url, { project: project, module: module }, toReload , openTreeNode);
                 });
                 // Other pages
-                crossroads.addRoute("{project}/{module}/{page*}", function(project, module, page) {
+                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
                     var query;
                     if (page.indexOf("?") > -1) {
                         var parts = page.split("?");
@@ -83,7 +84,8 @@
                         query = parts[1];
                     }
                     var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    render(url, { project: project, module: module }, { top: false, left: false, bottom: true });
+                    var toReload = { top: reload == "true", left: reload == "true", bottom: true };
+                    render(url, { project: project, module: module }, toReload);
                 });
             })();
 
@@ -126,7 +128,7 @@
 
                 nav: {
                     home: function() {
-                        crossroads.parse("/");
+                        crossroads.parse("/", ["false"]);
                     },
                     reload: function(params) {
                         if (!params) {
@@ -136,6 +138,23 @@
                             var newPage = $location.utils.setParams(currentPage, params);
                             goTo(newPage);
                         }
+                    },
+                    // prefixPage wiil be removed when Global Search will be implemented
+                    search: function(params, prefixPage) {
+                        var query;
+
+                        if (params) {
+                            // Simple Search by text
+                            if (params.constructor === String) {
+                                query = "query=" + encodeURIComponent(params);
+
+                                // Advanced Search
+                            } else {
+                                query = $j.param(params);
+                            }
+                        }
+
+                        goTo(prefixPage + "search" + (query ? "?" + query : ""));
                     }
                 },
 
@@ -167,15 +186,14 @@
             handleLoginPage: true,
             cache: false,
             beforeSend: showLoader,
-            success: hideLoader,
             // Handle jQuery AJAX errors
             error: function(response, message, error) {
-                hideLoader();
                 handleError(response.status);
-            }
+            },
+            complete: hideLoader
         });
 
-        $j.ajaxPrefilter(function( options, _, jqXHR ) {
+        $j.ajaxPrefilter(function(options, _, jqXHR) {
             if (options.handleLoginPage) {
                 var deferredRequest = $j.Deferred();
 
@@ -242,7 +260,11 @@
         var lastSavedHash = $location.getHash();
 
         $j(window).bind("hashchange", function() {
-            var ch = $location.getHash();
+            handleUrl();
+        });
+
+        function handleUrl(page, reload) {
+            var ch = page || $location.getHash();
             if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
                 // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
                 location.hash = lastSavedHash;
@@ -251,8 +273,8 @@
                 lastSavedHash = ch;
             }
 
-            loadContent(getCurrentPage());
-        });
+            loadContent(getCurrentPage(), reload);
+        }
 
         var mainLayout;
         var centerLayout;
@@ -299,41 +321,16 @@
         }
 
         // Deprecated
-        // TODO Move to ws.nav namespace
-        function search(params) {
-            var query;
-
-            if (params) {
-                // Simple Search by text
-                if (params.constructor === String) {
-                    query = "query=" + encodeURIComponent(params);
-
-                    // Advanced Search
-                } else {
-                    query = $j.param(params);
-                }
-            }
-
-            goTo("search" + (query ? "?" + query : ""));
-        }
-
-        // Deprecated
         // TODO Move to ws.nas namespace
         function goTo(page, reload) {
             if (page) {
                 page = page.replace(urlRewrite.prefix, "");
                 // Check if requested page is the same as current
                 if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
-                    loadContent();
+                    loadContent('', reload);
                 } else {
-                    location.hash = page;
+                    handleUrl(page.replace("#", ""), reload);
                 }
-            }
-
-            if (reload) {
-                reloadTop();
-                reloadLeft();
-                reloadBottom();
             }
         }
 
@@ -346,14 +343,17 @@
             loadContent();
         }
 
+        // Deprecated
         function reloadTop() {
             $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
         }
 
+        // Deprecated
         function reloadLeft(callback) {
             $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", callback);
         }
 
+        // Deprecated
         function reloadBottom() {
             $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
         }
@@ -370,11 +370,11 @@
             }
         }
 
-        function loadContent(page) {
+        function loadContent(page, reload) {
             var page = page || getCurrentPage();
 
             if (!page) {
-                crossroads.parse("/");
+                crossroads.parse("/", ["false"]);
                 return;
             }
 
@@ -382,7 +382,8 @@
                 page = page.split(urlRewrite.prefix)[1];
             }
 
-            crossroads.parse(page);
+            var params = [reload ? "true" : "false"];
+            crossroads.parse(page, params);
         }
 
         var DEFAULT_CONTENT = {
@@ -474,7 +475,7 @@
         function openTreeNode(page) {
             var page = page || getCurrentPage();
 
-            if (page && page.indexOf("table") > -1) {
+            if (page && page.indexOf("table?uri=") > -1) {
                 var tableId = page.split("uri=")[1].split("&")[0];
                 var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
                 if (tableLink.length) { // Firefox has bug with decoding url after refresh
@@ -515,13 +516,13 @@
 
         function showLoader() {
             if (reqs++ == 0) {
-                //loadingPanel.show();
+                loadingPanel.show();
             }
         }
 
         function hideLoader() {
             if (reqs-- == 1) {
-                //loadingPanel.hide();
+                loadingPanel.hide();
             }
         }
 

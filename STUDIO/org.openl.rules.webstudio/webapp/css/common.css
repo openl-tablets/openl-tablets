@@ -16,7 +16,7 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px;
     border-style: solid;
-    border-color: #c7c7c7 #ddd #ddd #c7c7c7;
+    border-color: #c7c7c7 #d5d5d5 #d5d5d5 #c7c7c7;
     border-radius: 1px;
     background: #ffffff;
     color: #333;
@@ -279,7 +279,7 @@ fieldset {
 
 #loadingPanel img {
     position: fixed;
-    top: 3px;
+    top: 11px;
     right: 750px;
     z-index: 10001;
 }

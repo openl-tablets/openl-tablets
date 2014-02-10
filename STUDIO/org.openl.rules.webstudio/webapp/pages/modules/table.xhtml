@@ -513,7 +513,7 @@
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>
-                <h:outputLink value="javascript:search($j(PopupMenu.lastTarget).text())">Search</h:outputLink>
+                <h:outputLink value="javascript:ws.nav.search($j(PopupMenu.lastTarget).text(), '#{studio.url('')}')">Search</h:outputLink>
             </rules:tableEditor>
         </div>
     </div>
