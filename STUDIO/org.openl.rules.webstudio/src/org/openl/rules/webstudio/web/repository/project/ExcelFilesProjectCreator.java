@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.project;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
@@ -33,6 +34,13 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
         }
 
         return projectBuilder;
+    }
+
+    @Override
+    public void destroy() {
+        for (ProjectFile file : files) {
+            IOUtils.closeQuietly(file.getInput());
+        }
     }
 
     private boolean checkFileSize(ProjectFile file) {

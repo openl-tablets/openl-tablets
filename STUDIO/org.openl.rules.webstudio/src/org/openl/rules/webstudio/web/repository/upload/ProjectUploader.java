@@ -1,11 +1,8 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -13,7 +10,6 @@ import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
 import org.richfaces.model.UploadedFile;
 
@@ -55,29 +51,9 @@ public class ProjectUploader {
         return errorMessage;
     }
 
-    private String createProjectFromUploadedFile(UploadedFile uploadedFile) {
-        String errorMessage = null;
-        AProjectCreator projectCreator;
-        try {
-            projectCreator = getProjectCreator(uploadedFile);
-            if (projectCreator != null) {
-                errorMessage = projectCreator.createRulesProject();
-            } else {
-                errorMessage = "Can`t create project from given file.";
-            }
-        } catch (ZipException e) {
-            errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {
-            errorMessage = e.getMessage();
-        } catch (IOException e) {
-            errorMessage = e.getMessage();
-        }
-        return errorMessage;
-    }
-    
     private String createProjectFromUploadedFile(List<UploadedFile> uploadedFiles) {
         String errorMessage = null;
-        AProjectCreator projectCreator;
+        AProjectCreator projectCreator = null;
         try {
             projectCreator = getProjectCreator(uploadedFiles);
             if (projectCreator != null) {
@@ -85,12 +61,12 @@ public class ProjectUploader {
             } else {
                 errorMessage = "Can`t create project from given file.";
             }
-        } catch (ZipException e) {
-            errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {
-            errorMessage = e.getMessage();
         } catch (IOException e) {
             errorMessage = e.getMessage();
+        } finally {
+            if (projectCreator != null) {
+                projectCreator.destroy();
+            }
         }
         return errorMessage;
     }
@@ -105,32 +81,14 @@ public class ProjectUploader {
         return problem;
     }
 
-    private AProjectCreator getProjectCreator(UploadedFile uploadedFile) throws ZipException,
-        IOException, FileNotFoundException {
-        AProjectCreator projectCreator = null;
-
-        if (uploadedFile != null) {
-            String fileName = FilenameUtils.getName(uploadedFile.getName());
-            if (FileTypeHelper.isZipFile(fileName)) {
-                File projectFile = FileTool.toTempFile(uploadedFile.getInputStream(), fileName);
-                projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
-            } else if (FileTypeHelper.isExcelFile(fileName)) {
-                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace,
-                        new ProjectFile(fileName, uploadedFile.getInputStream(), uploadedFile.getSize()));
-            }
-        }        
-        return projectCreator;
-    }
-
-    private AProjectCreator getProjectCreator(List<UploadedFile> uploadedFiles) throws IOException, FileNotFoundException {
+    private AProjectCreator getProjectCreator(List<UploadedFile> uploadedFiles) throws IOException {
         AProjectCreator projectCreator = null;
 
         if (!uploadedFiles.isEmpty()) {
             if (FileTypeHelper.isZipFile(FilenameUtils.getName(getLastElement().getName()))) {
                 /*Create project creator for single zip file*/
                 String file = FilenameUtils.getName(getLastElement().getName());
-                File projectFile = FileTool.toTempFile(getLastElement().getInputStream(), file);
-                projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
+                projectCreator = new ZipFileProjectCreator(file, getLastElement().getInputStream(), projectName, userWorkspace, zipFilter);
             } else {
                 List<ProjectFile> projectFiles = new ArrayList<ProjectFile>();
                 for (UploadedFile uploadedFile : uploadedFiles) {
