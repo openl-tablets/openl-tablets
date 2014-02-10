@@ -16,15 +16,15 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px;
     border-style: solid;
-    border-color: #c7c7c7 #ddd #ddd #c7c7c7;
+    border-color: #c7c7c7 #d5d5d5 #d5d5d5 #c7c7c7;
     border-radius: 1px;
     background: #ffffff;
     color: #333;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
-    border-color: #dddddd !important;
-    outline: 1px solid #3399EE;
+    border: 1px solid #39e;
+    outline: none;
 }
 
 input[type='text'], input[type='password'], textarea {
@@ -84,7 +84,7 @@ input[type='button']:disabled, button:disabled,
 }
 
 .input-container:focus {
-    outline: none !important;
+    border: 0 !important;
 }
 
 .button,

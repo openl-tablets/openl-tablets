@@ -19,7 +19,7 @@
                     <f:facet name="header">
                         <h:outputText value="Name" />
                     </f:facet>
-                    <h:outputLink value="#table.xhtml">
+                    <h:outputLink value="#{studio.url('table')}">
                         <f:param name="uri" value="#{benchmarkBean.uri}" />
                         <h:outputText value="#{benchmarkBean.tableName}" />
                     </h:outputLink>

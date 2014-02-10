@@ -9,7 +9,7 @@
         <div class="panel-header container">
              <a title="#{msg['ws.tables.visited.return']}"
                   style="background:url('webresource/images/back.png') no-repeat center;padding:8px 12px;cursor:pointer;opacity:0.5"
-                  onclick="sessionStorage.removeItem(SHOW_HISTORY_ITEM); reloadLeft(); return false;"></a>
+                  onclick="toRulesPanel(); return false;"></a>
             History
         </div>
 
@@ -33,8 +33,9 @@
                 </h:column>
                 <h:column>
                     <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                    <h:outputLink value="#table.xhtml?uri=#{encodedTableUri}&amp;saveTable=false" rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
-                    onclick="reloadLeft();" style="white-space:nowrap;" >
+                    <h:outputLink value="#{studio.url('table')}?uri=#{encodedTableUri}&amp;saveTable=false"
+                        rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
+                        style="white-space:nowrap;">
                         <h:outputText value="#{table.name}" />
                         <h:panelGroup rendered="#{empty table.name}">
                             <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />

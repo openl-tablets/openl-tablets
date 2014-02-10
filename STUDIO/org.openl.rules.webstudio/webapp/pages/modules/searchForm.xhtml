@@ -12,12 +12,19 @@
         }
 
         #searchInput input[type='text'] {
-            height: 23px;
+            height: 27px;
             width: 295px;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             padding-right: 20px;
-            margin-top: -5px;
+            padding-left: 6px;
+            margin-top: -6px;
+            font-size: 12px;
+            transition: width .4s;
+        }
+
+        #searchInput input[type='text']:focus {
+            width: 450px;
         }
 
         #searchInput input[type='image'] {
@@ -87,7 +94,7 @@
     </style>
 
     <script>
-      //<![CDATA[
+        //<![CDATA[
 
         function doSearch() {
             var params = {};
@@ -110,7 +117,7 @@
                 setParam(propName, propValue);
             });
 
-            search(params);
+            ws.nav.search(params, '#{studio.url('')}');
         }
 
         function getPropertyValue(elem) {
@@ -131,12 +138,12 @@
             $j("#propertyItems option[value='" + name + "']").prop("disabled", false);
         }
 
-      //]]>
+    //]]>
     </script>
 
     <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
-        onclick="showPopupMenu(event, 'advancedSearch', $j(this).next(), {'offsetTop': 4, 'closeIcon': true})">
-        <h:graphicImage url="/webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" />
+        onclick="showPopupMenu(event, 'advancedSearch', $j(this).next(), {'offsetTop': 6, 'closeIcon': true})">
+        <h:graphicImage url="/webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" style="opacity: 0.7" />
     </h:outputLink>
     <form style="display: inline;" onsubmit="doSearch(); return false;">
         <span id="searchInput">

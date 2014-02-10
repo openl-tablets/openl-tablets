@@ -107,7 +107,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="#table.xhtml" title="Edit the table" styleClass="toolbarButton"
+                                    <h:outputLink value="#{studio.url('table')}" title="Edit the table" styleClass="toolbarButton"
                                         rendered="#{tableBean.canEdit}"  >
                                         <f:param name="uri" value="#{tableBean.uri}" />
                                         <f:param name="mode" value="edit" />
@@ -127,7 +127,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{tableBean.copyable}"
-                                        oncomplete="goTo('copyTable.xhtml')" title="Create a new table based on the existing one"
+                                        oncomplete="goTo('#{studio.url('copyTable')}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
@@ -137,7 +137,7 @@
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
                                         rendered="#{tableBean.canRemove}"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
+                                        oncomplete="goTo('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.png" />
                                         <span>Remove</span>
@@ -160,7 +160,7 @@
                         value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{tableBean.encodedUri}" />
                     <h:form prependId="false">
                         <c:set var="runLink"
-                            value="#{tableBean.table.type == 'xls.run.method' ? 'test/run.xhtml' : 'test/test.xhtml'}?uri=#{tableBean.encodedUri}" />
+                            value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?uri=#{tableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none; min-width: 175px">
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%">
                                 <tr>
@@ -228,7 +228,7 @@
                                 <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
                                     rendered="#{tableBean.canBenchmark}"
                                     value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                    oncomplete="goTo('test/benchmark.xhtml')" style="display:none" />
+                                    oncomplete="goTo('#{studio.url('test/benchmark')}')" style="display:none" />
                             </div>
                         </div>
                         <table>
@@ -291,7 +291,7 @@
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="goTo('test/benchmark.xhtml')"
+                                        oncomplete="goTo('#{studio.url('test/benchmark')}')"
                                         style="padding-right: 1px">
                                         <table>
                                             <tr>
@@ -322,7 +322,7 @@
                     <td>
                         <h:form id="inputArgsForm">
                             <c:set var="runLink"
-                                value="test/run.xhtml?uri=#{tableBean.encodedUri}" />
+                                value="#{studio.url('test/run')}?uri=#{tableBean.encodedUri}" />
                             <c:set var="traceUrl"
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{tableBean.encodedUri}" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
@@ -376,7 +376,7 @@
 
                 <c:if test="#{tableBean.hasTests}">
                     <td>
-                        <h:outputLink value="#test/test.xhtml" title="Run Tests" styleClass="toolbarButton"
+                        <h:outputLink value="#{studio.url('test/test')}" title="Run Tests" styleClass="toolbarButton"
                             rendered="#{tableBean.canRun}"  >
                             <f:param name="uri" value="#{tableBean.uri}" />
                             <img src="webresource/images/test_ok.gif" />
@@ -390,7 +390,7 @@
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
                             styleClass="toolbarButton" title="Create a new Test table" 
-                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')" >
+                            oncomplete="goTo('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
                             <span>Create Test</span>
@@ -409,7 +409,7 @@
                     <div>
                         <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#table.xhtml">
+                            <h:outputLink value="#{studio.url('table')}">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
@@ -425,7 +425,7 @@
                         <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#table.xhtml">
+                            <h:outputLink value="#{studio.url('table')}">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" /> 
                             </h:outputLink>
@@ -444,7 +444,7 @@
                     <div>
                         <ui:repeat value="#{tableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#table.xhtml" >
+                            <h:outputLink value="#{studio.url('table')}" >
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{tableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -461,7 +461,7 @@
                         <ui:repeat value="#{tableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#table.xhtml">
+                            <h:outputLink value="#{studio.url('table')}">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{tableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -505,7 +505,7 @@
             </form>
 
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
-                linkBase="#table.xhtml" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
+                linkBase="#{studio.url('table')}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
@@ -513,7 +513,7 @@
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>
-                <h:outputLink value="javascript:search($j(PopupMenu.lastTarget).text())">Search</h:outputLink>
+                <h:outputLink value="javascript:ws.nav.search($j(PopupMenu.lastTarget).text(), '#{studio.url('')}')">Search</h:outputLink>
             </rules:tableEditor>
         </div>
     </div>
@@ -548,7 +548,7 @@
         }
 
         function onAfterSave(data) {
-            goTo("table.xhtml?uri=" + encodeURIComponent(data.newUri), true);
+            goTo("#{studio.url('table')}?uri=" + encodeURIComponent(data.newUri), true);
             hideLoader();
         }
 

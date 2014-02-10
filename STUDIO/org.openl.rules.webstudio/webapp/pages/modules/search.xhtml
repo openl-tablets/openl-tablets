@@ -34,7 +34,7 @@
         <div>
             <c:forEach items="#{searchBean.searchResults}" var="table">
                 <div class="search-result">
-                    <h:outputLink value="#table.xhtml">
+                    <h:outputLink value="#{studio.url('table')}">
                         <f:param name="uri" value="#{table.uri}" />
                         <h:outputText value="#{msg['ws.search.results.view']}" />
                     </h:outputLink>
@@ -42,7 +42,7 @@
                     <br /><br />
 
                     <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
-                        rendered="#{table != null}" linkBase="#table.xhtml" />
+                        rendered="#{table != null}" linkBase="#{studio.url('table')}" />
                 </div>
              </c:forEach>
         </div>

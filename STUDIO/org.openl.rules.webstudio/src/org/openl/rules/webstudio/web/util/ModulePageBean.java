@@ -16,10 +16,10 @@ import org.openl.rules.ui.WebStudio;
 @RequestScoped
 public class ModulePageBean {
     private WebStudio studio = WebStudioUtils.getWebStudio();
-/**
- * 
- * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table
- */
+
+    /**
+     * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table
+     */
     public Map<String, List<String>> getTableSyntaxNodes() {
         List<String> importValues;
         String key;
