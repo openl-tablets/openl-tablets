@@ -149,7 +149,11 @@ public class TableEditorController extends BaseTableEditorController {
     }
 
     private String getRequestParam(String name) {
-        return FacesUtils.getRequestParameter(name);
+        String value =  FacesUtils.getRequestParameter(name);
+        if (StringUtils.isEmpty(value)) {
+            return null;
+        }
+        return value;
     }
 
     private int getRow() {
