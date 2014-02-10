@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -93,6 +97,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
                         InputStream zipInputStream;
                         try {
                             zipInputStream = zipFile.getInputStream(item);
+                            String fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
+                            if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
+                                XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                                ProjectDescriptor projectDescriptor = serializer.deserialize(zipInputStream);
+                                projectDescriptor.setId(getProjectName());
+                                projectDescriptor.setName(getProjectName());
+                                zipInputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                            }
                         } catch (IOException e) {
                             throw new ProjectException("Error extracting zip archive", e);
                         }

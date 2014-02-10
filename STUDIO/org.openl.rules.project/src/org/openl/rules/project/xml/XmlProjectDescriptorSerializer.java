@@ -26,9 +26,15 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
     private static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";
 
-    private XStream xstream;
+    private final XStream xstream;
+
+    private final boolean postProcess;
 
     public XmlProjectDescriptorSerializer() {
+        this(true);
+    }
+
+    public XmlProjectDescriptorSerializer(boolean postProcess) {
         xstream = new XStream(new DomDriver());
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");
@@ -51,6 +57,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasField(METHOD_FILTER_TAG, Module.class, "methodFilter");
         xstream.registerConverter(new ModuleTypeConverter());
         xstream.registerConverter(new StringValueConverter());
+
+        this.postProcess = postProcess;
     }
 
     public String serialize(ProjectDescriptor source) {
@@ -59,7 +67,9 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
-        postProcess(descriptor);
+        if (postProcess) {
+            postProcess(descriptor);
+        }
         return descriptor;
     }
 

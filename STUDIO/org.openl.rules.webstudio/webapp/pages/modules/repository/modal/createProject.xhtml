@@ -122,7 +122,9 @@
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
-                                execute="@none" />
+                                execute="@none"
+                                render="projectName"
+                                oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.length > 0, #{rich:element('sbtZips')});" />
                         </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
