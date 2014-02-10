@@ -130,13 +130,18 @@
                     home: function() {
                         crossroads.parse("/", ["false"]);
                     },
-                    reload: function(params) {
-                        if (!params) {
-                            loadContent();
-                        } else {
+                    reload: function(args) {
+                        // Reload all page (if args is true) or only content
+                        if (typeof args == "boolean") {
+                            loadContent("", args);
+                        // Reload only content with new params
+                        } else if (typeof args == "object") {
                             var currentPage = getCurrentPage();
-                            var newPage = $location.utils.setParams(currentPage, params);
+                            var newPage = $location.utils.setParams(currentPage, args);
                             goTo(newPage);
+                        // Reload only content
+                        } else {
+                            loadContent();
                         }
                     },
                     // prefixPage wiil be removed when Global Search will be implemented
@@ -243,7 +248,7 @@
                 if (errorMessage.indexOf(".xls") > -1) {
                     message("#{msg['ws.common.error.save']}", 7000);
                 } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
-                    reloadCurrent();
+                    ws.nav.reload(true);
                 } else {
                     message(errorMessage, 7000);
                 }
@@ -335,27 +340,8 @@
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
-        function reloadCurrent() {
-            reloadTop();
-            reloadLeft();
-            reloadBottom();
-            loadContent();
-        }
-
-        // Deprecated
-        function reloadTop() {
-            $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
-        }
-
-        // Deprecated
         function reloadLeft(callback) {
             $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", callback);
-        }
-
-        // Deprecated
-        function reloadBottom() {
-            $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
         }
 
         // Deprecated

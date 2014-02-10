@@ -336,7 +336,7 @@
             <footer>
                 <a4j:commandButton id="editModuleBtn" value="Save" action="#{projectBean.editModule}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');reloadCurrent()}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');ws.nav.reload(true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />
             </footer>
         </h:form>
@@ -362,7 +362,7 @@
             <footer>
                 <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');reloadCurrent();message('Module was removed successfully!', 7000);}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);message('Module was removed successfully!', 7000);}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');" />
             </footer>
         </h:form>
@@ -398,7 +398,7 @@
             <footer>
                 <a4j:commandButton id="editDependenciesBtn" value="Save" action="#{projectBean.editDependencies}"
                     styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageDependenciesPopup');reloadCurrent()" />
+                    oncomplete="ws.ui.hide('manageDependenciesPopup');ws.nav.reload()" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('manageDependenciesPopup');" />
             </footer>
         </h:form>
@@ -419,7 +419,7 @@
             <footer>
                 <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
                     styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageSourcesPopup');reloadCurrent()" />
+                    oncomplete="ws.ui.hide('manageSourcesPopup');ws.nav.reload()" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');" />
             </footer>
         </h:form>
