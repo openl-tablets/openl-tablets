@@ -65,13 +65,13 @@
                     </span>
                     </h:panelGroup>
                     <span style="margin-left:4px;">
-                        <a4j:ajax oncomplete="reloadCurrent()">
+                        <a4j:ajax oncomplete="ws.nav.reload(true)">
                             <h:commandLink id="refreshBtn" action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
                                 style="background:url('webresource/images/refresh.png')" />
                         </a4j:ajax>
                     </span>
                 </span>
-                <a4j:ajax oncomplete="reloadCurrent()">
+                <a4j:ajax oncomplete="ws.nav.reload(true)">
                     <h:commandLink action="#{mainBean.saveProject}" value="Save"
                         title="Save the project to the Design Repository"
                         rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
@@ -170,7 +170,7 @@
                 </h:panelGroup>
 
                 <h:panelGroup style="float: right" rendered="#{!empty module}" class="dropdown">
-                    <a4j:ajax oncomplete="reloadCurrent()">
+                    <a4j:ajax oncomplete="ws.nav.reload(true)">
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
                         </a>
