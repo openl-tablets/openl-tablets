@@ -1,17 +1,26 @@
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <c:set var="curmodule" value="#{studio.currentModule}" />
 
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
-            <div id="projectsTreePanel" style="display: none">
+            <div id="projectsTreePanel">
+                <c:if test="#{empty curmodule}">
                 <ui:include src="/pages/modules/projectTree.xhtml" />
+                </c:if>
             </div>
-            <div id="rulesTreePanel" style="display: none">
+            <div id="rulesTreePanel">
+                <c:if test="#{!empty curmodule}">
                 <ui:include src="/pages/modules/tree.xhtml" />
+                </c:if>
             </div>
-            <div id="recentVisitedTablesPanel" style="display: none">
+            <div id="recentVisitedTablesPanel" style="display:none">
+                <c:if test="#{!empty curmodule}">
                 <ui:include src="/pages/modules/history.xhtml" />
+                </c:if>
             </div>
         </div>
     </h:panelGroup>

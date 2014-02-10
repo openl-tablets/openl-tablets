@@ -18,7 +18,6 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 
@@ -41,11 +40,6 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
-
-    public void init() throws Exception {
-        String projectName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_NAME);
-        studio.selectProject(projectName);
-    }
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();

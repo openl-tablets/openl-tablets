@@ -615,13 +615,13 @@ var TableEditor = Class.create({
 
     showEditorWrapper: function(cell) {
         var minWidth = 41;
-        var width = cell.offsetWidth - 2;
+        var width = cell.offsetWidth + 1;
         if (width < minWidth) {
             cell.style.minWidth = minWidth + "px";
-            width = cell.offsetWidth - 2;
+            width = cell.offsetWidth + 1;
         }
         this.editorWrapper.style.width = width + "px";
-        this.editorWrapper.style.height = cell.offsetHeight - 2 + "px";
+        this.editorWrapper.style.height = cell.offsetHeight + 1 + "px";
         var pos = Element.positionedOffset(cell);
         this.editorWrapper.style.left = pos[0] + "px";
         this.editorWrapper.style.top = pos[1] + "px";

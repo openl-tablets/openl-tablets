@@ -86,7 +86,7 @@
                 data="#{facesContext.maximumSeverity}"
                 oncomplete="if(!event.data) go('simpleRules/step2.xhtml')" />
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
-                oncomplete="goTo('create/index.xhtml')" />
+                oncomplete="go('step0.xhtml')" />
           </f:validateBean>
         </h:form>
 
