@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FilenameUtils;
@@ -22,17 +21,22 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileTool;
 
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Log log = LogFactory.getLog(ZipFileProjectCreator.class);
     private ZipFile zipFile;
     private PathFilter zipFilter;
+    private File uploadedFile;
 
-    public ZipFileProjectCreator(File uploadedFile,
-            String projectName,
-            UserWorkspace userWorkspace,
-            PathFilter zipFilter) throws ZipException, IOException{
+    public ZipFileProjectCreator(String uploadedFileName,
+                                 InputStream uploadedFileStream,
+                                 String projectName,
+                                 UserWorkspace userWorkspace,
+                                 PathFilter zipFilter) throws IOException{
         super(projectName, userWorkspace);
+
+        uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
 
         this.zipFile = new ZipFile(uploadedFile);
         this.zipFilter = zipFilter;
@@ -101,6 +105,22 @@ public class ZipFileProjectCreator extends AProjectCreator {
             }
         }
         return projectBuilder;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            zipFile.close();
+        } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        if (!uploadedFile.delete()) {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Can't delete the file %s", uploadedFile.getName()));
+            }
+        }
     }
 
     private boolean checkFileSize(ZipEntry file) {
