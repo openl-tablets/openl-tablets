@@ -138,7 +138,19 @@
                                     </h:selectOneMenu>
 
                                     <label>Failures Only</label>
-                                    <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}" />
+                                    <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}">
+                                        <f:ajax execute="@form" render="@form" />
+                                    </h:selectBooleanCheckbox>
+
+                                    <h:panelGroup id="caseFailuresSetting" rendered="#{studio.testsFailuresOnly}">
+                                        <label id="caseFailuresSettingLabel">Failures per test</label>
+                                    </h:panelGroup>
+                                    <h:selectOneMenu id="caseFailuresSettingValue" value="#{studio.testsFailuresPerTest}" rendered="#{studio.testsFailuresOnly}">
+                                        <f:selectItem itemLabel="1" itemValue="1" />
+                                        <f:selectItem itemLabel="5" itemValue="5" />
+                                        <f:selectItem itemLabel="20" itemValue="20" />
+                                        <f:selectItem itemLabel="All" itemValue="-1" />
+                                    </h:selectOneMenu>
 
                                     <label>Complex Result</label>
                                     <h:selectBooleanCheckbox id="showComplexResult" value="#{studio.showComplexResult}" />
