@@ -21,7 +21,7 @@ public class Enum<T> {
         indexMap = new HashMap<T, Integer>(objs.length);
 
         for (int i = 0; i < objs.length; i++) {
-            indexMap.put(objs[i], new Integer(i));
+            indexMap.put(objs[i], Integer.valueOf(i));
         }
     }
 
