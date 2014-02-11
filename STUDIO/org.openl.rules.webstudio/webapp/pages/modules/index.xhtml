@@ -508,14 +508,12 @@
         }
 
         function showLoader() {
-            console.error("show - " + this.url);
             if (reqs++ == 0) {
                 loadingPanel.show();
             }
         }
 
         function hideLoader() {
-            console.error("hide - " + this.url);
             if (reqs-- == 1) {
                 loadingPanel.hide();
             }
