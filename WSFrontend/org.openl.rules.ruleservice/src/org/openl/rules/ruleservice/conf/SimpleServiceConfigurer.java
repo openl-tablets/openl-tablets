@@ -50,7 +50,7 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
                     deployment.getCommonVersion(),
                     project.getName())) {
 
-                    if (module.getProject().getId().equals(projectName)) {
+                    if (module.getProject().getName().equals(projectName)) {
                         ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
                         moduleDescriptionBuilder.setProjectName(project.getName());
                         moduleDescriptionBuilder.setModuleName(module.getName());
