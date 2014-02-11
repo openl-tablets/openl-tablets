@@ -14,7 +14,9 @@ import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
-    
+
+    public static final String INIT = "<init>";
+    public static final String V = "()V";
     private Map<String, FieldDescription> parentFields;
     private Map<String, FieldDescription> allFields;
     
@@ -32,8 +34,11 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
      * @param parentFields fields of super class.
      * @param allFields collection of fields for current class and parent`s ones.
      */
-    public ConstructorWithParametersWriter(String beanNameWithPackage, Class<?> parentClass, Map<String, FieldDescription> beanFields, 
-            Map<String, FieldDescription> parentFields, Map<String, FieldDescription> allFields) {
+    public ConstructorWithParametersWriter(String beanNameWithPackage,
+                                           Class<?> parentClass,
+                                           Map<String, FieldDescription> beanFields,
+                                           Map<String, FieldDescription> parentFields,
+                                           Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, parentClass, beanFields);
         this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
         this.allFields = new LinkedHashMap<String, FieldDescription>(allFields);
@@ -43,24 +48,32 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
 
-        Constructor<?> parentConstructorWithFields = null;
-        if(getParentClass() != null){
-            parentConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(getParentClass(), parentFields.size());
+        Constructor<?> parentConstructor = null;
+        if (getParentClass() != null) {
+            // Find the parent constructor with the appropriate number of fields
+            //
+            parentConstructor = JavaClassGeneratorHelper.getConstructorByFieldsCount(
+                    getParentClass(),
+                    parentFields.size());
         }
         int i = 1;
         int stackSizeForParentConstructorCall = 0;
-        if(parentConstructorWithFields == null){
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
-                    getBeanFields(), null), null, null);
+        if (parentConstructor == null) {
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, INIT,
+                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(getBeanFields(), null),
+                    null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             if (getParentClass() == null) {
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
-            } else{
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()), "<init>", "()V");
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                        ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, INIT, V);
+            } else {
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                        Type.getInternalName(getParentClass()), INIT, V);
             }
-        }else{
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
-                    allFields, null), null, null);
+        } else {
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, INIT,
+                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(allFields, null),
+                    null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
             // push to stack all parameters for parent constructor
@@ -77,7 +90,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             // invoke parent constructor with fields
             stackSizeForParentConstructorCall = i;
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
-                    "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
+                    INIT, ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
         }
 
         // set all fields that is not presented in parent
@@ -88,7 +101,8 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 FieldDescription fieldType = field.getValue();
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
-                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName,
+                        ByteCodeGeneratorHelper.getJavaType(fieldType));
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
                     i += 2;
                 } else {
