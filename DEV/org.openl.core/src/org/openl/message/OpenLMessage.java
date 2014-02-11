@@ -1,5 +1,7 @@
 package org.openl.message;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -9,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
  * 
  */
 public class OpenLMessage {
+    
+    private UUID uuid;
 
     /**
      * Message's brief information.
@@ -46,6 +50,7 @@ public class OpenLMessage {
         this.summary = summary;
         this.details = details;
         this.severity = severity;
+        this.uuid = UUID.randomUUID();
     }
 
     /**
@@ -78,6 +83,10 @@ public class OpenLMessage {
     @Override
     public String toString() {
         return StringUtils.defaultString(summary);
+    }
+    
+    public UUID getMessageUuid() {
+        return uuid;
     }
 
 }
