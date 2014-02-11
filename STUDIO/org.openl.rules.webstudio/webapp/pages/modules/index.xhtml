@@ -154,6 +154,9 @@
                             ws.ajax.load([DEFAULT_CONTENT.left], callback);
                         }
                     },
+                    go: function(page, reload) {
+                        goTo(page, reload);
+                    },
                     // prefixPage wiil be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
                         var query;
@@ -336,7 +339,7 @@
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
+        // Moved to WebStudio.nav
         function goTo(page, reload) {
             if (page) {
                 page = page.replace(urlRewrite.prefix, "");
@@ -344,13 +347,18 @@
                 if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
                     loadContent('', reload);
                 } else {
+                    $j(window).unbind("hashchange");
+                    location.hash = page;
                     handleUrl(page.replace("#", ""), reload);
+                    $j(window).bind("hashchange", function() {
+                        handleUrl();
+                    });
                 }
             }
         }
 
         // Deprecated
-        // TODO Move to ws namespace
+        // TODO Move to WebStudio
         function getCurrentPage() {
             if (location.hash) {
                 var page = lastSavedHash;
