@@ -118,8 +118,12 @@
                             urls.push(parts[i].url);
                         }
                         this.get(urls, function(result) {
-                            for (var i = 0; i < parts.length; i++) {
-                                $j(parts[i].target).html(result[i][0]);
+                            if (parts.length == 1) {
+                                $j(parts[0].target).html(result[0]);
+                            } else {
+                                for (var i = 0; i < parts.length; i++) {
+                                    $j(parts[i].target).html(result[i][0]);
+                                }
                             }
                             done();
                         });
@@ -142,6 +146,12 @@
                         // Reload only content
                         } else {
                             loadContent();
+                        }
+                    },
+                    reloadPanel: function(panel, callback) {
+                        if (panel == "left") {
+                            // TODO Refactor to not use ws instance
+                            ws.ajax.load([DEFAULT_CONTENT.left], callback);
                         }
                     },
                     // prefixPage wiil be removed when Global Search will be implemented
@@ -340,11 +350,6 @@
         }
 
         // Deprecated
-        function reloadLeft(callback) {
-            $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", callback);
-        }
-
-        // Deprecated
         // TODO Move to ws namespace
         function getCurrentPage() {
             if (location.hash) {
@@ -423,14 +428,16 @@
                 });
             }
 
-            if (typeof page === "string") {
-                // One page
-                content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
-            } else {
-                // Few pages
-                for (var i = 0; i < page.length; i++) {
-                    content.push(
-                        { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+            if (page) {
+                if (typeof page === "string") {
+                    // One page
+                    content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
+                } else {
+                    // Few pages
+                    for (var i = 0; i < page.length; i++) {
+                        content.push(
+                            { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+                    }
                 }
             }
 
