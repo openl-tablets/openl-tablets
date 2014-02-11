@@ -118,10 +118,14 @@
                             urls.push(parts[i].url);
                         }
                         this.get(urls, function(result) {
-                            for (var i = 0; i < parts.length; i++) {
-                                $j(parts[i].target).html(result[i][0]);
+                            if (parts.length == 1) {
+                                $j(parts[0].target).html(result[0]);
+                            } else {
+                                for (var i = 0; i < parts.length; i++) {
+                                    $j(parts[i].target).html(result[i][0]);
+                                }
                             }
-                            done();
+                            done && done();
                         });
                     }
                 },
@@ -130,14 +134,28 @@
                     home: function() {
                         crossroads.parse("/", ["false"]);
                     },
-                    reload: function(params) {
-                        if (!params) {
-                            loadContent();
-                        } else {
+                    reload: function(args) {
+                        // Reload all page (if args is true) or only content
+                        if (typeof args == "boolean") {
+                            loadContent("", args);
+                        // Reload only content with new params
+                        } else if (typeof args == "object") {
                             var currentPage = getCurrentPage();
-                            var newPage = $location.utils.setParams(currentPage, params);
+                            var newPage = $location.utils.setParams(currentPage, args);
                             goTo(newPage);
+                        // Reload only content
+                        } else {
+                            loadContent();
                         }
+                    },
+                    reloadPanel: function(panel, callback) {
+                        if (panel == "left") {
+                            // TODO Refactor to not use ws instance
+                            ws.ajax.load([DEFAULT_CONTENT.left], callback);
+                        }
+                    },
+                    go: function(page, reload) {
+                        goTo(page, reload);
                     },
                     // prefixPage wiil be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
@@ -243,7 +261,7 @@
                 if (errorMessage.indexOf(".xls") > -1) {
                     message("#{msg['ws.common.error.save']}", 7000);
                 } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
-                    reloadCurrent();
+                    ws.nav.reload(true);
                 } else {
                     message(errorMessage, 7000);
                 }
@@ -321,7 +339,7 @@
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
+        // Moved to WebStudio.nav
         function goTo(page, reload) {
             if (page) {
                 page = page.replace(urlRewrite.prefix, "");
@@ -329,37 +347,18 @@
                 if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
                     loadContent('', reload);
                 } else {
+                    $j(window).unbind("hashchange");
+                    location.hash = page;
                     handleUrl(page.replace("#", ""), reload);
+                    $j(window).bind("hashchange", function() {
+                        handleUrl();
+                    });
                 }
             }
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
-        function reloadCurrent() {
-            reloadTop();
-            reloadLeft();
-            reloadBottom();
-            loadContent();
-        }
-
-        // Deprecated
-        function reloadTop() {
-            $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
-        }
-
-        // Deprecated
-        function reloadLeft(callback) {
-            $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", callback);
-        }
-
-        // Deprecated
-        function reloadBottom() {
-            $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
-        }
-
-        // Deprecated
-        // TODO Move to ws namespace
+        // TODO Move to WebStudio
         function getCurrentPage() {
             if (location.hash) {
                 var page = lastSavedHash;
@@ -437,14 +436,16 @@
                 });
             }
 
-            if (typeof page === "string") {
-                // One page
-                content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
-            } else {
-                // Few pages
-                for (var i = 0; i < page.length; i++) {
-                    content.push(
-                        { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+            if (page) {
+                if (typeof page === "string") {
+                    // One page
+                    content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
+                } else {
+                    // Few pages
+                    for (var i = 0; i < page.length; i++) {
+                        content.push(
+                            { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+                    }
                 }
             }
 

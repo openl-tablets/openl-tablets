@@ -101,7 +101,6 @@ public class ZipFileProjectCreator extends AProjectCreator {
                             if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
                                 XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
                                 ProjectDescriptor projectDescriptor = serializer.deserialize(zipInputStream);
-                                projectDescriptor.setId(getProjectName());
                                 projectDescriptor.setName(getProjectName());
                                 zipInputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
                             }

@@ -75,7 +75,6 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder);
         project.setName(folder.getName());
-        project.setId(folder.getName());
         return project;
     }
 }
