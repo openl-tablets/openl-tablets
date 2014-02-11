@@ -1,7 +1,10 @@
 package org.openl.syntax.code;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.openl.CompiledOpenClass;
 import org.openl.binding.IBoundCode;
@@ -89,8 +92,14 @@ public class ProcessedCode {
 
     public List<OpenLMessage> getMessagesFromDependencies() {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+        Set<UUID> uniqueSet = new HashSet<UUID>();
         for(CompiledOpenClass dependency : parsedCode.getCompiledDependencies()){
-            messages.addAll(dependency.getMessages());
+            for (OpenLMessage message : dependency.getMessages()) {
+                if (!uniqueSet.contains(message.getMessageUuid())) {
+                    uniqueSet.add(message.getMessageUuid());
+                    messages.add(message);
+                }
+            }
         }
         return messages;
     }

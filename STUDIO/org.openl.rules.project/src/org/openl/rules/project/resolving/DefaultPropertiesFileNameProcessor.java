@@ -161,7 +161,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 setProperty(propertyName, group, props, dateFormats.get(propertyName));
             }
         } else {
-            throw new NoMatchFileNameException("File name doesn't match file name pattern! File name pattern: " + fileNamePattern);
+            throw new NoMatchFileNameException("File name '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
         }
         return props;
     }
