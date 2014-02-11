@@ -56,10 +56,18 @@ public class ProjectDescriptor {
         this.projectFolder = projectRoot;
     }
 
+    /**
+     * @deprecated Id isn't used anymore. Use {@link #getName()} instead.
+     */
+    @Deprecated
     public String getId() {
         return id;
     }
 
+    /**
+     * @deprecated Id isn't used anymore. Use {@link #setName(String)} instead.
+     */
+    @Deprecated
     public void setId(String id) {
         this.id = id;
     }

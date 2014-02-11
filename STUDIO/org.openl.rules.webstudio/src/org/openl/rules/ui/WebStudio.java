@@ -441,14 +441,6 @@ public class WebStudio {
         return null;
     }
 
-    public ProjectDescriptor getProject(final String id) {
-        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
-            public boolean evaluate(Object project) {
-                return ((ProjectDescriptor) project).getId().equals(id);
-            }
-        });
-    }
-
     public ProjectDescriptor getProjectByName(final String name) {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
             public boolean evaluate(Object project) {
@@ -588,7 +580,7 @@ public class WebStudio {
 
     public String getModuleId(Module module) {
         if (module != null) {
-            return module.getProject().getId() + " - " + module.getName();
+            return module.getProject().getName() + " - " + module.getName();
         }
         return null;
     }
