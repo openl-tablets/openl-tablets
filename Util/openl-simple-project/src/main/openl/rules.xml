@@ -1,5 +1,4 @@
 <project>
-  <id>openl-simple-project</id>
   <name>OpenL Rules Simple Project</name>
   <modules>
     <module>

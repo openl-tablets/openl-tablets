@@ -18,14 +18,12 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     private static final String DEFAULT_CLASSPATH = "./bin";
 
     private boolean ignoreTestMethods = true;
-    private String defaultProjectId;
     private String defaultProjectName;
     private String defaultClasspaths[] = {DEFAULT_CLASSPATH};
     private boolean createProjectDescriptor = true;
 
     protected ProjectDescriptor createNewProject() {
         ProjectDescriptor project = new ProjectDescriptor();      
-        project.setId(defaultProjectId != null ? defaultProjectId : getDisplayName());
         project.setName(defaultProjectName != null ? defaultProjectName : getDisplayName());
         
         List<PathEntry> classpath = new ArrayList<PathEntry>();
@@ -137,14 +135,6 @@ public class JavaInterfaceAntTask extends JavaAntTask {
 
     public void setIgnoreTestMethods(boolean ignoreTestMethods) {
         this.ignoreTestMethods = ignoreTestMethods;
-    }
-
-    public String getDefaultProjectId() {
-        return defaultProjectId;
-    }
-
-    public void setDefaultProjectId(String defaultProjectId) {
-        this.defaultProjectId = defaultProjectId;
     }
 
     public String getDefaultProjectName() {

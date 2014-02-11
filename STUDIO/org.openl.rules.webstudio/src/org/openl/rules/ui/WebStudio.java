@@ -320,12 +320,16 @@ public class WebStudio {
         try {
             if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
-                if (currentProject != null && currentModule != null) {
+                if (currentProject != null) {
                     String projectName = currentProject.getName();
-                    String moduleName = currentModule.getName();
                     currentProject = null;
-                    currentModule = null;
-                    selectModule(projectName, moduleName);
+                    if (currentModule != null) {
+                        String moduleName = currentModule.getName();
+                        currentModule = null;
+                        selectModule(projectName, moduleName);
+                    } else {
+                        selectProject(projectName);
+                    }
                 }
             }
             model.reset(reloadType);
@@ -439,14 +443,6 @@ public class WebStudio {
             return uploadedFiles.get(uploadedFiles.size() - 1);
         }
         return null;
-    }
-
-    public ProjectDescriptor getProject(final String id) {
-        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
-            public boolean evaluate(Object project) {
-                return ((ProjectDescriptor) project).getId().equals(id);
-            }
-        });
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
@@ -588,7 +584,7 @@ public class WebStudio {
 
     public String getModuleId(Module module) {
         if (module != null) {
-            return module.getProject().getId() + " - " + module.getName();
+            return module.getProject().getName() + " - " + module.getName();
         }
         return null;
     }

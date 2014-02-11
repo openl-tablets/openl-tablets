@@ -30,7 +30,6 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test/resources/descriptor/rules1.xml");
 
-        assertEquals("my-project-id", descriptor.getId());
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
@@ -91,11 +90,12 @@ public class ProjectDescriptorManagerTest {
         manager.readDescriptor("test/resources/descriptor/rules3.xml");
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testWriteDescriptor1() throws IOException, ValidationException {
 
         ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setId("id1");
+        descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
         descriptor.setComment("comment1");
         descriptor.setPropertiesFileNamePattern("{lob}");
@@ -136,8 +136,7 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = "<project>" + "\n" + 
-                        "  <id>id1</id>" + "\n" + 
+        String expected = "<project>" + "\n" +
                         "  <name>name1</name>" + "\n" +
                         "  <comment>comment1</comment>" + "\n" + 
                         "  <modules>" + "\n" + 
@@ -173,7 +172,6 @@ public class ProjectDescriptorManagerTest {
     public void testWriteDescriptor2() throws IOException, ValidationException {
 
         ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setId("id1");
         descriptor.setName("name1");
 
         Module module1 = new Module();
@@ -191,7 +189,6 @@ public class ProjectDescriptorManagerTest {
     public void testWriteDescriptor3() throws IOException, ValidationException {
 
         ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setId("id1");
         descriptor.setName("name1");
 
         Module module1 = new Module();

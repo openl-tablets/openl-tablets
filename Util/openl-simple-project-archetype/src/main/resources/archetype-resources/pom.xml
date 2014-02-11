@@ -39,8 +39,6 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${openl.rules.version}</version>
                 <configuration>
-                    <!-- Project identifier. String value which defines project uniquely. -->
-                    <projectId>openl-simple-project</projectId>
                     <!-- Project name. -->
                     <projectName>OpenL Rules Simple Project</projectName>
                     <!-- Project's classpath. -->
