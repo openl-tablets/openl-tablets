@@ -320,12 +320,16 @@ public class WebStudio {
         try {
             if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
-                if (currentProject != null && currentModule != null) {
+                if (currentProject != null) {
                     String projectName = currentProject.getName();
-                    String moduleName = currentModule.getName();
                     currentProject = null;
-                    currentModule = null;
-                    selectModule(projectName, moduleName);
+                    if (currentModule != null) {
+                        String moduleName = currentModule.getName();
+                        currentModule = null;
+                        selectModule(projectName, moduleName);
+                    } else {
+                        selectProject(projectName);
+                    }
                 }
             }
             model.reset(reloadType);
