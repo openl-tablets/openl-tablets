@@ -150,13 +150,6 @@ public class GenerateMojo extends BaseOpenLMojo {
     private boolean overwriteProjectDescriptor;
 
     /**
-     * Default project id in rules.xml. If omitted - the name of a first module
-     * in the project is used. Used only if createProjectDescriptor == true.
-     */
-    @Parameter
-    private String projectId;
-
-    /**
      * Default project name in rules.xml. If omitted - the name of a first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
@@ -254,7 +247,6 @@ public class GenerateMojo extends BaseOpenLMojo {
         if (task instanceof JavaInterfaceAntTask) {
             JavaInterfaceAntTask interfaceTask = (JavaInterfaceAntTask) task;
             initCreateProjectDescriptorState(interfaceTask);
-            interfaceTask.setDefaultProjectId(projectId);
             interfaceTask.setDefaultProjectName(projectName);
             interfaceTask.setDefaultClasspaths(classpaths);
 
