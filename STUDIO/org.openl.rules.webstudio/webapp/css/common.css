@@ -81,6 +81,9 @@ input[type='button']:disabled, button:disabled,
     height: 100%;
     border: 0 !important;
     font: inherit;
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+
 }
 
 .input-container:focus {

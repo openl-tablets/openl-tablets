@@ -18,7 +18,7 @@
     <script>
         function go(to) {
             var contextPath = "#{facesContext.externalContext.request.contextPath}";
-            $j("#wizardData").load(contextPath + "/faces/pages/modules/create/" + to);
+            ws.ajax.load([{ target: "#wizardData", url: contextPath + "/faces/pages/modules/create/" + to }]);
         }
 
         go('#{initStep}');

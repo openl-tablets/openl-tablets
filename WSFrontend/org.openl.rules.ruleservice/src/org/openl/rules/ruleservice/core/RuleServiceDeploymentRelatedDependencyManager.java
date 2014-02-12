@@ -77,6 +77,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         this.deploymentDescription = deploymentDescription;
         this.ruleServiceLoader = ruleServiceLoader;
         this.lazy = lazy;
+        super.setExecutionMode(true);
     }
 
     private Deque<String> stack = new ArrayDeque<String>();
@@ -84,6 +85,11 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
 
     Deque<String> getStack() {
         return stack;
+    }
+    
+    @Override
+    public void setExecutionMode(boolean executionMode) {
+        throw new UnsupportedOperationException("This dependency manager supports only executionMode=true");
     }
 
     protected ClassLoader getClassLoader(Collection<Module> modules) {
