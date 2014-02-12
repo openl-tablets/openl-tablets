@@ -92,11 +92,9 @@ public class ProcessedCode {
 
     public List<OpenLMessage> getMessagesFromDependencies() {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-        Set<UUID> uniqueSet = new HashSet<UUID>();
         for(CompiledOpenClass dependency : parsedCode.getCompiledDependencies()){
             for (OpenLMessage message : dependency.getMessages()) {
-                if (!uniqueSet.contains(message.getMessageUuid())) {
-                    uniqueSet.add(message.getMessageUuid());
+                if (!messages.contains(message)) {
                     messages.add(message);
                 }
             }
