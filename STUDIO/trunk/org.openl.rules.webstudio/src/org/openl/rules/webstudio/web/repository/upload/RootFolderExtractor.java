@@ -68,31 +68,24 @@ public class RootFolderExtractor {
         String firstFolderName = null;
 
         for (String name : folderNames) {
-            int ind = name.indexOf('/');
-
-            if (ind > -1 && isValidFolderName(name)) {
+            if (!name.contains("/")) {
+                return false;
+            }
+            if (isValidFolderName(name)) {
                 String secondFolderName = getFolderName(name);
                 firstFolderName = !StringUtils.isEmpty(firstFolderName) ? firstFolderName : secondFolderName;
 
-                if (!firstFolderName.equals(secondFolderName)) {
+                if (!secondFolderName.equals(firstFolderName)) {
                     return false;
                 }
             }
         }
 
-        if (!StringUtils.isEmpty(firstFolderName)) {
-            return true;
-        }
-
-        return false;
+        return !StringUtils.isEmpty(firstFolderName);
     }
 
     private boolean isValidFolderName(String name) {
-        if (filter != null) {
-            return filter.accept(getFolderName(name));
-        }
-
-        return true;
+        return filter == null || filter.accept(getFolderName(name));
     }
 
     private String getFolderName(String path) {
