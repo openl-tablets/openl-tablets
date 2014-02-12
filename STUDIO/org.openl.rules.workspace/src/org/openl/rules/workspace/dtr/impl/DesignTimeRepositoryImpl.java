@@ -14,6 +14,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.repository.*;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -80,7 +81,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         newProject.update(project, user);
     }
 
-    public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
+    public void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException {
         if (hasProject(name)) {
             throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, name);
         }
@@ -88,7 +89,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         try {
             AProject newProject = wrapProject(rulesRepository.createRulesProject(name), false);
 
+            newProject.setResourceTransformer(resourceTransformer);
             newProject.update(project, user);
+            newProject.setResourceTransformer(null);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         } catch (Exception e) {
