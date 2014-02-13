@@ -276,13 +276,10 @@
         }
 
         var lastSavedHash = $location.getHash();
+        var fullreload = false;
 
         $j(window).bind("hashchange", function() {
-            handleUrl();
-        });
-
-        function handleUrl(page, reload) {
-            var ch = page || $location.getHash();
+            var ch = $location.getHash();
             if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
                 // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
                 location.hash = lastSavedHash;
@@ -291,8 +288,9 @@
                 lastSavedHash = ch;
             }
 
-            loadContent(getCurrentPage(), reload);
-        }
+            loadContent(getCurrentPage(), fullreload);
+            fullreload = false;
+        });
 
         var mainLayout;
         var centerLayout;
@@ -347,12 +345,8 @@
                 if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
                     loadContent('', reload);
                 } else {
-                    $j(window).unbind("hashchange");
+                    fullreload = reload;
                     location.hash = page;
-                    handleUrl(page.replace("#", ""), reload);
-                    $j(window).bind("hashchange", function() {
-                        handleUrl();
-                    });
                 }
             }
         }
