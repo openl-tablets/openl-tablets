@@ -50,7 +50,7 @@ public class MainBean {
         if (StringUtils.isNotBlank(projectName)) {
             ProjectDescriptor project = studio.getCurrentProjectDescriptor();
 
-            // Select project
+            // Select module
             if (StringUtils.isNotBlank(moduleName)) {
                 Module module = studio.getCurrentModule();
                 if (project != null && module != null
@@ -61,11 +61,9 @@ public class MainBean {
                 OpenLConfiguration.reset();
                 studio.selectModule(projectName, moduleName);
 
-            // Select module
+            // Select project
             } else {
-                if (project == null || !project.getName().equals(projectName)) {
-                    studio.selectProject(projectName);
-                }
+                studio.selectProject(projectName);
             }
         }
     }
