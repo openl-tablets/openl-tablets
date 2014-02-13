@@ -3,7 +3,7 @@ package org.openl.rules.project.model;
 import java.util.Map;
 
 
-public class Module {
+public class Module{
 
     private String name;
     private ModuleType type;
@@ -11,6 +11,8 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
+    private String wildcardName;
+    private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
 
     public MethodFilter getMethodFilter() {
@@ -19,6 +21,22 @@ public class Module {
 
     public void setMethodFilter(MethodFilter methodFilter) {
         this.methodFilter = methodFilter;
+    }
+    
+    public String getWildcardRulesRootPath() {
+        return wildcardRulesRootPath;
+    }
+    
+    public void setWildcardRulesRootPath(String wildcardRulesRootPath) {
+        this.wildcardRulesRootPath = wildcardRulesRootPath;
+    }
+    
+    public String getWildcardName() {
+        return wildcardName;
+    }
+    
+    public void setWildcardName(String wildcardName) {
+        this.wildcardName = wildcardName;
     }
 
     public ProjectDescriptor getProject() {
