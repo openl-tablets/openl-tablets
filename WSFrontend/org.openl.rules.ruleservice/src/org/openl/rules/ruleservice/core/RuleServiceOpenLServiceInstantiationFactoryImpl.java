@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.dependencies.CompositeRulesProjectDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -250,25 +249,18 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             RuleServiceDeploymentRelatedDependencyManager dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(serviceDescription.getDeployment(),
                 getRuleServiceLoader(),
                 isLazy);
+            dependencyManager.setExternalParameters(externalParameters);
             dependencyManagerMap.put(serviceDescription.getDeployment(), dependencyManager);
             return dependencyManager;
         }
     }
 
     private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
-        CompositeRulesProjectDependencyManager multiModuleDependencyManager = new CompositeRulesProjectDependencyManager();
-        // multimodule is only available for execution(execution mode == true)
-        multiModuleDependencyManager.setExecutionMode(true);
-
         if (externalDependencyManager != null) {
-            multiModuleDependencyManager.addDependencyManager(externalDependencyManager);
+            return externalDependencyManager; 
         }
 
         RuleServiceDeploymentRelatedDependencyManager ruleServiceDependencyManager = getRuleServiceDependencyManager(serviceDescription);
-        multiModuleDependencyManager.addDependencyManager(ruleServiceDependencyManager);
-
-        multiModuleDependencyManager.setExternalParameters(externalParameters);
-
-        return multiModuleDependencyManager;
+        return ruleServiceDependencyManager;
     }
 }

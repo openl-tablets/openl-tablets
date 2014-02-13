@@ -6,6 +6,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
@@ -36,12 +37,14 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * can be LocalWorkspaceProject, a version of project in the DTR, any other
      * class that implements Project interface.
      *
+     *
      * @param project source rules project
      * @param name name of new project, must be unique
      * @param user who is copies project
+     * @param resourceTransformer
      * @throws RepositoryException if failed
      */
-    void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException;
+    void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException;
 
     /**
      * Creates new deployment project in the DTR.
