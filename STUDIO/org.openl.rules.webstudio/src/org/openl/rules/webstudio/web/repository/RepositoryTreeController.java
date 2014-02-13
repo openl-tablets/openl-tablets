@@ -6,10 +6,7 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJEC
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -34,20 +31,17 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -442,7 +436,25 @@ public class RepositoryTreeController {
         }
 
         try {
-            userWorkspace.copyProject(project, newProjectName);
+            userWorkspace.copyProject(project, newProjectName, new ResourceTransformer() {
+                @Override
+                public InputStream tranform(AProjectResource resource) throws ProjectException {
+                    if (isProjectDescriptor(resource)) {
+                        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                        ProjectDescriptor projectDescriptor = serializer.deserialize(resource.getContent());
+                        projectDescriptor.setName(newProjectName);
+                        return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                    }
+
+                    return resource.getContent();
+                }
+
+                private boolean isProjectDescriptor(AProjectResource resource) {
+                    String actualFullPath = resource.getArtefactPath().withoutFirstSegment().getStringValue();
+                    String expectedFullPath = ArtefactPathImpl.SEGMENT_DELIMITER + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
+                    return expectedFullPath.equals(actualFullPath);
+                }
+            });
             AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
             resetStudioModel();
