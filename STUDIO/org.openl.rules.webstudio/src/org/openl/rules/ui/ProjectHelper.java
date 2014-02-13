@@ -31,6 +31,9 @@ public class ProjectHelper {
             if (isTester(tester)) {
                 res.add((TestSuiteMethod)tester);
             }
+            if (tester instanceof OpenMethodDispatcher && isTester(((OpenMethodDispatcher) tester).getTargetMethod())) {
+                res.add((TestSuiteMethod) ((OpenMethodDispatcher) tester).getTargetMethod());
+            }
         }
 
         TestSuiteMethod[] testSuiteMethods = new TestSuiteMethod[res.size()];
@@ -54,10 +57,7 @@ public class ProjectHelper {
 
     public static boolean isMethodHasParams(IOpenMethod m) {
         IOpenClass[] par = m.getSignature().getParameterTypes();
-        if (par.length > 0) {
-            return true;
-        }
-        return false;
+        return par.length > 0;
     }
 
     public static boolean isTestable(IOpenMethod m) {
@@ -96,15 +96,13 @@ public class ProjectHelper {
 
         }
 
-        return res.toArray(new IOpenMethod[0]);
+        return res.toArray(new IOpenMethod[res.size()]);
     }
     
     /**
      * Get tests for tested method that have filled rules rows data for testing its functionality. Run methods and tests 
      * with empty test cases are not being processed. 
      * If you need to get all test methods, including run methods and empty ones, use {@link #allTesters(IOpenMethod)}. 
-     * @param tested
-     * @return
      */
     public static IOpenMethod[] testers(IOpenMethod tested) {
 
@@ -116,13 +114,12 @@ public class ProjectHelper {
 
         }
 
-        return (IOpenMethod[]) res.toArray(new IOpenMethod[0]);
+        return res.toArray(new IOpenMethod[res.size()]);
     }
     
     /**
      * gets all the tests for tested method.
      * 
-     * @param tested
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
      * runs without any parameters and tests without cases and runs.
      */
@@ -133,16 +130,12 @@ public class ProjectHelper {
                 res.add(tester);
             }
         }
-        return (IOpenMethod[]) res.toArray(new IOpenMethod[0]);
+        return res.toArray(new IOpenMethod[res.size()]);
     }
 
     /**
      * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we 
      * consider tester is test for tested method.
-     * 
-     * @param tester
-     * @param tested
-     * @return
      */
     private static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
         if (!(tester instanceof TestSuiteMethod)) {
