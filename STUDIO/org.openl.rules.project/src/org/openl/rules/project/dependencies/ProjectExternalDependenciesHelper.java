@@ -31,6 +31,7 @@ public final class ProjectExternalDependenciesHelper {
             parameters.putAll(externalParams);
         }
         if (modules == null) {
+            parameters.put("external-dependencies", null);
             return parameters;
         }
         Set<String> virtualModules = new HashSet<String>();
