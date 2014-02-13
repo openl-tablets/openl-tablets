@@ -39,7 +39,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.omitField(ProjectDescriptor.class, "id"); // This field was deprecated
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");
-        xstream.omitField(Module.class, "project");
+        xstream.omitField(ProjectDescriptor.class, "projectFolder");
+        xstream.omitField(Module.class, "properties"); //properties doesn't supported by rules.xml
+        xstream.omitField(Module.class, "wildcardName"); // runtime properties
+        xstream.omitField(Module.class, "wildcardRulesRootPath"); // runtime properties
+        xstream.omitField(Module.class, "project"); // runtime properties
 
         xstream.setMode(XStream.NO_REFERENCES);
 
