@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import com.rits.cloning.Cloner;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -25,7 +27,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -265,15 +269,15 @@ public class ProjectBean {
     }
 
 
-
+    private static final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+    
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
-
-        final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
         try {
             //validator.validate(descriptor);
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(
