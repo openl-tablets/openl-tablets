@@ -77,6 +77,13 @@ public class ProductionRepositoriesTreeController {
         return null;
     }
 
+    public String refreshInitTree() {
+        productionRepositoriesTreeState.invalidateTree();
+        productionRepositoriesTreeState.initTree();
+
+        return null;
+    }
+
     public void deleteProdRepo(String configName) {
         if (productionRepositoriesTreeState.getRoot() != null) {
             productionRepositoriesTreeState.getRoot().removeChild(configName);
