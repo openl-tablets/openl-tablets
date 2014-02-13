@@ -173,7 +173,7 @@
                         <ui:repeat var="dependency" value="#{project.dependencies}">
                             <div class="list-item">
                                 <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
-                                <a href="#project.xhtml?name=#{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
+                                <a href="##{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
                                 <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                     All Modules
                                 </h:panelGroup>
