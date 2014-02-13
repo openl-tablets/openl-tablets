@@ -1,11 +1,10 @@
 package org.openl.rules.project.model;
 
-public class PathEntry {
+public class PathEntry{
 
     private String path;
-    
-    public PathEntry(){
-        
+
+    public PathEntry() {
     }
     
     public PathEntry(String path) {
