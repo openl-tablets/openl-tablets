@@ -16,15 +16,18 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenlNotCheckedException;
 
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.MethodKey;
+import org.openl.util.Log;
 import org.openl.util.StringTool;
 
 /**
@@ -34,8 +37,8 @@ import org.openl.util.StringTool;
  * @author snshor
  *
  */
-public class ModuleOpenClass extends ComponentOpenClass {    
-    
+public class ModuleOpenClass extends ComponentOpenClass {
+
     /**
      * Map of internal types. XLS document can have internal types defined using
      * <code>Datatype</code> tables, e.g. domain model.<br>
@@ -68,18 +71,14 @@ public class ModuleOpenClass extends ComponentOpenClass {
         super(schema, name, openl);
         if (usingModules != null) {
             this.usingModules = new HashSet<CompiledOpenClass>(usingModules);
-            try {
-                initDependencies();
-            } catch (OpenLCompilationException e) {
-                throw new OpenlNotCheckedException("Can`t add datatype", e);
-            }
+            initDependencies();
         }
     }
     
     /**
      * Populate current module fields with data from dependent modules. 
      */
-    private void initDependencies() throws OpenLCompilationException {    
+    private void initDependencies() {
         for (CompiledOpenClass dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.
@@ -113,7 +112,19 @@ public class ModuleOpenClass extends ComponentOpenClass {
             // filter constructor and getOpenClass methods of dependency modules
             //
             if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
-                addMethod(depMethod);
+                try {
+                    addMethod(depMethod);
+                } catch (DuplicatedMethodException e) {
+                    if (Log.isDebugEnabled()) {
+                        Log.debug(e.getMessage(), e);
+                    }
+                    OpenLMessagesUtils.addError(SyntaxNodeExceptionUtils.createError(e, null));
+                } catch (RuntimeException e) {
+                    if (Log.isErrorEnabled()) {
+                        Log.error(e.getMessage(), e);
+                    }
+                    OpenLMessagesUtils.addError(SyntaxNodeExceptionUtils.createError(e, null));
+                }
             }
         }
     }
