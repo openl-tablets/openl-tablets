@@ -154,12 +154,22 @@ a.button-secondary {
 .buttonPanel > span > .button-primary,
 .buttonPanel > span > .button-secondary,
 .buttonPanel > span > .imageButton{
-    margin: 0px 3px;
+    margin: 0;
     border: 0;
     background-color: transparent !important;
     color: #777;
     box-shadow: none;
     background-image: none;
+    padding: 12px 13px;
+}
+
+.buttonPanel > .button:hover,
+.buttonPanel > .button-primary:hover,
+.buttonPanel > .button-secondary:hover,
+.buttonPanel > span > .button:hover,
+.buttonPanel > span > .button-primary:hover,
+.buttonPanel > span > .button-secondary:hover {
+    background: #fafafa !important;
 }
 
 .buttonPanel > .button-primary,
@@ -318,7 +328,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 10px 7px 10px 15px;
+    padding: 11px 7px 11px 15px;
 }
 
 .table {
@@ -740,7 +750,7 @@ form.standard table.buttonPanel {
 }
 
 .panel > .panel-header {
-    height: 30px;
+    height: 32px;
     font-size: 110%;
     color: #333;
     white-space: nowrap;
@@ -756,13 +766,13 @@ form.standard table.buttonPanel {
     overflow: auto;
     position: absolute;
     bottom: 0;
-    top: 30px; /*- header height */
+    top: 32px; /*- header height */
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
 
 .panel > .container {
-    padding: 7px;
+    padding: 8px 7px;
 }
 
 .view_header {
@@ -1132,7 +1142,7 @@ form.standard table.buttonPanel {
     border: 1px solid #eaeaea;
     box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.05);
     min-width: 100px;
-    margin-top: 11px;
+    margin-top: 12px;
 }
 
 .dropdown-menu::before {
