@@ -10,7 +10,7 @@
             <a4j:commandLink id="designRepoRefresh" title="Refresh" action="#{repositoryTreeController.refreshTree}"
                 render="projectTree nodeView uploadPrjFromLocalDiv uploadPrjFromLocalTable uploadPrjFromLocalDiv uploadPrjFromLocalMessageDiv localUploadButtonPanel" process="@this"
                 style="background:url('webresource/images/refresh.png')" styleClass="imageButton" />
-            <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshTree}"
+            <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshInitTree}"
                 render="prodTree" process="@this" style="background:url('webresource/images/refresh.png'); display: none;"
                 styleClass="imageButton" />
 
