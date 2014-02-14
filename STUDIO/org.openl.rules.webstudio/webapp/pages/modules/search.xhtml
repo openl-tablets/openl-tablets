@@ -20,33 +20,34 @@
         }
     </style>
 
-    <div class="view_header">
-        <h:panelGroup rendered="#{not empty searchBean.searchResults}">
-            <h:outputText value="#{searchBean.searchResults.size()}" style="font-weight: bold" />
-            #{msg['ws.search.found']}
-        </h:panelGroup>
+    <div class="page">
 
-        <h:outputText value="#{msg['ws.search.no']}" rendered="#{empty searchBean.searchResults}"
-            style="font-weight: bold" />
-    </div>
+        <h1 class="page-header">
+            <h:panelGroup rendered="#{not empty searchBean.searchResults}">
+                #{searchBean.searchResults.size()} #{msg['ws.search.found']}
+            </h:panelGroup>
 
-    <div id="searchResults" class="content">
-        <div>
-            <c:forEach items="#{searchBean.searchResults}" var="table">
-                <div class="search-result">
-                    <h:outputLink value="#{studio.url('table')}">
-                        <f:param name="uri" value="#{table.uri}" />
-                        <h:outputText value="#{msg['ws.search.results.view']}" />
-                    </h:outputLink>
+            <h:outputText value="#{msg['ws.search.no']}" rendered="#{empty searchBean.searchResults}" />
+        </h1>
 
-                    <br /><br />
+        <div id="searchResults">
+            <div>
+                <c:forEach items="#{searchBean.searchResults}" var="table">
+                    <div class="search-result">
+                        <h:outputLink value="#{studio.url('table')}">
+                            <f:param name="uri" value="#{table.uri}" />
+                            <h:outputText value="#{msg['ws.search.results.view']}" />
+                        </h:outputLink>
 
-                    <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
-                        rendered="#{table != null}" linkBase="#{studio.url('table')}" />
-                </div>
-             </c:forEach>
+                        <br /><br />
+
+                        <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
+                            rendered="#{table != null}" linkBase="#{studio.url('table')}" />
+                    </div>
+                 </c:forEach>
+            </div>
+
         </div>
-
     </div>
 
 </ui:composition>
