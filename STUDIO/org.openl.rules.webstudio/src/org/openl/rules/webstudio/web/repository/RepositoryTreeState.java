@@ -23,6 +23,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
@@ -47,6 +50,9 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
+    @ManagedProperty("#{temporaryRevisionsStorage}")
+    private TemporaryRevisionsStorage temporaryRevisionsStorage;
+    private DependencyResolverForRevision dependencyResolver;
 
     public static final String DEFAULT_TAB = "Properties";
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
@@ -165,6 +171,26 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return this.repositorySelectNodeStateHolder.getSelectedNode();
     }
 
+    public TreeProject getSelectedProjectNode() {
+        TreeNode node = getSelectedNode();
+
+        while (node != null && !(node instanceof TreeProject)) {
+            node = node.getParent();
+        }
+
+        return node != null ? (TreeProject) node : null;
+    }
+
+    public TreeProject getProjectNodeByLogicalName(String logicalName) {
+        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
+            TreeProject project = (TreeProject) treeNode;
+            if (project.getLogicalName().equals(logicalName)) {
+                return project;
+            }
+        }
+        return null;
+    }
+
     public UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact instanceof UserWorkspaceProject) {
@@ -223,7 +249,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String name = project.getName();
         String id = String.valueOf(name.hashCode());
         if (!project.isDeleted() || !hideDeleted) {
-            TreeProject prj = new TreeProject(id, name, filter);
+            TreeProject prj = new TreeProject(id, name, filter, dependencyResolver);
             prj.setData(project);
             rulesRepository.add(prj);
         }
@@ -307,6 +333,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public void initUserWorkspace() {
         this.userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 
     @PreDestroy
@@ -525,5 +553,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void setRepositorySelectNodeStateHolder(RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
+    }
+
+    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
+        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 }
