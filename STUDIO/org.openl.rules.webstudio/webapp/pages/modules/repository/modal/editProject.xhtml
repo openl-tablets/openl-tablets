@@ -25,12 +25,10 @@
         </h:panelGrid>
       </h:panelGroup>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Edit Project" action="#{repositoryTreeController.editProject}" />
+      <footer>
+        <h:commandButton value="Edit Project" action="#{repositoryTreeController.editProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalEditProject')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

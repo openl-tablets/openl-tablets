@@ -153,7 +153,7 @@ a.button-secondary {
 .buttonPanel > span > .button,
 .buttonPanel > span > .button-primary,
 .buttonPanel > span > .button-secondary,
-.buttonPanel > span > .imageButton{
+.buttonPanel > span > .imageButton {
     margin: 0;
     border: 0;
     background-color: transparent !important;
@@ -195,6 +195,20 @@ a.button-secondary {
     border: 1px solid #ddd;
     border-left: 0;
     background: #fbfbfb;
+}
+
+.buttonPanel .button-dropdown {
+    padding-right: 11px;
+}
+
+.buttonPanel .button-dropdown + .dropdown {
+    margin-left: -6px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .buttonPanel .button-dropdown + .dropdown {
+        margin-left: -2px;
+    }
 }
 
 .buttonPanel .button-dropdown + .dropdown >.dropdown-toggle {
@@ -328,7 +342,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 11px 7px 11px 15px;
+    padding: 11px 3px 11px 15px;
 }
 
 .table {
@@ -342,14 +356,18 @@ fieldset {
 
 .table th {
     border: 1px dotted #ccc;
+    border-right: 0;
+    border-left: 0;
     border-bottom-style: solid;
-    padding: 6px 7px;
+    padding: 6px 8px;
     text-align: left;
 }
 
 .table td {
     border: 1px dotted #ccc;
-    padding: 4px 7px;
+    border-right: 0;
+    border-left: 0;
+    padding: 6px 8px;
     line-height: 15px;
 }
 
@@ -777,8 +795,8 @@ form.standard table.buttonPanel {
 
 .view_header {
      font-size: 110%;
-     height: 14px;
-     padding: 8px 7px 8px 9px;
+     height: 16px;
+     padding: 9px 7px 7px 9px;
      color: #333;
      white-space: nowrap;
      text-overflow: ellipsis;
@@ -1081,9 +1099,13 @@ form.standard table.buttonPanel {
 
 .rf-pp-cnt footer {
     border-top: 1px solid #ddd;
-    margin-top: 14px;
+    margin-top: 15px;
     padding: 13px 1px 4px;
     text-align: right;
+}
+
+.rf-pp-cnt .rf-tab-cnt footer {
+    padding-bottom: 0;
 }
 
 .rf-pp-cnt footer > input {
