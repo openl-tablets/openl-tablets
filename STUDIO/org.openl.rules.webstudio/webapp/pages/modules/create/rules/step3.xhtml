@@ -161,14 +161,10 @@
     </div>
   </a4j:outputPanel>
 
-  <br />
-  <hr />
-  <br />
-
-  <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <input type="button" value="Select" onclick="hideDomainTree();" />
-    <input type="button" value="Cancel" onclick="RichFaces.$('modalDomainTreePanel').hide();" />
-  </h:panelGrid>
+    <footer>
+        <input type="button" value="Select" onclick="hideDomainTree();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalDomainTreePanel').hide();" />
+    </footer>
 </rich:popupPanel>
 
     <script>

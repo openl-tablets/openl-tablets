@@ -79,13 +79,11 @@
 
                     <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}" />
 
-                    <hr style="margin-bottom: 15px" />
-
-                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <footer>
                         <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
                             action="#{repositoryTreeController.createNewRulesProject}" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                    </h:panelGrid>
+                    </footer>
                 </h:form>
             </rich:tab>
 
@@ -104,13 +102,11 @@
                             onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtFiles')});" />
                     </h:panelGrid>
 
-                    <hr style="margin-bottom: 15px" />
-
-                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <footer>
                         <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
                             action="#{repositoryTreeController.createProjectWithFiles}" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                    </h:panelGrid>
+                    </footer>
                 </h:form>
             </rich:tab>
 
@@ -134,13 +130,11 @@
                             onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtZips')});" />
                     </h:panelGrid>
 
-                <hr style="margin-bottom: 15px" />
-
-                <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                <footer>
                     <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
                         styleClass="button-primary" />
                     <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                </h:panelGrid>
+                </footer>
                 </h:form>
             </rich:tab>
 
@@ -176,15 +170,16 @@
 	                        rendered="#{empty localUpload.projects4Upload}" />
                     </h:panelGrid>
                     </div>
-                    <hr style="margin-bottom: 15px" />
 
-                    <h:panelGrid id="localUploadButtonPanel" columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
-                        <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary" 
+                    <h:panelGroup id="localUploadButtonPanel">
+                    <footer>
+                        <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
                         rendered="#{not empty localUpload.projects4Upload}" process="@form" value="Create"
                         oncomplete="hideNewProjectDialog()"
                         render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
-                    </h:panelGrid>
+                    </footer>
+                    </h:panelGroup>
                 </h:form>
             </rich:tab>
 

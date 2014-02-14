@@ -21,12 +21,10 @@
         <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"/>
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+      <footer>
         <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentConfiguration}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 
