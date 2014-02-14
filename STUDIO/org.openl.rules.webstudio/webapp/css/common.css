@@ -777,8 +777,8 @@ form.standard table.buttonPanel {
 
 .view_header {
      font-size: 110%;
-     height: 14px;
-     padding: 8px 7px 8px 9px;
+     height: 16px;
+     padding: 9px 7px 7px 9px;
      color: #333;
      white-space: nowrap;
      text-overflow: ellipsis;
