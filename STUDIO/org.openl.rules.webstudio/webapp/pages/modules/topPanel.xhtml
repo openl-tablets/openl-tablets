@@ -93,7 +93,7 @@
                 <h:panelGroup class="dropdown dropdown-form"
                         rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
-                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-69px">
+                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
                         <li onclick="event.stopPropagation()">
                             <span tabindex="-1">
                                 <span>Tests per page</span>
@@ -169,7 +169,7 @@
                     </ul>
                 </h:panelGroup>
 
-                <h:panelGroup style="float: right" rendered="#{!empty module}" class="dropdown">
+                <h:panelGroup style="float: right; width: 115px" rendered="#{!empty module}" class="dropdown">
                     <a4j:ajax oncomplete="ws.nav.reload(true)">
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>

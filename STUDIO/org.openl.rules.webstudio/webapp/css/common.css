@@ -197,6 +197,20 @@ a.button-secondary {
     background: #fbfbfb;
 }
 
+.buttonPanel .button-dropdown {
+    padding-right: 11px;
+}
+
+.buttonPanel .button-dropdown + .dropdown {
+    margin-left: -6px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .buttonPanel .button-dropdown + .dropdown {
+        margin-left: -2px;
+    }
+}
+
 .buttonPanel .button-dropdown + .dropdown >.dropdown-toggle {
     padding-left: 4px;
     border: 0;
@@ -328,7 +342,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 11px 7px 11px 15px;
+    padding: 11px 3px 11px 15px;
 }
 
 .table {
