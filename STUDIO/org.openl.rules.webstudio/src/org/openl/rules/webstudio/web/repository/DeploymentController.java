@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -27,9 +26,7 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -61,10 +58,8 @@ public class DeploymentController {
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
-    @ManagedProperty("#{temporaryRevisionsStorage}")
-    private TemporaryRevisionsStorage temporaryRevisionsStorage;
-
-    private DependencyResolverForRevision dependencyResolver;
+    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
@@ -104,7 +99,7 @@ public class DeploymentController {
             return;
         }
 
-        DependencyChecker checker = new DependencyChecker(dependencyResolver);
+        DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
         ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         checker.check(items);
@@ -115,7 +110,7 @@ public class DeploymentController {
             return false;
         }
 
-        DependencyChecker checker = new DependencyChecker(dependencyResolver);
+        DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
         ADeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         return checker.check();
@@ -350,8 +345,8 @@ public class DeploymentController {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
-    public synchronized void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
+    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
     public void setProjectName(String projectName) {
@@ -398,11 +393,5 @@ public class DeploymentController {
     public void setProductionRepositoriesTreeController(
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
-    }
-
-    @PostConstruct
-    public synchronized void init() {
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 }

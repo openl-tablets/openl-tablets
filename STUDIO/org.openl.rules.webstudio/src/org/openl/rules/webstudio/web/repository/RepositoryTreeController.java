@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -94,11 +93,8 @@ public class RepositoryTreeController {
     @ManagedProperty(value = "#{zipFilter}")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{temporaryRevisionsStorage}")
-    private TemporaryRevisionsStorage temporaryRevisionsStorage;
-
-    private RulesProjectResolver projectResolver;
-    private DependencyResolverForRevision dependencyResolver;
+    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -327,7 +323,7 @@ public class RepositoryTreeController {
     private void calcDependencies(Collection<String> result, AProject project, boolean recursive) {
         List<ProjectDependencyDescriptor> dependencies;
         try {
-            dependencies = dependencyResolver.getDependencies(project);
+            dependencies = projectDescriptorResolver.getDependencies(project);
             if (dependencies == null) {
                 return;
             }
@@ -343,9 +339,6 @@ public class RepositoryTreeController {
             try {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency.getName());
                 if (projectNode == null) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format("Can't find dependency %s", dependency.getName()));
-                    }
                     continue;
                 }
                 String physicalName = projectNode.getName();
@@ -709,7 +702,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            temporaryRevisionsStorage.deleteRevisions(project.getAPI());
+            projectDescriptorResolver.deleteRevisions(project);
             project.erase();
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
@@ -1606,8 +1599,8 @@ public class RepositoryTreeController {
         return isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
     }
 
-    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
+    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
     private void resetStudioModel() {
@@ -1628,12 +1621,6 @@ public class RepositoryTreeController {
             return (AProject) artefact;
         }
         return null;
-    }
-
-    @PostConstruct
-    public void init() {
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 
     public boolean getIsOpenVersionDialogOpened() {

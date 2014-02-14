@@ -4,7 +4,7 @@ import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
 
@@ -20,7 +20,7 @@ public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
 
-    private final DependencyResolverForRevision dependencyResolver;
+    private final ProjectDescriptorArtefactResolver dependencyResolver;
     private String logicalName;
 
     protected static String generateComments(UserWorkspaceProject userProject) {
@@ -73,7 +73,7 @@ public class TreeProject extends TreeFolder {
         return status.getDisplayValue();
     }
 
-    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, DependencyResolverForRevision dependencyResolver) {
+    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, ProjectDescriptorArtefactResolver dependencyResolver) {
         super(id, name, filter);
         this.dependencyResolver = dependencyResolver;
     }
