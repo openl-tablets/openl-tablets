@@ -32,7 +32,7 @@
 
     <div class="page">
         <div class="editable">
-            <h1>
+            <h1 class="page-header">
                 <span>#{project.name}</span>
                 <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
@@ -40,7 +40,7 @@
                 </h:panelGroup>
             </h1>
 
-            <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:10px 0 15px; color:#555">
+            <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:-6px 0 20px; color:#555">
                 <span>#{project.comment}</span>
             </h:panelGroup>
         </div>
