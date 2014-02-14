@@ -3,12 +3,11 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:a4j="http://richfaces.org/a4j">
 
-    <div class="view_header">Results of benchmarking</div>
+    <div class="page">
+        <h1 class="page-header">Results of benchmarking</h1>
 
-    <div class="content">
         <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkBean.benchmarks}" var="item"
                 binding="#{benchmarkBean.htmlDataTableBM}" styleClass="table">

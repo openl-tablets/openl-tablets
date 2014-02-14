@@ -488,6 +488,10 @@ fieldset {
     padding: 7px 21px 15px;
 }
 
+.page .page-header {
+    margin: 11px 0 27px;
+}
+
 /* TODO Merge with .block */
 .fields section {
     margin-bottom: 31px;
@@ -512,7 +516,6 @@ fieldset {
 }
 
 .block {
-    margin-top: 25px;
     margin-bottom: 37px;
 }
 
@@ -682,11 +685,6 @@ form .formfields {
     padding-left: 2px;
 }
 
-form.standard table.buttonPanel {
-  margin-top: 10px;
-  margin-left: -4px;
-}
-
 .messages {
     position: absolute;
     left: 41%;
@@ -793,18 +791,6 @@ form.standard table.buttonPanel {
     padding: 8px 7px;
 }
 
-.view_header {
-     font-size: 110%;
-     height: 16px;
-     padding: 9px 7px 7px 9px;
-     color: #333;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     overflow: hidden;
-     border-bottom: 1px solid #f9f9f9;
-     background: #fff;
-}
-
 .view-header-link {
     text-decoration: none;
     color: #333;
@@ -814,19 +800,6 @@ form.standard table.buttonPanel {
 .view-header-link-inactive {
     color: #777;
     border-bottom: 1px dashed #ccc;
-}
-
-.simpleView_workspace {
-    width: 100%;
-    overflow: auto;
-    position: absolute;
-    bottom: 0;
-    top: 30px; /* 14px - header height
-                + 16px - header padding */
-}
-
-.simpleView_workspace > div {
-    padding: 5px 7px;
 }
 
 .field-description {
@@ -966,6 +939,10 @@ form.standard table.buttonPanel {
     position: absolute;
     top: -9px;
     right: -8px;
+}
+
+.breadcrumbs > span > a {
+    padding: 12px 0;
 }
 
 .breadcrumbs a {
@@ -1255,6 +1232,7 @@ form.standard table.buttonPanel {
 .pagination > ul {
     border: 0;
     box-shadow: none;
+    margin: 0;
 }
 
 .pagination ul > .active > a,
@@ -1278,6 +1256,10 @@ form.standard table.buttonPanel {
 }
 
 /* OpenL Tablets Bootstrap styles */
+
+.dropdown-hover:hover > ul.dropdown-menu {
+    display: block;
+}
 
 .dropdown-menu > li > span {
     display: block;

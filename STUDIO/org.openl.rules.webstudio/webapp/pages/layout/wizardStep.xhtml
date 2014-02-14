@@ -3,31 +3,32 @@
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="wizard" value="#{tableCreatorWizardManager.wizard}" />
 
-    <div class="view_header">
-        <ui:insert name="header" />
-    </div>
+    <div class="page">
+        <h1 class="page-header">
+            <ui:insert name="header" />
+        </h1>
 
-    <!--ui:insert name="steps">
-        <h:panelGroup rendered="#{not empty wizard and wizard.stepsCount > 0}">
-            <ui:fragment>
-                <ui:include src="/pages/common/wizardSteps.xhtml">
-                    <ui:param name="current" value="#{wizard.step}" />
-                    <ui:param name="max" value="#{wizard.stepsCount}" />
-                </ui:include>
-                <br />
-                <br />
-            </ui:fragment>
-        </h:panelGroup>
-    </ui:insert-->
+        <!--ui:insert name="steps">
+            <h:panelGroup rendered="#{not empty wizard and wizard.stepsCount > 0}">
+                <ui:fragment>
+                    <ui:include src="/pages/common/wizardSteps.xhtml">
+                        <ui:param name="current" value="#{wizard.step}" />
+                        <ui:param name="max" value="#{wizard.stepsCount}" />
+                    </ui:include>
+                    <br />
+                    <br />
+                </ui:fragment>
+            </h:panelGroup>
+        </ui:insert-->
 
-    <div style="padding: 11px 0 0 7px">
-        <ui:insert name="data" />
+        <div>
+            <ui:insert name="data" />
+        </div>
     </div>
 
 </ui:composition>
