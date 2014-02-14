@@ -1,5 +1,7 @@
 package org.openl.rules.project.resolving;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -14,6 +16,7 @@ import java.util.WeakHashMap;
  * Resolves specified OpenL project revision's dependencies.
  */
 public class DependencyResolverForRevision {
+    private final Log log = LogFactory.getLog(DependencyResolverForRevision.class);
     private final RulesProjectResolver rulesProjectResolver;
     private final TemporaryRevisionsStorage temporaryRevisionsStorage;
 
@@ -28,7 +31,7 @@ public class DependencyResolverForRevision {
         this.temporaryRevisionsStorage = temporaryRevisionsStorage;
     }
 
-    public ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException {
+    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException {
         File projectFolder = temporaryRevisionsStorage.getRevision(project.getAPI());
 
         ProjectDescriptor descriptor = cache.get(projectFolder.getAbsolutePath());
@@ -49,5 +52,22 @@ public class DependencyResolverForRevision {
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, ProjectResolvingException {
         ProjectDescriptor pd = getProjectDescriptor(project);
         return pd != null ? pd.getDependencies() : null;
+    }
+
+    public String getLogicalName(AProject project) {
+        ProjectDescriptor pd = null;
+        try {
+            pd = getProjectDescriptor(project);
+        } catch (ProjectException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (ProjectResolvingException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        return pd != null ? pd.getName() : project.getName();
     }
 }

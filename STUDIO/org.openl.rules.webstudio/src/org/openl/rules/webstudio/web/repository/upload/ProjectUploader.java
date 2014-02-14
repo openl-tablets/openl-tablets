@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -14,11 +13,6 @@ import org.openl.util.FileTypeHelper;
 import org.richfaces.model.UploadedFile;
 
 public class ProjectUploader {
-
-    private static final String NAME_ALREADY_EXISTS = "Cannot create project because project with such name already exists.";
-
-    private static final String INVALID_PROJECT_NAME = "Specified name is not a valid project name.";
-
     private String projectName;
     private UserWorkspace userWorkspace;
     private PathFilter zipFilter;
@@ -44,14 +38,6 @@ public class ProjectUploader {
     }
 
     public String uploadProject() {
-        String errorMessage = getProblemWithProjectName();        
-        if (errorMessage == null) {
-            errorMessage = createProjectFromUploadedFile(uploadedFiles);
-        }
-        return errorMessage;
-    }
-
-    private String createProjectFromUploadedFile(List<UploadedFile> uploadedFiles) {
         String errorMessage = null;
         AProjectCreator projectCreator = null;
         try {
@@ -69,16 +55,6 @@ public class ProjectUploader {
             }
         }
         return errorMessage;
-    }
-
-    private String getProblemWithProjectName() {
-        String problem = null;
-        if (!NameChecker.checkName(projectName)) {
-            problem = INVALID_PROJECT_NAME + " " + NameChecker.BAD_NAME_MSG;
-        } else if (userWorkspace.hasProject(projectName)) {
-            problem = NAME_ALREADY_EXISTS;
-        } 
-        return problem;
     }
 
     private AProjectCreator getProjectCreator(List<UploadedFile> uploadedFiles) throws IOException {
