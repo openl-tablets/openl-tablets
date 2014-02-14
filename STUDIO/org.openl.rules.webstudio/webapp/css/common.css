@@ -941,10 +941,6 @@ form .formfields {
     right: -8px;
 }
 
-.breadcrumbs > span > a {
-    padding: 12px 0;
-}
-
 .breadcrumbs a {
     text-decoration: none;
 }
