@@ -19,13 +19,11 @@
         <h:outputLabel id="exportingModuleName" value="#{studio.currentModule.name}" />
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+      <footer>
         <h:commandButton value="Export" action="#{studio.exportModule}"
-            onclick="RichFaces.$('exportModule').hide();" immediate="true" />
+            onclick="RichFaces.$('exportModule').hide();" immediate="true" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

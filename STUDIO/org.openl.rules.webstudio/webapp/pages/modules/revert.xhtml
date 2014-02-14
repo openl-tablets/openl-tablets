@@ -11,7 +11,7 @@
     <style>
         .revertTable th,
         .revertTable td {
-            padding: 5px 11px;
+            padding: 6px 11px;
             text-align: center;
         }
     </style>
@@ -39,7 +39,7 @@
             <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
                 onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
                 onrowclick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
-                styleClass="revertTable">
+                styleClass="table revertTable">
                 <rich:column>
                     <f:facet name="header">
                         <h:outputText value="#" />

@@ -66,15 +66,16 @@
             <br/>
         </h:panelGrid>
 
-        <hr />
+        <footer>
 
-        <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" rendered="#{not empty availableProjects}">
+        <h:panelGroup rendered="#{not empty availableProjects}">
           <input type="button" value="Cancel" onclick="#{rich:component('addDeployEntry')}.hide();" />
-        </h:panelGrid>
+        </h:panelGroup>
 
-        <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4" cellspacing="0" rendered="#{empty availableProjects}">
+        <h:panelGroup rendered="#{empty availableProjects}">
             <input type="button" value="OK" onclick="#{rich:component('addDeployEntry')}.hide();" />
-        </h:panelGrid>
+        </h:panelGroup>
+        </footer>
     </h:form>
 
   </rich:popupPanel>

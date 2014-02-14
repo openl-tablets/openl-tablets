@@ -26,12 +26,11 @@
           <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" />
         </h:panelGrid>
       </h:panelGroup>
-      <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Open Project" action="#{repositoryTreeController.openProject}" />
+      <footer>
+        <h:commandButton value="Open Project" action="#{repositoryTreeController.openProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalOpenProject')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

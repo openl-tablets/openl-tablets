@@ -153,7 +153,7 @@ a.button-secondary {
 .buttonPanel > span > .button,
 .buttonPanel > span > .button-primary,
 .buttonPanel > span > .button-secondary,
-.buttonPanel > span > .imageButton{
+.buttonPanel > span > .imageButton {
     margin: 0;
     border: 0;
     background-color: transparent !important;
@@ -342,14 +342,18 @@ fieldset {
 
 .table th {
     border: 1px dotted #ccc;
+    border-right: 0;
+    border-left: 0;
     border-bottom-style: solid;
-    padding: 6px 7px;
+    padding: 6px 8px;
     text-align: left;
 }
 
 .table td {
     border: 1px dotted #ccc;
-    padding: 4px 7px;
+    border-right: 0;
+    border-left: 0;
+    padding: 6px 8px;
     line-height: 15px;
 }
 
@@ -1081,9 +1085,13 @@ form.standard table.buttonPanel {
 
 .rf-pp-cnt footer {
     border-top: 1px solid #ddd;
-    margin-top: 14px;
+    margin-top: 15px;
     padding: 13px 1px 4px;
     text-align: right;
+}
+
+.rf-pp-cnt .rf-tab-cnt footer {
+    padding-bottom: 0;
 }
 
 .rf-pp-cnt footer > input {

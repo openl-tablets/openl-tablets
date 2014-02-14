@@ -20,12 +20,10 @@
         <h:outputText value="All unsaved user changes will be lost during unlock. Do you want to proceed?" />
       </h:panelGroup>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Unlock" action="#{repositoryTreeController.unlockNode}" />
+      <footer>
+        <h:commandButton value="Unlock" action="#{repositoryTreeController.unlockNode}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalUnlockNode')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>
