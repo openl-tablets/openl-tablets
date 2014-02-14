@@ -23,9 +23,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
@@ -50,9 +48,8 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
-    @ManagedProperty("#{temporaryRevisionsStorage}")
-    private TemporaryRevisionsStorage temporaryRevisionsStorage;
-    private DependencyResolverForRevision dependencyResolver;
+    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     public static final String DEFAULT_TAB = "Properties";
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
@@ -249,7 +246,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String name = project.getName();
         String id = String.valueOf(name.hashCode());
         if (!project.isDeleted() || !hideDeleted) {
-            TreeProject prj = new TreeProject(id, name, filter, dependencyResolver);
+            TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
             rulesRepository.add(prj);
         }
@@ -333,8 +330,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public void initUserWorkspace() {
         this.userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 
     @PreDestroy
@@ -555,7 +550,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
 
-    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
+    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 }

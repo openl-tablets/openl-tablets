@@ -3,11 +3,15 @@ package org.openl.rules.project.resolving;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
-import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -15,10 +19,9 @@ import java.util.WeakHashMap;
 /**
  * Resolves specified OpenL project revision's dependencies.
  */
-public class DependencyResolverForRevision {
-    private final Log log = LogFactory.getLog(DependencyResolverForRevision.class);
-    private final RulesProjectResolver rulesProjectResolver;
-    private final TemporaryRevisionsStorage temporaryRevisionsStorage;
+public class ProjectDescriptorArtefactResolver {
+    private final Log log = LogFactory.getLog(ProjectDescriptorArtefactResolver.class);
+    private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
 
     /**
      * Project descriptors cache.
@@ -26,27 +29,27 @@ public class DependencyResolverForRevision {
      */
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<String, ProjectDescriptor>();
 
-    public DependencyResolverForRevision(RulesProjectResolver rulesProjectResolver, TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.rulesProjectResolver = rulesProjectResolver;
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
-    }
-
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException {
-        File projectFolder = temporaryRevisionsStorage.getRevision(project.getAPI());
-
-        ProjectDescriptor descriptor = cache.get(projectFolder.getAbsolutePath());
+        String key = String.format("%s:%s", project.getName(), project.getVersion().getVersionName());
+        ProjectDescriptor descriptor = cache.get(key);
         if (descriptor != null) {
             return descriptor;
         }
 
-        ResolvingStrategy resolvingStrategy = rulesProjectResolver.isRulesProject(projectFolder);
-        descriptor = resolvingStrategy != null ? resolvingStrategy.resolveProject(projectFolder) : null;
-
-        if (descriptor != null) {
-            cache.put(projectFolder.getAbsolutePath(), descriptor);
+        if (!project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            // For performance reasons assume that if there is no rules.xml then there are no project dependencies and
+            // project name is got from the project folder name.
+            return null;
         }
 
-        return descriptor;
+        AProjectArtefact artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        if (artefact instanceof AProjectResource) {
+            descriptor = serializer.deserialize(((AProjectResource) artefact).getContent());
+            cache.put(key, descriptor);
+            return descriptor;
+        }
+
+        return null;
     }
 
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, ProjectResolvingException {
@@ -69,5 +72,13 @@ public class DependencyResolverForRevision {
         }
 
         return pd != null ? pd.getName() : project.getName();
+    }
+
+    public void deleteRevisions(AProject project) {
+        for (String key : new HashSet<String>(cache.keySet())) {
+            if (key.split(":")[0].equals(project.getName())) {
+                cache.remove(key);
+            }
+        }
     }
 }
