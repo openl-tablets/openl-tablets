@@ -4,6 +4,7 @@ import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
 
@@ -18,6 +19,9 @@ import java.util.Date;
 public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
+
+    private final ProjectDescriptorArtefactResolver dependencyResolver;
+    private String logicalName;
 
     protected static String generateComments(UserWorkspaceProject userProject) {
         if (userProject.isLocalOnly()) {
@@ -69,8 +73,9 @@ public class TreeProject extends TreeFolder {
         return status.getDisplayValue();
     }
 
-    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter) {
+    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, ProjectDescriptorArtefactResolver dependencyResolver) {
         super(id, name, filter);
+        this.dependencyResolver = dependencyResolver;
     }
 
     public String getComments() {
@@ -171,4 +176,20 @@ public class TreeProject extends TreeFolder {
         return projectVersion.getVersionName();
     }
 
+    public boolean isRenamed() {
+        return !getName().equals(getLogicalName());
+    }
+
+    public String getLogicalName() {
+        if (logicalName == null) {
+            logicalName = dependencyResolver.getLogicalName(getProject());
+        }
+        return logicalName;
+    }
+
+    @Override
+    public void refresh() {
+        super.refresh();
+        logicalName = null;
+    }
 }

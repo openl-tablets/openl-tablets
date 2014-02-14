@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -37,10 +36,7 @@ import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
+import org.openl.rules.project.resolving.*;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
@@ -50,6 +46,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
@@ -96,11 +93,8 @@ public class RepositoryTreeController {
     @ManagedProperty(value = "#{zipFilter}")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{temporaryRevisionsStorage}")
-    private TemporaryRevisionsStorage temporaryRevisionsStorage;
-
-    private RulesProjectResolver projectResolver;
-    private DependencyResolverForRevision dependencyResolver;
+    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -246,9 +240,9 @@ public class RepositoryTreeController {
 
     public List<String> getDependingProjects() {
         List<String> projects = new ArrayList<String>();
-        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-        if (selectedProject != null) {
-            String name = selectedProject.getName();
+        TreeProject projectNode = repositoryTreeState.getSelectedProjectNode();
+        if (projectNode != null) {
+            String name = projectNode.getLogicalName();
 
             for (ProjectDescriptor projectDescriptor : studio.getAllProjects()) {
                 if (projectDescriptor.getDependencies() != null) {
@@ -329,7 +323,7 @@ public class RepositoryTreeController {
     private void calcDependencies(Collection<String> result, AProject project, boolean recursive) {
         List<ProjectDependencyDescriptor> dependencies;
         try {
-            dependencies = dependencyResolver.getDependencies(project);
+            dependencies = projectDescriptorResolver.getDependencies(project);
             if (dependencies == null) {
                 return;
             }
@@ -343,7 +337,12 @@ public class RepositoryTreeController {
 
         for (ProjectDependencyDescriptor dependency : dependencies) {
             try {
-                AProject dependentProject = userWorkspace.getProject(dependency.getName(), false);
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency.getName());
+                if (projectNode == null) {
+                    continue;
+                }
+                String physicalName = projectNode.getName();
+                AProject dependentProject = userWorkspace.getProject(physicalName, false);
                 if (canOpen(dependentProject)) {
                     result.add(dependency.getName());
                 }
@@ -493,15 +492,8 @@ public class RepositoryTreeController {
     }
 
     public String createNewRulesProject() {
-        String msg = null;
-        if (StringUtils.isBlank(projectName)) {
-            msg = "Project name must not be empty.";
-        } else if (!NameChecker.checkName(projectName)) {
-            msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-        } else if (userWorkspace.hasProject(projectName)) {
-            msg = "Cannot create project because project with such name already exists.";
-        } 
-        
+        String msg = validateProjectName();
+
         if (msg != null) {
             this.clearForm();
             FacesUtils.addErrorMessage(msg);
@@ -544,6 +536,18 @@ public class RepositoryTreeController {
         }
 
         return creationMessage;
+    }
+
+    private String validateProjectName() {
+        String msg = null;
+        if (StringUtils.isBlank(projectName)) {
+            msg = "Project name must not be empty.";
+        } else if (!NameChecker.checkName(projectName)) {
+            msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
+        } else if (userWorkspace.hasProject(projectName) || repositoryTreeState.getProjectNodeByLogicalName(projectName) != null) {
+            msg = "Cannot create project because project with such name already exists.";
+        }
+        return msg;
     }
 
     /*
@@ -698,7 +702,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            temporaryRevisionsStorage.deleteRevisions(project.getAPI());
+            projectDescriptorResolver.deleteRevisions(project);
             project.erase();
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
@@ -1061,7 +1065,15 @@ public class RepositoryTreeController {
     private void openDependenciesIfNeeded() throws ProjectException {
         if (openDependencies) {
             for (String dependency : getDependencies(getSelectedProject(), true)) {
-                userWorkspace.getProject(dependency).open();
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency);
+                if (projectNode == null) {
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format("Can't find dependency %s", dependency));
+                    }
+                    continue;
+                }
+                String physicalName = projectNode.getName();
+                userWorkspace.getProject(physicalName).open();
             }
         }
     }
@@ -1389,7 +1401,10 @@ public class RepositoryTreeController {
                     projectName,
                     userWorkspace,
                     zipFilter);
-                errorMessage = projectUploader.uploadProject();
+                errorMessage = validateProjectName();
+                if (errorMessage == null) {
+                    errorMessage = projectUploader.uploadProject();
+                }
             } else {
                 errorMessage = "There are no uploaded files.";
             }
@@ -1476,7 +1491,10 @@ public class RepositoryTreeController {
                     projectName,
                     userWorkspace,
                     zipFilter);
-                errorMessage = projectUploader.uploadProject();
+                errorMessage = validateProjectName();
+                if (errorMessage == null) {
+                    errorMessage = projectUploader.uploadProject();
+                }
             } else {
                 errorMessage = "There are no uploaded files.";
             }
@@ -1581,8 +1599,8 @@ public class RepositoryTreeController {
         return isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
     }
 
-    public void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
+    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
     private void resetStudioModel() {
@@ -1603,12 +1621,6 @@ public class RepositoryTreeController {
             return (AProject) artefact;
         }
         return null;
-    }
-
-    @PostConstruct
-    public void init() {
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
     }
 
     public boolean getIsOpenVersionDialogOpened() {
