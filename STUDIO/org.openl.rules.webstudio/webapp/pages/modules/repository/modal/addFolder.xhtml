@@ -21,12 +21,10 @@
             onkeyup="enableAddButton(this.value.length > 0);" />
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Add" id="addButton" action="#{repositoryTreeController.addFolder}" />
+      <footer>
+        <h:commandButton value="Add" id="addButton" action="#{repositoryTreeController.addFolder}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalNewFolder')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 

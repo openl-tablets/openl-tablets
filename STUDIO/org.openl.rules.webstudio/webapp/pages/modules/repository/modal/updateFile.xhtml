@@ -21,12 +21,10 @@
         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" />
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Update" action="#{repositoryTreeController.updateFile}" />
+      <footer>
+        <h:commandButton value="Update" action="#{repositoryTreeController.updateFile}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalUpdateFile').hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 
