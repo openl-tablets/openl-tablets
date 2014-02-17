@@ -75,7 +75,11 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     public void testSetModule() throws Exception {
         // Initial field name
         pm.setModuleInfo(expenseModule);
-        pm.setSingleModuleMode(singleModuleMode);
+        if (singleModuleMode) {
+            pm.useSingleModuleMode();
+        }else {
+            pm.useMultiModuleMode();
+        }
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
 
         Method methods[] = getExpenseInstanceClass(pm).getMethods();
@@ -95,7 +99,11 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     public void testDependencyOwnerRebuild() throws Exception {
         // Initial field name
         pm.setModuleInfo(mainModule);
-        pm.setSingleModuleMode(singleModuleMode);
+        if (singleModuleMode) {
+            pm.useSingleModuleMode();
+        }else {
+            pm.useMultiModuleMode();
+        }
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
 
         assertFalse(pm.getCompiledOpenClass().hasErrors());
