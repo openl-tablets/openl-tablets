@@ -51,9 +51,7 @@
             rendered="#{connectionProductionRepoController.secure}" styleClass="repoFieldWidth"/>
         </h:panelGrid>
 
-        <hr/>
-
-        <h:panelGrid id="addRepoConnectionButton" columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" >
+        <footer>
             <a4j:commandButton action="#{connectionProductionRepoController.save}"
                          styleClass="button-primary" process="@form" value="Connect" render="modalAddRepoConnectionPanel securePanel repositoryProps messagePanel errorMessage"
                          oncomplete="if(event.data.length == 0) #{rich:component('modalAddRepoConnection')}.hide(); else hideLoader();"
@@ -61,7 +59,7 @@
             <a4j:commandButton id="cancelButton" action="#{connectionProductionRepoController.clearForm}"
                          value="Cancel" render="modalAddRepoConnectionPanel securePanel repositoryProps"
                          oncomplete="#{rich:component('modalAddRepoConnection')}.hide();"/>
-        </h:panelGrid>
+        </footer>
     </h:form>
 
   </rich:popupPanel>

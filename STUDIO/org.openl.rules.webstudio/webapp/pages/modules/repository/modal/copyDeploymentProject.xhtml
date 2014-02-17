@@ -30,12 +30,10 @@
         <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
       </h:panelGroup>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton id="copyDProject" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
+      <footer>
+        <h:commandButton id="copyDProject" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyDeploymentProject').hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 

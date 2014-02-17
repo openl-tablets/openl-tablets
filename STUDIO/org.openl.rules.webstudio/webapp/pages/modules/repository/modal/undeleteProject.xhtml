@@ -17,12 +17,10 @@
     <h:form id="modalUndeleteProjectForm">
       <h:outputText value="Are you sure you want to undelete the project?" />
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Undelete" action="#{repositoryTreeController.undeleteProject}" />
+      <footer>
+        <h:commandButton value="Undelete" action="#{repositoryTreeController.undeleteProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalUndeleteProject')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

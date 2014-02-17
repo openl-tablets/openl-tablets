@@ -88,13 +88,12 @@
                 </a4j:ajax>
 
                 <h:outputLink value="#{studio.url('test/test')}"
-                    title="Run #{treeBean.projectTestsCount} Test(s)"
-                    rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}"
-                    styleClass="button button-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test</h:outputLink>
+                    title="Run Tests" rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}"
+                    styleClass="button button-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
                 <h:panelGroup class="dropdown dropdown-form"
                         rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
-                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-34px">
+                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
                         <li onclick="event.stopPropagation()">
                             <span tabindex="-1">
                                 <span>Tests per page</span>
@@ -144,13 +143,9 @@
                     </ul>
                 </h:panelGroup>
 
-                <h:panelGroup rendered="#{!empty module and (studio.model.canCreateTable or studio.model.canEditProject)}">
+                <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
                     <span class="delimeter"></span>
-                    <h:outputLink rendered="#{studio.model.canCreateTable}" value="#{studio.url('create/index')}"
-                        title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
-                    <h:outputLink id="topRevertLink" rendered="#{studio.model.canEditProject}"
-                        value="#{studio.url('revert')}" title="Compare and/or roll back module changes against a specific date"
-                        styleClass="button">Revert</h:outputLink>
+                    <a href="#{studio.url('create/index')}" title="Create new table" class="button-primary">Create Table</a>
                 </h:panelGroup>
 
                 <span class="delimeter"></span>
@@ -160,6 +155,11 @@
                         More<b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu" role="menu">
+                        <h:panelGroup rendered="#{!empty module and studio.model.canEditProject}">
+                            <li><a tabindex="-1" id="topRevertLink" href="#{studio.url('revert')}"
+                                   title="Compare and/or roll back module changes against a specific date">Revert Changes</a></li>
+                            <li class="divider"></li>
+                        </h:panelGroup>
                         <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
                         <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
                         </h:panelGroup>
@@ -169,7 +169,7 @@
                     </ul>
                 </h:panelGroup>
 
-                <h:panelGroup style="float: right" rendered="#{!empty module}" class="dropdown">
+                <h:panelGroup style="float: right; width: 115px" rendered="#{!empty module}" class="dropdown">
                     <a4j:ajax oncomplete="ws.nav.reload(true)">
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>

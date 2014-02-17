@@ -26,12 +26,10 @@
         </h:panelGroup>
       </h:panelGroup>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4;" cellspacing="0">
-        <h:commandButton value="Close Project" action="#{repositoryTreeController.closeProject}" />
+      <footer>
+        <h:commandButton value="Close Project" action="#{repositoryTreeController.closeProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalCloseProject')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

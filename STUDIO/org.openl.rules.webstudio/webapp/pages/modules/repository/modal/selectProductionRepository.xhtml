@@ -19,12 +19,10 @@
         <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
       </h:selectOneMenu>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton id="deployBtn" value="Deploy" action="#{deploymentController.deploy}" />
+      <footer>
+        <h:commandButton id="deployBtn" value="Deploy" action="#{deploymentController.deploy}" styleClass="button-primary" />
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSelectRepository();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 

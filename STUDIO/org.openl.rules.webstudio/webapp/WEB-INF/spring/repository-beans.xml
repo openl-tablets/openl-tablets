@@ -40,5 +40,5 @@
     <property name="designRepository" ref="designTimeRepository" />
   </bean>
 
-  <bean id="temporaryRevisionsStorage" class="org.openl.rules.project.resolving.TemporaryRevisionsStorage"/>
+  <bean id="projectDescriptorArtefactResolver" class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
 </beans>

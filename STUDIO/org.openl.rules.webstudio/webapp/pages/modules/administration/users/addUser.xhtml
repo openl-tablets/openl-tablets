@@ -58,12 +58,11 @@
             </h:panelGrid>
             </div>
 
-            <br />
-            <br />
-
-            <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
-            <input type="button" value="Cancel" onclick="hideAddUser()" />
+            <footer>
+                <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
+                    oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="hideAddUser()" />
+            </footer>
         </h:form>
 
     </rich:popupPanel>
