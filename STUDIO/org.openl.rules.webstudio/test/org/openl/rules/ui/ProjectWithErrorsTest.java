@@ -46,7 +46,11 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
         pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
-        pm.setSingleModuleMode(singleModuleMode);
+        if (singleModuleMode) {
+            pm.useSingleModuleMode();
+        }else {
+            pm.useMultiModuleMode();
+        }
     }
 
     @After
