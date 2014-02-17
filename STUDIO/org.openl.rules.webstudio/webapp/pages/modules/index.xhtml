@@ -54,17 +54,29 @@
 
                 // Home page
                 crossroads.addRoute("/", function(reload) {
-                    render("home.xhtml");
+                    var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render("home.xhtml", 0, toReload, toOpen);
                 });
                 // Project page
                 crossroads.addRoute("{project}", function(reload, project) {
                     var url = "project.xhtml?name=" + project;
-                    render(url, { project: project });
+                    setModule(project);
+                    var leftReload = reload == "true" || !$j("#projects-tree").length;
+                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render(url, { project: project }, toReload, toOpen);
                 })
                 // Module page
                 crossroads.addRoute("{project}/{module}", function(reload, project, module) {
                     var url = "module.xhtml?project=" + project + "&name=" + module;
-                    render(url, { project: project, module: module }, { bottom: true });
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
                 crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
@@ -72,8 +84,16 @@
                         { url: "table.xhtml?" + query },
                         { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
                     ];
-                    var toReload = { top: false, left: reload == "true", bottom: true, right: true };
-                    render(url, { project: project, module: module }, toReload , openTreeNode);
+
+                    //var toReload = !current.module || setModule(project, module);
+
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
+                    var toOpen = { bottom: 1, right: 1 };
+                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
                 crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
@@ -84,8 +104,13 @@
                         query = parts[1];
                     }
                     var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    var toReload = { top: reload == "true", left: reload == "true", bottom: true };
-                    render(url, { project: project, module: module }, toReload);
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
             })();
 
@@ -387,48 +412,29 @@
             content: { target: "#content",       url: urlRewrite.prefix +  "home.xhtml" }
         }
 
-        var DEFAULT_PANELS = {
-            left: true,
-            top: true,
-            bottom: false,
-            right: false
+        var current  = {
+            project: 0,
+            module: 0
         }
 
-        function render(page, init, panels, done) {
-            // Rewrite defaults
-            panels = $j.extend({}, DEFAULT_PANELS, panels);
+        function setModule(project, module) {
+            var newModule = current.project && current.module && project && module
+                    && (current.project != project || current.module != module);
 
+            current.project = project || 0;
+            current.module = module || 0;
+
+            return newModule;
+        }
+
+        function render(page, init, load, open, done) {
             var content = [];
             var callbacks = [];
 
-            var firstLoad = $j(DEFAULT_CONTENT.content.target).html() == false;
-
-            if (panels.left || firstLoad) {
-                content.push(DEFAULT_CONTENT.left);
-            }
-            if (panels.top || firstLoad) {
-                content.push(DEFAULT_CONTENT.top);
-            }
-            if (panels.bottom) {
-                content.push(DEFAULT_CONTENT.bottom);
-                callbacks.push(function() {
-                    centerLayout.show("south");
-                });
-            } else {
-                callbacks.push(function() {
-                    centerLayout.hide("south");
-                });
-            }
-            if (panels.right) {
-                content.push(DEFAULT_CONTENT.right);
-                callbacks.push(function() {
-                    mainLayout.show("east");
-                });
-            } else {
-                callbacks.push(function() {
-                    mainLayout.hide("east");
-                });
-            }
+            load.left   && content.push(DEFAULT_CONTENT.left);
+            load.top    && content.push(DEFAULT_CONTENT.top);
+            load.bottom && content.push(DEFAULT_CONTENT.bottom);
+            load.right  && content.push(DEFAULT_CONTENT.right);
 
             if (page) {
                 if (typeof page === "string") {
@@ -443,17 +449,26 @@
                 }
             }
 
-            if (done) {
-                callbacks.push(done);
-            }
+            callbacks.push(open.bottom ?
+                function() {
+                    centerLayout.show("south");
+            } : function() {
+                    centerLayout.hide("south");
+            });
+            callbacks.push(open.right ?
+               function() {
+                    mainLayout.show("east");
+               } : function() {
+                    mainLayout.hide("east");
+            });
+
+            done && callbacks.push(done);
 
             var initUrl = urlRewrite.prefix + "init.xhtml";
-            if (init) {
-                if (init.project) {
-                    initUrl += ("?project=" + init.project);
-                    if (init.module) {
-                        initUrl += "&module=" + init.module;
-                    }
+            if (init && init.project) {
+                initUrl += ("?project=" + init.project);
+                if (init.module) {
+                    initUrl += "&module=" + init.module;
                 }
             }
 
