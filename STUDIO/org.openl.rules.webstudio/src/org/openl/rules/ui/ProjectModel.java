@@ -1440,8 +1440,12 @@ public class ProjectModel {
         return !isVirtualWorkbook();
     }
 
-    public void setSingleModuleMode(boolean singleModuleMode) throws Exception {
-        setModuleInfo(moduleInfo, ReloadType.SINGLE, singleModuleMode);
+    public void useSingleModuleMode() throws Exception {
+        setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
+    }
+    
+    public void useMultiModuleMode() throws Exception {
+        setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
     }
 
     private static class EditXlsModificationChecker implements ModificationChecker {
