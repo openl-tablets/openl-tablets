@@ -24,7 +24,7 @@
                     <span><a href="#{contextPath}">Projects</a></span>
                     <h:panelGroup rendered="#{!empty rProject.name}">
                     <span class="delimeter"></span>
-                    <span class="dropdown">
+                    <span class="dropdown" id="breadcrumbs-project">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             #{project.name}
                         </a>
@@ -45,7 +45,7 @@
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module.name}">
                     <span class="delimeter"></span>
-                    <span class="dropdown">
+                    <span class="dropdown" id="breadcrumbs-module">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             #{module.name}
                         </a>
