@@ -24,13 +24,11 @@
         </h:selectOneMenu>
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+      <footer>
         <h:commandButton value="Export" action="#{repositoryTreeController.exportFileVersion}"
-            onclick="RichFaces.$('modalExportFile').hide();" />
+            onclick="RichFaces.$('modalExportFile').hide();" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportFile').hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

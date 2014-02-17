@@ -12,7 +12,7 @@ import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -37,16 +37,16 @@ public class DependencyChecker {
      */
     private Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<String, List<ProjectDependencyDescriptor>>();
 
-    private final DependencyResolverForRevision dependencyResolverForRevision;
+    private final ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver;
 
-    public DependencyChecker(DependencyResolverForRevision dependencyResolverForRevision) {
-        this.dependencyResolverForRevision = dependencyResolverForRevision;
+    public DependencyChecker(ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver) {
+        this.projectDescriptorArtefactResolver = projectDescriptorArtefactResolver;
     }
 
     public void addProject(AProject project) {
         String projectName = project.getName();
         try {
-            projectDependencies.put(projectName, dependencyResolverForRevision.getDependencies(project));
+            projectDependencies.put(projectName, projectDescriptorArtefactResolver.getDependencies(project));
             projectVersions.put(projectName, project.getVersion());
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

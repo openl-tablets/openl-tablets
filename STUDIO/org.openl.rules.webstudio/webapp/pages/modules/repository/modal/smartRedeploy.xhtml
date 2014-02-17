@@ -66,13 +66,11 @@
         <h:outputText value="Processing..." />
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+      <footer>
         <h:commandButton id="smartRedeployBtn" value="Deploy" onclick="return startSmartRedeploy();" action="#{smartRedeployController.redeploy}"
-            disabled="#{!smartRedeployController.projectHasSelectedItems}" />
+            disabled="#{!smartRedeployController.projectHasSelectedItems}" styleClass="button-primary" />
         <h:commandButton id="cancelBtn" value="Cancel" action="#{smartRedeployController.reset}"/>
-      </h:panelGrid>
+      </footer>
     </h:form>
   </rich:popupPanel>
 

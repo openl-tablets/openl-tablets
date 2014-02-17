@@ -80,7 +80,7 @@ public class TemporaryRevisionsStorage implements DisposableBean {
 
     private void extractRevision(FolderAPI project, File revisionFolder) throws ProjectException {
         try {
-            if (!revisionFolder.mkdir() && !revisionFolder.exists()) {
+            if (!revisionFolder.mkdirs() && !revisionFolder.exists()) {
                 throw new ProjectException("Failed to create folder " + revisionFolder.getAbsolutePath());
             }
 
@@ -95,7 +95,7 @@ public class TemporaryRevisionsStorage implements DisposableBean {
     }
 
     private File getRevisionFolder(String projectName, CommonVersion version) {
-        return new File(getStorageFolder(), getRevisionFolderName(projectName, version));
+        return new File(new File(getStorageFolder(), getRevisionFolderName(projectName, version)), projectName);
     }
 
     private String getRevisionFolderName(String projectName, CommonVersion version) {

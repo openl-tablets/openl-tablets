@@ -1,5 +1,6 @@
 package org.openl.rules.project.dependencies;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -11,6 +12,10 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -23,12 +28,11 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public class MessagesDelegatingTest {
     private List<Module> modules;
-    private File rulesFolder;
     private RulesProjectDependencyManager dependencyManager;
 
     @Before
     public void init() throws Exception {
-        rulesFolder = new File("test/resources/modules_with_errors/");
+        File rulesFolder = new File("test/resources/modules_with_errors/");
         ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath()
             .isRulesProject(rulesFolder);
         modules = resolvingStrategy.resolveProject(rulesFolder).getModules();
@@ -48,9 +52,8 @@ public class MessagesDelegatingTest {
     }
 
     private static IDependency getDependencyForModule(String moduleName) {
-        Dependency moduleDependency = new Dependency(DependencyType.MODULE,
+        return new Dependency(DependencyType.MODULE,
             new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
-        return moduleDependency;
     }
 
     private CompiledOpenClass getCompiledOpenClassForModule(String moduleName) throws Exception {
@@ -86,9 +89,11 @@ public class MessagesDelegatingTest {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
+
+        assertFalse("During compilation DuplicatedMethodException must not be thrown", hasDuplicatedMethodException(compiledMultiModule));
     }
 
-    @Test(expected = DuplicatedMethodException.class)
+    @Test
     public void testDublicateTableDefenitionInMultimodule() throws Exception {
         List<Module> forGrouping = new ArrayList<Module>();
         forGrouping.add(findModuleByName("Rules3"));
@@ -99,6 +104,20 @@ public class MessagesDelegatingTest {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
+
+        assertTrue("During compilation DuplicatedMethodException must be thrown", hasDuplicatedMethodException(compiledMultiModule));
+    }
+
+    private boolean hasDuplicatedMethodException(CompiledOpenClass compiledMultiModule) {
+        boolean hasDuplicatedMethodException = false;
+        for (OpenLMessage error : OpenLMessagesUtils.filterMessagesBySeverity(compiledMultiModule.getMessages(), Severity.ERROR)) {
+            Throwable cause = ((OpenLErrorMessage) error).getError().getCause();
+            if (cause instanceof DuplicatedMethodException) {
+                hasDuplicatedMethodException = true;
+                break;
+            }
+        }
+        return hasDuplicatedMethodException;
     }
 
 }

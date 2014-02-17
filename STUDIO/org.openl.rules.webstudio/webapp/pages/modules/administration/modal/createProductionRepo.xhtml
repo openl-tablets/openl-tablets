@@ -42,16 +42,14 @@
             styleClass="repoFieldWidth"/>
         </h:panelGrid>
 
-        <hr/>
-
-        <h:panelGrid id="createRepoButton" columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" >
+        <footer>
             <a4j:commandButton action="#{newProductionRepoController.save}" styleClass="button-primary" 
                          process="@form" value="Create" render="modalCreateRepoPanel securePanel repositoryProps messagePanel errorMessage"
                          oncomplete="if(event.data.length == 0) #{rich:component('modalCreateRepo')}.hide(); else hideLoader();"
                          data="#{newProductionRepoController.errorMessage}"/>
             <a4j:commandButton id="cancelButton" action="#{newProductionRepoController.clearForm}" onclick="#{rich:component('modalCreateRepo')}.hide();"
                             process="@form" value="Cancel" render="modalCreateRepoPanel securePanel" />
-        </h:panelGrid>
+        </footer>
     </h:form>
 
   </rich:popupPanel>
