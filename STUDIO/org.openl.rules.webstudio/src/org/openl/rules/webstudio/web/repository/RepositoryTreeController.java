@@ -119,6 +119,8 @@ public class RepositoryTreeController {
         return zipFilter;
     }
 
+    private TreeNode activeProjectNode;
+
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
     }
@@ -240,7 +242,8 @@ public class RepositoryTreeController {
 
     public List<String> getDependingProjects() {
         List<String> projects = new ArrayList<String>();
-        TreeProject projectNode = repositoryTreeState.getSelectedProjectNode();
+        TreeNode selectedNode = getSelectedNode();
+        TreeProject projectNode = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
         if (projectNode != null) {
             String name = projectNode.getLogicalName();
 
@@ -592,16 +595,25 @@ public class RepositoryTreeController {
     }
 
     public String deleteNode() {
-        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
+        TreeNode selectedNode = getSelectedNode();
+        AProjectArtefact projectArtefact = selectedNode.getData();
         try {
             projectArtefact.delete();
-            String nodeType = repositoryTreeState.getSelectedNode().getType();
-            boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
-            if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
-                repositoryTreeState.refreshSelectedNode();
+            if (selectedNode != activeProjectNode) {
+                String nodeType = selectedNode.getType();
+                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
+                if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
+                    repositoryTreeState.refreshSelectedNode();
+                } else {
+                    repositoryTreeState.deleteSelectedNodeFromTree();
+                }
             } else {
-                repositoryTreeState.deleteSelectedNodeFromTree();
+                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
+                    repositoryTreeState.deleteNode(selectedNode);
+                    repositoryTreeState.invalidateSelection();
+                }
             }
+            activeProjectNode = null;
             resetStudioModel();
 
             FacesUtils.addInfoMessage("File was deleted successfully.");
@@ -626,36 +638,6 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
         }
 
-        return null;
-    }
-
-    public String deleteRulesProject() {
-        String projectName = FacesUtils.getRequestParameter("projectName");
-
-        try {
-            RulesProject project = userWorkspace.getProject(projectName);
-            if (project.isLocalOnly()) {
-                project.erase(userWorkspace.getUser());
-                TreeNode projectInTree = repositoryTreeState.getRulesRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
-                repositoryTreeState.deleteNode(projectInTree);
-            } else {
-                project.delete(userWorkspace.getUser());
-                if (repositoryTreeState.isHideDeleted()) {
-                    TreeNode projectInTree = repositoryTreeState.getRulesRepository()
-                        .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
-                    repositoryTreeState.deleteNode(projectInTree);
-                }
-            }
-            if (project.equals(studio.getModel().getProject())) {
-                studio.getModel().clearModuleInfo();
-                studio.setCurrentModule(null);
-            }
-            resetStudioModel();
-        } catch (Exception e) {
-            log.error("Cannot delete rules project '" + projectName + "'.", e);
-            FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
-        }
         return null;
     }
 
@@ -1616,7 +1598,7 @@ public class RepositoryTreeController {
     }
 
     private AProject getSelectedProject() {
-        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
+        AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact instanceof AProject) {
             return (AProject) artefact;
         }
@@ -1637,4 +1619,19 @@ public class RepositoryTreeController {
         version = currentProject.getVersion().getVersionName();
     }
 
+    public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+
+        try {
+            activeProjectNode = repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName));
+        } catch (Exception e) {
+            log.error("Cannot delete rules project '" + projectName + "'.", e);
+            FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
+        }
+    }
+
+    public TreeNode getSelectedNode() {
+        TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+        return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+    }
 }
