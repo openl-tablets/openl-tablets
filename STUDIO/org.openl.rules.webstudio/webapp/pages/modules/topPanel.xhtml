@@ -24,7 +24,7 @@
                     <span><a href="#{contextPath}">Projects</a></span>
                     <h:panelGroup rendered="#{!empty rProject.name}">
                     <span class="delimeter"></span>
-                    <span class="dropdown">
+                    <span class="dropdown" id="breadcrumbs-project">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             #{project.name}
                         </a>
@@ -45,7 +45,7 @@
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module.name}">
                     <span class="delimeter"></span>
-                    <span class="dropdown">
+                    <span class="dropdown" id="breadcrumbs-module">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             #{module.name}
                         </a>
@@ -176,9 +176,9 @@
                         </a>
                         <ul class="dropdown-menu pull-right" role="menu">
                             <h:panelGroup rendered="#{!empty rProject}">
-                                <li><h:commandLink action="#{studio.model.setSingleModuleMode(true)}">Single-module mode</h:commandLink></li>
+                                <li><h:commandLink action="#{studio.model.useSingleModuleMode}">Single-module mode</h:commandLink></li>
                             </h:panelGroup>
-                            <li><h:commandLink action="#{studio.model.setSingleModuleMode(false)}">Multi-module mode</h:commandLink></li>
+                            <li><h:commandLink action="#{studio.model.useMultiModuleMode}">Multi-module mode</h:commandLink></li>
                         </ul>
                     </a4j:ajax>
                 </h:panelGroup>
