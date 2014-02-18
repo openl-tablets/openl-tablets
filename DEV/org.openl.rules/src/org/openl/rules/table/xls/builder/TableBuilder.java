@@ -26,7 +26,7 @@ import org.openl.rules.table.ICell;
 
 /**
  * Class that allows creating tables in specified excel sheet.
- *
+ * 
  * @author Aliaksandr Antonik
  * @author Andrei Astrouski
  */
@@ -34,7 +34,7 @@ public class TableBuilder {
 
     public static final String TABLE_PROPERTIES = "properties";
     public static final String TABLE_PROPERTIES_NAME = "name";
-    
+
     /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
     private static final int MAX_STYLES = 4030;
 
@@ -53,15 +53,17 @@ public class TableBuilder {
     private int currentRow;
     /** Default cell style. */
     private CellStyle defaultCellStyle;
-    
+    /** Default data cell style */
+    private CellStyle defaultDateCellStyle;
+
     /**
-     *  Mapping for style to style transformation.
+     * Mapping for style to style transformation.
      */
-    private Map<CellStyle,CellStyle> style2style;
+    private Map<CellStyle, CellStyle> style2style;
 
     /**
      * Creates new instance.
-     *
+     * 
      * @param gridModel represents interface for operations with excel sheets
      */
     public TableBuilder(XlsSheetGridModel gridModel) {
@@ -69,15 +71,15 @@ public class TableBuilder {
             throw new IllegalArgumentException("gridModel is null");
         }
         this.gridModel = gridModel;
-        style2style = new HashMap<CellStyle,CellStyle>();
+        style2style = new HashMap<CellStyle, CellStyle>();
     }
 
     /**
      * Begins writing a table.
-     *
+     * 
      * @param width table width in cells
      * @param height table height in cells
-     *
+     * 
      * @throws CreateTableException if unable to create table
      * @throws IllegalStateException if <code>beginTable()</code> has already
      *             been called without subsequent <code>endTable()</code>
@@ -100,9 +102,9 @@ public class TableBuilder {
 
     /**
      * Begins writing a table within the specified region.
-     *
+     * 
      * @param regionToWrite region to write table.
-     *
+     * 
      * @throws CreateTableException if unable to create table
      * @throws IllegalStateException if <code>beginTable()</code> has already
      *             been called without subsequent <code>endTable()</code>
@@ -121,7 +123,7 @@ public class TableBuilder {
 
     /**
      * Finishes writing a table. Saves the changes to excel sheet.
-     *
+     * 
      * @throws IllegalStateException if method is called without prior
      *             <code>beginTable()</code> call
      * @throws CreateTableException if an exception occurred when saving
@@ -153,13 +155,12 @@ public class TableBuilder {
 
     /**
      * Initializes default cell style.
-     *
+     * 
      * @return cell style
      */
     protected CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
-            Workbook workbook = gridModel.getSheetSource()
-                    .getWorkbookSource().getWorkbook();
+            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = workbook.createCellStyle();
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
@@ -170,6 +171,23 @@ public class TableBuilder {
             defaultCellStyle = cellStyle;
         }
         return defaultCellStyle;
+    }
+
+    protected CellStyle getDefaultDateCellStyle() {
+        if (defaultDateCellStyle == null) {
+            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+            CellStyle cellStyle = workbook.createCellStyle();
+
+            cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
+            cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
+            cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
+            cellStyle.setBorderRight(ICellStyle.BORDER_THIN);
+
+            cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+
+            defaultDateCellStyle = cellStyle;
+        }
+        return defaultDateCellStyle;
     }
 
     protected XlsSheetGridModel getGridModel() {
@@ -198,7 +216,7 @@ public class TableBuilder {
 
     /**
      * Writes cell.
-     *
+     * 
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param width cell width
@@ -211,7 +229,7 @@ public class TableBuilder {
 
     /**
      * Writes cell.
-     *
+     * 
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param width cell width
@@ -219,20 +237,24 @@ public class TableBuilder {
      * @param value cell value
      * @param style cell style
      */
-    protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {       
+    protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
         CellStyle cellStyle = analyseCellStyle(style);
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
             Cell cell = PoiExcelHelper.getOrCreateCell(x, y, gridModel.getSheetSource().getSheet());
             gridModel.setCellValue(x, y, value);
-            setCellStyle(cell, cellStyle);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
-               //cellStyle = null;
-               //cellStyle = getDateCellStyle(cell);
-               cell.getCellStyle().setDataFormat((short) BuiltinFormats
-                        .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+                if (cellStyle != getDefaultCellStyle()) {
+                    setCellStyle(cell, cellStyle);
+                    cellStyle = getDateCellStyle(cell);
+                } else {
+                    cellStyle = getDefaultDateCellStyle();
+                }
+                setCellStyle(cell, cellStyle);
+            } else {
+                setCellStyle(cell, cellStyle);
             }
         } else {
             int x2 = x + width - 1;
@@ -247,12 +269,13 @@ public class TableBuilder {
             }
         }
     }
-    
-    /** 
+
+    /**
      * Analyse the type of cell style.
      * 
      * @param style Incoming cell style.
-     * @return CellStyle according to its type. If income value was <code>NULL</code> returns {@link #defaultCellStyle}.
+     * @return CellStyle according to its type. If income value was
+     *         <code>NULL</code> returns {@link #defaultCellStyle}.
      * 
      * @author DLiauchuk
      */
@@ -261,28 +284,23 @@ public class TableBuilder {
         if (style instanceof XlsCellStyle) {
             returnStyle = ((XlsCellStyle) style).getXlsStyle();
         } else {
-            returnStyle = getDefaultCellStyle();               
+            returnStyle = getDefaultCellStyle();
         }
         return returnStyle;
     }
-    
+
     /**
-     * If the value was set to the cell of type date, we need to create new style for this cell 
-     * with data format for dates.
-     * @param cell Cell with value in it.     
+     * If the value was set to the cell of type date, we need to create new
+     * style for this cell with data format for dates.
+     * 
+     * @param cell Cell with value in it.
      */
     private CellStyle getDateCellStyle(Cell cell) {
         CellStyle previousStyle = cell.getCellStyle();
-
-        //previousStyle.setBorderBottom(ICellStyle.BORDER_THIN);
-        //previousStyle.setBorderTop(ICellStyle.BORDER_THIN);
-        //previousStyle.setBorderLeft(ICellStyle.BORDER_THIN);
-        //previousStyle.setBorderRight(ICellStyle.BORDER_THIN);
-
         cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
         cell.getCellStyle().cloneStyleFrom(previousStyle);
-        cell.getCellStyle().setDataFormat((short) BuiltinFormats
-                .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+        cell.getCellStyle()
+            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
         return cell.getCellStyle();
     }
 
@@ -299,7 +317,7 @@ public class TableBuilder {
                 style2style.put(cellStyle, style);
             } else {
                 Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-                if (workbook.getNumCellStyles() == MAX_STYLES){
+                if (workbook.getNumCellStyles() == MAX_STYLES) {
                     HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
                 }
                 style = workbook.createCellStyle();
@@ -327,23 +345,12 @@ public class TableBuilder {
     }
 
     private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
-        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getAlignment() == cs2.getAlignment()
-                && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked()
-                && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom()
-                && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight()
-                && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor()
-                && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor()
-                && cs1.getFillForegroundColor() == cs2.getFillForegroundColor()
-                && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention()
-                && cs1.getLeftBorderColor() == cs2.getLeftBorderColor()
-                && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation()
-                && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2
-                .getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
+        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor() && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1.getFillForegroundColor() == cs2.getFillForegroundColor() && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention() && cs1.getLeftBorderColor() == cs2.getLeftBorderColor() && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation() && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2.getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
     }
 
     /**
      * Writes cell.
-     *
+     * 
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param value cell value
@@ -354,9 +361,9 @@ public class TableBuilder {
 
     /**
      * Writes table grid.
-     *
+     * 
      * @param table table grid
-     *
+     * 
      * @throws IllegalArgumentException if table is null
      * @throws IllegalStateException if method is called without prior
      *             <code>beginTable()</code> call
@@ -370,7 +377,7 @@ public class TableBuilder {
         }
         for (int i = 0; i < table.getWidth(); i++) {
             for (int j = 0; j < table.getHeight(); j++) {
-            	ICell cell = table.getCell(i, j);
+                ICell cell = table.getCell(i, j);
                 int cellWidth = cell.getWidth();
                 int cellHeight = cell.getHeight();
                 Object cellValue = null;
@@ -381,7 +388,9 @@ public class TableBuilder {
                 }
                 ICellStyle style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
-                Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(), currentRow + j + region.getTop(), gridModel.getSheetSource().getSheet());
+                Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
+                    currentRow + j + region.getTop(),
+                    gridModel.getSheetSource().getSheet());
                 if (cell.getType() != Cell.CELL_TYPE_FORMULA && newCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
                     newCell.setCellType(Cell.CELL_TYPE_STRING);
                     newCell.setCellValue(cellValue.toString());
@@ -393,10 +402,10 @@ public class TableBuilder {
 
     /**
      * Writes table header.
-     *
+     * 
      * @param header header text for the table
      * @param style header style
-     *
+     * 
      * @throws IllegalStateException if method is called without prior
      *             <code>beginTable()</code> call
      */
@@ -409,10 +418,10 @@ public class TableBuilder {
 
     /**
      * Writes table properties.
-     *
+     * 
      * @param properties table properties
      * @param style properties style
-     *
+     * 
      * @throws IllegalArgumentException if properties is null
      * @throws IllegalStateException if method is called without prior
      *             <code>beginTable()</code> call
@@ -434,8 +443,8 @@ public class TableBuilder {
                 writeCell(1, currentRow, 1, 1, key, style);
                 Object value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);
-                //write empty column for correct border showing
-                if(width > TableBuilder.PROPERTIES_MIN_WIDTH) {
+                // write empty column for correct border showing
+                if (width > TableBuilder.PROPERTIES_MIN_WIDTH) {
                     int column = TableBuilder.PROPERTIES_MIN_WIDTH;
 
                     while (column < width) {
