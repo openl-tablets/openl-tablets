@@ -20,8 +20,13 @@ public class WebServiceTemplate {
 	}
 
     private Client createClientInterface() throws IOException {
-        JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
-        return clientFactory.createClient(getAddress() + "?wsdl");
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
+            return clientFactory.createClient(getAddress() + "?wsdl");
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public synchronized Client getClientInterface() throws IOException {

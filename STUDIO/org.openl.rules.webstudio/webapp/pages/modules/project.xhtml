@@ -32,7 +32,7 @@
 
     <div class="page">
         <div class="editable">
-            <h1>
+            <h1 class="page-header">
                 <span>#{project.name}</span>
                 <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
@@ -40,7 +40,7 @@
                 </h:panelGroup>
             </h1>
 
-            <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:10px 0 15px; color:#555">
+            <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:-6px 0 20px; color:#555">
                 <span>#{project.comment}</span>
             </h:panelGroup>
         </div>
@@ -173,7 +173,7 @@
                         <ui:repeat var="dependency" value="#{project.dependencies}">
                             <div class="list-item">
                                 <h:panelGroup rendered="#{!empty studio.getProjectByName(dependency.name)}">
-                                <a href="#project.xhtml?name=#{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
+                                <a href="##{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
                                 <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                     All Modules
                                 </h:panelGroup>
@@ -336,7 +336,7 @@
             <footer>
                 <a4j:commandButton id="editModuleBtn" value="Save" action="#{projectBean.editModule}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');reloadCurrent()}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');ws.nav.reload(true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />
             </footer>
         </h:form>
@@ -362,7 +362,7 @@
             <footer>
                 <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');reloadCurrent();message('Module was removed successfully!', 7000);}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);message('Module was removed successfully!', 7000);}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');" />
             </footer>
         </h:form>
@@ -398,7 +398,7 @@
             <footer>
                 <a4j:commandButton id="editDependenciesBtn" value="Save" action="#{projectBean.editDependencies}"
                     styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageDependenciesPopup');reloadCurrent()" />
+                    oncomplete="ws.ui.hide('manageDependenciesPopup');ws.nav.reload()" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('manageDependenciesPopup');" />
             </footer>
         </h:form>
@@ -419,7 +419,7 @@
             <footer>
                 <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
                     styleClass="button-primary"
-                    oncomplete="ws.ui.hide('manageSourcesPopup');reloadCurrent()" />
+                    oncomplete="ws.ui.hide('manageSourcesPopup');ws.nav.reload()" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');" />
             </footer>
         </h:form>

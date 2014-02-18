@@ -36,9 +36,14 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     public XmlProjectDescriptorSerializer(boolean postProcess) {
         xstream = new XStream(new DomDriver());
+        xstream.omitField(ProjectDescriptor.class, "id"); // This field was deprecated
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");
-        xstream.omitField(Module.class, "project");
+        xstream.omitField(ProjectDescriptor.class, "projectFolder");
+        xstream.omitField(Module.class, "properties"); //properties doesn't supported by rules.xml
+        xstream.omitField(Module.class, "wildcardName"); // runtime properties
+        xstream.omitField(Module.class, "wildcardRulesRootPath"); // runtime properties
+        xstream.omitField(Module.class, "project"); // runtime properties
 
         xstream.setMode(XStream.NO_REFERENCES);
 
@@ -65,6 +70,9 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         return xstream.toXML(source);
     }
 
+    /**
+     * @throws com.thoughtworks.xstream.XStreamException if the object cannot be deserialized
+     */
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
         if (postProcess) {

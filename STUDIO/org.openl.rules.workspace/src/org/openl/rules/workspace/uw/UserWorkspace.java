@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
@@ -21,7 +22,7 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void copyDDProject(ADeploymentProject project, String name) throws ProjectException;
 
-    void copyProject(AProject project, String name) throws ProjectException;
+    void copyProject(AProject project, String name, ResourceTransformer resourceTransformer) throws ProjectException;
 
     void createDDProject(String name) throws RepositoryException;
 

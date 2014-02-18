@@ -13,12 +13,12 @@ html, body {
 #top {
     border-top: 1px solid #f3f3f3;
     border-bottom: 1px solid #ddd;
-    height: 34px;
+    height: 36px;
     position: relative;
 }
 
 #center {
-    height: calc(100% - 118px);
+    height: calc(100% - 120px);
 }
 
 #center > div {
@@ -91,7 +91,7 @@ html, body {
 .ui-layout-pane-east .pane-closer {
     height: 14px !important;
     width: 7px !important;
-    top: 8px !important;
+    top: 9px !important;
 }
 
 .ui-layout-toggler-south,

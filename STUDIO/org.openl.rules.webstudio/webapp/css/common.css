@@ -81,6 +81,9 @@ input[type='button']:disabled, button:disabled,
     height: 100%;
     border: 0 !important;
     font: inherit;
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+
 }
 
 .input-container:focus {
@@ -150,13 +153,23 @@ a.button-secondary {
 .buttonPanel > span > .button,
 .buttonPanel > span > .button-primary,
 .buttonPanel > span > .button-secondary,
-.buttonPanel > span > .imageButton{
-    margin: 0px 3px;
+.buttonPanel > span > .imageButton {
+    margin: 0;
     border: 0;
     background-color: transparent !important;
     color: #777;
     box-shadow: none;
     background-image: none;
+    padding: 12px 13px;
+}
+
+.buttonPanel > .button:hover,
+.buttonPanel > .button-primary:hover,
+.buttonPanel > .button-secondary:hover,
+.buttonPanel > span > .button:hover,
+.buttonPanel > span > .button-primary:hover,
+.buttonPanel > span > .button-secondary:hover {
+    background: #fafafa !important;
 }
 
 .buttonPanel > .button-primary,
@@ -182,6 +195,20 @@ a.button-secondary {
     border: 1px solid #ddd;
     border-left: 0;
     background: #fbfbfb;
+}
+
+.buttonPanel .button-dropdown {
+    padding-right: 11px;
+}
+
+.buttonPanel .button-dropdown + .dropdown {
+    margin-left: -6px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .buttonPanel .button-dropdown + .dropdown {
+        margin-left: -2px;
+    }
 }
 
 .buttonPanel .button-dropdown + .dropdown >.dropdown-toggle {
@@ -279,7 +306,7 @@ fieldset {
 
 #loadingPanel img {
     position: fixed;
-    top: 3px;
+    top: 11px;
     right: 750px;
     z-index: 10001;
 }
@@ -315,7 +342,7 @@ fieldset {
 }
 
 #topPanel {
-    padding: 10px 7px 10px 15px;
+    padding: 11px 3px 11px 15px;
 }
 
 .table {
@@ -329,14 +356,18 @@ fieldset {
 
 .table th {
     border: 1px dotted #ccc;
+    border-right: 0;
+    border-left: 0;
     border-bottom-style: solid;
-    padding: 6px 7px;
+    padding: 6px 8px;
     text-align: left;
 }
 
 .table td {
     border: 1px dotted #ccc;
-    padding: 4px 7px;
+    border-right: 0;
+    border-left: 0;
+    padding: 6px 8px;
     line-height: 15px;
 }
 
@@ -457,6 +488,10 @@ fieldset {
     padding: 7px 21px 15px;
 }
 
+.page .page-header {
+    margin: 11px 0 27px;
+}
+
 /* TODO Merge with .block */
 .fields section {
     margin-bottom: 31px;
@@ -481,7 +516,6 @@ fieldset {
 }
 
 .block {
-    margin-top: 25px;
     margin-bottom: 37px;
 }
 
@@ -651,11 +685,6 @@ form .formfields {
     padding-left: 2px;
 }
 
-form.standard table.buttonPanel {
-  margin-top: 10px;
-  margin-left: -4px;
-}
-
 .messages {
     position: absolute;
     left: 41%;
@@ -737,7 +766,7 @@ form.standard table.buttonPanel {
 }
 
 .panel > .panel-header {
-    height: 30px;
+    height: 32px;
     font-size: 110%;
     color: #333;
     white-space: nowrap;
@@ -753,25 +782,13 @@ form.standard table.buttonPanel {
     overflow: auto;
     position: absolute;
     bottom: 0;
-    top: 30px; /*- header height */
+    top: 32px; /*- header height */
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
 
 .panel > .container {
-    padding: 7px;
-}
-
-.view_header {
-     font-size: 110%;
-     height: 14px;
-     padding: 8px 7px 8px 9px;
-     color: #333;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     overflow: hidden;
-     border-bottom: 1px solid #f9f9f9;
-     background: #fff;
+    padding: 8px 7px;
 }
 
 .view-header-link {
@@ -783,19 +800,6 @@ form.standard table.buttonPanel {
 .view-header-link-inactive {
     color: #777;
     border-bottom: 1px dashed #ccc;
-}
-
-.simpleView_workspace {
-    width: 100%;
-    overflow: auto;
-    position: absolute;
-    bottom: 0;
-    top: 30px; /* 14px - header height
-                + 16px - header padding */
-}
-
-.simpleView_workspace > div {
-    padding: 5px 7px;
 }
 
 .field-description {
@@ -1068,9 +1072,13 @@ form.standard table.buttonPanel {
 
 .rf-pp-cnt footer {
     border-top: 1px solid #ddd;
-    margin-top: 14px;
+    margin-top: 15px;
     padding: 13px 1px 4px;
     text-align: right;
+}
+
+.rf-pp-cnt .rf-tab-cnt footer {
+    padding-bottom: 0;
 }
 
 .rf-pp-cnt footer > input {
@@ -1129,7 +1137,7 @@ form.standard table.buttonPanel {
     border: 1px solid #eaeaea;
     box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.05);
     min-width: 100px;
-    margin-top: 11px;
+    margin-top: 12px;
 }
 
 .dropdown-menu::before {
@@ -1220,6 +1228,7 @@ form.standard table.buttonPanel {
 .pagination > ul {
     border: 0;
     box-shadow: none;
+    margin: 0;
 }
 
 .pagination ul > .active > a,
@@ -1243,6 +1252,10 @@ form.standard table.buttonPanel {
 }
 
 /* OpenL Tablets Bootstrap styles */
+
+.dropdown-hover:hover > ul.dropdown-menu {
+    display: block;
+}
 
 .dropdown-menu > li > span {
     display: block;

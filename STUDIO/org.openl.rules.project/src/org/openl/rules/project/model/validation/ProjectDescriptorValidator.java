@@ -12,10 +12,6 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Project descriptor is null");
         }
 
-        if (StringUtils.isEmpty(descriptor.getId())) {
-            throw new ValidationException("Project ID is not defined");
-        }
-
         if (descriptor.getModules() == null || descriptor.getModules().size() == 0) {
             throw new ValidationException("Project modules is not defined");
         }

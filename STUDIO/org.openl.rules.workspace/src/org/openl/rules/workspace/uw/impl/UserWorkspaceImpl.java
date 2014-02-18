@@ -14,10 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -69,9 +66,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refresh();
     }
 
-    public void copyProject(AProject project, String name) throws ProjectException {
+    public void copyProject(AProject project, String name, ResourceTransformer resourceTransformer) throws ProjectException {
         try {
-            designTimeRepository.copyProject(project, name, user);
+            designTimeRepository.copyProject(project, name, user, resourceTransformer);
         } catch (ProjectException e) {
             if (designTimeRepository.hasProject(name)) {
                 designTimeRepository.getProject(name).erase(user);

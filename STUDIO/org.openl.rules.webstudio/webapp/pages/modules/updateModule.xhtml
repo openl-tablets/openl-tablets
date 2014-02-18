@@ -21,13 +21,11 @@
         <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}" />
       </h:panelGrid>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+    <footer>
         <a4j:commandButton value="Update" action="#{studio.updateModule}"
-            oncomplete="RichFaces.$('updateModule').hide();reloadCurrent();message('Module was updated successfully!', 7000);" />
+            oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
         <input type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
-      </h:panelGrid>
+    </footer>
     </h:form>
   </rich:popupPanel>
 

@@ -130,7 +130,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     /**
-     * @see TreeNode#addChild(Object, TreeNode)
+     * @see TreeNode#addChild(Object, org.richfaces.model.TreeNode)
      */
     public void addChild(Object id, TreeNode child) {
         checkLeafOnly();
@@ -273,7 +273,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public String getVersionName() {
         if (data instanceof AProject) {
-            ProjectVersion version = ((AProject) data).getVersion();
+            ProjectVersion version = data.getVersion();
             return (version == null) ? null : version.getVersionName();
         }
         return null;
@@ -288,7 +288,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public Collection<ProjectVersion> getVersions() {
-        if (data instanceof AProjectArtefact) {
+        if (data != null) {
             RulesProject project = findProjectContainingCurrentArtefact();
             
             List<ProjectVersion> result;

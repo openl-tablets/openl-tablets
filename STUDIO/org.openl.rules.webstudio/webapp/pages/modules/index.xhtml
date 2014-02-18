@@ -53,29 +53,50 @@
                 crossroads.ignoreState = true;
 
                 // Home page
-                crossroads.addRoute("/", function() {
-                    render("home.xhtml");
+                crossroads.addRoute("/", function(reload) {
+                    var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render("home.xhtml", 0, toReload, toOpen);
                 });
                 // Project page
-                crossroads.addRoute("{project}", function(project) {
+                crossroads.addRoute("{project}", function(reload, project) {
                     var url = "project.xhtml?name=" + project;
-                    render(url, { project: project });
+                    setModule(project);
+                    var leftReload = reload == "true" || !$j("#projects-tree").length;
+                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render(url, { project: project }, toReload, toOpen);
                 })
                 // Module page
-                crossroads.addRoute("{project}/{module}", function(project, module) {
+                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
                     var url = "module.xhtml?project=" + project + "&name=" + module;
-                    render(url, { project: project, module: module }, { bottom: true });
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
-                crossroads.addRoute("{project}/{module}/table?{query}", function(project, module, query) {
+                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
                     var url = [
                         { url: "table.xhtml?" + query },
                         { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
                     ];
-                    render(url, { project: project, module: module }, { top: false, left: false, bottom: true, right: true }, openTreeNode);
+
+                    //var toReload = !current.module || setModule(project, module);
+
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
+                    var toOpen = { bottom: 1, right: 1 };
+                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
-                crossroads.addRoute("{project}/{module}/{page*}", function(project, module, page) {
+                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
                     var query;
                     if (page.indexOf("?") > -1) {
                         var parts = page.split("?");
@@ -83,7 +104,13 @@
                         query = parts[1];
                     }
                     var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    render(url, { project: project, module: module }, { top: false, left: false, bottom: true });
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
             })();
 
@@ -116,26 +143,44 @@
                             urls.push(parts[i].url);
                         }
                         this.get(urls, function(result) {
-                            for (var i = 0; i < parts.length; i++) {
-                                $j(parts[i].target).html(result[i][0]);
+                            if (parts.length == 1) {
+                                $j(parts[0].target).html(result[0]);
+                            } else {
+                                for (var i = 0; i < parts.length; i++) {
+                                    $j(parts[i].target).html(result[i][0]);
+                                }
                             }
-                            done();
+                            done && done();
                         });
                     }
                 },
 
                 nav: {
                     home: function() {
-                        crossroads.parse("/");
+                        crossroads.parse("/", ["false"]);
                     },
-                    reload: function(params) {
-                        if (!params) {
-                            loadContent();
-                        } else {
+                    reload: function(args) {
+                        // Reload all page (if args is true) or only content
+                        if (typeof args == "boolean") {
+                            loadContent("", args);
+                        // Reload only content with new params
+                        } else if (typeof args == "object") {
                             var currentPage = getCurrentPage();
-                            var newPage = $location.utils.setParams(currentPage, params);
+                            var newPage = $location.utils.setParams(currentPage, args);
                             goTo(newPage);
+                        // Reload only content
+                        } else {
+                            loadContent();
                         }
+                    },
+                    reloadPanel: function(panel, callback) {
+                        if (panel == "left") {
+                            // TODO Refactor to not use ws instance
+                            ws.ajax.load([DEFAULT_CONTENT.left], callback);
+                        }
+                    },
+                    go: function(page, reload) {
+                        goTo(page, reload);
                     },
                     // prefixPage wiil be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
@@ -184,15 +229,14 @@
             handleLoginPage: true,
             cache: false,
             beforeSend: showLoader,
-            success: hideLoader,
             // Handle jQuery AJAX errors
             error: function(response, message, error) {
-                hideLoader();
                 handleError(response.status);
-            }
+            },
+            complete: hideLoader
         });
 
-        $j.ajaxPrefilter(function( options, _, jqXHR ) {
+        $j.ajaxPrefilter(function(options, _, jqXHR) {
             if (options.handleLoginPage) {
                 var deferredRequest = $j.Deferred();
 
@@ -242,7 +286,7 @@
                 if (errorMessage.indexOf(".xls") > -1) {
                     message("#{msg['ws.common.error.save']}", 7000);
                 } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
-                    reloadCurrent();
+                    ws.nav.reload(true);
                 } else {
                     message(errorMessage, 7000);
                 }
@@ -257,6 +301,7 @@
         }
 
         var lastSavedHash = $location.getHash();
+        var fullreload = false;
 
         $j(window).bind("hashchange", function() {
             var ch = $location.getHash();
@@ -268,7 +313,8 @@
                 lastSavedHash = ch;
             }
 
-            loadContent(getCurrentPage());
+            loadContent(getCurrentPage(), fullreload);
+            fullreload = false;
         });
 
         var mainLayout;
@@ -316,48 +362,22 @@
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
+        // Moved to WebStudio.nav
         function goTo(page, reload) {
             if (page) {
                 page = page.replace(urlRewrite.prefix, "");
                 // Check if requested page is the same as current
                 if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
-                    loadContent();
+                    loadContent('', reload);
                 } else {
+                    fullreload = reload;
                     location.hash = page;
                 }
             }
-
-            if (reload) {
-                reloadTop();
-                reloadLeft();
-                reloadBottom();
-            }
         }
 
         // Deprecated
-        // TODO Move to ws.nas namespace
-        function reloadCurrent() {
-            reloadTop();
-            reloadLeft();
-            reloadBottom();
-            loadContent();
-        }
-
-        function reloadTop() {
-            $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
-        }
-
-        function reloadLeft(callback) {
-            $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", callback);
-        }
-
-        function reloadBottom() {
-            $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
-        }
-
-        // Deprecated
-        // TODO Move to ws namespace
+        // TODO Move to WebStudio
         function getCurrentPage() {
             if (location.hash) {
                 var page = lastSavedHash;
@@ -368,11 +388,11 @@
             }
         }
 
-        function loadContent(page) {
+        function loadContent(page, reload) {
             var page = page || getCurrentPage();
 
             if (!page) {
-                crossroads.parse("/");
+                crossroads.parse("/", ["false"]);
                 return;
             }
 
@@ -380,7 +400,8 @@
                 page = page.split(urlRewrite.prefix)[1];
             }
 
-            crossroads.parse(page);
+            var params = [reload ? "true" : "false"];
+            crossroads.parse(page, params);
         }
 
         var DEFAULT_CONTENT = {
@@ -391,71 +412,63 @@
             content: { target: "#content",       url: urlRewrite.prefix +  "home.xhtml" }
         }
 
-        var DEFAULT_PANELS = {
-            left: true,
-            top: true,
-            bottom: false,
-            right: false
+        var current  = {
+            project: 0,
+            module: 0
         }
 
-        function render(page, init, panels, done) {
-            // Rewrite defaults
-            panels = $j.extend({}, DEFAULT_PANELS, panels);
+        function setModule(project, module) {
+            var newModule = current.project && current.module && project && module
+                    && (current.project != project || current.module != module);
 
+            current.project = project || 0;
+            current.module = module || 0;
+
+            return newModule;
+        }
+
+        function render(page, init, load, open, done) {
             var content = [];
             var callbacks = [];
 
-            var firstLoad = $j(DEFAULT_CONTENT.content.target).html() == false;
+            load.left   && content.push(DEFAULT_CONTENT.left);
+            load.top    && content.push(DEFAULT_CONTENT.top);
+            load.bottom && content.push(DEFAULT_CONTENT.bottom);
+            load.right  && content.push(DEFAULT_CONTENT.right);
 
-            if (panels.left || firstLoad) {
-                content.push(DEFAULT_CONTENT.left);
-            }
-            if (panels.top || firstLoad) {
-                content.push(DEFAULT_CONTENT.top);
-            }
-            if (panels.bottom) {
-                content.push(DEFAULT_CONTENT.bottom);
-                callbacks.push(function() {
-                    centerLayout.show("south");
-                });
-            } else {
-                callbacks.push(function() {
-                    centerLayout.hide("south");
-                });
-            }
-            if (panels.right) {
-                content.push(DEFAULT_CONTENT.right);
-                callbacks.push(function() {
-                    mainLayout.show("east");
-                });
-            } else {
-                callbacks.push(function() {
-                    mainLayout.hide("east");
-                });
-            }
-
-            if (typeof page === "string") {
-                // One page
-                content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
-            } else {
-                // Few pages
-                for (var i = 0; i < page.length; i++) {
-                    content.push(
-                        { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+            if (page) {
+                if (typeof page === "string") {
+                    // One page
+                    content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
+                } else {
+                    // Few pages
+                    for (var i = 0; i < page.length; i++) {
+                        content.push(
+                            { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+                    }
                 }
             }
 
-            if (done) {
-                callbacks.push(done);
-            }
+            callbacks.push(open.bottom ?
+                function() {
+                    centerLayout.show("south");
+            } : function() {
+                    centerLayout.hide("south");
+            });
+            callbacks.push(open.right ?
+               function() {
+                    mainLayout.show("east");
+               } : function() {
+                    mainLayout.hide("east");
+            });
+
+            done && callbacks.push(done);
 
             var initUrl = urlRewrite.prefix + "init.xhtml";
-            if (init) {
-                if (init.project) {
-                    initUrl += ("?project=" + init.project);
-                    if (init.module) {
-                        initUrl += "&module=" + init.module;
-                    }
+            if (init && init.project) {
+                initUrl += ("?project=" + init.project);
+                if (init.module) {
+                    initUrl += "&module=" + init.module;
                 }
             }
 
@@ -472,7 +485,7 @@
         function openTreeNode(page) {
             var page = page || getCurrentPage();
 
-            if (page && page.indexOf("table") > -1) {
+            if (page && page.indexOf("table?uri=") > -1) {
                 var tableId = page.split("uri=")[1].split("&")[0];
                 var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
                 if (tableLink.length) { // Firefox has bug with decoding url after refresh
@@ -513,13 +526,13 @@
 
         function showLoader() {
             if (reqs++ == 0) {
-                //loadingPanel.show();
+                loadingPanel.show();
             }
         }
 
         function hideLoader() {
             if (reqs-- == 1) {
-                //loadingPanel.hide();
+                loadingPanel.hide();
             }
         }
 

@@ -273,12 +273,12 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL, runTestsInParallel);
     }
 
-    public int getTestRunThreadCount() {
-        return OpenLSystemProperties.getTestRunThreadCount(configManager.getProperties());
+    public String getTestRunThreadCount() {
+        return Integer.toString(OpenLSystemProperties.getTestRunThreadCount(configManager.getProperties()));
     }
 
-    public void setTestRunThreadCount(int testRunThreadCount) {
-        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
+    public void setTestRunThreadCount(String testRunThreadCount) {
+        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, Integer.parseInt(StringUtils.trim(testRunThreadCount)));
     }
 
     public String getRulesDispatchingMode() {
@@ -635,13 +635,13 @@ public class SystemSettingsBean {
     public void dateFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
         String inputDate = (String) value;
 
-        isPathNull(inputDate, "Date format");
+        validateNotBlank(inputDate, "Date format");
 
     }
 
     public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Workspace Directory";
-        isPathNull(value, directoryType);
+        validateNotBlank((String) value, directoryType);
         setUserWorkspaceHome((String) value);
         workingDirValidator(getUserWorkspaceHome(), directoryType);
 
@@ -649,7 +649,7 @@ public class SystemSettingsBean {
 
     public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "History Directory";
-        isPathNull(value, directoryType);
+        validateNotBlank((String) value, directoryType);
         setProjectHistoryHome((String) value);
         workingDirValidator(getProjectHistoryHome(), directoryType);
 
@@ -658,7 +658,7 @@ public class SystemSettingsBean {
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String errorMessage = null;
         String count = (String) value;
-        isPathNull(count, "The maximum count of saved changes");
+        validateNotBlank(count, "The maximum count of saved changes");
         if (!Pattern.matches("[0-9]+", count)) {
             errorMessage = "The maximum count of saved changes should be positive integer";
         }
@@ -671,32 +671,51 @@ public class SystemSettingsBean {
 
     public void designRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Design Repository directory";
-        isPathNull(value, directoryType);
+        validateNotBlank((String) value, directoryType);
         setDesignRepositoryPath((String) value);
         workingDirValidator(getDesignRepositoryPath(), directoryType);
     }
 
     public void productionRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Production Repositories directory";
-        isPathNull(value, directoryType);
+        validateNotBlank((String) value, directoryType);
         workingDirValidator((String) value, directoryType);
     }
 
     public void maxCachedProjectsCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String count = (String) value;
-        validateGreaterThanZero(count, "The maximum number of cached projects");
+        validateNotNegativeInteger(count, "The maximum number of cached projects");
     }
 
     public void cachedProjectIdleTimeValidator(FacesContext context, UIComponent toValidate, Object value) {
         String count = (String) value;
-        validateGreaterThanZero(count, "The time to store a project in cache");
+        validateNotNegativeInteger(count, "The time to store a project in cache");
     }
 
-    private void validateGreaterThanZero(String count, String target) {
-        String message = target + " should be positive integer";
+    public void testRunThreadCountValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String count = (String) value;
+        validateGreaterThanZero(count, "Number of threads");
+    }
+
+    private void validateNotNegativeInteger(String count, String target) {
+        String message = target + " must be positive integer or zero";
         try {
             int v = Integer.parseInt(StringUtils.trim(count));
             if (v < 0) {
+                FacesUtils.addErrorMessage(message);
+                throw new ValidatorException(new FacesMessage(message));
+            }
+        } catch (NumberFormatException e) {
+            FacesUtils.addErrorMessage(message);
+            throw new ValidatorException(new FacesMessage(message));
+        }
+    }
+
+    private void validateGreaterThanZero(String count, String target) {
+        String message = target + " must be positive integer";
+        try {
+            int v = Integer.parseInt(StringUtils.trim(count));
+            if (v <= 0) {
                 FacesUtils.addErrorMessage(message);
                 throw new ValidatorException(new FacesMessage(message));
             }
@@ -725,7 +744,7 @@ public class SystemSettingsBean {
                             + " '    Please, contact to your system administrator."));
                 }
             } else {
-                if (studioWorkingDir.mkdirs() == false) {
+                if (!studioWorkingDir.mkdirs()) {
                     throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
                 } else {
                     deleteFolder(value);
@@ -742,15 +761,12 @@ public class SystemSettingsBean {
         }
     }
 
-    private boolean isPathNull(Object value, String folderType) {
-        boolean isNull = StringUtils.isBlank((String) value);
-        String errorMessage = folderType + "  could not be empty";
-
-        if (isNull) {
+    private void validateNotBlank(String value, String folderType) throws ValidatorException {
+        if (StringUtils.isBlank(value)) {
+            String errorMessage = folderType + " could not be empty";
             FacesUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
         }
-        return isNull;
     }
 
     /* Deleting the folder which were created for validating folder permissions */

@@ -15,67 +15,69 @@
         }
     </script>
 
-    <div class="view_header">
-        <h:outputText value="Results of running "/>
-        <h:outputLink value="#{studio.url('table')}">
-            <f:param name="uri" value="#{runBean.uri}" />
-            <h:outputText value="#{runBean.tableName}" />
-        </h:outputLink>
-    </div>
-    <div class="content">
-        <h:outputText value="View expired. Test data is no more available." rendered="#{runBean.expired}" />
+    <div class="page">
+        <h1 class="page-header">
+            <h:outputText value="Results of running "/>
+            <h:outputLink value="#{studio.url('table')}">
+                <f:param name="uri" value="#{runBean.uri}" />
+                <h:outputText value="#{runBean.tableName}" />
+            </h:outputLink>
+        </h1>
+        <div>
+            <h:outputText value="View expired. Test data is no more available." rendered="#{runBean.expired}" />
 
-        <h:panelGroup rendered="#{not runBean.expired}">
-            <h:outputText value="null" rendered="#{empty runBean.results}" />
+            <h:panelGroup rendered="#{not runBean.expired}">
+                <h:outputText value="null" rendered="#{empty runBean.results}" />
 
-            <table class="table">
-                <tr>
-                    <h:panelGroup rendered="#{not empty runBean.testDescription.executionParams}">
-                        <ui:repeat value="#{runBean.testDescription.parametersNames}" var="parameterHeader">
-                            <th>#{parameterHeader}</th>
-                        </ui:repeat>
-                    </h:panelGroup>
-                    <th>Result</th>
-                </tr>
-                <a4j:repeat value="#{runBean.results}" var="result" binding="#{runBean.resultItems}">
-                    <tr style="vertical-align: top">
+                <table class="table">
+                    <tr>
                         <h:panelGroup rendered="#{not empty runBean.testDescription.executionParams}">
-                        <ui:repeat value="#{runBean.testDescription.executionParams}" var="parameter">
-                        <td>
-                            <ui:include src="/pages/modules/test/parameter.xhtml">
-                                <ui:param name="parameter" value="#{parameter}" />
-                            </ui:include>
-                        </td>
-                        </ui:repeat>
+                            <ui:repeat value="#{runBean.testDescription.parametersNames}" var="parameterHeader">
+                                <th>#{parameterHeader}</th>
+                            </ui:repeat>
                         </h:panelGroup>
-                        <td><c:set var="errors" value="#{runBean.errors}" /> <h:panelGroup
-                                rendered="#{empty errors}">
-
-                                <h:panelGroup rendered="#{empty runBean.explanationValueResult and empty runBean.spreadsheetResult}">
-		                      		<ui:include src="/pages/modules/test/parameter.xhtml">
-		                          		<ui:param name="parameter" value="#{runBean.result}" />
-		                           	</ui:include>	                                
-                                </h:panelGroup>
-
-                                <h:outputLink
-                                    value="javascript: explain('?rootID=#{runBean.explanatorId}')"
-                                    rendered="#{not empty runBean.explanationValueResult}">
-                                    <h:outputText value="#{runBean.formattedExplanationValueResult}" />
-                                </h:outputLink>
-                                <h:outputText rendered="#{not empty runBean.spreadsheetResult}"
-                                    value="#{runBean.formattedSpreadsheetResult}" escape="false" />
-                                <br />
-                            </h:panelGroup> <h:panelGroup rendered="#{not empty errors}">
-                                <ui:include src="/pages/modules/messages.xhtml">
-                                    <ui:param name="messages" value="#{errors}" />
-                                    <ui:param name="editable" value="#{studio.model.editable}" />
-                                </ui:include>
-                            </h:panelGroup></td>
+                        <th>Result</th>
                     </tr>
-                </a4j:repeat>
-            </table>
-        </h:panelGroup>
+                    <a4j:repeat value="#{runBean.results}" var="result" binding="#{runBean.resultItems}">
+                        <tr style="vertical-align: top">
+                            <h:panelGroup rendered="#{not empty runBean.testDescription.executionParams}">
+                            <ui:repeat value="#{runBean.testDescription.executionParams}" var="parameter">
+                            <td>
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{parameter}" />
+                                </ui:include>
+                            </td>
+                            </ui:repeat>
+                            </h:panelGroup>
+                            <td><c:set var="errors" value="#{runBean.errors}" /> <h:panelGroup
+                                    rendered="#{empty errors}">
 
+                                    <h:panelGroup rendered="#{empty runBean.explanationValueResult and empty runBean.spreadsheetResult}">
+                                        <ui:include src="/pages/modules/test/parameter.xhtml">
+                                            <ui:param name="parameter" value="#{runBean.result}" />
+                                        </ui:include>
+                                    </h:panelGroup>
+
+                                    <h:outputLink
+                                        value="javascript: explain('?rootID=#{runBean.explanatorId}')"
+                                        rendered="#{not empty runBean.explanationValueResult}">
+                                        <h:outputText value="#{runBean.formattedExplanationValueResult}" />
+                                    </h:outputLink>
+                                    <h:outputText rendered="#{not empty runBean.spreadsheetResult}"
+                                        value="#{runBean.formattedSpreadsheetResult}" escape="false" />
+                                    <br />
+                                </h:panelGroup> <h:panelGroup rendered="#{not empty errors}">
+                                    <ui:include src="/pages/modules/messages.xhtml">
+                                        <ui:param name="messages" value="#{errors}" />
+                                        <ui:param name="editable" value="#{studio.model.editable}" />
+                                    </ui:include>
+                                </h:panelGroup></td>
+                        </tr>
+                    </a4j:repeat>
+                </table>
+            </h:panelGroup>
+
+        </div>
     </div>
 
 </ui:composition>

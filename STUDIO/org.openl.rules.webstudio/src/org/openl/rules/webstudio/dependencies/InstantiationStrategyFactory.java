@@ -181,7 +181,7 @@ public class InstantiationStrategyFactory {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
             externalParameters = studio.getSystemConfigManager().getProperties();
         } else {
-            List<Module> modules = getModulesInWorkspace(module);
+            List<Module> modules = module.getProject().getModules();
             strategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
 
             externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
@@ -240,17 +240,6 @@ public class InstantiationStrategyFactory {
 
     private boolean isSingleModuleModeStrategy(RulesInstantiationStrategy strategy) {
         return strategy instanceof SingleModuleInstantiationStrategy;
-    }
-
-    private List<Module> getModulesInWorkspace(Module module) {
-        List<ProjectDescriptor> projectDescriptors = dependencyManagerFactory.getDependentProjects(module);
-
-        List<Module> modules = new ArrayList<Module>();
-        for (ProjectDescriptor projectDescriptor : projectDescriptors) {
-            modules.addAll(projectDescriptor.getModules());
-        }
-
-        return modules;
     }
 
     private class DependenciesCollectingHandler extends DefaultDependencyManagerListener {

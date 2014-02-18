@@ -11,7 +11,7 @@
     </style>
 
     <div class="page">
-        <h1><h:outputText value="Projects in #{node.name}" rendered="#{node.type == 'proddeployment'}" />
+        <h1 class="page-header"><h:outputText value="Projects in #{node.name}" rendered="#{node.type == 'proddeployment'}" />
             <h:outputText value="Deployed Configurations" rendered="#{node.type == 'prodrepository'}" /></h1>
 
         <div class="block">

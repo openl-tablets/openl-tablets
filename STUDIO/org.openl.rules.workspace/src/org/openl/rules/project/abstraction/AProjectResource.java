@@ -8,6 +8,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ResourceAPI;
 
 public class AProjectResource extends AProjectArtefact {
+    private ResourceTransformer resourceTransformer;
+
     public AProjectResource(ResourceAPI api, AProject project) {
         super(api, project);
     }
@@ -26,6 +28,10 @@ public class AProjectResource extends AProjectArtefact {
         IOUtils.closeQuietly(inputStream);
     }
 
+    private void setContent(AProjectResource resource) throws ProjectException {
+        setContent(resourceTransformer != null ? resourceTransformer.tranform(resource) : resource.getContent());
+    }
+
     public String getResourceType() {
         return getAPI().getResourceType();
     }
@@ -34,22 +40,26 @@ public class AProjectResource extends AProjectArtefact {
     public boolean isFolder() {
     	return false;
     }
-    
+
     @Override
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         super.update(artefact, user);
         AProjectResource resource = (AProjectResource)artefact;
-        setContent(resource.getContent());
+        setContent(resource);
         commit(user);
     }
-    
+
     @Override
     public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         if (artefact.isModified()) {
             super.smartUpdate(artefact, user);
             AProjectResource resource = (AProjectResource) artefact;
-            setContent(resource.getContent());
+            setContent(resource);
             commit(user);
         }
+    }
+
+    public void setResourceTransformer(ResourceTransformer resourceTransformer) {
+        this.resourceTransformer = resourceTransformer;
     }
 }

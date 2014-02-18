@@ -135,7 +135,6 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     // authod DLiauchuk
     public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setId(folder.getName());
         descriptor.setName(folder.getName());
         descriptor.setProjectFolder(folder);
         String[] wrapperClassNames;

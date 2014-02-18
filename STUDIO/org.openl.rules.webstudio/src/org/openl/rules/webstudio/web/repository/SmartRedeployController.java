@@ -11,12 +11,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,10 +30,8 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.resolving.DependencyResolverForRevision;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.project.resolving.TemporaryRevisionsStorage;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -64,10 +62,8 @@ public class SmartRedeployController {
     @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
-    @ManagedProperty("#{temporaryRevisionsStorage}")
-    private TemporaryRevisionsStorage temporaryRevisionsStorage;
-
-    private DependencyResolverForRevision dependencyResolver;
+    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     private List<DeploymentProjectItem> items;
 
@@ -157,7 +153,7 @@ public class SmartRedeployController {
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(deploymentProject.getName());
 
-            DependencyChecker checker = new DependencyChecker(dependencyResolver);
+            DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
             // check against latest version of the deployment project
             checker.addProjects(latestDeploymentVersion);
 
@@ -235,7 +231,7 @@ public class SmartRedeployController {
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
             try {
-                List<ProjectDependencyDescriptor> dependencies = dependencyResolver.getDependencies(project);
+                List<ProjectDependencyDescriptor> dependencies = projectDescriptorResolver.getDependencies(project);
                 if (dependencies == null || dependencies.isEmpty()) {
                     item.setMessages("Create deploy configuration and deploy");
                 } else {
@@ -251,6 +247,13 @@ public class SmartRedeployController {
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (ProjectResolvingException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+                item.setDisabled(true);
+                item.setMessages("Project descriptor is invalid.");
+                item.setStyleForMessages(UiConst.STYLE_ERROR);
+            } catch (XStreamException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getMessage(), e);
                 }
@@ -341,8 +344,8 @@ public class SmartRedeployController {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
-    public synchronized void setTemporaryRevisionsStorage(TemporaryRevisionsStorage temporaryRevisionsStorage) {
-        this.temporaryRevisionsStorage = temporaryRevisionsStorage;
+    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
     private ADeploymentProject update(String deploymentName, AProject project) {
@@ -474,9 +477,4 @@ public class SmartRedeployController {
         return loading;
     }
 
-    @PostConstruct
-    public synchronized void init() {
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        dependencyResolver = new DependencyResolverForRevision(projectResolver, temporaryRevisionsStorage);
-    }
 }

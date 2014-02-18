@@ -17,6 +17,8 @@
 
     <h:form id="deleteNodeForm">
       <h:panelGroup id="modalDeleteNodeData">
+        <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+
         <h:outputText rendered="#{node.type == 'project' || node.type == 'deployment'}"
           value="Are you sure you want to delete the project '#{node.name}'?" />
         <h:outputText rendered="#{node.type == 'folder'}"
@@ -34,12 +36,10 @@
 
       </h:panelGroup>
 
-      <hr />
-
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" />
+      <footer>
+        <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
-      </h:panelGrid>
+      </footer>
     </h:form>
 
   </rich:popupPanel>

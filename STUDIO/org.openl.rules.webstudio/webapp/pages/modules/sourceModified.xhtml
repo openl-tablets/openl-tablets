@@ -21,7 +21,7 @@
         </script>
 
         <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
-            oncomplete="top.reloadCurrent(); top.hideLoader();" />
+            oncomplete="top.ws.nav.reload(true); top.hideLoader();" />
 
         <a4j:jsFunction name="resetChecking" action="#{studio.model.resetSourceModified}" render="poll" />
 

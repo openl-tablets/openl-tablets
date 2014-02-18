@@ -15,6 +15,7 @@ import org.openl.rules.repository.api.ResourceAPI;
 
 public class AProjectFolder extends AProjectArtefact {
     private Map<String, AProjectArtefact> artefacts;
+    private ResourceTransformer resourceTransformer;
 
     public AProjectFolder(FolderAPI api, AProject project) {
         super(api, project);
@@ -58,11 +59,15 @@ public class AProjectFolder extends AProjectArtefact {
     public AProjectFolder addFolder(String name) throws ProjectException {
         AProjectFolder createdFolder = new AProjectFolder(getAPI().addFolder(name), getProject());
         getArtefactsInternal().put(name, createdFolder);
+        createdFolder.setResourceTransformer(resourceTransformer);
         return createdFolder;
     }
 
     public AProjectResource addResource(String name, AProjectResource resource) throws ProjectException {
-        return addResource(name, resource.getContent());
+        InputStream content = resourceTransformer != null ? resourceTransformer.tranform(resource) : resource.getContent();
+        AProjectResource addedResource = addResource(name, content);
+        addedResource.setResourceTransformer(resourceTransformer);
+        return addedResource;
     }
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
@@ -210,7 +215,7 @@ public class AProjectFolder extends AProjectArtefact {
         }
     }
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     protected Map<String, AProjectArtefact> getArtefactsInternal() {
         synchronized (lock) {
@@ -238,6 +243,20 @@ public class AProjectFolder extends AProjectArtefact {
         super.refresh();
         synchronized (lock) {
             artefacts = null;
+        }
+    }
+
+    public void setResourceTransformer(ResourceTransformer resourceTransformer) {
+        this.resourceTransformer = resourceTransformer;
+
+        if (artefacts != null) {
+            for (AProjectArtefact artefact : artefacts.values()) {
+                if (artefact instanceof AProjectFolder) {
+                    ((AProjectFolder) artefact).setResourceTransformer(resourceTransformer);
+                } else if (artefact instanceof AProjectResource) {
+                    ((AProjectResource) artefact).setResourceTransformer(resourceTransformer);
+                }
+            }
         }
     }
 }

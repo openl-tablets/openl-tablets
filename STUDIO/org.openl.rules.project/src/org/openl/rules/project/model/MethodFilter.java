@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MethodFilter {
+public class MethodFilter{
     private Collection<String> includes;
     private Collection<String> excludes;
 
@@ -24,7 +24,7 @@ public class MethodFilter {
         this.includes = includes;
     }
 
-    public void addIncludePattern(String ... patterns) {
+    public void addIncludePattern(String... patterns) {
         if (patterns != null && patterns.length > 0) {
             if (includes == null) {
                 includes = new HashSet<String>();
@@ -35,7 +35,7 @@ public class MethodFilter {
         }
     }
 
-    public void addExcludePattern(String ... patterns) {
+    public void addExcludePattern(String... patterns) {
         if (patterns != null && patterns.length > 0) {
             if (excludes == null) {
                 excludes = new HashSet<String>();
@@ -69,4 +69,5 @@ public class MethodFilter {
             this.excludes.remove(pattern);
         }
     }
+
 }
