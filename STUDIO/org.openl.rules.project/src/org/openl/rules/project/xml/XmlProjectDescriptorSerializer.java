@@ -70,6 +70,9 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         return xstream.toXML(source);
     }
 
+    /**
+     * @throws com.thoughtworks.xstream.XStreamException if the object cannot be deserialized
+     */
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
         if (postProcess) {
