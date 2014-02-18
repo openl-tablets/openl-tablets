@@ -82,10 +82,11 @@
         }
 
         #runCasesSettings {
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-            margin: 5px 0 3px;
-            padding: 7px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2px;
+            padding: 8px 0;
+            background: #fdfdfd;
+            line-height: 1.5;
         }
         #runCasesSettings > div {
             padding: 4px 15px;
@@ -162,10 +163,36 @@
                         <c:set var="runLink"
                             value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?uri=#{tableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none; min-width: 175px">
+                            <div id="runCasesSettings">
+                                <h:panelGroup rendered="#{tableBean.table.type != 'xls.run.method'}">
+                                <div title="Show only failed test cases">
+                                    <span>Failures Only</span>
+                                    <input name="failuresOnly" type="checkbox"
+                                           onclick="$j('#caseFailuresSetting').toggle(this.checked)"
+                                           value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                           style="vertical-align:-2px;margin:-4px" />
+                                </div>
+                                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
+                                    <span>Failures per test</span>
+                                    <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                        <f:selectItem itemLabel="1" itemValue="1" />
+                                        <f:selectItem itemLabel="5" itemValue="5" />
+                                        <f:selectItem itemLabel="20" itemValue="20" />
+                                        <f:selectItem itemLabel="All" itemValue="-1" />
+                                    </h:selectOneMenu>
+                                </div>
+                                </h:panelGroup>
+                                <div title="Show the result of running test case if it's complex">
+                                    <span>Complex Result</span>
+                                    <input name="complexResult" type="checkbox"
+                                           value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                           style="vertical-align:-2px;margin:-4px" />
+                                </div>
+                            </div>
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%">
                                 <tr>
                                     <th>
-                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'unitsMenu')" title="Check/Uncheck All" />
+                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
                                     </th>
                                     <th colspan="100">
                                         Test Cases
@@ -174,7 +201,7 @@
                                 <ui:repeat var="test" value="#{tableBean.tests}">
                                 <tr>
                                     <td>
-                                        <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'unitsMenu', 'allTestCheck')" />
+                                        <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
                                     </td>
                                     <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
                                     <td>
@@ -187,30 +214,6 @@
                                 </tr>
                                 </ui:repeat>
                             </table>
-                            <div id="runCasesSettings">
-                                <div title="Show only failed test cases">
-                                    <span>Failures Only</span>
-                                    <input name="failuresOnly" type="checkbox"
-                                        onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                                        value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                                        style="vertical-align:-2px;margin:-4px" />
-                                </div>
-                                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
-                                    <span>Failures per test</span>
-                                    <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
-                                        <f:selectItem itemLabel="1" itemValue="1" />
-                                        <f:selectItem itemLabel="5" itemValue="5" />
-                                        <f:selectItem itemLabel="20" itemValue="20" />
-                                        <f:selectItem itemLabel="All" itemValue="-1" />
-                                    </h:selectOneMenu>
-                                </div>
-                                <div title="Show the result of running test case if it's complex">
-                                    <span>Complex Result</span>
-                                    <input name="complexResult" type="checkbox"
-                                        value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                                        style="vertical-align:-2px;margin:-4px" />
-                                </div>
-                            </div>
                             <div style="padding: 6px 5px">
                                 <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
                                     rendered="#{tableBean.canRun}"
@@ -535,7 +538,7 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'fitToScreen' : true});
+            showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
         }
 
         function editInExcel(f) {

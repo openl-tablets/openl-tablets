@@ -78,10 +78,10 @@
                   <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
                       &#160;
                       <h:commandLink immediate="true"
-                          action="#{repositoryTreeController.deleteRulesProject}"
-                          onclick="if(!window.confirm('Are you sure you want to archive the project?')) {return false;}"
+                          onclick="#{rich:component('modalDeleteNode')}.show();"
                           title="Archive project">
                           <f:param name="projectName" value="#{prj.name}" />
+                          <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
                           <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>
                       </h:commandLink>
                   </h:panelGroup>

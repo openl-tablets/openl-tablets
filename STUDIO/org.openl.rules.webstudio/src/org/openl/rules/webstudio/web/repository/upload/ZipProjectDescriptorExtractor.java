@@ -9,7 +9,6 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.richfaces.model.UploadedFile;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -50,7 +49,7 @@ public class ZipProjectDescriptorExtractor {
                     break;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }

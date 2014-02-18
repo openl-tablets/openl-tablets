@@ -16,6 +16,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -246,6 +247,13 @@ public class SmartRedeployController {
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (ProjectResolvingException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+                item.setDisabled(true);
+                item.setMessages("Project descriptor is invalid.");
+                item.setStyleForMessages(UiConst.STYLE_ERROR);
+            } catch (XStreamException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getMessage(), e);
                 }
