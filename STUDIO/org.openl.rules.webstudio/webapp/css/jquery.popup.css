@@ -2,7 +2,7 @@
 .jquery-popup {
     overflow: auto;
     background: white;
-    border: 1px solid rgb(210,210,210);
+    border: 1px solid #e6e6e6;
 }
 
 .jquery-popup-close-icon {
