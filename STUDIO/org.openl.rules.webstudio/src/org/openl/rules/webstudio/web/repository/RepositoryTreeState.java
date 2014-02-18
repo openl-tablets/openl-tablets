@@ -168,16 +168,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return this.repositorySelectNodeStateHolder.getSelectedNode();
     }
 
-    public TreeProject getSelectedProjectNode() {
-        TreeNode node = getSelectedNode();
-
-        while (node != null && !(node instanceof TreeProject)) {
-            node = node.getParent();
-        }
-
-        return node != null ? (TreeProject) node : null;
-    }
-
     public TreeProject getProjectNodeByLogicalName(String logicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
