@@ -168,6 +168,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return this.repositorySelectNodeStateHolder.getSelectedNode();
     }
 
+    public TreeProject getProjectNodeByPhysicalName(String logicalName) {
+        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
+            TreeProject project = (TreeProject) treeNode;
+            if (project.getName().equals(logicalName)) {
+                return project;
+            }
+        }
+        return null;
+    }
+
     public TreeProject getProjectNodeByLogicalName(String logicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
@@ -338,6 +348,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                     addRulesProjectToTree(userWorkspace.getProject(projectName));
                 } catch (ProjectException e) {
                     log.error("Failed to add new project to the repository tree.", e);
+                }
+            } else if (!userWorkspace.getLocalWorkspace().hasProject(projectName)) {
+                TreeProject node = getProjectNodeByPhysicalName(projectName);
+                if (node != null) {
+                    deleteNode(node);
                 }
             }
         } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
