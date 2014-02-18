@@ -1,11 +1,6 @@
 package org.openl.rules.project.impl.local;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +44,7 @@ public class StatePersistance {
 
         ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(sourceFile));
+            ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(sourceFile)));
 
             StateHolder state = (StateHolder) ois.readObject();
 
@@ -95,7 +90,7 @@ public class StatePersistance {
 
         ObjectOutputStream oos = null;
         try {
-            oos = new ObjectOutputStream(new FileOutputStream(destFile));
+            oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(destFile)));
             oos.writeObject(state);
             oos.flush();
         } catch (IOException e) {
