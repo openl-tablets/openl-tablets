@@ -18,6 +18,7 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -442,10 +443,20 @@ public class RepositoryTreeController {
                 @Override
                 public InputStream tranform(AProjectResource resource) throws ProjectException {
                     if (isProjectDescriptor(resource)) {
-                        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                        ProjectDescriptor projectDescriptor = serializer.deserialize(resource.getContent());
-                        projectDescriptor.setName(newProjectName);
-                        return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                        InputStream content = null;
+                        try {
+                            XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                            content = resource.getContent();
+                            ProjectDescriptor projectDescriptor = serializer.deserialize(content);
+                            projectDescriptor.setName(newProjectName);
+                            return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                        } catch (XStreamException e) {
+                            // Can't parse rules.xml. Don't modify it.
+                            if (log.isErrorEnabled()) {
+                                log.error(e.getMessage(), e);
+                            }
+                            IOUtils.closeQuietly(content);
+                        }
                     }
 
                     return resource.getContent();
