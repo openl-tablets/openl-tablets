@@ -201,7 +201,7 @@
                                 <ui:repeat var="test" value="#{tableBean.tests}">
                                 <tr>
                                     <td>
-                                        <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'unitsMenu', 'allTestCheck')" />
+                                        <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
                                     </td>
                                     <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
                                     <td>
