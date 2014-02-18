@@ -1,5 +1,7 @@
 package org.openl.rules.project.resolving;
 
+import com.thoughtworks.xstream.XStreamException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
@@ -11,6 +13,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +32,7 @@ public class ProjectDescriptorArtefactResolver {
      */
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<String, ProjectDescriptor>();
 
-    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException {
+    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
         String key = String.format("%s:%s", project.getName(), project.getVersion().getVersionName());
         ProjectDescriptor descriptor = cache.get(key);
         if (descriptor != null) {
@@ -44,7 +47,13 @@ public class ProjectDescriptorArtefactResolver {
 
         AProjectArtefact artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (artefact instanceof AProjectResource) {
-            descriptor = serializer.deserialize(((AProjectResource) artefact).getContent());
+            InputStream content = null;
+            try {
+                content = ((AProjectResource) artefact).getContent();
+                descriptor = serializer.deserialize(content);
+            } finally {
+                IOUtils.closeQuietly(content);
+            }
             cache.put(key, descriptor);
             return descriptor;
         }
@@ -52,7 +61,7 @@ public class ProjectDescriptorArtefactResolver {
         return null;
     }
 
-    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, ProjectResolvingException {
+    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
         ProjectDescriptor pd = getProjectDescriptor(project);
         return pd != null ? pd.getDependencies() : null;
     }
@@ -61,16 +70,11 @@ public class ProjectDescriptorArtefactResolver {
         ProjectDescriptor pd = null;
         try {
             pd = getProjectDescriptor(project);
-        } catch (ProjectException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-        } catch (ProjectResolvingException e) {
+        } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
         }
-
         return pd != null ? pd.getName() : project.getName();
     }
 

@@ -308,7 +308,7 @@ public class XlsLoader {
         setOpenl(new OpenlSyntaxNode(openlName, new GridLocation(table), source));
     }
 
-    private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source)
+    private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source, TablePartProcessor tablePartProcessor)
         throws OpenLCompilationException {
 
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
@@ -351,8 +351,6 @@ public class XlsLoader {
         return tsn;
     }
 
-    TablePartProcessor tablePartProcessor = new TablePartProcessor();
-    
 	private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
 
         String vocabularyStr = table.getCell(1, 0).getStringValue();
@@ -374,7 +372,8 @@ public class XlsLoader {
         XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
         WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
-
+        TablePartProcessor tablePartProcessor = new TablePartProcessor();
+        
         for (int i = 0; i < nsheets; i++) {
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
             IGridTable[] tables = getAllGridTables(sheetSource);
@@ -385,7 +384,7 @@ public class XlsLoader {
                 TableSyntaxNode tsn;
                 
                 try {
-                    tsn = preprocessTable(tables[j], sheetSource);
+                    tsn = preprocessTable(tables[j], sheetSource, tablePartProcessor);
                     tableNodes.add(tsn);
                 } catch (OpenLCompilationException e) {
                     OpenLMessagesUtils.addError(e);
@@ -401,7 +400,7 @@ public class XlsLoader {
 			int n = tableParts.size();
 			mergedNodes = new TableSyntaxNode[n];
 			for (int i = 0; i < n; i++) {
-				mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),  tableParts.get(i).getSource());
+				mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),  tableParts.get(i).getSource(), tablePartProcessor);
 			} 
 		} catch (OpenLCompilationException e) {
             OpenLMessagesUtils.addError(e);

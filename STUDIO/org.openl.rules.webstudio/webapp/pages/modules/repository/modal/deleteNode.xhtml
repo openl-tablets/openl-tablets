@@ -17,6 +17,8 @@
 
     <h:form id="deleteNodeForm">
       <h:panelGroup id="modalDeleteNodeData">
+        <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+
         <h:outputText rendered="#{node.type == 'project' || node.type == 'deployment'}"
           value="Are you sure you want to delete the project '#{node.name}'?" />
         <h:outputText rendered="#{node.type == 'folder'}"
