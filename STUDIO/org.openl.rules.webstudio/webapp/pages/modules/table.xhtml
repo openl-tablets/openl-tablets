@@ -164,6 +164,7 @@
                             value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?uri=#{tableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none; min-width: 175px">
                             <div id="runCasesSettings">
+                                <h:panelGroup rendered="#{tableBean.table.type != 'xls.run.method'}">
                                 <div title="Show only failed test cases">
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
@@ -180,6 +181,7 @@
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
                                 </div>
+                                </h:panelGroup>
                                 <div title="Show the result of running test case if it's complex">
                                     <span>Complex Result</span>
                                     <input name="complexResult" type="checkbox"
