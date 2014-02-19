@@ -1,7 +1,7 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -19,9 +19,13 @@
         <h:outputText value="Project '#{node.name}' will be removed from the workspace." />
         <h:panelGroup rendered="#{repositoryTreeState.canClose and repositoryTreeController.hasDependingProjects}">
             <div>
-            NOTE: Projects
-            <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project">#{project}</ui:repeat>
-            which have dependency on this project are still opened.
+                <h:outputText value="NOTE: Project " rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
+                <h:outputText value="NOTE: Projects " rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
+                <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project" varStatus="i">
+                    <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
+                </ui:repeat>
+                <h:outputText value=" which have dependency on this project is still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
+                <h:outputText value=" which have dependency on this project are still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
             </div>
         </h:panelGroup>
       </h:panelGroup>
