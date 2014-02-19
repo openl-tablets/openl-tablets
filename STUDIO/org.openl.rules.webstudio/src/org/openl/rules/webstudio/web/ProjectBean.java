@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import com.rits.cloning.Cloner;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -8,14 +7,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -32,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @ManagedBean
 @RequestScoped
@@ -343,19 +340,7 @@ public class ProjectBean {
     }
 
     private ProjectDescriptor cloneProjectDescriptor(ProjectDescriptor projectDescriptor) {
-        return new Cloner() {
-            @Override
-            public <T> T cloneInternal(T o, Map<Object, Object> clones) throws IllegalAccessException {
-                if (o instanceof Log) {
-                    dontClone(o.getClass());
-                }
-                if (o instanceof ClassLoader) {
-                    // There is no need to clone ClassLoader
-                    return null;
-                }
-                return super.cloneInternal(o, clones);
-            }
-        }.deepClone(projectDescriptor);
+        return new SafeCloner().deepClone(projectDescriptor);
     }
 
 }
