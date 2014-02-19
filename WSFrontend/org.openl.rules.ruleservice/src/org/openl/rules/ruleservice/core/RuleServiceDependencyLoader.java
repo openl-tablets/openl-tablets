@@ -37,7 +37,7 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException{
+    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         RuleServiceDeploymentRelatedDependencyManager dependencyManager = null;
         if (dm instanceof RuleServiceDeploymentRelatedDependencyManager) {
             dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;
@@ -79,7 +79,9 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
                     Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
                         modules);
                     rulesInstantiationStrategy.setExternalParameters(parameters);
-                    rulesInstantiationStrategy.setServiceClass(RuleServiceDependencyLoaderInterface.class);//Prevent generation interface
+                    rulesInstantiationStrategy.setServiceClass(RuleServiceDependencyLoaderInterface.class);// Prevent
+                                                                                                           // generation
+                                                                                                           // interface
                     try {
                         CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
                         CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
@@ -89,7 +91,8 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
                         compiledDependency = cd;
                         return compiledDependency;
                     } catch (Exception ex) {
-                        OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
+                        throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.",
+                            ex);
                     }
                 } finally {
                     dependencyManager.getStack().pollLast();
@@ -98,6 +101,7 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
         }
         return null;
     }
-    public static interface RuleServiceDependencyLoaderInterface{
+
+    public static interface RuleServiceDependencyLoaderInterface {
     }
 }

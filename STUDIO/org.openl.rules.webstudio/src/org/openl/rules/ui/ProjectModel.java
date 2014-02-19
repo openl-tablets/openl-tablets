@@ -27,6 +27,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
@@ -1266,11 +1267,12 @@ public class ProjectModel {
             }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-
-            String message = "Cannot load the module: " + t.getMessage();
+            String message = "Can't load the module: " + t.getMessage();
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
-
+            
+            messages.addAll(OpenLMessagesUtils.newMessages(t));
+                        
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
                     new SyntaxNodeException[0]);
 

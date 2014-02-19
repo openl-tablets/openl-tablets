@@ -36,15 +36,15 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
     }
 
     @Override
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() throws RulesInstantiationException {
         if (classLoader == null) {
             classLoader = initClassLoader();
         }
 
         return classLoader;
     }
-    
-    protected OpenLBundleClassLoader initClassLoader() {
+
+    protected OpenLBundleClassLoader initClassLoader() throws RulesInstantiationException {
         ClassLoader originalClassLoader = getOriginalInstantiationStrategy().getClassLoader();
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader();
         classLoader.addClassLoader(originalClassLoader);
@@ -54,7 +54,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
                 classLoader.addClassLoader(serviceClass.getClassLoader());
             }
         } catch (Exception e) {
-            if (log.isWarnEnabled()){
+            if (log.isWarnEnabled()) {
                 log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
             }
         }

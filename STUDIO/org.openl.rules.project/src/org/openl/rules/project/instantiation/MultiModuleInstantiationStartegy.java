@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,14 +10,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -69,7 +66,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
     }
 
     @Override
-    protected ClassLoader initClassLoader() {
+    protected ClassLoader initClassLoader() throws RulesInstantiationException{
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(Thread.currentThread()
                 .getContextClassLoader());
         for (Module module : modules) {
@@ -79,7 +76,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
                 CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 classLoader.addClassLoader(compiledOpenClass.getClassLoader());
             }catch(OpenLCompilationException e){
-                throw new OpenlNotCheckedException(e);
+                throw new RulesInstantiationException(e.getMessage(), e);
             }
         }
         return classLoader;

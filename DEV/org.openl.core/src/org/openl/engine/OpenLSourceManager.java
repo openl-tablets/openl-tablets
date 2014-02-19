@@ -138,7 +138,7 @@ public class OpenLSourceManager extends OpenLHolder {
                     OpenLMessages.getCurrentInstance().addMessages(messagesRelatedToDependencies);
 
                 } else {
-                    OpenLMessagesUtils.addError("Cannot load dependency. Dependency manager is not defined.");
+                    OpenLMessagesUtils.addError("Can't load dependency. Dependency manager is not defined.");
                 }
             }
 
