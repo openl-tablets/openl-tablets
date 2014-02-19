@@ -112,8 +112,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-secondary {
-    background: #55b1f7 !important;
-    border-color: #5af !important;
+    background: #55b1ee !important;
+    border-color: #55b1ee !important;
 }
 
 a.button-primary,
