@@ -102,7 +102,7 @@ public class ProjectDescriptorManager {
                                                    // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
-        dest.write(serializedObject.getBytes());
+        dest.write(serializedObject.getBytes("UTF-8"));
     }
 
     private boolean isModuleWithWildcard(Module module) {
@@ -120,7 +120,7 @@ public class ProjectDescriptorManager {
             if (file.isDirectory()) {
                 check(file, matched, pathPattern, rootFolder);
             } else {
-                String relativePath = file.getAbsolutePath().substring((int) rootFolder.getAbsolutePath().length() + 1);
+                String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
                 relativePath = relativePath.replace("\\", "/");
                 if (pathMatcher.match(pathPattern, relativePath)) {
                     matched.add(file);
