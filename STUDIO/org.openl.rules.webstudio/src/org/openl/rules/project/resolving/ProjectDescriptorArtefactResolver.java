@@ -71,8 +71,8 @@ public class ProjectDescriptorArtefactResolver {
         try {
             pd = getProjectDescriptor(project);
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Can't get project descriptor for project '%s'. Cause: %s", project.getName(), e.getMessage()), e);
             }
         }
         return pd != null ? pd.getName() : project.getName();
