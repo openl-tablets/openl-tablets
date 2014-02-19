@@ -449,12 +449,19 @@ public class RepositoryTreeController {
                             content = resource.getContent();
                             ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                             projectDescriptor.setName(newProjectName);
-                            return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                            return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
                         } catch (XStreamException e) {
                             // Can't parse rules.xml. Don't modify it.
                             if (log.isErrorEnabled()) {
                                 log.error(e.getMessage(), e);
                             }
+                        } catch (UnsupportedEncodingException e) {
+                            // Should not occur. Otherwise - don't continue.
+                            if (log.isErrorEnabled()) {
+                                log.error(e.getMessage(), e);
+                            }
+                            throw new ProjectException("UTF-8 charset is not supported", e);
+                        } finally {
                             IOUtils.closeQuietly(content);
                         }
                     }

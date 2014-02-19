@@ -7,10 +7,6 @@
      xmlns:f="http://java.sun.com/jsf/core">
 
     <style>
-        #searchInput {
-            position: relative;
-        }
-
         #searchInput input[type='text'] {
             height: 27px;
             width: 295px;
@@ -22,17 +18,10 @@
             font-size: 12px;
             transition: width .4s;
         }
-
-        #searchInput input[type='text']:focus {
-            width: 450px;
-        }
-
-        #searchInput input[type='image'] {
+        #searchInput > a {
             position: absolute;
-            right: 10px;
-            top: 2px;
-            cursor: pointer;
-            opacity: 0.5;
+            right: 8px;
+            top: -1px;
         }
 
         #advancedSearch {
@@ -42,22 +31,18 @@
             width: 271px;
             max-height: 260px;
         }
-
         #advancedSearch > div {
             margin-bottom: 9px;
         }
-
         #advancedSearch > div > label {
             display: block;
             margin-bottom: 4px;
         }
-
         #advancedSearch input[type="text"]:not([class*="rf-insp-inp"]) {
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             width: 100%;
         }
-
         #advancedSearch #multiselect .jquery-multiselect-popup {
             width: 0; /* Hack for IE 9 */
             bottom: 7px;
@@ -68,7 +53,6 @@
             margin: 5px 0;
             padding: 10px 9px;
         }
-
         #addPropertiesPanel select {
             width: -moz-calc(100% - 60px);
             width: -webkit-calc(100% - 60px);
@@ -78,7 +62,6 @@
         #propertiesTable .propertiesRow {
             display: none;
         }
-
         #propertiesTable .rf-cal-popup {
             left: 11px !important;
             top:  15px !important;
@@ -87,7 +70,6 @@
         .removeBtn {
             opacity: 0.1;
         }
-
         .removeBtn:hover {
             opacity: 0.4;
         }
@@ -141,14 +123,12 @@
     //]]>
     </script>
 
-    <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
-        onclick="showPopupMenu(event, 'advancedSearch', $j(this).next(), {'offsetTop': 6, 'closeIcon': true})">
-        <h:graphicImage url="/webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" style="opacity: 0.7" />
-    </h:outputLink>
     <form style="display: inline;" onsubmit="doSearch(); return false;">
         <span id="searchInput">
             <input type="text" id="searchQuery" placeholder="#{msg['ws.search.input']}" />
-            <input type="image" src="webresource/images/search.png" title="#{msg['ws.search.search']}" />
+            <a href="javascript:void(0)" onclick="showPopupMenu(event, 'advancedSearch', $j(this).parent(), {'offsetTop': 6, 'closeIcon': true})">
+                <img src="webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" style="opacity: 0.7" />
+            </a>
         </span>
         <div id="advancedSearch">
             <div>
@@ -208,6 +188,7 @@
                 <input type="submit" value="#{msg['ws.search.search']}" class="button-primary" />
             </div>
         </div>
+        <input type="submit" style="position: absolute; top: -500px; visibility: hidden" />
     </form>
 
 </ui:composition>
