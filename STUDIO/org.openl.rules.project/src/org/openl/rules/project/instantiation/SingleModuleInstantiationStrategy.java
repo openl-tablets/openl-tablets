@@ -40,6 +40,15 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
         return module;
     }
 
+    // Single module strategy doesn't compile dependencies. Exception not required.
+    @Override
+    public ClassLoader getClassLoader() {
+        if (classLoader == null) {
+            classLoader = initClassLoader();
+        }
+        return classLoader;
+    }
+
     @SuppressWarnings("deprecation")
     protected ClassLoader initClassLoader() {
         ClassLoader parent = getModule().getProject().getClassLoader(false);
@@ -53,7 +62,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     public Collection<Module> getModules() {
         return Collections.singleton(getModule());
     }
-    
+
     protected Map<String, Object> prepareExternalParameters() {
         Map<String, Object> externalProperties = new HashMap<String, Object>();
         if (getModule().getProperties() != null) {

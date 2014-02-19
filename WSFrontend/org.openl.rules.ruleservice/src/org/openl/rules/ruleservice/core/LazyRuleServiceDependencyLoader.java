@@ -240,8 +240,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     }
                     return compiledOpenClass;
                 } catch (Exception ex) {
-                    OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
-                    throw new OpenLCompilationException("Can't load dependency " + dependencyName + ".", ex);
+                    throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.", ex);
                 } finally {
                     LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
                 }

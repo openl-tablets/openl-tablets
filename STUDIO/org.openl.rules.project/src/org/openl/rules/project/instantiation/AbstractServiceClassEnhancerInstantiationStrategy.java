@@ -10,7 +10,7 @@ import org.openl.exception.OpenlNotCheckedException;
 /**
  * 
  * @author Marat Kamalov
- *
+ * 
  */
 public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends RulesInstantiationStrategyDelegator {
 
@@ -55,25 +55,28 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends 
             if (validateServiceClass(serviceClass)) {
                 // FIX IT
                 if (classLoader != null) {
-                    classLoader.addClassLoader(initClassLoader());
+                    try {
+                        classLoader.addClassLoader(initClassLoader());
+                    } catch (RulesInstantiationException e) {
+                        throw new OpenlNotCheckedException(e.getMessage(), e);
+                    }
                 }
 
                 this.serviceClass = serviceClass;
                 try {
-                    Class<?> clazz = undecorateServiceClass(serviceClass, getOriginalInstantiationStrategy()
-                            .getClassLoader());
+                    Class<?> clazz = undecorateServiceClass(serviceClass,
+                        getOriginalInstantiationStrategy().getClassLoader());
                     getOriginalInstantiationStrategy().setServiceClass(clazz);
                 } catch (Exception e) {
-                    throw new OpenlNotCheckedException(
-                            "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.", e);
+                    throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
+                        e);
                 }
             } else {
-                throw new OpenlNotCheckedException(
-                        "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!");
+                throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!");
             }
         } catch (ValidationServiceClassException e) {
-            throw new OpenlNotCheckedException(
-                    "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!", e);
+            throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!",
+                e);
         }
     }
 

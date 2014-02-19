@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -13,9 +16,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-
-import java.util.Collection;
-import java.util.Map;
 
 final class WebStudioDependencyLoader implements IDependencyLoader {
 
@@ -95,7 +95,8 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
                         compiledDependency = cd;
                         return compiledDependency;
                     } catch (Exception ex) {
-                        OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
+                        throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.",
+                            ex);
                     }
                 } finally {
                     dependencyManager.getStack().pollLast();

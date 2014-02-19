@@ -23,7 +23,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * <code>ClassLoader</code> that is used in strategy to compile and
      * instantiate Openl rules.
      */
-    private ClassLoader classLoader;
+    protected ClassLoader classLoader;
 
     /**
      * {@link IDependencyManager} for projects that have dependent modules.
@@ -65,7 +65,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     @Override
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() throws RulesInstantiationException{
         if (classLoader == null) {
             classLoader = initClassLoader();
         }
@@ -73,7 +73,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         return classLoader;
     }
 
-    protected abstract ClassLoader initClassLoader();
+    protected abstract ClassLoader initClassLoader() throws RulesInstantiationException;
 
     protected void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
