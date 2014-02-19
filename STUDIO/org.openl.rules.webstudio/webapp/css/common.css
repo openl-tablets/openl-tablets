@@ -112,8 +112,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-secondary {
-    background: #55b1ee !important;
-    border-color: #55b1ee !important;
+    background: #5ad !important;
+    border-color: #5ad !important;
 }
 
 a.button-primary,
@@ -251,7 +251,7 @@ h3 {
 
 a {
     outline: none;
-    color: #19d;
+    color: #29d;
 }
 
 a.link-ref {
@@ -263,9 +263,9 @@ a.link-ref {
 }
 
 .link-dropdown {
-    color: #19d;
+    color: #29d;
     text-decoration: none;
-    border-bottom: 1px dashed #19d;
+    border-bottom: 1px dashed #29d;
     padding: 1px 2px;
 }
 
@@ -1185,7 +1185,7 @@ form .formfields {
 .dropdown-menu > li > a:focus,
 .dropdown-submenu:hover > a,
 .dropdown-submenu:focus > a {
-    background-color: #3399EE;
+    background-color: #59c;
     background-image: none;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
@@ -1193,7 +1193,7 @@ form .formfields {
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover,
 .dropdown-menu > .active > a:focus {
-    background-color: #3399EE;
+    background-color: #59c;
     background-image: none;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
