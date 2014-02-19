@@ -992,11 +992,11 @@ form .formfields {
     border-left: none !important;
     border-top: none !important;
     border-right: none !important;
-    padding: 0px 11px 3px 5px !important;
+    padding: 0px 11px 5px 5px !important;
 }
 
 .rf-tab-hdr-act {
-    border-bottom: 1px solid orange !important;
+    border-bottom: 1px solid #9c3 !important;
     color: #111111 !important;
 }
 
