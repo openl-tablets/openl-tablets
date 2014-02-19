@@ -20,8 +20,10 @@
 
         <h:panelGrid columns="2" rendered="#{repositoryTreeState.canOpen and repositoryTreeController.hasDependencies}">
           <h:panelGroup>
-            <h:outputText value="Also open dependencies:"/>
-            <ui:repeat value="#{repositoryTreeController.dependencies}" var="project">#{project} </ui:repeat>
+            <h:outputText value="Would you like to open dependecies too? Project(s) to open: "/>
+            <ui:repeat value="#{repositoryTreeController.dependencies}" var="project" varStatus="i">
+                <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
+            </ui:repeat>
           </h:panelGroup>
           <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" />
         </h:panelGrid>
