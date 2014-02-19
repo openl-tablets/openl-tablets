@@ -23,7 +23,7 @@ input[type='text'], input[type='password'], textarea, select {
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
-    border: 1px solid #39e;
+    border: 1px solid #39c;
     outline: none;
 }
 
@@ -251,7 +251,7 @@ h3 {
 
 a {
     outline: none;
-    color: #1199ee;
+    color: #19d;
 }
 
 a.link-ref {
@@ -263,9 +263,9 @@ a.link-ref {
 }
 
 .link-dropdown {
-    color: #1199ee;
+    color: #19d;
     text-decoration: none;
-    border-bottom: 1px dashed #1199ee;
+    border-bottom: 1px dashed #19d;
     padding: 1px 2px;
 }
 
