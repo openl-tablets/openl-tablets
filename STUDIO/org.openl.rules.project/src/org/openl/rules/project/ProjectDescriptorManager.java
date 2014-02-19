@@ -7,12 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,7 +30,7 @@ public class ProjectDescriptorManager {
     private ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
     private PathMatcher pathMatcher = new AntPathMatcher();
 
-    Cloner cloner = new Cloner();
+    private Cloner cloner = new SafeCloner();
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;
@@ -102,7 +97,7 @@ public class ProjectDescriptorManager {
                                                    // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
-        dest.write(serializedObject.getBytes());
+        dest.write(serializedObject.getBytes("UTF-8"));
     }
 
     private boolean isModuleWithWildcard(Module module) {
@@ -120,7 +115,7 @@ public class ProjectDescriptorManager {
             if (file.isDirectory()) {
                 check(file, matched, pathPattern, rootFolder);
             } else {
-                String relativePath = file.getAbsolutePath().substring((int) rootFolder.getAbsolutePath().length() + 1);
+                String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
                 relativePath = relativePath.replace("\\", "/");
                 if (pathMatcher.match(pathPattern, relativePath)) {
                     matched.add(file);
