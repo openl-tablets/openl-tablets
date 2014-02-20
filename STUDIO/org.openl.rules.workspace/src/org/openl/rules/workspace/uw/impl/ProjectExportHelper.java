@@ -22,10 +22,8 @@ public class ProjectExportHelper {
         }
     };
 
-    private byte[] buffer = new byte[1024 * 4];
-
     public File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
-        File zipFile = null;
+        File zipFile;
         try {
             zipFile = File.createTempFile("export-", "-zip");
         } catch (IOException e) {
@@ -33,7 +31,9 @@ public class ProjectExportHelper {
         }
 
         File tempWsLocation = new File(zipFile.getParentFile(), "export-" + System.currentTimeMillis());
-        tempWsLocation.mkdir();
+        if (!tempWsLocation.mkdir() && !tempWsLocation.exists()) {
+            throw new ProjectException("Failed to create a temporary folder!");
+        }
 
         LocalWorkspaceImpl tempWS = new LocalWorkspaceImpl(user, tempWsLocation, FILE_FILTER, FILE_FILTER);
         AProject localProject = tempWS.addProject(oldRP);
@@ -59,7 +59,7 @@ public class ProjectExportHelper {
     }
 
     protected void packDir(ZipOutputStream zipOutputStream, File dir, String path) throws IOException {
-        File[] files = dir.listFiles();
+        File[] files = dir.listFiles(FILE_FILTER);
         if (files == null) {
             return;
         }

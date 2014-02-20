@@ -13,7 +13,7 @@ public class ProjectDescriptorValidator {
         }
 
         if (descriptor.getModules() == null || descriptor.getModules().size() == 0) {
-            throw new ValidationException("Project modules is not defined");
+            throw new ValidationException("Project modules are not defined");
         }
 
         for (Module module : descriptor.getModules()) {

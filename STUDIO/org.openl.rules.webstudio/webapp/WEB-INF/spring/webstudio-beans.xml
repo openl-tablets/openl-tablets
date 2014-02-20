@@ -17,6 +17,7 @@
       <list>
         <value>.svn</value>
         <value>CVS</value>
+        <value>.studioProps</value>
       </list>
     </constructor-arg>
     </bean>
@@ -25,7 +26,6 @@
     <constructor-arg>
       <list>
         <value>.cvsignore</value>
-         <value>.studioProps</value>
       </list>
     </constructor-arg>
     </bean>

@@ -976,6 +976,18 @@ public class ProjectModel {
         return new TableSyntaxNode[0];
     }
 
+    public int getNumberOfTables() {
+        int count = 0;
+        TableSyntaxNode[] tables = getTableSyntaxNodes();
+
+        for (TableSyntaxNode table : tables) {
+            if (!XlsNodeTypes.XLS_OTHER.toString().equals(table.getType())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private void cacheTree(ProjectTreeNode treeNode) {
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();

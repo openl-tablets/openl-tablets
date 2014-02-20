@@ -23,7 +23,7 @@ input[type='text'], input[type='password'], textarea, select {
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
-    border: 1px solid #39e;
+    border: 1px solid #39c;
     outline: none;
 }
 
@@ -112,8 +112,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-secondary {
-    background: #55b1f7 !important;
-    border-color: #5af !important;
+    background: #5ad !important;
+    border-color: #5ad !important;
 }
 
 a.button-primary,
@@ -251,7 +251,7 @@ h3 {
 
 a {
     outline: none;
-    color: #1199ee;
+    color: #29d;
 }
 
 a.link-ref {
@@ -263,9 +263,9 @@ a.link-ref {
 }
 
 .link-dropdown {
-    color: #1199ee;
+    color: #29d;
     text-decoration: none;
-    border-bottom: 1px dashed #1199ee;
+    border-bottom: 1px dashed #29d;
     padding: 1px 2px;
 }
 
@@ -992,11 +992,11 @@ form .formfields {
     border-left: none !important;
     border-top: none !important;
     border-right: none !important;
-    padding: 0px 11px 3px 5px !important;
+    padding: 0px 11px 5px 5px !important;
 }
 
 .rf-tab-hdr-act {
-    border-bottom: 1px solid orange !important;
+    border-bottom: 1px solid #9c3 !important;
     color: #111111 !important;
 }
 
@@ -1185,7 +1185,7 @@ form .formfields {
 .dropdown-menu > li > a:focus,
 .dropdown-submenu:hover > a,
 .dropdown-submenu:focus > a {
-    background-color: #3399EE;
+    background-color: #59c;
     background-image: none;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
@@ -1193,7 +1193,7 @@ form .formfields {
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover,
 .dropdown-menu > .active > a:focus {
-    background-color: #3399EE;
+    background-color: #59c;
     background-image: none;
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
