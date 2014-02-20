@@ -153,7 +153,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         try {
             datatypeInstance = getClassForGeneration().newInstance();
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         Field[] fields = getClassForGeneration().getDeclaredFields();
@@ -212,7 +212,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             field.setAccessible(true);
             fieldValue = field.get(datatypeInstance);
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
         return fieldValue;
     }
