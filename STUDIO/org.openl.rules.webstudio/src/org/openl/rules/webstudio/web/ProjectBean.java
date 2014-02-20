@@ -288,7 +288,7 @@ public class ProjectBean {
             }
             studio.reset(ReloadType.FORCED);
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
             throw new Message("Error while saving the project");
         }
         //postProcess(descriptor);

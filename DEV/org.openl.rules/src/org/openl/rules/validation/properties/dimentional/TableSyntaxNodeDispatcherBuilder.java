@@ -343,7 +343,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         try {
             dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());            
         } catch (Exception e) {            
-            log.error(e);
+            log.error(e.getMessage(), e);
             OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
         }
         return tsn;

@@ -115,7 +115,7 @@ public class RevertProjectChangesBean {
                         Arrays.asList(file1ToCompare, file2ToCompare));
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
             throw new Message("Error when comparing projects");
         }
 

@@ -362,7 +362,7 @@ public class JcrRepository extends BaseJcrRepository {
                     }
                 }
             } catch (RepositoryException e) {
-                log.error(e);
+                log.error(e.getMessage(), e);
             }
         }
     }
