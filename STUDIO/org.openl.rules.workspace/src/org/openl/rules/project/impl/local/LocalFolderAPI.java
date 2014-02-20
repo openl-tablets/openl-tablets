@@ -1,7 +1,6 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,7 +54,9 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
 
     public LocalFolderAPI addFolder(String name) throws ProjectException {
         File newFolder = new File(source, name);
-        newFolder.mkdir();
+        if (!newFolder.mkdir() && !newFolder.exists()) {
+            throw new ProjectException(String.format("Can't create the folder '%s'", newFolder.getAbsolutePath()));
+        }
         LocalFolderAPI localFolder = new LocalFolderAPI(newFolder, path.withSegment(name), workspace);
         notifyModified();
         return localFolder;
@@ -65,11 +66,13 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         File newFile = new File(source, name);
 
         if (newFile.isFile()) {
-            throw new ProjectException("Such file exists in the folder", new IOException());
+            throw new ProjectException(String.format("The file '%s' exists in the folder.", newFile.getAbsolutePath()), new IOException());
         }
 
         try {
-            newFile.createNewFile();
+            if (!newFile.createNewFile()) {
+                throw new IOException(String.format("The file '%s' exists in the folder.", newFile.getAbsolutePath()));
+            }
             LocalResourceAPI newResource = new LocalResourceAPI(newFile, path.withSegment(name), workspace);
             newResource.setContent(content);
             notifyModified();
