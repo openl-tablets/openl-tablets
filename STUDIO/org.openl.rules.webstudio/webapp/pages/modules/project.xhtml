@@ -107,6 +107,7 @@
                 </h3>
                 <div class="block-content">
                     <div class="list list-modules">
+                        <ui:param name="modulesNumber" value="#{project.modules.size()}" />
                         <ui:repeat var="module" value="#{project.modules}" varStatus="i">
                             <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
 
@@ -146,9 +147,11 @@
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
                                         onclick="editModule({name:'#{module.name}',path:'#{projectBean.getModulePath(module)}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
-                                    <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
-                                       onclick="removeModule('#{module.name}')" style="right:-55px;padding-left: 5px"><img
-                                            src="webresource/images/remove.png" style="opacity:0.4" /></a>
+                                    <h:panelGroup rendered="#{modulesNumber > 1}">
+                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
+                                               onclick="removeModule('#{module.name}')" style="right:-55px;padding-left: 5px"><img
+                                                    src="webresource/images/remove.png" style="opacity:0.4" /></a>
+                                    </h:panelGroup>
                                 </h:panelGroup>
                             </div>
                         </ui:repeat>
