@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -90,7 +91,7 @@ public class RepositoryProjectRulesDeployConfig {
     public void saveRulesDeploy() {
         try {
             UserWorkspaceProject project = getProject();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(serializer.serialize(rulesDeploy).getBytes());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(serializer.serialize(rulesDeploy).getBytes("UTF-8"));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -102,6 +103,9 @@ public class RepositoryProjectRulesDeployConfig {
             }
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+            log.error(e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            FacesUtils.addErrorMessage("UTF-8 charset is not supported. Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
         }
     }
