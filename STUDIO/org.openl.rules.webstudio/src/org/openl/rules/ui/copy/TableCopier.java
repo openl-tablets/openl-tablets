@@ -78,7 +78,7 @@ public class TableCopier extends TableCreationWizard {
         try {
             start();
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
         this.table = table;
         propertiesManager = new PropertiesBean(getAllPossibleProperties(table.getType()));
