@@ -58,8 +58,10 @@ public abstract class AProjectCreator {
                 while (cause.getCause() != null) {
                     cause = cause.getCause();
                 }
-                
-                errorMessage += " Cause: " + cause.getMessage();
+
+                if (cause.getMessage() != null) {
+                    errorMessage += " Cause: " + cause.getMessage();
+                }
             }
         }
         return errorMessage;
