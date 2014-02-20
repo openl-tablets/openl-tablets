@@ -13,6 +13,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
@@ -287,6 +288,8 @@ public class ProjectBean {
                 //repositoryTreeState.refreshSelectedNode();
             }
             studio.reset(ReloadType.FORCED);
+        } catch (ValidationException e) {
+            throw new Message(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("Error while saving the project");
