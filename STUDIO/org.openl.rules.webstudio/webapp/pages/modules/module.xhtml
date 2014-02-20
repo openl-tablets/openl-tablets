@@ -1,8 +1,6 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
@@ -30,7 +28,7 @@
                         </tr>
                         <tr>
                             <td>#{msg['ws.module.tables']}</td>
-                            <td>#{fn:length(studio.model.tableSyntaxNodes)}
+                            <td>#{studio.model.numberOfTables}
                                 <h:panelGroup rendered="#{studio.model.errorNodesNumber > 0}">
                                 <span class="badge badge-error"
                                       style="margin-left:2px">#{studio.model.errorNodesNumber} #{msg['ws.module.tables.failed']}</span>
