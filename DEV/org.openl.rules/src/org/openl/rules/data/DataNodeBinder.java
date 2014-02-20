@@ -196,7 +196,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             OpenL openl) throws Exception {
 
-        ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tableSyntaxNode);
+        ITable resultTable = xlsOpenClass.getDataBase().registerTable(tableName, tableSyntaxNode);
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 
         processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, bindingContext, openl, true);

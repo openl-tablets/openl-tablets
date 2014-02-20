@@ -21,12 +21,16 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.ColumnMatchBoundNode;
+import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
@@ -38,6 +42,7 @@ import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IOpenSchema;
@@ -86,11 +91,49 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+        additionalInitDependencies(); // Required for data tables.
     }
 
     // TODO: should be placed to ModuleOpenClass
     public IDataBase getDataBase() {
         return dataBase;
+    }
+
+    /**
+     * Populate current module fields with data from dependent modules. Requered
+     * for data tables inheriting from dependend modules.
+     */
+    private void additionalInitDependencies() {
+        for (CompiledOpenClass dependency : this.getDependencies()) {
+            addDataTables(dependency);
+        }
+    }
+
+    private void addDataTables(CompiledOpenClass dependency) {
+        IOpenClass openClass = dependency.getOpenClassWithErrors();
+        
+        Map<String, IOpenField> fieldsMap = openClass.getFields();
+        for (String key : fieldsMap.keySet()) {
+            IOpenField field = fieldsMap.get(key);
+            if (field instanceof DataOpenField) {
+                addField(field);
+            }
+        }
+
+        if (openClass instanceof XlsModuleOpenClass) {
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            if (xlsModuleOpenClass.getDataBase() != null) {
+                for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
+                    if (XlsNodeTypes.XLS_DATA.toString().equals(table.getTableSyntaxNode().getType())) {
+                        try {
+                            getDataBase().registerTable(table);
+                        } catch (DuplicatedTableException e) {
+                            throw new OpenlNotCheckedException(e);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public XlsMetaInfo getXlsMetaInfo() {

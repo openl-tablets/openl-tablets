@@ -96,6 +96,8 @@ public class MessagesDelegatingTest {
     @Test
     public void testDublicateTableDefenitionInMultimodule() throws Exception {
         List<Module> forGrouping = new ArrayList<Module>();
+        forGrouping.add(findModuleByName("Rules"));
+        forGrouping.add(findModuleByName("Rules2"));
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules6"));
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
