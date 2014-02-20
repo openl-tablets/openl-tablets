@@ -179,7 +179,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             throw new RulesInstantiationException(errorMessage, e);
         } catch (UnsupportedClassVersionError e) {
             String errorMessage = String.format(
-                    "Cannot load a class compiled using newer version of JDK than current JRE (%s)",
+                    "Can't load a class compiled using newer version of JDK than current JRE (%s)",
                     System.getProperty("java.version"));
             if (log.isErrorEnabled()) {
                 log.error(errorMessage, e);

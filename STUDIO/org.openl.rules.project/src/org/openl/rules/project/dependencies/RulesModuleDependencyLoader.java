@@ -48,7 +48,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 
                 return new CompiledDependency(dependencyName, compiledOpenClass);
             } catch (Exception e) {
-                throw new OpenlNotCheckedException(String.format("Cannot load dependency '%s'", dependencyName) , e);
+                throw new OpenlNotCheckedException(String.format("Can't load dependency '%s'", dependencyName) , e);
             }
         }
 

@@ -19,7 +19,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
-
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;

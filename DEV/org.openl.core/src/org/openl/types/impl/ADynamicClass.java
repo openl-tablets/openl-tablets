@@ -59,7 +59,12 @@ public abstract class ADynamicClass extends AOpenClass {
     public void addField(IOpenField field) {
         Map<String, IOpenField> fields = fieldMap();
         if (fields.containsKey(field.getName())) {
-            throw new DuplicatedVarException("", field.getName());
+            IOpenField existedField = fields.get(field.getName());
+            if (existedField != field) {
+                throw new DuplicatedVarException("", field.getName());
+            }else {
+                return;
+            }
         }
 
         fieldMap().put(field.getName(), field);

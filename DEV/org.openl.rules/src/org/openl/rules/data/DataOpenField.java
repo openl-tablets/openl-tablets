@@ -7,7 +7,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DataOpenField extends AOpenField {
+public class DataOpenField extends AOpenField{
 
     private ITable table;
     private Object data;
