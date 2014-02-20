@@ -33,8 +33,7 @@ public class PassCoder {
 
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
-        String encryptedString = new String(Base64.encodeBase64(cipher.doFinal(strToEncrypt.getBytes())));
-        return encryptedString;
+        return new String(Base64.encodeBase64(cipher.doFinal(strToEncrypt.getBytes(encoding))));
     }
 
     public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
@@ -46,8 +45,7 @@ public class PassCoder {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKeySpec secretKey = getKey(privateKey);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
-        String decryptedString = new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes())));
-        return decryptedString;
+        return new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes(encoding))));
     }
 
     private static SecretKeySpec getKey(String privateKey) throws UnsupportedEncodingException,

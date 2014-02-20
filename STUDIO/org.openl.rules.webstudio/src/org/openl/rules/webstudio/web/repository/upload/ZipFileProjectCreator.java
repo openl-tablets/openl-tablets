@@ -106,7 +106,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                     XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
                                     ProjectDescriptor projectDescriptor = serializer.deserialize(zipInputStream);
                                     projectDescriptor.setName(getProjectName());
-                                    zipInputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes());
+                                    zipInputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
                                 } catch (XStreamException e) {
                                     StringBuilder message = new StringBuilder("Can't parse rules.xml.");
                                     if (e.getCause() instanceof SAXParseException) {
