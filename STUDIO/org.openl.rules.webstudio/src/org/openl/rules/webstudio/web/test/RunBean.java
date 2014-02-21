@@ -125,7 +125,7 @@ public class RunBean {
     public String getFormattedSpreadsheetResult() {
         SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
         if (spreadsheetResult != null) {
-            return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult);
+            return ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
         }
         return StringUtils.EMPTY;
     }

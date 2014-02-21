@@ -342,7 +342,7 @@ public class TestBean {
         try {
             if (spreadsheetResult != null) {
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
-                return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+                return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
