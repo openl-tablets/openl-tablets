@@ -27,9 +27,9 @@ import org.openl.rules.testmethod.result.ComparedResult;
  * 
  * @deprecated
  */
-public class ObjectViewer {
+public final class ObjectViewer {
 
-    public ObjectViewer() {
+    private ObjectViewer() {
     }
 
     /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/ 

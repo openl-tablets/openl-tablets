@@ -160,12 +160,12 @@
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
                                            onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                                           value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                           value="true" checked="#{testBean.testsFailuresOnly ? 'checked' : ''}"
                                            style="vertical-align:-2px;margin:-4px" />
                                 </div>
-                                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
+                                <div id="caseFailuresSetting" class="#{!testBean.testsFailuresOnly ? 'hidden' : ''}">
                                     <span>Failures per test</span>
-                                    <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                    <h:selectOneMenu id="failures" value="#{testBean.testsFailuresPerTest}">
                                         <f:selectItem itemLabel="1" itemValue="1" />
                                         <f:selectItem itemLabel="5" itemValue="5" />
                                         <f:selectItem itemLabel="20" itemValue="20" />
@@ -176,7 +176,7 @@
                                 <div title="Show the result of running test case if it's complex">
                                     <span>Complex Result</span>
                                     <input name="complexResult" type="checkbox"
-                                           value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                           value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
                                            style="vertical-align:-2px;margin:-4px" />
                                 </div>
                             </div>
