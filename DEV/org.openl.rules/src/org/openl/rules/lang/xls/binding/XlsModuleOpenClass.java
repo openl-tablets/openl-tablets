@@ -327,7 +327,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 decorator.addMethod(m);
             } else {
                 IOpenMethod m = decorateForMultimoduleDispatching(method);
-                createMethodDispatcher(m, key, existedMethod);
+                if (m != existedMethod) {
+                    createMethodDispatcher(m, key, existedMethod);
+                }
             }
         } else {
             // Just add original method.
