@@ -57,9 +57,10 @@ public class TestBean {
                 if (cmp != 0) {
                     return cmp;
                 }
+                return t1.getName().compareTo(t2.getName());
+            } else {
+                return t1 == t2 ? 0 : t1 == null ? 1 : -1;
             }
-
-            return t1.getName().compareTo(t2.getName());
         }
     };
 
@@ -71,6 +72,11 @@ public class TestBean {
     private final static int DEFAULT_PAGE = 1;
     private int page = DEFAULT_PAGE;
     private int lastPage = DEFAULT_PAGE;
+
+    private int testsPerPage;
+    private boolean testsFailuresOnly;
+    private int testsFailuresPerTest;
+    private boolean showComplexResult;
 
     /**
      * URI of tested table
@@ -90,15 +96,15 @@ public class TestBean {
     }
 
     private void initPagination() {
-        int defaultPerPage = studio.getTestsPerPage();
-        int perPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, defaultPerPage);
-        if ((perPage == ALL || perPage > 0) && perPage != defaultPerPage) {
-            studio.setTestsPerPage(perPage);
+        testsPerPage = studio.getTestsPerPage();
+        int perPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, testsPerPage);
+        if ((perPage == ALL || perPage > 0) && perPage != testsPerPage) {
+            testsPerPage = perPage;
         }
 
         if (ranResults != null && ranResults.length > 0) {
-            lastPage = studio.getTestsPerPage() == ALL ? DEFAULT_PAGE
-                    : ((int) Math.ceil((double) ranResults.length / studio.getTestsPerPage()));
+            lastPage = testsPerPage == ALL ? DEFAULT_PAGE
+                    : ((int) Math.ceil((double) ranResults.length / testsPerPage));
         }
 
         int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
@@ -108,27 +114,27 @@ public class TestBean {
     }
 
     private void initFailures() {
-        boolean defaultFailuresOnly = studio.isTestsFailuresOnly();
+        testsFailuresOnly = studio.isTestsFailuresOnly();
         boolean failuresOnly = Boolean.valueOf(
                 FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY));
-        if (failuresOnly != defaultFailuresOnly) {
-            studio.setTestsFailuresOnly(failuresOnly);
+        if (failuresOnly != testsFailuresOnly) {
+            testsFailuresOnly = failuresOnly;
         }
 
-        int defaultFailuresPerTest = studio.getTestsFailuresPerTest();
+        testsFailuresPerTest = studio.getTestsFailuresPerTest();
         int failuresPerTest = FacesUtils.getRequestIntParameter(
-                Constants.REQUEST_PARAM_FAILURES_NUMBER, defaultFailuresPerTest);
-        if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != defaultFailuresPerTest) {
-            studio.setTestsFailuresPerTest(failuresPerTest);
+                Constants.REQUEST_PARAM_FAILURES_NUMBER, testsFailuresPerTest);
+        if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != testsFailuresPerTest) {
+            testsFailuresPerTest = failuresPerTest;
         }
     }
 
     private void initComplexResult() {
-        boolean defaultShowComplexResult = studio.isShowComplexResult();
-        boolean showComplexResult = Boolean.valueOf(
+        showComplexResult = studio.isShowComplexResult();
+        boolean isShowComplexResult = Boolean.valueOf(
                 FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT));
-        if (showComplexResult != defaultShowComplexResult) {
-            studio.setShowComplexResult(showComplexResult);
+        if (isShowComplexResult != showComplexResult) {
+            showComplexResult = isShowComplexResult;
         }
     }
 
@@ -167,8 +173,6 @@ public class TestBean {
     public TestUnitsResults[] getRanTests() {
         Arrays.sort(ranResults, TEST_COMPARATOR);
 
-        int testsPerPage = studio.getTestsPerPage();
-
         int startPos = (page - 1) * testsPerPage;
         int endPos = startPos + testsPerPage;
         if (endPos >= ranResults.length || testsPerPage == ALL) {
@@ -181,12 +185,12 @@ public class TestBean {
     public List<TestUnit> getFilteredTestCases(TestUnitsResults testResult) {
         List<TestUnit> cases = testResult.getTestUnits();
 
-        if (studio.isTestsFailuresOnly()) {
+        if (testsFailuresOnly) {
             List<TestUnit> failedCases = new ArrayList<TestUnit>();
             for (TestUnit testUnit : cases) {
                 if (testUnit.compareResult() != 0 // Failed case
-                        && (failedCases.size() < studio.getTestsFailuresPerTest()
-                                || studio.getTestsFailuresPerTest() == ALL)) {
+                        && (failedCases.size() < testsFailuresPerTest
+                                || testsFailuresPerTest == ALL)) {
                     failedCases.add(testUnit);
                 }
             }
@@ -397,4 +401,35 @@ public class TestBean {
         return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
     }
 
+    public int getTestsPerPage() {
+        return testsPerPage;
+    }
+
+    public boolean isTestsFailuresOnly() {
+        return testsFailuresOnly;
+    }
+
+    public int getTestsFailuresPerTest() {
+        return testsFailuresPerTest;
+    }
+
+    public boolean isShowComplexResult() {
+        return showComplexResult;
+    }
+
+    public void setTestsPerPage(int testsPerPage) {
+        this.testsPerPage = testsPerPage;
+    }
+
+    public void setTestsFailuresOnly(boolean testsFailuresOnly) {
+        this.testsFailuresOnly = testsFailuresOnly;
+    }
+
+    public void setTestsFailuresPerTest(int testsFailuresPerTest) {
+        this.testsFailuresPerTest = testsFailuresPerTest;
+    }
+
+    public void setShowComplexResult(boolean showComplexResult) {
+        this.showComplexResult = showComplexResult;
+    }
 }
