@@ -41,12 +41,7 @@ public class DuplicateDatatypesTest {
         ApiBasedInstantiationStrategy s = 
             new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
-        CompiledOpenClass openClass = null;
-        try {
-			openClass = s.compile();
-		} catch (Exception e2) {
-			
-		}
+        CompiledOpenClass openClass = s.compile();
 		try {
 			openClass.throwErrorExceptionsIfAny();
 			fail("Should thro exception, as there is datatype duplication");

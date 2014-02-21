@@ -50,7 +50,7 @@ public class PropertyTableBinder extends DataNodeBinder {
             tableName = DEFAULT_TABLE_NAME_PREFIX + tsn.getUri();
         }
 
-        ITable propertyTable = module.getDataBase().addNewTable(tableName, tsn);
+        ITable propertyTable = module.getDataBase().registerTable(tableName, tsn);
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propTableBody = getTableBody(tsn);
 

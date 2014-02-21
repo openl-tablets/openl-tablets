@@ -41,7 +41,7 @@ public class ExternalDependenciesTest {
             new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         Class<?> interfaceClass = s.getInstanceClass();
-        Method method = interfaceClass.getMethod("hello", new Class[]{int.class});
+        Method method = interfaceClass.getMethod("hello1", new Class[]{int.class});
         Object res = method.invoke(s.instantiate(), 10);
         
         assertEquals("Good Morning", res);
