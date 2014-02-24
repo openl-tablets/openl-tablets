@@ -27,6 +27,9 @@ public class EnumFormatter implements IFormatter {
     }
 
     public Object parse(String value) {
+        if (value == null) {
+            return null;
+        }
         return EnumUtils.valueOf(enumClass, value);
     }
 
