@@ -68,6 +68,9 @@ public class DateFormatter implements IFormatter {
     }
 
     public Object parse(String value) {
+        if (value == null) {
+            return null;
+        }
         try {
             return format.parse(value);
         } catch (ParseException e) {
