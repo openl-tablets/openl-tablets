@@ -30,7 +30,7 @@ import org.openl.types.IOpenClass;
 public class String2DataConvertorFactory {
 
     /**
-     * Strong reference to converters
+     * Strong reference to common converters
      */
     private static HashMap<Class<?>, IString2DataConvertor> convertors;
 
@@ -101,16 +101,12 @@ public class String2DataConvertorFactory {
         return convertor;
     }
 
-    public static void registerConvertor(Class<?> clazz, IString2DataConvertor conv) {
-        convertorsCache.put(clazz, conv);
-    }
-
     /**
      * Removes the specified Class from convertors cache.
      * 
      * @param clazz Class to unregister.
      */
-    public static void unregisterConvertorForClass(Class<?> clazz) {
+    private static void unregisterConvertorForClass(Class<?> clazz) {
         convertorsCache.remove(clazz);
     }
 
@@ -119,9 +115,13 @@ public class String2DataConvertorFactory {
      * 
      * @param classLoader ClassLoader to unregister.
      */
-    public static void unregisterClassLoader(ClassLoader classLoader) {
+    public static synchronized void unregisterClassLoader(ClassLoader classLoader) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
         for (Class<?> clazz : convertorsCache.keySet()) {
+            if (convertors.containsKey(clazz)) {
+                // Don't remove common converters
+                continue;
+            }
             ClassLoader cl = clazz.getClassLoader();
             if (cl == classLoader) {
                 toRemove.add(clazz);
