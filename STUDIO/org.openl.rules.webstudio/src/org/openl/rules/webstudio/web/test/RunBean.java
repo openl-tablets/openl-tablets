@@ -63,11 +63,7 @@ public class RunBean {
     }
 
     public String getTableName() {
-        if (testSuite != null) {
-            return testSuite.getName();
-        } else {
-            return WebStudioUtils.getProjectModel().getTable(uri).getName();
-        }
+        return WebStudioUtils.getProjectModel().getTable(uri).getName();
     }
 
     public TestDescription getTestDescription() {
