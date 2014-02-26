@@ -376,18 +376,19 @@ public interface IWritableGrid extends IGrid {
             ICell cell = grid.getCell(col, row);
             CellStyle newCellStyle = new CellStyle(cell.getStyle());
 
-            short[] borderStyle =  cell.getStyle().getBorderStyle();
+            ICellStyle cellStyle =  cell.getStyle();
+            short[] borderStyle = cellStyle != null ? cellStyle.getBorderStyle() : null;
 
             /*Create new cell style*/
             //int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
 
-            if (col == regionLeftCell) {
-                //Only left border will be set
+            if (borderStyle != null && col == regionLeftCell) {
+                // Only left border will be set
                 if (borderStyle.length == 4) {
-                    borderStyle = new short[]{CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, borderStyle[3]};
+                    borderStyle = new short[] { CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, borderStyle[3] };
                 }
-            } else if (col - regionLeftCell == regionWidth - 1) {
-                //Only right border will be set
+            } else if (borderStyle != null && (col - regionLeftCell == regionWidth - 1)) {
+                // Only right border will be set
                 if (borderStyle.length == 4) {
                     borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
                     /*FIXME add bottom border for expender row (only for last)
@@ -399,7 +400,7 @@ public interface IWritableGrid extends IGrid {
                     */
                }
             } else {
-                borderStyle = new short[]{CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
+                borderStyle = new short[] { CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE };
             }
 
             newCellStyle.setBorderStyle(borderStyle);
