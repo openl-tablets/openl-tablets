@@ -115,7 +115,7 @@
                                         rendered="#{tableBean.canOpenInExel}"
                                         title="Open the table in Excel - #{tableBean.uri}" 
                                         target="hidden" >
-                                        <f:param name="uri" value="#{tableBean.uri}" />
+                                        <f:param name="uri" value="#{tableBean.encodedUri}" />
                                         <img src="webresource/images/excel.png" />
                                         <span>Open</span>
                                     </h:outputLink>

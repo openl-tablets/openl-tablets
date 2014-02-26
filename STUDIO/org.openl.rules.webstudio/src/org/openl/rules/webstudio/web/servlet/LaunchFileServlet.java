@@ -5,6 +5,8 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,8 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.util.WebTool;
-import org.openl.main.SourceCodeURLConstants;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -35,14 +35,13 @@ public class LaunchFileServlet extends HttpServlet {
     private final Log log = LogFactory.getLog(LaunchFileServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+                                                                                   IOException {
         if (!isGranted(PRIVILEGE_EDIT_TABLES)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
@@ -69,12 +68,25 @@ public class LaunchFileServlet extends HttpServlet {
         boolean isWord = false;
 
         if (uri != null) { // by uri
-            String file = SourceCodeURLTool.parseUrl(uri).get(SourceCodeURLConstants.FILE);
+            
+            String file;
+            String decodedUriParameter;
+            try {
+                decodedUriParameter = StringTool.decodeURL(uri);
+                URL url = new URL(decodedUriParameter);
+                file = url.getFile();
 
+                int indexQuestionMark = file.indexOf('?');
+                file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
+            } catch (MalformedURLException e) {
+                log.error(e);
+                return;
+            }
+            decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
             try {
                 if (FileTypeHelper.isExcelFile(file)) { // Excel
                     XlsUrlParser parser = new XlsUrlParser();
-                    parser.parse(uri);
+                    parser.parse(decodedUriParameter);
                     wbPath = parser.wbPath;
                     wbName = parser.wbName;
                     wsName = parser.wsName;
@@ -83,7 +95,7 @@ public class LaunchFileServlet extends HttpServlet {
 
                 } else if (FileTypeHelper.isWordFile(file)) { // Word
                     WordUrlParser parser = new WordUrlParser();
-                    parser.parse(uri);
+                    parser.parse(decodedUriParameter);
                     wdPath = parser.wdPath;
                     wdName = parser.wdName;
                     wdParStart = parser.wdParStart;
@@ -106,7 +118,7 @@ public class LaunchFileServlet extends HttpServlet {
             } else {
                 wdName = StringTool.decodeURL(request.getParameter("wdName"));
 
-                if (wdName != null) {  // Word
+                if (wdName != null) { // Word
                     wdPath = StringTool.decodeURL(request.getParameter("wdPath"));
                     wdParStart = StringTool.decodeURL(request.getParameter("wdParStart"));
                     wdParEnd = StringTool.decodeURL(request.getParameter("wdParEnd"));
@@ -121,14 +133,14 @@ public class LaunchFileServlet extends HttpServlet {
                     WebStudio ws = getWebStudio(request);
                     if (ws == null)
                         return;
-                    
+
                     ProjectModel project = ws.getModel();
                     project.openWorkbookForEdit(wbName);
-                    
+
                     ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
-                    
+
                     project.afterOpenWorkbookForEdit(wbName);
-                    
+
                     return;
                 } else if (isWord) {
                     WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
@@ -153,7 +165,7 @@ public class LaunchFileServlet extends HttpServlet {
 
             String query = "filename=" + StringTool.encodeURL(filePath);
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/action/download?" + query);
-            dispatcher.forward(request,response);
+            dispatcher.forward(request, response);
         }
     }
 
