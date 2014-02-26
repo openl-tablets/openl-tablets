@@ -51,7 +51,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         // classloader.
         // Don`t need to load all urls from project, just wrapper class.
         URL[] urls = getModule().getProject().getClassPathUrls();
-        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
         return classLoader;
     }
 
@@ -199,7 +199,6 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             preInitWrapper(wrapperClass);
             if (wrapper == null) {
                 wrapper = (OpenLWrapper) wrapperNewInstance(wrapperClass);
-            } else {
             }
             return wrapper;
         } catch (Exception e) {
@@ -226,19 +225,14 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
     /**
      * Compiles the wrapper class.
      * 
-     * @param wrapperClass
-     * @param useExisting
      * @return {@link CompiledOpenClass}
      * @throws RulesInstantiationException
      * 
-     * @throws InstantiationException
-     * @throws IllegalAccessException
      */
     private CompiledOpenClass compile(Class<?> wrapperClass) throws RulesInstantiationException {
         OpenLWrapper wrapper = instantiate(wrapperClass);
-        CompiledOpenClass compiledOpenClass = wrapper.getCompiledOpenClass();
-        
-        return compiledOpenClass;
+
+        return wrapper.getCompiledOpenClass();
     }
 
     private Constructor<?> findConstructor(Class<?> clazz, Class<?>[] parameterTypes) {

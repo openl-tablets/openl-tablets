@@ -54,7 +54,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
         ClassLoader parent = getModule().getProject().getClassLoader(false);
         URL[] urls = getModule().getProject().getClassPathUrls();
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(parent);
-        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
         return classLoader;
     }
 

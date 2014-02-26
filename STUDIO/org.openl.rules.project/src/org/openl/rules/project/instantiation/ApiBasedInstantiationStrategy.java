@@ -85,7 +85,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
 
     @SuppressWarnings("unchecked")
     private RulesEngineFactory<?> getEngineFactory() {
-        Class<Object> serviceClass = null;
+        Class<Object> serviceClass;
         try {
             serviceClass = (Class<Object>) getServiceClass();
         } catch (ClassNotFoundException e) {
