@@ -87,7 +87,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
     }
 
     @Override
-    public synchronized List<IDependencyLoader> getDependencyLoaders() {
+    public List<IDependencyLoader> getDependencyLoaders() {
         if (dependencyLoaders != null) {
             return dependencyLoaders;
         }

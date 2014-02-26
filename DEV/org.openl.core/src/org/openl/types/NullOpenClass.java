@@ -6,6 +6,7 @@
 
 package org.openl.types;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,11 @@ public class NullOpenClass implements IOpenClass {
 
     public static boolean isAnyNull(IOpenClass... args)
     {
-    	for (int i = 0; i < args.length; i++) {
-			if (args[i] == the)
-				return true;
-		}
-    	
-    	return false;
+        for (IOpenClass arg : args) {
+            if (arg == the) return true;
+        }
+
+        return false;
     }
     
     
@@ -49,10 +49,6 @@ public class NullOpenClass implements IOpenClass {
     }
 
     public IAggregateInfo getAggregateInfo() {
-        return null;
-    }
-
-    public IOpenClass getArrayType(int dim) {
         return null;
     }
 
@@ -203,27 +199,27 @@ public class NullOpenClass implements IOpenClass {
 
     public Map<String, IOpenClass> getTypes() {
         // Default implementation
-        return null;
+        return Collections.emptyMap();
     }
 
     public Map<String, IOpenField> getFields() {
         // Default implementation
-        return null;
+        return Collections.emptyMap();
     }
 
     public Map<String, IOpenField> getDeclaredFields() {
         // Default implementation
-        return null;
+        return Collections.emptyMap();
     }
 
 
     public List<IOpenMethod> getMethods() {
         // Default implementation
-        return null;
+        return Collections.emptyList();
     }
     
     public List<IOpenMethod> getDeclaredMethods() {
         // Default implementation
-        return null;
+        return Collections.emptyList();
     }
 }
