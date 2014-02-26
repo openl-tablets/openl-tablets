@@ -20,8 +20,9 @@ public class WebStudioDependencyManagerFactory {
     }
 
     public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
-        List<ProjectDescriptor> projectDescriptors = getDependentProjects(module);
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
         projectDescriptors.add(module.getProject());
+        projectDescriptors.addAll(getDependentProjects(module));
 
         WebStudioWorkspaceRelatedDependencyManager dependencyManager = new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors, singleModuleMode);
         dependencyManager.setExternalParameters(studio.getSystemConfigManager().getProperties());

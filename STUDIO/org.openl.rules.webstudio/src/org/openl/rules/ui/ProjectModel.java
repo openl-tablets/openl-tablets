@@ -815,7 +815,7 @@ public class ProjectModel {
 
                 XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
                         .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-                return xmi.getXlsModuleNode();
+                return xmi == null ? null : xmi.getXlsModuleNode();
             } catch (OpenLCompilationException e) {
                 throw new OpenLRuntimeException(e);
             }
@@ -1271,20 +1271,23 @@ public class ProjectModel {
 
             // Edit current module, others should be read only
             // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
-            for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-                XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-                boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
-                        module.getSourceFile().getName().equals(FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
-                module.getWorkbookLoader().setCanUnload(!currentModule);
+            WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+            if (workbookNodes != null) {
+                for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
+                    XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
+                    boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
+                            module.getSourceFile().getName().equals(FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
+                    module.getWorkbookLoader().setCanUnload(!currentModule);
+                }
             }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            String message = "Can't load the module: " + t.getMessage();
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-            messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
-            
-            messages.addAll(OpenLMessagesUtils.newMessages(t));
-                        
+            for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
+                String message = String.format("Can't load the module: %s", openLMessage.getSummary());
+                messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
+            }
+
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
                     new SyntaxNodeException[0]);
 
@@ -1339,7 +1342,8 @@ public class ProjectModel {
 
     public boolean isProjectCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null
-                && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);
+                && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass)
+                && xlsModuleSyntaxNode != null;
     }
 
     public DependencyRulesGraph getDependencyGraph() {
