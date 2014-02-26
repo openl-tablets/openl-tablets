@@ -169,12 +169,12 @@
                     </ul>
                 </h:panelGroup>
 
-                <h:panelGroup style="float: right; width: 115px" rendered="#{!empty module}" class="dropdown">
+                <h:panelGroup style="float: right; width: 117px" rendered="#{!empty module}" class="dropdown">
                     <a4j:ajax oncomplete="ws.nav.reload(true)">
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
                         </a>
-                        <ul class="dropdown-menu pull-right" role="menu">
+                        <ul class="dropdown-menu pull-right" role="menu" style="margin-right: 5px;">
                             <h:panelGroup rendered="#{!empty rProject}">
                                 <li><h:commandLink action="#{studio.model.useSingleModuleMode}">Single-module mode</h:commandLink></li>
                             </h:panelGroup>

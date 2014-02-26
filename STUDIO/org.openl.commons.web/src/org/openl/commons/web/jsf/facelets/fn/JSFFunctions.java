@@ -109,4 +109,8 @@ public class JSFFunctions {
         return JSONMapper.toJSON(value).render(true);
     }
 
+    public static String escapeJS(String value) {
+        return StringEscapeUtils.escapeJavaScript(value);
+    }
+
 }
