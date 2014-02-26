@@ -8,8 +8,8 @@
 }
 
 .te_selected {
-    color: white !important;
-    background: rgb(180, 200, 255) !important;
+    color: #fff !important;
+    background: #6ad !important;
 }
 
 .te_comment {
@@ -80,14 +80,14 @@
 }
 
 .te_toolbar_item_pressed {
-    border-color: orange;
+    border-color: #8c2;
     cursor: pointer;
     opacity: 0.8;
     box-shadow: 0px 0px 3px #fff inset;
 }
 
 .te_toolbar_item_over {
-    border-color: orange;
+    border-color: #8c2;
     cursor: pointer;
     box-shadow: 0px 0px 3px #fff inset;
 }
