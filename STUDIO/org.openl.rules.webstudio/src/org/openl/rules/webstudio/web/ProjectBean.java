@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,6 +138,11 @@ public class ProjectBean {
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
         FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
+
+        if (!(path.contains("*") || path.contains("?"))) {
+            File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
+            FacesUtils.validate(moduleFile.exists(), "File with such path doesn't exist");
+        }
     }
 
     public void editName() {

@@ -26,6 +26,10 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
         if (classLoader == this) {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
         }
+
+        if (classLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) classLoader).containsClassLoader(this)) {
+            throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
+        }
         
         bundleClassLoaders.add(classLoader);
     }

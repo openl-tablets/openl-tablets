@@ -260,6 +260,10 @@ public class JavaOpenClass extends AOpenClass {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
         for (Class<?> c : getClassCache().keySet()) {
             ClassLoader classLoader = c.getClassLoader();
+            if (javaClassCache.containsKey(c)) {
+                // Don't remove common java classes
+                continue;
+            }
             if (classLoader == cl) {
                 toRemove.add(c);
             }
