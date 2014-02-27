@@ -33,7 +33,7 @@
                 <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project" varStatus="i">
                     <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
                 </ui:repeat>
-                <h:outputText value=" which have dependency on this project is still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
+                <h:outputText value=" which has dependency on this project is still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
                 <h:outputText value=" which have dependency on this project are still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
             </div>
         </h:panelGroup>
