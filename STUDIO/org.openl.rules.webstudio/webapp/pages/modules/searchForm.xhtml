@@ -124,6 +124,7 @@
     </script>
 
     <form style="display: inline;" onsubmit="doSearch(); return false;">
+        <input type="submit" style="position: absolute; top: -5000px" />
         <span id="searchInput">
             <input type="text" id="searchQuery" placeholder="#{msg['ws.search.input']}" />
             <a href="javascript:void(0)" onclick="showPopupMenu(event, 'advancedSearch', $j(this).parent(), {'offsetTop': 6, 'closeIcon': true})">
@@ -188,7 +189,6 @@
                 <input type="submit" value="#{msg['ws.search.search']}" class="button-primary" />
             </div>
         </div>
-        <input type="submit" style="position: absolute; top: -500px; visibility: hidden" />
     </form>
 
 </ui:composition>
