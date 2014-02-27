@@ -1,0 +1,61 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalSave" width="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Save changes" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close" onclick="RichFaces.$('modalSave').hide();" />
+    </f:facet>
+
+    <h:form id="saveForm">
+      <h:panelGroup id="modalSaveData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:outputText value="Project Name" />
+          <h:outputText value="#{artefact.name}"/>
+          
+          <ui:remove>
+            <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+          </ui:remove>
+          
+          <h:outputText value="Current Revision" />
+          <h:outputText value="#{artefact.version.versionName}"/>
+          <h:outputText value="Next Revision" />
+          <h:outputText value="#{artefact.version.revision + 1}" id="nextVersion"/>
+    
+          <h:outputText value="Comment" />
+          <h:inputTextarea value="#{artefact.version.versionComment}" type="text" size="35" readonly="false" title="#{artefact.version.versionComment}"/>
+        </h:panelGrid>
+
+        <script>
+          function saveDlgAdjustNextVersion() {
+            var major = RichFaces.$("saveForm:major").getValue();
+            var minor = RichFaces.$("saveForm:minor").getValue();
+            var rev = #{repositoryTreeController.revision + 1};
+            #{rich:element("nextVersion")}.innerHTML = major + "." + minor + "." + rev;
+          }
+        </script>
+
+      </h:panelGroup>
+
+      <footer>
+        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" styleClass="button-primary" oncomplete="#{rich:component('modalSave')}.hide();ws.nav.reload(true);" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
+      </footer>
+    </h:form>
+
+  </rich:popupPanel>
+
+  <script>
+    function openSaveDialog() {
+      RichFaces.$("modalSave").show();
+      focusElement('saveForm:projectVersion');
+    }
+  </script>
+</ui:composition>
