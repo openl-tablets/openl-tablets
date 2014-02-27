@@ -16,10 +16,13 @@ import java.io.InputStream;
 public class RulesProjectBuilder {
     private final Log log = LogFactory.getLog(RulesProjectBuilder.class);
     private final RulesProject project;
-    
+    private final UserWorkspace workspace;
 
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
-        workspace.createProject(projectName);
+        this.workspace = workspace;
+        synchronized (this.workspace) {
+            workspace.createProject(projectName);
+        }
         project = workspace.getProject(projectName);
         project.edit();
     }
@@ -65,9 +68,11 @@ public class RulesProjectBuilder {
                 log.debug("Canceling uploading of new project");
             }
 
-            project.close();
-            project.delete();
-            project.erase();
+            synchronized (workspace) {
+                project.close();
+                project.delete();
+                project.erase();
+            }
         } catch (ProjectException e) {
             log.error("Failed to cancel new project", e);
         }
