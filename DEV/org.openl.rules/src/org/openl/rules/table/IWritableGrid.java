@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -679,7 +680,11 @@ public interface IWritableGrid extends IGrid {
 
     void setCellValue(int col, int row, Object value);
 
+    Point setCellValue(Point position, Object value);
+
     void setCellStringValue(int col, int row, String value);
 
     void setCellFormula(int col, int row, String formula);
+
+    void write(OutputStream out);
 }

@@ -120,7 +120,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             numberOfParamsForSuperConstructor = datatypeAllFields.size() - datatypeDeclaredFields.size();
 
             /** Gets the parent constructor with fields */
-            Constructor<?> superConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(
+            Constructor<?> superConstructorWithFields = JavaClassGeneratorHelper.getConstructorByFieldsCount(
                     getClassForGeneration().getSuperclass(), numberOfParamsForSuperConstructor);
             if (superConstructorWithFields != null) {
                 int i = 0;
