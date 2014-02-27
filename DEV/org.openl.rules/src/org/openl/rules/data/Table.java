@@ -1,6 +1,8 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -220,6 +223,8 @@ public class Table implements ITable {
 
         int startRow = 1;
 
+        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
+
         for (int i = startRow; i < rows; i++) {
 
             Object target = Array.get(dataArray, i - startRow);
@@ -232,21 +237,28 @@ public class Table implements ITable {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
-
-                        if (descriptor.isConstructor()) {
-                            target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                logicalTable.getSubtable(j, i, 1, 1),
-                                dataBase,
-                                bindingContext);
-                        } else {
-                            fkDescriptor.populateLiteralByForeignKey(target,
-                                logicalTable.getSubtable(j, i, 1, 1),
-                                dataBase,
-                                bindingContext);
+                        try {
+                            if (descriptor.isConstructor()) {
+                                target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
+                                    logicalTable.getSubtable(j, i, 1, 1),
+                                    dataBase,
+                                    bindingContext);
+                            } else {
+                                fkDescriptor.populateLiteralByForeignKey(target,
+                                    logicalTable.getSubtable(j, i, 1, 1),
+                                    dataBase,
+                                    bindingContext);
+                            }
+                        } catch (SyntaxNodeException e) {
+                            errorSyntaxNodeExceptions.add(e);
                         }
                     }
                 }
             }
+        }
+        if (!errorSyntaxNodeExceptions.isEmpty()) {
+            throw new CompositeSyntaxNodeException("Parsing Error:",
+                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
         }
     }
 
@@ -255,15 +267,14 @@ public class Table implements ITable {
         int rows = logicalTable.getHeight();
         int startRow = getStartRowForData();
 
-        dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);        
+        dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
 
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
             processRow(openlAdapter, startRow, rowNum);
         }
     }
 
-    protected void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException 
-        {
+    protected void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
 
         boolean constructor = isConstructor();
         Object literal = null;
@@ -292,28 +303,30 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    protected Object processColumn(OpenlToolAdaptor openlAdapter, boolean constructor, int rowNum, Object literal,
+    protected Object processColumn(OpenlToolAdaptor openlAdapter,
+            boolean constructor,
+            int rowNum,
+            Object literal,
             int columnNum) throws SyntaxNodeException {
 
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
-                literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum,
-                    rowNum,
-                    1,
-                    1), openlAdapter);
+                literal = columnDescriptor.getLiteral(dataModel.getType(),
+                    logicalTable.getSubtable(columnNum, rowNum, 1, 1),
+                    openlAdapter);
             } else {
 
                 try {
-					columnDescriptor.populateLiteral(literal,
-					    logicalTable.getSubtable(columnNum, rowNum, 1, 1),
-					    openlAdapter);
-		        } catch (SyntaxNodeException ex) {
-		        	tableSyntaxNode.addError(ex);
-		        	BindHelper.processError(ex);
-		        }
-			}
+                    columnDescriptor.populateLiteral(literal,
+                        logicalTable.getSubtable(columnNum, rowNum, 1, 1),
+                        openlAdapter);
+                } catch (SyntaxNodeException ex) {
+                    tableSyntaxNode.addError(ex);
+                    BindHelper.processError(ex);
+                }
+            }
         }
 
         return literal;

@@ -117,8 +117,9 @@ public class RuleRowHelper {
                     // Set cell meta info manually.
                     //
                     //
-                    if(!openlAdaptor.getBindingContext().isExecutionMode())
+                    if(!openlAdaptor.getBindingContext().isExecutionMode()) {
                     	setCellMetaInfo(cell, paramName, paramType, true);
+                    }
                 }
 
                 values.add(res);
@@ -132,6 +133,9 @@ public class RuleRowHelper {
             }
         }else {
             arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
+            if(!openlAdaptor.getBindingContext().isExecutionMode()) {
+                setCellMetaInfo(cell, paramName, paramType, true);
+            }
         }
 
         return arrayValues;

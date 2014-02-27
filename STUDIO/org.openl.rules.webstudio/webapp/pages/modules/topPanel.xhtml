@@ -17,6 +17,11 @@
         <ui:include src="/pages/modules/exportModule.xhtml" />
     </h:panelGroup>
 
+    <h:panelGroup rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}">
+        <ui:param name="artefact" value="#{rProject}"/>
+        <ui:include src="/pages/modules/saveRevision.xhtml" />
+    </h:panelGroup>
+
     <h:panelGroup id="topPanel" layout="block">
         <h:form id="headerForm" prependId="false">
             <div class="buttonPanel">
@@ -72,7 +77,7 @@
                     </span>
                 </span>
                 <a4j:ajax oncomplete="ws.nav.reload(true)">
-                    <h:commandLink action="#{mainBean.saveProject}" value="Save"
+                    <h:commandLink onclick="openSaveDialog();return false;" value="Save"
                         title="Save the project to the Design Repository"
                         rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
                         styleClass="button" />
@@ -169,7 +174,7 @@
                     </ul>
                 </h:panelGroup>
 
-                <h:panelGroup style="float: right; width: 115px" rendered="#{!empty module}" class="dropdown">
+                <h:panelGroup style="float: right; width: 130px;text-align: right;" rendered="#{!empty module}" class="dropdown">
                     <a4j:ajax oncomplete="ws.nav.reload(true)">
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>

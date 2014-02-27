@@ -194,7 +194,7 @@
                                 <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                     <h:panelGroup>
                                         <ui:repeat value="#{testBean.getResultParams(testUnit)}" var="resultParam">
-                                            <td style="border-right:0">
+                                            <td>
                                                 <div class="case-result">
                                                     <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
                                                         <i class="#{resultParam.status.status == 0 ? 'case-success' : 'case-error'}"></i>
@@ -219,7 +219,7 @@
                                                     </h:panelGroup>
                                                 </div>
                                             </td>
-                                            <td style="border-left:0">
+                                            <td>
                                                 <div class="case-result">
                                                     <h:panelGroup rendered="#{resultParam.status.status == 1}"><span style="color:#aaa">Expected: </span>
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
