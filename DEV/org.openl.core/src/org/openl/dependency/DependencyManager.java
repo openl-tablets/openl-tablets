@@ -86,7 +86,7 @@ public abstract class DependencyManager implements IDependencyManager {
 
             if (dependency != null) {
                 if (result != null) {
-                    throw new OpenLCompilationException(String.format("There are several modules with same name '%s'", dependencyName));
+                    throw new OpenLCompilationException(String.format("There are several modules with the same name '%s'", dependencyName));
                 }
                 result = dependency;
             }

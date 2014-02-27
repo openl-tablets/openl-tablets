@@ -164,7 +164,7 @@ public class LocalTemporaryDeploymentsStorage {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"", deploymentName,
+            log.debug(String.format("Getting deployment with name=\"%s\" and version=\"%s\"", deploymentName,
                     version.getVersionName()));
         }
 
@@ -173,7 +173,7 @@ public class LocalTemporaryDeploymentsStorage {
             if (deployment != null) {
                 if (log.isDebugEnabled()) {
                     log.debug(String.format(
-                            "Getting deployement with name=\"%s\" and version=\"%s\" has been returned from cache.",
+                            "Getting deployment with name=\"%s\" and version=\"%s\" has been returned from cache.",
                             deploymentName, version.getVersionName()));
                 }
                 return deployment;
@@ -186,14 +186,14 @@ public class LocalTemporaryDeploymentsStorage {
             cacheForGetDeployment.put(getDeploymentFolderName(deploymentName, version), deployment);
             if (log.isDebugEnabled()) {
                 log.debug(String.format(
-                        "Deployement with name=\"%s\" and version=\"%s\" has been returned from local storage "
+                        "Deployment with name=\"%s\" and version=\"%s\" has been returned from local storage "
                                 + "and putted to cache.", deploymentName, version.getVersionName()));
             }
             return deployment;
         } else {
             if (log.isDebugEnabled()) {
                 log.debug(String.format(
-                        "Deployement with name=\"%s\" and version=\"%s\" hasn't been found in local storage.",
+                        "Deployment with name=\"%s\" and version=\"%s\" hasn't been found in local storage.",
                         deploymentName, version.getVersionName()));
             }
             return null;
