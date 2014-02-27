@@ -86,7 +86,7 @@ public class RepositoryTreeController {
     private RepositoryTreeState repositoryTreeState;
 
     @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private UserWorkspace userWorkspace;
+    private volatile UserWorkspace userWorkspace;
 
     @ManagedProperty(value = "#{repositoryArtefactPropsHolder}")
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
@@ -703,7 +703,9 @@ public class RepositoryTreeController {
 
         try {
             projectDescriptorResolver.deleteRevisions(project);
-            project.erase();
+            synchronized (userWorkspace) {
+                project.erase();
+            }
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
 
