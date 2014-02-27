@@ -90,8 +90,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defDeploymentsLocation.getNode(name);
-            JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
-            return ddp;
+            return new JcrDeploymentDescriptorProject(n);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }
@@ -124,8 +123,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defRulesLocation.getNode(name);
-            JcrProject p = new JcrProject(n);
-            return p;
+            return new JcrProject(n);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
@@ -318,7 +316,7 @@ public class JcrRepository extends BaseJcrRepository {
         return result;
     }
     
-    private static String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
+    private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
     
     private String extractProjectName(String relativePath){
         return new ArtefactPathImpl(relativePath).segment(0);
@@ -326,19 +324,11 @@ public class JcrRepository extends BaseJcrRepository {
     
     private boolean isProjectDeletedEvent(Event event, String relativePath){
         ArtefactPathImpl path = new ArtefactPathImpl(relativePath);
-        if (path.segmentCount() == 1 && event.getType() == Event.NODE_REMOVED) {
-            return true;
-        } else {
-            return false;
-        }
+        return path.segmentCount() == 1 && event.getType() == Event.NODE_REMOVED;
     }
     
     private boolean isProjectModifiedEvent(Event event, String relativePath){
-        if (relativePath.contains(CHECKED_OUT_PROPERTY)) {
-            return true;
-        }else{
-            return false;
-        }
+        return relativePath.contains(CHECKED_OUT_PROPERTY);
     }
 
     public void onEvent(EventIterator eventIterator) {
