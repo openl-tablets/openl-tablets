@@ -130,7 +130,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
             return dependencyLoaders;
         }
         dependencyLoaders = new ArrayList<IDependencyLoader>();
-        for (Deployment deployment : ruleServiceLoader.getDeployments()) {
+        Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
+        for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
             if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
                 .equals(deployment.getCommonVersion())) {
