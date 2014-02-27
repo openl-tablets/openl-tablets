@@ -179,7 +179,7 @@ public class JcrRepository extends BaseJcrRepository {
     /** {@inheritDoc} */
     public boolean hasProject(String name) throws RRepositoryException {
         try {
-            return defRulesLocation.hasNode(name);
+            return defRulesLocation.hasNode(name) && !defRulesLocation.getNode(name).isNodeType(JcrNT.NT_LOCK);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to check project ''{0}''", e, name);
         }
