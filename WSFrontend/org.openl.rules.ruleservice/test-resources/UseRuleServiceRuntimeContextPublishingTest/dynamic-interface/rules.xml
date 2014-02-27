@@ -11,7 +11,7 @@
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
-			<rules-root path="project*/Module*.xlsx"/>
+			<rules-root path="project*/*Module*.xlsx"/>
 
 		</module>	
 	</modules>

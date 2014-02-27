@@ -79,16 +79,19 @@ public abstract class DependencyManager implements IDependencyManager {
     }
     
     private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) throws OpenLCompilationException{
-
+        CompiledDependency result = null;
         for (IDependencyLoader loader : loaders) {
             CompiledDependency dependency = loader.load(dependencyName, this);
 
             if (dependency != null) {
-                return dependency;
+                if (result != null) {
+                    throw new OpenLCompilationException(String.format("There are several modules with the same name '%s'", dependencyName));
+                }
+                result = dependency;
             }
         }
 
-        return null;
+        return result;
     }
     
     @Override
