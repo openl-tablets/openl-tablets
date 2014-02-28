@@ -151,7 +151,10 @@ public class ProjectHelper {
             }
         }
         if(tested instanceof MethodDelegator){
-            return isTestForMethod(tester, ((MethodDelegator)tested).getMethod());
+            return isTestForMethod(tester, tested.getMethod());
+        }
+        if (tested instanceof OpenMethodDispatcher) {
+            return isTestForMethod(tester, ((OpenMethodDispatcher) tested).getTargetMethod());
         }
         return false;
     }
