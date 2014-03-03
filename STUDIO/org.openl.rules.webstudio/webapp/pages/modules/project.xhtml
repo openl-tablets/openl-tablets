@@ -183,7 +183,14 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{empty studio.getProjectByName(dependency.name)}">
                                     <span>#{dependency.name}</span>
-                                    <span class="path" style="color:red">Could not find the project</span>
+                                    <span class="path" style="color:red">Could not find the project
+                                        <h:form style="display: inline;">
+                                            <a4j:commandLink action="#{projectBean.removeDependency(dependency.name)}"
+                                                oncomplete="ws.nav.reload()" title="Remove dependency">
+                                                <img src="webresource/images/remove.png" style="opacity: 0.4;margin-left: 3px; vertical-align: top" />
+                                            </a4j:commandLink>
+                                        </h:form>
+                                    </span>
                                 </h:panelGroup>
                             </div>
                         </ui:repeat>
