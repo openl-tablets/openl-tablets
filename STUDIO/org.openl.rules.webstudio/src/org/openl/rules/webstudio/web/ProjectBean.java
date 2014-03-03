@@ -230,6 +230,25 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
+    public void removeDependency(String name) {
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+
+        clean(newProjectDescriptor);
+
+        List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
+
+        for (ProjectDependencyDescriptor dependency : resultDependencies) {
+            if (dependency.getName().equals(name)) {
+                resultDependencies.remove(dependency);
+            }
+        }
+
+        newProjectDescriptor.setDependencies(!resultDependencies.isEmpty() ? resultDependencies : null);
+
+        save(newProjectDescriptor);
+    }
+
     public void editDependencies() {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
