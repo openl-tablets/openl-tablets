@@ -599,6 +599,23 @@ public class StringTool {
         return result;
     }
 
+    public static String listObjectToStringThroughSymbol(List<Object> values, String symbol) {
+        String result = StringUtils.EMPTY;
+        if (values != null && !values.isEmpty()) {
+            StringBuilder strBuf = new StringBuilder();
+            int paramNum = values.size();
+            for (Object value : values) {
+                paramNum--;
+                strBuf.append(value);
+                if (paramNum > 0) {
+                    strBuf.append(", ");
+                }
+            }
+            result = strBuf.toString();
+        }
+        return result;
+    }
+
     /**
      * Returns the setter name, by adding set, to the field name, and upper case
      * the first field name symbol.

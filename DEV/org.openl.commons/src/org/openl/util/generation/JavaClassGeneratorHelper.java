@@ -415,7 +415,7 @@ public class JavaClassGeneratorHelper {
         return null;
     }
 
-    public static Constructor<?> getBeanConstructorWithAllFields(Class<?> beanClass, int beanFieldsCount) {
+    public static Constructor<?> getConstructorByFieldsCount(Class<?> beanClass, int beanFieldsCount) {
         for (Constructor<?> constructor : beanClass.getConstructors()) {
             if (constructor.getParameterTypes().length == beanFieldsCount) {
                 return constructor;
