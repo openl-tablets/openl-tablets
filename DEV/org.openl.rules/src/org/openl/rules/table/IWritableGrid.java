@@ -687,4 +687,6 @@ public interface IWritableGrid extends IGrid {
     void setCellFormula(int col, int row, String formula);
 
     void write(OutputStream out);
+
+    IWritableGrid createGrid(String name);
 }
