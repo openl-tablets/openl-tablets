@@ -499,6 +499,9 @@ public class RepositoryTreeController {
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
             createdProject.edit();
+            // Analogous to rules project creation (to change "created by" property and revision)
+            createdProject.save();
+            createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
