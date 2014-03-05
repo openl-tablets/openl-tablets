@@ -342,28 +342,30 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();
         TreeNode rulesProject = getRulesRepository().getChild(projectName);
-        if (rulesProject == null) {
-            if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
+        synchronized (userWorkspace) {
+            if (rulesProject == null) {
+                if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
+                    try {
+                        addRulesProjectToTree(userWorkspace.getProject(projectName));
+                    } catch (ProjectException e) {
+                        log.error("Failed to add new project to the repository tree.", e);
+                    }
+                } else if (!userWorkspace.getLocalWorkspace().hasProject(projectName)) {
+                    TreeProject node = getProjectNodeByPhysicalName(projectName);
+                    if (node != null) {
+                        deleteNode(node);
+                    }
+                }
+            } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
+                    && !userWorkspace.getLocalWorkspace().hasProject(projectName)) {
+                deleteNode(rulesProject);
+            } else {
                 try {
-                    addRulesProjectToTree(userWorkspace.getProject(projectName));
+                    rulesProject.setData(userWorkspace.getProject(projectName));
+                    refreshNode(rulesProject);
                 } catch (ProjectException e) {
-                    log.error("Failed to add new project to the repository tree.", e);
+                    log.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
                 }
-            } else if (!userWorkspace.getLocalWorkspace().hasProject(projectName)) {
-                TreeProject node = getProjectNodeByPhysicalName(projectName);
-                if (node != null) {
-                    deleteNode(node);
-                }
-            }
-        } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
-                && !userWorkspace.getLocalWorkspace().hasProject(projectName)) {
-            deleteNode(rulesProject);
-        } else {
-            try {
-                rulesProject.setData(userWorkspace.getProject(projectName));
-                refreshNode(rulesProject);
-            } catch (ProjectException e) {
-                log.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
             }
         }
     }

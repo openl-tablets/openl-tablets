@@ -79,7 +79,7 @@
                 <a4j:ajax oncomplete="ws.nav.reload(true)">
                     <h:commandLink onclick="openSaveDialog();return false;" value="Save"
                         title="Save the project to the Design Repository"
-                        rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
+                        rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}"
                         styleClass="button" />
                     <h:commandLink action="#{mainBean.editProject}" value="Edit" styleClass="button"
                         title="Edit the project; the project becomes read-only for all other users"

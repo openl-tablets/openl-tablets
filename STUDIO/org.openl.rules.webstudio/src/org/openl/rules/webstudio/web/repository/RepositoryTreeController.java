@@ -86,7 +86,7 @@ public class RepositoryTreeController {
     private RepositoryTreeState repositoryTreeState;
 
     @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private UserWorkspace userWorkspace;
+    private volatile UserWorkspace userWorkspace;
 
     @ManagedProperty(value = "#{repositoryArtefactPropsHolder}")
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
@@ -499,6 +499,9 @@ public class RepositoryTreeController {
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
             createdProject.edit();
+            // Analogous to rules project creation (to change "created by" property and revision)
+            createdProject.save();
+            createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
@@ -703,7 +706,9 @@ public class RepositoryTreeController {
 
         try {
             projectDescriptorResolver.deleteRevisions(project);
-            project.erase();
+            synchronized (userWorkspace) {
+                project.erase();
+            }
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
 

@@ -72,7 +72,11 @@ public class ProjectDescriptorArtefactResolver {
             pd = getProjectDescriptor(project);
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
-                log.warn(String.format("Can't get project descriptor for project '%s'. Cause: %s", project.getName(), e.getMessage()), e);
+                log.warn(String.format("Can't get project descriptor for project '%s'. Physical project name will be used. Cause: %s", project.getName(), e.getMessage()));
+            }
+            if (log.isDebugEnabled()) {
+                // Error in user data, not application logic - debug log level will be used
+                log.debug(e.getMessage(), e);
             }
         }
         return pd != null ? pd.getName() : project.getName();

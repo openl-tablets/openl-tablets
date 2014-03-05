@@ -11,6 +11,7 @@ import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
@@ -204,9 +205,16 @@ public class ProjectDescriptorManager {
             }
             if (module.getMethodFilter().getExcludes() == null) {
                 module.getMethodFilter().setExcludes(new HashSet<String>());
+            } else {
+                // Remove empty nodes
+                module.getMethodFilter().getExcludes().removeAll(Arrays.asList("", null));
             }
+
             if (module.getMethodFilter().getIncludes() == null) {
                 module.getMethodFilter().setIncludes(new HashSet<String>());
+            } else {
+                // Remove empty nodes
+                module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
             }
 
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
