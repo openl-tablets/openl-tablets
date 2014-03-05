@@ -52,51 +52,48 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
                 }
                 return compiledDependency;
             }
-            synchronized (dependencyManager) {
-                try {
-                    if (dependencyManager.getStack().contains(dependencyName)) {
-                        OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
-                        return null;
-                    }
-                    RulesInstantiationStrategy rulesInstantiationStrategy = null;
-                    ClassLoader classLoader = dependencyManager.getClassLoader(modules);
-                    if (modules.size() == 1) {
-                        dependencyManager.getStack().add(dependencyName);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Creating dependency for dependencyName = " + dependencyName);
-                        }
-                        rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), true, dependencyManager, classLoader);
-                    } else {
-                        if (modules.size() > 1) {
-                            rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                                dependencyManager,
-                                classLoader);
-                        } else {
-                            throw new IllegalStateException("Illegal State!");
-                        }
-                    }
-                    Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                        modules);
-                    rulesInstantiationStrategy.setExternalParameters(parameters);
-                    rulesInstantiationStrategy.setServiceClass(RuleServiceDependencyLoaderInterface.class);// Prevent
-                                                                                                           // generation
-                                                                                                           // interface
-                    try {
-                        CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-                        CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Dependency for dependencyName = " + dependencyName + " was stored to cache.");
-                        }
-                        compiledDependency = cd;
-                        return compiledDependency;
-                    } catch (Exception ex) {
-                        throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.",
-                            ex);
-                    }
-                } finally {
-                    dependencyManager.getStack().pollLast();
+            try {
+                if (dependencyManager.getStack().contains(dependencyName)) {
+                    OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
+                    return null;
                 }
+                RulesInstantiationStrategy rulesInstantiationStrategy = null;
+                ClassLoader classLoader = dependencyManager.getClassLoader(modules);
+                if (modules.size() == 1) {
+                    dependencyManager.getStack().add(dependencyName);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Creating dependency for dependencyName = " + dependencyName);
+                    }
+                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
+                        .next(), true, dependencyManager, classLoader);
+                } else {
+                    if (modules.size() > 1) {
+                        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+                            dependencyManager,
+                            classLoader);
+                    } else {
+                        throw new IllegalStateException("Illegal State!");
+                    }
+                }
+                Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                    modules);
+                rulesInstantiationStrategy.setExternalParameters(parameters);
+                rulesInstantiationStrategy.setServiceClass(RuleServiceDependencyLoaderInterface.class);// Prevent
+                                                                                                       // generation
+                                                                                                       // interface
+                try {
+                    CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+                    CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Dependency for dependencyName = " + dependencyName + " was stored to cache.");
+                    }
+                    compiledDependency = cd;
+                    return compiledDependency;
+                } catch (Exception ex) {
+                    throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.", ex);
+                }
+            } finally {
+                dependencyManager.getStack().pollLast();
             }
         }
         return null;

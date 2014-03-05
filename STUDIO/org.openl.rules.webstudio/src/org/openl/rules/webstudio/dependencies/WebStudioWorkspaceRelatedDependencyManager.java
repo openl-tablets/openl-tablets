@@ -38,7 +38,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         for (DependencyManagerListener listener : listeners) {
             listener.onLoadDependency(dependency);
         }
