@@ -1634,7 +1634,7 @@ public class RepositoryTreeController {
             version = null;
             return false;
         }
-        return true;
+        return currentProject != null;
     }
 
     public void openVersionDialogListener(AjaxBehaviorEvent event) {
