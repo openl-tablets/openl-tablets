@@ -165,18 +165,17 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     public TableSyntaxNode getDispatcherTable() {
+        TableSyntaxNode[] tables = getTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tables) {
+            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
+                return tsn;
+            }
+        }
         IMemberMetaInfo info = getTargetMethod().getInfo();
         if (info != null) {
             ISyntaxNode syntaxNode = info.getSyntaxNode();
             if (syntaxNode instanceof TableSyntaxNode) {
                 return (TableSyntaxNode) syntaxNode;
-            }
-        }
-
-        TableSyntaxNode[] tables = getTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tables) {
-            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
-                return tsn;
             }
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
