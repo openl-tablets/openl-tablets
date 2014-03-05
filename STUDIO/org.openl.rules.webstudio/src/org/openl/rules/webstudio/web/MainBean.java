@@ -51,16 +51,18 @@ public class MainBean {
             ProjectDescriptor project = studio.getCurrentProjectDescriptor();
 
             if (StringUtils.isNotBlank(moduleName)) {
-                // Select module
-                Module module = studio.getCurrentModule();
-                if (project != null && module != null
-                        && !project.getName().equals(projectName)
-                        && !module.getName().equals(moduleName)) {
-                    // Delete all previous cached config
-                    OpenL.reset();
-                    OpenLConfiguration.reset();
+                synchronized (WebStudioUtils.getWebStudio()) {
+                    // Select module
+                    Module module = studio.getCurrentModule();
+                    if (project != null && module != null
+                            && !project.getName().equals(projectName)
+                            && !module.getName().equals(moduleName)) {
+                        // Delete all previous cached config
+                        OpenL.reset();
+                        OpenLConfiguration.reset();
+                    }
+                    studio.selectModule(projectName, moduleName);
                 }
-                studio.selectModule(projectName, moduleName);
             } else {
                 // Select project
                 studio.selectProject(projectName);
