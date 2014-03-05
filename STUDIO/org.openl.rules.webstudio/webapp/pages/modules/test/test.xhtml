@@ -177,7 +177,7 @@
                                 <h:panelGroup rendered="#{testUnitsResults.hasDescription()}">
                                     <td><h:outputText value="#{testUnit.getDescription()}" /></td>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{testUnit.test.runtimeContextDefined}">
+                                <h:panelGroup rendered="#{testUnitsResults.hasContext()}">
                                     <ui:repeat value="#{testBean.getContextParams(testUnitsResults,testUnit)}" var="context">
                                     <td>
                                         <ui:include src="/pages/modules/test/parameter.xhtml">

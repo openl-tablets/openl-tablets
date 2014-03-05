@@ -15,7 +15,6 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
-import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -66,20 +65,6 @@ public class InstantiationStrategyFactory {
     public ModuleInstantiator getInstantiationStrategy(Module module, boolean singleModuleMode) {
         ModuleInstantiator instantiator = getFromCache(module, singleModuleMode);
 
-        if (instantiator != null && singleModuleMode != isSingleModuleModeStrategy(instantiator.getInstantiationStrategy())) {
-            // Changed single/multi module mode
-            removeCachedModule(module);
-            instantiator = null;
-        }
-
-        if (!singleModuleMode && isOpenedAsSingleMode(module)) {
-            // Changed from single to multi module mode - remove old cached modules
-            for (Module m : module.getProject().getModules()) {
-                removeCachedModule(m);
-            }
-            instantiator = null;
-        }
-
         if (instantiator == null) {
             instantiator = createModuleInstantiator(module, singleModuleMode);
             putToCache(module, singleModuleMode, instantiator);
@@ -116,19 +101,6 @@ public class InstantiationStrategyFactory {
         }
         dependencyUsages.clear();
         projectDependencyUsages.clear();
-    }
-
-    public boolean isOpenedAsSingleMode(Module module) {
-        for (Module m : module.getProject().getModules()) {
-            if (getFromCache(m, true) != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isOpenedAsMultiMode(Module module) {
-        return getFromCache(module, false) != null;
     }
 
     private ModuleInstantiator getFromCache(Module module, boolean singleModuleMode) {
@@ -236,10 +208,6 @@ public class InstantiationStrategyFactory {
         WebStudioWorkspaceRelatedDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(module, singleModuleMode);
         dependencyManager.addListener(new DependenciesCollectingHandler(module));
         return dependencyManager;
-    }
-
-    private boolean isSingleModuleModeStrategy(RulesInstantiationStrategy strategy) {
-        return strategy instanceof SingleModuleInstantiationStrategy;
     }
 
     private class DependenciesCollectingHandler extends DefaultDependencyManagerListener {

@@ -47,7 +47,7 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException{
+    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         WebStudioWorkspaceRelatedDependencyManager dependencyManager;
         if (dm instanceof WebStudioWorkspaceRelatedDependencyManager) {
             dependencyManager = (WebStudioWorkspaceRelatedDependencyManager) dm;
@@ -62,64 +62,69 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
                 }
                 return compiledDependency;
             }
-            synchronized (dependencyManager) {
-                try {
-                    if (dependencyManager.getStack().contains(dependencyName)) {
-                        OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
-                        return null;
-                    }
-                    RulesInstantiationStrategy rulesInstantiationStrategy;
-                    ClassLoader classLoader = dependencyManager.getClassLoader(modules);
-                    if (modules.size() == 1) {
-                        dependencyManager.getStack().add(dependencyName);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Creating dependency for dependencyName = " + dependencyName);
-                        }
-                        rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), false, dependencyManager, classLoader);
-                    } else {
-                        if (modules.size() > 1) {
-                            rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                                dependencyManager,
-                                classLoader);
-                        } else {
-                            throw new IllegalStateException("Modules collection can't be empty");
-                        }
-                    }
-                    Map<String, Object> parameters = dependencyManager.getExternalParameters();
-                    if (!singleModuleMode) {
-                        parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(parameters,
-                                modules);
-                    }
-                    rulesInstantiationStrategy.setExternalParameters(parameters);
-                    rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent interface generation
-                    try {
-                        CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-                        CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Dependency for dependencyName = " + dependencyName + " was stored to cache.");
-                        }
-                        compiledDependency = cd;
-                        return compiledDependency;
-                    } catch (Exception ex) {
-                        if (log.isErrorEnabled()) {
-                            log.error(ex.getMessage(), ex);
-                        }
-                        compiledDependency = createFailedCompiledDependency(dependencyName, classLoader, ex);
-                        return compiledDependency;
-                    }
-                } finally {
-                    dependencyManager.getStack().pollLast();
+
+            try {
+                if (dependencyManager.getStack().contains(dependencyName)) {
+                    OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
+                    return null;
                 }
+                RulesInstantiationStrategy rulesInstantiationStrategy;
+                ClassLoader classLoader = dependencyManager.getClassLoader(modules);
+                if (modules.size() == 1) {
+                    dependencyManager.getStack().add(dependencyName);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Creating dependency for dependencyName = " + dependencyName);
+                    }
+                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
+                        .next(), false, dependencyManager, classLoader);
+                } else {
+                    if (modules.size() > 1) {
+                        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+                            dependencyManager,
+                            classLoader);
+                    } else {
+                        throw new IllegalStateException("Modules collection can't be empty");
+                    }
+                }
+                Map<String, Object> parameters = dependencyManager.getExternalParameters();
+                if (!singleModuleMode) {
+                    parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(parameters,
+                        modules);
+                }
+                rulesInstantiationStrategy.setExternalParameters(parameters);
+                rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
+                                                                                  // interface
+                                                                                  // generation
+                try {
+                    CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+                    CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Dependency for dependencyName = " + dependencyName + " was stored to cache.");
+                    }
+                    compiledDependency = cd;
+                    return compiledDependency;
+                } catch (Exception ex) {
+                    if (log.isErrorEnabled()) {
+                        log.error(ex.getMessage(), ex);
+                    }
+                    compiledDependency = createFailedCompiledDependency(dependencyName, classLoader, ex);
+                    return compiledDependency;
+                }
+            } finally {
+                dependencyManager.getStack().pollLast();
             }
         }
         return null;
     }
 
-    private CompiledDependency createFailedCompiledDependency(String dependencyName, ClassLoader classLoader, Exception ex) {
+    private CompiledDependency createFailedCompiledDependency(String dependencyName,
+            ClassLoader classLoader,
+            Exception ex) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(ex)) {
-            String message = String.format("Can't load dependent module '%s': %s", dependencyName, openLMessage.getSummary());
+            String message = String.format("Can't load dependent module '%s': %s",
+                dependencyName,
+                openLMessage.getSummary());
             messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
         }
 
@@ -127,8 +132,10 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
-            return new CompiledDependency(dependencyName, new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
-                    new SyntaxNodeException[0]));
+            return new CompiledDependency(dependencyName, new CompiledOpenClass(NullOpenClass.the,
+                messages,
+                new SyntaxNodeException[0],
+                new SyntaxNodeException[0]));
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

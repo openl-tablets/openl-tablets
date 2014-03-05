@@ -21,6 +21,7 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -168,6 +169,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         for (TableSyntaxNode tsn : tables) {
             if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
                 return tsn;
+            }
+        }
+        IMemberMetaInfo info = getTargetMethod().getInfo();
+        if (info != null) {
+            ISyntaxNode syntaxNode = info.getSyntaxNode();
+            if (syntaxNode instanceof TableSyntaxNode) {
+                return (TableSyntaxNode) syntaxNode;
             }
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
@@ -340,5 +348,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-    // <<< END INSERT MatchingProperties >>>
+// <<< END INSERT MatchingProperties >>>
 }

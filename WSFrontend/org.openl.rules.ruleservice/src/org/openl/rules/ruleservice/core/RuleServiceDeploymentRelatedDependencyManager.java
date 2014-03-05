@@ -49,7 +49,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         String dependencyName = dependency.getNode().getIdentifier();
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
         if (compiledDependency == null) {
