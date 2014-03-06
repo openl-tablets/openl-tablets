@@ -5,9 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
-import org.apache.cxf.endpoint.Client;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
