@@ -1058,9 +1058,9 @@ public class ProjectModel {
                 // falls through
             case RELOAD:
                 instantiationStrategyFactory.reset();
-                // falls through
+                break;
             case SINGLE:
-                // do nothing
+                instantiationStrategyFactory.removeCachedModule(moduleToOpen);
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
@@ -1191,7 +1191,7 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
     }
 
-    public void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
+    public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
         }
@@ -1207,7 +1207,6 @@ public class ProjectModel {
         }
 
         if (reloadType != ReloadType.NO) {
-            instantiationStrategyFactory.removeCachedModule(moduleInfo);
             uriTableCache.clear();
         }
 
@@ -1583,13 +1582,6 @@ public class ProjectModel {
                 if (project.getName().equals(newProject.getName())) {
                     return openedInSingleModuleMode;
                 }
-            }
-
-            if (instantiationStrategyFactory.isOpenedAsSingleMode(module)) {
-                return true;
-            }
-            if (instantiationStrategyFactory.isOpenedAsMultiMode(module)) {
-                return false;
             }
         }
         return studio.isSingleModuleModeByDefault();

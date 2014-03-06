@@ -25,7 +25,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
     private List<ProjectDescriptor> dependentProjects;
     private boolean singleModuleMode;
 
-    private List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
+    private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
 
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects, boolean singleModuleMode) {
         if (dependentProjects == null) {
