@@ -66,7 +66,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 try {
                     returnType = getReturnTypeByPropertyName(propertyName);
                 } catch (NoSuchMethodException e) {
-                    throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid property: " + propertyName + ". This property doesn't supported!.");
+                    throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid property: " + propertyName + ". This property isn't supported!.");
                 }
                 if (returnType == null) {
                     fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
@@ -161,7 +161,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 setProperty(propertyName, group, props, dateFormats.get(propertyName));
             }
         } else {
-            throw new NoMatchFileNameException("'" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
+            throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
         }
         return props;
     }
