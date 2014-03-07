@@ -111,8 +111,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     protected ADeploymentProject getDDProjectFor(ADeploymentProject deploymentProject, CommonVersion version)
             throws ProjectException {
-        ADeploymentProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
-        return oldDP;
+        return designTimeRepository.getDDProject(deploymentProject.getName(), version);
     }
 
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
@@ -142,7 +141,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public RulesProject getProject(String name, boolean refreshBefore) throws ProjectException {
-        if (refreshBefore) {
+        if (refreshBefore || userRulesProjects.isEmpty()) {
             refreshRulesProjects();
         }
 
