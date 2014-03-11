@@ -20,6 +20,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private IDependencyManager dependencyManager;
     private boolean executionMode;
     private T original;
+    private static Object lock = new Object();
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -49,7 +50,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, isExecutionMode(), getDependencyManager(),
                     getClassLoader());
-            synchronized (this) {
+            synchronized (getCache()) {
                 SingleModuleInstantiationStrategy strategy1 = getCache().getRulesInstantiationStrategyFromCache(module);
                 if (strategy1 == null) {
                     getCache().putToCache(module, strategy);
@@ -59,7 +60,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 //strategy.setExternalParameters(getExternalParameters());
             }
         }
-        synchronized (strategy) {
+        synchronized (lock) {
             return getMember(strategy);
         }
     }
