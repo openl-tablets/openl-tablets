@@ -61,7 +61,7 @@
                                     </a4j:outputPanel>
 
                                     <label>Last Name</label>
-                                    <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}"/>
+                                    <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}" />
                                     <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                                         <h:message for="lastName" styleClass="error" />
                                     </a4j:outputPanel>
@@ -80,7 +80,7 @@
 
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
                                     <label>Current password</label>
-                                    <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" />
+                                    <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" autocomplete="off" />
                                     <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
                                         <h:message for="currentPassword" styleClass="error" />
                                     </a4j:outputPanel>
@@ -152,7 +152,7 @@
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
 
-                                    <label>Complex Result</label>
+                                    <label>Compound Result</label>
                                     <h:selectBooleanCheckbox id="showComplexResult" value="#{studio.showComplexResult}" />
                                 </h:panelGrid>
                             </div>

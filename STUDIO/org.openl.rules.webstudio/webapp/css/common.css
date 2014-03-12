@@ -52,6 +52,7 @@ input[type='button'], button,
     cursor: pointer;
     box-shadow: 0 0 2px #fff inset;
     background-image: linear-gradient(to top, #f9f9f9 0%, #fff 37%, #fff 100%);
+    outline: none;
 }
 
 input[type='submit']:hover, input[type='reset']:hover,
@@ -65,6 +66,12 @@ input[type='submit']:active, input[type='reset']:active,
 input[type='button']:active, button:active,
 .button:active, .imageButton:active {
     border-color: #ccc;
+}
+
+input[type='submit']:focus, input[type='reset']:focus,
+input[type='button']:focus, button:focus,
+.button:focus, .imageButton:focus {
+    border: 1px solid #9d4;
 }
 
 input[type='submit']:disabled, input[type='reset']:disabled,
@@ -102,7 +109,7 @@ input[type='button']:disabled, button:disabled,
 
 .button-primary,
 .button-secondary {
-    color: white !important;
+    color: #fff !important;
     box-shadow: none !important;
 }
 
@@ -1275,5 +1282,5 @@ form .formfields {
 
 .dropdown-form .dropdown-menu > li > span > span {
     display: inline-block;
-    min-width: 103px;
+    min-width: 110px;
 }
