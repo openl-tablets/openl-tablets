@@ -86,8 +86,8 @@
                             <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':-1})">All</a></li>
                         </ul>
                     </h:panelGroup>
-                    <label title="Show the result of running test case if it's complex" style="margin-left:50px">
-                        Complex Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
+                    <label title="Show the result of running test case if it's compound" style="margin-left:50px">
+                        Compound Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
                         onchange="filterTest({'complexResult':this.checked})" />
                     </label>
                 </span>
@@ -166,7 +166,7 @@
                                 <th colspan="2">#{resultHeader}</th>
                             </ui:repeat>
                             <h:panelGroup rendered="#{complexResult and testBean.hasComplexResults(testUnitsResults)}">
-                                <th>Complex Result</th>
+                                <th>Compound Result</th>
                             </h:panelGroup>
                         </tr>
 
