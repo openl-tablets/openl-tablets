@@ -27,6 +27,8 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 public class RuleServiceDeploymentRelatedDependencyManager extends DependencyManager {
 
     private final Log log = LogFactoryImpl.getLog(RuleServiceDeploymentRelatedDependencyManager.class);
@@ -47,17 +49,27 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         return ruleServiceLoader;
     }
 
+    private static class SemaphoreHolder {
+        private static Semaphore limitCompilationThreadsSemaphore = new Semaphore(RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
+    }
+
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
-        String dependencyName = dependency.getNode().getIdentifier();
-        CompiledDependency compiledDependency = handleLoadDependency(dependency);
-        if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", dependencyName),
-                null,
-                dependency.getNode().getSourceLocation());
+        try {
+            SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
+            String dependencyName = dependency.getNode().getIdentifier();
+            CompiledDependency compiledDependency = handleLoadDependency(dependency);
+            if (compiledDependency == null) {
+                throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found",
+                    dependencyName), null, dependency.getNode().getSourceLocation());
+            }
+            return compiledDependency;
+        } catch (InterruptedException e) {
+            throw new OpenLCompilationException("Interrupter exception!", e);
+        } finally {
+            SemaphoreHolder.limitCompilationThreadsSemaphore.release();
         }
-        return compiledDependency;
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
@@ -86,7 +98,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
     Deque<String> getStack() {
         return stack;
     }
-    
+
     @Override
     public void setExecutionMode(boolean executionMode) {
         throw new UnsupportedOperationException("This dependency manager supports only executionMode=true");
