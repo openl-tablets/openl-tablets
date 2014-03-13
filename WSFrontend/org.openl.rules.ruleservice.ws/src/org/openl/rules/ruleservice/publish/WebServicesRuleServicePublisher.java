@@ -58,13 +58,13 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (String s : parts) {
-            if (first) {
+            if (first) { 
                 first = false;
             } else {
                 sb.append("/");
             }
             try {
-                sb.append(URLEncoder.encode(s, "UTF-8"));
+                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
             } catch (UnsupportedEncodingException e) {
                 sb.append(s);
             }
