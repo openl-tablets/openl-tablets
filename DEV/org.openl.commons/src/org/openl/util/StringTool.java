@@ -599,7 +599,7 @@ public class StringTool {
         return result;
     }
 
-    public static String listObjectToStringThroughSymbol(List<Object> values, String symbol) {
+    public static String listObjectToStringThroughSymbol(List<?> values, String symbol) {
         String result = StringUtils.EMPTY;
         if (values != null && !values.isEmpty()) {
             StringBuilder strBuf = new StringBuilder();
