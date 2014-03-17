@@ -200,6 +200,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return null;
     }
 
+    public boolean isSelectedProjectModified() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return selectedProject != null && selectedProject.isModified();
+    }
+
     public void invalidateSelection() {
         setSelectedNode(rulesRepository);
     }
