@@ -112,9 +112,9 @@ public class DependencyMethodDispatchingTest {
 
 		DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
 
-		// set the state as in main module
+		// set the state from dependency module
 		//
-		context.setUsState(UsStatesEnum.LA);
+		context.setUsState(UsStatesEnum.AZ);
 
 		try {
 			// check that method from dependency will be invoked
