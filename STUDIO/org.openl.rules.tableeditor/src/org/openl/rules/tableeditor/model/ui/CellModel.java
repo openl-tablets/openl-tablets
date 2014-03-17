@@ -101,7 +101,11 @@ public class CellModel implements ICellModel {
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 style = (borderStyle[1] == null) ? "none" : borderStyle[1].getStyle();
             } else {
-                style = borderStyle[i].getStyle();
+                if (borderStyle[i] == null){
+                    style = "none";
+                }else{
+                    style = borderStyle[i].getStyle();
+                }
             }
             styles[i] = style;
         }
@@ -116,7 +120,11 @@ public class CellModel implements ICellModel {
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 color = (borderStyle[1] == null) ? "#000" : HTMLHelper.toHexColor(borderStyle[1].getRgb());
             } else {
-                color = HTMLHelper.toHexColor(borderStyle[i].getRgb());
+                if (borderStyle[i] == null){
+                    color = "#000";
+                }else{
+                    color = HTMLHelper.toHexColor(borderStyle[i].getRgb());
+                }
             }
             colors[i] = color;
         }
