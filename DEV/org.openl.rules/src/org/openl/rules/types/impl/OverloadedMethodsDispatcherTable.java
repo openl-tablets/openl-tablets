@@ -19,6 +19,9 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
 
     private final Log log = LogFactory.getLog(OverloadedMethodsDispatcherTable.class);
 
+    public OverloadedMethodsDispatcherTable() { //For CGLIB proxing
+    }
+
     public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super(method, moduleOpenClass);
     }
@@ -37,7 +40,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         if (dispatchingOpenMethod != null) {
             return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
         } else {
-            log.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+            log.warn(String.format("Dispatcher table for methods group [%s] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
                 MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
             return invokeJavaDispatching(target, params, env);
         }
