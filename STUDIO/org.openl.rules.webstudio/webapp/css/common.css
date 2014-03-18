@@ -854,6 +854,10 @@ form .formfields {
     float: right;
 }
 
+.navbar > .navbar-inner > .dropdown {
+    display: inline-block;
+}
+
 .navbar > .navbar-inner > a,
 .navbar > .navbar-inner > .dropdown > a {
     display: inline-block;
@@ -903,7 +907,7 @@ form .formfields {
 
 .navbar .dropdown-menu {
     margin-top: -2px;
-    margin-left: 5px;
+    margin-left: 1px;
 }
 
 .breadcrumbs {
@@ -944,7 +948,7 @@ form .formfields {
 .breadcrumbs .dropdown-menu {
     max-height: 370px;
     overflow: auto;
-    left: -20px;
+    left: -16px;
 }
 
 .breadcrumbs::before {
