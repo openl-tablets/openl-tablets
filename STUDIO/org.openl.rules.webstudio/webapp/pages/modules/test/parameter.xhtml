@@ -3,33 +3,37 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich">
-    <h:panelGroup rendered="#{not empty parameter and parameter.type.simple}">
-        <h:outputText value="#{parameter.value}"
-            rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
-        <h:outputText value="#{parameter.value}"
-            rendered="#{parameterTreeBuilder.isDateParameter(parameter.value)}">
-            <f:convertDateTime pattern="#{systemConfig['data.format.date']}" />
-        </h:outputText>
+    <h:outputText rendered="#{empty parameter or empty parameter.value}" value="Empty"
+        style="color:#588;font-style:italic" />
+    <h:panelGroup rendered="#{!empty parameter and !empty parameter.value}">
+        <h:panelGroup rendered="#{parameter.type.simple}">
+            <h:outputText value="#{parameter.value}"
+                rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
+            <h:outputText value="#{parameter.value}"
+                rendered="#{parameterTreeBuilder.isDateParameter(parameter.value)}">
+                <f:convertDateTime pattern="#{systemConfig['data.format.date']}" />
+            </h:outputText>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
+            <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{parameterTreeBuilder.isHtmlTable(parameter)}">
+            <h:outputText value="#{parameterTreeBuilder.tableToHtml(parameter)}" escape="false" />
+        </h:panelGroup>
+        <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
+            rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}"
+            toggleType="#{!empty lazy and lazy == 'true' ? 'ajax' : 'client'}" selectionType="client"
+            nodeType="#{node.nodeType}" styleClass="test-tree">
+            <!-- rowKeyConverter is a temporary solution.
+             After migrating to the newer version of RichFaces it can be removed.
+             See: https://issues.jboss.org/browse/RF-11102 for details -->
+            <rich:treeNode type="simple">#{node.treeText}</rich:treeNode>
+            <rich:treeNode type="complex">#{node.treeText}</rich:treeNode>
+            <rich:treeNode type="collection">#{node.treeText}</rich:treeNode>
+            <rich:treeNode type="unmodifiable">#{node.treeText}</rich:treeNode>
+            <rich:treeNode type="spreadsheet" styleClass="spreadsheet">
+                <h:outputText escape="false" value="#{parameterTreeBuilder.formattedResult(node.value)}"/>
+            </rich:treeNode>
+        </rich:tree>
     </h:panelGroup>
-    <h:panelGroup rendered="#{not empty parameter and parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
-        <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
-    </h:panelGroup>
-    <h:panelGroup rendered="#{parameterTreeBuilder.isHtmlTable(parameter)}">
-        <h:outputText value="#{parameterTreeBuilder.tableToHtml(parameter)}" escape="false" />
-    </h:panelGroup>
-    <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
-        rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}"
-        toggleType="#{!empty lazy and lazy == 'true' ? 'ajax' : 'client'}" selectionType="client"
-        nodeType="#{node.nodeType}" styleClass="test-tree">
-        <!-- rowKeyConverter is a temporary solution.
-         After migrating to the newer version of RichFaces it can be removed.
-         See: https://issues.jboss.org/browse/RF-11102 for details -->
-        <rich:treeNode type="simple">#{node.treeText}</rich:treeNode>
-        <rich:treeNode type="complex">#{node.treeText}</rich:treeNode>
-        <rich:treeNode type="collection">#{node.treeText}</rich:treeNode>
-        <rich:treeNode type="unmodifiable">#{node.treeText}</rich:treeNode>
-        <rich:treeNode type="spreadsheet" styleClass="spreadsheet">
-            <h:outputText escape="false" value="#{parameterTreeBuilder.formattedResult(node.value)}"/>
-        </rich:treeNode>
-    </rich:tree>
 </ui:composition>
