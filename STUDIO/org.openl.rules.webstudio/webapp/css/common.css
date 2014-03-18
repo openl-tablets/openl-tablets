@@ -283,7 +283,7 @@ fieldset {
     border-right: 0;
     border-left: 0;
     border-bottom-style: solid;
-    padding: 6px 8px;
+    padding: 6px 9px;
     text-align: left;
 }
 
@@ -291,7 +291,7 @@ fieldset {
     border: 1px dotted #ccc;
     border-right: 0;
     border-left: 0;
-    padding: 6px 8px;
+    padding: 6px 9px;
     line-height: 15px;
 }
 
@@ -794,9 +794,13 @@ form .formfields {
     color: #f23;
 }
 
+.case-result {
+    display: inline-block;
+}
+
 .case-success,
 .case-error {
-    padding: 1px 11px;
+    padding-left: 20px;
 }
 
 .case-success {
@@ -805,10 +809,6 @@ form .formfields {
 
 .case-error {
     background: url(webresource/images/error.png) no-repeat;
-}
-
-.case-result {
-    display: inline-block;
 }
 
 .test-tree .rf-trn-ico-lf {
