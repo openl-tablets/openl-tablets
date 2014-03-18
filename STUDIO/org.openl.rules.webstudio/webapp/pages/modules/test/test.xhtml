@@ -195,10 +195,7 @@
                                     <h:panelGroup>
                                         <ui:repeat value="#{testBean.getResultParams(testUnit)}" var="resultParam">
                                             <td>
-                                                <div class="case-result">
-                                                    <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
-                                                        <i class="#{resultParam.status.status == 0 ? 'case-success' : 'case-error'}"></i>
-                                                    </h:panelGroup>
+                                                <div class="case-result #{!testUnitsResults.runmethod ? (resultParam.status.status == 0 ? 'case-success' : 'case-error') : ''}">
                                                     <h:panelGroup rendered="#{!testBean.isResultThrowable(testUnit)}">
                                                         <h:panelGroup rendered="#{!testBean.isExplanationValue(resultParam.actualValue.value)}">
                                                             <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -219,7 +216,7 @@
                                                     </h:panelGroup>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style="padding-left:0">
                                                 <div class="case-result">
                                                     <h:panelGroup rendered="#{resultParam.status.status == 1}"><span style="color:#aaa">Expected: </span>
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">

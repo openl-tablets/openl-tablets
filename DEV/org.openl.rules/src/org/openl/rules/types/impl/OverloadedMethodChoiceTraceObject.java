@@ -60,7 +60,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     }
 
     public String getDisplayName(int mode) {
-        return "Overloaded method choise for method " + MethodUtil.printMethod(methodCandidates.get(0), 0, false);
+        return "Overloaded method choice for method " + MethodUtil.printMethod(methodCandidates.get(0), 0, false);
     }
 
 }
