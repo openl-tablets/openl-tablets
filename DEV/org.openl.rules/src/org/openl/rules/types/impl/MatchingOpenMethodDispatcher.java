@@ -44,6 +44,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private ATableTracerNode traceObject;
 
+    
+    public MatchingOpenMethodDispatcher() { //For CGLIB proxing
+    }
+    
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
         decorate(method);

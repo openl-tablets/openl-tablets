@@ -6,7 +6,6 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Set;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.proxy.Proxy;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -205,23 +203,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                                         return matchedMethod.invoke(target, params, env);
                                     }
                                 }
-                            } else if (java.lang.reflect.Proxy.isProxyClass(args[0].getClass())){
+                            } else if (java.lang.reflect.Proxy.isProxyClass(args[0].getClass())) {
                                 java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(args[0]);
-                                if (invocationHandler instanceof OpenLInvocationHandler){
+                                if (invocationHandler instanceof OpenLInvocationHandler) {
                                     OpenLInvocationHandler openLInvocationHandler = (OpenLInvocationHandler) invocationHandler;
                                     Object opnelInstance = openLInvocationHandler.getInstance();
-                                    if (opnelInstance instanceof IDynamicObject){
+                                    if (opnelInstance instanceof IDynamicObject) {
                                         IDynamicObject dynamicObject = (IDynamicObject) opnelInstance;
-                                        IOpenClass typeClass = dynamicObject.getType();                                
-                                        topClassRef.set(typeClass);        
-                                    }else{
+                                        IOpenClass typeClass = dynamicObject.getType();
+                                        topClassRef.set(typeClass);
+                                    } else {
                                         throw new IllegalStateException("Can't define openl class from target object!");
                                     }
-                                }else{
+                                } else {
                                     throw new IllegalStateException("Can't define openl class from target object!");
                                 }
                             } else {
-                                throw new IllegalStateException("Can't define openl class from target object!");
+                                throw new IllegalStateException("Can't define openl class from target object");
                             }
                             method.setAccessible(true);
                             return method.invoke(openMethod, args);
@@ -280,6 +278,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Since all methods are delegated, we should not hold references to
         // constructor parameters in enhanced classes.
         // That's why we pass nulls to constructors.
+        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
+            return (IOpenMethod) enhancer.create();
+        }
+        if (openMethod instanceof MatchingOpenMethodDispatcher) {
+            return (IOpenMethod) enhancer.create();
+        }
         if (openMethod instanceof DeferredMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { String.class,
                     IOpenClass.class,
@@ -437,7 +441,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
         // Replace existed method with decorator using the same key.
         //
-        methodMap().put(key, decorator);
+
+        IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
+
+        methodMap().put(key, openMethod);
     }
 
     @Override
