@@ -22,180 +22,178 @@
         <ui:include src="/pages/modules/saveRevision.xhtml" />
     </h:panelGroup>
 
-    <h:panelGroup id="topPanel" layout="block">
-        <h:form id="headerForm" prependId="false">
-            <div class="buttonPanel">
-                <span class="breadcrumbs" style="margin-right:20px">
-                    <span><a href="#{contextPath}">Projects</a></span>
-                    <h:panelGroup rendered="#{!empty rProject.name}">
-                    <span class="delimeter"></span>
-                    <span class="dropdown" id="breadcrumbs-project">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            #{project.name}
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li class="nav-header">Current Project</li>
-                            <li><a href="##{jsffn:encodeURL(project.name)}">#{project.name}</a></li>
-                            <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
-                            <li class="divider"></li>
-                            <li class="nav-header">All Projects</li>
-                            <ui:repeat value="#{studio.allProjects}" var="pr">
-                            <h:panelGroup rendered="#{pr.name != project.name}">
-                            <li><a href="##{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
-                            </h:panelGroup>
-                            </ui:repeat>
-                            </h:panelGroup>
-                        </ul>
-                    </span>
+    <h:form id="headerForm" prependId="false" styleClass="navbar">
+        <div class="breadcrumbs" style="margin-right:15px">
+            <a href="#{contextPath}">Projects</a>
+            <h:panelGroup rendered="#{!empty rProject.name}">
+            <span class="delimeter"></span>
+            <span class="dropdown" id="breadcrumbs-project">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="#{project.name}">
+                    #{project.name}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li class="nav-header">Current Project</li>
+                    <li><a href="##{jsffn:encodeURL(project.name)}">#{project.name}</a></li>
+                    <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
+                    <li class="divider"></li>
+                    <li class="nav-header">All Projects</li>
+                    <ui:repeat value="#{studio.allProjects}" var="pr">
+                    <h:panelGroup rendered="#{pr.name != project.name}">
+                    <li><a href="##{jsffn:encodeURL(pr.name)}">#{pr.name}</a></li>
                     </h:panelGroup>
-                    <h:panelGroup rendered="#{!empty module.name}">
-                    <span class="delimeter"></span>
-                    <span class="dropdown" id="breadcrumbs-module">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            #{module.name}
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li class="nav-header">Current Module</li>
-                            <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
-                            <h:panelGroup rendered="#{studio.currentProjectDescriptor.modules.size() > 1}">
-                            <li class="divider"></li>
-                            <li class="nav-header">All Modules</li>
-                            <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
-                                <h:panelGroup rendered="#{m.name != module.name}">
-                                <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(m.name)}">#{m.name}</a></li>
-                                </h:panelGroup>
-                            </ui:repeat>
-                            </h:panelGroup>
-                        </ul>
-                    </span>
+                    </ui:repeat>
                     </h:panelGroup>
-                    <span style="margin-left:4px;">
-                        <a4j:ajax oncomplete="ws.nav.reload(true)">
-                            <h:commandLink id="refreshBtn" action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
-                                style="background:url('webresource/images/refresh.png')" />
-                        </a4j:ajax>
-                    </span>
-                </span>
-                <a4j:ajax oncomplete="ws.nav.reload(true)">
-                    <h:commandLink onclick="openSaveDialog();return false;" value="Save"
-                        title="Save the project to the Design Repository"
-                        rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}"
-                        styleClass="button" />
-                    <h:commandLink action="#{mainBean.editProject}" value="Edit" styleClass="button"
-                        title="Edit the project; the project becomes read-only for all other users"
-                        rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}" />
-                    <h:commandLink onclick="openUpdateModuleDialog();return false;"
-                        title="Update module" styleClass="button" value="Update"
-                        rendered="#{!empty module and studio.model.editable}" />
-                    <h:commandLink onclick="openExportModuleDialog();return false;"
-                        title="Export module" styleClass="button" value="Export"
-                        rendered="#{!empty module and studio.model.editable}" />
-                </a4j:ajax>
+                </ul>
+            </span>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{!empty module.name}">
+            <span class="delimeter"></span>
+            <span class="dropdown" id="breadcrumbs-module">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="#{module.name}">
+                    #{module.name}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li class="nav-header">Current Module</li>
+                    <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a></li>
+                    <h:panelGroup rendered="#{studio.currentProjectDescriptor.modules.size() > 1}">
+                    <li class="divider"></li>
+                    <li class="nav-header">All Modules</li>
+                    <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
+                        <h:panelGroup rendered="#{m.name != module.name}">
+                        <li><a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(m.name)}">#{m.name}</a></li>
+                        </h:panelGroup>
+                    </ui:repeat>
+                    </h:panelGroup>
+                </ul>
+            </span>
+            </h:panelGroup>
+            <a4j:ajax oncomplete="ws.nav.reload(true)">
+                <h:commandLink id="refreshBtn" action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
+                    style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
+            </a4j:ajax>
+        </div>
+        <div class="navbar-inner">
+            <a4j:ajax oncomplete="ws.nav.reload(true)">
+                <h:commandLink onclick="openSaveDialog();return false;" value="Save"
+                    title="Save the project to the Design Repository"
+                    rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
+                <h:commandLink action="#{mainBean.editProject}" value="Edit"
+                    title="Edit the project; the project becomes read-only for all other users"
+                    rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}" />
+                <h:commandLink onclick="openUpdateModuleDialog();return false;"
+                    title="Update module" value="Update"
+                    rendered="#{!empty module and studio.model.editable}" />
+                <h:commandLink onclick="openExportModuleDialog();return false;"
+                    title="Export module" value="Export"
+                    rendered="#{!empty module and studio.model.editable}" />
+            </a4j:ajax>
 
-                <h:outputLink value="#{studio.url('test/test')}"
-                    title="Run Tests" rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}"
-                    styleClass="button button-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
-                <h:panelGroup class="dropdown dropdown-form"
-                        rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
-                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
-                        <li onclick="event.stopPropagation()">
-                            <span tabindex="-1">
-                                <span>Tests per page</span>
-                                <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
-                                    <f:selectItem itemLabel="1" itemValue="1" />
-                                    <f:selectItem itemLabel="5" itemValue="5" />
-                                    <f:selectItem itemLabel="20" itemValue="20" />
-                                    <f:selectItem itemLabel="All" itemValue="-1" />
-                                </h:selectOneMenu>
-                            </span>
-                        </li>
-                        <li onclick="event.stopPropagation()">
-                            <span tabindex="-1" title="Show only failed test cases">
-                                <span>Failures Only</span>
-                                <input name="failuresOnly" type="checkbox"
-                                    onclick="$j('#failuresSetting').toggle(this.checked)"
-                                    value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                                    style="vertical-align:-2px;margin:-4px" />
-                            </span>
-                        </li>
-                        <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
-                            onclick="event.stopPropagation()">
-                            <span tabindex="-1">
-                                <span>Failures per test</span>
-                                <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
-                                    <f:selectItem itemLabel="1" itemValue="1" />
-                                    <f:selectItem itemLabel="5" itemValue="5" />
-                                    <f:selectItem itemLabel="20" itemValue="20" />
-                                    <f:selectItem itemLabel="All" itemValue="-1" />
-                                </h:selectOneMenu>
-                            </span>
-                        </li>
-                        <li onclick="event.stopPropagation()">
-                            <span tabindex="-1" title="Show the result of running test case if it's complex">
-                                <span>Complex Result</span>
-                                <input name="complexResult" type="checkbox"
-                                    value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                                    style="vertical-align:-2px;margin:-4px" />
-                            </span>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <span style="padding:6px 18px 7px">
-                                <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
-                            </span>
-                        </li>
-                    </ul>
-                </h:panelGroup>
+            <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
+            <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
+                styleClass="navbar-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
+            <span class="dropdown dropdown-form">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
+                <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
+                    <li onclick="event.stopPropagation()">
+                        <span tabindex="-1">
+                            <span>Tests per page</span>
+                            <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
+                                <f:selectItem itemLabel="1" itemValue="1" />
+                                <f:selectItem itemLabel="5" itemValue="5" />
+                                <f:selectItem itemLabel="20" itemValue="20" />
+                                <f:selectItem itemLabel="All" itemValue="-1" />
+                            </h:selectOneMenu>
+                        </span>
+                    </li>
+                    <li onclick="event.stopPropagation()">
+                        <span tabindex="-1" title="Show only failed test cases">
+                            <span>Failures Only</span>
+                            <input name="failuresOnly" type="checkbox"
+                                onclick="$j('#failuresSetting').toggle(this.checked)"
+                                value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                style="vertical-align:-2px;margin:-4px" />
+                        </span>
+                    </li>
+                    <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
+                        onclick="event.stopPropagation()">
+                        <span tabindex="-1">
+                            <span>Failures per test</span>
+                            <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                <f:selectItem itemLabel="1" itemValue="1" />
+                                <f:selectItem itemLabel="5" itemValue="5" />
+                                <f:selectItem itemLabel="20" itemValue="20" />
+                                <f:selectItem itemLabel="All" itemValue="-1" />
+                            </h:selectOneMenu>
+                        </span>
+                    </li>
+                    <li onclick="event.stopPropagation()">
+                        <span tabindex="-1" title="Display the full result of running test cases, not only values which are being tested">
+                            <span>Compound Result</span>
+                            <input name="complexResult" type="checkbox"
+                                value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                style="vertical-align:-2px;margin:-4px" />
+                        </span>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <span style="padding:6px 18px 7px">
+                            <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
+                        </span>
+                    </li>
+                </ul>
+            </span>
+            <span class="delimeter"></span>
+            </h:panelGroup>
 
-                <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
-                    <span class="delimeter"></span>
-                    <a href="#{studio.url('create/index')}" title="Create new table" class="button-primary">Create Table</a>
-                </h:panelGroup>
-
+            <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
+                <a href="#{studio.url('create/index')}" title="Create new table" class="primary">Create Table</a>
                 <span class="delimeter"></span>
+            </h:panelGroup>
 
-                <h:panelGroup id="topMorePanel" class="dropdown">
-                    <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
-                        More<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu" role="menu">
-                        <h:panelGroup rendered="#{!empty module and studio.model.canEditProject}">
-                            <li><a tabindex="-1" id="topRevertLink" href="#{studio.url('revert')}"
-                                   title="Compare and/or roll back module changes against a specific date">Revert Changes</a></li>
-                            <li class="divider"></li>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
-                        <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
-                        </h:panelGroup>
-                        <li><a tabindex="-1" target="_blank"
-                            onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                            href="#">Compare Excel files</a></li>
-                    </ul>
-                </h:panelGroup>
-
-                <h:panelGroup style="float: right; width: 130px;text-align: right;" rendered="#{!empty module}" class="dropdown">
-                    <a4j:ajax oncomplete="ws.nav.reload(true)">
-                        <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
-                            #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu pull-right" role="menu">
-                            <h:panelGroup rendered="#{!empty rProject}">
-                                <li><h:commandLink action="#{studio.model.useSingleModuleMode}">Single-module mode</h:commandLink></li>
-                            </h:panelGroup>
-                            <li><h:commandLink action="#{studio.model.useMultiModuleMode}">Multi-module mode</h:commandLink></li>
-                        </ul>
-                    </a4j:ajax>
-                </h:panelGroup>
-            </div>
-        </h:form>
-
-        <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">
-            <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
-                <ui:include src="/pages/modules/searchForm.xhtml" />
+            <h:panelGroup id="topMorePanel" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    More<b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <h:panelGroup rendered="#{!empty module and studio.model.canEditProject}">
+                        <li><a tabindex="-1" id="topRevertLink" href="#{studio.url('revert')}"
+                               title="Compare and/or roll back module changes against a specific date">Revert Changes</a></li>
+                        <li class="divider"></li>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
+                    <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
+                    </h:panelGroup>
+                    <li><a tabindex="-1" target="_blank"
+                        onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                        href="#">Compare Excel files</a></li>
+                </ul>
             </h:panelGroup>
         </div>
-    </h:panelGroup>
+
+        <h:panelGroup rendered="#{!empty module}">
+        <div class="navbar-inner right">
+            <span class="dropdown" style="text-align: right">
+                <a4j:ajax oncomplete="ws.nav.reload(true)">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <h:panelGroup rendered="#{!empty rProject}">
+                            <li><h:commandLink action="#{studio.model.useSingleModuleMode}">Single-module mode</h:commandLink></li>
+                        </h:panelGroup>
+                        <li><h:commandLink action="#{studio.model.useMultiModuleMode}">Multi-module mode</h:commandLink></li>
+                    </ul>
+                </a4j:ajax>
+            </span>
+        </div>
+        </h:panelGroup>
+    </h:form>
+
+    <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">
+        <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
+            <ui:include src="/pages/modules/searchForm.xhtml" />
+        </h:panelGroup>
+    </div>
 
     <script>
         // TODO Add to namespace

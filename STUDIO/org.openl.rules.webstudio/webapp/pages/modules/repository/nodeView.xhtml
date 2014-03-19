@@ -93,7 +93,7 @@
           </h:commandButton>
 
           <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}"
-                           onclick="#{repositoryTreeController.hasDependingProjects ? rich:component('modalCloseProject').concat('.show();return false;') : ''}">
+                           onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}">
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
 

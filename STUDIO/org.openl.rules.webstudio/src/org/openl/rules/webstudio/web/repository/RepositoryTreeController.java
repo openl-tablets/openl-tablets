@@ -19,12 +19,14 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.xstream.XStreamException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.filters.StringInputStream;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -33,8 +35,12 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ModuleType;
+import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.*;
@@ -263,7 +269,7 @@ public class RepositoryTreeController {
     }
 
     public boolean getHasDependencies() {
-       return !getDependencies(getSelectedProject(), false).isEmpty();
+        return !getDependencies(getSelectedProject(), false).isEmpty();
     }
 
     public boolean getHasDependenciesForVersion() {
@@ -276,7 +282,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
         } catch (ProjectException e) {
             if (log.isErrorEnabled()) {
@@ -288,7 +294,8 @@ public class RepositoryTreeController {
 
     public Collection<String> getDependencies() {
         if (!repositoryTreeState.getCanOpen() && !repositoryTreeState.getCanEdit()) {
-            // Because ui:repeat ignores the "rendered" property, here is a workaround to reduce performance drop.
+            // Because ui:repeat ignores the "rendered" property, here is a
+            // workaround to reduce performance drop.
             return Collections.emptyList();
         }
         List<String> dependencies = new ArrayList<String>(getDependencies(getSelectedProject(), true));
@@ -298,13 +305,14 @@ public class RepositoryTreeController {
 
     public Collection<String> getDependenciesForVersion() {
         if (version == null || !getIsOpenVersionDialogOpened()) {
-            // Because ui:repeat ignores the "rendered" property, here is a workaround to reduce performance drop.
+            // Because ui:repeat ignores the "rendered" property, here is a
+            // workaround to reduce performance drop.
             return Collections.emptyList();
         }
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -456,7 +464,8 @@ public class RepositoryTreeController {
                                 log.error(e.getMessage(), e);
                             }
                         } catch (UnsupportedEncodingException e) {
-                            // Should not occur. Otherwise - don't continue.
+                            // Should not occur. Otherwise - don't
+                            // continue.
                             if (log.isErrorEnabled()) {
                                 log.error(e.getMessage(), e);
                             }
@@ -498,6 +507,10 @@ public class RepositoryTreeController {
 
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
+            createdProject.edit();
+            // Analogous to rules project creation (to change "created by"
+            // property and revision)
+            createdProject.save();
             createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
@@ -722,7 +735,7 @@ public class RepositoryTreeController {
         }
         return null;
     }
-    
+
     public void deleteProjectHistory(String projectName) {
         try {
             String projectHistoryPath = studio.getSystemConfigManager().getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
@@ -1430,6 +1443,8 @@ public class RepositoryTreeController {
         this.uploadedFiles.clear();
     }
 
+    private XmlProjectDescriptorSerializer xmlProjectDescriptorSerializer = new XmlProjectDescriptorSerializer();
+
     private String uploadAndAddFile() {
         if (!NameChecker.checkName(fileName)) {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
@@ -1441,6 +1456,9 @@ public class RepositoryTreeController {
             AProjectResource addedFileResource = node.addResource(fileName, getLastUploadedFile().getInputStream());
 
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
+
+            registerInProjectDescriptor(addedFileResource);
+
             clearUploadedFiles();
         } catch (Exception e) {
             /*
@@ -1456,6 +1474,35 @@ public class RepositoryTreeController {
         }
 
         return null;
+    }
+
+    private void registerInProjectDescriptor(AProjectResource addedFileResource) {
+        if (FileTypeHelper.isExcelFile(fileName)) { // Excel. Add module to
+                                                    // rules.xml.
+            try {
+                UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+                AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                if (projectDescriptorArtifact instanceof AProjectResource) {
+                    AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
+                    InputStream content = resource.getContent();
+                    ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+                    String modulePath = addedFileResource.getArtefactPath().withoutFirstSegment().getStringValue();
+                    while (modulePath.charAt(0) == '/') {
+                        modulePath = modulePath.substring(1);
+                    }
+                    Module module = new Module();
+                    module.setName(fileName.substring(0, fileName.lastIndexOf(".")));
+                    module.setType(ModuleType.API);
+                    module.setRulesRootPath(new PathEntry(modulePath));
+                    projectDescriptor.getModules().add(module);
+                    String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+                    StringInputStream newContent = new StringInputStream(xmlString);
+                    resource.setContent(newContent);
+                }
+            } catch (ProjectException ex) {
+
+            }
+        }
     }
 
     private String uploadAndUpdateFile() {
@@ -1546,7 +1593,8 @@ public class RepositoryTreeController {
             for (Resource resource : templates) {
                 if (!ResourceUtils.isFileURL(resource.getURL())) {
                     // JAR file
-                    // In most of cases protocol is "jar", but in case of IBM WebSphere protocol is "wsjar"
+                    // In most of cases protocol is "jar", but in case of IBM
+                    // WebSphere protocol is "wsjar"
                     String templateUrl = URLDecoder.decode(resource.getURL().getPath(), "UTF8");
                     String[] templateParsed = templateUrl.split("/");
                     templateNames.add(templateParsed[templateParsed.length - 1]);
@@ -1582,7 +1630,8 @@ public class RepositoryTreeController {
             log.error("Failed to get project template: " + url, e);
         }
 
-        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
+        return templateFiles.isEmpty() ? new ProjectFile[0]
+                                      : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
     }
 
     public boolean getCanDelete() {
@@ -1631,7 +1680,7 @@ public class RepositoryTreeController {
             version = null;
             return false;
         }
-        return true;
+        return currentProject != null;
     }
 
     public void openVersionDialogListener(AjaxBehaviorEvent event) {
@@ -1643,7 +1692,8 @@ public class RepositoryTreeController {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
         try {
-            activeProjectNode = repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName));
+            activeProjectNode = repositoryTreeState.getRulesRepository()
+                .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());

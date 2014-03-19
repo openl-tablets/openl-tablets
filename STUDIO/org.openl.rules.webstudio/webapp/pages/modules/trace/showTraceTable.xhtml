@@ -39,13 +39,18 @@
                 
                 <table >
                 <tr class="tr-middle-align">
-                    <td  style="padding-right: 5px;"><b>Returned result: </b></td>
-	                <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
-    	            	<td>
-        	            	<ui:include src="/pages/modules/test/parameter.xhtml">
-            	            	<ui:param name="parameter" value="#{parameter}" />
-                	        </ui:include>
-                    	</td>
+                    <td style="padding-right: 5px;"><b>Returned result: </b></td>
+                    <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
+                        <td>
+                            <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{parameter}"/>
+                                </ui:include>
+                            </h:panelGroup>
+                        </td>
                     </ui:repeat>
                 </tr>
             </table>

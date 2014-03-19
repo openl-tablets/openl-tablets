@@ -36,17 +36,20 @@ import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
+import org.openl.rules.testmethod.TestMethodBoundNode;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IOpenSchema;
-import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenMethod;
@@ -111,7 +114,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
     private void addDataTables(CompiledOpenClass dependency) {
         IOpenClass openClass = dependency.getOpenClassWithErrors();
-        
+
         Map<String, IOpenField> fieldsMap = openClass.getFields();
         for (String key : fieldsMap.keySet()) {
             IOpenField field = fieldsMap.get(key);
@@ -140,7 +143,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         return (XlsMetaInfo) metaInfo;
     }
 
-    private static ThreadLocal<AOpenClass> topModuleRef = new ThreadLocal<AOpenClass>();
+    private static ThreadLocal<IOpenClass> topClassRef = new ThreadLocal<IOpenClass>();
 
     private IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
                                                                                           // fix
@@ -181,18 +184,50 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                     return object == args[0];
                 }
                 if ("invoke".equals(method.getName())) {
-                    AOpenClass topModule = topModuleRef.get();
-                    if (topModule == null) {
+                    IOpenClass topClass = topClassRef.get();
+                    if (topClass == null) {
                         boolean access = method.isAccessible();
                         try {
-                            topModuleRef.set(XlsModuleOpenClass.this);
+                            if (args[0] instanceof IDynamicObject) {
+                                IDynamicObject dynamicObject = (IDynamicObject) args[0];
+                                IOpenClass typeClass = dynamicObject.getType();
+                                topClassRef.set(typeClass);
+                                if (typeClass != XlsModuleOpenClass.this) {
+                                    IOpenMethod matchedMethod = typeClass.getMatchingMethod(openMethod.getName(),
+                                        openMethod.getSignature().getParameterTypes());
+                                    if (matchedMethod != null) {
+                                        cachedMatchedMethod.set(matchedMethod);
+                                        Object target = args[0];
+                                        Object[] params = (Object[]) args[1];
+                                        IRuntimeEnv env = (IRuntimeEnv) args[2];
+                                        return matchedMethod.invoke(target, params, env);
+                                    }
+                                }
+                            } else if (java.lang.reflect.Proxy.isProxyClass(args[0].getClass())) {
+                                java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(args[0]);
+                                if (invocationHandler instanceof OpenLInvocationHandler) {
+                                    OpenLInvocationHandler openLInvocationHandler = (OpenLInvocationHandler) invocationHandler;
+                                    Object opnelInstance = openLInvocationHandler.getInstance();
+                                    if (opnelInstance instanceof IDynamicObject) {
+                                        IDynamicObject dynamicObject = (IDynamicObject) opnelInstance;
+                                        IOpenClass typeClass = dynamicObject.getType();
+                                        topClassRef.set(typeClass);
+                                    } else {
+                                        throw new IllegalStateException("Can't define openl class from target object!");
+                                    }
+                                } else {
+                                    throw new IllegalStateException("Can't define openl class from target object!");
+                                }
+                            } else {
+                                throw new IllegalStateException("Can't define openl class from target object");
+                            }
                             method.setAccessible(true);
                             return method.invoke(openMethod, args);
                         } catch (InvocationTargetException e) {
                             throw e.getTargetException();
                         } finally {
                             method.setAccessible(access);
-                            topModuleRef.remove();
+                            topClassRef.remove();
                             cachedMatchedMethod.remove();
                             cachedMatchedMethodFound.remove();
                         }
@@ -204,7 +239,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                                 Boolean found = cachedMatchedMethodFound.get();
                                 IOpenMethod matchedMethod;
                                 if (found == null || Boolean.FALSE.equals(found)) {
-                                    matchedMethod = topModule.getMatchingMethod(openMethod.getName(),
+                                    matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
                                         openMethod.getSignature().getParameterTypes());
                                     cachedMatchedMethod.set(matchedMethod);
                                     cachedMatchedMethodFound.set(Boolean.TRUE);
@@ -212,7 +247,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                                     matchedMethod = cachedMatchedMethod.get();
                                 }
                                 if (matchedMethod == null) {
-                                    matchedMethod = topModule.getMatchingMethod(openMethod.getName(),
+                                    matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
                                         openMethod.getSignature().getParameterTypes());
                                 }
                                 if (matchedMethod != null) {
@@ -243,6 +278,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Since all methods are delegated, we should not hold references to
         // constructor parameters in enhanced classes.
         // That's why we pass nulls to constructors.
+        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
+            return (IOpenMethod) enhancer.create();
+        }
+        if (openMethod instanceof MatchingOpenMethodDispatcher) {
+            return (IOpenMethod) enhancer.create();
+        }
         if (openMethod instanceof DeferredMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { String.class,
                     IOpenClass.class,
@@ -268,6 +309,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         if (openMethod instanceof ColumnMatch) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, ColumnMatchBoundNode.class },
                 new Object[] { null, null });
+        }
+        if (openMethod instanceof TestSuiteMethod) {
+            return (IOpenMethod) enhancer.create(new Class[] { String.class,
+                    IOpenMethod.class,
+                    IOpenMethodHeader.class,
+                    TestMethodBoundNode.class }, new Object[] { null, null, null, null });
         }
         if (openMethod instanceof Spreadsheet) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class,
@@ -394,7 +441,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
         // Replace existed method with decorator using the same key.
         //
-        methodMap().put(key, decorator);
+
+        IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
+
+        methodMap().put(key, openMethod);
     }
 
     @Override

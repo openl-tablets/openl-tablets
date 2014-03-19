@@ -12,8 +12,15 @@
 		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}"/>
 	</bean>
 
+	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod" value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
+		<property name="arguments">
+			<value>${ruleservice.instantiation.strategy.maxthreadsforcompile}</value>
+		</property>
+	</bean>
+
 	<bean id="ruleServiceInstantiationFactory"
-		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
+		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl" depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
 		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />

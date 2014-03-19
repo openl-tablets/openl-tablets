@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +23,8 @@ import org.springframework.beans.factory.ObjectFactory;
  */
 public class WebServicesRuleServicePublisher implements RuleServicePublisher {
 
-    //private final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
+    // private final Log log =
+    // LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
@@ -50,15 +53,44 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         return new ServerFactoryBean();
     }
 
+    protected String processURL(String url) {
+        String[] parts = url.split("/");
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String s : parts) {
+            if (first) { 
+                first = false;
+            } else {
+                sb.append("/");
+            }
+            try {
+                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
+            } catch (UnsupportedEncodingException e) {
+                sb.append(s);
+            }
+        }
+
+        String ret = sb.toString();
+        while (ret.charAt(0) == '/') {
+            ret = ret.substring(1);
+        }
+
+        return ret;
+    }
+
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
 
         ServerFactoryBean svrFactory = getServerFactoryBean();
-        String serviceAddress = getBaseAddress() + service.getUrl();
+
+        String url = processURL(service.getUrl());
+
+        String serviceAddress = getBaseAddress() + url;
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
+
         try {
             Server wsServer = svrFactory.create();
             ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
@@ -69,8 +101,8 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-    
-    public DataBinding getDataBinding(String serviceName){
+
+    public DataBinding getDataBinding(String serviceName) {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             return null;
@@ -95,7 +127,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
-                    serviceName));
+                serviceName));
         }
         try {
             runningServices.get(service).getServer().destroy();
@@ -105,7 +137,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
     }
-    
+
     public void redeploy(OpenLService service) throws RuleServiceRedeployException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
@@ -121,11 +153,11 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         }
 
     }
-    
-    private static class ServiceServer{
+
+    private static class ServiceServer {
         private Server server;
         private DataBinding databinding;
-        
+
         public ServiceServer(Server server, DataBinding dataBinding) {
             if (server == null) {
                 throw new IllegalArgumentException("server arg can't be null!");
@@ -134,11 +166,11 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             this.server = server;
             this.databinding = dataBinding;
         }
-        
+
         public DataBinding getDatabinding() {
             return databinding;
         }
-        
+
         public Server getServer() {
             return server;
         }

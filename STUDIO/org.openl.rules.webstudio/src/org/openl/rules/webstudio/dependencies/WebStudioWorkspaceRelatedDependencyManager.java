@@ -25,7 +25,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
     private List<ProjectDescriptor> dependentProjects;
     private boolean singleModuleMode;
 
-    private List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
+    private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
 
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects, boolean singleModuleMode) {
         if (dependentProjects == null) {
@@ -38,7 +38,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         for (DependencyManagerListener listener : listeners) {
             listener.onLoadDependency(dependency);
         }

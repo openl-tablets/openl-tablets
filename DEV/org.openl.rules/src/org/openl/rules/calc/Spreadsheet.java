@@ -113,7 +113,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
         Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(
-                "org.openl.rules.calc.SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
+                "SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
         Class<?> customSPR = gen.generateAndLoadBeanClass();
         spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
     }

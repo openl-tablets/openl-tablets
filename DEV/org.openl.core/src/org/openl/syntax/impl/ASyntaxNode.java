@@ -73,7 +73,11 @@ public abstract class ASyntaxNode implements ISyntaxNode {
                 case 1:
                     return getChild(0).getSourceLocation();
                 default:
-                    return new TextInterval(getChild(0).getSourceLocation().getStart(), getChild(n - 1)
+                    ILocation startLocation = getChild(0).getSourceLocation();
+                    if (startLocation == null) {
+                        return null;
+                    }
+                    return new TextInterval(startLocation.getStart(), getChild(n - 1)
                             .getSourceLocation().getEnd());
             }
         }

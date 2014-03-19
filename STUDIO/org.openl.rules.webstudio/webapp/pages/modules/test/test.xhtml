@@ -86,8 +86,8 @@
                             <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':-1})">All</a></li>
                         </ul>
                     </h:panelGroup>
-                    <label title="Show the result of running test case if it's complex" style="margin-left:50px">
-                        Complex Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
+                    <label title="Display the full result of running test cases, not only values which are being tested" style="margin-left:50px">
+                        Compound Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
                         onchange="filterTest({'complexResult':this.checked})" />
                     </label>
                 </span>
@@ -166,7 +166,7 @@
                                 <th colspan="2">#{resultHeader}</th>
                             </ui:repeat>
                             <h:panelGroup rendered="#{complexResult and testBean.hasComplexResults(testUnitsResults)}">
-                                <th>Complex Result</th>
+                                <th>Compound Result</th>
                             </h:panelGroup>
                         </tr>
 
@@ -177,7 +177,7 @@
                                 <h:panelGroup rendered="#{testUnitsResults.hasDescription()}">
                                     <td><h:outputText value="#{testUnit.getDescription()}" /></td>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{testUnit.test.runtimeContextDefined}">
+                                <h:panelGroup rendered="#{testUnitsResults.hasContext()}">
                                     <ui:repeat value="#{testBean.getContextParams(testUnitsResults,testUnit)}" var="context">
                                     <td>
                                         <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -195,10 +195,7 @@
                                     <h:panelGroup>
                                         <ui:repeat value="#{testBean.getResultParams(testUnit)}" var="resultParam">
                                             <td>
-                                                <div class="case-result">
-                                                    <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
-                                                        <i class="#{resultParam.status.status == 0 ? 'case-success' : 'case-error'}"></i>
-                                                    </h:panelGroup>
+                                                <div class="case-result #{!testUnitsResults.runmethod ? (resultParam.status.status == 0 ? 'case-success' : 'case-error') : ''}">
                                                     <h:panelGroup rendered="#{!testBean.isResultThrowable(testUnit)}">
                                                         <h:panelGroup rendered="#{!testBean.isExplanationValue(resultParam.actualValue.value)}">
                                                             <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -219,7 +216,7 @@
                                                     </h:panelGroup>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td style="padding-left:0">
                                                 <div class="case-result">
                                                     <h:panelGroup rendered="#{resultParam.status.status == 1}"><span style="color:#aaa">Expected: </span>
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
