@@ -94,6 +94,14 @@
         #t_te_table {
             margin: 12px 11px;
         }
+        .table-problems {
+            margin: 9px 12px 12px 10px;
+        }
+        .table-problems > header {
+            font-size: 12px;
+            margin: 0px 2px 5px 2px;
+        }
+
     </style>
 
     <c:if test="#{!tableBean.dispatcherValidationNode}">
@@ -479,12 +487,12 @@
     <div id="tablePanel">
         <div>
             <c:set var="editableTablePart" value="#{tableBean.tablePart and studio.model.editable}" />
-            <h:panelGroup rendered="#{tableBean.hasProblems or editableTablePart}" layout="block" style="margin-bottom: 12px;">
-                <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
-                    <span style="margin-right: 4px">Problems</span>
-                    <img src="webresource/images/arrow_down.gif" title="Hide Problems"
+            <h:panelGroup rendered="#{tableBean.hasProblems or editableTablePart}" layout="block" styleClass="table-problems">
+                <header>
+                    <span style="margin-right:2px">Problems</span>
+                    <img src="webresource/images/arrow_down.gif" title="Hide Problems" style="vertical-align:-2px"
                         onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
-                </div>
+                </header>
                 <div id="problemsPanel">
                     <h:panelGroup rendered="#{editableTablePart}" layout="block" styleClass="problem-warning"
                         style="display:inline-block;margin:2px">
