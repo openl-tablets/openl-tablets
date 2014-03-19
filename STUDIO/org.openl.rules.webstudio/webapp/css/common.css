@@ -854,7 +854,8 @@ form .formfields {
     float: right;
 }
 
-.navbar > .navbar-inner > .dropdown {
+.navbar > .navbar-inner > .dropdown,
+.navbar > .breadcrumbs > .dropdown {
     display: inline-block;
     line-height: 13px;
 }
