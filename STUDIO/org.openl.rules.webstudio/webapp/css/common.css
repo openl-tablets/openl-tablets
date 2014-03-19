@@ -71,20 +71,20 @@ input[type='button'], button,
 
 input[type='submit']:hover, input[type='reset']:hover,
 input[type='button']:hover, button:hover,
-.button:hover, .imageButton:hover {
+.button:hover {
     border-color: #ddd;
     color: #222222;
 }
 
 input[type='submit']:active, input[type='reset']:active,
 input[type='button']:active, button:active,
-.button:active, .imageButton:active {
+.button:active {
     border-color: #ccc;
 }
 
 input[type='submit']:focus, input[type='reset']:focus,
 input[type='button']:focus, button:focus,
-.button:focus, .imageButton:focus {
+.button:focus {
     border: 1px solid #9d4;
 }
 
