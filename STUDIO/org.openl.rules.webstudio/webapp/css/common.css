@@ -985,21 +985,29 @@ form .formfields {
 }
 
 .rf-tr-nd {
-    padding: 1px !important;
+    padding: 0 1px !important;
 }
 
 .rf-trn {
-    padding: 2px 0 !important;
+    padding: 4px 0 !important;
     cursor: pointer !important;
 }
 
 .rf-trn-sel {
-    font-weight: bold;
     background: none !important;
+}
+
+.rf-trn.sel {
+    font-weight: bold;
+    background: #f3f3f3 !important;
 }
 
 .rf-trn-cnt {
     width: 100%;
+}
+
+*.rf-tr-nd *.rf-tr-nd {
+    margin-left: 11px !important;
 }
 
 .rf-tab-hdr {
