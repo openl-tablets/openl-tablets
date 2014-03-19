@@ -856,6 +856,7 @@ form .formfields {
 
 .navbar > .navbar-inner > .dropdown {
     display: inline-block;
+    line-height: 13px;
 }
 
 .navbar > .navbar-inner > a,
@@ -868,6 +869,7 @@ form .formfields {
     overflow: hidden;
     outline: none;
     text-decoration: none;
+    line-height: 13px;
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
@@ -925,6 +927,7 @@ form .formfields {
     white-space: nowrap;
     padding: 11px 4px 12px;
     text-decoration: none;
+    line-height: 13px;
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
