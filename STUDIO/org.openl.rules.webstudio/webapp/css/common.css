@@ -937,7 +937,7 @@ form .formfields {
     display: inline-block;
     margin-left: 1px;
     height: 100%;
-    vertical-align: 13px;
+    vertical-align: 14px;
 }
 
 .breadcrumbs .delimeter::after {
