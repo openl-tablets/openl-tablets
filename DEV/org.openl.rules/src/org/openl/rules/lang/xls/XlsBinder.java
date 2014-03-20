@@ -386,18 +386,15 @@ public class XlsBinder implements IOpenBinder {
     /**
      * Creates {@link XlsModuleOpenClass}
      * 
-     * @param moduleNode
-     * @param openl
-     * @param dependencies set of dependent modules for creating module.
-     * @return
+     * @param moduleDependencies set of dependent modules for creating module.
      */
     protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, 
-    	IDataBase dbase,	
+        IDataBase dbase,
         Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
-        
+        processErrors(module.getErrors(), moduleNode, bindingContext);
         return module;
     }
 
@@ -521,7 +518,7 @@ public class XlsBinder implements IOpenBinder {
                 try {
                     Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
 
-                    return (IVocabulary) vClass.newInstance();
+                    return vClass.newInstance();
                 } catch (Throwable t) {
                     String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
                     BindHelper.processError(message, vocabularyNode, t);
@@ -574,7 +571,7 @@ public class XlsBinder implements IOpenBinder {
             ISelector<ISyntaxNode> childSelector,
             Comparator<TableSyntaxNode> nodesComparator) {
 
-        ArrayList<ISyntaxNode> childSyntaxNodes = new ArrayList<ISyntaxNode>();
+        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
 
         for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
 
@@ -712,5 +709,19 @@ public class XlsBinder implements IOpenBinder {
 
         tableSyntaxNode.addError(error);
         BindHelper.processError(error, moduleContext);
+    }
+
+    protected void processErrors(List<Throwable> errors, ISyntaxNode node, IBindingContext bindingContext) {
+        if (errors != null) {
+            for (Throwable error : errors) {
+                if (error instanceof SyntaxNodeException) {
+                    BindHelper.processError((SyntaxNodeException) error, bindingContext);
+                } else if (error instanceof CompositeSyntaxNodeException) {
+                    BindHelper.processError((CompositeSyntaxNodeException) error, bindingContext);
+                } else {
+                    BindHelper.processError(error, node, bindingContext);
+                }
+            }
+        }
     }
 }
