@@ -119,7 +119,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         for (String key : fieldsMap.keySet()) {
             IOpenField field = fieldsMap.get(key);
             if (field instanceof DataOpenField) {
-                addField(field);
+                try {
+                    addField(field);
+                } catch (OpenlNotCheckedException e) {
+                    addError(e);
+                }
             }
         }
 
@@ -131,7 +135,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                         try {
                             getDataBase().registerTable(table);
                         } catch (DuplicatedTableException e) {
-                            throw new OpenlNotCheckedException(e);
+                            addError(e);
+                        } catch (OpenlNotCheckedException e) {
+                            addError(e);
                         }
                     }
                 }
