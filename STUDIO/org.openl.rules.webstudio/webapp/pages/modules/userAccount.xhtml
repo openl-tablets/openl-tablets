@@ -167,9 +167,9 @@
             <footer>
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single'}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideUserProfile()" render=":userProfileForm" styleClass="button-primary" />
+                    oncomplete="if(!event.data) { hideUserProfile(); ws.nav.reload(true)}" render=":userProfileForm" styleClass="button-primary" />
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
-                    oncomplete="hideUserProfile()" styleClass="button-primary" />
+                    oncomplete="hideUserProfile(); ws.nav.reload(true)" styleClass="button-primary" />
                 <input type="button" value="Cancel" onclick="hideUserProfile()" />
             </footer>
         </h:form>

@@ -16,24 +16,6 @@
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
                + '&amp;header=Explanation&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
         }
-        // TODO Add to namespace
-        function filterTest(params) {
-            ws.nav.reload(params);
-            // Update Test Settings menu
-            for (var param in params) {
-                var input = $j("#testSettings [name=" + param + "]");
-                if (input.is("[type=checkbox]")) {
-                    input.prop("checked", params[param]);
-                    if (param == "failuresOnly") {
-                        $j("#failuresSetting").toggle(params[param]);
-                    }
-                } else if (input.is("select")) {
-                    input.find("option").filter(function() {
-                        return $j(this).val() == params[param]; 
-                    }).prop("selected", true);
-                }
-            }
-        }
     </script>
 
     <div class="page">
@@ -62,33 +44,33 @@
                     <a class="dropdown-toggle link-dropdown" data-toggle="dropdown" href="#">#{perPage == -1 ? 'All' : perPage}</a>
                     per page
                     <ul class="dropdown-menu link-dropdown-menu" role="menu">
-                        <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'pp':1})">1</a></li>
-                        <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'pp':5})">5</a></li>
-                        <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'pp':20})">20</a></li>
+                        <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'pp':1})">1</a></li>
+                        <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'pp':5})">5</a></li>
+                        <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'pp':20})">20</a></li>
                         <li class="divider"></li>
-                        <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'pp':-1})">All</a></li>
+                        <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'pp':-1})">All</a></li>
                     </ul>
                 </span>
 
                 <span style="position:absolute;top:19px;margin-left:230px">
                     <label title="Show only failed test cases">
                         Failures Only <input type="checkbox" style="vertical-align:-2px" checked="#{failuresOnly ? 'checked' : ''}"
-                        onchange="filterTest({'failuresOnly':this.checked})" />
+                        onchange="ws.nav.reload({'failuresOnly':this.checked})" />
                     </label>
                     <h:panelGroup class="dropdown" rendered="#{failuresOnly}">
                         <a class="dropdown-toggle link-dropdown" data-toggle="dropdown" href="#">#{failuresPerTest == -1 ? 'All' : failuresPerTest}</a>
                         first
                         <ul class="dropdown-menu link-dropdown-menu" role="menu">
-                            <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':1})">1</a></li>
-                            <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':5})">5</a></li>
-                            <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':20})">20</a></li>
+                            <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'failures':1})">1</a></li>
+                            <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'failures':5})">5</a></li>
+                            <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'failures':20})">20</a></li>
                             <li class="divider"></li>
-                            <li><a tabindex="-1" href="javascript:void(0)" onclick="filterTest({'failures':-1})">All</a></li>
+                            <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.nav.reload({'failures':-1})">All</a></li>
                         </ul>
                     </h:panelGroup>
                     <label title="Display the full result of running test cases, not only values which are being tested" style="margin-left:50px">
                         Compound Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
-                        onchange="filterTest({'complexResult':this.checked})" />
+                        onchange="ws.nav.reload({'complexResult':this.checked})" />
                     </label>
                 </span>
             </span>
