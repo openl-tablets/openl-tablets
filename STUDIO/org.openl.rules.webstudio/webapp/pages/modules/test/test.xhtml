@@ -27,14 +27,14 @@
                 rendered="#{testBean.numberOfFailedTests > 0}"
                 styleClass="badge badge-error" style="margin-left:7px;font-size: 11px; font-weight: normal" />
 
-            <c:set var="failuresPerTest" value="#{studio.testsFailuresPerTest}" />
+            <c:set var="failuresPerTest" value="#{testBean.testsFailuresPerTest}" />
 
             <c:set var="interval" value="5" />
             <c:set var="curPage" value="#{testBean.page}" />
             <c:set var="maxPage" value="#{testBean.lastPage}" />
             <c:set var="firstPage" value="#{curPage > interval ? (curPage - interval + 1) : '1'}" />
             <c:set var="lastPage" value="#{(firstPage + interval - 1) > maxPage ? maxPage : (firstPage + interval - 1)}" />
-            <c:set var="perPage" value="#{studio.testsPerPage}" />
+            <c:set var="perPage" value="#{testBean.testsPerPage}" />
 
             <c:set var="pageUri" value="#{studio.url('test/test')}" />
             <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly).concat('&amp;failures=').concat(failuresPerTest)) : ''}#{!empty param.complexResult ? ('&amp;complexResult='.concat(complexResult)) : ''}" />
