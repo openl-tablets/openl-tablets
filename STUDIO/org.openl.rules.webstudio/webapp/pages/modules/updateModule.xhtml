@@ -1,37 +1,39 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="updateModule" width="500" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="Update module"/>
-    </f:facet>
+    <f:view transient="true">
+    <rich:popupPanel id="updateModule" width="500" autosized="true">
+        <f:facet name="header">
+          <h:outputText value="Update module"/>
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close"
-        onclick="RichFaces.$('updateModule').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+          <h:graphicImage value="/images/close.gif" class="close"
+            onclick="RichFaces.$('updateModule').hide();" alt="Close" />
+        </f:facet>
 
-    <h:form id="updateModuleForm">
-    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
-        <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}" />
-      </h:panelGrid>
+        <h:form id="updateModuleForm">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
+                <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}" />
+              </h:panelGrid>
 
-    <footer>
-        <a4j:commandButton value="Update" action="#{studio.updateModule}"
-            oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
-        <input type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
-    </footer>
-    </h:form>
-  </rich:popupPanel>
+            <footer>
+                <a4j:commandButton value="Update" action="#{studio.updateModule}"
+                    oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+    </f:view>
 
-  <script>
+    <script>
     function openUpdateModuleDialog() {
       RichFaces.$('updateModule').show();
     }
-  </script>
+    </script>
 </ui:composition>
