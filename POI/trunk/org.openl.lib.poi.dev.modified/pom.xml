@@ -3,7 +3,7 @@
         <parent>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.lib.poi.dev-pom</artifactId>
-                <version>5.10.4</version>
+                <version>5.10.5-SNAPSHOT</version>
                 <relativePath>../org.openl.lib.poi.dev-pom</relativePath>
         </parent>
         <groupId>org.openl.rules</groupId>
