@@ -496,12 +496,16 @@
                         node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
                     });
                     // Select node
-                    $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");
-                    tableLink.closest(".rf-trn-cnt").addClass("rf-trn-sel");
+                    $j("#rulesTree .rf-trn.sel").removeClass("sel");
+                    tableLink.closest(".rf-trn").addClass("sel");
 
-                    /*tableLink.closest(".view_workspace").animate({
-                     scrollTop: tableLink.offset().top
-                     });*/
+                    var panelBody = tableLink.closest(".panel-body");
+                    var linkPos = tableLink.position().top;
+                    if (linkPos < 0 || linkPos > panelBody.height()) {
+                        panelBody.animate({
+                            scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
+                        });
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
@@ -27,7 +28,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 public class RuleServiceDeploymentRelatedDependencyManager extends DependencyManager {
 

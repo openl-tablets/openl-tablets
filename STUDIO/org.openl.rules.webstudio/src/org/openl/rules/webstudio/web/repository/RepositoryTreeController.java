@@ -6,9 +6,23 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJEC
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -17,8 +31,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.xstream.XStreamException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -35,15 +47,22 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.ProjectDescriptorManager;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.ResourceTransformer;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.*;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
@@ -70,6 +89,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
+
+import com.thoughtworks.xstream.XStreamException;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -608,6 +629,55 @@ public class RepositoryTreeController {
         return null;
     }
 
+    private void findModulePaths(AProjectArtefact projectArtefact, Collection<String> modulePaths) {
+        if (projectArtefact.isFolder()) {
+            AProjectFolder projectFolder = (AProjectFolder) projectArtefact;
+            for (AProjectArtefact artifact : projectFolder.getArtefacts()) {
+                findModulePaths(artifact, modulePaths);
+            }
+        } else {
+            if (FileTypeHelper.isExcelFile(projectArtefact.getName())) {
+                String modulePath = projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
+                while (modulePath.charAt(0) == '/') {
+                    modulePath = modulePath.substring(1);
+                }
+                modulePaths.add(modulePath);
+            }
+        }
+    }
+
+    private void unregisterInProjectDescriptor() {
+        TreeNode selectedNode = getSelectedNode();
+        String nodeType = selectedNode.getType();
+        if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
+            Collection<String> modulePaths = new HashSet<String>();
+            findModulePaths(selectedNode.getData(), modulePaths);
+            try {
+                UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+                AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                if (projectDescriptorArtifact instanceof AProjectResource) {
+                    AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
+                    InputStream content = resource.getContent();
+                    ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+                    for (String modulePath : modulePaths) {
+                        Iterator<Module> itr = projectDescriptor.getModules().iterator();
+                        while (itr.hasNext()) {
+                            Module module = itr.next();
+                            if (modulePath.equals(module.getRulesRootPath().getPath())) {
+                                itr.remove();
+                            }
+                        }
+                    }
+                    String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+                    StringInputStream newContent = new StringInputStream(xmlString);
+                    resource.setContent(newContent);
+                }
+            } catch (ProjectException ex) {
+
+            }
+        }
+    }
+
     public String deleteElement() {
         AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
         String childName = FacesUtils.getRequestParameter("element");
@@ -629,6 +699,7 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
+            unregisterInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
                 String nodeType = selectedNode.getType();
