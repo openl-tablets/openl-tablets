@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.all.eclipse.feature"
       label="OpenL Tablets for Eclipse"
-      version="5.10.4">
+      version="5.10.5">
 
    <description url="%descriptionURL">
       %description
@@ -18,21 +18,21 @@
 
    <includes
          id="org.openl.eclipse.ui.eclipse.feature"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <includes
          id="org.openl.rules.webstudio.eclipse.feature"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <includes
          id="org.openl.rules.eclipse.feature"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <includes
          id="org.openl.rules.ruleservice.eclipse.feature"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <includes
          id="org.openl.rules.source.eclipse.feature"
-         version="5.10.4"/>
+         version="5.10.5"/>
 </feature>

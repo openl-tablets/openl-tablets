@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.tablets.tutorial1
 Bundle-SymbolicName: org.openl.tablets.tutorial1
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.conf.ant,

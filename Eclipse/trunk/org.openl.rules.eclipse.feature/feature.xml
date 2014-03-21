@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.eclipse.feature"
       label="OpenL Tablets"
-      version="5.10.4"
+      version="5.10.5"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -536,75 +536,75 @@ That&apos;s all there is to it!
          id="org.openl.lib.poi.dev.modified"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.poi.lib"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.lib"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.rules"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.constrainer"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.conf.ant"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.core"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.grammars"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 		 
    <plugin
          id="org.openl.j"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.commons"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.j.science"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
    
 </feature>

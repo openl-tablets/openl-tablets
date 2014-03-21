@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.source.eclipse.feature"
       label="OpenL Sources"
-      version="5.10.4"
+      version="5.10.5"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -21,126 +21,126 @@
          id="org.openl.rules.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.core.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.commons.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.j.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.grammars.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.j.science.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.constrainer.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.conf.ant.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.variation"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.calculation.result"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.project"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.demo"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.tableeditor.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr.jackrabbit.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.workspace.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.webstudio.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
 
@@ -148,83 +148,83 @@
          id="org.openl.commons.web.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.standalone.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.diff.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.ruleservice.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.ruleservice.ws.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.ruleservice.ws.databinding.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.util.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.wizard.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.wizard.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.source"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 </feature>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Eclipse 3.1 UI Plug-in
 Bundle-SymbolicName: org.openl.eclipse.ui; singleton:=true
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Activator: org.openl.eclipse.base.OpenlBasePlugin
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin

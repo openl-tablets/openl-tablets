@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Workspace
 Bundle-SymbolicName: org.openl.rules.workspace
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.commons,

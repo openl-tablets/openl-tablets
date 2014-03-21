@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.ce
 Bundle-SymbolicName: org.openl.rules.ce
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: Exigen
 Require-Bundle: org.openl.rules;bundle-version="5.9.1";visibility:=reexport,
  org.junit

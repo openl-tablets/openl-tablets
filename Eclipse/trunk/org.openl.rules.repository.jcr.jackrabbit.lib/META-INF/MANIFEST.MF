@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.repository.jcr.jackrabbit.lib
 Bundle-SymbolicName: org.openl.rules.repository.jcr.jackrabbit.lib;singleton:=true
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: lib/commons-codec-1.3.jar,

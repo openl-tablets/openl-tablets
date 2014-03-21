@@ -2,7 +2,7 @@
 <feature
       id="org.openl.eclipse.ui.eclipse.feature"
       label="OpenL Core"
-      version="5.10.4"
+      version="5.10.5"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -18,39 +18,39 @@
    </license>
 
    <requires>
-      <import feature="org.openl.rules.eclipse.feature" version="5.10.4"/>
+      <import feature="org.openl.rules.eclipse.feature" version="5.10.5"/>
    </requires>
 
    <plugin
          id="org.openl.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.util"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 </feature>

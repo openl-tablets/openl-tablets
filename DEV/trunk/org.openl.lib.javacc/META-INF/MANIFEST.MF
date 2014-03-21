@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Javacc Plug-in
 Bundle-SymbolicName: org.openl.lib.javacc
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: javacc-5.0/bin/lib/javacc.jar

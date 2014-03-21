@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.tablets.deploy
 Bundle-SymbolicName: org.openl.tablets.deploy
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
 Require-Bundle: org.openl.commons,

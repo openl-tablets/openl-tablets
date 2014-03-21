@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Constrainer
 Bundle-SymbolicName: org.openl.rules.constrainer
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Export-Package: org.openl.ctr,
  org.openl.ie.constrainer,
  org.openl.ie.constrainer.consistencyChecking,

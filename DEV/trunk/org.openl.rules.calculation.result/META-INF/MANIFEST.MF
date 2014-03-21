@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets
 Bundle-SymbolicName: org.openl.rules.calculation.result
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Export-Package: org.openl.rules.calculation.result.convertor

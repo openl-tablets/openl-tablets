@@ -10,7 +10,7 @@
     <name>@project.name@</name>
 
     <properties>
-        <openl.rules.version>5.10.4</openl.rules.version>
+        <openl.rules.version>5.10.5</openl.rules.version>
     </properties>
 
     <dependencies>

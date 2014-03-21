@@ -9,7 +9,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.openl.rules.webstudio.util.StartTomcat"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;catalina.base=${eclipse_home}/plugins/org.openl.rules.webstudio_5.10.4/&quot; &quot;catalina.home=${eclipse_home}/plugins/org.openl.rules.tomcat.lib_5.10.4/apache-tomcat&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;catalina.base=${eclipse_home}/plugins/org.openl.rules.webstudio_5.10.5/&quot; &quot;catalina.home=${eclipse_home}/plugins/org.openl.rules.tomcat.lib_5.10.5/apache-tomcat&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="@project.name@"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256M -Xmx1024M -XX:+UseParallelOldGC -XX:MaxPermSize=256M -XX:PermSize=128M -Duser.workspace.home=&quot;${workspace_loc}&quot;" -Dwebstudio.configured=true />
 </launchConfiguration>

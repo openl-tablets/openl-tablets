@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.webstudio.eclipse.feature"
       label="WebStudio Eclipse Feature"
-      version="5.10.4">
+      version="5.10.5">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -17,122 +17,122 @@
    </license>
 
    <requires>
-      <import feature="org.openl.rules.eclipse.feature" version="5.10.4"/>
+      <import feature="org.openl.rules.eclipse.feature" version="5.10.5"/>
    </requires>
 
    <plugin
          id="org.openl.rules.repository"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr.jackrabbit"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.repository.jcr.jackrabbit.lib"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.commons.web"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.workspace"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.webstudio.lib"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.rules.webstudio"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.rules.security"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.standalone"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.diff"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.tomcat.lib"
          download-size="0"
          install-size="0"
-         version="5.10.4"/>
+         version="5.10.5"/>
 
    <plugin
          id="org.openl.rules.tableeditor"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
     <plugin
          id="org.openl.rules.variation"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
     <plugin
          id="org.openl.rules.calculation.result"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
     <plugin
          id="org.openl.rules.project"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>
 
     <plugin
          id="org.openl.rules.demo"
          download-size="0"
          install-size="0"
-         version="5.10.4"
+         version="5.10.5"
          unpack="false"/>		 
 
 </feature>

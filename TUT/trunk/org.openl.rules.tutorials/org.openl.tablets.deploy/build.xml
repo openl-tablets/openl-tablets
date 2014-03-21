@@ -9,7 +9,7 @@
 	<property name="webapp.ws.name" value="webservicesdeployer" />
 
 	<property name="plugin.base.path" location="${eclipse.pdebuild.home}../" />
-	<property name="openl.plugin.version" value="_5.10.4" />
+	<property name="openl.plugin.version" value="_5.10.5" />
 
 	<property name="tomcat.path" value="${plugin.base.path}/org.openl.rules.tomcat.lib${openl.plugin.version}/apache-tomcat" />
 

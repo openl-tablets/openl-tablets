@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: POI 3.8 Modified Plug-in
 Bundle-SymbolicName: org.openl.lib.poi.dev.modified
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Export-Package: junit.extensions,
  junit.framework,

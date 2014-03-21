@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Apache Commons Library
 Bundle-SymbolicName: org.openl.poi.lib
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: junit.extensions,
@@ -273,6 +273,6 @@ Bundle-ClassPath: lib/commons-lang-2.6.jar,
  lib/commons-logging-1.1.1.jar,
  lib/dom4j-1.6.1.jar,
  lib/junit-4.6.jar,
- lib/org.openl.lib.poi.dev.modified-5.10.4.jar,
+ lib/org.openl.lib.poi.dev.modified-5.10.5-SNAPSHOT.jar,
  lib/xmlbeans-2.3.0.jar,
  lib/poi-ooxml-schemas-3.8.jar

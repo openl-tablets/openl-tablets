@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Commons  Library Plug-in for Eclipse 3.1
 Bundle-SymbolicName: org.openl.commons
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.lib;visibility:=reexport
 Export-Package: org.openl.base,

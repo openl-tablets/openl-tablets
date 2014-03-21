@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets Util Plug-in
 Bundle-SymbolicName: org.openl.eclipse.ui.util
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Activator: org.openl.eclipse.ui.util.Activator
 Bundle-Vendor: OpenL
 Require-Bundle: org.eclipse.core.runtime,

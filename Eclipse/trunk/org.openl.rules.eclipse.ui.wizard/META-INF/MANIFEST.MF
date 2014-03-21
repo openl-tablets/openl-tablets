@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets Wizard Plug-in
 Bundle-SymbolicName: org.openl.rules.eclipse.ui.wizard; singleton:=true
-Bundle-Version: 5.10.4
+Bundle-Version: 5.10.5
 Bundle-Activator: org.openl.rules.eclipse.wizard.RulesWizardPlugin
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
