@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.dependency.IDependencyManager;
@@ -1555,6 +1556,7 @@ public class ProjectModel {
         if (classLoader != null) {
             JavaOpenClass.resetClassloader(classLoader);
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
         }
     }
 

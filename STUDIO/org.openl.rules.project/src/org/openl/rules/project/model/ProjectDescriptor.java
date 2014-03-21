@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
 
@@ -136,15 +137,6 @@ public class ProjectDescriptor {
         return classLoader;
     }
 
-    /**
-     * @deprecated Must be removed to separate class. Project descriptor is just
-     *             description of project and must be simple java bean.
-     * 
-     */
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
     public URL[] getClassPathUrls() {
         if (classpath == null) {
             return new URL[] {};
@@ -185,14 +177,15 @@ public class ProjectDescriptor {
     private void unregisterClassloader(ClassLoader classLoader) {
         if (classLoader != null) {
             JavaOpenClass.resetClassloader(classLoader);
-            LogFactory.release(classLoader);
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
         }
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
+            // TODO Must be removed to separate class. Project descriptor is just description of project and must be simple java bean.
             unregisterClassloader(classLoader);
         } catch (Throwable ignore) {
         } finally {
