@@ -249,12 +249,12 @@ public class RepositoryTreeController {
 
     public String closeProject() {
         try {
-            repositoryTreeState.getSelectedProject().close();
-            repositoryTreeState.refreshSelectedNode();
             if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
                 studio.getModel().clearModuleInfo();
                 studio.setCurrentModule(null);
             }
+            repositoryTreeState.getSelectedProject().close();
+            repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
             String msg = "Failed to close project.";
@@ -673,7 +673,9 @@ public class RepositoryTreeController {
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
-
+                if (log.isErrorEnabled()) {
+                    log.error(ex.getMessage(), ex);
+                }
             }
         }
     }
@@ -699,6 +701,10 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
+            if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel().getProject())) {
+                studio.getModel().clearModuleInfo();
+                studio.setCurrentModule(null);
+            }
             unregisterInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
@@ -720,6 +726,9 @@ public class RepositoryTreeController {
 
             FacesUtils.addInfoMessage("File was deleted successfully.");
         } catch (ProjectException e) {
+            log.error("Failed to delete node.", e);
+            FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
+        } catch (Exception e) {
             log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         }
