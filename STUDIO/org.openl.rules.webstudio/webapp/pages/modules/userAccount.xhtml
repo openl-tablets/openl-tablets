@@ -22,6 +22,7 @@
         }
     </style>
 
+    <f:view transient="true">
     <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
@@ -167,7 +168,7 @@
             <footer>
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single'}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideAndReload()" render=":userProfileForm" styleClass="button-primary" />
+                    oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary" />
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary" />
                 <input type="button" value="Cancel" onclick="hideUserProfile()" />
@@ -175,6 +176,7 @@
         </h:form>
 
     </rich:popupPanel>
+    </f:view>
 
 <script>
     //<![CDATA[

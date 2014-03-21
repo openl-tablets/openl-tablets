@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j">
@@ -20,6 +21,7 @@
             }
         </script>
 
+        <f:view transient="true">
         <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
             oncomplete="top.ws.nav.reload(true); top.hideLoader();" />
 
@@ -29,6 +31,7 @@
             <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000" render="poll"
                 oncomplete="#{sourceModified ? 'sourceModified()' : ''}" />
         </h:form>
+        </f:view>
 
     </h:body>
 
