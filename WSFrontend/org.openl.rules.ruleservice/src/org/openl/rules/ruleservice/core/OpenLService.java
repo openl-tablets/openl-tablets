@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.model.Module;
@@ -67,7 +68,6 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param provideVariations define is variations should be supported
      * @param modules a list of modules for load
-     * @param configuration configuration
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
@@ -242,6 +242,7 @@ public final class OpenLService {
             while (classLoader instanceof SimpleBundleClassLoader) {
                 JavaOpenClass.resetClassloader(classLoader);
                 String2DataConvertorFactory.unregisterClassLoader(classLoader);
+                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
 
                 classLoader = classLoader.getParent();
             }
@@ -398,9 +399,6 @@ public final class OpenLService {
         
         /**
          * Sets flag useRuleServiceRuntimeContext.
-         * 
-         * @param url
-         * @return
          */
         public OpenLServiceBuilder setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
             this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;

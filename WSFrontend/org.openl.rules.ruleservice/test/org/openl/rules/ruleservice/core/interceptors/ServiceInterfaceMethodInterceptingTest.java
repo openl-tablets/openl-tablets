@@ -84,7 +84,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
         projectDescriptor.setName("service");
         projectDescriptor.setModules(modules);
-        projectDescriptor.setClassLoader(Thread.currentThread().getContextClassLoader());
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
         modules.add(module);
