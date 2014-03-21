@@ -5,7 +5,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
-public class ParameterWithValueDeclaration extends ParameterDeclaration {
+public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     private Object value;
     
     public ParameterWithValueDeclaration(String paramName, Object value, IOpenClass parameterType, int direction) {
@@ -26,6 +26,7 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration {
         }
     }
 
+    @Override
     public Object getValue() {
         return value;
     }
