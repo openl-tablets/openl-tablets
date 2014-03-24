@@ -1782,6 +1782,15 @@ public class RepositoryTreeController {
 
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+        String projectName = FacesUtils.getRequestParameter("projectName");
+        if (selectedNode instanceof TreeRepository && (activeProjectNode != null || projectName != null)) {
+            if (activeProjectNode == null) {
+                activeProjectNode = repositoryTreeState.getRulesRepository()
+                        .getChild(RepositoryUtils.getTreeNodeId(projectName));
+            }
+            return activeProjectNode;
+        } else {
+            return selectedNode;
+        }
     }
 }
