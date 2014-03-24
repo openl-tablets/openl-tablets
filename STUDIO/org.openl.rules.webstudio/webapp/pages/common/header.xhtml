@@ -108,7 +108,9 @@
             </h:panelGroup>
 
             <span style="position: relative">
-                <ui:include src="/pages/modules/userAccount.xhtml" />
+                <ui:include src="/pages/modules/userAccount.xhtml">
+                    <ui:param name="module" value="#{menu}" />
+                </ui:include>
             </span>
         </div>
     </div>

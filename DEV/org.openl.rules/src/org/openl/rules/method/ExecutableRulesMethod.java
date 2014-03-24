@@ -13,7 +13,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod{
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, TableUriMethod {//, HashableContentMethod {
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be
@@ -21,12 +21,25 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     // ExecutableRulesMethod(but test table is firstly data table)
     private ATableBoundNode boundNode;
 
+    private String tableUri;
+    
+    public String getTableUri(){
+        if (this.tableUri == null){
+            throw new IllegalStateException("Table uri doesn't defined in method!");
+        }
+        return tableUri;
+    }
+    
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;
+        if (this.boundNode != null){
+            tableUri = boundNode.getTableSyntaxNode().getTable().getSource().getUri();
+        }
     }
 
     private Boolean cacheble = null;
+
 
     protected boolean isMethodCacheable() {
         if (cacheble == null) {
@@ -57,7 +70,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                         }
                     }
                 } else {
-                    if (RecalculateEnum.ALWAYS.equals(getRecalculateType())){
+                    if (RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                         simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
                     }
                 }
