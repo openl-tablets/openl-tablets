@@ -238,7 +238,7 @@ public class ProjectBean {
 
         List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
 
-        for (ProjectDependencyDescriptor dependency : resultDependencies) {
+        for (ProjectDependencyDescriptor dependency : new ArrayList<ProjectDependencyDescriptor>(resultDependencies)) {
             if (dependency.getName().equals(name)) {
                 resultDependencies.remove(dependency);
             }
