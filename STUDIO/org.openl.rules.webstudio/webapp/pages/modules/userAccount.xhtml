@@ -22,7 +22,7 @@
         }
     </style>
 
-    <f:view transient="true">
+    <f:view transient="#{module=='rules' ? true : false}">
     <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
