@@ -5,6 +5,8 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.types.IMethodSignature;
@@ -19,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod {
     private String methodName;
 
     private Class<?>[] argTypes;
@@ -48,6 +50,15 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
 
     public IMethodSignature getSignature() {
         return getOriginal().getSignature();
+    }
+
+    @Override
+    public String getTableUri() {
+        if (getOriginal() instanceof ExecutableRulesMethod) {
+            return ((ExecutableRulesMethod) getOriginal()).getTableUri();
+        } else {
+            throw new IllegalStateException("Implementation doesn't support methods other than ExecutableRulesMethod!");
+        }
     }
 
     public IOpenMethod getMethod() {

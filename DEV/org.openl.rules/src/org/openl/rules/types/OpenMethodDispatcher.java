@@ -8,7 +8,10 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.HashableContentMethod;
 import org.openl.rules.method.ITablePropertiesMethod;
+import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
@@ -183,15 +186,23 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
-            if (newMethod != existedMethod) {
-                throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status and properties set!",
-                    existedMethod.getName()),
-                    existedMethod);
+            if (newMethod instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
+                TableUriMethod m1 = (TableUriMethod) newMethod;
+                TableUriMethod m2 = (TableUriMethod) existedMethod;
+                String newMethodHashUrl = m1.getTableUri();
+                String existedMethodHashUrl = m2.getTableUri();
+                if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
+                    throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                        existedMethod.getName()),
+                        existedMethod);
+                }
+            } else {
+                throw new IllegalStateException("Implementation supports only HashableContentMethod!");
             }
         }
         return existedMethod;
     }
-    
+
     private int searchTheSameMethod(IOpenMethod candidate) {
         int i = 0;
         for (IOpenMethod existedMethod : candidates) {
@@ -216,6 +227,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Evaluate the candidate method key.
         //
+
         MethodKey candidateKey = new MethodKey(candidate);
 
         // Check that candidate has the same method signature and list of
@@ -227,7 +239,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             if (i < 0) {
                 candidates.add(candidate);
             } else {
-                IOpenMethod existedMethod = candidates.get(i); 
+                IOpenMethod existedMethod = candidates.get(i);
                 candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
                 candidates.set(i, candidate);
             }
