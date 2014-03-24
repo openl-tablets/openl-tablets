@@ -9,7 +9,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.method.HashableContentMethod;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -197,7 +196,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                         existedMethod);
                 }
             } else {
-                throw new IllegalStateException("Implementation supports only HashableContentMethod!");
+                throw new IllegalStateException("Implementation supports only TableUriMethod!");
             }
         }
         return existedMethod;
