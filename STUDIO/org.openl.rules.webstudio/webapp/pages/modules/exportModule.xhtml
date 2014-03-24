@@ -4,33 +4,35 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="exportModule" width="400" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="Export module" />
-    </f:facet>
+    <f:view transient="true">
+    <rich:popupPanel id="exportModule" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Export module" />
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('exportModule').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('exportModule').hide();" alt="Close" />
+        </f:facet>
 
-    <h:form id="exportModuleForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportModuleData">
-        <h:outputText value="Module Name" />
-        <h:outputLabel id="exportingModuleName" value="#{studio.currentModule.name}" />
-      </h:panelGrid>
+        <h:form id="exportModuleForm">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportModuleData">
+                <h:outputText value="Module Name" />
+                <h:outputLabel id="exportingModuleName" value="#{studio.currentModule.name}" />
+            </h:panelGrid>
 
-      <footer>
-        <h:commandButton value="Export" action="#{studio.exportModule}"
-            onclick="RichFaces.$('exportModule').hide();" immediate="true" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
-      </footer>
-    </h:form>
+            <footer>
+                <h:commandButton value="Export" action="#{studio.exportModule}"
+                    onclick="RichFaces.$('exportModule').hide();" immediate="true" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
+            </footer>
+        </h:form>
 
-  </rich:popupPanel>
+    </rich:popupPanel>
+    </f:view>
 
-  <script>
-    function openExportModuleDialog() {
-        RichFaces.$('exportModule').show();
-    }
-  </script>
+    <script>
+        function openExportModuleDialog() {
+            RichFaces.$('exportModule').show();
+        }
+    </script>
 </ui:composition>
