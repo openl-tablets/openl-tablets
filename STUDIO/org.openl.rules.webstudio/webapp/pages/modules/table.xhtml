@@ -577,6 +577,9 @@
 
         function runTestCases() {
             var query = $j("#runCasesSettings").find("select,input").serialize();
+            jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
+                query += '&' + this.name + '=false';
+            });
             goTo("#{runLink}&" + query);
         }
 
