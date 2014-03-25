@@ -12,6 +12,7 @@ public class DataOpenField extends AOpenField{
     private ITable table;
     private Object data;
     private ModuleOpenClass declaringClass;
+    private String tableUri;
 
     public DataOpenField(ITable table, TableSyntaxNode tableSyntaxNode, ModuleOpenClass declaringClass) {
 
@@ -21,8 +22,13 @@ public class DataOpenField extends AOpenField{
             .getIndexedAggregateType(table.getDataModel().getType(), 1));
         
         this.table = table;
+        this.tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
         data = table.getDataArray();
         this.declaringClass = declaringClass;
+    }
+    
+    public String getTableUri() {
+        return tableUri;
     }
     
     @Override
