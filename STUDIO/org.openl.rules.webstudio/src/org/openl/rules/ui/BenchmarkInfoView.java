@@ -18,6 +18,7 @@ public class BenchmarkInfoView {
     private final String testName;
     private final String testInfo;
     private final ParameterWithValueDeclaration params[];
+    private boolean selected;
 
     public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName, String testInfo) {
         this(benchmarkInfo, uri, testName, testInfo, new ParameterWithValueDeclaration[0]);
@@ -30,6 +31,14 @@ public class BenchmarkInfoView {
         this.testName = testName;
         this.testInfo = testInfo;
         this.params = params;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public BenchmarkInfo getBenchmarkInfo() {
