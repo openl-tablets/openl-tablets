@@ -41,10 +41,7 @@
       </h:panelGroup>
 
       <footer>
-        <h:commandButton value="Delete" rendered="#{node.type == 'project'}" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary">
-            <f:param name="projectName" value="#{node.name}" />
-        </h:commandButton>
-        <h:commandButton value="Delete" rendered="#{node.type != 'project'}" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary" />
+        <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
       </footer>
     </h:form>
