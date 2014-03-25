@@ -204,7 +204,7 @@
             jQuery('#testSettings').find('input[type=checkbox]:not(:checked)').each(function() {
                 query += '&' + this.name + '=false';
             });
-            goTo(testUrl + "?" + query);
+            goTo(testUrl + "?" + query, true);
         }
         //]]>
     </script>
