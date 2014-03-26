@@ -59,8 +59,8 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
             PropertiesFileNameProcessor processor = buildProcessor(globalErrorMessages, projectDescriptor);
             if (processor != null) {
                 for (Module module : projectDescriptor.getModules()) {
-                    Set<String> moduleWarnMessages = new HashSet<String>(globalErrorMessages);
-                    Set<String> moduleErrorMessages = new HashSet<String>(globalWarnMessages);
+                    Set<String> moduleErrorMessages = new HashSet<String>(globalErrorMessages);
+                    Set<String> moduleWarnMessages = new HashSet<String>(globalWarnMessages);
                     Map<String, Object> params = new HashMap<String, Object>();
                     try {
                         ITableProperties tableProperties = processor.process(module,
@@ -77,9 +77,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                             moduleWarnMessages.add("Module file name doesn't match to file name pattern!");
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleWarnMessages.add("Module file name doesn't match to file name pattern!");
+                                moduleWarnMessages.add("Module file name doesn't match to file name pattern! " + e.getMessage());
+                            } else {
+                                moduleWarnMessages.add(e.getMessage());
                             }
-                            moduleWarnMessages.add(e.getMessage());
                         }
                     } catch (InvalidFileNamePatternException e) {
                         if (log.isWarnEnabled()) {
@@ -92,9 +93,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                             moduleErrorMessages.add("File name pattern is invalid!");
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleErrorMessages.add("File name pattern is invalid!");
+                                moduleErrorMessages.add("File name pattern is invalid! " + e.getMessage());
+                            } else {
+                                moduleErrorMessages.add(e.getMessage());
                             }
-                            moduleErrorMessages.add(e.getMessage());
                         }
                     }
                     params.put(OpenLSourceManager.PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY, moduleErrorMessages);
