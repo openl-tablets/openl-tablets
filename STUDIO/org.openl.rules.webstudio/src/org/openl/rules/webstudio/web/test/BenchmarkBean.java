@@ -124,6 +124,9 @@ public class BenchmarkBean {
     }
 
     public boolean getAllBencmarkSelected() {
+        if (benchmarkResults.isEmpty()) {
+            return false;
+        }
         for (BenchmarkInfoView bi : benchmarkResults) {
             if (!bi.isSelected()) {
                 return false;
