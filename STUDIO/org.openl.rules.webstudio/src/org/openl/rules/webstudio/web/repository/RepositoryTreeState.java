@@ -48,6 +48,8 @@ import org.richfaces.model.SequenceRowKey;
 @ManagedBean
 @SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
+    private static final String ROOT_TYPE = "root";
+
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
@@ -99,7 +101,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             log.debug("Starting buildTree()");
         }
 
-        root = new TreeRepository("", "", filter, "root");
+        root = new TreeRepository("", "", filter, ROOT_TYPE);
 
         String projectsTreeId = "1st - Projects";
         String rpName = "Projects";
@@ -173,7 +175,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         TreeNode node = getSelectedNode();
 
         List<String> ids = new ArrayList<String>();
-        while (node != null && node != root) {
+        while (node != null && !node.getType().equals(ROOT_TYPE)) {
             ids.add(0, node.getId());
             node = node.getParent();
         }
