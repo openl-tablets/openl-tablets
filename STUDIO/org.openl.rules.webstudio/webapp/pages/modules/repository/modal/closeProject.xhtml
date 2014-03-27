@@ -21,7 +21,7 @@
                   <h:outputText value="Project '#{node.name}' is modified, if you close it, all changes will be lost." />
               </div>
               <div>
-                  <h:outputText value="Are you sure you want to close the project '#{node.name}'?" />
+                  <h:outputText value="Are you sure you want to close the project '#{node.name}' without saving?" />
               </div>
           </h:panelGroup>
         <h:panelGroup rendered="#{not repositoryTreeState.selectedProjectModified}">
