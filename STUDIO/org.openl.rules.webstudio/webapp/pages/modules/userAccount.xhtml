@@ -7,21 +7,6 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
-    <style>
-        .fields {
-            margin-top: 13px;
-            max-height: 450px;
-            overflow: auto;
-        }    
-        .fields section {
-            margin-bottom: 27px;
-        }
-        .fields section div .titleColumn {
-            width: 117px;
-            padding: 5px 0;
-        }
-    </style>
-
     <f:view transient="#{module=='rules' ? true : false}">
     <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
         <f:facet name="header">User Profile</f:facet>
