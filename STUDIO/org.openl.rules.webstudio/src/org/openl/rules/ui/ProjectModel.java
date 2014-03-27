@@ -7,9 +7,11 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +81,7 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
+import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -110,6 +113,7 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
+    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<XlsModuleSyntaxNode>();
 
     private Module moduleInfo;
 
@@ -383,7 +387,8 @@ public class ProjectModel {
     }
 
     public TableSyntaxNode findNode(XlsUrlParser p1) {
-        TableSyntaxNode[] nodes = getTableSyntaxNodes();
+//        TableSyntaxNode[] nodes = getTableSyntaxNodes();
+        TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
             if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUri())) {
@@ -811,15 +816,19 @@ public class ProjectModel {
             XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
             return xmi.getXlsModuleNode();
         } else {
-            try {
-                Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null));
+            return loadXlsModuleSyntaxNode(dependencyManager, moduleInfo.getName());
+        }
+    }
 
-                XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                        .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-                return xmi == null ? null : xmi.getXlsModuleNode();
-            } catch (OpenLCompilationException e) {
-                throw new OpenLRuntimeException(e);
-            }
+    private XlsModuleSyntaxNode loadXlsModuleSyntaxNode(IDependencyManager dependencyManager, String moduleName) {
+        try {
+            Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null));
+
+            XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
+                    .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+            return xmi == null ? null : xmi.getXlsModuleNode();
+        } catch (OpenLCompilationException e) {
+            throw new OpenLRuntimeException(e);
         }
     }
 
@@ -910,7 +919,8 @@ public class ProjectModel {
 
         ProjectTreeNode root = makeProjectTreeRoot();
 
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+//        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+        TableSyntaxNode[] tableSyntaxNodes = getAllTableSyntaxNodes();
 
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
@@ -970,11 +980,22 @@ public class ProjectModel {
     public TableSyntaxNode[] getTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
-            TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
-            return tableSyntaxNodes;
+            return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
         return new TableSyntaxNode[0];
+    }
+
+    public TableSyntaxNode[] getAllTableSyntaxNodes() {
+        List<TableSyntaxNode> nodes = new ArrayList<TableSyntaxNode>();
+
+        if (isProjectCompiledSuccessfully()) {
+            for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
+                nodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
+            }
+        }
+
+        return nodes.toArray(new TableSyntaxNode[nodes.size()]);
     }
 
     public int getNumberOfTables() {
@@ -1180,6 +1201,7 @@ public class ProjectModel {
 
         compiledOpenClass = null;
         xlsModuleSyntaxNode = null;
+        allXlsModuleSyntaxNodes.clear();
         projectRoot = null;
     }
 
@@ -1244,6 +1266,7 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
         xlsModuleSyntaxNode = null;
+        allXlsModuleSyntaxNodes.clear();
 
         InstantiationStrategyFactory.ModuleInstantiator instantiator = instantiationStrategyFactory.getInstantiationStrategy(
                 this.moduleInfo,
@@ -1264,7 +1287,15 @@ public class ProjectModel {
             factory.disallowUnload();
 
             compiledOpenClass = instantiationStrategy.compile();
-            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(instantiator.getDependencyManager());
+            WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
+            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
+            allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+
+            for (String moduleName : dependencyManager.getModuleNames()) {
+                if (!moduleName.equals(moduleInfo.getName())) {
+                    allXlsModuleSyntaxNodes.add(loadXlsModuleSyntaxNode(dependencyManager, moduleName));
+                }
+            }
 
             factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
