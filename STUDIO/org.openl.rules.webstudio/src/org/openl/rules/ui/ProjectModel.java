@@ -919,8 +919,7 @@ public class ProjectModel {
 
         ProjectTreeNode root = makeProjectTreeRoot();
 
-//        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
-        TableSyntaxNode[] tableSyntaxNodes = getAllTableSyntaxNodes();
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
 
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
