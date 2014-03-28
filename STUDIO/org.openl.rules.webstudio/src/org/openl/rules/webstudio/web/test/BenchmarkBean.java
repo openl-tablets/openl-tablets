@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -24,12 +25,8 @@ public class BenchmarkBean {
     private BenchmarkOrder[] benchmarkOrders;
 
     private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
-        if (testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
-            .getNumberOfTests()) {
-            return true;
-        } else {
-            return false;
-        }
+        return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
+                .getNumberOfTests();
     }
 
     public void addLastBenchmark() {
@@ -108,9 +105,7 @@ public class BenchmarkBean {
         }
         BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
         benchmarkResults.clear();
-        for (BenchmarkInfoView bi : benchmarks) {
-            benchmarkResults.add(bi);
-        }
+        Collections.addAll(benchmarkResults, benchmarks);
         return benchmarkResults;
     }
 
@@ -124,6 +119,9 @@ public class BenchmarkBean {
     }
 
     public boolean getAllBencmarkSelected() {
+        if (benchmarkResults.isEmpty()) {
+            return false;
+        }
         for (BenchmarkInfoView bi : benchmarkResults) {
             if (!bi.isSelected()) {
                 return false;
@@ -140,9 +138,9 @@ public class BenchmarkBean {
 
     public List<BenchmarkInfo> getComparedBenchmarks() {
         List<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
-        for (int i = 0; i < comparedBenchmarks.length; i++) {
-            if (comparedBenchmarks[i] != null) {
-                benchmarks.add(comparedBenchmarks[i]);
+        for (BenchmarkInfo comparedBenchmark : comparedBenchmarks) {
+            if (comparedBenchmark != null) {
+                benchmarks.add(comparedBenchmark);
             }
         }
         return benchmarks;

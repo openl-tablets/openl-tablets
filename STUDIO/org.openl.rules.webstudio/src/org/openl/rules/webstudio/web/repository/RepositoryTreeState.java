@@ -4,6 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.openl.util.filter.AllFilter;
 import org.openl.util.filter.IFilter;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
+import org.richfaces.model.SequenceRowKey;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -46,6 +48,8 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 @ManagedBean
 @SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
+    private static final String ROOT_TYPE = "root";
+
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
@@ -97,19 +101,21 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             log.debug("Starting buildTree()");
         }
 
-        root = new TreeRepository("", "", filter, "root");
+        root = new TreeRepository("", "", filter, ROOT_TYPE);
 
+        String projectsTreeId = "1st - Projects";
         String rpName = "Projects";
-        rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
+        rulesRepository = new TreeRepository(projectsTreeId, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
+        String deploymentsTreeId = "2nd - Deploy Configurations";
         String dpName = "Deploy Configurations";
-        deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+        deploymentRepository = new TreeRepository(deploymentsTreeId, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
-        root.addChild("1st - Projects", rulesRepository);
-        root.addChild("2nd - Deploy Configurations", deploymentRepository);
+        root.add(rulesRepository);
+        root.add(deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
@@ -120,17 +126,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             }
         }
 
-        List<ADeploymentProject> deploymentsProjects = null;
-
         try {
-            deploymentsProjects = userWorkspace.getDDProjects();
+            for (ADeploymentProject project : userWorkspace.getDDProjects()) {
+                addDeploymentProjectToTree(project);
+            }
         } catch (ProjectException e) {
             log.error("Cannot get deployment projects", e);
         }
 
-        for (ADeploymentProject project : deploymentsProjects) {
-            addDeploymentProjectToTree(project);
-        }
         if (log.isDebugEnabled()) {
             log.debug("Finishing buildTree()");
         }
@@ -166,6 +169,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public TreeNode getSelectedNode() {
         buildTree();
         return this.repositorySelectNodeStateHolder.getSelectedNode();
+    }
+
+    public Collection<SequenceRowKey> getSelection() {
+        TreeNode node = getSelectedNode();
+
+        List<String> ids = new ArrayList<String>();
+        while (node != null && !node.getType().equals(ROOT_TYPE)) {
+            ids.add(0, node.getId());
+            node = node.getParent();
+        }
+
+        return new ArrayList<SequenceRowKey>(Arrays.asList(new SequenceRowKey(ids.toArray())));
     }
 
     public TreeProject getProjectNodeByPhysicalName(String logicalName) {
