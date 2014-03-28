@@ -646,7 +646,7 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterSelectedNodeInProjectDescriptor() {
+    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException {
         TreeNode selectedNode = getSelectedNode();
         String nodeType = selectedNode.getType();
         if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
@@ -654,34 +654,33 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) {
-        Collection<String> modulePaths = new HashSet<String>();
+    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException {
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        AProjectArtefact projectDescriptorArtifact = null;
         try {
-            findModulePaths(aProjectArtefact, modulePaths);
-            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-            AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-            if (projectDescriptorArtifact instanceof AProjectResource) {
-                AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                InputStream content = resource.getContent();
-                ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
-                for (String modulePath : modulePaths) {
-                    Iterator<Module> itr = projectDescriptor.getModules().iterator();
-                    while (itr.hasNext()) {
-                        Module module = itr.next();
-                        if (modulePath.equals(module.getRulesRootPath().getPath())) {
-                            itr.remove();
-                        }
+            projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        } catch (ProjectException ex) {
+            // Project doesn't contain rules.xml file
+            return;
+        }
+        Collection<String> modulePaths = new HashSet<String>();
+        findModulePaths(aProjectArtefact, modulePaths);
+        if (projectDescriptorArtifact instanceof AProjectResource) {
+            AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
+            InputStream content = resource.getContent();
+            ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            for (String modulePath : modulePaths) {
+                Iterator<Module> itr = projectDescriptor.getModules().iterator();
+                while (itr.hasNext()) {
+                    Module module = itr.next();
+                    if (modulePath.equals(module.getRulesRootPath().getPath())) {
+                        itr.remove();
                     }
                 }
-                String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-                StringInputStream newContent = new StringInputStream(xmlString);
-                resource.setContent(newContent);
             }
-        } catch (ProjectException ex) {
-            if (log.isErrorEnabled()) {
-                log.error(ex.getMessage(), ex);
-            }
-            FacesUtils.addErrorMessage("Error deleting.", ex.getMessage());
+            String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+            StringInputStream newContent = new StringInputStream(xmlString);
+            resource.setContent(newContent);
         }
     }
 
