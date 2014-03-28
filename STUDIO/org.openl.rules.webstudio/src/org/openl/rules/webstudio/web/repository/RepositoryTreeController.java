@@ -814,7 +814,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            projectDescriptorResolver.deleteRevisions(project);
+            projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
                 project.erase();
             }
