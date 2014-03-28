@@ -70,6 +70,7 @@ public class RepositoryUtils {
 
     public static String getTreeNodeId(String name) {
         if (StringUtils.isNotBlank(name)) {
+            // FIXME name.hashCode() can produce collisions. Not good for id.
             return String.valueOf(name.hashCode());
         }
         return null;
