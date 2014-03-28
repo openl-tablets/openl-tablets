@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -11,7 +10,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
@@ -58,9 +56,9 @@ public class TreeProductionDProject extends TreeProductFolder {
     @Override
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {
-            TreeProductProject prj = new TreeProductProject(""+childArtefact.getName().hashCode(), childArtefact.getName(), filter);
+            TreeProductProject prj = new TreeProductProject(id, childArtefact.getName(), filter);
             prj.setData(childArtefact);
 
             add(prj);

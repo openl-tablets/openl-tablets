@@ -306,7 +306,7 @@ public class DeploymentController {
                     if (!project.isOpenedForEditing()) {
                         project.openVersion(item.getVersion());
                     }
-                    repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(projectName));
+                    repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (ProjectException e) {
                     log.error("Failed to open project '" + projectName + "'!", e);
                 }
