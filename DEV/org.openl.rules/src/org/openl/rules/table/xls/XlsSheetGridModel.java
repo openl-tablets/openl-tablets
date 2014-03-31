@@ -354,7 +354,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         Sheet sheet = getSheet();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellStyle newPoiStyle;
-        CellStyle styleToClone = null;
+        CellStyle styleToClone;
 
         if (style instanceof XlsCellStyle) {
             newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
@@ -365,7 +365,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             
             setCellStyle(newPoiStyle, style);
         }*/ else {
-            newPoiStyle = sheet.getWorkbook().createCellStyle();
+            newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
         }
@@ -379,7 +379,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellBorderStyle(int col, int row, ICellStyle style) {
         Sheet sheet = getSheet();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
+        CellStyle newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
 
         newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
         
@@ -563,7 +563,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     // TODO: move to factory.
     public AXlsCellWriter getCellWriter(Object value) {
-        AXlsCellWriter result = null;
+        AXlsCellWriter result;
         if (value instanceof Number) {
             result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
         } else if (value instanceof Date) {
