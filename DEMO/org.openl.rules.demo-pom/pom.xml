@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.base-pom</artifactId>
-		<version>5.12.0-SNAPSHOT</version>
+		<version>5.12.0-RC1</version>
 		<relativePath>../../BasePom/org.openl.rules.base-pom</relativePath><!-- 
 			TODO make correct projects hierarchy, base pom should be root folder. -->
 	</parent>
