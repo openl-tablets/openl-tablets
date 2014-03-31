@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 
@@ -18,7 +19,7 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         getCellToWrite().setCellValue(dateValue);
 
         CellStyle previousStyle = getCellToWrite().getCellStyle();
-        getCellToWrite().setCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook().createCellStyle());
+        getCellToWrite().setCellStyle(PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
         getCellToWrite().getCellStyle().setDataFormat((short) BuiltinFormats
                 .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));

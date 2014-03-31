@@ -1,15 +1,12 @@
 package org.openl.rules.ui.tablewizard.util;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.richfaces.json.JSONObject;
@@ -27,10 +24,10 @@ public class CellStyleCreator {
                     .getWorkbookSource().getWorkbook();
             
             if (workbook instanceof HSSFWorkbook) {
-                HSSFCellStyle cellStyle = ((HSSFWorkbook) workbook).createCellStyle();
+                CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
                 cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getBackgroundColor(style, workbook)));
-                cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getTopBorderColor(style, workbook));
                 cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getRightBorderColor(style, workbook));
@@ -46,10 +43,10 @@ public class CellStyleCreator {
  
                 return new XlsCellStyle(cellStyle, workbook);
             } else if (workbook instanceof XSSFWorkbook) {
-                XSSFCellStyle cellStyle = ((XSSFWorkbook) workbook).createCellStyle();
+                XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
                 cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getXSSFBackgroundColor(style, (XSSFWorkbook)workbook)));
-                cellStyle.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
+                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getXSSFTopBorderColor(style, (XSSFWorkbook)workbook));
                 cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getXSSFRightBorderColor(style, (XSSFWorkbook)workbook));
@@ -66,11 +63,11 @@ public class CellStyleCreator {
                 return new XlsCellStyle(cellStyle, workbook);
             }
 
-            return new XlsCellStyle(workbook.createCellStyle(), workbook);
+            return new XlsCellStyle(PoiExcelHelper.createCellStyle(workbook), workbook);
         } else {
             Workbook workbook = gridModel.getSheetSource()
                     .getWorkbookSource().getWorkbook();
-            CellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             return new XlsCellStyle(cellStyle, workbook);
         }
