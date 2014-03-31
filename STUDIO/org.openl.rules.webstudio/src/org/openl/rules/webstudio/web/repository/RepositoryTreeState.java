@@ -183,10 +183,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return new ArrayList<SequenceRowKey>(Arrays.asList(new SequenceRowKey(ids.toArray())));
     }
 
-    public TreeProject getProjectNodeByPhysicalName(String logicalName) {
+    public TreeProject getProjectNodeByPhysicalName(String physicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
-            if (project.getName().equals(logicalName)) {
+            if (project.getName().equals(physicalName)) {
                 return project;
             }
         }
@@ -254,7 +254,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         String name = project.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (!project.isDeleted() || !hideDeleted) {
             TreeDProject prj = new TreeDProject(id, name);
             prj.setData(project);
@@ -264,7 +264,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addRulesProjectToTree(AProject project) {
         String name = project.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
@@ -274,7 +274,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
@@ -361,7 +361,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();
-        TreeNode rulesProject = getRulesRepository().getChild(projectName);
+        TreeNode rulesProject = getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName));
         synchronized (userWorkspace) {
             if (rulesProject == null) {
                 if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
@@ -391,16 +391,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void onDeploymentProjectModified(DTRepositoryEvent event) {
-        TreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
-        if(deploymentProject == null){
-            if(userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
+        TreeNode deploymentProject = getDeploymentRepository().getChild(RepositoryUtils.getTreeNodeId(event.getProjectName()));
+        if (deploymentProject == null) {
+            if (userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
                 try {
                     addDeploymentProjectToTree(userWorkspace.getDDProject(event.getProjectName()));
                 } catch (ProjectException e) {
                     log.error("Failed to add new project to the repository tree.", e);
                 }
             }
-        }else{
+        } else {
             if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
                 deleteNode(deploymentProject);
             } else {
@@ -544,7 +544,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
-        String projectId = String.valueOf(projectName.hashCode());
+        String projectId = RepositoryUtils.getTreeNodeId(projectName);
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
     }
