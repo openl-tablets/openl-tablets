@@ -37,6 +37,15 @@
                             <directory>war-specific-conf</directory>
                         </resource>
                     </webResources>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.openl.rules</groupId>
+                            <artifactId>org.openl.rules.webstudio</artifactId>
+                            <excludes>
+                                <!-- Empty to have /META-INF/context.xml copied -->
+                            </excludes>
+                        </overlay>
+                    </overlays>
                 </configuration>
             </plugin>
         </plugins>
