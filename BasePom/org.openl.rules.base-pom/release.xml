@@ -12,39 +12,40 @@
 	<!-- BEGIN M2 PRESET -->
  	<property name="maven.commoncmd" value="" />
 
-    <condition property="maven.line" value="--offline ${maven.commoncmd}">
-        <istrue value="${offline}" />
-    </condition>
-    <property name="maven.line" value="${maven.commoncmd}" />
+	<condition property="maven.line" value="--offline ${maven.commoncmd}">
+		<istrue value="${offline}" />
+	</condition>
+    	<property name="maven.line" value="${maven.commoncmd}" />
 
-    <condition property="maven.executable" value="mvn.bat">
-        <os family="windows" />
-    </condition>
-    <property name="maven.executable" value="mvn" />
+    	<condition property="maven.executable" value="mvn.bat">
+        	<os family="windows" />
+	</condition>
+	<property name="maven.executable" value="mvn" />
 
-    <condition property="maven.executable.real" value="${m2.home}/bin/${maven.executable}">
-        <isset property="m2.home" />
-    </condition>
-    <property name="maven.executable.real" value="${maven.executable}"/>
+	<condition property="maven.executable.real" value="${m2.home}/bin/${maven.executable}">
+		<isset property="m2.home" />
+	</condition>
+	<property name="maven.executable.real" value="${maven.executable}"/>
 
-    <presetdef name="maven">
-        <exec failonerror="true" executable="${maven.executable.real}">
-            <arg line="${maven.line}" />
-        </exec>
-    </presetdef>
-    <!-- END M2 PRESET -->
+	<presetdef name="maven">
+		<exec failonerror="true" executable="${maven.executable.real}">
+			<arg line="${maven.line}" />
+		</exec>
+	</presetdef>
+	<!-- END M2 PRESET -->
 	
 	<target name="commitModule">
-			<echo>${moduleFolder}</echo>
-			<echo>${scmLogin}</echo>
-			<echo>${scmPassword}</echo>
-			<exec executable="hg">
-				<arg line="commit ${moduleFolder}"/>
-				<arg line="-m &quot;EPBDS Temporary changed versions for release.&quot;"/>
-			</exec>
-		</target>
+		<echo>${moduleFolder}</echo>
+		<echo>${scmLogin}</echo>
+		<echo>${scmPassword}</echo>
+		<exec executable="hg">
+			<arg line="commit ${moduleFolder}"/>
+			<arg line="-m &quot;EPBDS Temporary changed versions for release.&quot;"/>
+		</exec>
+	</target>
 
 	<target name="changeVersionsBeforeCommit">
+
         <antcall target="change">
 			<param name="projects_root" value="${moduleFolder}"/>
 			<param name="previous_version" value="${current_version}"/>
@@ -72,6 +73,7 @@
 	</target>
 	
 	<target name="changeVersionsAfterCommit">
+
         <antcall target="change">
 			<param name="projects_root" value="${moduleFolder}"/>
 			<param name="previous_version" value="${release_version}"/>
@@ -86,14 +88,14 @@
 			</antcall>
 	</target>
 	
-    <target name="help">
+	<target name="help">
         <echo>
         	Run this script with predefined properties in release.properties file with target "fullRelease":
         		current_version - current version
 				release_version - version which will be used for release
 	        	next_version - version to use for development
         </echo>
-    </target>
+	</target>
 </project>
 
 <!-- http://weblogs.java.net/blog/fabriziogiudici/archive/2009/10/29/fixing-two-problems-maven-mercurial-hudson-->

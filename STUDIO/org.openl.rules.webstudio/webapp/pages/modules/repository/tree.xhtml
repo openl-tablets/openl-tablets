@@ -40,7 +40,7 @@
             <h:panelGroup layout="block" style="padding-bottom: 7px;">
             <rich:tree id="projectTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{repositoryTreeState.processSelection}"
               render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
-              value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}">
+              value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}" selection="#{repositoryTreeState.selection}">
 
               <rich:treeNode type="repository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
                 ontoggle="filterProjects($j('#nameFilter').val())">

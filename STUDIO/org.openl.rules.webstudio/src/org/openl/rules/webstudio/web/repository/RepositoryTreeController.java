@@ -646,37 +646,54 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterInProjectDescriptor() {
+    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException {
         TreeNode selectedNode = getSelectedNode();
         String nodeType = selectedNode.getType();
         if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
-            Collection<String> modulePaths = new HashSet<String>();
-            findModulePaths(selectedNode.getData(), modulePaths);
-            try {
-                UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-                AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                if (projectDescriptorArtifact instanceof AProjectResource) {
-                    AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                    InputStream content = resource.getContent();
-                    ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
-                    for (String modulePath : modulePaths) {
-                        Iterator<Module> itr = projectDescriptor.getModules().iterator();
-                        while (itr.hasNext()) {
-                            Module module = itr.next();
-                            if (modulePath.equals(module.getRulesRootPath().getPath())) {
-                                itr.remove();
-                            }
-                        }
+            unregisterArtifactInProjectDescriptor(selectedNode.getData());
+        }
+    }
+
+    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException {
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        AProjectArtefact projectDescriptorArtifact = null;
+        try {
+            projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        } catch (ProjectException ex) {
+            // Project doesn't contain rules.xml file
+            return;
+        }
+        Collection<String> modulePaths = new HashSet<String>();
+        findModulePaths(aProjectArtefact, modulePaths);
+        if (projectDescriptorArtifact instanceof AProjectResource) {
+            AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
+            InputStream content = resource.getContent();
+            ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            for (String modulePath : modulePaths) {
+                Iterator<Module> itr = projectDescriptor.getModules().iterator();
+                while (itr.hasNext()) {
+                    Module module = itr.next();
+                    if (modulePath.equals(module.getRulesRootPath().getPath())) {
+                        itr.remove();
                     }
-                    String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-                    StringInputStream newContent = new StringInputStream(xmlString);
-                    resource.setContent(newContent);
-                }
-            } catch (ProjectException ex) {
-                if (log.isErrorEnabled()) {
-                    log.error(ex.getMessage(), ex);
                 }
             }
+            String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+            StringInputStream newContent = new StringInputStream(xmlString);
+            resource.setContent(newContent);
+        }
+    }
+
+    private void unregisterElementInProjectDescriptor() {
+        AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
+        String childName = FacesUtils.getRequestParameter("element");
+        try {
+            unregisterArtifactInProjectDescriptor(projectArtefact.getArtefact(childName));
+        } catch (ProjectException ex) {
+            if (log.isErrorEnabled()) {
+                log.error(ex.getMessage(), ex);
+            }
+            FacesUtils.addErrorMessage("Error deleting.", ex.getMessage());
         }
     }
 
@@ -685,6 +702,7 @@ public class RepositoryTreeController {
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
+            unregisterElementInProjectDescriptor();
             projectArtefact.deleteArtefact(childName);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -701,11 +719,12 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
-            if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel().getProject())) {
+            if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel()
+                .getProject())) {
                 studio.getModel().clearModuleInfo();
                 studio.setCurrentModule(null);
             }
-            unregisterInProjectDescriptor();
+            unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
                 String nodeType = selectedNode.getType();
@@ -795,7 +814,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            projectDescriptorResolver.deleteRevisions(project);
+            projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
                 project.erase();
             }

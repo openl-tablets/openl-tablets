@@ -20,7 +20,6 @@ import org.openl.util.filter.IFilter;
  */
 public class TreeFolder extends AbstractTreeNode {
 
-    private static final long serialVersionUID = -8236498990436429491L;
     /**
      * Collection of children. In LeafOnly mode it is left uninitialized.
      */
@@ -84,7 +83,7 @@ public class TreeFolder extends AbstractTreeNode {
     
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);

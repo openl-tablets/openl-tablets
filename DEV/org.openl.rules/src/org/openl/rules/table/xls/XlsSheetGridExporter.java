@@ -111,7 +111,7 @@ public class XlsSheetGridExporter implements IExporter {
 
     CellStyle getHeaderStyle() {
         if (headerStyle == null) {
-			CellStyle cellStyle = workbook.createCellStyle();
+			CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
             cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
@@ -133,7 +133,7 @@ public class XlsSheetGridExporter implements IExporter {
 
     private CellStyle getStyle() {
         if (style == null) {
-            CellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);

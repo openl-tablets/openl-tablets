@@ -417,6 +417,10 @@ fieldset {
 }
 
 /* TODO Merge with .block */
+.fields {
+    margin-top: 13px;
+}
+
 .fields section {
     margin-bottom: 31px;
 }
@@ -431,6 +435,11 @@ fieldset {
 .fields section > div {
     margin-left: 11px;
     color: rgb(71,71,71);
+}
+
+.fields section div .titleColumn {
+    width: 150px;
+    padding: 5px 0;
 }
 
 .block-column {
