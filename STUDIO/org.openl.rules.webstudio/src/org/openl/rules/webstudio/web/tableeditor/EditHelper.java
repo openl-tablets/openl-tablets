@@ -46,8 +46,9 @@ public final class EditHelper {
                         result = true;
                     }
                 } catch (Exception e) {
-                    log.error(String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(),
-                            systemValue), e);
+                    String message = String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(), systemValue);
+                    log.error(message, e);
+                    throw new IllegalStateException(message, e);
                 }
             }
         }

@@ -20,7 +20,7 @@ public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
 
-    private final ProjectDescriptorArtefactResolver dependencyResolver;
+    private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private String logicalName;
 
     protected static String generateComments(UserWorkspaceProject userProject) {
@@ -73,9 +73,9 @@ public class TreeProject extends TreeFolder {
         return status.getDisplayValue();
     }
 
-    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, ProjectDescriptorArtefactResolver dependencyResolver) {
+    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         super(id, name, filter);
-        this.dependencyResolver = dependencyResolver;
+        this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
     public String getComments() {
@@ -182,7 +182,7 @@ public class TreeProject extends TreeFolder {
 
     public String getLogicalName() {
         if (logicalName == null) {
-            logicalName = dependencyResolver.getLogicalName(getProject());
+            logicalName = projectDescriptorResolver.getLogicalName(getProject());
         }
         return logicalName;
     }
@@ -190,6 +190,7 @@ public class TreeProject extends TreeFolder {
     @Override
     public void refresh() {
         super.refresh();
+        projectDescriptorResolver.deleteRevisionsFromCache(getProject());
         logicalName = null;
     }
 }

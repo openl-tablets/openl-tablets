@@ -10,7 +10,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -144,7 +143,7 @@ public class InstantiationStrategyFactory {
     }
 
     private ModuleInstantiator createModuleInstantiator(Module module, boolean singleModuleMode) {
-        IDependencyManager dependencyManager = getDependencyManager(module, singleModuleMode);
+        WebStudioWorkspaceRelatedDependencyManager dependencyManager = getDependencyManager(module, singleModuleMode);
 
         Map<String, Object> externalParameters;
         RulesInstantiationStrategy strategy;
@@ -204,7 +203,7 @@ public class InstantiationStrategyFactory {
         }
     }
 
-    private IDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
+    private WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
         WebStudioWorkspaceRelatedDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(module, singleModuleMode);
         dependencyManager.addListener(new DependenciesCollectingHandler(module));
         return dependencyManager;
@@ -318,9 +317,9 @@ public class InstantiationStrategyFactory {
 
     public static class ModuleInstantiator {
         private final RulesInstantiationStrategy instantiationStrategy;
-        private final IDependencyManager dependencyManager;
+        private final WebStudioWorkspaceRelatedDependencyManager dependencyManager;
 
-        private ModuleInstantiator(RulesInstantiationStrategy instantiationStrategy, IDependencyManager dependencyManager) {
+        private ModuleInstantiator(RulesInstantiationStrategy instantiationStrategy, WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
             this.instantiationStrategy = instantiationStrategy;
             this.dependencyManager = dependencyManager;
         }
@@ -329,7 +328,7 @@ public class InstantiationStrategyFactory {
             return instantiationStrategy;
         }
 
-        public IDependencyManager getDependencyManager() {
+        public WebStudioWorkspaceRelatedDependencyManager getDependencyManager() {
             return dependencyManager;
         }
     }

@@ -4,6 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.openl.util.filter.AllFilter;
 import org.openl.util.filter.IFilter;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
+import org.richfaces.model.SequenceRowKey;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -46,6 +48,8 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 @ManagedBean
 @SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
+    private static final String ROOT_TYPE = "root";
+
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
@@ -97,19 +101,21 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             log.debug("Starting buildTree()");
         }
 
-        root = new TreeRepository("", "", filter, "root");
+        root = new TreeRepository("", "", filter, ROOT_TYPE);
 
+        String projectsTreeId = "1st - Projects";
         String rpName = "Projects";
-        rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
+        rulesRepository = new TreeRepository(projectsTreeId, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
+        String deploymentsTreeId = "2nd - Deploy Configurations";
         String dpName = "Deploy Configurations";
-        deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+        deploymentRepository = new TreeRepository(deploymentsTreeId, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
-        root.addChild("1st - Projects", rulesRepository);
-        root.addChild("2nd - Deploy Configurations", deploymentRepository);
+        root.add(rulesRepository);
+        root.add(deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
@@ -120,17 +126,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             }
         }
 
-        List<ADeploymentProject> deploymentsProjects = null;
-
         try {
-            deploymentsProjects = userWorkspace.getDDProjects();
+            for (ADeploymentProject project : userWorkspace.getDDProjects()) {
+                addDeploymentProjectToTree(project);
+            }
         } catch (ProjectException e) {
             log.error("Cannot get deployment projects", e);
         }
 
-        for (ADeploymentProject project : deploymentsProjects) {
-            addDeploymentProjectToTree(project);
-        }
         if (log.isDebugEnabled()) {
             log.debug("Finishing buildTree()");
         }
@@ -168,10 +171,22 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return this.repositorySelectNodeStateHolder.getSelectedNode();
     }
 
-    public TreeProject getProjectNodeByPhysicalName(String logicalName) {
+    public Collection<SequenceRowKey> getSelection() {
+        TreeNode node = getSelectedNode();
+
+        List<String> ids = new ArrayList<String>();
+        while (node != null && !node.getType().equals(ROOT_TYPE)) {
+            ids.add(0, node.getId());
+            node = node.getParent();
+        }
+
+        return new ArrayList<SequenceRowKey>(Arrays.asList(new SequenceRowKey(ids.toArray())));
+    }
+
+    public TreeProject getProjectNodeByPhysicalName(String physicalName) {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
-            if (project.getName().equals(logicalName)) {
+            if (project.getName().equals(physicalName)) {
                 return project;
             }
         }
@@ -239,7 +254,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         String name = project.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (!project.isDeleted() || !hideDeleted) {
             TreeDProject prj = new TreeDProject(id, name);
             prj.setData(project);
@@ -249,7 +264,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addRulesProjectToTree(AProject project) {
         String name = project.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
@@ -259,7 +274,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void addNodeToTree(TreeNode parent, AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
-        String id = String.valueOf(name.hashCode());
+        String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
             treeFolder.setData(childArtefact);
@@ -346,7 +361,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();
-        TreeNode rulesProject = getRulesRepository().getChild(projectName);
+        TreeNode rulesProject = getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName));
         synchronized (userWorkspace) {
             if (rulesProject == null) {
                 if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
@@ -376,16 +391,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void onDeploymentProjectModified(DTRepositoryEvent event) {
-        TreeNode deploymentProject = getDeploymentRepository().getChild(event.getProjectName());
-        if(deploymentProject == null){
-            if(userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())){
+        TreeNode deploymentProject = getDeploymentRepository().getChild(RepositoryUtils.getTreeNodeId(event.getProjectName()));
+        if (deploymentProject == null) {
+            if (userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
                 try {
                     addDeploymentProjectToTree(userWorkspace.getDDProject(event.getProjectName()));
                 } catch (ProjectException e) {
                     log.error("Failed to add new project to the repository tree.", e);
                 }
             }
-        }else{
+        } else {
             if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
                 deleteNode(deploymentProject);
             } else {
@@ -529,7 +544,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
-        String projectId = String.valueOf(projectName.hashCode());
+        String projectId = RepositoryUtils.getTreeNodeId(projectName);
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
         return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
     }

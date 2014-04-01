@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -20,6 +21,9 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 
 public class PoiExcelHelper {
 
+    /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
+    private static final short MAX_STYLES = 4030;
+
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
         cellTo.setCellType(Cell.CELL_TYPE_BLANK);
         switch (cellFrom.getCellType()) {
@@ -32,7 +36,7 @@ public class PoiExcelHelper {
                 cellTo.setCellFormula(cellFrom.getCellFormula());
                 try {
                     evaluateFormula(cellTo);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 break;
             case Cell.CELL_TYPE_NUMERIC:
@@ -52,7 +56,7 @@ public class PoiExcelHelper {
             cellTo.setCellStyle(styleFrom);
         } catch (IllegalArgumentException e) { // copy cell style to cell of
                                                // another workbook
-            CellStyle styleTo = sheetTo.getWorkbook().createCellStyle();
+            CellStyle styleTo = createCellStyle(sheetTo.getWorkbook());
             styleTo.cloneStyleFrom(styleFrom);
             cellTo.setCellStyle(styleTo);
         }
@@ -110,7 +114,6 @@ public class PoiExcelHelper {
      * filled cells on the sheet in given row.
      * 
      * @param rownum index of the row on the sheet
-     * @return
      */
     public static int getMaxColumnIndex(int rownum, Sheet sheet) {
         Row row = sheet.getRow(rownum);
@@ -183,11 +186,26 @@ public class PoiExcelHelper {
         formulaEvaluator.evaluateFormulaCell(cell);
     }
 
+    public static <T extends CellStyle> T createCellStyle(Workbook workbook) {
+        if (workbook instanceof HSSFWorkbook) {
+            if (workbook.getNumCellStyles() == MAX_STYLES) {
+                HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
+            }
+            @SuppressWarnings("unchecked")
+            T style = (T) workbook.createCellStyle();
+            return style;
+        } else {
+            @SuppressWarnings("unchecked")
+            T style = (T) workbook.createCellStyle();
+            return style;
+        }
+    }
+
     public static CellStyle cloneStyleFrom(Cell cell) {
         CellStyle newStyle = null;
         if (cell != null) {
             Sheet sheet = cell.getSheet();
-            newStyle = sheet.getWorkbook().createCellStyle();
+            newStyle = createCellStyle(sheet.getWorkbook());
             CellStyle fromStyle = cell.getCellStyle();
             newStyle.cloneStyleFrom(fromStyle);
         }

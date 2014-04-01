@@ -2,7 +2,6 @@ package org.openl.rules.table.xls.builder;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,8 +15,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
-import org.apache.poi.hssf.usermodel.HSSFOptimiser;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -33,10 +30,6 @@ import org.openl.rules.table.ICell;
 public class TableBuilder {
 
     public static final String TABLE_PROPERTIES = "properties";
-    public static final String TABLE_PROPERTIES_NAME = "name";
-
-    /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
-    private static final int MAX_STYLES = 4030;
 
     public static final int HEADER_HEIGHT = 1;
     public static final int PROPERTIES_MIN_WIDTH = 3;
@@ -161,7 +154,7 @@ public class TableBuilder {
     protected CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-            CellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -176,7 +169,7 @@ public class TableBuilder {
     protected CellStyle getDefaultDateCellStyle() {
         if (defaultDateCellStyle == null) {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-            CellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -280,7 +273,7 @@ public class TableBuilder {
      * @author DLiauchuk
      */
     private CellStyle analyseCellStyle(ICellStyle style) {
-        CellStyle returnStyle = null;
+        CellStyle returnStyle;
         if (style instanceof XlsCellStyle) {
             returnStyle = ((XlsCellStyle) style).getXlsStyle();
         } else {
@@ -297,7 +290,7 @@ public class TableBuilder {
      */
     private CellStyle getDateCellStyle(Cell cell) {
         CellStyle previousStyle = cell.getCellStyle();
-        cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
+        cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle()
             .setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
@@ -317,10 +310,7 @@ public class TableBuilder {
                 style2style.put(cellStyle, style);
             } else {
                 Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-                if (workbook.getNumCellStyles() == MAX_STYLES) {
-                    HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
-                }
-                style = workbook.createCellStyle();
+                style = PoiExcelHelper.createCellStyle(workbook);
                 try {
                     style.cloneStyleFrom(cellStyle);
                 } catch (IllegalArgumentException ex) {
@@ -345,7 +335,7 @@ public class TableBuilder {
     }
 
     private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
-        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor() && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1.getFillForegroundColor() == cs2.getFillForegroundColor() && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention() && cs1.getLeftBorderColor() == cs2.getLeftBorderColor() && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation() && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2.getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
+        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor() && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1.getFillForegroundColor() == cs2.getFillForegroundColor() && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention() && cs1.getLeftBorderColor() == cs2.getLeftBorderColor() && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation() && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2.getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
     }
 
     /**
@@ -380,7 +370,7 @@ public class TableBuilder {
                 ICell cell = table.getCell(i, j);
                 int cellWidth = cell.getWidth();
                 int cellHeight = cell.getHeight();
-                Object cellValue = null;
+                Object cellValue;
                 if (cell.getFormula() != null) {
                     cellValue = "=" + cell.getFormula();
                 } else {
@@ -438,8 +428,7 @@ public class TableBuilder {
         if (!properties.isEmpty()) {
             writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
             Set<String> keys = properties.keySet();
-            for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-                String key = iterator.next();
+            for (String key : keys) {
                 writeCell(1, currentRow, 1, 1, key, style);
                 Object value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);

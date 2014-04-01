@@ -33,7 +33,7 @@ public class ProjectDescriptorArtefactResolver {
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<String, ProjectDescriptor>();
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
-        String key = String.format("%s:%s", project.getName(), project.getVersion().getVersionName());
+        String key = String.format("%s:%s:%b", project.getName(), project.getVersion().getVersionName(), project.isModified());
         ProjectDescriptor descriptor = cache.get(key);
         if (descriptor != null) {
             return descriptor;
@@ -82,7 +82,7 @@ public class ProjectDescriptorArtefactResolver {
         return pd != null ? pd.getName() : project.getName();
     }
 
-    public void deleteRevisions(AProject project) {
+    public void deleteRevisionsFromCache(AProject project) {
         for (String key : new HashSet<String>(cache.keySet())) {
             if (key.split(":")[0].equals(project.getName())) {
                 cache.remove(key);
