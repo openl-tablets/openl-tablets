@@ -1,74 +1,84 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.openl.rules.demo</groupId>
-		<artifactId>org.openl.rules.demo-pom</artifactId>
-		<version>5.12.0-SNAPSHOT</version>
-		<relativePath>../org.openl.rules.demo-pom</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.openl.rules.demo</groupId>
+        <artifactId>org.openl.rules.demo-pom</artifactId>
+        <version>5.12.0-SNAPSHOT</version>
+        <relativePath>../org.openl.rules.demo-pom</relativePath>
+    </parent>
 
-	<artifactId>org.openl.rules.demo.webstudio</artifactId>
-	<packaging>war</packaging>
-	<name>OpenL Tablets - DEMO - WebStudio</name>
-	<description>WebStudio for OpenL Tablets demo application</description>
-	<url>http://openl-tablets.sf.net/</url>
-	<properties>
-		<war.name>webstudio</war.name>
-	</properties>
+    <artifactId>org.openl.rules.demo.webstudio</artifactId>
+    <packaging>war</packaging>
+    <name>OpenL Tablets - DEMO - WebStudio</name>
+    <description>WebStudio for OpenL Tablets demo application</description>
+    <url>http://openl-tablets.sf.net/</url>
+    <properties>
+        <war.name>webstudio</war.name>
+    </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
-				<configuration>
-					<attachClasses>true</attachClasses>
-					<warName>${war.name}</warName>
-					<packagingExcludes>
-					</packagingExcludes>
-					<dependentWarExcludes>
-					</dependentWarExcludes>
-					<webResources>
-						<resource>
-							<directory>war-specific-conf</directory>
-						</resource>
-					</webResources>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <attachClasses>true</attachClasses>
+                    <warName>${war.name}</warName>
+                    <packagingExcludes>
+                    </packagingExcludes>
+                    <dependentWarExcludes>
+                    </dependentWarExcludes>
+                    <webResources>
+                        <resource>
+                            <directory>war-specific-conf</directory>
+                        </resource>
+                    </webResources>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.openl.rules</groupId>
+                            <artifactId>org.openl.rules.webstudio</artifactId>
+                            <excludes>
+                                <!-- Empty to have /META-INF/context.xml copied -->
+                            </excludes>
+                        </overlay>
+                    </overlays>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
-		<profile>
-			<id>deploy-to-demo-server</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>tomcat-maven-plugin</artifactId>
-						<configuration>
-							<url>http://openl.exigengroup.com:8082/manager/text</url>
-							<server>demo-server</server>
-							<path>/${war.name}</path>
-							<warFile>target/${war.name}.war</warFile>
-							<update>true</update>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>deploy-to-demo-server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>tomcat-maven-plugin</artifactId>
+                        <configuration>
+                            <url>http://openl.exigengroup.com:8082/manager/text</url>
+                            <server>demo-server</server>
+                            <path>/${war.name}</path>
+                            <warFile>target/${war.name}.war</warFile>
+                            <update>true</update>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
-	<dependencies>
-		<!-- OpenL Tablets WebStudio dependency -->
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.webstudio</artifactId>
-			<type>war</type>
-			<scope>runtime</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <!-- OpenL Tablets WebStudio dependency -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.webstudio</artifactId>
+            <type>war</type>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
 </project>
