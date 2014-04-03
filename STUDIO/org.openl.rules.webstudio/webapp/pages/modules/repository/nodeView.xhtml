@@ -179,10 +179,24 @@
         <ui:include src="/pages/modules/repository/node/productionFolderProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab id="revisions" rendered="#{node.type != 'prodproject' and node.type != 'prodfile' and node.type != 'prodfolder'}" name="Revisions" header="Revisions">
+      <ui:remove><!--
+         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
+         "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
+         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
+    --></ui:remove>
+    <rich:tab id="revisions" name="Revisions" header="Revisions"
+              disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
+              headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}" >
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file' and node.type != 'prodfile'}">
+      <ui:remove><!--
+         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
+         "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
+         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
+    --></ui:remove>
+    <rich:tab id="elements" name="Elements" header="Elements"
+              disabled="#{node.type == 'file' or node.type == 'prodfile'}"
+              headerClass="#{node.type == 'file' or node.type == 'prodfile' ? 'hideHeader' : 'showHeader'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
 
