@@ -1,0 +1,1 @@
+mvn clean site -Dreport-type=plugin-documentation
