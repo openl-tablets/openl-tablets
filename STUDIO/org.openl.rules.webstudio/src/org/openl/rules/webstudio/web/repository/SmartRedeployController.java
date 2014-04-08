@@ -178,7 +178,7 @@ public class SmartRedeployController {
                         if (checker.check()) {
                             item.setMessages("Can be deployed");
                         } else {
-                            item.setMessages("Dependent projects should be added to deployment configuration!");
+                            item.setMessages("Dependent projects should be added to deploy configuration!");
                             item.setStyleForMessages(UiConst.STYLE_ERROR);
                             item.setStyleForName(UiConst.STYLE_ERROR);
                             item.setDisabled(true);
@@ -191,7 +191,7 @@ public class SmartRedeployController {
                 }
             } else if (cmp < 0) {
                 if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
-                    // Don't have permission to edit deployment configuration -
+                    // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
                 }
@@ -213,7 +213,7 @@ public class SmartRedeployController {
                     if (checker.check()) {
                         item.setMessages("Can be updated to " + project.getVersion().getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
                     } else {
-                        item.setMessages("Project version will be updated. Dependent projects should be added to deployment configuration!");
+                        item.setMessages("Project version will be updated. Dependent projects should be added to deploy configuration!");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
@@ -235,7 +235,7 @@ public class SmartRedeployController {
                 if (dependencies == null || dependencies.isEmpty()) {
                     item.setMessages("Create deploy configuration and deploy");
                 } else {
-                    item.setMessages("Create deploy configuration. You should add dependent projects to created deployment configuration after that.");
+                    item.setMessages("Create deploy configuration. You should add dependent projects to created deploy configuration after that.");
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
@@ -305,7 +305,7 @@ public class SmartRedeployController {
         for (ADeploymentProject deploymentProject : toDeploy) {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
-                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'",
+                String message = String.format("Project '%s' is successfully deployed with id '%s' to repository '%s'",
                     project.getName(),
                     id.getName(),
                     repositoryName);
@@ -361,31 +361,31 @@ public class SmartRedeployController {
 
             // get latest version
             // FIXME ADeploymentProject should be renamed to
-            // ADeploymentConfiguration, because of the renaming 'Deployment
-            // Project' to the 'Deployment configuration'
-            ADeploymentProject deploymentConfiguration = workspace.getDDProject(deploymentName);
+            // ADeployConfiguration, because of the renaming 'Deployment
+            // Project' to the 'Deploy configuration'
+            ADeploymentProject deployConfiguration = workspace.getDDProject(deploymentName);
 
-            boolean sameVersion = deploymentConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
-                .compareTo(deploymentConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
+            boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
+                .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
-                return deploymentConfiguration;
-            } else if (deploymentConfiguration.isLocked()) {
+                return deployConfiguration;
+            } else if (deployConfiguration.isLocked()) {
                 // someone else is locked it while we were thinking
-                FacesUtils.addWarnMessage("Deployment configuration '" + deploymentName + "' is locked by other user");
+                FacesUtils.addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
-                deploymentConfiguration.edit();
+                deployConfiguration.edit();
                 // rewrite project->version
-                deploymentConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
+                deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
 
-                deploymentConfiguration.save();
+                deployConfiguration.save();
 
-                FacesUtils.addInfoMessage("Deployment configuration '" + deploymentName + "' successfully updated");
-                return deploymentConfiguration;
+                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully updated");
+                return deployConfiguration;
             }
         } catch (ProjectException e) {
-            String msg = "Failed to update deployment configuration '" + deploymentName + "'";
+            String msg = "Failed to update deploy configuration '" + deploymentName + "'";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }
