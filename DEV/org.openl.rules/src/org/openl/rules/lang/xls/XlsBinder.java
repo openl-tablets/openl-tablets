@@ -36,6 +36,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -235,7 +236,7 @@ public class XlsBinder implements IOpenBinder {
                 moduleContext.addTypes(filterDependencyTypes(compiledDependency.getTypes(), moduleContext.getInternalTypes()));
             } catch (Exception ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        "Can`t add datatype from dependency", ex, (ISyntaxNode) moduleNode);
+                        "Can`t add datatype from dependency", ex, moduleNode);
                 BindHelper.processError(error);
             }
         }
@@ -606,7 +607,12 @@ public class XlsBinder implements IOpenBinder {
             children[i] = child;
 
             if (child != null) {
-                child.addTo(module);
+                try {
+                    child.addTo(module);
+                } catch (OpenlNotCheckedException e) {
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                    processError(error, tableSyntaxNodes[i], moduleContext);
+                }
             }
         }
 

@@ -11,22 +11,23 @@ Usage
   Take into account that OpenL Maven Plugin expects the following directory structure:
 
 +--------------------------------------
-        |-- your-project/                               Project root folder
-        |  |-- pom.xml                                  Maven project file
-        |  |
-        |  |-- src/
-        |  |  
-        |  |  |-- main/
-        |  |  |  
-        |  |  |  |-- java/                              Contains java sources
-        |  |  |  |  
-        |  |  |  |-- resources/                         Contains java resources
-        |  |  |  |  
-        |  |  |  |-- openl/                             Contains all OpenL-related resources (rules, xml etc.)
-        |  |  |  |  
-        |  |  |  |  |-- rules.xml                       OpenL project descriptor (for OpenL only)
-        |  |  |  |  |-- rules/
-        |  |  |  |  |  |-- TemplateRules.xls            File with rules
+|- your-project/                   Project root folder
+| |- pom.xml                       Maven project file
+| |
+| |- src/
+| |
+| | |- main/
+| | |
+| | | |- java/                     Contains java sources
+| | | |
+| | | |- resources/                Contains java resources
+| | | |
+| | | |- openl/                    Contains all OpenL-related resources (rules, xml etc.)
+| | | |
+| | | |
+| | | | |- rules.xml               OpenL project descriptor (for OpenL only)
+| | | | |- rules/
+| | | | | |- TemplateRules.xls     File with rules
 +--------------------------------------
 
   Note that all OpenL-related resources are located in <<<src/main/openl>>> directory.
@@ -40,34 +41,34 @@ Usage
   The simplest way to generate interface for rules defined in the file TemplateRules.xls:
 
 +--------------------------------------
-      <build>
-        [...]
-        <plugins>
-            [...]
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${openl.rules.version}</version>
-                <configuration>
-                    <generateInterfaces>
-                        <generateInterface>
-                            <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
-                            <targetClass>org.company.gen.TemplateRulesInterface</targetClass>
-                        </generateInterface>
-                    </generateInterfaces>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <configuration>
+              <generateInterfaces>
+                  <generateInterface>
+                      <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
+                      <targetClass>org.company.gen.TemplateRulesInterface</targetClass>
+                  </generateInterface>
+              </generateInterfaces>
+          </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>generate</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
 
-        </plugins>
-        [...]
-    </build>
+  </plugins>
+  [...]
+</build>
 +--------------------------------------
 
   In this case classes and rules.xml will be generated on each maven run on generate-sources phase.
@@ -84,26 +85,26 @@ Usage
 * Configure OpenL project compilation and validation
 
 +--------------------------------------
-      <build>
-        [...]
-        <plugins>
-            [...]
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${openl.rules.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>compile</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
 
-        </plugins>
-        [...]
-    </build>
+  </plugins>
+  [...]
+</build>
 +--------------------------------------
 
   More configuration options you can find on {{{./compile-mojo.html}openl:compile}} goal page.
@@ -113,26 +114,26 @@ Usage
   The simplest way to invoke OpenL Tablets Test:
 
 +--------------------------------------
-      <build>
-        [...]
-        <plugins>
-            [...]
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${openl.rules.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>test</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
 
-        </plugins>
-        [...]
-    </build>
+  </plugins>
+  [...]
+</build>
 +--------------------------------------
 
   More configuration options you can find on {{{./test-mojo.html}openl:test}} goal page.
@@ -141,32 +142,32 @@ Usage
   JUnit tests for them (in this case don't use the <<<test>>> goal). Configure the <<<generate>>> goal:
 
 +--------------------------------------
-      <build>
-        [...]
-        <plugins>
-            [...]
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${openl.rules.version}</version>
-                <configuration>
-                    <generateUnitTests>true</generateUnitTests>
-                    <generateInterfaces>
-                      [...]
-                    </generateInterfaces>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <configuration>
+              <generateUnitTests>true</generateUnitTests>
+              <generateInterfaces>
+                [...]
+              </generateInterfaces>
+          </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>generate</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
 
-        </plugins>
-        [...]
-    </build>
+  </plugins>
+  [...]
+</build>
 +--------------------------------------
 
   If you want to define your own template for JUnit tests, you should set <<<unitTestTemplatePath>>> parameter with a path
@@ -201,7 +202,10 @@ public class ${openlInterfaceClass}Test {
     @Before
     public void setUp() throws Exception {
         File xlsFile = new File("$projectRoot", "$srcFile");
-        instance = new RulesEngineFactory<$openlInterfaceClassWithTests>(xlsFile, ${openlInterfaceClassWithTests}.class).newEngineInstance();
+        instance = new RulesEngineFactory<$openlInterfaceClassWithTests>(
+            xlsFile,
+            ${openlInterfaceClassWithTests}.class
+        ).newEngineInstance();
     }
 
 #foreach( $testMethodName in $testMethodNames )

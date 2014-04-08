@@ -22,3 +22,11 @@ Create a project with working example of OpenL Maven Plugin usage
 -------------
   mvn install
 -------------
+
+  After that, you'll find in the <<<target>>> folder:
+
+  [[1]] A zip file (with "-deployable" suffix) for importing a project to WebStudio. You can find more information in OpenL Tablets WebStudio User Guide.
+
+  [[1]] A zip file (with "-runnable" suffix) that can be executed after unpacking. It demonstrates how OpenL rules can be invoked from java code.
+
+  [[1]] A jar file that contains only compiled java classes.
