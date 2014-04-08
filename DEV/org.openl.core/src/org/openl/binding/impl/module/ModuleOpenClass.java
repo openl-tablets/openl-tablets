@@ -60,7 +60,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
         this(schema, name, openl, null);
-    } 
+    }
     
     /**
      * Constructor for module with dependent modules
