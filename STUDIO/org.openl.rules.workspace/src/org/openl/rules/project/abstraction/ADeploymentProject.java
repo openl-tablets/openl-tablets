@@ -27,7 +27,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
-    /* this button is used for rendering the save button (only for deployment configuration)*/
+    /* this button is used for rendering the save button (only for deploy configuration)*/
     private boolean modifiedDescriptors = false;
     
     public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
