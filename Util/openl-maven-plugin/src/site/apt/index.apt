@@ -30,6 +30,37 @@ OpenL Maven Plugin
   General instructions on how to use the Plugin Name can be found on the {{{./usage.html}usage page}}. Some more
   specific use cases are described in the examples given below.
 
+  You should specify the version in your project's plugin configuration:
+
++--------------------------------------
+  <project>
+    ...
+    <build>
+      <!-- To define the plugin version in your parent POM -->
+      <pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-maven-plugin</artifactId>
+            <version>${openl.version}</version>
+          </plugin>
+          ...
+        </plugins>
+      </pluginManagement>
+      <!-- To use the plugin goals in your POM or parent POM -->
+      <plugins>
+        <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.version}</version>
+        </plugin>
+        ...
+      </plugins>
+    </build>
+    ...
+  </project>
++--------------------------------------
+
 * Examples
 
   To provide you with better understanding of some usages of the Plugin Name,

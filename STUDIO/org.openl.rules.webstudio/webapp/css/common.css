@@ -1142,6 +1142,15 @@ form .formfields {
     margin: 8px 4px;
 }
 
+.rf-tt-cntr {
+    border: 0 !important;
+    background: #191919 !important;
+    opacity: 0.8 !important;
+    color: #fff !important;
+    border-radius: 1px !important;
+    padding: 8px 9px !important;
+}
+
 /* Twitter Bootstrap styles */
 
 .caret {
