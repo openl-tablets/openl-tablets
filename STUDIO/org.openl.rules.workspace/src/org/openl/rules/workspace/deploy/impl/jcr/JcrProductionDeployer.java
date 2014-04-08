@@ -96,7 +96,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * Checks if deploymentConfiguration is already deployed to this production
      * repository.
      * 
-     * @param deploymentConfiguration deployment configuration for project
+     * @param deployConfiguration deploy configuration for project
      *            trying to deploy
      * @return true if deploymentConfiguration with its id already exists in
      *         production repository
@@ -104,10 +104,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
      *             reason
      */
     @Override
-    public synchronized boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration) throws RRepositoryException {
+    public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
         RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        DeployID id = generateDeployID(deploymentConfiguration);
-        String otherPossibleID = this.getOtherDeploymentProjectName(deploymentConfiguration);
+        DeployID id = generateDeployID(deployConfiguration);
+        String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
 
         return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
     }
@@ -156,13 +156,13 @@ public class JcrProductionDeployer implements ProductionDeployer {
     /**
      * Method for generating other possible version of deployment ID (e.g if we have id like projectName#1 then we will have id like projectName#0.0.1)
      * 
-     * @param deploymentConfiguration deployment configuration for project
+     * @param deployConfiguration deploy configuration for project
      *            trying to deploy
-     * @return
+     * @return other possible version of deployment ID
      */
-    private String getOtherDeploymentProjectName(ADeploymentProject deploymentProject) {
-        StringBuilder sb = new StringBuilder(deploymentProject.getName());
-        ProjectVersion projectVersion = deploymentProject.getVersion();
+    private String getOtherDeploymentProjectName(ADeploymentProject deployConfiguration) {
+        StringBuilder sb = new StringBuilder(deployConfiguration.getName());
+        ProjectVersion projectVersion = deployConfiguration.getVersion();
         if (projectVersion != null) {
             if (!deploymentFormatOld) {
                 if (isOldFormatVersion(projectVersion)) {

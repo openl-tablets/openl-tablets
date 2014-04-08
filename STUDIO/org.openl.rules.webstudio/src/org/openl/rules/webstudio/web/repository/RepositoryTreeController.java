@@ -534,8 +534,9 @@ public class RepositoryTreeController {
             createdProject.save();
             createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
+            FacesUtils.addInfoMessage(String.format("Deploy configuration '%s' is successfully created", projectName));
         } catch (ProjectException e) {
-            String msg = "Failed to create deployment project '" + projectName + "'.";
+            String msg = "Failed to create deploy configuration '" + projectName + "'.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
@@ -606,7 +607,7 @@ public class RepositoryTreeController {
     }
 
     /*
-     * Because of renaming 'Deployment project' to 'Deployment Configuration'
+     * Because of renaming 'Deployment project' to 'Deploy Configuration'
      * the method was renamed too.
      */
     public String deleteDeploymentConfiguration() {
@@ -623,8 +624,8 @@ public class RepositoryTreeController {
 
             FacesUtils.addInfoMessage("Configuration was deleted successfully.");
         } catch (ProjectException e) {
-            log.error("Cannot delete deployment configuration '" + projectName + "'.", e);
-            FacesUtils.addErrorMessage("Failed to delete deployment configuration.", e.getMessage());
+            log.error("Cannot delete deploy configuration '" + projectName + "'.", e);
+            FacesUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
         }
         return null;
     }
