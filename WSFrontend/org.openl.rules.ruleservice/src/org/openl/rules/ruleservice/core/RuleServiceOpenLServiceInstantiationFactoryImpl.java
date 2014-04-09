@@ -171,26 +171,26 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException {
-        Collection<Module> modules = ruleServiceLoader.getModulesByServiceDescription(serviceDescription);
-
-        OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
-        builder.setName(serviceDescription.getName())
-            .setUrl(serviceDescription.getUrl())
-            .setServiceClassName(serviceDescription.getServiceClassName())
-            .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
-            .setProvideVariations(serviceDescription.isProvideVariations())
-            .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())
-            .addModules(modules);
-
-        OpenLService openLService = builder.build();
-
         try {
+            Collection<Module> modules = ruleServiceLoader.getModulesByServiceDescription(serviceDescription);
+
+            OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
+            builder.setName(serviceDescription.getName())
+                .setUrl(serviceDescription.getUrl())
+                .setServiceClassName(serviceDescription.getServiceClassName())
+                .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
+                .setProvideVariations(serviceDescription.isProvideVariations())
+                .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())
+                .addModules(modules);
+
+            OpenLService openLService = builder.build();
+
             initService(getDependencyManager(serviceDescription), openLService);
+            return openLService;
         } catch (Exception e) {
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
-                openLService.getName()), e);
+                serviceDescription.getName()), e);
         }
-        return openLService;
     }
 
     public RuleServiceLoader getRuleServiceLoader() {
@@ -257,7 +257,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
         if (externalDependencyManager != null) {
-            return externalDependencyManager; 
+            return externalDependencyManager;
         }
 
         RuleServiceDeploymentRelatedDependencyManager ruleServiceDependencyManager = getRuleServiceDependencyManager(serviceDescription);
