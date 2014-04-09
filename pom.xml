@@ -15,7 +15,7 @@
    </scm>
    
    <properties> 
-		<staging.hg.repo.url>https://rix-mercurial01.exigenservices.com/hg/openl/</staging.hg.repo.url>
+		<staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
     </properties>
 
   <modules>    
