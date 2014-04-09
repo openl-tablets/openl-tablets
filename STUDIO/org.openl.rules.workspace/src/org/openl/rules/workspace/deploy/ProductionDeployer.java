@@ -18,7 +18,7 @@ public interface ProductionDeployer {
      * there is a deployment with given <i>id</i> already exists: overwrite it,
      * throw an exception, etc.
      *
-     * @param deploymentProject deployment configuration
+     * @param deploymentProject deploy configuration
      * @param projects projects to deploy
      * @param user deploying user
      * @return <code>id</code> parameter
@@ -30,14 +30,14 @@ public interface ProductionDeployer {
      * Checks if deploymentConfiguration is already deployed to this production
      * repository.
      * 
-     * @param deploymentConfiguration deployment configuration for project
+     * @param deployConfiguration deploy configuration for project
      *            trying to deploy
      * @return true if deploymentConfiguration with its id already exists in
      *         production repository
      * @throws RRepositoryException if cannot get info from repository for some
      *             reason
      */
-    public boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration) throws RRepositoryException;
+    public boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException;
     
     /**
      * Destroy deployer and release associated resources
