@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -193,10 +195,13 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
         if (resolvingStrategy != null) {
             ProjectDescriptor projectDescriptor = null;
-            try{
-                projectDescriptor= resolvingStrategy.resolveProject(projectFolder);
-            }catch(ProjectResolvingException e){
-                throw new RuleServiceRuntimeException("Project resolving failed!", e);
+            try {
+                projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            } catch (ProjectResolvingException e) {
+                if (log.isErrorEnabled()) {
+                    log.error("Project resolving failed!", e);
+                }
+                return Collections.emptyList();
             }
             return Collections.unmodifiableList(projectDescriptor.getModules());
         } else {
@@ -216,33 +221,52 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
         Collection<Module> ret = new ArrayList<Module>();
         Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
+        String deploymentName = serviceDescription.getDeployment().getName();
+        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
+        Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
+        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+        if (localDeployment == null) {
+            localDeployment = storage.loadDeployment(deployment);
+        }
+
+        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
+
         for (ModuleDescription moduleDescription : modulesToLoad) {
-            String deploymentName = serviceDescription.getDeployment().getName();
-            CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-            Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
-            Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
-            if (localDeployment == null) {
-                localDeployment = storage.loadDeployment(deployment);
+            String projectName = moduleDescription.getProjectName();
+            if (projectModules.containsKey(projectName)) {
+                Collection<ModuleDescription> modules = projectModules.get(projectName);
+                modules.add(moduleDescription);
+            } else {
+                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
+                modules.add(moduleDescription);
+                projectModules.put(projectName, modules);
             }
-            AProject project = localDeployment.getProject(moduleDescription.getProjectName());
+        }
+        for (String projectName : projectModules.keySet()) {
+            AProject project = localDeployment.getProject(projectName);
             if (project == null) {
-                throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + moduleDescription.getProjectName() + "\"!");
+                throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
             }
             String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath()
-                .getStringValue();
+                    .getStringValue();
             File projectFolder = new File(artefactPath);
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             if (resolvingStrategy != null) {
                 ProjectDescriptor projectDescriptor = null;
-                try{
-                    projectDescriptor= resolvingStrategy.resolveProject(projectFolder);
-                }catch(ProjectResolvingException e){
-                    throw new RuleServiceRuntimeException("Project resolving failed!", e);
+                try {
+                    projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                } catch (ProjectResolvingException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Project resolving failed!", e);
+                    }
+                    return Collections.emptyList();
                 }
                 Collection<Module> modules = projectDescriptor.getModules();
-                for (Module module : modules) {
-                    if (moduleDescription.getModuleName().equals(module.getName())) {
-                        ret.add(module);
+                for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
+                    for (Module module : modules) {
+                        if (moduleDescription.getModuleName().equals(module.getName())) {
+                            ret.add(module);
+                        }
                     }
                 }
             }
