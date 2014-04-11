@@ -1,0 +1,33 @@
+<document xmlns="http://maven.apache.org/DOCUMENT/1.0.1"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/DOCUMENT/1.0.1 http://maven.apache.org/xsd/document-1.0.1.xsd"
+          outputName="maven-pdf-plugin">
+
+    <meta>
+        <title>OpenL Maven Plugin</title>
+        <author>OpenL Tablets</author>
+    </meta>
+
+    <toc name="Table of Contents">
+        <item name="Introduction" ref="index.apt"/>
+        <item name="Goals" ref="plugin-info.html">
+            <item name="Generate goal" ref="generate-mojo.xml"/>
+            <item name="Compile goal" ref="compile-mojo.xml"/>
+            <item name="Test goal" ref="test-mojo.xml"/>
+            <item name="Help goal" ref="help-mojo.xml"/>
+        </item>
+        <item name="Usage" ref="usage.apt"/>
+        <item name="Examples" ref="examples" collapse="false">
+            <item name="Configuration with all goals" ref="examples/configuration-with-all-goals.apt"/>
+            <item name="Generate a project with working example" ref="examples/generate-project-with-working-example.apt"/>
+        </item>
+    </toc>
+
+    <cover>
+        <coverTitle>${project.name}</coverTitle>
+        <coverSubTitle>v. ${project.version}</coverSubTitle>
+        <coverType>User Guide</coverType>
+        <projectName>${project.name}</projectName>
+        <companyName>OpenL Tablets</companyName>
+    </cover>
+</document>

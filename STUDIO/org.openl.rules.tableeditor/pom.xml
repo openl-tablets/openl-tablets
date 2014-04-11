@@ -15,6 +15,10 @@
 	<description>TableEditor JSF Component</description>
 	<url>http://openl-tablets.sf.net/</url>
 
+    <properties>
+        <sonar.sources>src,js</sonar.sources>
+    </properties>
+
 	<build>
 		<resources>
 			<resource>
