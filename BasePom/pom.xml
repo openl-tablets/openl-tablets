@@ -10,8 +10,8 @@
   <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
-       <connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-       <developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+       <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+       <developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
    </scm>
 
   <modules>

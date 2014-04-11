@@ -211,7 +211,7 @@ public class JcrRepository extends BaseJcrRepository {
             node.checkin();
             return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name })); 
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create deployment project.", e);
+            throw new RRepositoryException("Failed to create deploy configuration.", e);
         }
     }
 
