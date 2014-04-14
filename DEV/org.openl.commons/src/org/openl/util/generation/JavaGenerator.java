@@ -106,6 +106,7 @@ public abstract class JavaGenerator {
             buf.append(" extends ");
             buf.append(superClass);
         }
+        buf.append(" ");
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
     }
 
