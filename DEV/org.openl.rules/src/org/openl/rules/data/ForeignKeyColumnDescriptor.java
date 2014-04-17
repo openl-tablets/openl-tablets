@@ -186,19 +186,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         try {
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
         } catch (SyntaxNodeException ex) {
-            throwIndexNotFound(valueTable, key, ex, bindingContext);
+            throwIndexNotFound(foreignTable, valueTable, key, ex, bindingContext);
         }
 
         if (result == null) {
-            throwIndexNotFound(valueTable, key, null, bindingContext);
+            throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
         }
 
         return result;
     }
 
-    private void throwIndexNotFound(ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
+    private void throwIndexNotFound(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
 
-        String message = String.format("Index Key %s not found", src);
+        String message = String.format("Index Key %s not found in the foreign table %s", src, foreignTable.getName());
 
         throw SyntaxNodeExceptionUtils.createError(message,
             ex,
