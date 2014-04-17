@@ -1,10 +1,6 @@
 package org.openl.rules.datatype.binding;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
@@ -17,6 +13,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -210,14 +207,19 @@ public class DatatypeHelper {
     }
 
     public static TableSyntaxNode[] orderDatatypes(Map<String, TableSyntaxNode> typesMap,
+            OpenL openl,
             IBindingContext bindingContext) {
         
         Map<TableSyntaxNode, Integer> levelsMap = new HashMap<TableSyntaxNode, Integer>();
-        
+
+        List<TopologicalSort.TopoGraphNode<TableSyntaxNode>> nodesToSort = new ArrayList<TopologicalSort.TopoGraphNode<TableSyntaxNode>>();
+
         for (TableSyntaxNode node: typesMap.values()) {
             try {
                 int level = getInheritanceLevel(typesMap, node);
                 levelsMap.put(node, level);
+
+                nodesToSort.add(getNode(node, openl, bindingContext, typesMap));
             } catch (OpenLCompilationException e) {
                 String message = "An error has occurred during compilation";
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
@@ -225,15 +227,46 @@ public class DatatypeHelper {
                 BindHelper.processError(error);
             }
         }
+        /**
+         * FIXME: Unite the dependency between the parent and child classes
+         * together with the dependencies on fields
+         */
+//        Set<TableSyntaxNode> nodes = levelsMap.keySet();
+//        TableSyntaxNode[] nodesToOrder = nodes.toArray(new TableSyntaxNode[nodes.size()]);
+//        DatatypeNodeLevelComparator comparator = new DatatypeNodeLevelComparator(levelsMap);
+//        Arrays.sort(nodesToOrder, comparator);
 
-        Set<TableSyntaxNode> nodes = levelsMap.keySet();
-        TableSyntaxNode[] nodesToOrder = nodes.toArray(new TableSyntaxNode[nodes.size()]);
-        DatatypeNodeLevelComparator comparator = new DatatypeNodeLevelComparator(levelsMap);
-        Arrays.sort(nodesToOrder, comparator);
-        
-        return nodesToOrder;
+        TopologicalSort<TableSyntaxNode> sorter = new TopologicalSort<TableSyntaxNode>();
+        Set<TopologicalSort.TopoGraphNode<TableSyntaxNode>> sorted = sorter.sort(nodesToSort);
+
+        List<TableSyntaxNode> res = new ArrayList<TableSyntaxNode>(sorted.size());
+        for (TopologicalSort.TopoGraphNode<TableSyntaxNode> sortedNode : sorted) {
+            res.add(sortedNode.getObj());
+        }
+
+        return res.toArray(new TableSyntaxNode[res.size()]);
     }
-    
+
+    private static TopologicalSort.TopoGraphNode<TableSyntaxNode>  getNode(TableSyntaxNode node,
+                                                                    OpenL openl,
+                                                                    IBindingContext bindingContext,
+                                                                    Map<String, TableSyntaxNode> typesMap)
+            throws OpenLCompilationException  {
+        Set<String> deps = new DatatypeFieldsExtractor().extract(node.getTable(), openl, bindingContext);
+        TopologicalSort.TopoGraphNode<TableSyntaxNode> sortNode = new TopologicalSort.TopoGraphNode<TableSyntaxNode>(node);
+        if (deps.isEmpty()) {
+            return sortNode;
+        }
+        else {
+            for (String dependency : deps) {
+                TopologicalSort.TopoGraphNode<TableSyntaxNode> dependencyNode = getNode(typesMap.get(dependency), openl, bindingContext, typesMap);
+                sortNode.addDependency(dependencyNode);
+            }
+            return sortNode;
+        }
+
+    }
+
     public static int getInheritanceLevel(Map<String, TableSyntaxNode> types, TableSyntaxNode tsn)
         throws OpenLCompilationException {
         return getInheritanceLevel(types, tsn, new LinkedHashMap<String, TableSyntaxNode>());
@@ -264,5 +297,9 @@ public class DatatypeHelper {
             return 0;
         }
     }
+
+//    private static Map<String, FieldDescription> getFields() {
+//
+//    }
 
 }

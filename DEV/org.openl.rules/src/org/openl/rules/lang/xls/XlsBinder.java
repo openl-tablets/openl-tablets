@@ -436,7 +436,7 @@ public class XlsBinder implements IOpenBinder {
     private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
         Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes, bindingContext);
         
-        TableSyntaxNode[] orderedTypes = DatatypeHelper.orderDatatypes(typesMap, bindingContext);
+        TableSyntaxNode[] orderedTypes = DatatypeHelper.orderDatatypes(typesMap, OpenL.getInstance(DEFAULT_OPENL_NAME), bindingContext);
         
         return orderedTypes;
     }

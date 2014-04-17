@@ -101,9 +101,13 @@ public class FieldDescription {
     public Object getDefaultValue() {
         if (defaultValue == null) {
             if (defaultValueAsString != null) {
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
-                defaultValue = convertor.parse(defaultValueAsString, null, null);                
-            } 
+                if ("_NEW_".equals(defaultValueAsString)) {
+                    defaultValue = "_NEW_";
+                } else {
+                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
+                    defaultValue = convertor.parse(defaultValueAsString, null, null);
+                }
+            }
         }
         return defaultValue;
     }
