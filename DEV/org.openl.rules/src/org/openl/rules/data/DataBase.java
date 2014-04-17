@@ -36,14 +36,16 @@ public class DataBase implements IDataBase {
         synchronized (lock) {
             ITable table = getTable(tableName);
 
-            if (table != null && table.getTableSyntaxNode() != tsn) {
-                throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
+            if (table != null) {
+                String tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
+                String newTableUri = tsn.getTable().getSource().getUri();
+                if (!tableUri.equals(newTableUri)){
+                    throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
+                }else{
+                    return table;    
+                }
             }
             
-            if (table != null && table.getTableSyntaxNode() == tsn) {
-                return table;
-            }
-
             table = makeNewTable(tableName, tsn);
             tables.put(tableName, table);
 
@@ -65,11 +67,15 @@ public class DataBase implements IDataBase {
         synchronized (lock) {
             ITable table = getTable(newTable.getName());
 
-            if (table != null && table != newTable) {
-                throw new DuplicatedTableException(newTable.getName(), table.getTableSyntaxNode(), newTable.getTableSyntaxNode());
+            if (table != null) {
+                String tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
+                String newTableUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
+                if (!tableUri.equals(newTableUri)){
+                    throw new DuplicatedTableException(newTable.getName(), table.getTableSyntaxNode(), newTable.getTableSyntaxNode());
+                }
             }
 
-            tables.put(newTable.getName(), newTable);
+            tables.put(newTable.getName(), newTable); 
         }       
     }
 

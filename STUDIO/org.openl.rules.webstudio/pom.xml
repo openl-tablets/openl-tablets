@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.studio-pom</artifactId>
-		<version>5.12.0-SNAPSHOT</version>
+		<version>5.13.0-SNAPSHOT</version>
 		<relativePath>../org.openl.rules.studio-pom</relativePath>
 	</parent>
 	<artifactId>org.openl.rules.webstudio</artifactId>
@@ -14,9 +13,7 @@
 	<url>http://openl-tablets.sf.net/</url>
 	<properties>
 		<war.name>${project.artifactId}-${project.version}</war.name>
-		<sonar.language>web</sonar.language>
-		<sonar.web.sourceDirectory>webapp</sonar.web.sourceDirectory>
-		<sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
+        <sonar.sources>src,webapp</sonar.sources>
 	</properties>
 	<build>
 		<defaultGoal>package</defaultGoal>

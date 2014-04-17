@@ -8,6 +8,7 @@ package org.openl.rules.lang.xls.binding;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,10 +117,26 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         IOpenClass openClass = dependency.getOpenClassWithErrors();
 
         Map<String, IOpenField> fieldsMap = openClass.getFields();
+
+        Set<String> tableUrls = new HashSet<String>();
+        Map<String, IOpenField> fields = getFields();
+        for (IOpenField openField : fields.values()) {
+            if (openField instanceof DataOpenField) {
+                tableUrls.add(((DataOpenField) openField).getTableUri());
+            }
+        }
         for (String key : fieldsMap.keySet()) {
             IOpenField field = fieldsMap.get(key);
             if (field instanceof DataOpenField) {
-                addField(field);
+                try {
+                    String tableUrl = ((DataOpenField) field).getTableUri();
+                    if (!tableUrls.contains(tableUrl)) {
+                        addField(field);
+                        tableUrls.add(tableUrl);
+                    }
+                } catch (OpenlNotCheckedException e) {
+                    addError(e);
+                }
             }
         }
 
@@ -131,7 +148,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                         try {
                             getDataBase().registerTable(table);
                         } catch (DuplicatedTableException e) {
-                            throw new OpenlNotCheckedException(e);
+                            addError(e);
+                        } catch (OpenlNotCheckedException e) {
+                            addError(e);
                         }
                     }
                 }

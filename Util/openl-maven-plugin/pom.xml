@@ -1,103 +1,141 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <modelVersion>4.0.0</modelVersion>
- <parent>
-    <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.base-pom</artifactId>
-    <version>5.12.0-SNAPSHOT</version>
-    <relativePath>../../BasePom/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
- </parent>
- <artifactId>openl-maven-plugin</artifactId>
- <packaging>maven-plugin</packaging>
- <name>OpenL - Util - OpenL Maven Plugin</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.base-pom</artifactId>
+        <version>5.13.0-SNAPSHOT</version>
+        <relativePath>../../BasePom/org.openl.rules.base-pom</relativePath>
+        <!-- TODO make correct projects hierarchy, base pom should be root folder. -->
+    </parent>
+    <artifactId>openl-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+    <name>OpenL - Util - OpenL Maven Plugin</name>
 
- <properties>
-  <openlResourcesDirectory>${project.basedir}/src/main/openl</openlResourcesDirectory>
-  <openlOutputDirectory>${project.build.directory}/openl</openlOutputDirectory>
-  <mavenVersion>2.2.1</mavenVersion>
-  <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
- </properties>
+    <properties>
+        <openlResourcesDirectory>${project.basedir}/src/main/openl</openlResourcesDirectory>
+        <openlOutputDirectory>${project.build.directory}/openl</openlOutputDirectory>
+        <mavenVersion>2.2.1</mavenVersion>
+        <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
+    </properties>
 
- <dependencies>
-  <dependency>
-   <groupId>org.apache.maven</groupId>
-   <artifactId>maven-plugin-api</artifactId>
-   <version>${mavenVersion}</version>
-  </dependency>
-  <dependency>
-   <groupId>org.apache.maven</groupId>
-   <artifactId>maven-project</artifactId>
-   <version>${mavenVersion}</version>
-  </dependency>
-  <dependency>
-   <groupId>org.apache.maven</groupId>
-   <artifactId>maven-model</artifactId>
-   <version>${mavenVersion}</version>
-  </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
 
-  <!-- dependencies to annotations -->
-  <dependency>
-   <groupId>org.apache.maven.plugin-tools</groupId>
-   <artifactId>maven-plugin-annotations</artifactId>
-   <version>${mavenPluginPluginVersion}</version>
-   <scope>provided</scope>
-  </dependency>
+        <!-- dependencies to annotations -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>${mavenPluginPluginVersion}</version>
+            <scope>provided</scope>
+        </dependency>
 
-  <dependency>
-   <groupId>org.apache.velocity</groupId>
-   <artifactId>velocity</artifactId>
-  </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+        </dependency>
 
-  <dependency>
-   <groupId>org.openl.rules</groupId>
-   <!-- TODO Move dependent classes to org.openl.rules.project -->
-   <artifactId>org.openl.rules.webstudio</artifactId>
-   <version>${project.version}</version>
-  </dependency>
- </dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <!-- TODO Move dependent classes to org.openl.rules.project -->
+            <artifactId>org.openl.rules.webstudio</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
- <build>
-  <sourceDirectory>src/main/java</sourceDirectory>
-  <resources>
-    <resource>
-      <directory>src/main/resources</directory>
-    </resource>
-  </resources>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
 
-  <plugins>
-   <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-plugin-plugin</artifactId>
-    <version>${mavenPluginPluginVersion}</version>
-    <configuration>
-     <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
-     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-    </configuration>
-    <executions>
-     <execution>
-      <id>mojo-descriptor</id>
-      <goals>
-       <goal>descriptor</goal>
-      </goals>
-     </execution>
-     <!-- if you want to generate help goal -->
-     <execution>
-      <id>help-goal</id>
-      <goals>
-       <goal>helpmojo</goal>
-      </goals>
-     </execution>
-    </executions>
-   </plugin>
-  </plugins>
- </build>
- <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>${mavenPluginPluginVersion}</version>
-      </plugin>
-    </plugins>
-  </reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>${mavenPluginPluginVersion}</version>
+                <configuration>
+                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                    <!-- if you want to generate help goal -->
+                    <execution>
+                        <id>help-goal</id>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pdf-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>pdf</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>maven-plugin-documentation</id>
+            <activation>
+                <property>
+                    <name>report-type</name>
+                    <value>plugin-documentation</value>
+                </property>
+            </activation>
+
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-plugin-plugin</artifactId>
+                        <version>${mavenPluginPluginVersion}</version>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <version>2.3.1</version>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+    </profiles>
 </project>

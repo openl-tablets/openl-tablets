@@ -71,20 +71,20 @@ input[type='button'], button,
 
 input[type='submit']:hover, input[type='reset']:hover,
 input[type='button']:hover, button:hover,
-.button:hover, .imageButton:hover {
+.button:hover {
     border-color: #ddd;
     color: #222222;
 }
 
 input[type='submit']:active, input[type='reset']:active,
 input[type='button']:active, button:active,
-.button:active, .imageButton:active {
+.button:active {
     border-color: #ccc;
 }
 
 input[type='submit']:focus, input[type='reset']:focus,
 input[type='button']:focus, button:focus,
-.button:focus, .imageButton:focus {
+.button:focus {
     border: 1px solid #9d4;
 }
 
@@ -417,6 +417,10 @@ fieldset {
 }
 
 /* TODO Merge with .block */
+.fields {
+    margin-top: 13px;
+}
+
 .fields section {
     margin-bottom: 31px;
 }
@@ -431,6 +435,11 @@ fieldset {
 .fields section > div {
     margin-left: 11px;
     color: rgb(71,71,71);
+}
+
+.fields section div .titleColumn {
+    width: 150px;
+    padding: 5px 0;
 }
 
 .block-column {
@@ -854,8 +863,10 @@ form .formfields {
     float: right;
 }
 
-.navbar > .navbar-inner > .dropdown {
+.navbar > .navbar-inner > .dropdown,
+.navbar > .breadcrumbs > .dropdown {
     display: inline-block;
+    line-height: 13px;
 }
 
 .navbar > .navbar-inner > a,
@@ -868,6 +879,7 @@ form .formfields {
     overflow: hidden;
     outline: none;
     text-decoration: none;
+    line-height: 13px;
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
@@ -925,6 +937,7 @@ form .formfields {
     white-space: nowrap;
     padding: 11px 4px 12px;
     text-decoration: none;
+    line-height: 13px;
     -moz-box-sizing: border-box;
          box-sizing: border-box;
 }
@@ -933,7 +946,7 @@ form .formfields {
     display: inline-block;
     margin-left: 1px;
     height: 100%;
-    vertical-align: 13px;
+    vertical-align: 14px;
 }
 
 .breadcrumbs .delimeter::after {
@@ -981,21 +994,29 @@ form .formfields {
 }
 
 .rf-tr-nd {
-    padding: 1px !important;
+    padding: 0 1px !important;
 }
 
 .rf-trn {
-    padding: 2px 0 !important;
+    padding: 4px 0 !important;
     cursor: pointer !important;
 }
 
 .rf-trn-sel {
-    font-weight: bold;
     background: none !important;
+}
+
+.rf-trn.sel {
+    font-weight: bold;
+    background: #f3f3f3 !important;
 }
 
 .rf-trn-cnt {
     width: 100%;
+}
+
+*.rf-tr-nd *.rf-tr-nd {
+    margin-left: 11px !important;
 }
 
 .rf-tab-hdr {
@@ -1119,6 +1140,15 @@ form .formfields {
 
 .rf-pp-hdr-cntrls .close {
     margin: 8px 4px;
+}
+
+.rf-tt-cntr {
+    border: 0 !important;
+    background: #191919 !important;
+    opacity: 0.8 !important;
+    color: #fff !important;
+    border-radius: 1px !important;
+    padding: 8px 9px !important;
 }
 
 /* Twitter Bootstrap styles */

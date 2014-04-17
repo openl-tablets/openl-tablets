@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-tablets</artifactId>
   <packaging>pom</packaging>
-  <version>5.12.0-SNAPSHOT</version>
+  <version>5.13.0-SNAPSHOT</version>
   <name>OpenL Tablets - General POM</name>
   <url>http://openl-tablets.sourceforge.net</url>
 
@@ -15,7 +15,7 @@
    </scm>
    
    <properties> 
-		<staging.hg.repo.url>https://rix-mercurial01.exigenservices.com/hg/openl/</staging.hg.repo.url>
+		<staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
     </properties>
 
   <modules>    

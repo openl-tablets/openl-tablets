@@ -53,4 +53,10 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
         return false;
     }
+
+    public void closeBundleClassLoaders() {
+        for (ClassLoader classLoader : bundleClassLoaders) {
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+        }
+    }
 }

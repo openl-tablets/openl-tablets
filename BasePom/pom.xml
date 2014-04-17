@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.12.0-SNAPSHOT</version>
+  <version>5.13.0-SNAPSHOT</version>
   <name>OpenL BasePom root pom</name>
   <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
-       <connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-       <developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+       <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+       <developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
    </scm>
 
   <modules>

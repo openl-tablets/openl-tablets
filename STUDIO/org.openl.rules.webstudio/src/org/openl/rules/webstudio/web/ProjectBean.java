@@ -19,10 +19,12 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -36,6 +38,9 @@ import java.util.List;
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+
+    @ManagedProperty(value = "#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
 
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -63,7 +68,6 @@ public class ProjectBean {
         dependencies = new ArrayList<ListItem<ProjectDependencyDescriptor>>();
 
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        List<ProjectDependencyDescriptor> projectDependencies = currentProject.getDependencies();
 
         List<ProjectDescriptor> projects = studio.getAllProjects();
         for (ProjectDescriptor project : projects) {
@@ -238,7 +242,7 @@ public class ProjectBean {
 
         List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
 
-        for (ProjectDependencyDescriptor dependency : resultDependencies) {
+        for (ProjectDependencyDescriptor dependency : new ArrayList<ProjectDependencyDescriptor>(resultDependencies)) {
             if (dependency.getName().equals(name)) {
                 resultDependencies.remove(dependency);
             }
@@ -313,6 +317,7 @@ public class ProjectBean {
                 //repositoryTreeState.refreshSelectedNode();
             }
             studio.reset(ReloadType.FORCED);
+            repositoryTreeState.getProjectNodeByPhysicalName(project.getName()).refresh();
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
         } catch (Exception e) {
@@ -371,4 +376,7 @@ public class ProjectBean {
         return new SafeCloner().deepClone(projectDescriptor);
     }
 
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
+    }
 }

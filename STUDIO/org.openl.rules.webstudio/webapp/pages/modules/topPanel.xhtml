@@ -196,12 +196,17 @@
     </div>
 
     <script>
+        //<![CDATA[
         // TODO Add to namespace
         function test(e, testUrl) {
             e.preventDefault();
             var query = $j("#testSettings").find("select,input").serialize();
-            goTo(testUrl + "?" + query);
+            jQuery('#testSettings').find('input[type=checkbox]:not(:checked)').each(function() {
+                query += '&' + this.name + '=false';
+            });
+            goTo(testUrl + "?" + query, true);
         }
+        //]]>
     </script>
 
 </ui:composition>

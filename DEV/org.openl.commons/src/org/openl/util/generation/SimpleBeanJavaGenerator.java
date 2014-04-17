@@ -192,7 +192,6 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                         JavaClassGeneratorHelper.filterTypeName(fieldType), field.getName()));
             }
         }
-        buf.append("\n");
     }
 
     private TypeInitializationWriter getFieldValueWriter(Class<?> fieldValueClass) {

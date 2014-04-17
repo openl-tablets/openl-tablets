@@ -7,21 +7,7 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
-    <style>
-        .fields {
-            margin-top: 13px;
-            max-height: 450px;
-            overflow: auto;
-        }    
-        .fields section {
-            margin-bottom: 27px;
-        }
-        .fields section div .titleColumn {
-            width: 117px;
-            padding: 5px 0;
-        }
-    </style>
-
+    <f:view transient="#{module=='rules' ? true : false}">
     <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
@@ -138,20 +124,23 @@
                                     </h:selectOneMenu>
 
                                     <label>Failures Only</label>
-                                    <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}">
-                                        <f:ajax execute="@form" render="@form" />
-                                    </h:selectBooleanCheckbox>
+                                    <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}"
+                                                             onclick="$j('#userProfileForm\\:caseFailures').toggle(this.checked);"/>
+                                </h:panelGrid>
 
-                                    <h:panelGroup id="caseFailuresSetting" rendered="#{studio.testsFailuresOnly}">
+                                <h:panelGrid columns="2" columnClasses="titleColumn" id="caseFailures" styleClass="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
+                                    <h:panelGroup id="caseFailuresSetting">
                                         <label id="caseFailuresSettingLabel">Failures per test</label>
                                     </h:panelGroup>
-                                    <h:selectOneMenu id="caseFailuresSettingValue" value="#{studio.testsFailuresPerTest}" rendered="#{studio.testsFailuresOnly}">
+                                    <h:selectOneMenu id="caseFailuresSettingValue" value="#{studio.testsFailuresPerTest}">
                                         <f:selectItem itemLabel="1" itemValue="1" />
                                         <f:selectItem itemLabel="5" itemValue="5" />
                                         <f:selectItem itemLabel="20" itemValue="20" />
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
+                                </h:panelGrid>
 
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <label>Compound Result</label>
                                     <h:selectBooleanCheckbox id="showComplexResult" value="#{studio.showComplexResult}" />
                                 </h:panelGrid>
@@ -164,14 +153,15 @@
             <footer>
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single'}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideUserProfile()" render=":userProfileForm" styleClass="button-primary" />
+                    oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary" />
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
-                    oncomplete="hideUserProfile()" styleClass="button-primary" />
+                    oncomplete="hideAndReload()" styleClass="button-primary" />
                 <input type="button" value="Cancel" onclick="hideUserProfile()" />
             </footer>
         </h:form>
 
     </rich:popupPanel>
+    </f:view>
 
 <script>
     //<![CDATA[
@@ -182,11 +172,17 @@
                 tab === "settings" ? "userProfileSettings" : "userProfileDetails");
     }
 
+    function hideAndReload() {
+        hideUserProfile();
+        window.ws && ws.nav.reload(true);
+    }
+
     function hideUserProfile() {
         RichFaces.$("modalUserProfile").hide();
 
         $j("#userProfileForm\\:firstNameError,#userProfileForm\\:lastNameError,#userProfileForm\\:currentPasswordError, #userProfileForm\\:newPasswordError, #userProfileForm\\:confirmPasswordError").text("");
         $j("#userProfileForm")[0].reset();
+        $j("#userProfileForm\\:caseFailures").toggle($j("#userProfileForm\\:testsFailuresOnly").is(':checked'));
     }
 
     //]]>

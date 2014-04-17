@@ -16,11 +16,9 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -57,10 +55,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * 
      */
     private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
-    
+
+    private List<Throwable> errors = new ArrayList<Throwable>();
+
     public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
         this(schema, name, openl, null);
-    } 
+    }
     
     /**
      * Constructor for module with dependent modules
@@ -113,16 +113,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
             if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
                 try {
                     addMethod(depMethod);
-                } catch (DuplicatedMethodException e) {
+                } catch (OpenlNotCheckedException e) {
                     if (Log.isDebugEnabled()) {
                         Log.debug(e.getMessage(), e);
                     }
-                    OpenLMessagesUtils.addError(SyntaxNodeExceptionUtils.createError(e, null));
-                } catch (RuntimeException e) {
-                    if (Log.isErrorEnabled()) {
-                        Log.error(e.getMessage(), e);
-                    }
-                    OpenLMessagesUtils.addError(SyntaxNodeExceptionUtils.createError(e, null));
+                    addError(e);
                 }
             }
         }
@@ -311,4 +306,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return new ModuleBindingContext(topLevelContext, this);
     }
 
+    public void addError(Throwable error) {
+        errors.add(error);
+    }
+
+    public List<Throwable> getErrors() {
+        return errors;
+    }
 }

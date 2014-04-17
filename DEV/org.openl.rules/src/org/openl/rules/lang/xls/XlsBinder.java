@@ -36,6 +36,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -235,7 +236,7 @@ public class XlsBinder implements IOpenBinder {
                 moduleContext.addTypes(filterDependencyTypes(compiledDependency.getTypes(), moduleContext.getInternalTypes()));
             } catch (Exception ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        "Can`t add datatype from dependency", ex, (ISyntaxNode) moduleNode);
+                        "Can`t add datatype from dependency", ex, moduleNode);
                 BindHelper.processError(error);
             }
         }
@@ -386,18 +387,15 @@ public class XlsBinder implements IOpenBinder {
     /**
      * Creates {@link XlsModuleOpenClass}
      * 
-     * @param moduleNode
-     * @param openl
-     * @param dependencies set of dependent modules for creating module.
-     * @return
+     * @param moduleDependencies set of dependent modules for creating module.
      */
     protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, 
-    	IDataBase dbase,	
+        IDataBase dbase,
         Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
-        
+        processErrors(module.getErrors(), moduleNode, bindingContext);
         return module;
     }
 
@@ -521,7 +519,7 @@ public class XlsBinder implements IOpenBinder {
                 try {
                     Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
 
-                    return (IVocabulary) vClass.newInstance();
+                    return vClass.newInstance();
                 } catch (Throwable t) {
                     String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
                     BindHelper.processError(message, vocabularyNode, t);
@@ -574,7 +572,7 @@ public class XlsBinder implements IOpenBinder {
             ISelector<ISyntaxNode> childSelector,
             Comparator<TableSyntaxNode> nodesComparator) {
 
-        ArrayList<ISyntaxNode> childSyntaxNodes = new ArrayList<ISyntaxNode>();
+        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
 
         for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
 
@@ -609,7 +607,12 @@ public class XlsBinder implements IOpenBinder {
             children[i] = child;
 
             if (child != null) {
-                child.addTo(module);
+                try {
+                    child.addTo(module);
+                } catch (OpenlNotCheckedException e) {
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                    processError(error, tableSyntaxNodes[i], moduleContext);
+                }
             }
         }
 
@@ -712,5 +715,19 @@ public class XlsBinder implements IOpenBinder {
 
         tableSyntaxNode.addError(error);
         BindHelper.processError(error, moduleContext);
+    }
+
+    protected void processErrors(List<Throwable> errors, ISyntaxNode node, IBindingContext bindingContext) {
+        if (errors != null) {
+            for (Throwable error : errors) {
+                if (error instanceof SyntaxNodeException) {
+                    BindHelper.processError((SyntaxNodeException) error, bindingContext);
+                } else if (error instanceof CompositeSyntaxNodeException) {
+                    BindHelper.processError((CompositeSyntaxNodeException) error, bindingContext);
+                } else {
+                    BindHelper.processError(error, node, bindingContext);
+                }
+            }
+        }
     }
 }

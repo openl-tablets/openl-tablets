@@ -107,13 +107,13 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getDefaultConstructor(String simpleClassName) {
-        return String.format("\npublic %s() {\n    super();\n}\n", simpleClassName);
+        return String.format("\n  public %s() {\n    super();\n  }\n", simpleClassName);
     }
 
     public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields,
             int numberOfParamsForSuperConstructor) {
         StringBuilder buf = new StringBuilder();
-        buf.append(String.format("\npublic %s(", simpleClassName));
+        buf.append(String.format("\n  public %s(", simpleClassName));
         Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
         while (fieldsIterator.hasNext()) {
             Entry<String, Class<?>> field = fieldsIterator.next();
@@ -136,12 +136,12 @@ public class JavaClassGeneratorHelper {
             Entry<String, Class<?>> field = fieldsIterator.next();
             buf.append(String.format("    this.%s = %s;\n", field.getKey(), field.getKey()));
         }
-        buf.append("}\n");
+        buf.append("  }\n");
         return buf.toString();
     }
 
     public static String getPublicGetterMethod(String fieldType, String fieldName) {
-        return String.format("  public %s %s() {\n   return %s;\n}\n", fieldType, StringTool.getGetterName(fieldName),
+        return String.format("\n  public %s %s() {\n    return %s;\n  }\n", fieldType, StringTool.getGetterName(fieldName),
                 fieldName);
     }
 
@@ -149,7 +149,6 @@ public class JavaClassGeneratorHelper {
      * Gets the type name for cast from Object to given class. Support cast to
      * wrapper type of the primitive
      * 
-     * @param clazz
      * @return canonical type name for cast to given class
      */
     public static String getTypeNameForCastFromObject(Class<?> clazz) {
@@ -192,13 +191,13 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getPublicSetterMethod(String fieldType, String fieldName) {
-        return String.format("  public void %s(%s %s) {\n   this.%s = %s;\n}\n", StringTool.getSetterName(fieldName),
+        return String.format("\n  public void %s(%s %s) {\n    this.%s = %s;\n  }\n", StringTool.getSetterName(fieldName),
                 fieldType, fieldName, fieldName, fieldName);
     }
 
     public static String getEqualsMethod(String simpleClassName, Set<String> fields) {
         StringBuilder buf = new StringBuilder();
-        buf.append("\npublic boolean equals(Object obj) {\n");
+        buf.append("\n  public boolean equals(Object obj) {\n");
         buf.append("    EqualsBuilder builder = new EqualsBuilder();\n");
         buf.append(String.format("    if (!(obj instanceof %s)) {;\n", simpleClassName));
         buf.append("        return false;\n");
@@ -209,26 +208,26 @@ public class JavaClassGeneratorHelper {
             buf.append(String.format("    builder.append(another.%s,%s);\n", getter, getter));
         }
         buf.append("    return builder.isEquals();\n");
-        buf.append("}\n");
+        buf.append("  }\n");
         return buf.toString();
     }
 
     public static String getHashCodeMethod(Set<String> fields) {
         StringBuilder buf = new StringBuilder();
-        buf.append("\npublic int hashCode() {\n");
+        buf.append("\n  public int hashCode() {\n");
         buf.append("    HashCodeBuilder builder = new HashCodeBuilder();\n");
         for (String field : fields) {
             String getter = StringTool.getGetterName(field) + "()";
             buf.append(String.format("    builder.append(%s);\n", getter));
         }
         buf.append("    return builder.toHashCode();\n");
-        buf.append("}\n");
+        buf.append("  }\n");
         return buf.toString();
     }
 
     public static String getToStringMethod(String simpleClassName, Map<String, Class<?>> fields) {
         StringBuilder buf = new StringBuilder();
-        buf.append("\npublic String toString() {\n");
+        buf.append("\n  public String toString() {\n");
         buf.append("    StringBuilder builder = new StringBuilder();\n");
         buf.append(String.format("    builder.append(\"%s {\");\n", simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
@@ -242,7 +241,7 @@ public class JavaClassGeneratorHelper {
         }
         buf.append("    builder.append(\" }\");\n");
         buf.append("    return builder.toString();\n");
-        buf.append("}\n");
+        buf.append("  }\n");
         return buf.toString();
     }
 
@@ -406,7 +405,7 @@ public class JavaClassGeneratorHelper {
      */
     public static String cleanTypeName(String arrayType) {
         if (StringUtils.isNotBlank(arrayType)) {
-            if (arrayType.indexOf("[") >= 0) {
+            if (arrayType.contains("[")) {
                 return arrayType.substring(0, arrayType.indexOf("["));
             } else {
                 return arrayType;

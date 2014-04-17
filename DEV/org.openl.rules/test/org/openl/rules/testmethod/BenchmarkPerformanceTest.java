@@ -3,6 +3,8 @@ package org.openl.rules.testmethod;
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Ignore;
+
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -16,6 +18,7 @@ import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
 
+@Ignore
 public class BenchmarkPerformanceTest extends TestCase {
 
     private static final String FILE_NAME = "test/rules/testmethod/Tutorial_5.xls";

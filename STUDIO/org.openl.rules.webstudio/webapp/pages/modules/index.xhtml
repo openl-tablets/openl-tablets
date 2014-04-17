@@ -25,16 +25,16 @@
     <link href="#{contextPath}/faces/tableEditor/css/tableeditor.min.css" rel="stylesheet" />
 
     <script src="#{contextPath}/javascript/common.js"></script>
-    <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
-    <script src="#{contextPath}/javascript/bootstrap.min.js"></script>
+    <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
+    <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/signals.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/crossroads.min.js"></script>
-    <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
-    <script src="#{contextPath}/javascript/jquery.layout.js"></script>
+    <script src="#{contextPath}/javascript/vendor/jquery-ui-1.8.16.custom.min.js"></script>
+    <script src="#{contextPath}/javascript/vendor/jquery.layout.js"></script>
     <script src="#{contextPath}/javascript/jquery.popup.js"></script>
     <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
     <script src="#{contextPath}/javascript/bomjs.js"></script>
-    <h:outputScript name="jsf.js" library="javax.faces" />
+    <script src="#{contextPath}/javascript/vendor/jsf-2.1.19-customized.min.js"></script>
 
     <script>
         //<![CDATA[
@@ -496,12 +496,16 @@
                         node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
                     });
                     // Select node
-                    $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");
-                    tableLink.closest(".rf-trn-cnt").addClass("rf-trn-sel");
+                    $j("#rulesTree .rf-trn.sel").removeClass("sel");
+                    tableLink.closest(".rf-trn").addClass("sel");
 
-                    /*tableLink.closest(".view_workspace").animate({
-                     scrollTop: tableLink.offset().top
-                     });*/
+                    var panelBody = tableLink.closest(".panel-body");
+                    var linkPos = tableLink.position().top;
+                    if (linkPos < 0 || linkPos > panelBody.height()) {
+                        panelBody.animate({
+                            scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
+                        });
+                    }
                 }
             }
         }

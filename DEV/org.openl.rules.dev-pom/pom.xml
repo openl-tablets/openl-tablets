@@ -5,21 +5,21 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.base-pom</artifactId>
-		<version>5.12.0-SNAPSHOT</version>
+		<version>5.13.0-SNAPSHOT</version>
 		<relativePath>../../BasePom/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
 	</parent>
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.dev-pom</artifactId>
-	<version>5.12.0-SNAPSHOT</version>
+	<version>5.13.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - DEV</name>
 	<description>OpenL Tablets rules engine and related frameworks</description>
 	<url>http://openl-tablets.sf.net/</url>
 
 	<scm>
-        	<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-        	<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+        	<connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+        	<developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
     	</scm>
 
 	<modules>

@@ -120,12 +120,12 @@
         <div id="main">
             <div>
                 <div class="description">
-                    This demo allows you to call methods from "Example 3 - Auto Policy Calculation" that are deployed as <a href="#{wSBean.address}?wsdl" target="_blank">web services</a> on the remote server.
-                    Keep in mind that the demo shows only the methods listed below. Any new added methods will not be displayed.
+                    This demo allows you to call rules from "Example 3 - Auto Policy Calculation" that are deployed as <a href="#{wSBean.address}?wsdl" target="_blank">web services</a> on the remote server.
+                    Keep in mind that the demo shows only the rules listed below. Any new added rules will not be displayed.
                 </div>
                 <h:form>
                     <div>
-                        <h2>Methods to call</h2>
+                        <h2>Rules to call</h2>
                         <table class="methods">
                             <tr>
                                 <td>DriverAgeType 
@@ -174,7 +174,7 @@
 
                     <h:panelGroup rendered="#{!empty wSBean.methodName}" layout="block" styleClass="result">
                         <div>
-                            <h2>Result of calling <i style="color:#444"><h:outputText value="#{wSBean.methodName}" escape="false" /></i> method</h2>
+                            <h2>Result of calling <i style="color:#444"><h:outputText value="#{wSBean.methodName}" escape="false" /></i> rule</h2>
 
                             <h:dataTable value="#{wSBean.result}" var="res">
                                 <h:column>#{res}</h:column>

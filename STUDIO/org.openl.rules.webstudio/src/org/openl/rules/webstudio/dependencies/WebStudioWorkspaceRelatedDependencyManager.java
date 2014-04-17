@@ -27,6 +27,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
 
     private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
 
+    private final List<String> moduleNames = new ArrayList<String>();
+
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects, boolean singleModuleMode) {
         if (dependentProjects == null) {
             throw new IllegalArgumentException("dependentProjects can't be null!");
@@ -98,6 +100,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
                         dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(), Arrays.asList(m), singleModuleMode));
+                        moduleNames.add(m.getName());
                     }
                 }
 
@@ -198,4 +201,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
         }
     }
 
+    public List<String> getModuleNames() {
+        return moduleNames;
+    }
 }
