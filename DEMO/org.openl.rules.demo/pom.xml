@@ -9,14 +9,13 @@
 		<relativePath>../org.openl.rules.demo-pom</relativePath>
 	</parent>
 
-	<groupId>org.openl.rules.demo</groupId>
 	<artifactId>org.openl.rules.demo.demo</artifactId>
 	<packaging>jar</packaging>
 	<name>OpenL Tablets - DEMO - Demo</name>
 	<description>OpenL Tablets Demo</description>
 	<url>http://openl-tablets.sf.net/</url>
 
-	<build> 		
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -54,5 +53,5 @@
 				</executions>
 			</plugin>
 		</plugins>
-	</build>	
+	</build>
 </project>
