@@ -4863,7 +4863,17 @@ var BooleanEditor = Class.create(BaseEditor, {
     },
 
     setValue: function(value) {
-        this.input.checked = value == "true" ? true : false;
+        var checked = false;
+        if (value != null) {
+            var trueValues = ["true", "on", "yes", "t", "y"];
+            for (var i = 0; i < trueValues.length; ++i) {
+                if (trueValues[i] == value.toLowerCase()) {
+                    checked = true;
+                    break;
+                }
+            }
+        }
+        this.input.checked = checked;
     }
 
 });

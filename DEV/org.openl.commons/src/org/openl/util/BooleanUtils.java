@@ -87,7 +87,7 @@ public class BooleanUtils {
 
     private static Boolean getBooleanFromAdditionalValue(String value) {
         Boolean result = null;
-        String lcase = ((String) value).toLowerCase().intern();
+        String lcase = value.toLowerCase().intern();
         if (ArrayUtils.contains(additionalTrueValues, lcase)) {
             result = Boolean.TRUE;
         }
@@ -105,12 +105,9 @@ public class BooleanUtils {
      * @return true is value is a special for Openl boolean value
      */
     private static boolean isAdditionalValue(String value) {
-        String lcaseValue = ((String) value).toLowerCase().intern();
-        if (ArrayUtils.contains(additionalTrueValues, lcaseValue)
-                || ArrayUtils.contains(additionalFalseValues, lcaseValue)) {
-            return true;
-        }
-        return false;
+        String lcaseValue = value.toLowerCase().intern();
+        return ArrayUtils.contains(additionalTrueValues, lcaseValue)
+                || ArrayUtils.contains(additionalFalseValues, lcaseValue);
     }
 
     // logical AND
