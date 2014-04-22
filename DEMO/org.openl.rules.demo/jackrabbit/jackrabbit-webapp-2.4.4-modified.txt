@@ -1,2 +1,0 @@
-- added jcr-2.0.jar
-- derby-10.5.x.jar replaced by derby-10.7.1.1.jar
