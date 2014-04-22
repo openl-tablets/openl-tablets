@@ -30,18 +30,6 @@
 		</copy>
 	</target>
 
-	<target name="copy_webapps" depends="conf_tomcat">
-		<copy file="${webapp.studio.location}" todir="${tomcat.webapps.dir}" overwrite="true"/>
-		<copy file="${webapp.ws.location}" todir="${tomcat.webapps.dir}" overwrite="true"/>
-		<copy file="${webapp.wsclient.location}" todir="${tomcat.webapps.dir}" overwrite="true"/>
-		<copy todir="${tomcat.webapps.dir}" overwrite="true">
-			<fileset dir="jackrabbit">
-				<include name="jackrabbit-webapp-2.4.4-modified.war" />
-			</fileset>
-			<globmapper from="jackrabbit-webapp-2.4.4-modified*" to="production-repository-server"/>
-		</copy>
-	</target>
-
 	<target name="jackrabbit_configure" depends="unzip_tomcat">
 		<property name="openl.basedir" value="${tomcat.dir}/bin" />
 		<property name="jackrabbit.conf.dir" value="${tomcat.dir}/bin/jackrabbit" />
@@ -54,5 +42,5 @@
 		<unzip src="${data.location}" dest="${openl.basedir}" />
 	</target>
 
-	<target name="install" depends="copy_webapps, jackrabbit_configure"/>     	
+	<target name="install" depends="conf_tomcat, jackrabbit_configure"/>
 </project>
