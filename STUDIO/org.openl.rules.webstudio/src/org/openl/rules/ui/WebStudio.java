@@ -322,10 +322,8 @@ public class WebStudio {
                 invalidateProjects();
                 if (currentProject != null) {
                     String projectName = currentProject.getName();
-                    currentProject = null;
                     if (currentModule != null) {
                         String moduleName = currentModule.getName();
-                        currentModule = null;
                         selectModule(projectName, moduleName);
                     } else {
                         selectProject(projectName);
