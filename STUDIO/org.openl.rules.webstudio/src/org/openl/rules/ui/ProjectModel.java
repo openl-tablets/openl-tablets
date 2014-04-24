@@ -990,7 +990,10 @@ public class ProjectModel {
 
         if (isProjectCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
-                nodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
+                if (node != null) {
+                    nodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
+                }
+
             }
         }
 

@@ -252,18 +252,23 @@ public class DatatypeHelper {
                                                                     IBindingContext bindingContext,
                                                                     Map<String, TableSyntaxNode> typesMap)
             throws OpenLCompilationException  {
-        Set<String> deps = new DatatypeFieldsExtractor().extract(node.getTable(), openl, bindingContext);
-        TopologicalSort.TopoGraphNode<TableSyntaxNode> sortNode = new TopologicalSort.TopoGraphNode<TableSyntaxNode>(node);
-        if (deps.isEmpty()) {
-            return sortNode;
-        }
-        else {
-            for (String dependency : deps) {
-                TopologicalSort.TopoGraphNode<TableSyntaxNode> dependencyNode = getNode(typesMap.get(dependency), openl, bindingContext, typesMap);
-                sortNode.addDependency(dependencyNode);
+        if (node != null) {
+            Set<String> deps = new DatatypeFieldsExtractor().extract(node.getTable(), openl, bindingContext);
+            TopologicalSort.TopoGraphNode<TableSyntaxNode> sortNode = new TopologicalSort.TopoGraphNode<TableSyntaxNode>(node);
+            if (deps.isEmpty()) {
+                return sortNode;
             }
-            return sortNode;
+            else {
+                for (String dependency : deps) {
+                    TopologicalSort.TopoGraphNode<TableSyntaxNode> dependencyNode = getNode(typesMap.get(dependency), openl, bindingContext, typesMap);
+                    if (dependencyNode != null) {
+                        sortNode.addDependency(dependencyNode);
+                    }
+                }
+                return sortNode;
+            }
         }
+        return null;
 
     }
 
