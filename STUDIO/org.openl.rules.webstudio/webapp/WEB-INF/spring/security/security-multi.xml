@@ -94,8 +94,9 @@
       </bean>
     </property>
     <property name="authenticationSuccessHandler">
-      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+      <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
         <property name="defaultTargetUrl" value="/" />
+        <property name="targetUrlParameter" value="openl-redirect"/>
       </bean>
     </property>
     <property name="filterProcessesUrl" ref="loginCheckUrl" />
@@ -103,13 +104,15 @@
   </bean>
 
   <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint" />
+      <constructor-arg name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint"/>
+      <constructor-arg name="requestCache" ref="httpSessionRequestCache"/>
   </bean>
 
   <bean id="loginUrlAuthenticationEntryPoint"
     class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
     <property name="loginFormUrl" ref="loginUrl" />
     <property name="forceHttps" value="false" />
+    <property name="useForward" value="true"/>
   </bean>
 
   <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
@@ -188,6 +191,25 @@
   <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
     <property name="groupDao" ref="groupDao" />
     <property name="userDao" ref="openlUserDao" />
+  </bean>
+
+  <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
+      <!-- Don't redirect to these pages after login -->
+      <property name="requestMatcher" ref="excludingRequestMatcher"/>
+  </bean>
+
+  <bean id="excludingRequestMatcher" class="org.openl.rules.webstudio.security.ExcludingRequestMatcher">
+      <property name="matchers">
+          <list>
+              <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                  <constructor-arg value="/**/sourceModified.xhtml"/>
+              </bean>
+              <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                  <!-- accessDenied.xhtml, login.xhtml, sessionExpired.xhtml -->
+                  <constructor-arg value="/**/pages/*.xhtml"/>
+              </bean>
+          </list>
+      </property>
   </bean>
 
 </beans>

@@ -11,6 +11,21 @@
 
     <h:body>
         <script>
+            var updating = false;
+
+            function beforePoll() {
+                if (updating) {
+                    // Session was expired.
+                    window.top.location.reload();
+                } else {
+                    updating = true;
+                }
+            }
+
+            function afterPoll() {
+                updating = false;
+            }
+
             function sourceModified() {
                 if (confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
                     top.showLoader();
@@ -29,7 +44,7 @@
 
         <h:form>
             <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000" render="poll"
-                oncomplete="#{sourceModified ? 'sourceModified()' : ''}" />
+                oncomplete="#{sourceModified ? 'sourceModified()' : ''}" onbegin="beforePoll();" onbeforedomupdate="afterPoll();" />
         </h:form>
         </f:view>
 
