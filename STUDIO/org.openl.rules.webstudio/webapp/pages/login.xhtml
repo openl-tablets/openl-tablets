@@ -19,7 +19,7 @@
                         </c:if>
                         <div>
                             <!-- form itself -->
-                            <form action="#{contextPath}/security_login_check" method="post">
+                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="setSubmitUrl(this);">
                                 <table id="loginForm" style="text-align: left;" cellpadding="4" cellspacing="0">
                                     <tr>
                                         <td align="right">
@@ -68,6 +68,15 @@
                 </td>
             </tr>
         </table>
+
+        <script>
+            function setSubmitUrl(form){
+                if (location.href.indexOf("login.xhtml") == -1) {
+                    form.action += "?openl-redirect=" + location;
+                }
+                return true;
+            }
+        </script>
 
     </ui:define>
 </ui:composition>
