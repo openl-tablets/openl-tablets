@@ -16,7 +16,6 @@ public class LazyCellLoader implements CellLoader {
     private final int row;
 
     private WeakReference<Cell> cellCache = new WeakReference<Cell>(null);
-    private boolean isNull = false;
 
     public LazyCellLoader(SheetLoader sheetLoader, int column, int row) {
         this.sheetLoader = sheetLoader;
@@ -33,14 +32,13 @@ public class LazyCellLoader implements CellLoader {
      */
     @Override
     public Cell getCell() {
+        if (cellCache == null) {
+            return null;
+        }
         Cell cell = cellCache.get();
-        if (cell == null && !isNull) {
+        if (cell == null) {
             cell = PoiExcelHelper.getCell(column, row, sheetLoader.getSheet());
-            if (cell == null) {
-                isNull = true;
-            } else {
-                cellCache = new WeakReference<Cell>(cell);
-            }
+            cellCache = cell == null ? null : new WeakReference<Cell>(cell);
         }
         return cell;
     }
