@@ -35,14 +35,12 @@ public class TableModel {
             return null;
         }
 
-        IGrid grid = null;
+        IGrid grid;
 
-        if (!(grid instanceof FilteredGrid)) {
-            if (ArrayUtils.isNotEmpty(filters)) {
-                grid = new FilteredGrid(table.getGrid(), filters);
-            } else {
-                grid = table.getGrid();
-            }
+        if (ArrayUtils.isNotEmpty(filters)) {
+            grid = new FilteredGrid(table.getGrid(), filters);
+        } else {
+            grid = table.getGrid();
         }
 
         IGridRegion region = table.getRegion();
@@ -84,7 +82,7 @@ public class TableModel {
 
         ICellModel icm = cells[row][col];
 
-        CellModel cm = null;
+        CellModel cm;
         switch (border) {
             case ICellStyle.TOP:
                 if (icm instanceof CellModel) {
