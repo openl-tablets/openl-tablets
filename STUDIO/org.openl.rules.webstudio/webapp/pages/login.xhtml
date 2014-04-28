@@ -14,7 +14,15 @@
                     <div align="center">
                         <!-- possible error messages -->
                         <c:if test="#{not empty SPRING_SECURITY_LAST_EXCEPTION}">
-                            <p class="error">#{msg['ws.login.wrong']}</p>
+                            <c:choose>
+                                <c:when test="#{SPRING_SECURITY_LAST_EXCEPTION.getClass().simpleName == 'AuthenticationServiceException'}">
+                                    <p class="error">#{msg['ws.login.error']}</p>
+                                </c:when>
+                                <c:otherwise>
+                                    <p class="error">#{msg['ws.login.wrong']}</p>
+                                </c:otherwise>
+                            </c:choose>
+
                             <c:set var="SPRING_SECURITY_LAST_EXCEPTION" value="#{null}" />
                         </c:if>
                         <div>
