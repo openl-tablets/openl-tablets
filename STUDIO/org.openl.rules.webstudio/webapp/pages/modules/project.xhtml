@@ -62,7 +62,7 @@
                                 <span class="badge #{statusClass}">#{projectData.status.displayValue}</span>
                                 <h:panelGroup styleClass="badge badge-error"
                                     rendered="#{projectData.status != 'EDITING' and projectData.locked}"
-                                    style="margin-left:3px">Locked</h:panelGroup>
+                                    style="margin-left:3px">Locked by #{projectData.lockedUserName}</h:panelGroup>
                             </td>
                         </tr>
                         <h:panelGroup rendered="#{!empty projectData.firstVersion.versionInfo}">
