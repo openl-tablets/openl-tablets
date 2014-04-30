@@ -66,7 +66,7 @@
                     var leftReload = reload == "true" || !$j("#projects-tree").length;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    render(url, { project: project }, toReload, toOpen);
+                    render(url, { project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Module page
                 crossroads.addRoute("{project}/{module}", function(reload, project, module) {
@@ -508,12 +508,26 @@
             }
         }
 
-        function openTreeNode(page) {
-            var page = page || getCurrentPage();
+        function openTreeNode(pageToOpen) {
+            var page = pageToOpen || getCurrentPage();
 
             if (page && page.indexOf("table?uri=") > -1) {
                 var tableId = page.split("uri=")[1].split("&")[0];
                 expandAndSelectNode(tableId, true);
+            }
+        }
+
+        function openProjectNode(pageToOpen) {
+            var page = pageToOpen || getCurrentPage();
+
+            if (page && page.indexOf("modules/") > -1) {
+                var projectName = page.split("modules/")[1];
+                var projectLink = $j("#projects-tree a[href = '#" + projectName + "']");
+                if (projectLink.length) { // Firefox has bug with decoding url after refresh
+                    // Select node
+                    $j("#projects-tree li.sel").removeClass("sel");
+                    projectLink.closest("li").addClass("sel");
+                }
             }
         }
 
