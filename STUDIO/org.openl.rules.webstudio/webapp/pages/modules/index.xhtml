@@ -482,31 +482,37 @@
             });
         }
 
+        function expandAndSelectNode(tableId, isFindTableByCell) {
+            var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
+            if (tableLink.length) { // Firefox has bug with decoding url after refresh
+                // Expand nodes
+                tableLink.parents(".rf-tr-nd-colps").each(function () {
+                    var node = $j(this);
+                    node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                    node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                });
+                // Select node
+                $j("#rulesTree .rf-trn.sel").removeClass("sel");
+                tableLink.closest(".rf-trn").addClass("sel");
+
+                var panelBody = tableLink.closest(".panel-body");
+                var linkPos = tableLink.position().top;
+                if (linkPos < 0 || linkPos > panelBody.height()) {
+                    panelBody.animate({
+                        scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
+                    });
+                }
+            } else if (isFindTableByCell) {
+                selectTableByCell(decodeURIComponent(tableId));
+            }
+        }
+
         function openTreeNode(page) {
             var page = page || getCurrentPage();
 
             if (page && page.indexOf("table?uri=") > -1) {
                 var tableId = page.split("uri=")[1].split("&")[0];
-                var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
-                if (tableLink.length) { // Firefox has bug with decoding url after refresh
-                    // Expand nodes
-                    tableLink.parents(".rf-tr-nd-colps").each(function() {
-                        var node = $j(this);
-                        node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
-                        node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
-                    });
-                    // Select node
-                    $j("#rulesTree .rf-trn.sel").removeClass("sel");
-                    tableLink.closest(".rf-trn").addClass("sel");
-
-                    var panelBody = tableLink.closest(".panel-body");
-                    var linkPos = tableLink.position().top;
-                    if (linkPos < 0 || linkPos > panelBody.height()) {
-                        panelBody.animate({
-                            scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
-                        });
-                    }
-                }
+                expandAndSelectNode(tableId, true);
             }
         }
 
@@ -603,6 +609,10 @@
         }
     //]]>
     </script>
+
+    <a4j:jsFunction name="selectTableByCell" oncomplete="expandAndSelectNode(encodeURIComponent('#{tableBean.tableUri}', false))">
+        <a4j:param name="uri" assignTo="#{tableBean.uri}"/>
+    </a4j:jsFunction>
 
     <title>OpenL Tablets WebStudio</title>
 </h:head>
