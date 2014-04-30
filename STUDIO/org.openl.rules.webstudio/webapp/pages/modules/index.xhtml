@@ -4,7 +4,8 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="pathRoot" value="#{contextPath}/faces/pages/modules" />
@@ -610,7 +611,7 @@
     //]]>
     </script>
 
-    <a4j:jsFunction name="selectTableByCell" oncomplete="expandAndSelectNode(encodeURIComponent('#{tableBean.tableUri}', false))">
+    <a4j:jsFunction name="selectTableByCell" oncomplete="expandAndSelectNode('#{jsffn:encodeURL(tableBean.tableUri)}', false)">
         <a4j:param name="uri" assignTo="#{tableBean.uri}"/>
     </a4j:jsFunction>
 
