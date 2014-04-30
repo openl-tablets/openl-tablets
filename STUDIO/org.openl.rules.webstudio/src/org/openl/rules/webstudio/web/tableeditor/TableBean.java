@@ -353,6 +353,10 @@ public class TableBean {
         return uri;
     }
 
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
     public List<IOpenLTable> getTargetTables() {
         return targetTables;
     }
@@ -490,6 +494,10 @@ public class TableBean {
 
     public boolean getCanBenchmark() {
         return isGranted(PRIVILEGE_BENCHMARK);
+    }
+
+    public String getTableUri() {
+        return uri == null ? null : WebStudioUtils.getProjectModel().findTableUri(uri);
     }
 
     public static class TestRunsResultBean {
