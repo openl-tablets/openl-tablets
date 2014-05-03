@@ -73,7 +73,7 @@ public class ByteCodeGeneratorHelper {
     
     public static TypeWriter getTypeWriter(FieldDescription fieldType) {
         Class<?> javaFieldClass = FieldDescription.getJavaClass(fieldType);
-        if ("_NEW_".equals(fieldType.getDefaultValueAsString())) {
+        if (FieldDescription.DEFAULT_DATATYPE.equals(fieldType.getDefaultValueAsString())) {
             return getTypeWriter(Marker.class);
         }
         return getTypeWriter(javaFieldClass);

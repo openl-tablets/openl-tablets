@@ -9,6 +9,8 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.ArrayOpenClass;
 
 public class FieldDescription {
+
+    public static final String DEFAULT_DATATYPE = "_DEFAULT_";
     
     private String canonicalTypeName;
     private Class<?> type;
@@ -101,8 +103,8 @@ public class FieldDescription {
     public Object getDefaultValue() {
         if (defaultValue == null) {
             if (defaultValueAsString != null) {
-                if ("_NEW_".equals(defaultValueAsString)) {
-                    defaultValue = "_NEW_";
+                if (DEFAULT_DATATYPE.equals(defaultValueAsString)) {
+                    defaultValue = DEFAULT_DATATYPE;
                 } else {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
                     defaultValue = convertor.parse(defaultValueAsString, null, null);
