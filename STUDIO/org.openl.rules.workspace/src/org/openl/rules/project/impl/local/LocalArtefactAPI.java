@@ -282,4 +282,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
         creationDate = source.lastModified();
         save();
     }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
 }

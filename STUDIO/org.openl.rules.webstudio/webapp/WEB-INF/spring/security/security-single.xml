@@ -30,11 +30,11 @@
   <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter" />
 
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-    <property name="providers">
+    <constructor-arg name="providers">
       <list>
         <bean class="org.springframework.security.authentication.TestingAuthenticationProvider" />
       </list>
-    </property>
+    </constructor-arg>
   </bean>
 
   <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager"/>

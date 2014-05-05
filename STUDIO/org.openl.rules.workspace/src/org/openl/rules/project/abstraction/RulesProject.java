@@ -93,6 +93,10 @@ public class RulesProject extends UserWorkspaceProject {
         repository.unlock(getUserToUnlock(user));
     }
 
+    public String getLockedUserName() {
+        return getLockInfo().getLockedBy().getUserName();
+    }
+
     public ProjectVersion getVersion() {
         // TODO ???
         if (isOpened()) {

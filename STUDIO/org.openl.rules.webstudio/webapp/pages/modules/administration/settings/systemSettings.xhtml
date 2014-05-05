@@ -423,7 +423,7 @@
                 </div>
             </div>
 
-            <div style="padding-left: 125px; margin-bottom: 15px">
+            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{systemConfig['user.mode'] != 'single'}">
                 <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
                     execute="@this" render="commonProps repositoryProps javaProps restartMessage"
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
@@ -431,7 +431,15 @@
                 <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
                     styleClass="button-primary" title = "Apply changes"/>
-            </div>
+            </h:panelGroup>
+            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{systemConfig['user.mode'] == 'single'}">
+                <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+                    execute="@this" render="commonProps repositoryProps javaProps restartMessage"
+                    title="Restore the default settings"/>
+                <h:outputText value=" " />
+                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+                    styleClass="button-primary" title = "Apply changes"/>
+            </h:panelGroup>
 
             </h:form>
             <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
