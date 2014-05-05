@@ -17,7 +17,7 @@ import org.openl.rules.lang.xls.prebind.XlsPreBinder;
  * 
  * @author NSamatov, Marat Kamalov
  */
-public class LazyBinderInvocationHandler implements InvocationHandler {
+public class LazyBinderInvocationHandler implements InvocationHandler { 
     private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<IPrebindHandler>();
 
     private final IOpenBinder originalBinder;

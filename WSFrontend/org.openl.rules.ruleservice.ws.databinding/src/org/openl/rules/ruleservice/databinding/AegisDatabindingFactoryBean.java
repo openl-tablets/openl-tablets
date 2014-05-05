@@ -27,7 +27,18 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.aegis.type.basic.BigDecimalType;
+import org.apache.cxf.aegis.type.basic.BigIntegerType;
+import org.apache.cxf.aegis.type.basic.ByteType;
+import org.apache.cxf.aegis.type.basic.DoubleType;
+import org.apache.cxf.aegis.type.basic.FloatType;
+import org.apache.cxf.aegis.type.basic.IntType;
+import org.apache.cxf.aegis.type.basic.LongType;
+import org.apache.cxf.aegis.type.basic.ShortType;
+import org.apache.cxf.aegis.type.basic.StringType;
 import org.apache.cxf.common.util.XMLSchemaQNames;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.table.Point;
 
 public class AegisDatabindingFactoryBean {
 
@@ -84,34 +95,39 @@ public class AegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuntimeContextBeanType.class, typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
                 typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.calc.SpreadSheetResultType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.table.PointType.class, typeMapping);
+        
         if (supportVariations) {
-            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.VariationsResultType.class, typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.JXPathVariationType.class, typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.ArgumentReplacementVariationType.class,
+            loadAegisTypeClassAndRegister(org.openl.rules.variation.VariationsResultType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.variation.JXPathVariationType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.variation.ArgumentReplacementVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DeepCloningVariationType.class,
+            loadAegisTypeClassAndRegister(org.openl.rules.variation.DeepCloningVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.ComplexVariationType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.variation.ComplexVariationType.class, typeMapping);
         }
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.IntRangeBeanType.class, typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
+        loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
+            StringType.class, XMLSchemaQNames.XSD_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-                org.openl.rules.ruleservice.context.ShortValueType.class, XMLSchemaQNames.XSD_SHORT, typeMapping);
+                ShortType.class, XMLSchemaQNames.XSD_SHORT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
-                org.openl.rules.ruleservice.context.LongValueType.class, XMLSchemaQNames.XSD_LONG, typeMapping);
+                LongType.class, XMLSchemaQNames.XSD_LONG, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
-                org.openl.rules.ruleservice.context.IntValueType.class, XMLSchemaQNames.XSD_INT, typeMapping);
+                IntType.class, XMLSchemaQNames.XSD_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-                org.openl.rules.ruleservice.context.FloatValueType.class, XMLSchemaQNames.XSD_FLOAT, typeMapping);
+                FloatType.class, XMLSchemaQNames.XSD_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-                org.openl.rules.ruleservice.context.DoubleValueType.class, XMLSchemaQNames.XSD_DOUBLE, typeMapping);
+                DoubleType.class, XMLSchemaQNames.XSD_DOUBLE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
-                org.openl.rules.ruleservice.context.ByteValueType.class, XMLSchemaQNames.XSD_BYTE, typeMapping);
+                ByteType.class, XMLSchemaQNames.XSD_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-                org.openl.rules.ruleservice.context.BigIntegerValueType.class, XMLSchemaQNames.XSD_INTEGER, typeMapping);
+                BigIntegerType.class, XMLSchemaQNames.XSD_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-                org.openl.rules.ruleservice.context.BigDecimalValueType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
+                BigDecimalType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
 
         return aegisDatabinding;
     }
@@ -160,6 +176,9 @@ public class AegisDatabindingFactoryBean {
         if (getOverrideTypes() != null) {
             overrideTypes.addAll(getOverrideTypes());
         }
+        overrideTypes.add(SpreadsheetResult.class.getCanonicalName());
+        overrideTypes.add(Point.class.getCanonicalName());
+        
         if (supportVariations) {
             overrideTypes.add("org.openl.rules.variation.VariationsResult");
             overrideTypes.add("org.openl.rules.variation.Variation");
