@@ -368,7 +368,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            return value1;
+
         }
 
         return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
