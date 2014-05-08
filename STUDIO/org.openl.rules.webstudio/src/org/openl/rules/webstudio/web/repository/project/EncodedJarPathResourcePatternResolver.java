@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.webstudio.web.repository.project;
 
 import java.io.IOException;
 import java.net.JarURLConnection;

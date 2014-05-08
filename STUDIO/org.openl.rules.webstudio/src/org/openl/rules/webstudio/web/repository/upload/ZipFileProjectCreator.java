@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,23 +11,17 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
-import org.xml.sax.SAXParseException;
 
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Log log = LogFactory.getLog(ZipFileProjectCreator.class);
@@ -99,27 +92,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
                     if (checkFileSize(item)) {
                         InputStream zipInputStream;
                         try {
-                            zipInputStream = zipFile.getInputStream(item);
                             String fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
-                            if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
-                                try {
-                                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                                    ProjectDescriptor projectDescriptor = serializer.deserialize(zipInputStream);
-                                    projectDescriptor.setName(getProjectName());
-                                    zipInputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
-                                } catch (XStreamException e) {
-                                    StringBuilder message = new StringBuilder("Can't parse rules.xml.");
-                                    if (e.getCause() instanceof SAXParseException) {
-                                        SAXParseException parseException = (SAXParseException) e.getCause();
-                                        message.append(" Line number: ").append(parseException.getLineNumber())
-                                                .append(", column number: ").append(parseException.getColumnNumber())
-                                                .append(".");
-                                    }
-                                    throw new ProjectException(message.toString(), e);
-                                } finally {
-                                    IOUtils.closeQuietly(zipInputStream);
-                                }
-                            }
+                            zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
                         } catch (IOException e) {
                             throw new ProjectException("Error extracting zip archive", e);
                         }

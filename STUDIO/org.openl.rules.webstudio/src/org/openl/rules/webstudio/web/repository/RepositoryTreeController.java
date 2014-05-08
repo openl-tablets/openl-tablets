@@ -12,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,8 +68,11 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
+import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -85,10 +87,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.util.ResourceUtils;
 
 import com.thoughtworks.xstream.XStreamException;
 
@@ -104,8 +102,8 @@ import com.thoughtworks.xstream.XStreamException;
 public class RepositoryTreeController {
 
     private static final Date SPECIAL_DATE = new Date(0);
-    private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
+    private static final String CUSTOM_TEMPLATE_TYPE = "custom";
 
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
@@ -141,7 +139,8 @@ public class RepositoryTreeController {
     private boolean openDependencies = true;
     private AProject currentProject;
 
-    private Map<String, String[]> templateNamesCache = new HashMap<String, String[]>();
+    private TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
+    private TemplatesResolver customTemplatesResolver = new CustomTemplatesResolver();
 
     public PathFilter getZipFilter() {
         return zipFilter;
@@ -556,7 +555,9 @@ public class RepositoryTreeController {
             return null;
         }
 
-        ProjectFile[] templateFiles = getProjectTemplateFiles(TEMPLATES_PATH + newProjectTemplate);
+        String[] templateParts = newProjectTemplate.split("/");
+        TemplatesResolver templatesResolver = CUSTOM_TEMPLATE_TYPE.equals(templateParts[0]) ? customTemplatesResolver : predefinedTemplatesResolver;
+        ProjectFile[] templateFiles = templatesResolver.getProjectFiles(templateParts[1], templateParts[2]);
         if (templateFiles.length <= 0) {
             this.clearForm();
             String errorMessage = String.format("Can`t load template files: %s", newProjectTemplate);
@@ -566,6 +567,7 @@ public class RepositoryTreeController {
 
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
             userWorkspace,
+            zipFilter,
             templateFiles);
         String creationMessage = projectCreator.createRulesProject();
         if (creationMessage == null) {
@@ -1672,66 +1674,16 @@ public class RepositoryTreeController {
         this.newProjectTemplate = newProjectTemplate;
     }
 
-    public String[] getProjectTemplates(String category) {
-        String[] names = templateNamesCache.get(category);
-        if (names != null) {
-            return names;
-        }
-
-        List<String> templateNames = new ArrayList<String>();
-        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-        Resource[] templates;
-
-        try {
-            // JAR file
-            templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*/");
-            if (templates.length == 0) {
-                // File System
-                templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*");
-            }
-
-            for (Resource resource : templates) {
-                if (!ResourceUtils.isFileURL(resource.getURL())) {
-                    // JAR file
-                    // In most of cases protocol is "jar", but in case of IBM
-                    // WebSphere protocol is "wsjar"
-                    String templateUrl = URLDecoder.decode(resource.getURL().getPath(), "UTF8");
-                    String[] templateParsed = templateUrl.split("/");
-                    templateNames.add(templateParsed[templateParsed.length - 1]);
-                } else {
-                    // File System
-                    templateNames.add(resource.getFilename());
-                }
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to get project templates", e);
-        }
-
-        names = templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[templateNames.size()]);
-        templateNamesCache.put(category, names);
-        return names;
+    public String[] getCustomProjectCategories() {
+        return customTemplatesResolver.getCategories();
     }
 
-    private ProjectFile[] getProjectTemplateFiles(String url) {
-        List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
-        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+    public String[] getCustomProjectTemplates(String category) {
+        return customTemplatesResolver.getTemplates(category);
+    }
 
-        try {
-            Resource[] templates = resourceResolver.getResources(url + "/*");
-            if (templates.length == 0) {
-                resourceResolver = new EncodedJarPathResourcePatternResolver();
-                templates = resourceResolver.getResources(url + "/*");
-            }
-            for (Resource resource : templates) {
-                templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
-            }
-        } catch (Exception e) {
-            log.error("Failed to get project template: " + url, e);
-        }
-
-        return templateFiles.isEmpty() ? new ProjectFile[0]
-                                      : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
+    public String[] getProjectTemplates(String category) {
+        return predefinedTemplatesResolver.getTemplates(category);
     }
 
     public boolean getCanDelete() {
