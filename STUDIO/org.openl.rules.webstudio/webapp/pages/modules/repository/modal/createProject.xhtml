@@ -40,24 +40,33 @@
                         <td>
                             <div style="height: 243px; overflow: auto; border: 1px solid #ccc; margin-top: 2px">
                                 <table id="projectTemplates" class="table table-over table-templates">
+                                    <ui:repeat var="category" value="#{repositoryTreeController.getCustomProjectCategories()}">
+                                        <tr><th>#{category}</th></tr>
+                                        <ui:repeat var="template" value="#{repositoryTreeController.getCustomProjectTemplates(category)}">
+                                            <tr><td>
+                                                <input type="hidden" value="custom/#{category}/#{template}" />
+                                                <span>#{template}</span>
+                                            </td></tr>
+                                        </ui:repeat>
+                                    </ui:repeat>
                                     <tr><th>Simple Templates</th></tr>
                                     <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('templates')}">
                                         <tr><td>
-                                            <input type="hidden" value="templates/#{template}" />
+                                            <input type="hidden" value="predefined/templates/#{template}" />
                                             <span>#{template}</span>
                                         </td></tr>
                                     </ui:repeat>
                                     <tr><th>Examples</th></tr>
                                     <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('examples')}">
                                         <tr><td>
-                                            <input type="hidden" value="examples/#{template}" />
+                                            <input type="hidden" value="predefined/examples/#{template}" />
                                             <span>#{template}</span>
                                         </td></tr>
                                     </ui:repeat>
                                     <tr><th>Tutorials</th></tr>
                                     <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('tutorials')}">
                                         <tr><td>
-                                            <input type="hidden" value="tutorials/#{template}" />
+                                            <input type="hidden" value="predefined/tutorials/#{template}" />
                                             <span>#{template}</span>
                                         </td></tr>
                                     </ui:repeat>
