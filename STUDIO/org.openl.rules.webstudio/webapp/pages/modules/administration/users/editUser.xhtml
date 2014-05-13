@@ -23,6 +23,12 @@
                 <h:outputText id="username" style="font-weight: bold" />
                 <h:inputHidden id="usernameHidden" value="#{usersBean.username}" />
 
+                <label>Password</label>
+                <h:inputSecret id="password" value="#{usersBean.changedPassword}" />
+                <a4j:outputPanel ajaxRendered="true" id="passwordError">
+                    <h:message for="password" styleClass="error" />
+                </a4j:outputPanel>
+
                 <h:outputText value="" />
                 <h:outputText value="" />
                 <h:outputText value="" />
