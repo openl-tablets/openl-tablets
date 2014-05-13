@@ -19,6 +19,7 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.rules.security.DefaultPrivileges;
@@ -57,6 +58,9 @@ public class UsersBean {
     @NotBlank(message=VALIDATION_EMPTY)
     @Size(max=25, message=VALIDATION_MAX)
     private String password;
+
+    @Size(max=25, message=VALIDATION_MAX)
+    private String changedPassword;
 
     @NotEmpty(message=VALIDATION_GROUPS)
     private List<String> groups;
@@ -151,8 +155,9 @@ public class UsersBean {
     }
 
     public void editUser() {
+        String passwordHash = StringUtils.isBlank(changedPassword) ? null : new Md5PasswordEncoder().encodePassword(changedPassword, null);
         userManagementService.updateUser(
-                new SimpleUser(firstName, lastName, username, null, getSelectedGroups()));
+                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
@@ -211,6 +216,14 @@ public class UsersBean {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getChangedPassword() {
+        return changedPassword;
+    }
+
+    public void setChangedPassword(String changedPassword) {
+        this.changedPassword = changedPassword;
     }
 
     public List<String> getGroups() {
