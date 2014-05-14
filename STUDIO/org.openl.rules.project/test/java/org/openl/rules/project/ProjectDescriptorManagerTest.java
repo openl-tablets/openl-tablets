@@ -38,7 +38,7 @@ public class ProjectDescriptorManagerTest {
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
         assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
-        assertEquals(ModuleType.STATIC, module1.getType());
+        assertEquals(ModuleType.API, module1.getType());
         assertEquals("com.test.MyWrapper", module1.getClassname());
 
         Module module2 = descriptor.getModules().get(1);
@@ -111,7 +111,7 @@ public class ProjectDescriptorManagerTest {
         Module module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.STATIC);
+        module1.setType(ModuleType.WRAPPER);// As far as type was deprecated, It is runtime property now.
         module1.setClassname("MyWrapper1");
         module1.setMethodFilter(new MethodFilter());
 
@@ -142,7 +142,6 @@ public class ProjectDescriptorManagerTest {
                         "  <modules>" + "\n" + 
                         "    <module>" + "\n" +
                         "      <name>name1</name>" + "\n" + 
-                        "      <type>static</type>" + "\n" +
                         "      <classname>MyWrapper1</classname>" + "\n" + 
                         "      <rules-root path=\"path1\"/>" + "\n" + 
                         "      <method-filter>"+ "\n" +
@@ -177,7 +176,7 @@ public class ProjectDescriptorManagerTest {
         Module module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.STATIC);
+        module1.setType(ModuleType.WRAPPER);
         module1.setClassname("MyWrapper1");
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
@@ -194,7 +193,7 @@ public class ProjectDescriptorManagerTest {
         Module module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.STATIC);
+        module1.setType(ModuleType.WRAPPER);
 
         List<PathEntry> classpath = new ArrayList<PathEntry>();
         PathEntry entry1 = new PathEntry("path1");

@@ -26,7 +26,7 @@ public class ResolvingStrategiesTest {
         assertEquals(1, descriptor.getModules().size());
         Module module = descriptor.getModules().get(0);
         assertEquals("Tutorial 1 - Intro to Decision Tables", module.getName());
-        assertEquals(ModuleType.STATIC, module.getType());
+        assertEquals(ModuleType.WRAPPER, module.getType());
         assertEquals(null, module.getRulesRootPath());
         assertEquals("org.openl.tablets.tutorial1.Tutorial_1Wrapper", module.getClassname());
     }

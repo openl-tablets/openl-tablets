@@ -23,9 +23,7 @@ public class RulesInstantiationStrategyFactory {
     
     public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
         switch (moduleInfo.getType()) {
-            case DYNAMIC:
-                return new SimpleEngineFactoryInstantiationStrategy(moduleInfo, executionMode, dependencyManager, classLoader);
-            case STATIC:
+            case WRAPPER:
                 return new WrapperAdjustingInstantiationStrategy(moduleInfo, executionMode, dependencyManager, classLoader);
             case API:
                 return new ApiBasedInstantiationStrategy(moduleInfo, executionMode, dependencyManager, classLoader);

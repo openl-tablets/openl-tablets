@@ -11,8 +11,8 @@
 
 		<module>
 			<name>MyModule1</name>
-			<type>static</type>
 			<classname>com.test.MyWrapper</classname>
+			<type>wrapper</type> <!--Is depricated -->
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
@@ -22,7 +22,6 @@
 
 		<module>
 			<name>MyModule2</name>
-			<type>api</type>
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
