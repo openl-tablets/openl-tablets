@@ -58,7 +58,7 @@ public class Module{
     public ModuleType getType() {
         return type;
     }
-
+    
     public void setType(ModuleType type) {
         this.type = type;
     }

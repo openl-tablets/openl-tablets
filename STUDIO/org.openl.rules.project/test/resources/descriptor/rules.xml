@@ -9,7 +9,6 @@
 
 		<module>
 			<name>Tutorial 1</name>
-			<type>static</type>
 			<classname>org.openl.tablets.tutorial1.Tutorial_1Wrapper</classname>
 			<!-- 
 				Rules root document. Usually excel file on file system. 
