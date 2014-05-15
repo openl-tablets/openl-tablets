@@ -1,6 +1,14 @@
 package org.openl.rules.testmethod;
 
+import org.openl.message.OpenLMessage;
+import org.openl.rules.testmethod.result.BeanResultComparator;
+import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
+import org.openl.types.IParameterDeclaration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representation of the single test unit in the test.
@@ -152,6 +160,45 @@ public class TestUnit {
         return actualResult;
     }
 
+    public ParameterWithValueDeclaration getActualParam() {
+        return new ParameterWithValueDeclaration("actual", getActualResult(), IParameterDeclaration.OUT);
+    }
+
+    public ParameterWithValueDeclaration[] getContextParams(Object objTestResult) {
+        return TestUtils.getContextParams(
+                ((TestUnitsResults) objTestResult).getTestSuite(), getTest());
+    }
+
+    public List<ComparedResult> getResultParams() {
+        List<ComparedResult> params = new ArrayList<ComparedResult>();
+
+        Object actual = getActualResult();
+        Object expected = getExpectedResult();
+
+        if (!(actual instanceof Throwable)) {
+            TestResultComparator testComparator = getTestUnitResultComparator().getComparator();
+            if (testComparator instanceof BeanResultComparator) {
+                List<ComparedResult> results = ((BeanResultComparator) testComparator).getComparisonResults();
+                for (ComparedResult comparedResult : results) {
+                    comparedResult.setActualValue(new ParameterWithValueDeclaration(
+                            comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
+                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
+                            comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
+                    params.add(comparedResult);
+                }
+                return params;
+            }
+        }
+
+        ComparedResult result = new ComparedResult();
+        result.setStatus(TestUnitResultComparator.TestStatus.TR_OK.getConstant(compareResult()));
+        result.setActualValue(new ParameterWithValueDeclaration("actual", actual, IParameterDeclaration.OUT));
+        result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected, IParameterDeclaration.OUT));
+        params.add(result);
+
+        return params;
+    }
+
     /**
      * Gets the description field value.
      * 
@@ -177,7 +224,7 @@ public class TestUnit {
     /**
      * Return the comparasion of the expected result and actual.
      * 
-     * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit)}
+     * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit, Double)}
      */
     public int compareResult() {
         return getTestUnitResultComparator().getCompareResult(this, getDelta());
@@ -205,6 +252,14 @@ public class TestUnit {
 
     public Throwable getException() {
         return exception;
+    }
+
+    public List<OpenLMessage> getResultMessages() {
+        return TestUtils.getUserMessagesAndErrors(getActualResult());
+    }
+
+    public List<OpenLMessage> getErrors() {
+        return TestUtils.getErrors(getActualResult());
     }
 
     private Double getDelta() {
