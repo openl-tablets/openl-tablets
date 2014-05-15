@@ -72,7 +72,7 @@ public class ProjectUploader {
                             uploadedFile.getName(), uploadedFile.getInputStream(), uploadedFile.getSize()));
                 }
                 projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace,
-                        projectFiles.toArray(new ProjectFile[uploadedFiles.size()]));
+                        zipFilter, projectFiles.toArray(new ProjectFile[uploadedFiles.size()]));
             }
 
         }
