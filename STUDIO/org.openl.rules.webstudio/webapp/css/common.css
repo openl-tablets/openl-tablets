@@ -820,13 +820,22 @@ form .formfields {
     background: url(webresource/images/error.png) no-repeat;
 }
 
-.test-tree .rf-trn-ico-lf {
+.param-tree .rf-trn-ico-lf {
     display: none;
 }
 
-.test-tree .rf-trn-sel {
+.param-tree .rf-trn-sel {
     font-weight: normal;
 }
+
+.param-tree .rf-trn {
+    padding: 3px 0 !important;
+}
+
+.param-tree > .rf-tr-nd > .rf-trn {
+    padding: 0 !important;
+}
+
 
 .spreadsheet .rf-trn-ico-lf {
     display: none;
