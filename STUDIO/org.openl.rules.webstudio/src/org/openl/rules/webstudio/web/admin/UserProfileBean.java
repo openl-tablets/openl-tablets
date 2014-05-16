@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -18,7 +19,6 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 
 @ManagedBean
@@ -29,7 +29,8 @@ public class UserProfileBean extends UsersBean {
     private User user;
     private String newPassword;
     private String confirmPassword;
-    private CurrentUserInfo userInfo;
+    @ManagedProperty(value = "#{currentUserInfo}")
+    private CurrentUserInfo currentUserInfo;
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
     private String currentPassword;
@@ -51,9 +52,8 @@ public class UserProfileBean extends UsersBean {
      * @return org.openl.rules.security.User
      */
     public User getUser() {
-        userInfo = new CurrentUserInfo();
-        setUsername(userInfo.getUser().getUsername());
-        user = userManagementService.loadUserByUsername(userInfo.getUser().getUsername());
+        setUsername(currentUserInfo.getUser().getUsername());
+        user = userManagementService.loadUserByUsername(currentUserInfo.getUser().getUsername());
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setCurrentPassword(user.getPassword());
@@ -69,7 +69,7 @@ public class UserProfileBean extends UsersBean {
         Collection<Privilege> privileges = new ArrayList<Privilege>();
 
         for (GrantedAuthority auth : user.getAuthorities()) {
-            Privilege group = (Privilege) groupManagementService.getGroupByName(auth.getAuthority());
+            Privilege group = groupManagementService.getGroupByName(auth.getAuthority());
             privileges.add(group);
         }
         return privileges;
@@ -82,7 +82,7 @@ public class UserProfileBean extends UsersBean {
     public void editUser() {
 
         if (isPasswordValid) {
-            String encodedPassword = new Md5PasswordEncoder().encodePassword(newPassword, null);
+            String encodedPassword = passwordEncoder.encode(newPassword);
             setCurrentPassword(encodedPassword);
         } else {
             setCurrentPassword(getUser().getPassword());
@@ -103,10 +103,6 @@ public class UserProfileBean extends UsersBean {
     /**
      * Validates newPassword and confirmPassword on identity. If newPassword
      * isEmty, then validation isn't needed
-     * 
-     * @param context
-     * @param component
-     * @param value
      */
     public void passwordsValidator(FacesContext context, UIComponent component, Object value) {
         newPassword = (String) value;
@@ -117,7 +113,6 @@ public class UserProfileBean extends UsersBean {
             UIInput uiInputPassword = (UIInput) component.getAttributes().get("currentPassword");
             String passwordString = uiInputPassword.getValue().toString();
             String userPasswordHash = user.getPassword();
-            String enteredPasswordHash = new Md5PasswordEncoder().encodePassword(passwordString, null);
 
             if (StringUtils.isEmpty(passwordString)) {
                 throw new ValidatorException(new FacesMessage("Enter your password"));
@@ -129,7 +124,7 @@ public class UserProfileBean extends UsersBean {
                 isPasswordValid = true;
             }
 
-            if (!userPasswordHash.equals(enteredPasswordHash)) {
+            if (!passwordEncoder.matches(passwordString, userPasswordHash)) {
                 throw new ValidatorException(new FacesMessage("Incorrect current password!"));
             }
         }
@@ -201,4 +196,7 @@ public class UserProfileBean extends UsersBean {
         this.userLastName = userLastName;
     }
 
+    public void setCurrentUserInfo(CurrentUserInfo currentUserInfo) {
+        this.currentUserInfo = currentUserInfo;
+    }
 }

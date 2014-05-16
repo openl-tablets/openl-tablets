@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -37,8 +36,6 @@ public class User extends PersistentObject {
 
     /**
      * First name.
-     *
-     * @return
      */
     @Column(name = "FirstName", length = 50)
     public String getFirstName() {
@@ -47,8 +44,6 @@ public class User extends PersistentObject {
 
     /**
      * User's groups.
-     *
-     * @return
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
     @JoinTable(name = "User2Group", joinColumns = { @JoinColumn(name = "UserID") }, inverseJoinColumns = { @JoinColumn(name = "GroupID") })
@@ -67,8 +62,6 @@ public class User extends PersistentObject {
 
     /**
      * Login name of user.
-     *
-     * @return
      */
     @Column(name = "LoginName", length = 50, nullable = false, unique = true)
     public String getLoginName() {
@@ -77,18 +70,14 @@ public class User extends PersistentObject {
 
     /**
      * Password of user.
-     *
-     * @return
      */
-    @Column(name = "Password", length = 32, nullable = false)
+    @Column(name = "Password", length = 128, nullable = false)
     public String getPasswordHash() {
         return passwordHash;
     }
 
     /**
      * Comma separated list of user's privileges.
-     *
-     * @return
      */
     @Column(name = "UserPrivileges", length = 1000) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
@@ -97,8 +86,6 @@ public class User extends PersistentObject {
 
     /**
      * Surname.
-     *
-     * @return
      */
     @Column(name = "Surname", length = 50)
     public String getSurname() {
@@ -107,8 +94,6 @@ public class User extends PersistentObject {
 
     /**
      * User's access control entries.
-     *
-     * @return
      */
     @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
     @Cascade(value = { CascadeType.ALL })
