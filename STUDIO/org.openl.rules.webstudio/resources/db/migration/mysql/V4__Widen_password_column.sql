@@ -1,0 +1,2 @@
+ALTER TABLE OpenLUser
+  MODIFY COLUMN Password varchar(128) NOT NULL;

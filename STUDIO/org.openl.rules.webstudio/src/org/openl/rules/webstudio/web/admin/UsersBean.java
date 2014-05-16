@@ -29,8 +29,8 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author Andrei Astrouski
@@ -71,6 +71,9 @@ public class UsersBean {
     @ManagedProperty(value="#{groupManagementService}")
     protected GroupManagementService groupManagementService;
 
+    @ManagedProperty(value = "#{passwordEncoder}")
+    protected PasswordEncoder passwordEncoder;
+
     /**
      * Validation for existed user
      */
@@ -78,7 +81,7 @@ public class UsersBean {
         User user = null;
         try {
             user = userManagementService.loadUserByUsername((String) value);
-        } catch (UsernameNotFoundException e) { }
+        } catch (UsernameNotFoundException ignored) { }
 
         if (user != null) {
             throw new ValidatorException(
@@ -149,13 +152,13 @@ public class UsersBean {
     }
 
     public void addUser() {
-        String passwordHash = new Md5PasswordEncoder().encodePassword(password, null);
+        String passwordHash = passwordEncoder.encode(password);
         userManagementService.addUser(
                 new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     public void editUser() {
-        String passwordHash = StringUtils.isBlank(changedPassword) ? null : new Md5PasswordEncoder().encodePassword(changedPassword, null);
+        String passwordHash = StringUtils.isBlank(changedPassword) ? null : passwordEncoder.encode(changedPassword);
         userManagementService.updateUser(
                 new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
@@ -252,4 +255,7 @@ public class UsersBean {
         this.groupManagementService = groupManagementService;
     }
 
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 }

@@ -61,11 +61,14 @@
     </constructor-arg>
   </bean>
 
-  <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+  <bean id="passwordEncoder" class="org.openl.rules.security.standalone.authentication.OpenLPasswordEncoder" >
+      <constructor-arg value="#{systemProperties['webstudio.bcrypt.strength']}"/>
+  </bean>
 
-  <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+  <bean id="daoAuthenticationProvider" class="org.openl.rules.security.standalone.authentication.RehashingDaoAuthenticationProvider">
+    <constructor-arg ref="passwordEncoder"/>
+    <constructor-arg ref="openlUserDao"/>
     <property name="userDetailsService" ref="userDetailsService" />
-    <property name="passwordEncoder" ref="passwordEncoder" />
     <property name="hideUserNotFoundExceptions" value="false" />
   </bean>
 
