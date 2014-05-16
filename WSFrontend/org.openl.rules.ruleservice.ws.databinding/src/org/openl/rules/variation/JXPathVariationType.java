@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.context;
+package org.openl.rules.variation;
 
 /*
  * #%L
@@ -11,8 +11,6 @@ package org.openl.rules.ruleservice.context;
  */
 
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -23,35 +21,36 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.VariationsFactory;
 
 /**
- * Custom mapping for {@link ComplexVariationType} due to it is not usual bean
- * and should be initialized through non-default constructor.
+ * Custom mapping for {@link JXPathVariation} due to it is not usual bean and
+ * should be initialized through non-default constructor.
  * 
  * @author PUdalau
  */
-public class ComplexVariationType extends BeanType {
+public class JXPathVariationType extends BeanType {
 
-    public static final Class<?> TYPE_CLASS = ComplexVariation.class;
+    public static final Class<?> TYPE_CLASS = JXPathVariation.class;
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    public ComplexVariationType() {
+    public JXPathVariationType() {
         super();
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
         BeanTypeInfo inf = getTypeInfo();
 
         try {
             String variationID = "";
-            Variation[] variations = new Variation[0];
+            int updatedArgumentIndex = 0;
+            String path = VariationsFactory.THIS_POINTER;
+            Object valueToSet = null;
             // Read child elements
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();
@@ -61,7 +60,7 @@ public class ComplexVariationType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(), 
+                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
                     context.getGlobalContext(),
                     defaultType);
                 if (type != null) {
@@ -69,19 +68,20 @@ public class ComplexVariationType extends BeanType {
                     Object propertyValue = type.readObject(childReader, context);
                     if ("variationID".equals(propertyName)) {
                         variationID = String.valueOf(propertyValue);
-                    } else if ("variations".equals(propertyName)) {
-                        if (propertyValue instanceof List) {
-                            variations = ((List<Variation>) propertyValue).toArray(variations);
-                        } else if (propertyValue instanceof Variation[]) {
-                            variations = (Variation[]) propertyValue;
-                        }
+                    } else if ("updatedArgumentIndex".equals(propertyName)) {
+                        updatedArgumentIndex = (Integer) propertyValue;
+                    } else if ("path".equals(propertyName)) {
+                        path = String.valueOf(propertyValue);
+                    } else if ("valueToSet".equals(propertyName)) {
+                        valueToSet = propertyValue;
+
                     }
                 } else {
                     childReader.readToEnd();
                 }
             }
 
-            return new ComplexVariation(variationID, variations);
+            return new JXPathVariation(variationID, updatedArgumentIndex, path, valueToSet);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

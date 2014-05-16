@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.context;
+package org.openl.rules.variation;
 
 /*
  * #%L
