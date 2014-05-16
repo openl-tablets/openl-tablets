@@ -48,7 +48,7 @@
 			<list>
 				<!-- Comment/Uncomment following block for use/unuse logging feature. 
 					It can increase performance if logging isn't used. -->
-				<ref local="RESTServicesLoggingFeature" />
+				<ref bean="RESTServicesLoggingFeature" />
 			</list>
 		</property>
 		<property name="provider" ref="jaxrsProvider"/>
@@ -59,7 +59,7 @@
 	<bean id="RESTServicesServerPrototypeFactory"
 		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
 		<property name="targetBeanName">
-			<idref local="RESTServicesServerPrototype" />
+			<idref bean="RESTServicesServerPrototype" />
 		</property>
 	</bean>
 

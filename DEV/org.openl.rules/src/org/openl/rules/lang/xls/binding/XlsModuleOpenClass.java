@@ -45,6 +45,7 @@ import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -158,6 +159,51 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         }
     }
 
+    private static class EmptyMethod implements IOpenMethod {
+
+        private static EmptyMethod INSTANCE = new EmptyMethod();
+
+        public static EmptyMethod getInstance() {
+            return INSTANCE;
+        }
+
+        public IMethodSignature getSignature() {
+            throw new UnsupportedOperationException();
+        }
+
+        public IOpenClass getType() {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isStatic() {
+            throw new UnsupportedOperationException();
+        }
+
+        public IMemberMetaInfo getInfo() {
+            throw new UnsupportedOperationException();
+        }
+
+        public IOpenClass getDeclaringClass() {
+            throw new UnsupportedOperationException();
+        }
+
+        public IOpenMethod getMethod() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Object invoke(Object target, Object params[], IRuntimeEnv env) {
+            throw new UnsupportedOperationException();
+        }
+
+        public String getDisplayName(int mode) {
+            throw new UnsupportedOperationException();
+        }
+
+        public String getName() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     public XlsMetaInfo getXlsMetaInfo() {
         return (XlsMetaInfo) metaInfo;
     }
@@ -176,11 +222,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         enhancer.setInterfaces(openMethod.getClass().getInterfaces());
         enhancer.setCallback(new MethodInterceptor() {
             private ThreadLocal<IOpenMethod> cachedMatchedMethod = new ThreadLocal<IOpenMethod>();
-            private ThreadLocal<Boolean> cachedMatchedMethodFound = new ThreadLocal<Boolean>() {
-                protected Boolean initialValue() {
-                    return Boolean.FALSE;
-                }
-            };
             private ThreadLocal<Boolean> invockedFromTop = new ThreadLocal<Boolean>() {
                 @Override
                 protected Boolean initialValue() {
@@ -190,97 +231,84 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
             @Override
             public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-                if ("hashCode".equals(method.getName()) && args.length == 0) { // Methods
-                                                                               // doesn't
-                                                                               // override
-                                                                               // equals
-                                                                               // and
-                                                                               // hashCode
-                                                                               // methods
-                    return System.identityHashCode(object);
-                }
-                if ("equals".equals(method.getName()) && args.length == 1) {
-                    return object == args[0];
-                }
                 if ("invoke".equals(method.getName())) {
-                    IOpenClass topClass = topClassRef.get();
-                    if (topClass == null) {
-                        boolean access = method.isAccessible();
-                        try {
-                            if (args[0] instanceof IDynamicObject) {
-                                IDynamicObject dynamicObject = (IDynamicObject) args[0];
-                                IOpenClass typeClass = dynamicObject.getType();
+                    IOpenClass typeClass = null;
+                    if (args[0] instanceof IDynamicObject) {
+                        IDynamicObject dynamicObject = (IDynamicObject) args[0];
+                        typeClass = dynamicObject.getType();
+                    } else if (java.lang.reflect.Proxy.isProxyClass(args[0].getClass())) {
+                        java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(args[0]);
+                        if (invocationHandler instanceof OpenLInvocationHandler) {
+                            OpenLInvocationHandler openLInvocationHandler = (OpenLInvocationHandler) invocationHandler;
+                            Object opnelInstance = openLInvocationHandler.getInstance();
+                            if (opnelInstance instanceof IDynamicObject) {
+                                IDynamicObject dynamicObject = (IDynamicObject) opnelInstance;
+                                typeClass = dynamicObject.getType();
+                            } else {
+                                throw new IllegalStateException("Can't define openl class from target object!");
+                            }
+                        } else {
+                            throw new IllegalStateException("Can't define openl class from target object!");
+                        }
+                    } else {
+                        throw new IllegalStateException("Can't define openl class from target object");
+                    }
+                    if (typeClass != XlsModuleOpenClass.this) {
+                        IOpenClass topClass = topClassRef.get();
+                        if (topClass == null) {
+                            boolean access = method.isAccessible();
+                            try {
                                 topClassRef.set(typeClass);
-                                if (typeClass != XlsModuleOpenClass.this) {
-                                    IOpenMethod matchedMethod = typeClass.getMatchingMethod(openMethod.getName(),
-                                        openMethod.getSignature().getParameterTypes());
-                                    if (matchedMethod != null) {
+                                method.setAccessible(true);
+                                return method.invoke(openMethod, args);
+                            } catch (InvocationTargetException e) {
+                                throw e.getTargetException();
+                            } finally {
+                                method.setAccessible(access);
+                                topClassRef.remove();
+                                cachedMatchedMethod.remove();
+                            }
+                        } else {
+                            Boolean isInvockedFromTop = invockedFromTop.get();
+                            if (Boolean.FALSE.equals(isInvockedFromTop)) {
+                                try {
+                                    invockedFromTop.set(Boolean.TRUE);
+                                    IOpenMethod matchedMethod = cachedMatchedMethod.get();
+                                    if (matchedMethod == null) {
+                                        matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
+                                            openMethod.getSignature().getParameterTypes());
+                                        if (matchedMethod == null){
+                                            matchedMethod = EmptyMethod.getInstance();
+                                        }
+                                        cachedMatchedMethod.set(matchedMethod);
+                                    } 
+                                    if (matchedMethod != EmptyMethod.getInstance()) {
                                         cachedMatchedMethod.set(matchedMethod);
                                         Object target = args[0];
                                         Object[] params = (Object[]) args[1];
                                         IRuntimeEnv env = (IRuntimeEnv) args[2];
                                         return matchedMethod.invoke(target, params, env);
                                     }
+                                } finally {
+                                    invockedFromTop.remove();
                                 }
-                            } else if (java.lang.reflect.Proxy.isProxyClass(args[0].getClass())) {
-                                java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(args[0]);
-                                if (invocationHandler instanceof OpenLInvocationHandler) {
-                                    OpenLInvocationHandler openLInvocationHandler = (OpenLInvocationHandler) invocationHandler;
-                                    Object opnelInstance = openLInvocationHandler.getInstance();
-                                    if (opnelInstance instanceof IDynamicObject) {
-                                        IDynamicObject dynamicObject = (IDynamicObject) opnelInstance;
-                                        IOpenClass typeClass = dynamicObject.getType();
-                                        topClassRef.set(typeClass);
-                                    } else {
-                                        throw new IllegalStateException("Can't define openl class from target object!");
-                                    }
-                                } else {
-                                    throw new IllegalStateException("Can't define openl class from target object!");
-                                }
-                            } else {
-                                throw new IllegalStateException("Can't define openl class from target object");
-                            }
-                            method.setAccessible(true);
-                            return method.invoke(openMethod, args);
-                        } catch (InvocationTargetException e) {
-                            throw e.getTargetException();
-                        } finally {
-                            method.setAccessible(access);
-                            topClassRef.remove();
-                            cachedMatchedMethod.remove();
-                            cachedMatchedMethodFound.remove();
-                        }
-                    } else {
-                        Boolean isInvockedFromTop = invockedFromTop.get();
-                        if (Boolean.FALSE.equals(isInvockedFromTop)) {
-                            try {
-                                invockedFromTop.set(Boolean.TRUE);
-                                Boolean found = cachedMatchedMethodFound.get();
-                                IOpenMethod matchedMethod;
-                                if (found == null || Boolean.FALSE.equals(found)) {
-                                    matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
-                                        openMethod.getSignature().getParameterTypes());
-                                    cachedMatchedMethod.set(matchedMethod);
-                                    cachedMatchedMethodFound.set(Boolean.TRUE);
-                                } else {
-                                    matchedMethod = cachedMatchedMethod.get();
-                                }
-                                if (matchedMethod == null) {
-                                    matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
-                                        openMethod.getSignature().getParameterTypes());
-                                }
-                                if (matchedMethod != null) {
-                                    cachedMatchedMethod.set(matchedMethod);
-                                    Object target = args[0];
-                                    Object[] params = (Object[]) args[1];
-                                    IRuntimeEnv env = (IRuntimeEnv) args[2];
-                                    return matchedMethod.invoke(target, params, env);
-                                }
-                            } finally {
+                            }else{
                                 invockedFromTop.remove();
                             }
                         }
                     }
+                }
+                if (args.length == 0 && "hashCode".equals(method.getName())) { // Methods
+                    // doesn't
+                    // override
+                    // equals
+                    // and
+                    // hashCode
+                    // methods
+                    return System.identityHashCode(object);
+                }
+                if (args.length == 1 && "equals".equals(method.getName())) {
+                    return object == args[0];
                 }
                 boolean access = method.isAccessible();
                 try {

@@ -4,7 +4,6 @@
 	<modules>
 		<module>
 			<name>testmodule</name>
-			<type>api</type>
 			<rules-root path="**/multi-module-support/**/Domain.xlsx"/>
 		</module>	
 	</modules>

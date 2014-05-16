@@ -12,6 +12,10 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Project descriptor is null");
         }
 
+        if (descriptor.getName() == null || descriptor.getName().trim().isEmpty()) {
+            throw new ValidationException("Project name are not defined");
+        }
+
         if (descriptor.getModules() == null || descriptor.getModules().size() == 0) {
             throw new ValidationException("Project modules are not defined");
         }
@@ -39,7 +43,7 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Module istantiation type is not defined");
         }
 
-        if (ModuleType.STATIC.equals(module.getType()) || ModuleType.DYNAMIC.equals(module.getType())) {
+        if (ModuleType.WRAPPER.equals(module.getType())) {
             if (StringUtils.isEmpty(module.getClassname())) {
                 throw new ValidationException("Module java class is not defined");
             }
