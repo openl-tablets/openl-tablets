@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -52,7 +52,7 @@ import org.openl.util.StringTool;
  * Request scope managed bean for Table page.
  */
 @ManagedBean
-@RequestScoped
+@ViewScoped
 public class TableBean {
 
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
