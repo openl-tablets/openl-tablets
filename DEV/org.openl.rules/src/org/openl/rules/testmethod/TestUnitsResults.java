@@ -56,6 +56,21 @@ public class TestUnitsResults implements INamedThing {
         return testUnits;
     }
 
+    public List<TestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
+        if (testUnits != null && failuresOnly) {
+            List<TestUnit> failedUnits = new ArrayList<TestUnit>();
+            for (TestUnit testUnit : testUnits) {
+                if (testUnit.compareResult() != 0 // Failed unit
+                        && (failedUnits.size() < size || size == -1)) {
+                    failedUnits.add(testUnit);
+                }
+            }
+            return failedUnits;
+        }
+
+        return testUnits;
+    }
+
     public void addTestUnit(TestUnit testUnit) {
         if (!testSuite.isVirtualTestSuite()) {
             testUnits.add(updateTestUnit(testUnit));

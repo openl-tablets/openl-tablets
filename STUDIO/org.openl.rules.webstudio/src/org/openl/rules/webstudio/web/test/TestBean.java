@@ -2,33 +2,28 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.table.Point;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
-import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -44,7 +39,7 @@ import org.openl.types.IParameterDeclaration;
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
  */
 @ManagedBean
-@RequestScoped
+@ViewScoped
 public class TestBean {
 
     private final Log LOG = LogFactory.getLog(TestBean.class);
@@ -182,24 +177,6 @@ public class TestBean {
         return Arrays.copyOfRange(ranResults, startPos, endPos);
     }
 
-    public List<TestUnit> getFilteredTestCases(TestUnitsResults testResult) {
-        List<TestUnit> cases = testResult.getTestUnits();
-
-        if (testsFailuresOnly) {
-            List<TestUnit> failedCases = new ArrayList<TestUnit>();
-            for (TestUnit testUnit : cases) {
-                if (testUnit.compareResult() != 0 // Failed case
-                        && (failedCases.size() < testsFailuresPerTest
-                                || testsFailuresPerTest == ALL)) {
-                    failedCases.add(testUnit);
-                }
-            }
-            return failedCases;
-        }
-
-        return cases;
-    }
-
     public boolean hasComplexResults(TestUnitsResults testResult) {
         List<TestUnit> cases = testResult.getTestUnits();
         for (TestUnit testCase : cases) {
@@ -234,52 +211,6 @@ public class TestBean {
         return sum;
     }
 
-    /**
-     * @return list of errors if there were any during execution of the test. In
-     *         other case <code>null</code>.
-     */
-    public List<OpenLMessage> getErrors(Object objTestUnit) {
-        Object result = getActualResultInternal(objTestUnit);
-        return TestResultsHelper.getErrors(result);
-    }
-
-    public List<OpenLMessage> getResultMessages(Object objTestUnit) {
-        Object result = getActualResultInternal(objTestUnit);
-        return TestResultsHelper.getUserMessagesAndErrors(result);
-    }
-
-    public List<ComparedResult> getResultParams(Object objTestCase) {
-        List<ComparedResult> params = new ArrayList<ComparedResult>();
-
-        TestUnit testCase = ((TestUnit) objTestCase);
-
-        Object actual = testCase.getActualResult();
-        Object expected = testCase.getExpectedResult();
-
-        if (!(actual instanceof Throwable)) {
-            TestResultComparator testComparator = testCase.getTestUnitResultComparator().getComparator();
-            if (testComparator instanceof BeanResultComparator) {
-                List<ComparedResult> results = ((BeanResultComparator) testComparator).getComparisonResults();
-                for (ComparedResult comparedResult : results) {
-                    comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
-                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
-                    params.add(comparedResult);
-                }
-                return params;
-            }
-        }
-
-        ComparedResult result = new ComparedResult();
-        result.setStatus(TestStatus.TR_OK.getConstant(testCase.compareResult()));
-        result.setActualValue(new ParameterWithValueDeclaration("actual", actual, IParameterDeclaration.OUT));
-        result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected, IParameterDeclaration.OUT));
-        params.add(result);
-
-        return params;
-    }
-
     public String formatExplanationValue(Object value) {
         return TestResultsHelper.format(TestResultsHelper.getExplanationValueResult(value));
     }
@@ -292,29 +223,12 @@ public class TestBean {
         return TestResultsHelper.getExplanatorId((ExplanationNumberValue<?>) value);
     }
 
-    public Object getActualResult(Object objTestUnit) {
-        return Collections.singletonList(new ParameterWithValueDeclaration(
-                "actual", getActualResultInternal(objTestUnit), IParameterDeclaration.OUT));
-    }
-
     /**
      * @return Actual calculated result as Object
      */
     private Object getActualResultInternal(Object objTestUnit) {
         TestUnit testUnit = (TestUnit) objTestUnit;
         return testUnit.getActualResult();
-    }
-
-    public ParameterWithValueDeclaration[] getContextParams(Object objTestResult, Object objTestCase) {
-        return TestUtils.getContextParams(
-                ((TestUnitsResults) objTestResult).getTestSuite(),
-                ((TestUnit) objTestCase).getTest());
-    }
-
-    public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestCase) {
-        TestUnit testCase = (TestUnit) objTestCase;
-        TestDescription testCaseDescription = testCase.getTest();
-        return testCaseDescription.getExecutionParams();
     }
 
     public boolean isResultThrowable(Object testUnit) {
