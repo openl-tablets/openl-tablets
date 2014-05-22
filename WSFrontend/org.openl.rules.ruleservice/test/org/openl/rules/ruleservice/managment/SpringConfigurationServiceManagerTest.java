@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -37,7 +37,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
-                "vehicleEligibilityScore", new Object[] { new DefaultRulesRuntimeContext(), "Provisional" });
+                "vehicleEligibilityScore", new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional" });
         assertTrue(object instanceof org.openl.meta.DoubleValue);
         org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
         assertEquals(50.0, value.getValue(), 0.01);
@@ -52,6 +52,6 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         frontend.execute("ErrorTest_ErrorTest", "vehicleEligibilityScore", new Object[] {
-                new DefaultRulesRuntimeContext(), "test" });
+                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test" });
     }
 }

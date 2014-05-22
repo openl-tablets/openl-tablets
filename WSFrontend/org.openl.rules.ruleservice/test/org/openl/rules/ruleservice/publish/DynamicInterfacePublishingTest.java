@@ -11,8 +11,8 @@ import net.sf.cglib.core.ReflectUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -102,7 +102,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         OpenLService service = frontend.findServiceByName("dynamic-interface-test3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Class<?> myClassClass = service.getServiceClass().getClassLoader()
                 .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
         Object myClassIntance = myClassClass.newInstance();

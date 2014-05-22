@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.context;
 
+import org.openl.rules.context.RulesRuntimeContextFactory;
 
 public class RuntimeContextConvertor {
  // <<< INSERT >>>
@@ -46,7 +47,7 @@ public class RuntimeContextConvertor {
     }
     
 	public static org.openl.rules.context.IRulesRuntimeContext covert(org.openl.rules.ruleservice.context.IRulesRuntimeContext context) {
-	    org.openl.rules.context.DefaultRulesRuntimeContext rulesRuntimeContext = new org.openl.rules.context.DefaultRulesRuntimeContext();
+	    org.openl.rules.context.IRulesRuntimeContext rulesRuntimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 		rulesRuntimeContext.setCurrentDate(context.getCurrentDate());
 		rulesRuntimeContext.setRequestDate(context.getRequestDate());
 		rulesRuntimeContext.setLob(context.getLob());

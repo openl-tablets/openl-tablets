@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -109,7 +109,7 @@ public class ExternalDependenciesTest {
         Class<?> interfaceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("dependency2");
 
         // Get policy profile.
@@ -158,7 +158,7 @@ public class ExternalDependenciesTest {
         Class<?> interfaceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         // Get policy profile.
         //
         Method method = interfaceClass.getMethod("getPolicyProfile4", new Class[]{ IRulesRuntimeContext.class });

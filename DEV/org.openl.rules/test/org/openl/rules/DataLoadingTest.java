@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -30,7 +31,7 @@ public class DataLoadingTest {
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         env.setContext(context);
 
         Date[] res = instance.getDateSet();

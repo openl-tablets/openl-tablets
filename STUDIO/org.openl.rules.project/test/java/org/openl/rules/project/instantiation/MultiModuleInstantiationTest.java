@@ -1,6 +1,8 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -11,8 +13,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.InitializingModuleListener;
@@ -85,7 +87,7 @@ public class MultiModuleInstantiationTest {
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob3");
         Method method = serviceClass.getMethod("driverRiskPremium", new Class<?>[] { IRulesRuntimeContext.class,
                 String.class });
@@ -212,7 +214,7 @@ public class MultiModuleInstantiationTest {
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob2");
 
         Method method = serviceClass.getMethod("hello", new Class<?>[] { IRulesRuntimeContext.class, int.class });

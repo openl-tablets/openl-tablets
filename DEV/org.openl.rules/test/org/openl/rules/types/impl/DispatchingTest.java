@@ -20,6 +20,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
@@ -143,16 +144,16 @@ public class DispatchingTest {
     public void calcBenchmark() throws Exception {
         IRuntimeEnv runtimeEnv = ((IEngineWrapper)instance).getRuntimeEnv();
 
-        IRulesRuntimeContext context1 = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context1 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context1.setCountry(CountriesEnum.US);
         context1.setLang(LanguagesEnum.ENG);
         context1.setCurrency(CurrenciesEnum.USD);
 
-        IRulesRuntimeContext context2 = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context2 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context2.setLang(LanguagesEnum.ITA);
         context2.setCurrency(CurrenciesEnum.EUR);
 
-        IRulesRuntimeContext context3 = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context3 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context3.setCountry(CountriesEnum.US);
         context3.setLang(LanguagesEnum.GER);
         context3.setCurrency(CurrenciesEnum.USD);
@@ -194,7 +195,7 @@ public class DispatchingTest {
     }
 
     private IRulesRuntimeContext initContext() {
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
         return context;
     }

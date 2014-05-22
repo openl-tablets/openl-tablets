@@ -4,16 +4,18 @@
 
 package org.openl.tablets.tutorial4;
 
-import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.types.java.OpenClassHelper;
 import java.util.Map;
-import org.openl.types.IOpenClass;
+
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.dependency.IDependencyManager;
+import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.OpenClassHelper;
+import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider,org.openl.rules.context.IRulesRuntimeContextConsumer
 {
@@ -42,7 +44,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(new org.openl.rules.context.DefaultRulesRuntimeContext());
+      environment.setContext(RulesRuntimeContextFactory.buildRulesRuntimeContext());
       return environment;
     }
   };
