@@ -62,7 +62,7 @@
 			<list>
 				<!-- Comment/Uncomment following block for use/unuse logging feature. 
 					It can increase performance if logging isn't used. -->
-				<ref local="webServicesLoggingFeature" />
+				<ref bean="webServicesLoggingFeature" />
 			</list>
 		</property>
 	</bean>
@@ -72,7 +72,7 @@
 	<bean id="webServicesServerPrototypeFactory"
 		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
 		<property name="targetBeanName">
-			<idref local="webServicesServerPrototype" />
+			<idref bean="webServicesServerPrototype" />
 		</property>
 	</bean>
 

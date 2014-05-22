@@ -157,7 +157,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         module.setProject(project);
         module.setClassname(className);
         module.setName(getModuleName(project.getProjectFolder(), className));
-        module.setType(ModuleType.STATIC);
+        module.setType(ModuleType.WRAPPER);
         return module;
     }
 

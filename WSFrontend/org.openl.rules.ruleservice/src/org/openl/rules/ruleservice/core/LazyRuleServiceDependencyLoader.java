@@ -81,13 +81,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             }
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
             try {
-                if (dependencyManager.getStack().contains(dependencyName)) {
+                if (dependencyManager.getModuleCompilationStack().contains(dependencyName)) {
                     OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
                     return null;
                 }
                 RulesInstantiationStrategy rulesInstantiationStrategy = null;
                 final ClassLoader classLoader = dependencyManager.getClassLoader(modules);
-                dependencyManager.getStack().add(dependencyName);
+                dependencyManager.getModuleCompilationStack().add(dependencyName);
                 if (log.isDebugEnabled()) {
                     log.debug("Creating lazy deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion()
                         .getVersionName() + "\", dependencyName=\"" + dependencyName + "\"");
@@ -245,7 +245,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
                 }
             } finally {
-                dependencyManager.getStack().pollLast();
+                dependencyManager.getModuleCompilationStack().pollLast();
             }
         }
     }

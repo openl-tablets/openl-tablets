@@ -32,7 +32,9 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         super(module, executionMode, dependencyManager);
     }
 
-    public ApiBasedInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager,
+    public ApiBasedInstantiationStrategy(Module module,
+            boolean executionMode,
+            IDependencyManager dependencyManager,
             ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
     }
@@ -104,8 +106,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             // Information for interface generation, if generation required.
             Module m = getModule();
             MethodFilter methodFilter = m.getMethodFilter();
-            if (methodFilter != null
-                    && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils.isNotEmpty(methodFilter.getIncludes()))) {
+            if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils.isNotEmpty(methodFilter.getIncludes()))) {
                 String[] includes = new String[] {};
                 String[] excludes = new String[] {};
                 includes = methodFilter.getIncludes().toArray(includes);
@@ -128,6 +129,8 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().newEngineInstance();
+        } catch (Exception e) {
+            throw new RulesInstantiationException(e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

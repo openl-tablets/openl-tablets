@@ -27,7 +27,7 @@ import org.openl.rules.project.model.Module;
  */
 public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantiationStrategy {
 
-    private final Log log = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
+    private final Log log = LogFactory.getLog(WrapperAdjustingInstantiationStrategy.class);
 
     private OpenLWrapper wrapper;
 

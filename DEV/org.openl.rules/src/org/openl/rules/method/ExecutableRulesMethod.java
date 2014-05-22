@@ -40,7 +40,6 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     private Boolean cacheble = null;
 
-
     protected boolean isMethodCacheable() {
         if (cacheble == null) {
             if (getMethodProperties() == null) {
