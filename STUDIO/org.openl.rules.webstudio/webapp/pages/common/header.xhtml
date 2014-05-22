@@ -69,7 +69,7 @@
 
     <div>
         <div style="position: absolute; left: 15px; top: 11px">
-            <a href="#{contextPath}" style="text-decoration: none">
+            <a href="#{contextPath}/" style="text-decoration: none">
                 <ui:include src="/pages/common/logo.xhtml" />
             </a>
         </div>
@@ -97,7 +97,7 @@
 
         <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
         <div id="ll">
-            <a href="#{contextPath}" class="nav-editor#{menu=='rules' ? ' active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}"
+            <a href="#{contextPath}/" class="nav-editor#{menu=='rules' ? ' active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}"
                 data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
                 data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}" title=""
