@@ -1,14 +1,16 @@
 package org.openl.rules.project.dependencies;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
@@ -110,7 +112,7 @@ public class DependencyMethodDispatchingTest {
 			fail("Method should exist.");
 		}
 
-		DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+		IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
 		// set the state from dependency module
 		//

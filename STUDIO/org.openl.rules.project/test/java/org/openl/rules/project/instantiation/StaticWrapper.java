@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.types.IOpenClass;
@@ -44,7 +45,7 @@ public class StaticWrapper implements org.openl.main.OpenLWrapper,org.openl.rule
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(new org.openl.rules.context.DefaultRulesRuntimeContext());
+      environment.setContext(RulesRuntimeContextFactory.buildRulesRuntimeContext());
       return environment;
     }
   };

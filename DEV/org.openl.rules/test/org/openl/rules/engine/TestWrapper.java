@@ -5,14 +5,14 @@
 package org.openl.rules.engine;
 
 import org.junit.Ignore;
-import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 
 @Ignore("Auxiliary class")
 public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
@@ -39,7 +39,7 @@ public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
       org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-      environment.setContext(new DefaultRulesRuntimeContext());
+      environment.setContext(RulesRuntimeContextFactory.buildRulesRuntimeContext());
       return environment;
     }
   };
