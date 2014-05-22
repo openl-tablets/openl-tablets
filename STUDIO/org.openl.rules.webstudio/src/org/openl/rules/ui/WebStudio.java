@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -208,8 +209,7 @@ public class WebStudio {
             try {
                 String projectFolder = currentProject.getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
-                return project;
+                return rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
             } catch (Exception e) {
                 log.error("Error when trying to get current project", e);
             }
@@ -224,12 +224,10 @@ public class WebStudio {
                 throw new ProjectException("Exporting module was failed");
             }
 
-            if (file != null) {
-                final FacesContext facesContext = FacesUtils.getFacesContext();
-                HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-                ExportModule.writeOutContent(response, file, file.getName(), FilenameUtils.getExtension(file.getName()));
-                facesContext.responseComplete();
-            }
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            ExportModule.writeOutContent(response, file, file.getName(), FilenameUtils.getExtension(file.getName()));
+            facesContext.responseComplete();
         } catch (ProjectException e) {
             log.error("Failed to export module", e);
         }
@@ -298,6 +296,14 @@ public class WebStudio {
     }
 
     public synchronized void invalidateProjects() {
+        try {
+            WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
+        } catch (CommonException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
         projects = null;
     }
 
