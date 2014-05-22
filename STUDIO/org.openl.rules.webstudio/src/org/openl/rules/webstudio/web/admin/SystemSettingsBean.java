@@ -249,7 +249,7 @@ public class SystemSettingsBean {
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
 
-        String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+        String[] repositoryConfigNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
@@ -328,7 +328,7 @@ public class SystemSettingsBean {
                 productionRepositoryConfigurations.set(i, newProdConfig);
                 configNames[i] = newProdConfig.getConfigName();
             }
-            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
 
             saveSystemConfig();
         } catch (Exception e) {
@@ -386,7 +386,7 @@ public class SystemSettingsBean {
                     getProductionConfigManager(emptyConfigName));
 
             String templateName = template.getName();
-            String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+            String[] configNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
 
             String templatePath = template.getPath();
@@ -567,12 +567,12 @@ public class SystemSettingsBean {
         newConfig.save();
 
         // Rename link to a file in system config
-        String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+        String[] configNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
         for (int i = 0; i < configNames.length; i++) {
             if (configNames[i].equals(prodConfig.getConfigName())) {
                 // Found necessary link - rename it
                 configNames[i] = newConfigName;
-                configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
+                configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
                 saveSystemConfig();
                 break;
             }
@@ -813,5 +813,13 @@ public class SystemSettingsBean {
                 SessionListener.getSessionCache(servletContext).invalidateAll();
             }
         });
+    }
+
+    private String[] split(String s) {
+        return StringUtils.split(s, ",");
+    }
+
+    private String join(String arr[]) {
+        return StringUtils.join(arr, ",");
     }
 }
