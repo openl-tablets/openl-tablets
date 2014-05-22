@@ -39,7 +39,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
         Module module = new Module();
         
         module.setName(getDisplayName());
-        module.setType(ModuleType.DYNAMIC);
+        module.setType(ModuleType.API);
         module.setClassname(getTargetClass());
         module.setRulesRootPath(new PathEntry(getSrcFile()));
         return module;

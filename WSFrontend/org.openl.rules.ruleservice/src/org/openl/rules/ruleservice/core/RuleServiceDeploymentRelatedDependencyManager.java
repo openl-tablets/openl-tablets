@@ -1,39 +1,27 @@
 package org.openl.rules.ruleservice.core;
 
-import java.net.URL;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
-import org.openl.classloader.OpenLClassLoaderHelper;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.DependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
 
-
-public class RuleServiceDeploymentRelatedDependencyManager extends DependencyManager {
+public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager {
 
     private final Log log = LogFactoryImpl.getLog(RuleServiceDeploymentRelatedDependencyManager.class);
-
-    private List<IDependencyLoader> dependencyLoaders = null;
 
     private RuleServiceLoader ruleServiceLoader;
 
@@ -53,18 +41,11 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         private static Semaphore limitCompilationThreadsSemaphore = new Semaphore(RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
     }
 
-    // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         try {
             SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
-            String dependencyName = dependency.getNode().getIdentifier();
-            CompiledDependency compiledDependency = handleLoadDependency(dependency);
-            if (compiledDependency == null) {
-                throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found",
-                    dependencyName), null, dependency.getNode().getSourceLocation());
-            }
-            return compiledDependency;
+            return super.loadDependency(dependency);
         } catch (InterruptedException e) {
             throw new OpenLCompilationException("Interrupter exception!", e);
         } finally {
@@ -92,38 +73,9 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         super.setExecutionMode(true);
     }
 
-    private Deque<String> stack = new ArrayDeque<String>();
-    private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
-
-    Deque<String> getStack() {
-        return stack;
-    }
-
     @Override
     public void setExecutionMode(boolean executionMode) {
         throw new UnsupportedOperationException("This dependency manager supports only executionMode=true");
-    }
-
-    protected ClassLoader getClassLoader(Collection<Module> modules) {
-        Set<String> projectNames = new HashSet<String>();
-        for (Module module : modules) {
-            projectNames.add(module.getProject().getName());
-        }
-        if (projectNames.size() == 1) {
-            String pn = projectNames.iterator().next();
-            if (classLoaders.get(pn) != null) {
-                return classLoaders.get(pn);
-            }
-            SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(RuleServiceDeploymentRelatedDependencyManager.class.getClassLoader());
-            for (Module module : modules) {
-                URL[] urls = module.getProject().getClassPathUrls();
-                classLoader.addClassLoader(module.getProject().getClassLoader(false));
-                OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
-            }
-            classLoaders.put(pn, classLoader);
-            return classLoader;
-        }
-        throw new IllegalStateException();
     }
 
     @Override

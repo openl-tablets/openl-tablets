@@ -205,6 +205,7 @@ public class ProjectDescriptorManager {
 
         for (Module module : descriptor.getModules()) {
             module.setProject(descriptor);
+            module.setType(ModuleType.API);
             if (module.getMethodFilter() == null) {
                 module.setMethodFilter(new MethodFilter());
             }

@@ -1,91 +1,55 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
-import org.openl.classloader.OpenLClassLoaderHelper;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.DependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 
-import java.net.URL;
-import java.util.*;
-
-public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManager {
+public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectDependencyManager {
 
     private final Log log = LogFactoryImpl.getLog(WebStudioWorkspaceRelatedDependencyManager.class);
 
-    private List<IDependencyLoader> dependencyLoaders;
-
-    private List<ProjectDescriptor> dependentProjects;
-    private boolean singleModuleMode;
+    private List<ProjectDescriptor> projects;
 
     private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
 
     private final List<String> moduleNames = new ArrayList<String>();
+    
+    private boolean singleModuleMode = false;
 
-    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> dependentProjects, boolean singleModuleMode) {
-        if (dependentProjects == null) {
-            throw new IllegalArgumentException("dependentProjects can't be null!");
+    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects,
+            boolean singleModuleMode) {
+        super();
+        if (projects == null) {
+            throw new IllegalArgumentException("projects can't be null!");
         }
 
-        this.dependentProjects = dependentProjects;
+        this.projects = projects;
         this.singleModuleMode = singleModuleMode;
     }
 
-    // Disable cache of compiled dependencies. Use ehcache in loaders.
+    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects) {
+        this(projects, false);
+    }
+
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         for (DependencyManagerListener listener : listeners) {
             listener.onLoadDependency(dependency);
         }
-
-        String dependencyName = dependency.getNode().getIdentifier();
-        CompiledDependency compiledDependency = handleLoadDependency(dependency);
-        if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", dependencyName),
-                null,
-                dependency.getNode().getSourceLocation());
-        }
-        return compiledDependency;
-    }
-
-    private Deque<String> stack = new ArrayDeque<String>();
-    private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
-
-    Deque<String> getStack() {
-        return stack;
-    }
-
-    public ClassLoader getClassLoader(Collection<Module> modules) {
-        Set<String> projectNames = new HashSet<String>();
-        for (Module module : modules) {
-            projectNames.add(module.getProject().getName());
-        }
-        if (projectNames.size() == 1) {
-            String pn = projectNames.iterator().next();
-            if (classLoaders.get(pn) != null) {
-                return classLoaders.get(pn);
-            }
-            SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader());
-            for (Module module : modules) {
-                URL[] urls = module.getProject().getClassPathUrls();
-                classLoader.addClassLoader(module.getProject().getClassLoader(false));
-                OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
-            }
-            classLoaders.put(pn, classLoader);
-            return classLoader;
-        }
-        throw new IllegalStateException();
-    }
-
-    public void removeClassLoader(String projectName) {
-        classLoaders.remove(projectName);
+        return super.loadDependency(dependency);
     }
 
     @Override
@@ -94,22 +58,27 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
             return dependencyLoaders;
         }
         dependencyLoaders = new ArrayList<IDependencyLoader>();
-        for (ProjectDescriptor project : dependentProjects) {
+        for (ProjectDescriptor project : projects) {
             try {
                 Collection<Module> modulesOfProject = project.getModules();
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
-                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(), Arrays.asList(m), singleModuleMode));
+                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
+                            Arrays.asList(m),
+                            singleModuleMode));
                         moduleNames.add(m.getName());
                     }
                 }
 
                 String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
-                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName, project.getModules(), singleModuleMode);
+                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
+                    project.getModules(),
+                    singleModuleMode);
                 dependencyLoaders.add(projectLoader);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    String message = String.format("Build dependency manager loaders for project %s was failed!", project.getName());
+                    String message = String.format("Build dependency manager loaders for project %s was failed!",
+                        project.getName());
                     log.error(message, e);
                 }
             }
@@ -132,8 +101,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
 
         ProjectDescriptor projectToReset = null;
 
-        searchProject:
-        for (ProjectDescriptor project : dependentProjects) {
+        searchProject: for (ProjectDescriptor project : projects) {
             if (dependencyName.equals(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()))) {
                 projectToReset = project;
                 break;
@@ -148,7 +116,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
         }
 
         if (projectToReset != null) {
-            removeClassLoader(projectToReset.getName());
+            clearClassLoader(projectToReset.getName());
             String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectToReset.getName());
 
             for (IDependencyLoader dependencyLoader : dependencyLoaders) {
@@ -166,7 +134,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
                 }
             }
         }
-
     }
 
     @Override
@@ -175,7 +142,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
             return;
         }
 
-        classLoaders.clear();
+        clearAllClassLoader();
 
         for (IDependencyLoader dependencyLoader : dependencyLoaders) {
             ((WebStudioDependencyLoader) dependencyLoader).reset();
@@ -193,7 +160,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManage
     }
 
     public void removeListener(DependencyManagerListener listener) {
-        for (Iterator<DependencyManagerListener> iterator = listeners.iterator(); iterator.hasNext(); ) {
+        for (Iterator<DependencyManagerListener> iterator = listeners.iterator(); iterator.hasNext();) {
             DependencyManagerListener next = iterator.next();
             if (next == listener) {
                 iterator.remove();

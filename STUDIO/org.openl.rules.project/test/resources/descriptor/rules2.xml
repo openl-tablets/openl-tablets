@@ -1,6 +1,7 @@
 <project>
 	<!--  Project identifier. String value which defines project uniquely. -->
 	<id>my-project-id</id>
+
 	<!-- Project name. -->
 	<name>Project name</name>
 
@@ -8,8 +9,6 @@
 	<modules>
 
 		<module>
-			<name>MyModule1</name>
-			<type>static</type>
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
@@ -19,7 +18,6 @@
 		
 		<module>
 			<name>MyModule2</name>
-			<type>api</type>
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
