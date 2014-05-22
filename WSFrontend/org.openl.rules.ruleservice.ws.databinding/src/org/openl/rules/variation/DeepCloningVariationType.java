@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.context;
+package org.openl.rules.variation;
 
 /*
  * #%L
@@ -21,21 +21,22 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.Variation;
 
 /**
- * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not
- * usual bean and should be initialized through non-default constructor.
+ * Custom mapping for {@link DeepCloningVariaion} due to it is not usual bean
+ * and should be initialized through non-default constructor.
  * 
  * @author PUdalau
  */
-public class ArgumentReplacementVariationType extends BeanType {
+public class DeepCloningVariationType extends BeanType {
 
-    public static final Class<?> TYPE_CLASS = ArgumentReplacementVariation.class;
+    public static final Class<?> TYPE_CLASS = DeepCloningVariaion.class;
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    public ArgumentReplacementVariationType() {
+    public DeepCloningVariationType() {
         super();
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
@@ -47,8 +48,7 @@ public class ArgumentReplacementVariationType extends BeanType {
 
         try {
             String variationID = "";
-            int updatedArgumentIndex = 0;
-            Object valueToSet = null;
+            Variation variation = null;
             // Read child elements
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();
@@ -66,17 +66,15 @@ public class ArgumentReplacementVariationType extends BeanType {
                     Object propertyValue = type.readObject(childReader, context);
                     if ("variationID".equals(propertyName)) {
                         variationID = String.valueOf(propertyValue);
-                    } else if ("updatedArgumentIndex".equals(propertyName)) {
-                        updatedArgumentIndex = (Integer) propertyValue;
-                    } else if ("valueToSet".equals(propertyName)) {
-                        valueToSet = propertyValue;
+                    } else if ("delegatedVariation".equals(propertyName)) {
+                        variation = (Variation) propertyValue;
                     }
                 } else {
                     childReader.readToEnd();
                 }
             }
 
-            return new ArgumentReplacementVariation(variationID, updatedArgumentIndex, valueToSet);
+            return new DeepCloningVariaion(variationID, variation);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

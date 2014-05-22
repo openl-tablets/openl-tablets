@@ -28,7 +28,7 @@
 		<property name="defaultRuleServicePublisher" ref="javaClassRuleServicePublisher" />
 		<property name="supportedPublishers">
 			<list>
-				<ref local="otherJavaClassRuleServicePublisher" />
+				<ref bean="otherJavaClassRuleServicePublisher" />
 			</list>
 		</property>
 	</bean>
