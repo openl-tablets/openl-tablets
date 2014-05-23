@@ -167,8 +167,7 @@
                         <c:set var="runLink"
                             value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?uri=#{tableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none; min-width: 175px">
-                            <div id="runCasesSettings">
-                                <h:panelGroup rendered="#{tableBean.table.type != 'xls.run.method'}">
+                            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}">
                                 <div title="Show only failed test cases">
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
@@ -185,14 +184,13 @@
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
                                 </div>
-                                </h:panelGroup>
                                 <div title="Display the full result of running test cases, not only values which are being tested">
                                     <span>Compound Result</span>
                                     <input name="complexResult" type="checkbox"
                                            value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
                                            style="vertical-align:-2px;margin:-4px" />
                                 </div>
-                            </div>
+                            </h:panelGroup>
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%">
                                 <tr>
                                     <th>
