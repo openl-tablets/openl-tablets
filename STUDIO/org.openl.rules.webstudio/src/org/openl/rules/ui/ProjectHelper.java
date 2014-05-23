@@ -72,7 +72,9 @@ public class ProjectHelper {
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
     public static boolean isTester(IOpenMethod tester) {
-        return (tester instanceof TestSuiteMethod) && ((TestSuiteMethod) tester).isRunmethodTestable() 
+        return (tester instanceof TestSuiteMethod)
+            && !((TestSuiteMethod) tester).isRunmethod()
+            && ((TestSuiteMethod) tester).isRunmethodTestable()
             && noErrors((TestSuiteMethod)tester);
     }
     
