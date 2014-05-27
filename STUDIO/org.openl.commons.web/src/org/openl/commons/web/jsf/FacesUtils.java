@@ -215,7 +215,7 @@ public abstract class FacesUtils {
     }
 
     public static void redirectToRoot() throws IOException {
-        redirect(FacesUtils.getContextPath());
+        redirect(FacesUtils.getContextPath() + "/");
     }
 
     public static void addMessage(String summary, Severity severity) {

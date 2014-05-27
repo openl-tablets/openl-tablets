@@ -16,7 +16,7 @@
 	<url>http://openl-tablets.sf.net/</url>
 
 	<properties>
-		<war.name>openl-ws</war.name>
+		<war.name>openl-tablets-ws</war.name>
 	</properties>
 
 	<build>

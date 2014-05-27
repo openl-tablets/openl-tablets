@@ -28,7 +28,7 @@
 							<goal>attached</goal>
 						</goals>
 						<configuration>
-							<finalName>core-${project.version}</finalName>
+							<finalName>openl-tablets-core-${project.version}</finalName>
 							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
 							<descriptors>
 								<descriptor>assembly/assembly-zip.xml</descriptor>

@@ -27,7 +27,7 @@ import org.richfaces.model.TreeNodeImpl;
 @RequestScoped
 public class ParameterTreeBuilder {
 
-    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType,Object value,
+    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
             String fieldName, ParameterDeclarationTreeNode parent) {
         if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
@@ -88,13 +88,27 @@ public class ParameterTreeBuilder {
         }
     }
 
-    public TreeNode getRoot(Object objParam) {
-        ParameterWithValueDeclaration param = (ParameterWithValueDeclaration) objParam;
+    public String getRoot(ParameterWithValueDeclaration param) {
+        Object value = param.getValue();
+
+        if (param != null && value != null) {
+            IOpenClass fieldType = param.getType();
+            if (OpenClassHelper.isCollection(fieldType)) {
+                boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
+                return OpenClassHelper.displayNameForCollection(fieldType, empty);
+            } else if (!fieldType.isSimple()) {
+                return createComplexBeanNode(fieldType, null, null, null).getDisplayedValue();
+            }
+        }
+
+        return "null";
+    }
+
+    public TreeNode getTree(ParameterWithValueDeclaration param) {
         TreeNodeImpl root = new TreeNodeImpl();
 
-        ParameterDeclarationTreeNode treeNode = null;
         if (param != null) {
-            treeNode = createNode(param.getType(), param.getValue(), null, null);
+            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), null, null);
             root.addChild(param.getName(), treeNode);
         }
         return root;

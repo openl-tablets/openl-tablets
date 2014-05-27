@@ -24,24 +24,29 @@
 
         <h:panelGroup id="objectParam"
             rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
-            <a4j:commandLink value="#{parameter.type}" render="objectParam" execute="@this"
-                rendered="#{empty param.loaded and (empty lazy or lazy == 'true')}" style="font-family:Arial,Verdana,sans-serif">
-                <a4j:param name="loaded" value="true" />
-            </a4j:commandLink>
-            <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node"
+
+            <h:panelGroup rendered="#{empty param.loaded and (empty lazy or lazy == 'true')}">
+                <div class="rf-tr param-tree">
+                    <div class="rf-tr-nd">
+                        <div class="rf-trn">
+                            <a4j:commandLink render="objectParam" execute="@this"
+                                oncomplete="$j(#{rich:element('objectParam')}).find('.rf-trn-hnd:first').click()"
+                                style="font-family:Arial,Verdana,sans-serif">
+                                <a4j:param name="loaded" value="true" /><span class="rf-trn-hnd rf-trn-hnd-colps"></span>
+                            </a4j:commandLink><span class="rf-trn-cnt rf-trn-lbl">#{parameterTreeBuilder.getRoot(parameter)}</span>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <rich:tree value="#{parameterTreeBuilder.getTree(parameter)}" var="node"
                 rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
                 rendered="#{!empty param.loaded or lazy == 'false'}" toggleType="client" selectionType="client"
-                nodeType="#{node.nodeType}" styleClass="param-tree">
+                styleClass="param-tree">
                 <!-- rowKeyConverter is a temporary solution.
                  After migrating to the newer version of RichFaces it can be removed.
                  See: https://issues.jboss.org/browse/RF-11102 for details -->
-                <rich:treeNode type="simple">#{node.treeText}</rich:treeNode>
-                <rich:treeNode type="complex">#{node.treeText}</rich:treeNode>
-                <rich:treeNode type="collection">#{node.treeText}</rich:treeNode>
-                <rich:treeNode type="unmodifiable">#{node.treeText}</rich:treeNode>
-                <rich:treeNode type="spreadsheet" styleClass="spreadsheet">
-                    <h:outputText escape="false" value="#{parameterTreeBuilder.formattedResult(node.value)}"/>
-                </rich:treeNode>
+                <rich:treeNode>#{node.treeText}</rich:treeNode>
             </rich:tree>
 
         </h:panelGroup>

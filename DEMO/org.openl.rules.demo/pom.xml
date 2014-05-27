@@ -120,6 +120,7 @@
 							<goal>attached</goal>
 						</goals>
 						<configuration>
+							<finalName>openl-tablets-demo-${project.version}</finalName>
 							<descriptors>
 								<descriptor>assembly-zip.xml</descriptor>
 							</descriptors>
