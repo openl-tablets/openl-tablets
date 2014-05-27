@@ -23,6 +23,7 @@ import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 
 /**
  * Defines IRulesRuntime context deserialization from XML: new
@@ -55,7 +56,7 @@ public class RuntimeContextBeanType extends BeanType {
         BeanTypeInfo inf = getTypeInfo();
 
         try {
-            DefaultRulesRuntimeContext runtimeContext = new DefaultRulesRuntimeContext();
+            IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
             // Read child elements
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();

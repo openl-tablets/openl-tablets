@@ -6,7 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.BeansException;
@@ -32,7 +33,7 @@ public class MultiModuleDispatchingTest implements ApplicationContextAware{
         assertNotNull(serviceManager);
         serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        DefaultRulesRuntimeContext cxt = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
         // dispatcher table
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);

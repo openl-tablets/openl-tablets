@@ -1,17 +1,17 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import org.junit.Test;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -69,7 +69,7 @@ public class ApiInstantiationTest {
         Object instance = strategy.instantiate();
         assertNotNull(instance);
         assertTrue(instance instanceof ServiceClass);
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         ((IEngineWrapper)instance).getRuntimeEnv().setContext(context);
         assertEquals("Good Evening, World!", ((ServiceClass)instance).hello1(19));

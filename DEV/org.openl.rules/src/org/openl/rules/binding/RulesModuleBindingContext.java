@@ -15,9 +15,9 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
@@ -141,7 +141,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public final static  String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return new DefaultRulesRuntimeContext();
+            return RulesRuntimeContextFactory.buildRulesRuntimeContext();
         }
 
         public IOpenMethod getMethod() {
@@ -276,7 +276,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if(env.isContextManagingSupported()){
                 IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext)env.getContext();
                 if(runtimeContext == null){
-                    runtimeContext = new DefaultRulesRuntimeContext();
+                    runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
                 }else{
                     runtimeContext = new RulesRuntimeContextDelegator(runtimeContext);
                 }

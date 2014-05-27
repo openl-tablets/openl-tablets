@@ -19,7 +19,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
     public Object getValue(String name) {
         return internalMap.get(name);
     }
-
+    
     @Override
     public String toString() {
 

@@ -6,9 +6,8 @@ import java.util.List;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -144,7 +143,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         if (context == null) {
             // Using empty context: all methods will be matched by properties.
-            context = new DefaultRulesRuntimeContext();
+            context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         }
 
         // Get matching method.

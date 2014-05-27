@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
@@ -109,7 +109,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
-        IRulesRuntimeContext runtimeContext = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
         calendar.set(2009, 5, 15);
         runtimeContext.setCurrentDate(calendar.getTime());

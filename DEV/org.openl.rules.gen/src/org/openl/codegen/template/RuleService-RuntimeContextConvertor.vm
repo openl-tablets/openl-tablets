@@ -10,7 +10,7 @@
 #end
 #end
 	public static org.openl.rules.context.IRulesRuntimeContext covert(org.openl.rules.ruleservice.context.IRulesRuntimeContext context) {
-	    org.openl.rules.context.DefaultRulesRuntimeContext rulesRuntimeContext = new org.openl.rules.context.DefaultRulesRuntimeContext();
+	    org.openl.rules.context.IRulesRuntimeContext rulesRuntimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
 #if ($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass).contains('org.openl.rules.enumeration'))
 		rulesRuntimeContext.set$tool.formatAccessorName($contextPropertyDefinition.Name)(convert$tool.formatAccessorName($contextPropertyDefinition.Name)(context.get$tool.formatAccessorName($contextPropertyDefinition.Name)()));
