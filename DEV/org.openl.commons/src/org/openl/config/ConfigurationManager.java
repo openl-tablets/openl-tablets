@@ -36,7 +36,7 @@ public class ConfigurationManager {
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
 
-    private static String REPO_PASS_KEY = "repository.encode.decode.key";
+    private static final String REPO_PASS_KEY = "repository.encode.decode.key";
 
     public ConfigurationManager(boolean useSystemProperties, String propsLocation) {
         this(useSystemProperties, propsLocation, null, false);
@@ -58,9 +58,12 @@ public class ConfigurationManager {
 
     private void init() {
         compositeConfiguration = new CompositeConfiguration();
+        compositeConfiguration.setDelimiterParsingDisabled(true);
 
         if (useSystemProperties) {
-            systemConfiguration = new SystemConfiguration();
+            SystemConfiguration configuration = new SystemConfiguration();
+            configuration.setDelimiterParsingDisabled(true);
+            systemConfiguration = configuration;
             compositeConfiguration.addConfiguration(systemConfiguration);
         }
 
@@ -68,7 +71,7 @@ public class ConfigurationManager {
         if (configurationToSave != null) {
             compositeConfiguration.addConfiguration(configurationToSave);
             if (autoSave) {
-                configurationToSave.setAutoSave(autoSave);
+                configurationToSave.setAutoSave(true);
             }
         }
 
@@ -83,9 +86,18 @@ public class ConfigurationManager {
         if (configLocation != null) {
             try {
                 if (createIfNotExist) {
-                    configuration = new PropertiesConfiguration(new File(configLocation));
+                    configuration = new PropertiesConfiguration();
+                    configuration.setDelimiterParsingDisabled(true);
+                    File file = new File(configLocation);
+                    configuration.setFile(file);
+                    if (file.exists()) {
+                        configuration.load();
+                    }
                 } else {
-                    configuration = new PropertiesConfiguration(configLocation);
+                    configuration = new PropertiesConfiguration();
+                    configuration.setDelimiterParsingDisabled(true);
+                    configuration.setFileName(configLocation);
+                    configuration.load();
                 }
             } catch (Exception e) {
                 log.error("Error when initializing configuration: " + configLocation, e);
@@ -123,7 +135,7 @@ public class ConfigurationManager {
         for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
 
-            if (!cross || (cross && configurationToSave.getProperty(key) != null)) {
+            if (!cross || configurationToSave.getProperty(key) != null) {
                 Object value = compositeConfiguration.getProperty(key);
                 if (value instanceof Collection || value != null && value.getClass().isArray()) {
                     properties.put(key, getStringArrayProperty(key));
@@ -198,10 +210,7 @@ public class ConfigurationManager {
     }
 
     public boolean isSystemProperty(String name) {
-        if (systemConfiguration != null && systemConfiguration.getString(name) != null) {
-            return true;
-        }
-        return false;
+        return systemConfiguration != null && systemConfiguration.getString(name) != null;
     }
 
     public boolean save() {

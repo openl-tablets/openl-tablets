@@ -12,7 +12,7 @@
 	<description>OpenL WebStudio</description>
 	<url>http://openl-tablets.sf.net/</url>
 	<properties>
-		<war.name>${project.artifactId}-${project.version}</war.name>
+		<war.name>openl-tablets-webstudio-${project.version}</war.name>
         <sonar.sources>src,webapp</sonar.sources>
 	</properties>
 	<build>
