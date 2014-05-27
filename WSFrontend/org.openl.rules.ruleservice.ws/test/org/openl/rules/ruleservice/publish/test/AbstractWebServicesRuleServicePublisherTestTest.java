@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,7 +35,7 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
          * tutorial4.getTheft_rating(); assertEquals(3, theftRating.length);
          */
         Method method = service.getServiceClass().getMethod("getCoverage", IRulesRuntimeContext.class);
-        Object result = method.invoke(client, new DefaultRulesRuntimeContext());
+        Object result = method.invoke(client, RulesRuntimeContextFactory.buildRulesRuntimeContext());
         assertTrue(result instanceof String[]);
         String[] coverages = (String[]) result;
         assertEquals(2, (long)coverages.length);

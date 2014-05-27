@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.junit.Test;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -36,7 +36,7 @@ public class RulesServiceEnhancerTest {
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
         Object result = method.invoke(instance, new Object[] { context, 10 });
@@ -65,7 +65,7 @@ public class RulesServiceEnhancerTest {
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
         Object result = method.invoke(instance, new Object[] { context, 10 });
@@ -95,7 +95,7 @@ public class RulesServiceEnhancerTest {
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
         Object result = method.invoke(instance, new Object[] { context, 10 });
