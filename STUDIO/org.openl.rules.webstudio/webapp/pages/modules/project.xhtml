@@ -109,16 +109,13 @@
                     <div class="list list-modules">
                         <ui:param name="modulesNumber" value="#{project.modules.size()}" />
                         <ui:repeat var="module" value="#{project.modules}" varStatus="i">
-                            <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
-
                             <div id="#{i.index}currentModule" class="list-item editable-inner">
                                 <div>
                                     <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
-                                <h:panelGroup rendered="#{needJavaClassName}">
+                                <h:panelGroup rendered="#{module.type != 'API'}">
                                 <div style="margin-top:4px">
-                                    <span>#{module.type} </span>
                                     <span>#{module.classname}</span>
                                 </div>
                                 </h:panelGroup>
@@ -145,7 +142,7 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
-                                        onclick="editModule({name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',type:'#{module.type}',class:'#{module.classname}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                        onclick="editModule({name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
                                         <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
@@ -318,20 +315,6 @@
                         <h:message for="modulePath" styleClass="error" />
                     </a4j:outputPanel></td>
                 </tr>
-                <tr>
-                    <td class="required">Type</td>
-                    <td>
-                        <h:selectOneMenu id="moduleType">
-                            <f:selectItem itemValue="API" itemLabel="API" />
-                            <f:selectItem itemValue="STATIC" itemLabel="Static" />
-                            <f:selectItem itemValue="DYNAMIC" itemLabel="Dynamic" />
-                        </h:selectOneMenu>
-                    </td>
-                </tr>
-                <tr id="classRow">
-                    <td class="required">Class</td>
-                    <td><h:inputText id="moduleClass" /></td>
-                </tr>
                 <tr><td class="delimeter"></td></tr>
                 <tr>
                     <td>Included Methods (RegExp)</td>
@@ -486,8 +469,6 @@
                 module = {
                     name: "",
                     path: "",
-                    type: "API",
-                    class: "",
                     includes: "",
                     excludes: ""
                 };
@@ -508,9 +489,6 @@
             $j("#moduleNameOld").val(module.name);
             $j("#moduleName").val(module.name);
             $j("#modulePath").val(module.path);
-            $j("#moduleType").val(module.type);
-            $j("#moduleClass").val(module.class);
-            $j('#classRow').toggle(module.type != 'API');
             $j("#moduleIncludes").val(module.includes);
             $j("#moduleExcludes").val(module.excludes);
 
@@ -520,16 +498,10 @@
                 var changed =
                         module.name != $j("#moduleName").val()
                      || module.path != $j("#modulePath").val()
-                     || module.type != $j("#moduleType").val()
-                     || module.class != $j("#moduleClass").val()
                      || module.includes != $j("#moduleIncludes").val()
                      || module.excludes != $j("#moduleExcludes").val();
 
                 btn.prop("disabled", !changed);
-
-                if (this.id == "moduleType") {
-                    $j('#classRow').toggle(this.value != 'API');
-                }
             })
 
             ws.ui.show("editModulePopup");
