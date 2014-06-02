@@ -5,6 +5,7 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
@@ -145,7 +146,7 @@
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
                                         rendered="#{tableBean.canRemove}"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="goTo('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
+                                        oncomplete="revertTableChanges();goTo('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.png" />
                                         <span>Remove</span>
@@ -528,6 +529,27 @@
     </div>
     </ui:remove>
 
+    <rich:popupPanel id="modalDiscardChanges" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Discard changes" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalDiscardChanges').hide();" alt="Close" />
+        </f:facet>
+
+        <h:form id="discardChangesForm">
+            <h:panelGroup id="modalDiscardChangesData">
+                <h:outputText value="Table is not saved. If you leave the page, all changes will be lost. Are you sure you want to discard all changes?" />
+            </h:panelGroup>
+
+            <footer>
+                <h:commandButton id="discardButton" value="Discard chamges" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="#{rich:component('modalDiscardChanges')}.hide();" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
     <script>
       //<![CDATA[
         function open_win(url, name) {
@@ -580,21 +602,41 @@
             goTo("#{runLink}&" + query);
         }
 
-        function canLeavePage() {
+        function getCurrentTable() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
-            var t = _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
-            
-            if (t.hasChanges) {
-                var isOk = confirm('Table is not saved. Do you want to save all changes?');
-                if (isOk) {
-                    t.saveChanges();
-                }  else {
-                   t.undoredo();
-                } 
-            }
-            return true;
+            return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
         }
-        
+
+        function revertTableChanges() {
+            getCurrentTable().hasChanges = false;
+        }
+
+        $j(function () {
+            var hasChanges = function () {
+                return getCurrentTable().hasChanges;
+            };
+
+            var showConfirmDialog = function (revertAndProceed) {
+                var $discardButton = $j('#discardChangesForm\\:discardButton');
+                $discardButton.off("click");
+                $discardButton.click(function () {
+                    revertAndProceed();
+                    RichFaces.$('modalDiscardChanges').hide();
+                    return false;
+                });
+
+                RichFaces.$('modalDiscardChanges').show();
+            };
+
+            window.onbeforeunload = function (e) {
+                if (hasChanges()) {
+                    return 'Table is not saved. If you leave the page, all changes will be lost.';
+                }
+            };
+
+            ws.changes.configure(hasChanges, revertTableChanges, showConfirmDialog);
+        });
+
       //]]>
     </script>
 

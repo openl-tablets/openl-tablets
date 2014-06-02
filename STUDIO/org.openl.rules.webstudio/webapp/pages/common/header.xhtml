@@ -69,7 +69,7 @@
 
     <div>
         <div style="position: absolute; left: 15px; top: 11px">
-            <a href="#{contextPath}/" style="text-decoration: none">
+            <a href="#{contextPath}/" style="text-decoration: none" class="studio-home">
                 <ui:include src="/pages/common/logo.xhtml" />
             </a>
         </div>
@@ -89,7 +89,7 @@
                     <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
                     <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
                     <li><a tabindex="-1" href="#{contextPath}/security_logout"
-                            onclick="return confirm('#{msg['ws.header.signout.confirm']}')">#{msg['ws.header.signout']}</a></li>
+                            onclick="if (!confirm('#{msg['ws.header.signout.confirm']}')) return false; if (typeof(ws) != 'undefined') ws.changes.revertChanges();">#{msg['ws.header.signout']}</a></li>
                     </h:panelGroup>
                 </ul>
             </span>
@@ -98,11 +98,12 @@
         <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
         <div id="ll">
             <a href="#{contextPath}/" class="nav-editor#{menu=='rules' ? ' active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}"
-                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a><a
-                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
+                data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.editor.title']}" title="">#{msg['ws.header.editor']}</a>
+            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="nav-repo#{menu=='repository' ? ' active' : ''}"
                 data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.repo.title']}" title=""
-                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a><h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}"><a
-                href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''}"
+                onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">#{msg['ws.header.repo']}</a>
+            <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
+                <a href="#{contextPath}#{adminUrl}" class="nav-admin#{menu=='admin' ? ' active' : ''}"
                    data-toggle="tooltip" data-placement="bottom" data-original-title="#{msg['ws.header.admin.title']}" title=""
                    onclick="#{menu=='admin' ? 'return false' : ''}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
@@ -118,6 +119,10 @@
     <script>
         $j(function () {
             $j("[data-original-title]").tooltip();
+
+            if (typeof(ws) != "undefined") {
+                ws.changes.addClickListener("a.studio-home, #ll a");
+            }
         });
     </script>
 </ui:composition>
