@@ -45,6 +45,58 @@
 
         var reqs = 0;
 
+        var ChangesListener = function () {
+            // Private members
+            var self = this;
+            var hasChanges = function() {return false};
+            var showConfirmDialog = function() {};
+
+            var clickListener = function (e) {
+                if (e.which != 2) {
+                    // Not a middle mouse button
+                    var $url = $j(this);
+                    var proceed = function () {
+                        $location.set($url.attr("href"));
+                    };
+
+                    var revertUrl = function () {
+                    };
+                    return !self.checkForChanges(proceed, revertUrl, proceed);
+                }
+            };
+
+            // Public members
+            this.revertChanges = function() {};
+
+            this.configure = function (hasChangesFunc, revertChangesFunc, showConfirmDialogFunc) {
+                hasChanges = hasChangesFunc;
+                showConfirmDialog = showConfirmDialogFunc;
+                self.revertChanges = revertChangesFunc;
+            };
+
+            this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
+                if (hasChanges()) {
+                    revertUrlChange();
+
+                    var revertAndProceed = function () {
+                        self.revertChanges();
+                        retryUrlChange();
+                    };
+                    showConfirmDialog(revertAndProceed);
+                    return true;
+                } else {
+                    proceed();
+                    return false;
+                }
+            };
+
+            this.addClickListener = function(selector) {
+                $j(selector).off("click");
+                $j(selector).click(clickListener);
+            };
+
+        };
+
         var WebStudio = function() {
         };
 
@@ -182,7 +234,7 @@
                     go: function(page, reload) {
                         goTo(page, reload);
                     },
-                    // prefixPage wiil be removed when Global Search will be implemented
+                    // prefixPage will be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
                         var query;
 
@@ -219,7 +271,9 @@
                             RichFaces.$(id).hide();
                         }
                     }
-                }
+                },
+
+                changes: new ChangesListener()
             };
         })();
 
@@ -310,11 +364,23 @@
                 location.hash = lastSavedHash;
                 return;
             } else {
-                lastSavedHash = ch;
-            }
+                if (ch == lastSavedHash) {
+                    return;
+                }
+                var proceed = function() {
+                    lastSavedHash = ch;
+                    loadContent(getCurrentPage(), fullreload);
+                    fullreload = false;
+                };
+                var retry = function() {
+                    $location.setHash(ch);
+                };
+                var revert = function() {
+                    $location.setHash(lastSavedHash);
+                };
 
-            loadContent(getCurrentPage(), fullreload);
-            fullreload = false;
+                ws.changes.checkForChanges(proceed, revert, retry);
+            }
         });
 
         var mainLayout;

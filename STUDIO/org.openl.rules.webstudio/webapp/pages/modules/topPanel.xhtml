@@ -24,7 +24,7 @@
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
-            <a href="#{contextPath}/">Projects</a>
+            <a href="#{contextPath}/" class="projects-list">Projects</a>
             <h:panelGroup rendered="#{!empty rProject.name}">
             <span class="delimeter"></span>
             <span class="dropdown" id="breadcrumbs-project">
@@ -67,10 +67,8 @@
                 </ul>
             </span>
             </h:panelGroup>
-            <a4j:ajax oncomplete="ws.nav.reload(true)">
-                <h:commandLink id="refreshBtn" action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
-                    style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
-            </a4j:ajax>
+            <a id="refreshBtn" onclick="refreshIfNotChanged();" title="Refresh" class="imageButton"
+               style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
         </div>
         <div class="navbar-inner">
             <a4j:ajax oncomplete="ws.nav.reload(true)">
@@ -187,6 +185,9 @@
             </span>
         </div>
         </h:panelGroup>
+
+        <a4j:jsFunction name="reload" action="#{mainBean.reload}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
+
     </h:form>
 
     <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">
@@ -206,6 +207,16 @@
             });
             goTo(testUrl + "?" + query, true);
         }
+
+        function refreshIfNotChanged() {
+            ws.changes.checkForChanges(reload, function(){}, reload);
+        }
+
+        $j(function () {
+            if (typeof(ws) != "undefined") {
+                ws.changes.addClickListener("a.projects-list");
+            }
+        });
         //]]>
     </script>
 
