@@ -39,11 +39,7 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Module rules root is not defined");
         }
 
-        if (module.getType() == null) {
-            throw new ValidationException("Module istantiation type is not defined");
-        }
-
-        if (ModuleType.WRAPPER.equals(module.getType())) {
+        if (module.getType() != null && ModuleType.WRAPPER.equals(module.getType())) {
             if (StringUtils.isEmpty(module.getClassname())) {
                 throw new ValidationException("Module java class is not defined");
             }
