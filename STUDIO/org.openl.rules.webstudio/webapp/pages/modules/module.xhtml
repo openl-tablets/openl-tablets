@@ -80,47 +80,37 @@
             </h:panelGroup>
         </div>
 
+        <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
         <div class="block-column">
             <div class="block">
                 <h3>Deploy Info</h3>
                 <div class="block-content">
                     <table class="properties">
-                        <tr>
-                            <td>Type</td>
-                            <td><span class="badge">#{module.type}</span></td>
-                        </tr>
-                        <h:panelGroup rendered="#{module.type != 'API' and !empty module.classname}">
-                        <tr>
-                            <td>Class</td>
-                            <td>#{module.classname}</td>
-                        </tr>
+                        <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
+                            <tr>
+                                <td>Included Methods</td>
+                                <td>
+                                    <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                        #{include}
+                                    </a4j:repeat>
+                                </td>
+                            </tr>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
-                            <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
-                                <tr>
-                                    <td>Included Methods</td>
-                                    <td>
-                                        <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
-                                            #{include}
-                                        </a4j:repeat>
-                                    </td>
-                                </tr>
-                            </h:panelGroup>
-                            <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
-                                <tr>
-                                    <td>Excluded Methods</td>
-                                    <td>
-                                        <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
-                                            #{exclude}
-                                        </a4j:repeat>
-                                    </td>
-                                </tr>
-                            </h:panelGroup>
+                        <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
+                            <tr>
+                                <td>Excluded Methods</td>
+                                <td>
+                                    <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                        #{exclude}
+                                    </a4j:repeat>
+                                </td>
+                            </tr>
                         </h:panelGroup>
                     </table>
                 </div>
             </div>
         </div>
+        </h:panelGroup>
 
     </div>
 

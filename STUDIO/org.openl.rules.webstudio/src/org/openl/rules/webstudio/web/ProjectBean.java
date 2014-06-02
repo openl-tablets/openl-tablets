@@ -164,8 +164,6 @@ public class ProjectBean {
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
         String name = FacesUtils.getRequestParameter("moduleName");
         String path = FacesUtils.getRequestParameter("modulePath");
-        String type = FacesUtils.getRequestParameter("moduleType");
-        String clazz = FacesUtils.getRequestParameter("moduleClass");
         String includes = FacesUtils.getRequestParameter("moduleIncludes");
         String excludes = FacesUtils.getRequestParameter("moduleExcludes");
 
@@ -190,11 +188,6 @@ public class ProjectBean {
                 module.setRulesRootPath(pathEntry);
             }
             pathEntry.setPath(path);
-
-            module.setType(ModuleType.valueOf(type));
-            if (ModuleType.valueOf(type) != ModuleType.API) {
-                module.setClassname(clazz);
-            }
 
             MethodFilter filter = module.getMethodFilter();
             if (filter == null) {
