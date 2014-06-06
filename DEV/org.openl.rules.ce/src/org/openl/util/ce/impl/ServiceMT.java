@@ -8,7 +8,7 @@ import org.openl.util.ce.conf.ServiceMTConfiguration;
 public abstract class ServiceMT extends ServiceBase {
 
 	static private IServiceMT service = new ServiceMTFactory()
-	.makeService(new ServiceMTConfiguration());
+	.makeService(ServiceMTConfiguration.loadProjectResolverFromClassPath());
 
 	static public IServiceMT getService() {
 		return service;

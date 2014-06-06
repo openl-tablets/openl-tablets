@@ -23,6 +23,8 @@
 				<directory>src</directory>
 				<includes>
 					<include>**/*.xls</include>
+					<include>rules-ce-conf.xml</include>
+					
 				</includes>
 			</resource>
 		</resources>
@@ -30,9 +32,20 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules</artifactId>
 		</dependency>
+
 	</dependencies>
 
 </project>
