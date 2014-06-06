@@ -523,6 +523,10 @@ table.properties-form.wide textarea {
     width: 315px;
 }
 
+table.properties-form.wide input[type="text"].with-button {
+    width: 280px;
+}
+
 table td.delimeter {
     padding: 0 !important;
     height: 10px;

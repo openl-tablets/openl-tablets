@@ -254,12 +254,16 @@
                     <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px" /></td>
                 </tr>
                 <tr>
-                    <td>Properties pattern for a file name</td>
-                    <td><h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}" /></td>
+                    <td>Custom file name processor</td>
+                    <td>
+                        <input id="customPropertiesFileNameProcessor" type="checkbox" checked="#{empty project.propertiesFileNameProcessor ? '' : 'checked'}"
+                               onclick="$j('#propertiesFileNameProcessor').val(''); $j('.propertiesFileNameProcessorSettings').toggle(this.checked);"/>
+                    </td>
                 </tr>
-                <tr>
+                <tr class="propertiesFileNameProcessorSettings">
                     <td>File name processor class</td>
                     <td><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
+                                     binding="#{projectBean.propertiesFileNameProcessorInput}"
                                      validator="#{projectBean.validatePropertiesFileNameProcessor}" /></td>
                 </tr>
                 <tr>
@@ -267,6 +271,23 @@
                     <td><a4j:outputPanel ajaxRendered="true">
                         <h:message for="propertiesFileNameProcessor" styleClass="error" />
                     </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td>Properties pattern for a file name</td>
+                    <td>
+                        <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}" styleClass="with-button"
+                                     validator="#{projectBean.validatePropertiesFileNamePattern}" />
+                        <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());" title="Description" class="imageButton"
+                           style="background:url('webresource/images/info.png');display: inline-block;" />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <a4j:outputPanel ajaxRendered="true">
+                            <h:message for="propertiesFileNamePattern" styleClass="error"/>
+                        </a4j:outputPanel>
+                    </td>
                 </tr>
             </table>
 
@@ -276,6 +297,11 @@
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo(encodeURIComponent('#{project.name}'), true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </footer>
+
+            <a4j:jsFunction name="showPatternInfo" render="showPropertiesFileNamePatternDescriptionData"
+                            oncomplete="ws.ui.show('showPropertiesFileNamePatternDescription');">
+                <a4j:param name="processorClass" assignTo="${projectBean.propertiesFileNameProcessor}" />
+            </a4j:jsFunction>
         </h:form>
     </rich:popupPanel>
 
@@ -418,6 +444,27 @@
         </h:form>
     </rich:popupPanel>
 
+    <rich:popupPanel id="showPropertiesFileNamePatternDescription" width="510" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Properties file name pattern description" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="ws.ui.hide('showPropertiesFileNamePatternDescription')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false" id="showPropertiesFileNamePatternDescriptionForm">
+            <h:panelGroup id="showPropertiesFileNamePatternDescriptionData">
+                <h:outputText escape="false" value="#{projectBean.propertiesFileNamePatternDescription}" />
+            </h:panelGroup>
+
+            <footer>
+                <input type="button" value="Close" onclick="ws.ui.hide('showPropertiesFileNamePatternDescription');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
     <script>
     //<![CDATA[
         var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
@@ -431,6 +478,7 @@
         var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
         function editProject() {
+            $j("#editProjectForm")[0].reset();
             var btn = $j("#editProjectBtn");
 
             btn.prop("disabled", true);
@@ -439,6 +487,7 @@
             $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
             $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
             $j("#editProjectForm span.error").remove();
+            $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'));
 
             ws.ui.show("editProjectPopup");
 
