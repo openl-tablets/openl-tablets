@@ -14,7 +14,11 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.resolving.InvalidFileNamePatternException;
+import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
+import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -27,6 +31,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import java.io.ByteArrayInputStream;
@@ -48,6 +53,9 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
+
+    private UIInput propertiesFileNameProcessorInput;
+    private String propertiesFileNameProcessor;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -119,6 +127,34 @@ public class ProjectBean {
 
         if (!StringUtils.isBlank(className)) {
             FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+
+            ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+            projectDescriptor.setPropertiesFileNameProcessor(className);
+            PropertiesFileNameProcessor processor;
+            try {
+                processor = new PropertiesFileNameProcessorBuilder().build(projectDescriptor);
+                FacesUtils.validate(processor != null, "Can't find class " + className);
+            } catch (InvalidFileNameProcessorException e) {
+                FacesUtils.throwValidationError(e.getMessage());
+            }
+        }
+    }
+
+    // TODO Move messages to ValidationMessages.properties
+    public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
+        String pattern = (String) value;
+
+        if (!StringUtils.isBlank(pattern)) {
+            try {
+                ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+                projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
+                projectDescriptor.setPropertiesFileNamePattern(pattern);
+                new PropertiesFileNameProcessorBuilder().build(projectDescriptor).validateFileNamePattern(pattern);
+            } catch (InvalidFileNamePatternException e) {
+                FacesUtils.throwValidationError(e.getMessage());
+            } catch (InvalidFileNameProcessorException ignored) {
+                // Processed in other validator
+            }
         }
     }
 
@@ -371,5 +407,31 @@ public class ProjectBean {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public UIInput getPropertiesFileNameProcessorInput() {
+        return propertiesFileNameProcessorInput;
+    }
+
+    public void setPropertiesFileNameProcessorInput(UIInput propertiesFileNameProcessorInput) {
+        this.propertiesFileNameProcessorInput = propertiesFileNameProcessorInput;
+    }
+
+    public String getPropertiesFileNameProcessor() {
+        return propertiesFileNameProcessor;
+    }
+
+    public void setPropertiesFileNameProcessor(String propertiesFileNameProcessor) {
+        this.propertiesFileNameProcessor = propertiesFileNameProcessor;
+    }
+
+    public String getPropertiesFileNamePatternDescription() {
+        ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+        projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
+        try {
+            return new PropertiesFileNameProcessorBuilder().build(projectDescriptor).getDescription();
+        } catch (InvalidFileNameProcessorException e) {
+            return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";
+        }
     }
 }
