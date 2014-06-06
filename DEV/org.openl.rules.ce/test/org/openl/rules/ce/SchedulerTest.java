@@ -22,7 +22,7 @@ public class SchedulerTest {
 	public void test() {
 		prepareData();
 		
-		ServiceMT.setService(new ServiceMT16(new ServiceMTConfiguration())); 
+		ServiceMT.setService(new ServiceMT16(ServiceMTConfiguration.loadProjectResolverFromClassPath())); 
 //		ServiceMT.setService(new ServiceMT17(new ServiceMTConfiguration())); 
 //		ServiceMT.setService(new ServiceST(new ServiceMTConfiguration())); 
 		

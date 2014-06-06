@@ -1,7 +1,7 @@
 <constrainer>
 <vars>
-   <intvar id="v1" name="intc" min="-100" max="100">
-   <intvar id="v2" name="msft" min="-100" max="100">
+   <intvar id="v1" name="intc" min="-100" max="100"/>
+   <intvar id="v2" name="msft" min="-100" max="100"/>
 </vars>
 
 <exps>

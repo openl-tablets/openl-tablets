@@ -33,6 +33,7 @@
 		<module>../org.openl.rules.constrainer</module>
 		<module>../org.openl.conf.ant</module>
 		<module>../org.openl.rules.gen</module>
+		<module>../org.openl.rules.ce</module>
 
 		<!-- Tests -->
 		<module>../org.openl.test</module>
@@ -204,6 +205,11 @@
 						<artifactId>org.openl.lib.poi.dev</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ce</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -4,7 +4,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+
+import org.openl.util.Log;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
 public class ServiceMTConfiguration implements IServiceMTConfiguration {
+	
+	
+	public ServiceMTConfiguration(){}
+	
+	public static ServiceMTConfiguration loadProjectResolverFromClassPath() {
+		try
+		{
+			ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+                "rules-ce-conf.xml");
+			ServiceMTConfiguration conf = (ServiceMTConfiguration) applicationContext.getBean("rules-ce-conf");
+			return conf;
+		}
+		catch(Throwable t)
+		{
+			Log.error("Error reading multi-threading OpenL configurtion. Using default", t);
+			return new ServiceMTConfiguration();
+		}
+	}
+	
+	
 
 	int parallelLevel = Runtime.getRuntime().availableProcessors();
 	int errorLimit = 0;
