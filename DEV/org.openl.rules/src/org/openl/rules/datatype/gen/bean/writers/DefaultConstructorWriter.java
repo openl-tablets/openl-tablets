@@ -6,7 +6,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.types.writers.TypeWriter;
@@ -30,13 +29,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         methodVisitor = writeDefaultConstructorDefinition(classWriter);
 
         // invokes the super class constructor
-        String parentName;
-        Class<?> parentClass = getParentClass();
-        if (parentClass == null) {
-            parentName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
-        } else {
-            parentName = Type.getInternalName(parentClass);
-        }
+        String parentName = getParentInternalName();
         methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
 
         int stackVariable = writeDefaultFieldValues(methodVisitor);
