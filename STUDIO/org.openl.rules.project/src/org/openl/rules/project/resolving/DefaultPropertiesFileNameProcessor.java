@@ -86,8 +86,17 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         // Validate date formats
         for (Map.Entry<String, SimpleDateFormat> entry : patternModel.getDateFormats().entrySet()) {
             SimpleDateFormat format = entry.getValue();
+            format.setLenient(false);
             try {
-                format.parse(format.format(new Date()));
+                String dateForCheck = "2014-06-20";
+                SimpleDateFormat correctFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = correctFormat.parse(dateForCheck);
+
+                Date parsedDate = format.parse(format.format(date));
+
+                if (!correctFormat.format(parsedDate).equals(dateForCheck)) {
+                    throw new InvalidFileNamePatternException("Invalid date format for property '" + entry.getKey() + "'");
+                }
             } catch (ParseException e) {
                 throw new InvalidFileNamePatternException("Invalid date format for property '" + entry.getKey() + "'");
             }
