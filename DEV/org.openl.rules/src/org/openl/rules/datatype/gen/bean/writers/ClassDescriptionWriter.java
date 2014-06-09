@@ -15,7 +15,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
  *
  */
 public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
-    
+
     /**
      * 
      * @param beanNameWithPackage name of the class with package, symbol '/' is used as separator<br> 
@@ -27,12 +27,13 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        if (getParentClass() == null) {
-            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(),
-                    null, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, null);
+        String parentName;
+        Class<?> parentClass = getParentClass();
+        if (parentClass == null) {
+            parentName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
         } else {
-            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(),
-                    null, Type.getInternalName(getParentClass()), null);
+            parentName = Type.getInternalName(parentClass);
         }
+        classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, null);
     }
 }

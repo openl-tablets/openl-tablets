@@ -28,12 +28,16 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         MethodVisitor methodVisitor;
         
         methodVisitor = writeDefaultConstructorDefinition(classWriter);
+
         // invokes the super class constructor
-        if (getParentClass() == null) {
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
+        String parentName;
+        Class<?> parentClass = getParentClass();
+        if (parentClass == null) {
+            parentName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
         } else {
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()), "<init>", "()V");
+            parentName = Type.getInternalName(parentClass);
         }
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
 
         int stackVariable = writeDefaultFieldValues(methodVisitor);
 
