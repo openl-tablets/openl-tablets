@@ -57,12 +57,14 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     protected Map<String, FieldDescription> getBeanFields() {
         return beanFields;
     }
-    
+
     @Override
     public String toString() {
-    	StringBuilder strBuilder = new StringBuilder();
-    	strBuilder.append("Bean writer for ");
-    	strBuilder.append(beanNameWithPackage);
-    	return strBuilder.toString();
+        // For debugging purpose
+        StringBuilder strBuilder = new StringBuilder(128);
+        strBuilder.append(this.getClass().getSimpleName());
+        strBuilder.append(" for ");
+        strBuilder.append(beanNameWithPackage);
+        return strBuilder.toString();
     }
 }
