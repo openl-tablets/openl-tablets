@@ -71,17 +71,10 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             if (fieldDescription.hasDefaultValue()) {
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 
-                 if  (isTypesEquals(String.class, fieldDescription)) {
-                    // write String fields
-                    methodVisitor.visitLdcInsn(fieldDescription.getDefaultValue());
-                    stackVariables[index] = minStackVariable;
-                    
-                } else {
-                	TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldDescription);
-                	
-                	stackVariables[index] = typeWriter.writeFieldValue(methodVisitor, fieldDescription);
-                }
-                String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);                
+                TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldDescription);
+                stackVariables[index] = typeWriter.writeFieldValue(methodVisitor, fieldDescription);
+
+                String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
             } else {
             	stackVariables[index] = minStackVariable;
@@ -103,9 +96,5 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             }
         }
         return false;
-    }
-    
-    private boolean isTypesEquals(Class<?> clazz, FieldDescription fieldType) {
-        return clazz.equals(FieldDescription.getJavaClass(fieldType));
     }
 }
