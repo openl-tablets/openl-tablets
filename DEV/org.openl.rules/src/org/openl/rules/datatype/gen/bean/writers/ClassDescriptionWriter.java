@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 /**
@@ -27,13 +25,7 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        String parentName;
-        Class<?> parentClass = getParentClass();
-        if (parentClass == null) {
-            parentName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
-        } else {
-            parentName = Type.getInternalName(parentClass);
-        }
+        String parentName = getParentInternalName();
         classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, null);
     }
 }
