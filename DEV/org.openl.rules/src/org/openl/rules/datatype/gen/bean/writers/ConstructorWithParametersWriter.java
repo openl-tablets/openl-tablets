@@ -53,11 +53,14 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
                     getBeanFields(), null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            if (getParentClass() == null) {
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
+            String parentName;
+            Class<?> parentClass = getParentClass();
+            if (parentClass == null) {
+                parentName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
             } else{
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()), "<init>", "()V");
+                parentName = Type.getInternalName(parentClass);
             }
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         }else{
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
                     allFields, null), null, null);
