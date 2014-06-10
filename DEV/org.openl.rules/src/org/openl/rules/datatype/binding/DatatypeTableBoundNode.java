@@ -16,6 +16,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
@@ -185,6 +186,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 dataType.addField(field);
                 FieldDescription fieldDescription = new FieldDescription(field);
                 fieldDescription.setDefaultValueAsString(defaultValue);
+
+                Object value = fieldDescription.getDefaultValue();
+                if (value != null) {
+                    // Validate not null default value
+                    // The null value is allowed for alias types
+                    RuleRowHelper.validateValue(value, fieldType);
+                }
+
                 fields.put(fieldName, fieldDescription);
 
                 if (firstField) {
