@@ -437,7 +437,7 @@ public class RuleRowHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static void validateValue(Object value, IOpenClass paramType) throws Exception {        
+    public static void validateValue(Object value, IOpenClass paramType) throws Exception {
         IDomain<Object> domain = (IDomain<Object>)paramType.getDomain();
 
         if (domain == null) {
