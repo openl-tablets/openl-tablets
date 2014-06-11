@@ -427,7 +427,8 @@ public class WebStudio {
     }
 
     public String updateModule() {
-        if (getLastUploadedFile() == null) {
+        UploadedFile uploadedFile = getLastUploadedFile();
+        if (uploadedFile == null) {
             // TODO Display message - e.getMessage()
             return null;
         }
@@ -439,10 +440,16 @@ public class WebStudio {
             historyListener.beforeSave(model.getCurrentModuleWorkbook());
 
             Module module = getCurrentModule();
-            OutputStream outputStream = new FileOutputStream(module.getRulesRootPath().getPath());
-            IOUtils.copy(getLastUploadedFile().getInputStream(), outputStream);
-            IOUtils.closeQuietly(getLastUploadedFile().getInputStream());
-            IOUtils.closeQuietly(outputStream);
+            OutputStream outputStream = null;
+            InputStream inputStream = null;
+            try {
+                outputStream = new FileOutputStream(module.getRulesRootPath().getPath());
+                inputStream = uploadedFile.getInputStream();
+                IOUtils.copy(inputStream, outputStream);
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+                IOUtils.closeQuietly(outputStream);
+            }
 
             historyListener.afterSave(model.getCurrentModuleWorkbook());
         } catch (Exception e) {
