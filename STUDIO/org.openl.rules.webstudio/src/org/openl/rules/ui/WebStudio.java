@@ -2,11 +2,19 @@ package org.openl.rules.ui;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -14,8 +22,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,9 +49,13 @@ import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileTool;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -440,6 +455,129 @@ public class WebStudio {
         uploadedFiles.clear();
 
         return null;
+    }
+
+    public String updateProject() {
+        UploadedFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null) {
+            // TODO Replace exceptions with FacesUtils.addErrorMessage()
+            throw new IllegalArgumentException("File wasn't uploaded");
+        }
+        if (!FileTypeHelper.isZipFile(FilenameUtils.getName(lastUploadedFile.getName()))) {
+            // TODO Replace exceptions with FacesUtils.addErrorMessage()
+            throw new IllegalArgumentException("Uploaded file must be zip");
+        }
+        File uploadedFile = null;
+        ZipFile zipFile = null;
+        try {
+            uploadedFile = FileTool.toTempFile(lastUploadedFile.getInputStream(), lastUploadedFile.getName());
+            zipFile = new ZipFile(uploadedFile);
+
+            ProjectDescriptor projectDescriptor = getCurrentProjectDescriptor();
+
+            Set<String> zipEntryNames = sortZipEntryNames(zipFile);
+            PathFilter filter = getZipFilter();
+            RootFolderExtractor folderExtractor = new RootFolderExtractor(zipEntryNames, filter);
+
+            File projectFolder = projectDescriptor.getProjectFolder();
+            Collection<File> files = getProjectFiles(projectFolder, filter);
+
+            for (File file : files) {
+                String relative = getRelativePath(projectFolder, file);
+                boolean found = false;
+                for (String zipEntryName : zipEntryNames) {
+                    if (relative.equals(folderExtractor.extractFromRootFolder(zipEntryName))) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    FileUtils.deleteQuietly(file);
+                }
+            }
+
+            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
+                    model.getHistoryManager());
+            for (String zipEntryName : zipEntryNames) {
+                ZipEntry item = zipFile.getEntry(zipEntryName);
+                if (item.isDirectory()) {
+                    continue;
+                }
+
+                File outputFile = new File(projectFolder, folderExtractor.extractFromRootFolder(zipEntryName));
+                historyListener.beforeSave(outputFile);
+
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                try {
+                    inputStream = zipFile.getInputStream(item);
+                    outputStream = new FileOutputStream(outputFile);
+                    IOUtils.copy(inputStream, outputStream);
+                } finally {
+                    IOUtils.closeQuietly(outputStream);
+                    IOUtils.closeQuietly(inputStream);
+                }
+                historyListener.afterSave(outputFile);
+            }
+        } catch (Exception e) {
+            log.error("Error while updating project in user workspace.", e);
+            // TODO Replace exceptions with FacesUtils.addErrorMessage()
+            throw new IllegalStateException("Error while updating project in user workspace.", e);
+        } finally {
+            try {
+                if (zipFile != null) {
+                    zipFile.close();
+                }
+            } catch (IOException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            FileUtils.deleteQuietly(uploadedFile);
+        }
+
+        reset(ReloadType.FORCED);
+        rebuildModel();
+        uploadedFiles.clear();
+
+        return null;
+    }
+
+    private PathFilter getZipFilter() {
+        return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext()).getBean("zipFilter");
+    }
+
+    private Collection<File> getProjectFiles(File projectFolder, final PathFilter filter) {
+        return FileUtils.listFiles(projectFolder, new IOFileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return filter.accept(file.getPath());
+            }
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return filter.accept(new File(dir, name).getPath());
+            }
+        }, FileFileFilter.FILE);
+    }
+
+    private String getRelativePath(File baseFolder, File file) {
+        return baseFolder.toURI().relativize(file.toURI()).getPath().replace("\\", "/");
+    }
+
+    private Set<String> sortZipEntryNames(ZipFile zipFile) {
+        // Sort zip entries names alphabetically
+        Set<String> sortedNames = new TreeSet<String>();
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+            try {
+                ZipEntry item = items.nextElement();
+                sortedNames.add(item.getName());
+            } catch (Exception e) {
+                // TODO message on UI
+                log.warn("Can not extract zip entry.", e);
+            }
+        }
+        return sortedNames;
     }
 
     private UploadedFile getLastUploadedFile() {
