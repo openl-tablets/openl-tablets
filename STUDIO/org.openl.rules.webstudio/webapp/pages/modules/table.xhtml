@@ -540,11 +540,11 @@
 
         <h:form id="discardChangesForm">
             <h:panelGroup id="modalDiscardChangesData">
-                <h:outputText value="Table is not saved. If you leave the page, all changes will be lost. Are you sure you want to discard all changes?" />
+                <h:outputText value="Table is not saved. If you leave this page, all changes will be lost. Are you sure you want to discard unsaved changes?" />
             </h:panelGroup>
 
             <footer>
-                <h:commandButton id="discardButton" value="Discard chamges" styleClass="button-primary" />
+                <h:commandButton id="discardButton" value="Discard changes" styleClass="button-primary" />
                 <input type="button" value="Cancel" onclick="#{rich:component('modalDiscardChanges')}.hide();" />
             </footer>
         </h:form>
@@ -630,7 +630,7 @@
 
             window.onbeforeunload = function (e) {
                 if (hasChanges()) {
-                    return 'Table is not saved. If you leave the page, all changes will be lost.';
+                    return 'Table is not saved. If you leave this page, all changes will be lost.';
                 }
             };
 
