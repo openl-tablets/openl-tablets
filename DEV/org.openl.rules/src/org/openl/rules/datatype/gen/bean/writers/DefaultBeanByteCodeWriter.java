@@ -3,6 +3,8 @@ package org.openl.rules.datatype.gen.bean.writers;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.objectweb.asm.Type;
+import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
@@ -34,15 +36,35 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
         return parentClass;
     }
 
+    /**
+     * Returns an internal name of the parent class. If no parent classes are (parentClass is null)
+     * then "java/lang/Object" will be returned.
+     *
+     * @return an internal name of the parent class.
+     * @see ByteCodeGeneratorHelper#JAVA_LANG_OBJECT
+     * @see Type#getInternalName(Class)
+     */
+    protected String getParentInternalName() {
+        String internalName;
+        if (parentClass == null) {
+            internalName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
+        } else {
+            internalName = Type.getInternalName(parentClass);
+        }
+        return internalName;
+    }
+
     protected Map<String, FieldDescription> getBeanFields() {
         return beanFields;
     }
-    
+
     @Override
     public String toString() {
-    	StringBuilder strBuilder = new StringBuilder();
-    	strBuilder.append("Bean writer for ");
-    	strBuilder.append(beanNameWithPackage);
-    	return strBuilder.toString();
+        // For debugging purpose
+        StringBuilder strBuilder = new StringBuilder(128);
+        strBuilder.append(this.getClass().getSimpleName());
+        strBuilder.append(" for ");
+        strBuilder.append(beanNameWithPackage);
+        return strBuilder.toString();
     }
 }
