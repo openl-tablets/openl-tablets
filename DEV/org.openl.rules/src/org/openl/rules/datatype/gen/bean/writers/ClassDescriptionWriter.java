@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 /**
@@ -15,7 +13,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
  *
  */
 public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
-    
+
     /**
      * 
      * @param beanNameWithPackage name of the class with package, symbol '/' is used as separator<br> 
@@ -27,12 +25,7 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        if (getParentClass() == null) {
-            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(),
-                    null, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, null);
-        } else {
-            classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(),
-                    null, Type.getInternalName(getParentClass()), null);
-        }
+        String parentName = getParentInternalName();
+        classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, null);
     }
 }

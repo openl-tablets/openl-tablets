@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.table.Point;
@@ -38,7 +37,7 @@ public class DefaultConstructorWriter extends org.openl.rules.datatype.gen.bean.
         methodVisitor.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getRow() + 1);
         methodVisitor.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getColumn() + 1);
         // invokes the super class constructor
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()), "<init>", "(II)V");
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, getParentInternalName(), "<init>", "(II)V");
         
         methodVisitor.visitInsn(Opcodes.RETURN);        
         
