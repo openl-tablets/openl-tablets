@@ -1,0 +1,39 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <f:view transient="true">
+    <rich:popupPanel id="updateProject" width="500" autosized="true">
+        <f:facet name="header">
+          <h:outputText value="Update project"/>
+        </f:facet>
+
+        <f:facet name="controls">
+          <h:graphicImage value="/images/close.gif" class="close"
+            onclick="RichFaces.$('updateProject').hide();" alt="Close" />
+        </f:facet>
+
+        <h:form id="updateProjectForm">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                <h:outputLabel for="projectUpload" styleClass="required" value="File" />
+                <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}" />
+              </h:panelGrid>
+
+            <footer>
+                <a4j:commandButton value="Update" action="#{studio.updateProject}"
+                    oncomplete="RichFaces.$('updateProject').hide();ws.nav.reload(true);message('Project was updated successfully!', 7000);" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('updateProject').hide();" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+    </f:view>
+
+    <script>
+    function openUpdateProjectDialog() {
+      RichFaces.$('updateProject').show();
+    }
+    </script>
+</ui:composition>

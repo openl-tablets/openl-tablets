@@ -12,6 +12,10 @@
     <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
+    <h:panelGroup rendered="#{!empty rProject and studio.model.editable and empty module}">
+        <ui:include src="/pages/modules/updateProject.xhtml" />
+    </h:panelGroup>
+
     <h:panelGroup rendered="#{!empty module and studio.model.editable}">
         <ui:include src="/pages/modules/updateModule.xhtml" />
         <ui:include src="/pages/modules/exportModule.xhtml" />
@@ -78,6 +82,9 @@
                 <h:commandLink action="#{mainBean.editProject}" value="Edit"
                     title="Edit the project; the project becomes read-only for all other users"
                     rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}" />
+                <h:commandLink onclick="openUpdateProjectDialog();return false;"
+                               title="Update project" value="Update"
+                               rendered="#{!empty rProject and studio.model.editable and empty module}" />
                 <h:commandLink onclick="openUpdateModuleDialog();return false;"
                     title="Update module" value="Update"
                     rendered="#{!empty module and studio.model.editable}" />
