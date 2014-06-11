@@ -562,6 +562,10 @@
                 $j("#rulesTree .rf-trn.sel").removeClass("sel");
                 tableLink.closest(".rf-trn").addClass("sel");
 
+                // Select the last used table in the history view
+                $j("#historyTable a.selected-link").removeClass("selected-link");
+                $j("#historyTable a[href *= '" + tableId + "']").addClass("selected-link");
+
                 var panelBody = tableLink.closest(".panel-body");
                 var linkPos = tableLink.position().top;
                 if (linkPos < 0 || linkPos > panelBody.height()) {
