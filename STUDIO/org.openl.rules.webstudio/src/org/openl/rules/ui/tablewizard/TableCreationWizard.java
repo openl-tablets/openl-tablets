@@ -116,6 +116,10 @@ public abstract class TableCreationWizard extends BaseWizard {
         return items;
     }
 
+    public boolean isManyWorkbooks() {
+        return workbooks.size() > 1;
+    }
+
     public Integer getWorksheetIndex() {
         return worksheetIndex;
     }
