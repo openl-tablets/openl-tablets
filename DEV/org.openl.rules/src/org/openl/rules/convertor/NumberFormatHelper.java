@@ -77,7 +77,10 @@ class NumberFormatHelper {
         }
 
         // Reset using a default locale and set force the US locale.
-        df.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setInfinity("Infinity");
+        symbols.setNaN("NaN");
+        df.setDecimalFormatSymbols(symbols);
         return df;
     }
 }
