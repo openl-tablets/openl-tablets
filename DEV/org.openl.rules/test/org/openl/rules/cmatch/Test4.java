@@ -50,7 +50,7 @@ public class Test4 {
                 File xlsFile = new File("test/rules/cmatch1/match4-3.xls");                
                 new TestHelper<ITest4>(xlsFile, ITest4.class);
             }
-        }, "OpenLRuntimeException", "cell=F6");
+        }, "Cannot convert String \"\" to numeric type", "cell=F6");
     }
 
     @Test
