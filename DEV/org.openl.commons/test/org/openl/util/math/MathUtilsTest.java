@@ -218,18 +218,6 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testAnd() {
-        boolean[] boolAr = null;
-        assertFalse(BooleanUtils.and(boolAr));
-
-        boolAr = new boolean[] { true, false, true };
-        assertFalse(BooleanUtils.and(boolAr));
-
-        boolAr = new boolean[] { true, true, true };
-        assertTrue(BooleanUtils.and(boolAr));
-    }
-
-    @Test
     public void testEqNaN() {
         assertTrue(MathUtils.eq(Float.NaN, Float.NaN));
         assertTrue(MathUtils.eq(Double.NaN, Double.NaN));
