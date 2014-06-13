@@ -33,14 +33,14 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         super(traceObject);
         InputArgumentsCloner cloner = new InputArgumentsCloner();
         if (params != null) {
-        	Object[] clonedParams = null;
-            try {
-            	clonedParams = cloner.deepClone(params);
-            } catch (Exception ex) {
-            	// ignore cloning exception if any, use params itself
-            	//
-            	clonedParams = params;
-            }
+        	Object[] clonedParams = /*null;*/params;
+//            try {
+//            	clonedParams = cloner.deepClone(params);
+//            } catch (Exception ex) {
+//            	// ignore cloning exception if any, use params itself
+//            	//
+//            	clonedParams = params;
+//            }
             this.params = clonedParams;
         } else {
         	this.params = new Object[0];
