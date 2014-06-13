@@ -2,7 +2,6 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Locale;
 
@@ -27,7 +26,6 @@ class NumberFormatHelper {
      * @param data   a number to format
      * @param format a format of a number. If it is null then a default format will be used.
      * @return a String or null
-     * @throws ParseException if the specified string cannot be parsed
      */
     String format(Number data, String format) {
         if (data == null) return null;
@@ -43,9 +41,9 @@ class NumberFormatHelper {
      * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
      * @return a number or null
-     * @throws ParseException if the specified string cannot be parsed
+     * @throws NumberFormatException if the specified string cannot be parsed
      */
-    Number parse(String data, String format) throws ParseException {
+    Number parse(String data, String format) {
         if (data == null) return null;
         DecimalFormat df = getFormatter(format);
         if (data.endsWith("%")) {
@@ -57,7 +55,7 @@ class NumberFormatHelper {
         Number number = df.parse(data, position);
         int index = position.getIndex();
         if (index < data.length() || index == 0) {
-            throw new ParseException("Unparseable number: \"" + data + "\"", index);
+            throw new NumberFormatException("Cannot convert String \"" + data + "\" to numeric type");
         }
         return number;
     }

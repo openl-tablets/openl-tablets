@@ -32,13 +32,13 @@ public class String2FloatConvertorTest {
         assertEquals(3.1415f, res);
     }
 
-    @Test(expected = NestableRuntimeException.class)
+    @Test(expected = NumberFormatException.class)
     public void testParseNonNumber() {
         IString2DataConvertor conv = new String2FloatConvertor();
         conv.parse("3.1415f", null, null);
     }
 
-    @Test(expected = NestableRuntimeException.class)
+    @Test(expected = NumberFormatException.class)
     public void testParseEmpty() {
         IString2DataConvertor conv = new String2FloatConvertor();
         conv.parse("", null, null);

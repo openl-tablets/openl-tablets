@@ -32,13 +32,13 @@ public class String2DoubleConvertorTest {
         assertEquals(3.1415d, res);
     }
 
-    @Test(expected = NestableRuntimeException.class)
+    @Test(expected = NumberFormatException.class)
     public void testParseNonNumber() {
         IString2DataConvertor conv = new String2DoubleConvertor();
         conv.parse("3.1415d", null, null);
     }
 
-    @Test(expected = NestableRuntimeException.class)
+    @Test(expected = NumberFormatException.class)
     public void testParseEmpty() {
         IString2DataConvertor conv = new String2DoubleConvertor();
         conv.parse("", null, null);
