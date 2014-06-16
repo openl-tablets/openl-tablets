@@ -118,7 +118,7 @@
                                 <td>
                                     <h:outputLink value="#{studio.url('table')}" title="Edit the table" styleClass="toolbarButton"
                                         rendered="#{tableBean.canEdit}"  >
-                                        <f:param name="uri" value="#{tableBean.uri}" />
+                                        <f:param name="id" value="#{tableBean.id}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
                                         <span>Edit</span>
@@ -127,9 +127,8 @@
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         rendered="#{tableBean.canOpenInExel}"
-                                        title="Open the table in Excel - #{tableBean.uri}" 
-                                        target="hidden" >
-                                        <f:param name="uri" value="#{tableBean.encodedUri}" />
+                                        title="Open the table in Excel" target="hidden">
+                                        <f:param name="id" value="#{tableBean.id}" />
                                         <img src="webresource/images/excel.png" />
                                         <span>Open</span>
                                     </h:outputLink>
@@ -163,10 +162,10 @@
                 <td>
                     <c:set var="testIndices" value="#{tableBean.selectedIndices}" />
                     <c:set var="traceUrl"
-                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{tableBean.encodedUri}" />
+                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
                     <h:form prependId="false">
                         <c:set var="runLink"
-                            value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?uri=#{tableBean.encodedUri}" />
+                            value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
                         <div id="unitsMenu" style="display: none; min-width: 175px">
                             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}">
                                 <div title="Show only failed test cases">
@@ -327,9 +326,9 @@
                     <td>
                         <h:form id="inputArgsForm">
                             <c:set var="runLink"
-                                value="#{studio.url('test/run')}?uri=#{tableBean.encodedUri}" />
+                                value="#{studio.url('test/run')}?id=#{tableBean.id}" />
                             <c:set var="traceUrl"
-                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{tableBean.encodedUri}" />
+                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
@@ -351,7 +350,7 @@
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Run" title="Launch the table"
-                                            oncomplete="goTo('#{runLink}')"/> 
+                                            oncomplete="goTo('#{runLink}')"/>
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Launch the table and trace steps"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win')" />
@@ -383,7 +382,7 @@
                     <td>
                         <h:outputLink value="#{studio.url('test/test')}" title="Run Tests" styleClass="toolbarButton"
                             rendered="#{tableBean.canRun}"  >
-                            <f:param name="uri" value="#{tableBean.uri}" />
+                            <f:param name="id" value="#{tableBean.id}" />
                             <img src="webresource/images/test_ok.gif" />
                             <span>Test</span>
                         </h:outputLink>
@@ -415,7 +414,7 @@
                         <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#{studio.url('table')}">
-                                <f:param name="uri" value="#{targetTable.uri}" />
+                                <f:param name="id" value="#{targetTable.id}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
@@ -431,7 +430,7 @@
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
                             <h:outputLink value="#{studio.url('table')}">
-                                <f:param name="uri" value="#{targetTable.uri}" />
+                                <f:param name="id" value="#{targetTable.id}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" /> 
                             </h:outputLink>
                         </div>
@@ -450,7 +449,7 @@
                         <ui:repeat value="#{tableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#{studio.url('table')}" >
-                                <f:param name="uri" value="#{test.info.sourceUrl}" />
+                                <f:param name="id" value="#{test.info.syntaxNode.id}" />
                                 <h:outputText value="#{tableBean.getTestName(test)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
@@ -467,7 +466,7 @@
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
                             <h:outputLink value="#{studio.url('table')}">
-                                <f:param name="uri" value="#{test.info.sourceUrl}" />
+                                <f:param name="id" value="#{test.info.syntaxNode.id}" />
                                 <h:outputText value="#{tableBean.getTestName(test)}" />
                             </h:outputLink>
                         </div>
@@ -506,7 +505,7 @@
             </h:panelGroup>
 
             <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-                <input type="hidden" name="uri" value="" />
+                <input type="hidden" name="id" value="" />
             </form>
 
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
@@ -514,7 +513,7 @@
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
-                onError="javascript:onError(data);" excludeScripts="prototype"  >
+                onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>
@@ -565,7 +564,7 @@
         }
 
         function editInExcel(f) {
-            f.uri.value = "#{tableBean.uri}";
+            f.id.value = "#{tableBean.id}";
             f.submit();
         }
 
@@ -574,7 +573,7 @@
         }
 
         function onAfterSave(data) {
-            goTo("#{studio.url('table')}?uri=" + encodeURIComponent(data.newUri), true);
+            goTo("#{studio.url('table')}?id=" + data.newId, true);
             hideLoader();
         }
 

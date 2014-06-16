@@ -17,6 +17,7 @@
             <c:set var="recentlyVisitedTables" value="#{studio.model.recentlyVisitedTables.tables}" />
 
             <h:dataTable id="historyTable" value="#{recentlyVisitedTables}" var="table">
+                <c:set var="isLastVisited" value="#{studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}" />
                 <h:column>
                     <h:graphicImage value="webresource/images/dt3.png" rendered="#{table.type == 'xls.dt'}" />
                     <h:graphicImage value="webresource/images/spreadsheet.gif" rendered="#{table.type == 'xls.spreadsheet'}" />
@@ -32,9 +33,8 @@
                     <h:graphicImage value="webresource/images/leaf_icon.gif" rendered="#{table.type == 'xls.other'}" />
                 </h:column>
                 <h:column>
-                    <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                    <h:outputLink value="#{studio.url('table')}?uri=#{encodedTableUri}&amp;saveTable=false"
-                        rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
+                    <h:outputLink value="#{studio.url('table')}?id=#{table.id}&amp;saveTable=false"
+                        styleClass="#{isLastVisited ? 'selected-link' : ''}"
                         style="white-space:nowrap;">
                         <h:outputText value="#{table.name}" />
                         <h:panelGroup rendered="#{empty table.name}">
@@ -42,13 +42,6 @@
                             <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
                         </h:panelGroup>
                     </h:outputLink>
-                    <h:panelGroup rendered="#{studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}" style="font-weight:bold;" >
-                        <h:outputText value="#{table.name}" style="white-space:nowrap;" />
-                        <h:panelGroup rendered="#{empty table.name}">
-                            <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
-                            <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
-                        </h:panelGroup>
-                    </h:panelGroup>
                 </h:column>
             </h:dataTable>
 

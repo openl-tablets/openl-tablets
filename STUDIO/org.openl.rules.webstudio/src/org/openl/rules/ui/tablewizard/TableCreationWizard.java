@@ -27,6 +27,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -58,7 +59,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     private String newWorksheetName;
 
     /** New table identifier */
-    private String newTableUri;
+    private String newTableId;
 
     private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
 
@@ -116,6 +117,10 @@ public abstract class TableCreationWizard extends BaseWizard {
         return items;
     }
 
+    public boolean isManyWorkbooks() {
+        return workbooks.size() > 1;
+    }
+
     public Integer getWorksheetIndex() {
         return worksheetIndex;
     }
@@ -165,12 +170,12 @@ public abstract class TableCreationWizard extends BaseWizard {
         }
     }
 
-    public String getNewTableUri() {
-        return newTableUri;
+    public String getNewTableId() {
+        return newTableId;
     }
 
-    public void setNewTableUri(String newTableUri) {
-        this.newTableUri = newTableUri;
+    public void setNewTableId(String newTableId) {
+        this.newTableId = TableUtils.makeTableId(newTableId);
     }
 
     public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {

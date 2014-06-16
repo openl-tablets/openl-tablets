@@ -18,15 +18,15 @@
         var nodes = [];
         <ui:repeat var="table" value="#{tables}">
             var node = {
-                id: '<h:outputText value="#{table.uri}" />',
+                id: '<h:outputText value="#{table.id}" />',
                 name: '<h:outputText value="#{table.name}" />',
                 adjacencies: []
             }
 
             var adjacencies = [];
-            <ui:repeat var="depUri" value="#{table.dependencies}">
+            <ui:repeat var="depId" value="#{table.dependencies}">
                 var adjacency = {
-                    nodeTo: '<h:outputText value="#{depUri}" />'
+                    nodeTo: '<h:outputText value="#{depId}" />'
                 }
                 adjacencies.push(adjacency);
             </ui:repeat>

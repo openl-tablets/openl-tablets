@@ -36,7 +36,7 @@
                     <h:outputLink title="#{msg['ws.table.error.edit']}" value="#{studio.url('table')}"
                         onclick="goTo(this.href.replace(/^.+#/, '')); return false;">
                         <!-- If not use goTo(), we can't press "edit cell" repeatedly, only once -->
-                        <f:param name="uri" value="#{messagesBean.tableUri}" />
+                        <f:param name="id" value="#{messagesBean.tableId}" />
                         <f:param name="cell" value="#{messagesBean.errorCell}" />
                         <f:param name="mode" value="edit" />
                         <h:graphicImage url="/webresource/images/edit2.gif" />

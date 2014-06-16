@@ -16,7 +16,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IParameterDeclaration;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
@@ -30,12 +29,12 @@ public class RunBean {
     private TestUnitsResults results;
 
     /**
-     * URI of tested table
+     * ID of tested table
      */
-    private String uri;
+    private String id;
 
     public RunBean() {
-        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
         if (model.hasTestSuitesToRun()) {
@@ -55,7 +54,7 @@ public class RunBean {
     }
 
     public String getTableName() {
-        return WebStudioUtils.getProjectModel().getTable(uri).getName();
+        return WebStudioUtils.getProjectModel().getTableById(id).getDisplayName();
     }
 
     public List<TestUnit> getResults() {
@@ -63,15 +62,7 @@ public class RunBean {
     }
     
     public boolean isExpired(){
-        return StringUtils.isNotBlank(uri) && testSuite == null;
-    }
-
-    public String getUri() {
-        if (testSuite != null) {
-            return testSuite.getUri();
-        } else {
-            return uri;
-        }
+        return StringUtils.isNotBlank(id) && testSuite == null;
     }
 
     public SpreadsheetResult getSpreadsheetResult(TestUnit unit) {

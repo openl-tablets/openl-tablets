@@ -9,8 +9,9 @@ import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
 
@@ -53,15 +54,15 @@ public class MessagesBean {
         return new String[0];
     }
 
-    public String getTableUri() {
+    public String getTableId() {
         OpenLErrorMessage message = (OpenLErrorMessage) messages.getRowData();
         OpenLException error = message.getError();
 
         String errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
 
-        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = WebStudioUtils.getProjectModel();
 
-        return studio.getModel().findTableUri(errorUri);
+        return TableUtils.makeTableId(model.findTableUri(errorUri));
     }
 
     public String getErrorCell() {

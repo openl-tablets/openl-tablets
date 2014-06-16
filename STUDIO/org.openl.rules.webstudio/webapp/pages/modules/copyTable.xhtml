@@ -112,7 +112,7 @@
                         onclick="$j('#savePanel').slideDown();$j(this).hide()" id="save-panel">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
                     <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
                         <h:outputText value="#{msg['ws.copy.to.module']}" styleClass="required" />
-                        <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks">
+                        <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks" disabled="#{!wizard.manyWorkbooks}">
                             <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                             <f:selectItems value="#{wizard.workbooks}"/>
                         </h:selectOneMenu>
@@ -143,7 +143,7 @@
             <br />
 
             <h:panelGroup id="copyButtonPanel">
-                <a4j:commandButton id="copyTableBtn" value="#{msg['ws.copy.copy']}" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+                <a4j:commandButton id="copyTableBtn" value="#{msg['ws.copy.copy']}" action="#{wizard.finish}" data="#{wizard.newTableId}"
                     oncomplete="copyComplete(event.data)" styleClass="button-primary"
                     rendered="#{!((tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == '')}" />
             </h:panelGroup>
@@ -154,7 +154,7 @@
     <script>
         function copyComplete(data) {
             if (data) {
-                goTo("#{studio.url('table')}" + "?uri=" + encodeURIComponent(data), true);
+                goTo("#{studio.url('table')}" + "?id=" + data, true);
             }
         }
 

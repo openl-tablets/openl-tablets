@@ -9,6 +9,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.dependency.graph.DirectedEdge;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.impl.ExecutableMethod;
@@ -36,15 +37,16 @@ public class RulesDependenciesBean {
         for (ExecutableMethod rulesMethod : graph.vertexSet()) {
             Table table = new Table();
             table.setName(rulesMethod.getName());
-            String tableUri = StringTool.encodeURL(rulesMethod.getSourceUrl());
-            table.setUri(tableUri);
+            String tableUri = rulesMethod.getSourceUrl();
+            String tableId = TableUtils.makeTableId(tableUri);
+            table.setId(tableId);
 
             Set<DirectedEdge<ExecutableMethod>> outgoingEdges = graph.outgoingEdgesOf(rulesMethod);
             List<String> dependencies = table.getDependencies();
             for (DirectedEdge<ExecutableMethod> edge : outgoingEdges) {
-                String depUri = StringTool.encodeURL(edge.getTargetVertex().getSourceUrl());
-                if (!depUri.equals(tableUri)) {
-                    dependencies.add(depUri);
+                String depId = TableUtils.makeTableId(edge.getTargetVertex().getSourceUrl());
+                if (!depId.equals(tableId)) {
+                    dependencies.add(depId);
                 }
             }
             if (outgoingEdges.size() > 0) {
@@ -61,7 +63,7 @@ public class RulesDependenciesBean {
     public class Table {
 
         private String name;
-        private String uri;
+        private String id;
 
         private List<String> dependencies = new ArrayList<String>();
 
@@ -73,12 +75,12 @@ public class RulesDependenciesBean {
             this.name = name;
         }
 
-        public String getUri() {
-            return uri;
+        public String getId() {
+            return id;
         }
 
-        public void setUri(String uri) {
-            this.uri = uri;
+        public void setId(String id) {
+            this.id = id;
         }
 
         public List<String> getDependencies() {

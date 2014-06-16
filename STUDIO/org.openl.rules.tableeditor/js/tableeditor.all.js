@@ -485,7 +485,7 @@ var TableEditor = Class.create({
 
         this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, function(data) {
             if (self.actions && self.actions.afterSave) {
-                self.actions.afterSave({"newUri": data.uri});
+                self.actions.afterSave({"newId": data.id});
             }
         });
     },

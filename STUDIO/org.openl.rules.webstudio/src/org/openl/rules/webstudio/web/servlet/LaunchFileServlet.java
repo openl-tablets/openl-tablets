@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.util.WebTool;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -47,12 +48,15 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
+        WebStudio ws = getWebStudio(request);
+        if (ws == null) return;
+
+        ProjectModel model = ws.getModel();
+
         String excelScriptPath = getServletContext().getRealPath("scripts/LaunchExcel.vbs");
         String wordScriptPath = getServletContext().getRealPath("scripts/LaunchWord.vbs");
 
         boolean local = WebTool.isLocalRequest(request);
-
-        String uri = request.getParameter(Constants.REQUEST_PARAM_URI);
 
         String wbPath = null;
         String wbName = null;
@@ -67,84 +71,61 @@ public class LaunchFileServlet extends HttpServlet {
         boolean isExcel = false;
         boolean isWord = false;
 
-        if (uri != null) { // by uri
-            
-            String file;
-            String decodedUriParameter;
-            try {
-                decodedUriParameter = StringTool.decodeURL(uri);
-                URL url = new URL(decodedUriParameter);
-                file = url.getFile();
+        String id = request.getParameter(Constants.REQUEST_PARAM_ID);
+        IOpenLTable table = model.getTableById(id);
+        if (table == null) return;
 
-                int indexQuestionMark = file.indexOf('?');
-                file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
-            } catch (MalformedURLException e) {
-                log.error(e);
-                return;
-            }
-            decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
-            try {
-                if (FileTypeHelper.isExcelFile(file)) { // Excel
-                    XlsUrlParser parser = new XlsUrlParser();
-                    parser.parse(decodedUriParameter);
-                    wbPath = parser.wbPath;
-                    wbName = parser.wbName;
-                    wsName = parser.wsName;
-                    range = parser.range;
-                    isExcel = true;
+        String uri = table.getUri();
 
-                } else if (FileTypeHelper.isWordFile(file)) { // Word
-                    WordUrlParser parser = new WordUrlParser();
-                    parser.parse(decodedUriParameter);
-                    wdPath = parser.wdPath;
-                    wdName = parser.wdName;
-                    wdParStart = parser.wdParStart;
-                    wdParEnd = parser.wdParEnd;
-                    isWord = true;
-                }
-            } catch (Exception e) {
-                log.error("Can't parse file uri", e);
-                return;
-            }
+        String file;
+        String decodedUriParameter;
+        try {
+            decodedUriParameter = StringTool.decodeURL(uri);
+            URL url = new URL(decodedUriParameter);
+            file = url.getFile();
 
-        } else { // by params @Deprecated
-            wbName = StringTool.decodeURL(request.getParameter("wbName"));
-
-            if (wbName != null) { // Excel
-                wbPath = StringTool.decodeURL(request.getParameter("wbPath"));
-                wsName = StringTool.decodeURL(request.getParameter("wsName"));
-                range = StringTool.decodeURL(request.getParameter("range"));
+            int indexQuestionMark = file.indexOf('?');
+            file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
+        } catch (MalformedURLException e) {
+            log.error(e);
+            return;
+        }
+        decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
+        try {
+            if (FileTypeHelper.isExcelFile(file)) { // Excel
+                XlsUrlParser parser = new XlsUrlParser();
+                parser.parse(decodedUriParameter);
+                wbPath = parser.wbPath;
+                wbName = parser.wbName;
+                wsName = parser.wsName;
+                range = parser.range;
                 isExcel = true;
-            } else {
-                wdName = StringTool.decodeURL(request.getParameter("wdName"));
 
-                if (wdName != null) { // Word
-                    wdPath = StringTool.decodeURL(request.getParameter("wdPath"));
-                    wdParStart = StringTool.decodeURL(request.getParameter("wdParStart"));
-                    wdParEnd = StringTool.decodeURL(request.getParameter("wdParEnd"));
-                    isWord = true;
-                }
+            } else if (FileTypeHelper.isWordFile(file)) { // Word
+                WordUrlParser parser = new WordUrlParser();
+                parser.parse(decodedUriParameter);
+                wdPath = parser.wdPath;
+                wdName = parser.wdName;
+                wdParStart = parser.wdParStart;
+                wdParEnd = parser.wdParEnd;
+                isWord = true;
             }
+        } catch (Exception e) {
+            log.error("Can't parse file uri", e);
+            return;
         }
 
         if (local) { // local mode
             try {
                 if (isExcel) {
-                    WebStudio ws = getWebStudio(request);
-                    if (ws == null)
-                        return;
-
-                    ProjectModel project = ws.getModel();
-                    project.openWorkbookForEdit(wbName);
+                    model.openWorkbookForEdit(wbName);
 
                     ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
 
-                    project.afterOpenWorkbookForEdit(wbName);
+                    model.afterOpenWorkbookForEdit(wbName);
 
-                    return;
                 } else if (isWord) {
                     WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
-                    return;
                 }
             } catch (Exception e) {
                 log.error("Can't launch file", e);

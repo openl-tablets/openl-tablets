@@ -3,6 +3,7 @@ package org.openl.rules.tableeditor.model.ui;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -11,7 +12,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.Log;
-import org.openl.util.StringTool;
 
 public class TableViewer {
 
@@ -151,9 +151,9 @@ public class TableViewer {
                 // add link to used table with signature in tooltip
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (tableUri != null) {
-                    String encodedURL = StringTool.encodeURL(tableUri);
-                    buff.append("<a href=\"" + linkBase + "?uri=")
-                        .append(encodedURL).append("\"");
+                    String tableId = TableUtils.makeTableId(tableUri);
+                    buff.append("<a href=\"" + linkBase + "?id=")
+                        .append(tableId).append("\"");
                     if (StringUtils.isNotBlank(linkTarget)) {
                         buff.append(" target=\"").append(linkTarget).append("\"");
                     }
