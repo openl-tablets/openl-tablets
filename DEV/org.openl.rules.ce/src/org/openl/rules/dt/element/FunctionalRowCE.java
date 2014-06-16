@@ -49,7 +49,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  * 
  */
-public abstract class FunctionalRow implements IDecisionRow {
+public abstract class FunctionalRowCE implements IDecisionRow {
 
 	private static final String NO_PARAM = "P";
 
@@ -68,7 +68,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	private int noParamsIndex = 0;
 
-	public FunctionalRow(String name, int row, ILogicalTable decisionTable) {
+	public FunctionalRowCE(String name, int row, ILogicalTable decisionTable) {
 
 		this.name = name;
 		this.row = row;

@@ -78,10 +78,12 @@ public class InstantiationStrategyFactory {
      * @param module Module
      */
     public void removeCachedModule(Module module) {
-        cache.remove(new Key(this, module));
-        cache.remove(new Key(this, module.getProject()));
-        removeModuleDependencies(module);
-        removeProjectDependencies(module.getProject());
+        if (module != null) {
+            cache.remove(new Key(this, module));
+            cache.remove(new Key(this, module.getProject()));
+            removeModuleDependencies(module);
+            removeProjectDependencies(module.getProject());
+        }
     }
 
     /**
