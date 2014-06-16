@@ -1,34 +1,20 @@
 package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 
-import org.openl.binding.IBindingContext;
-import org.openl.util.RuntimeExceptionWrapper;
+public class String2ByteConvertor extends String2NumberConverter<Byte> {
 
-public class String2ByteConvertor implements IString2DataConvertor {
-
-    public String format(Object data, String format) {
-        if (format == null) {
-            return String.valueOf(data);
+    @Override
+    Byte convert(Number number, String data) {
+        double dValue = number.doubleValue();
+        if (dValue > Byte.MAX_VALUE || dValue < Byte.MIN_VALUE) {
+            throw new NumberFormatException("A number is out of range [-128...+127]");
         }
-        DecimalFormat df = new DecimalFormat(format);
-        return df.format(((Byte) data).byteValue());
+        return number.byteValue();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
-        if (format == null) {
-            return Byte.valueOf(data);
-        }
-        DecimalFormat df = new DecimalFormat(format);
-
-        Number n;
-        try {
-            n = df.parse(data);
-        } catch (ParseException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        }
-
-        return Byte.valueOf(n.byteValue());
+    @Override
+    void configureFormatter(DecimalFormat df) {
+        df.setParseIntegerOnly(true);
     }
 }

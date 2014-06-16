@@ -97,6 +97,7 @@
 
     <script>
         function saveComplete(data) {
+		    ws.changes.revertChanges();
             goTo("#{studio.url('table')}?id=" + data, true);
         }
     </script>

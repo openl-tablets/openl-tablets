@@ -21,6 +21,10 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
 
     public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
         File sourceFile = workbookSourceCodeModule.getSourceFile();
+        beforeSave(sourceFile);
+    }
+
+    public void beforeSave(File sourceFile) {
         Map<Long, File> sources = historyManager.get(sourceFile.getName());
         if (sources.isEmpty()) {
             historyManager.save(sourceFile);
@@ -29,6 +33,10 @@ public class XlsWorkbookSourceHistoryListener implements XlsWorkbookListener {
 
     public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
         File sourceFile = workbookSourceCodeModule.getSourceFile();
+        afterSave(sourceFile);
+    }
+
+    public void afterSave(File sourceFile) {
         historyManager.save(sourceFile);
     }
 

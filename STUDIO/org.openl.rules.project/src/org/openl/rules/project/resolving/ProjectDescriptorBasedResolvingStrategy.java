@@ -2,17 +2,15 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.classloader.OpenLClassLoaderHelper;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
@@ -39,14 +37,6 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                 PROJECT_DESCRIPTOR_FILE_NAME));
             return false;
         }
-    }
-
-    protected ClassLoader getClassLoader(ProjectDescriptor projectDescriptor) {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
-        URL[] urls = projectDescriptor.getClassPathUrls();
-        classLoader.addClassLoader(projectDescriptor.getClassLoader(false));
-        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
-        return classLoader;
     }
 
     protected ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException {
@@ -116,37 +106,31 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         }
     }
 
-    private PropertiesFileNameProcessor buildProcessor(Set<String> globalErrorMessages,
-            ProjectDescriptor projectDescriptor) throws ClassNotFoundException,
-                                                InstantiationException,
-                                                IllegalAccessException {
-        ClassLoader classLoader = getClassLoader(projectDescriptor);
-        PropertiesFileNameProcessor processor = null;
-        if (projectDescriptor.getPropertiesFileNameProcessor() != null && !projectDescriptor.getPropertiesFileNameProcessor()
-            .isEmpty()) {
-            try {
-                Class<?> clazz = classLoader.loadClass(projectDescriptor.getPropertiesFileNameProcessor());
-                processor = (PropertiesFileNameProcessor) clazz.newInstance();
-            } catch (ClassNotFoundException e) {
-                String message = "Properties file name processor class '" + projectDescriptor.getPropertiesFileNameProcessor() + "' wasn't found!";
-                if (log.isWarnEnabled()) {
-                    log.warn(message);
+    private PropertiesFileNameProcessor buildProcessor(final Set<String> globalErrorMessages,
+            ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
+        return new PropertiesFileNameProcessorBuilder() {
+            @Override
+            protected PropertiesFileNameProcessor buildCustomProcessor(ProjectDescriptor projectDescriptor, ClassLoader classLoader) {
+                try {
+                    return super.buildCustomProcessor(projectDescriptor, classLoader);
+                } catch (InvalidFileNameProcessorException e) {
+                    String message = e.getMessage();
+                    if (log.isWarnEnabled()) {
+                        log.warn(message);
+                    }
+                    globalErrorMessages.add(message);
+                    return null;
                 }
-                globalErrorMessages.add("Properties file name processor class '" + projectDescriptor.getPropertiesFileNameProcessor() + "' wasn't found!");
-            } catch (Exception e) {
-                String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface!";
-                if (log.isWarnEnabled()) {
-                    log.warn(message);
+            }
+
+            @Override
+            protected PropertiesFileNameProcessor buildDefaultProcessor(ProjectDescriptor projectDescriptor, ClassLoader classLoader) throws InvalidFileNameProcessorException {
+                if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNamePattern())) {
+                    return super.buildDefaultProcessor(projectDescriptor, classLoader);
                 }
-                globalErrorMessages.add(message);
+
+                return null;
             }
-        } else {
-            if (projectDescriptor.getPropertiesFileNamePattern() != null && !projectDescriptor.getPropertiesFileNamePattern()
-                .isEmpty()) {
-                Class<?> clazz = classLoader.loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
-                processor = (PropertiesFileNameProcessor) clazz.newInstance();
-            }
-        }
-        return processor;
+        }.build(projectDescriptor);
     }
 }

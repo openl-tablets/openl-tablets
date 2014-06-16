@@ -523,6 +523,10 @@ table.properties-form.wide textarea {
     width: 315px;
 }
 
+table.properties-form.wide input[type="text"].with-button {
+    width: 280px;
+}
+
 table td.delimeter {
     padding: 0 !important;
     height: 10px;
@@ -1328,4 +1332,13 @@ form .formfields {
 .dropdown-form .dropdown-menu > li > span > span {
     display: inline-block;
     min-width: 110px;
+}
+
+/* Disabled-like style for hyperlinks.
+   It is used to mark active (currently selected) links, so a User can see where he is now. */
+.selected-link {
+    font-weight: bold;
+    color: #171717;
+    text-decoration: none;
+    cursor: default;
 }

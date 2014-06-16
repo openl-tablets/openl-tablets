@@ -181,7 +181,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         Object instance = getInstance(clazz);
         
         String methodName = "getName";
-        testValue(clazz, instance, methodName, "Denis");            
+        testValue(clazz, instance, methodName, "Denis");
         
         methodName = "getByteVal";
         testValue(clazz, instance, methodName, new Byte((byte) 12));

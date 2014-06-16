@@ -112,7 +112,7 @@
                         onclick="$j('#savePanel').slideDown();$j(this).hide()" id="save-panel">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
                     <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
                         <h:outputText value="#{msg['ws.copy.to.module']}" styleClass="required" />
-                        <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks">
+                        <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks" disabled="#{!wizard.manyWorkbooks}">
                             <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                             <f:selectItems value="#{wizard.workbooks}"/>
                         </h:selectOneMenu>

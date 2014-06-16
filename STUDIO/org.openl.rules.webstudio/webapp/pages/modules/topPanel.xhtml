@@ -12,6 +12,10 @@
     <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
+    <h:panelGroup rendered="#{!empty rProject and studio.model.editable and empty module}">
+        <ui:include src="/pages/modules/updateProject.xhtml" />
+    </h:panelGroup>
+
     <h:panelGroup rendered="#{!empty module and studio.model.editable}">
         <ui:include src="/pages/modules/updateModule.xhtml" />
         <ui:include src="/pages/modules/exportModule.xhtml" />
@@ -24,7 +28,7 @@
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
-            <a href="#{contextPath}/">Projects</a>
+            <a href="#{contextPath}/" class="projects-list">Projects</a>
             <h:panelGroup rendered="#{!empty rProject.name}">
             <span class="delimeter"></span>
             <span class="dropdown" id="breadcrumbs-project">
@@ -67,10 +71,8 @@
                 </ul>
             </span>
             </h:panelGroup>
-            <a4j:ajax oncomplete="ws.nav.reload(true)">
-                <h:commandLink id="refreshBtn" action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
-                    style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
-            </a4j:ajax>
+            <a id="refreshBtn" onclick="refreshIfNotChanged();" title="Refresh" class="imageButton"
+               style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
         </div>
         <div class="navbar-inner">
             <a4j:ajax oncomplete="ws.nav.reload(true)">
@@ -80,6 +82,9 @@
                 <h:commandLink action="#{mainBean.editProject}" value="Edit"
                     title="Edit the project; the project becomes read-only for all other users"
                     rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}" />
+                <h:commandLink onclick="openUpdateProjectDialog();return false;"
+                               title="Update project" value="Update"
+                               rendered="#{!empty rProject and studio.model.editable and empty module}" />
                 <h:commandLink onclick="openUpdateModuleDialog();return false;"
                     title="Update module" value="Update"
                     rendered="#{!empty module and studio.model.editable}" />
@@ -187,6 +192,9 @@
             </span>
         </div>
         </h:panelGroup>
+
+        <a4j:jsFunction name="reload" action="#{mainBean.reload}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
+
     </h:form>
 
     <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">
@@ -206,6 +214,16 @@
             });
             goTo(testUrl + "?" + query, true);
         }
+
+        function refreshIfNotChanged() {
+            ws.changes.checkForChanges(reload, function(){}, reload);
+        }
+
+        $j(function () {
+            if (typeof(ws) != "undefined") {
+                ws.changes.addClickListener("a.projects-list");
+            }
+        });
         //]]>
     </script>
 
