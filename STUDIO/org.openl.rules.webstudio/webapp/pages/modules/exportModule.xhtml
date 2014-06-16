@@ -22,8 +22,8 @@
 
             <footer>
                 <h:commandButton value="Export" action="#{studio.exportModule}"
-                    onclick="RichFaces.$('exportModule').hide();" immediate="true" styleClass="button-primary" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
+                    onclick="RichFaces.$('exportModule').hide();ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();ws.changes.restoreChangedState();" />
             </footer>
         </h:form>
 

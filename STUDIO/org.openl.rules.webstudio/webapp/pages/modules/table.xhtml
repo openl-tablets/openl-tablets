@@ -607,8 +607,8 @@
             return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
         }
 
-        function revertTableChanges() {
-            getCurrentTable().hasChanges = false;
+        function setTableHasChanges(hasChanges) {
+            getCurrentTable().hasChanges = hasChanges;
         }
 
         $j(function () {
@@ -628,13 +628,13 @@
                 RichFaces.$('modalDiscardChanges').show();
             };
 
-            window.onbeforeunload = function (e) {
+            var beforeUnload = function (e) {
                 if (hasChanges()) {
                     return 'Table is not saved. If you leave this page, all changes will be lost.';
                 }
             };
 
-            ws.changes.configure(hasChanges, revertTableChanges, showConfirmDialog);
+            ws.changes.configure(hasChanges, setTableHasChanges, showConfirmDialog, beforeUnload);
         });
 
       //]]>
