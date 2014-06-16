@@ -46,7 +46,6 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringTool;
 
 /**
  * Request scope managed bean for Table page.
@@ -69,6 +68,7 @@ public class TableBean {
     private List<IOpenLTable> targetTables;
 
     private String uri;
+    private String id;
     private IOpenLTable table;
     private boolean editable;
     private boolean canBeOpenInExel;
@@ -79,22 +79,24 @@ public class TableBean {
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
-    private String paramsWithoutUri;
-
     public TableBean() {
-        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
         final ProjectModel model = studio.getModel();
 
-        table = model.getTable(uri);
+        table = model.getTableById(id);
 
         if (table == null) {
             uri = studio.getTableUri();
             table = model.getTable(uri);
+            id = table.getId();
         } else {
+            uri = table.getUri();
             studio.setTableUri(uri);
         }
+
+        //uri = table.getId();
 
         if (table != null) {
             /*try {
@@ -123,11 +125,10 @@ public class TableBean {
 
             initProblems();
             initTests(model);
-            initParams();
 
-            //Save last visited table
-            WebStudioUtils.getProjectModel().getRecentlyVisitedTables().setLastVisitedTable(table);
-            //Check the save table parameter
+            // Save last visited table
+            model.getRecentlyVisitedTables().setLastVisitedTable(table);
+            // Check the save table parameter
             boolean saveTable = FacesUtils.getRequestParameterMap().get("saveTable") == null ? true :
                     Boolean.valueOf(FacesUtils.getRequestParameterMap().get("saveTable"));
             if (saveTable) {
@@ -140,18 +141,6 @@ public class TableBean {
         ProjectModel model = WebStudioUtils.getProjectModel();
         RecentlyVisitedTables recentlyVisitedTables = model.getRecentlyVisitedTables();
         recentlyVisitedTables.add(table);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void initParams() {
-        Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
-        for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
-            if (entry.getValue() instanceof String) {
-                entry.setValue(new String[] { (String) entry.getValue() });
-            }
-        }
-
-        paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { Constants.REQUEST_PARAM_URI, "mode" });
     }
 
     private void initTests(final ProjectModel model) {
@@ -219,7 +208,7 @@ public class TableBean {
         String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         ITableProperties tableProps = table.getProperties();
         String dimension = "";
-        String tableName = table.getName();
+        String tableName = table.getDisplayName();
         if (tableProps != null) {
             for (int i=0; i < dimensionProps.length; i++) {
                 String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
@@ -237,19 +226,11 @@ public class TableBean {
     }
 
     public boolean isDispatcherValidationNode() {
-        return table != null && table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-    }
-
-    public String getEncodedUri() {
-        return StringTool.encodeURL(uri);
+        return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
     public String getMode() {
         return getCanEdit() ? FacesUtils.getRequestParameter("mode") : null;
-    }
-
-    public String getParamsWithoutUri() {
-        return paramsWithoutUri;
     }
 
     public IOpenLTable getTable() {
@@ -351,6 +332,10 @@ public class TableBean {
 
     public String getUri() {
         return uri;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setUri(String uri) {
@@ -456,9 +441,9 @@ public class TableBean {
         return true;
     }
 
-    public void afterSaveAction(String newUri) {
+    public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setTableUri(newUri);
+        //studio.setTableUri(newUri);
         studio.rebuildModel();
     }
 
@@ -494,10 +479,6 @@ public class TableBean {
 
     public boolean getCanBenchmark() {
         return isGranted(PRIVILEGE_BENCHMARK);
-    }
-
-    public String getTableUri() {
-        return uri == null ? null : WebStudioUtils.getProjectModel().findTableUri(uri);
     }
 
     public static class TestRunsResultBean {

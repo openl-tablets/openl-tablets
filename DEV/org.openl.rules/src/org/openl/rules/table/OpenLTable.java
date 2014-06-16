@@ -19,6 +19,7 @@ public class OpenLTable implements IOpenLTable {
     private boolean isExecutable;
     private boolean isVersionable;
     private String uri;
+    private String id;
     private String name;
     private String technicalName;
     private boolean canContainProperties;
@@ -59,7 +60,7 @@ public class OpenLTable implements IOpenLTable {
         this.messages = messages;
     }
 
-    public String getName() {
+    public String getDisplayName() {
         return name;
     }
 
@@ -67,7 +68,7 @@ public class OpenLTable implements IOpenLTable {
         this.name = name;
     }
   
-    public String getTechnicalName() {
+    public String getName() {
         return technicalName;
     }
 
@@ -89,6 +90,14 @@ public class OpenLTable implements IOpenLTable {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public boolean isVersionable() {        

@@ -1,5 +1,6 @@
 package org.openl.vm.trace;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.base.INamedThing;
 import org.openl.main.SourceCodeURLConstants;
 
@@ -25,8 +26,8 @@ public class RawStringTraceFormatter implements TraceFormatter {
         buffer.append("TRACE: " + tracerObject.getDisplayName(INamedThing.REGULAR));
         buffer.append("\n");
         buffer.append(indent);
-        buffer.append(SourceCodeURLConstants.AT_PREFIX + tracerObject.getUri() + "&" + SourceCodeURLConstants.OPENL + "=");
-        
+        buffer.append(SourceCodeURLConstants.AT_PREFIX + FilenameUtils.getBaseName(tracerObject.getUri()) + "&" + SourceCodeURLConstants.OPENL + "=");
+
         ITracerObject[] children = tracerObject.getTracerObjects();
         
         for (ITracerObject child : children) { 

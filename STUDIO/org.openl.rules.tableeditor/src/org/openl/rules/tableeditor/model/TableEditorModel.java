@@ -7,6 +7,7 @@ package org.openl.rules.tableeditor.model;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
@@ -146,7 +147,7 @@ public class TableEditorModel {
     }
 
     /**     
-     * @return New table URI on the sheet where it was saved. It is needed for tables that were moved
+     * @return New table id on the sheet where it was saved. It is needed for tables that were moved
      * to new place during adding new rows and columns on editing. We need to know new destination of the table.
      * @throws IOException
      */
@@ -154,7 +155,8 @@ public class TableEditorModel {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
-        return getOriginalGridTable().getUri();
+        String uri = getOriginalGridTable().getUri();
+        return TableUtils.makeTableId(uri);
     }
 
     /**

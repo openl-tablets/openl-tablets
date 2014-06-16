@@ -1333,3 +1333,12 @@ form .formfields {
     display: inline-block;
     min-width: 110px;
 }
+
+/* Disabled-like style for hyperlinks.
+   It is used to mark active (currently selected) links, so a User can see where he is now. */
+.selected-link {
+    font-weight: bold;
+    color: #171717;
+    text-decoration: none;
+    cursor: default;
+}

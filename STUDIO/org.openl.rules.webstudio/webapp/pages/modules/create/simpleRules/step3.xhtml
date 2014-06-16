@@ -8,8 +8,8 @@
         <ui:define name="controlButtons">
             <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('simpleRules/step2.xhtml')" />
-            <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableUri}"
-                oncomplete="if(event.data) goTo('#{studio.url('table')}?uri=' + encodeURIComponent(event.data), true)" />
+            <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableId}"
+                oncomplete="if(event.data) goTo('#{studio.url('table')}?id=' + event.data, true)" />
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
                 oncomplete="go('step0.xhtml')" />
         </ui:define>

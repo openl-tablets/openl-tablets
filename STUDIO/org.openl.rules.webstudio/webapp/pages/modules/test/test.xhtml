@@ -36,7 +36,7 @@
             <c:set var="perPage" value="#{testBean.testsPerPage}" />
 
             <c:set var="pageUri" value="#{studio.url('test/test')}" />
-            <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly).concat('&amp;failures=').concat(failuresPerTest)) : ''}#{!empty param.complexResult ? ('&amp;complexResult='.concat(complexResult)) : ''}" />
+            <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{!empty param.id ? ('&amp;id='.concat(param.id)) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly).concat('&amp;failures=').concat(failuresPerTest)) : ''}#{!empty param.complexResult ? ('&amp;complexResult='.concat(complexResult)) : ''}" />
 
             <span style="font-size: 13px;">
                 <span class="dropdown" style="position:absolute;top:20px;margin-left:90px">
@@ -81,7 +81,7 @@
         <h1 class="page-header">
             <h:outputText value="Results of running "/>
             <h:outputLink value="#{studio.url('table')}">
-                <f:param name="uri" value="#{testBean.testedTableUri}" />
+                <f:param name="id" value="#{param.id}" />
                 <h:outputText value="#{testBean.testedTableName}" />
             </h:outputLink>
         </h1>
@@ -123,7 +123,7 @@
                     <h1>
                         <h:outputLink value="#{studio.url('table')}"
                             styleClass="#{testFailed ? 'testError' : 'testSuccess'}">
-                            <f:param name="uri" value="#{test.testSuite.uri}" />
+                            <f:param name="id" value="#{testBean.getTestTableId(test)}" />
                             <h:outputText value="#{testBean.getTestTableName(test)}" />
                         </h:outputLink>
                         <span class="badge">#{testBean.getTestTableInfo(test)}</span>

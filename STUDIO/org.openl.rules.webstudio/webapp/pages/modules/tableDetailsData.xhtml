@@ -11,10 +11,10 @@
     <h:form prependId="false">
         <h:panelGroup id="propsTable" layout="block">
         <table>
-            <h:panelGroup rendered="#{!empty tableDetailsBean.table.name}">
+            <h:panelGroup rendered="#{!empty tableDetailsBean.table.displayName}">
             <tr class="table-data">
                 <td class="table-data-name">Name</td>
-                <td class="table-data-value">#{tableDetailsBean.table.name}</td>
+                <td class="table-data-value">#{tableDetailsBean.table.displayName}</td>
             </tr>
             </h:panelGroup>
 
@@ -68,7 +68,7 @@
                 </td>
                 <td style="padding: 0 7px">
                     <h:panelGroup rendered="#{prop.inheritedProperty and !prop.externalPropery}">
-                        <a href="#{studio.url('table')}?uri=#{prop.inheritedTableUri}"
+                        <a href="#{studio.url('table')}?id=#{prop.inheritedTableId}"
                             title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
@@ -88,7 +88,7 @@
 
         <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}" style="margin: 8px 0" layout="block">
             <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tableDetailsBean.changed ? 'display:inline' : 'display:none'}"
-                action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableUri}"
+                action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableId}"
                 oncomplete="saveComplete(event.data)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
                 rendered="#{!empty tableDetailsBean.propertiesToAdd}" style="margin-left: 4px">Add Property</h:outputLink>
@@ -97,8 +97,8 @@
 
     <script>
         function saveComplete(data) {
-            ws.changes.revertChanges();
-            goTo("#{studio.url('table')}?uri=" + encodeURIComponent(data), true);
+		    ws.changes.revertChanges();
+            goTo("#{studio.url('table')}?id=" + data, true);
         }
     </script>
 

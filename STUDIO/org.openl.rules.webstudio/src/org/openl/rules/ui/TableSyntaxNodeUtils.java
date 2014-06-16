@@ -65,9 +65,8 @@ public class TableSyntaxNodeUtils {
             }
         }
 
-        if (!StringUtils.isEmpty(dimensionInfo)) {
-            sfx = StringUtils.join(new Object[] { sfx, StringUtils.isEmpty(sfx) ? StringUtils.EMPTY : " ", "[",
-                    dimensionInfo, "]" });
+        if (StringUtils.isNotEmpty(dimensionInfo)) {
+            sfx = sfx + " [" + dimensionInfo + "]";
         }
 
         return new String[] { name + sfx, display + sfx, display + sfx };

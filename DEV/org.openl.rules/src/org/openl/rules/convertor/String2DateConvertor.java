@@ -11,12 +11,12 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.util.RuntimeExceptionWrapper;
 
-public class String2DateConvertor extends LocaleDependConvertor implements IString2DataConvertor {
+public class String2DateConvertor implements IString2DataConvertor {
 
     private final Log log = LogFactory.getLog(String2DateConvertor.class);
     private static final int YEAR_START_COUNT = 1900;
 
-    private DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
+    private DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, LocaleDependConvertor.getLocale());
 
     public String format(Object data, String format) {
         DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
@@ -28,7 +28,7 @@ public class String2DateConvertor extends LocaleDependConvertor implements IStri
     }
 
     public synchronized Date parseDate(String data, String format) {
-        DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
+        DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
         df.setLenient(false);
 
         try {

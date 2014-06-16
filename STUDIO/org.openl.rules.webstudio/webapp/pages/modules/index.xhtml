@@ -585,7 +585,7 @@
             });
         }
 
-        function expandAndSelectNode(tableId, isFindTableByCell) {
+        function expandAndSelectNode(tableId) {
             var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
             if (tableLink.length) { // Firefox has bug with decoding url after refresh
                 // Expand nodes
@@ -598,6 +598,10 @@
                 $j("#rulesTree .rf-trn.sel").removeClass("sel");
                 tableLink.closest(".rf-trn").addClass("sel");
 
+                // Select the last used table in the history view
+                $j("#historyTable a.selected-link").removeClass("selected-link");
+                $j("#historyTable a[href *= '" + tableId + "']").addClass("selected-link");
+
                 var panelBody = tableLink.closest(".panel-body");
                 var linkPos = tableLink.position().top;
                 if (linkPos < 0 || linkPos > panelBody.height()) {
@@ -605,17 +609,15 @@
                         scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
                     });
                 }
-            } else if (isFindTableByCell) {
-                selectTableByCell(decodeURIComponent(tableId));
             }
         }
 
         function openTreeNode(pageToOpen) {
             var page = pageToOpen || getCurrentPage();
 
-            if (page && page.indexOf("table?uri=") > -1) {
-                var tableId = page.split("uri=")[1].split("&")[0];
-                expandAndSelectNode(tableId, true);
+            if (page && page.indexOf("table?id=") > -1) {
+                var tableId = page.split("id=")[1].split();
+                expandAndSelectNode(tableId);
             }
         }
 
@@ -726,10 +728,6 @@
         }
     //]]>
     </script>
-
-    <a4j:jsFunction name="selectTableByCell" oncomplete="expandAndSelectNode('#{jsffn:encodeURL(tableBean.tableUri)}', false)">
-        <a4j:param name="uri" assignTo="#{tableBean.uri}"/>
-    </a4j:jsFunction>
 
     <title>OpenL Tablets WebStudio</title>
 </h:head>

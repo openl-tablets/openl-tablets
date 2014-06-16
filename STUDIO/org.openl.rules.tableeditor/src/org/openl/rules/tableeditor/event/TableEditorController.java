@@ -514,9 +514,9 @@ public class TableEditorController extends BaseTableEditorController {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
                 if (beforeSave()) {
-                    String newUri = editorModel.save();
-                    afterSave(newUri);
-                    response.setUri(newUri);
+                    String newId = editorModel.save();
+                    afterSave(newId);
+                    response.setId(newId);
                 }
             } catch (IOException e) {
                 log.warn(ERROR_SAVE_TABLE, e);
@@ -547,14 +547,14 @@ public class TableEditorController extends BaseTableEditorController {
         return true;
     }
 
-    private void afterSave(String newUri) {
+    private void afterSave(String newId) {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String afterSaveAction = editorModel.getAfterSaveAction();
         if (afterSaveAction != null) {
             FacesUtils.invokeMethodExpression(
                     afterSaveAction,
-                    StringUtils.isNotBlank(newUri) ? new String[] { newUri } : null,
-                    StringUtils.isNotBlank(newUri) ? new Class[] { String.class } : null);
+                    StringUtils.isNotBlank(newId) ? new String[] { newId } : null,
+                    StringUtils.isNotBlank(newId) ? new Class[] { String.class } : null);
         }
     }
 
@@ -604,7 +604,7 @@ public class TableEditorController extends BaseTableEditorController {
     public static class TableModificationResponse {
         private String html;
         private String message;
-        private String uri;
+        private String id;
         private TableEditorModel model;
 
         public TableModificationResponse(String html, String message, TableEditorModel model) {
@@ -626,8 +626,8 @@ public class TableEditorController extends BaseTableEditorController {
             return message;
         }
 
-        public String getUri() {
-            return uri;
+        public String getId() {
+            return id;
         }
 
         public boolean isHasRedo() {
@@ -654,8 +654,8 @@ public class TableEditorController extends BaseTableEditorController {
             this.message = message;
         }
 
-        public void setUri(String uri) {
-            this.uri = uri;
+        public void setId(String id) {
+            this.id = id;
         }
 
     }
