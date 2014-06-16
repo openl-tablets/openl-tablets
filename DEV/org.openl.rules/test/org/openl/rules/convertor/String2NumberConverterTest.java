@@ -26,207 +26,220 @@ public class String2NumberConverterTest {
 
     @Test
     public void testParse() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("3.1415", null, null);
-        assertEquals(3.1415d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("3.1415", null, null);
+        assertEquals(3.1415d, result);
     }
 
     @Test
     public void testParseNegative() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-2.1415", null, null);
-        assertEquals(-2.1415d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-2.1415", null, null);
+        assertEquals(-2.1415d, result);
     }
 
     @Test
     public void testParseWithoutLeadingZero() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-.123456789", null, null);
-        assertEquals(-.123456789d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-.123456789", null, null);
+        assertEquals(-.123456789d, result);
     }
 
     @Test
     public void testParseWithLeadingZeros() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("0001.111000", null, null);
-        assertEquals(1.111d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("0001.111000", null, null);
+        assertEquals(1.111d, result);
     }
 
     @Test
     public void testParsePrecision() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-1.99999999999999934", null, null);
-        assertEquals(-1.99999999999999934d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-1.99999999999999934", null, null);
+        assertEquals(-1.99999999999999934d, result);
     }
 
     @Test
     public void testParseMaxLong() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("9223372036854775807", null, null);
-        assertEquals(Long.MAX_VALUE, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("9223372036854775807", null, null);
+        assertEquals(Long.MAX_VALUE, result);
     }
 
     @Test
     public void testParseMinLong() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-9223372036854775808", null, null);
-        assertEquals(Long.MIN_VALUE, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-9223372036854775808", null, null);
+        assertEquals(Long.MIN_VALUE, result);
     }
 
     @Test
     public void testParseExcessMaxLong() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("9223372036854775808", null, null);
-        assertEquals(9223372036854775808d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("9223372036854775808", null, null);
+        assertEquals(9223372036854775808d, result);
     }
 
     @Test
     public void testParseExcessMinLong() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-9223372036854775809", null, null);
-        assertEquals(-9223372036854775809d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-9223372036854775809", null, null);
+        assertEquals(-9223372036854775809d, result);
     }
 
 
     @Test
     public void testParsePercents() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("17.5%", null, null);
-        assertEquals(0.175d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("17.5%", null, null);
+        assertEquals(0.175d, result);
     }
 
     @Test
     public void testParseE() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("1.234E2", null, null);
-        assertEquals(123.4d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("1.234E2", null, null);
+        assertEquals(123.4d, result);
     }
 
     @Test
     public void testParseENegative() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-1.23E-3", null, null);
-        assertEquals(-0.00123d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-1.23E-3", null, null);
+        assertEquals(-0.00123d, result);
     }
 
     @Test
     public void testParseELong() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-1.23E4", null, null);
-        assertEquals(-12300L, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-1.23E4", null, null);
+        assertEquals(-12300L, result);
     }
 
     @Test
     public void testParseWithFormat() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-3.1415$", "#,###$", null);
-        assertEquals(-3.1415d, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-3.1415$", "#,###$", null);
+        assertEquals(-3.1415d, result);
     }
 
     @Test
     public void testFormat() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(3.1415d, null);
-        assertEquals("3.1415", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(1234567.8901d, null);
+        assertEquals("1234567.8901", result);
+    }
+
+    @Test
+    public void testFormat2() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(1234567.8901d, "#,###.###");
+        assertEquals("1,234,567.89", result);
     }
 
     @Test
     public void testFormatByPatternWithRound() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(3.1415d, "#,###.###");
-        assertEquals("3.142", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(3.1415d, "#,###.###");
+        assertEquals("3.142", result);
     }
 
     @Test
     public void testFormatByPatternWithRequiredDigits() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(3.1d, "0,000.00");
-        assertEquals("0,003.10", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(3.1d, "0,000.00");
+        assertEquals("0,003.10", result);
     }
 
     @Test
     public void testFormatByPatternWithSymbols() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(1234.10, "$ #,000.0# USD");
-        assertEquals("$ 1,234.1 USD", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(1234.10, "$ #,000.0# USD");
+        assertEquals("$ 1,234.1 USD", result);
     }
 
     @Test
     public void testParseNull() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        assertNull(conv.parse(null, null, null));
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertNull(converter.parse(null, null, null));
     }
 
     @Test
     public void testFormatNull() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        assertNull(conv.format(null, null));
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertNull(converter.format(null, null));
     }
 
     @Test
     public void testParseNaN() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("NaN", null, null);
-        assertEquals(Double.NaN, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("NaN", null, null);
+        assertEquals(Double.NaN, result);
     }
 
     @Test
     public void testFormatNaN() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(Double.NaN, null);
-        assertEquals("NaN", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(Double.NaN, null);
+        assertEquals("NaN", result);
     }
 
     @Test
     public void testParsePlusInfinity() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("Infinity", null, null);
-        assertEquals(Double.POSITIVE_INFINITY, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("Infinity", null, null);
+        assertEquals(Double.POSITIVE_INFINITY, result);
     }
 
     @Test
     public void testFormatPlusInfinity() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(Double.POSITIVE_INFINITY, null);
-        assertEquals("Infinity", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(Double.POSITIVE_INFINITY, null);
+        assertEquals("Infinity", result);
     }
 
     @Test
     public void testParseMinusInfinity() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        Number res = conv.parse("-Infinity", null, null);
-        assertEquals(Double.NEGATIVE_INFINITY, res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        Number result = converter.parse("-Infinity", null, null);
+        assertEquals(Double.NEGATIVE_INFINITY, result);
     }
 
     @Test
     public void testFormatMinusInfinity() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        String res = conv.format(Double.NEGATIVE_INFINITY, "#.###");
-        assertEquals("-Infinity", res);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(Double.NEGATIVE_INFINITY, "#.###");
+        assertEquals("-Infinity", result);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParseNotNumber() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        conv.parse("3.1415d", null, null);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        converter.parse("3.1415d", null, null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParseEmpty() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        conv.parse("", null, null);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        converter.parse("", null, null);
+    }
+
+    @Test(expected = NumberFormatException.class)
+    public void testParsePercentSign() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        converter.parse("%", null, null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParseNotENumber() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        conv.parse("1e1", null, null);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        converter.parse("1e1", null, null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParseWithSpaces() {
-        String2NumberConverter<Number> conv = getNumberConverter();
-        conv.parse("1 ", null, null);
+        String2NumberConverter<Number> converter = getNumberConverter();
+        converter.parse("1 ", null, null);
     }
 
     private String2NumberConverter<Number> getNumberConverter() {

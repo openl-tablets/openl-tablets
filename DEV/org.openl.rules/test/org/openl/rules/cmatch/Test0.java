@@ -63,7 +63,7 @@ public class Test0 {
                 File xlsFile = new File("test/rules/cmatch0/match0-4.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
-        }, "Cannot convert String \"\" to numeric type", "cell=E6");
+        }, "Cannot convert an empty String to numeric type", "cell=E6");
     }
 
     @Test

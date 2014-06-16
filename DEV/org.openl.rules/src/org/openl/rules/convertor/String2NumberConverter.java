@@ -19,7 +19,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
     private final String defaultFormat;
 
     String2NumberConverter() {
-        defaultFormat = "";
+        defaultFormat = null;
     }
 
     String2NumberConverter(String defaultFormat) {
@@ -39,7 +39,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
 
         DecimalFormat df = getFormatter(format);
 
-        return df.format((Number) data);
+        return df.format(data);
     }
 
     /**
@@ -53,6 +53,8 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
     @Override
     public T parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
+        if (data == "") throw new NumberFormatException("Cannot convert an empty String to numeric type");
+        if (data == "%") throw new NumberFormatException("Cannot convert \"%\" to numeric type");
         DecimalFormat df = getFormatter(format);
         if (data.endsWith("%")) {
             // Configure to parse percents
@@ -62,8 +64,8 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         ParsePosition position = new ParsePosition(0);
         Number number = df.parse(data, position);
         int index = position.getIndex();
-        if (index < data.length() || index == 0) {
-            throw new NumberFormatException("Cannot convert String \"" + data + "\" to numeric type");
+        if (index < data.length()) {
+            throw new NumberFormatException("Cannot convert \"" + data + "\" to numeric type");
         }
         return convert(number, data);
     }
@@ -78,7 +80,22 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      */
     abstract T convert(Number number, String data);
 
+    /**
+     * This method allows to configure additional parameters for parsing and formatting
+     * in the specific cases like parsing Integers or BigDecimals.
+     *
+     * @param df an object to configure.
+     */
+    void configureFormatter(DecimalFormat df) {
+        // Empty
+    }
+
     private DecimalFormat getFormatter(String format) {
+        // Reset using a default locale and set force the US locale.
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setInfinity("Infinity");
+        symbols.setNaN("NaN");
+
         // NOTE!!! Using new DecimalFormat(format), depends on the users locale.
         // E.g. if locale on the users machine is ru_RU, the ','(comma) delimiter will
         // be used. It is not appropriate for many cases, e.g. formatting the value for writing its
@@ -88,17 +105,15 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         // It is not the same as math rounding (normal/usual rounding) which is <code>RoundingMode.HALF_UP</code>
         //
         DecimalFormat df;
-        if (format == null) {
-            df = new DecimalFormat(defaultFormat);
+        if (format != null) {
+            df = new DecimalFormat(format, symbols);
+        } else if (defaultFormat != null) {
+            df = new DecimalFormat(defaultFormat, symbols);
         } else {
-            df = new DecimalFormat(format);
+            df = new DecimalFormat("", symbols);
+            df.setGroupingUsed(false);
         }
-
-        // Reset using a default locale and set force the US locale.
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-        symbols.setInfinity("Infinity");
-        symbols.setNaN("NaN");
-        df.setDecimalFormatSymbols(symbols);
+        configureFormatter(df);
         return df;
     }
 }
