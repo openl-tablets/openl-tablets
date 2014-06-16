@@ -7,6 +7,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.BenchmarkInfoView;
 import org.openl.rules.ui.ProjectHelper;
@@ -33,13 +34,14 @@ public class BenchmarkBean {
         studio = WebStudioUtils.getWebStudio();
         TestSuite testSuite = studio.getModel().popLastTest();
         String testSuiteUri = testSuite.getUri();
-        IOpenMethod table = WebStudioUtils.getProjectModel().getMethod(testSuiteUri);
+        IOpenMethod table = studio.getModel().getMethod(testSuiteUri);
+        String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = ProjectHelper.getTestName(table);
         String testInfo = ProjectHelper.getTestInfo(table);
         if (isTestForOverallTestSuiteMethod(testSuite)) {
             try {
                 BenchmarkInfo buLast = studio.getModel().benchmarkTestsSuite(testSuite, 3000);
-                BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuiteUri, testName, testInfo);
+                BenchmarkInfoView biv = new BenchmarkInfoView(buLast, tableId, testName, testInfo);
                 studio.addBenchmark(biv);
                 benchmarkResults.add(biv);
             } catch (Exception e) {
@@ -49,7 +51,7 @@ public class BenchmarkBean {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 try {
                     BenchmarkInfo buLast = studio.getModel().benchmarkSingleTest(testSuite, i, 3000);
-                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuiteUri, testName, testInfo,
+                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, tableId, testName, testInfo,
                             testSuite.getTest(i).getExecutionParams());
                     studio.addBenchmark(biv);
                     benchmarkResults.add(biv);

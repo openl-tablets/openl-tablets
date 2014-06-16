@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.util.StringTool;
@@ -18,9 +19,8 @@ public class MessageHandler {
     public String getSourceUrl(OpenLMessage message, ProjectModel model) {
         String url = null;
         String errorUri = getUri(message);
-        String tableUri = errorUri; //WebStudioUtils.getWebStudio().getModel().findTableUri(errorUri);
-        if (StringUtils.isNotBlank(tableUri)) {
-            url = getUrl(model, tableUri, errorUri, message);
+        if (StringUtils.isNotBlank(errorUri)) {
+            url = getUrl(model, errorUri, message);
         }
         return url;
     }
@@ -40,12 +40,13 @@ public class MessageHandler {
         // Default implementation
         return null;
     }
-    
-    protected String getUrl(ProjectModel model, String tableUri, String errorUri, OpenLMessage message) {
+
+    protected String getUrl(ProjectModel model, String errorUri, OpenLMessage message) {
         String url = null;
-        if (model.tableBelongsToCurrentModule(tableUri)) {
+        TableSyntaxNode node = model.getNode(errorUri);
+        if (node != null) {
             // Table belongs to current module
-            url = getUrlForCurrentModule(errorUri, tableUri, model);
+            url = getUrlForCurrentModule(errorUri, node.getId(), model);
         } else {
             // Table belongs to dependent module
             url = getErrorUrlForDependency(message, model);
@@ -53,12 +54,12 @@ public class MessageHandler {
         return url;
     }    
 
-    private String getUrlForCurrentModule(String errorUri, String tableUri, ProjectModel model) {
+    private String getUrlForCurrentModule(String errorUri, String tableId, ProjectModel model) {
         String url = null;        
 
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        url = "table?uri=" + StringTool.encodeURL(tableUri);
+        url = "table?id=" + tableId;
         if (StringUtils.isNotBlank(uriParser.cell)) {
             url += "&errorCell=" + uriParser.cell;
         }

@@ -160,6 +160,10 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         return getGridTable().getUri();
     }
 
+    public String getId() {
+        return TableUtils.makeTableId(getUri());
+    }
+
     public Object getValidationResult() {
         return validationResult;
     }

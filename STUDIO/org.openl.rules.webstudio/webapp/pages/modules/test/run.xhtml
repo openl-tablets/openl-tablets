@@ -17,7 +17,7 @@
         <h1 class="page-header">
             <h:outputText value="Results of running "/>
             <h:outputLink value="#{studio.url('table')}">
-                <f:param name="uri" value="#{runBean.uri}" />
+                <f:param name="id" value="#{param.id}" />
                 <h:outputText value="#{runBean.tableName}" />
             </h:outputLink>
         </h1>

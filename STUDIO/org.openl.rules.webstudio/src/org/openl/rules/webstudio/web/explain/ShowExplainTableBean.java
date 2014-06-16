@@ -113,7 +113,7 @@ public class ShowExplainTableBean {
         StringBuilder header = new StringBuilder();
 
         if (table != null) {
-            header.append(table.getName());
+            header.append(table.getDisplayName());
             header.append(" : ");
 
             String text = FacesUtils.getRequestParameter("text");

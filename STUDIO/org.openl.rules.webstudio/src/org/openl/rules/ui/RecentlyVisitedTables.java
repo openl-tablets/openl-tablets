@@ -80,7 +80,7 @@ public class RecentlyVisitedTables {
 
         for (VisitedTableWrapper table : tables) {
             WebStudio studio = WebStudioUtils.getWebStudio();
-            IOpenLTable refreshTable = studio.getModel().getTable(table.getUri());
+            IOpenLTable refreshTable = studio.getModel().getTableById(table.getId());
 
             if (refreshTable == null) {
                 tableForRemove.add(table);
@@ -113,18 +113,18 @@ public class RecentlyVisitedTables {
      * This is the class wrapper. It is used for the properly name showing
      */
     public class VisitedTableWrapper {
-        private final String uri;
+        private final String id;
         private final String type;
         private final String name;
-        
+
         public VisitedTableWrapper(IOpenLTable table) {
-            this.uri = table.getUri();
+            this.id = table.getId();
             this.type = table.getType();
             this.name = getName(table);
         }
-        
-        public String getUri() {
-            return uri;
+
+        public String getId() {
+            return id;
         }
         
         public String getType() {
@@ -134,18 +134,19 @@ public class RecentlyVisitedTables {
         public String getName() {
             return name;
         }
+
         private String getName(IOpenLTable table) {
-            String tableName = table.getName();
-            
+            String tableName = table.getDisplayName();
+
             if (tableName == null || tableName.isEmpty()) {
                 tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
                     , XlsNodeTypes.getEnumByValue(table.getType()));
             }
-                
+
             String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
             ITableProperties tableProps = table.getProperties();
             String dimension = "";
-            
+
             if (tableProps != null) {
                 for (String dimensionProp : dimensionProps) {
                     String propValue = tableProps.getPropertyValueAsString(dimensionProp);
@@ -155,14 +156,14 @@ public class RecentlyVisitedTables {
                     }
                 }
             }
-            
+
             if (!dimension.isEmpty()) {
                 return tableName +"["+ dimension +"]";
             } else {
                 return tableName;
             }
         }
-        
+
         public boolean equals(Object obj) {
             if (obj == null) {
                 return false;
@@ -178,11 +179,11 @@ public class RecentlyVisitedTables {
             
             VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
             
-            return  new EqualsBuilder().append(getUri(), wrapper.getUri()).isEquals();
+            return  new EqualsBuilder().append(getId(), wrapper.getId()).isEquals();
         }
         
         public int hashCode() {
-            return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
+            return new HashCodeBuilder(17, 31).append(getId()).toHashCode();
         }
     }
 

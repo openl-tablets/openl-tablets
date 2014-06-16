@@ -18,6 +18,7 @@ import javax.faces.model.SelectItemGroup;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
@@ -26,12 +27,11 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
 
 @ManagedBean
 @ViewScoped
@@ -41,23 +41,31 @@ public class TableDetailsBean {
     private Map<String, List<TableProperty>> groups;
     private Set<String> propsToRemove = new HashSet<String>();
 
-    private String newTableUri;
+    private String newTableId;
     private String propertyToAdd;
+    private String id;
     private String uri;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
-        if (studio.getModel().getTable(uri) == null) {
+        IOpenLTable table = null;
+
+        if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
+            table = studio.getModel().getTable(uri);
+        } else {
+            table = getTable();
+            uri = table.getUri();
         }
 
-        IOpenLTable table = getTable();
+        //table = getTable();
+        //uri = table.getId();
 
         if (table != null && table.isCanContainProperties()) {
-            editable = WebStudioUtils.getProjectModel().isCanEditTable(uri) && !table.getTechnicalName().startsWith(
+            editable = WebStudioUtils.getProjectModel().isCanEditTable(uri) && !table.getName().startsWith(
                     DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
             initPropertyGroups(table, table.getProperties());
         }
@@ -78,7 +86,7 @@ public class TableDetailsBean {
                 prop.setInheritanceLevel(inheritanceLevel);
                 if (InheritanceLevel.MODULE.equals(inheritanceLevel)
                         || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
-                    prop.setInheritedTableUri(getProprtiesTableUri(inheritanceLevel, props));
+                    prop.setInheritedTableId(getProprtiesTableId(inheritanceLevel, props));
                 }
 
                 storeProperty(prop);
@@ -126,26 +134,26 @@ public class TableDetailsBean {
         return editable;
     }
 
-    private String getProprtiesTableUri(InheritanceLevel inheritanceLevel, ITableProperties props) {
-        String uri = null;
+    private String getProprtiesTableId(InheritanceLevel inheritanceLevel, ITableProperties props) {
+        String id = null;
         ILogicalTable propertiesTable = props.getInheritedPropertiesTable(inheritanceLevel);
         if (propertiesTable != null) {
             String tableUri = propertiesTable.getSource().getUri();
-            uri = StringTool.encodeURL(tableUri);
+            id = TableUtils.makeTableId(tableUri);
         }
-        return uri;
+        return id;
     }
 
     public IOpenLTable getTable() {
-        return WebStudioUtils.getWebStudio().getModel().getTable(uri);
+        return WebStudioUtils.getWebStudio().getModel().getTableById(id);
     }
 
-    public String getNewTableUri() {
-        return newTableUri;
+    public String getNewTableId() {
+        return newTableId;
     }
 
-    public void setNewTableUri(String newTableUri) {
-        this.newTableUri = newTableUri;
+    public void setNewTableId(String newTableId) {
+        this.newTableId = newTableId;
     }
 
     public List<SelectItem> getPropertiesToAdd() {
@@ -268,7 +276,7 @@ public class TableDetailsBean {
                 EditHelper.updateSystemProperties(table, tableEditorModel,
                     WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
             }
-            this.newTableUri = tableEditorModel.save();
+            this.newTableId = tableEditorModel.save();
             studio.rebuildModel();
         }
     }

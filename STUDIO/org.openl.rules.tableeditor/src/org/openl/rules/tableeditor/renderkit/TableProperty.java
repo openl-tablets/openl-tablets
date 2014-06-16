@@ -35,7 +35,7 @@ public class TableProperty {
     private boolean system;
     private boolean dimensional;
     private InheritanceLevel inheritanceLevel;
-    private String inheritedTableUri;
+    private String inheritedTableId;
     private String inheritedTableName;
 
     public TableProperty(TablePropertyDefinition propDefinition) {
@@ -64,7 +64,7 @@ public class TableProperty {
         this.system = builder.system;
         this.dimensional = builder.dimensional;
         this.inheritanceLevel = builder.inheritanceLevel;
-        this.inheritedTableUri = builder.inheritedTableUri;
+        this.inheritedTableId = builder.inheritedTableId;
     }
 
     public String getFormat() {
@@ -319,12 +319,12 @@ public class TableProperty {
         this.inheritanceLevel = inheritanceLevel;
     }
 
-    public String getInheritedTableUri() {
-		return inheritedTableUri;
+    public String getInheritedTableId() {
+		return inheritedTableId;
 	}
 
-    public void setInheritedTableUri(String inheritedTableUri) {
-		this.inheritedTableUri = inheritedTableUri;
+    public void setInheritedTableId(String inheritedTableId) {
+		this.inheritedTableId = inheritedTableId;
 	}
 
     /**
@@ -349,7 +349,7 @@ public class TableProperty {
         private boolean system;
         private boolean dimensional;
         private InheritanceLevel inheritanceLevel;
-        private String inheritedTableUri;
+        private String inheritedTableId;
 
         public TablePropertyBuilder(String name, Class<?> type) {
             this.name = name;
@@ -406,8 +406,8 @@ public class TableProperty {
             return this;
         }
 
-        public TablePropertyBuilder inheritedTableUri(String val) {
-            inheritedTableUri = val;
+        public TablePropertyBuilder inheritedTableId(String val) {
+            inheritedTableId = val;
             return this;
         }
 

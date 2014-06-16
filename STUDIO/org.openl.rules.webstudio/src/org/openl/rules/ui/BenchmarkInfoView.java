@@ -14,20 +14,20 @@ import org.openl.util.benchmark.BenchmarkUnit;
  */
 public class BenchmarkInfoView {
     private final BenchmarkInfo benchmarkInfo;
-    private final String uri;
+    private final String tableId;
     private final String testName;
     private final String testInfo;
     private final ParameterWithValueDeclaration params[];
     private boolean selected;
 
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName, String testInfo) {
-        this(benchmarkInfo, uri, testName, testInfo, new ParameterWithValueDeclaration[0]);
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String tableId, String testName, String testInfo) {
+        this(benchmarkInfo, tableId, testName, testInfo, new ParameterWithValueDeclaration[0]);
     }
     
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName,
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String tableId, String testName,
             String testInfo, ParameterWithValueDeclaration params[]) {
         this.benchmarkInfo = benchmarkInfo;
-        this.uri = uri;
+        this.tableId = tableId;
         this.testName = testName;
         this.testInfo = testInfo;
         this.params = params;
@@ -46,12 +46,12 @@ public class BenchmarkInfoView {
     }
 
     /**
-     * Get an URI of a table that was used to measure the benchmark
+     * Get an id of a table that was used to measure the benchmark
      * 
-     * @return URI of a table that was used to measure the benchmark
+     * @return id of a table that was used to measure the benchmark
      */
-    public String getUri() {
-        return uri;
+    public String getTableId() {
+        return tableId;
     }
 
     /**
@@ -78,7 +78,7 @@ public class BenchmarkInfoView {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(benchmarkInfo).append(uri).toHashCode();
+        return new HashCodeBuilder().append(benchmarkInfo).append(tableId).toHashCode();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class BenchmarkInfoView {
 
         BenchmarkInfoView other = (BenchmarkInfoView) obj;
 
-        return new EqualsBuilder().append(benchmarkInfo, other.benchmarkInfo).append(uri, other.uri).isEquals();
+        return new EqualsBuilder().append(benchmarkInfo, other.benchmarkInfo).append(tableId, other.tableId).isEquals();
     }
 
     // delegated methods

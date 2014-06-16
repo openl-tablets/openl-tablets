@@ -1,7 +1,6 @@
 package org.openl.rules.ui.copy;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.ICellStyle;
@@ -40,7 +38,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
-import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;
 import org.richfaces.component.UIRepeat;
@@ -168,7 +165,7 @@ public class TableCopier extends TableCreationWizard {
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule, model);
-        setNewTableUri(newTableUri);
+        setNewTableId(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
     }
 
@@ -262,7 +259,7 @@ public class TableCopier extends TableCreationWizard {
 
     protected void initTableName() {
         if (table != null) {
-            tableTechnicalName = table.getTechnicalName();
+            tableTechnicalName = table.getName();
         }        
     }
 
