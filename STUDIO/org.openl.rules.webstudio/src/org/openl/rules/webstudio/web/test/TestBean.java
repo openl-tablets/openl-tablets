@@ -18,6 +18,8 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestSuite;
@@ -80,7 +82,11 @@ public class TestBean {
 
     public TestBean() {
         studio = WebStudioUtils.getWebStudio();
-        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        IOpenLTable table = studio.getModel().getTableById(id);
+        if (table != null) {
+            uri = table.getUri();
+        }
 
         TestResultsHelper.initExplanator();
         testAll();
@@ -296,6 +302,11 @@ public class TestBean {
 
     public String getTestTableName(Object testResults) {
         return ProjectHelper.getTestName(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
+    }
+
+    public String getTestTableId(Object testResults) {
+        String uri = ((TestUnitsResults) testResults).getTestSuite().getUri();
+        return TableUtils.makeTableId(uri);
     }
 
     public String getTestTableInfo(Object testResults) {

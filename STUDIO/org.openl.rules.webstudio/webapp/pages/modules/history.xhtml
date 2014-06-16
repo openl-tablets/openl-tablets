@@ -32,8 +32,7 @@
                     <h:graphicImage value="webresource/images/leaf_icon.gif" rendered="#{table.type == 'xls.other'}" />
                 </h:column>
                 <h:column>
-                    <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                    <h:outputLink value="#{studio.url('table')}?uri=#{encodedTableUri}&amp;saveTable=false"
+                    <h:outputLink value="#{studio.url('table')}?id=#{table.id}&amp;saveTable=false"
                         rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
                         style="white-space:nowrap;">
                         <h:outputText value="#{table.name}" />

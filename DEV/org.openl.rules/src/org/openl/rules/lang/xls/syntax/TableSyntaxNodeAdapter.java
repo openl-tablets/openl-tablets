@@ -54,7 +54,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return OpenLMessagesUtils.newMessages(errors);
     }
 
-    public String getTechnicalName() {
+    public String getName() {
         IOpenMember member = tsn.getMember();
         if (member != null) {
             return member.getName();
@@ -63,7 +63,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return StringUtils.EMPTY;
     }
 
-    public String getName() {
+    public String getDisplayName() {
         ITableProperties properties = getProperties();
         if (properties != null) {
             String name = properties.getName();
@@ -75,7 +75,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
                 return name;
             }
         }
-        return getTechnicalName();
+        return getName();
     }
 
     public boolean isExecutable() {
@@ -84,6 +84,10 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     public String getUri() {
         return tsn.getUri();
+    }
+
+    public String getId() {
+        return tsn.getId();
     }
 
     public boolean isVersionable() {

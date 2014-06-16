@@ -42,10 +42,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -131,6 +128,7 @@ public class ProjectModel {
 
     // TODO Fix performance
     private Map<String, TableSyntaxNode> uriTableCache = new HashMap<String, TableSyntaxNode>();
+    private Map<String, TableSyntaxNode> idTableCache = new HashMap<String, TableSyntaxNode>();
 
     private DependencyRulesGraph dependencyGraph;
 
@@ -461,6 +459,10 @@ public class ProjectModel {
         return uriTableCache.get(uri);
     }
 
+    public TableSyntaxNode getNodeById(String id) {
+        return idTableCache.get(id);
+    }
+
     public ColorFilterHolder getFilterHolder() {
         return filterHolder;
     }
@@ -712,6 +714,14 @@ public class ProjectModel {
         return null;
     }
 
+    public IOpenLTable getTableById(String id) {
+        TableSyntaxNode tsn = getNodeById(id);
+        if (tsn != null) {
+            return new TableSyntaxNodeAdapter(tsn);
+        }
+        return null;
+    }
+
     public IGridTable getGridTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         return tsn == null ? null : tsn.getGridTable();
@@ -949,6 +959,7 @@ public class ProjectModel {
 
         projectRoot = root;
         uriTableCache.clear();
+        idTableCache.clear();
         cacheTree(projectRoot);
 
         dependencyGraph = null;
@@ -1013,7 +1024,9 @@ public class ProjectModel {
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
             if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
-                uriTableCache.put(child.getUri(), child.getTableSyntaxNode());
+                TableSyntaxNode tsn = child.getTableSyntaxNode();
+                uriTableCache.put(child.getUri(), tsn);
+                idTableCache.put(tsn.getId(), tsn);
             }
             cacheTree(child);
         }
@@ -1230,6 +1243,7 @@ public class ProjectModel {
 
         if (reloadType != ReloadType.NO) {
             uriTableCache.clear();
+            idTableCache.clear();
         }
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
@@ -1382,10 +1396,6 @@ public class ProjectModel {
             dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
         }
         return dependencyGraph;
-    }
-
-    public boolean tableBelongsToCurrentModule(String tableUri) {
-        return getTable(tableUri) != null;
     }
 
     public List<File> getSources() {
@@ -1618,4 +1628,5 @@ public class ProjectModel {
         }
         return studio.isSingleModuleModeByDefault();
     }
+
 }

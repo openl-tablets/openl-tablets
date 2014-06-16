@@ -201,7 +201,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     protected void onFinish() throws Exception {
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule);
-        setNewTableUri(newTableUri);
+        setNewTableId(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
         super.onFinish();
     }

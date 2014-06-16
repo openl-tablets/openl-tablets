@@ -21,8 +21,8 @@ public interface IOpenLTable {
      * @return Table name for user. (Firstly will be searched in table
      *         properties and then from table header)
      */
+    String getDisplayName();
     String getName();
-    String getTechnicalName();
 
     /**
      * 
@@ -38,6 +38,8 @@ public interface IOpenLTable {
     boolean isVersionable();
 
     String getUri();
+
+    String getId();
 
     boolean isCanContainProperties();
 

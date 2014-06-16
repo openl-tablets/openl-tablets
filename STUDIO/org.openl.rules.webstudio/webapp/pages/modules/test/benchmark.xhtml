@@ -14,7 +14,7 @@
                 <h:column>
                     <f:facet name="header">Name</f:facet>
                     <h:outputLink value="#{studio.url('table')}">
-                        <f:param name="uri" value="#{item.uri}" />
+                        <f:param name="id" value="#{item.tableId}" />
                         <h:outputText value="#{item.testName}" />
                     </h:outputLink>
                     <h:outputText value="#{item.testInfo}" styleClass="badge"

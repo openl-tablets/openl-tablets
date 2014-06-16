@@ -172,7 +172,7 @@ public class Explanation {
             /*if (source instanceof GridCellSourceCodeModule) {
                 // Get table uri
                 IGridTable table = ((GridCellSourceCodeModule) source).getTable();
-                url = GridTableUtils.getOriginalTable(table).getUri();
+                url = GridTableUtils.getOriginalTable(table).getId();
             } else {*/
                 // Get cell uri
                 url = mi.getSourceUrl();
