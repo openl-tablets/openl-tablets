@@ -83,8 +83,8 @@
                     <authz:authentication operation="username" /><b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu" style="margin-top: 15px">
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="ws.changes.checkForChanges(editUserProfile);">#{msg['ws.header.user.details']}</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="var editUserSettings = function() {editUserProfile('settings');}; ws.changes.checkForChanges(editUserSettings);">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
                     <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
                     <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">

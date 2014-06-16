@@ -51,6 +51,11 @@
             var hasChanges = function() {return false};
             var showConfirmDialog = function() {};
 
+            var setHasChanges = function () {};
+            var hadChanges = false;
+
+            var afterUnloadActions = [];
+
             var clickListener = function (e) {
                 if (e.which != 2) {
                     // Not a middle mouse button
@@ -66,15 +71,42 @@
             };
 
             // Public members
-            this.revertChanges = function() {};
+            this.revertChanges = function() {
+                if (hasChanges()) {
+                    hadChanges = true;
+                    setHasChanges(false);
+                }
+            };
 
-            this.configure = function (hasChangesFunc, revertChangesFunc, showConfirmDialogFunc) {
+            this.restoreChangedState = function() {
+                if (hadChanges) {
+                    setHasChanges(true);
+                    hadChanges = false;
+                }
+            };
+
+            this.configure = function (hasChangesFunc, setHasChangesFunc, showConfirmDialogFunc, beforeUnloadFunc) {
                 hasChanges = hasChangesFunc;
                 showConfirmDialog = showConfirmDialogFunc;
-                self.revertChanges = revertChangesFunc;
+                setHasChanges = setHasChangesFunc;
+                window.onbeforeunload = function (e) {
+                    var result = beforeUnloadFunc();
+                    for (var i = 0; i < afterUnloadActions.length; i++) {
+                        afterUnloadActions[i](e);
+                    }
+                    afterUnloadActions = [];
+                    return result;
+                };
+                hadChanges = hasChanges();
             };
 
             this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
+                if (typeof revertUrlChange == "undefined") {
+                    revertUrlChange = function() {};
+                }
+                if (typeof retryUrlChange == "undefined") {
+                    retryUrlChange = proceed;
+                }
                 if (hasChanges()) {
                     revertUrlChange();
 
@@ -93,6 +125,10 @@
             this.addClickListener = function(selector) {
                 $j(selector).off("click");
                 $j(selector).click(clickListener);
+            };
+
+            this.addAfterUnloadAction = function(func) {
+                afterUnloadActions.push(func);
             };
 
         };
