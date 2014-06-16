@@ -1,5 +1,7 @@
 package org.openl.rules.convertor;
 
+import java.text.DecimalFormat;
+
 public class String2ByteConvertor extends String2NumberConverter<Byte> {
 
     @Override
@@ -9,5 +11,10 @@ public class String2ByteConvertor extends String2NumberConverter<Byte> {
             throw new NumberFormatException("A number is out of range [-128...+127]");
         }
         return number.byteValue();
+    }
+
+    @Override
+    void configureFormatter(DecimalFormat df) {
+        df.setParseIntegerOnly(true);
     }
 }

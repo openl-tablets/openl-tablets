@@ -1,40 +1,31 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-public class String2BigDecimalConvertorTest {    
-    
-    private static final String DECIMAL = "1115.37";
-    
+public class String2BigDecimalConvertorTest {
+
     @Test
-    public void testParse() {
-        String2BigDecimalConvertor conv = new String2BigDecimalConvertor();
-        BigDecimal res = (BigDecimal)conv.parse(DECIMAL, null, null);
-        assertEquals(BigDecimal.valueOf(1115.37), res);
+    public void testConvertPositive() {
+        String2BigDecimalConvertor converter = new String2BigDecimalConvertor();
+        Number result = converter.parse("1234.56789012345678901234567890", null, null);
+        assertEquals(new BigDecimal("1234.56789012345678901234567890"), result);
+    }
+
+    @Test
+    public void testConvertNegative() {
+        String2BigDecimalConvertor converter = new String2BigDecimalConvertor();
+        Number result = converter.parse("-12", null, null);
+        assertEquals(BigDecimal.valueOf(-12L), result);
     }
 
     @Test
     public void testFormat() {
-        BigDecimal value = BigDecimal.valueOf(1115.37);
-        String2BigDecimalConvertor conv = new String2BigDecimalConvertor();
-        String formattedValue = conv.format(value, null);
-        assertEquals(DECIMAL, formattedValue);
+        String2BigDecimalConvertor converter = new String2BigDecimalConvertor();
+        String result = converter.format(new BigDecimal("-1234.56789012345678901234567890"), null);
+        assertEquals("-1234.5678901234567890123456789", result);
     }
-    
-    @Test
-    public void testParseNull() {
-        String2BigDecimalConvertor conv = new String2BigDecimalConvertor();
-        assertNull((BigDecimal)conv.parse(null, null, null));
-    }
-    
-    @Test
-    public void testFormatNull() {
-        String2BigDecimalConvertor conv = new String2BigDecimalConvertor();
-        assertNull(conv.format(null, null));
-    }
-
 }

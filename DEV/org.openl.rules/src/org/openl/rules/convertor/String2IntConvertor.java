@@ -1,5 +1,7 @@
 package org.openl.rules.convertor;
 
+import java.text.DecimalFormat;
+
 public class String2IntConvertor extends String2NumberConverter<Integer> {
 
     @Override
@@ -9,5 +11,10 @@ public class String2IntConvertor extends String2NumberConverter<Integer> {
             throw new NumberFormatException("A number is out of range [-2147483648...+2147483647]");
         }
         return number.intValue();
+    }
+
+    @Override
+    void configureFormatter(DecimalFormat df) {
+        df.setParseIntegerOnly(true);
     }
 }
