@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.openl.binding.IBindingContext;
 
-public class String2CalendarConvertor extends LocaleDependConvertor implements IString2DataConvertor {
+public class String2CalendarConvertor implements IString2DataConvertor {
 
     public String format(Object data, String format) {
         return new String2DateConvertor().format(((Calendar) data).getTime(), format);
@@ -18,7 +18,7 @@ public class String2CalendarConvertor extends LocaleDependConvertor implements I
     public Calendar parseCalendar(String data, String format) {
 
         Date d = new String2DateConvertor().parseDate(data, format);
-        Calendar c = Calendar.getInstance(getLocale());
+        Calendar c = Calendar.getInstance(LocaleDependConvertor.getLocale());
         c.setTime(d);
 
         return c;
