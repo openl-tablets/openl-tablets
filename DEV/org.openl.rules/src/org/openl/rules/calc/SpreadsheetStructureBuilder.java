@@ -161,8 +161,6 @@ public class SpreadsheetStructureBuilder {
             return;
         }
 
-        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext,
-                spreadsheetHeader.getName());
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor()
                 .getRowNamesTable().getRow(rowIndex), componentsBuilder.getCellsHeadersExtractor()
@@ -184,6 +182,7 @@ public class SpreadsheetStructureBuilder {
         IOpenClass type = spreadsheetCell.getType();
         IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
+        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
         try {
             Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
             spreadsheetCell.setValue(cellValue);
