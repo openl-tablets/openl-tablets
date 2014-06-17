@@ -183,6 +183,7 @@ public class SpreadsheetStructureBuilder {
         IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
         IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
+        // columnBindingContext - is never null
         try {
             Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
             spreadsheetCell.setValue(cellValue);
@@ -203,7 +204,7 @@ public class SpreadsheetStructureBuilder {
         String code = StringUtils.trimToNull(source.getCode());
         if (code == null) return null;
 
-        if (bindingContext != null && SpreadsheetExpressionMarker.isFormula(code)) {
+        if (SpreadsheetExpressionMarker.isFormula(code)) {
 
             int end = 0;
             if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
