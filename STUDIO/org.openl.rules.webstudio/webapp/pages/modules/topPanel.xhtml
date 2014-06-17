@@ -28,7 +28,7 @@
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
-            <a href="#{contextPath}/" class="projects-list">Projects</a>
+            <a href="#{contextPath}/" class="changes-listener">Projects</a>
             <h:panelGroup rendered="#{!empty rProject.name}">
             <span class="delimeter"></span>
             <span class="dropdown" id="breadcrumbs-project">
@@ -218,12 +218,6 @@
         function refreshIfNotChanged() {
             ws.changes.checkForChanges(reload);
         }
-
-        $j(function () {
-            if (typeof(ws) != "undefined") {
-                ws.changes.addClickListener("a.projects-list");
-            }
-        });
         //]]>
     </script>
 

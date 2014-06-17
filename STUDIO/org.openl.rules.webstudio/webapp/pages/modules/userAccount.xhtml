@@ -156,7 +156,7 @@
                     oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary" />
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary" />
-                <input type="button" value="Cancel" onclick="hideUserProfile(); ws.changes.restoreChangedState();" />
+                <input id="closeUserProfileButton" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
         </h:form>
 
@@ -184,6 +184,15 @@
         $j("#userProfileForm")[0].reset();
         $j("#userProfileForm\\:caseFailures").toggle($j("#userProfileForm\\:testsFailuresOnly").is(':checked'));
     }
+
+    $j(function () {
+        if (typeof(ws) != "undefined") {
+            var $saveButton = $j('#closeUserProfileButton');
+            $saveButton.click(function () {
+                ws.changes.restoreChangedState();
+            });
+        }
+    });
 
     //]]>
 </script>
