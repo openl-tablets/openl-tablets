@@ -96,16 +96,12 @@ public class SpreadsheetStructureBuilder {
         return componentsBuilder.buildResultBuilder(spreadsheet);
     }
 
-    public SpreadsheetComponentsBuilder getComponentsBuilder() {
-        return componentsBuilder;
-    }
-
     public String[] getRowNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getRowNames();
+        return componentsBuilder.getCellsHeadersExtractor().getRowNames();
     }
 
     public String[] getColumnNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getColumnNames();
+        return componentsBuilder.getCellsHeadersExtractor().getColumnNames();
     }
 
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
