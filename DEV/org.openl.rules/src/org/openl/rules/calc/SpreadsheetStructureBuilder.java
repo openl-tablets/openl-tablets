@@ -185,8 +185,7 @@ public class SpreadsheetStructureBuilder {
         IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
         // columnBindingContext - is never null
         try {
-            Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
-            spreadsheetCell.setValue(cellValue);
+            loadSingleParam(spreadsheetCell, source, meta, columnBindingContext, header, type);
         } catch (SyntaxNodeException e) {
 
             componentsBuilder.getTableSyntaxNode().addError(e);
@@ -199,12 +198,12 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
+    private void loadSingleParam(SpreadsheetCell spreadsheetCell, IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
 
         String code = StringUtils.trimToNull(source.getCode());
-        if (code == null) return null;
-
-        if (SpreadsheetExpressionMarker.isFormula(code)) {
+        if (code == null) {
+            spreadsheetCell.setValue(null);
+        } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
             int end = 0;
             if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
@@ -213,27 +212,28 @@ public class SpreadsheetStructureBuilder {
 
             IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
             Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
-            return method;
-        }
+            spreadsheetCell.setValue(method);
+        } else {
 
-        Class<?> instanceClass = type.getInstanceClass();
-        if (instanceClass == null) {
-            String message = String.format("Type '%s' was loaded with errors", type.getName());
-            throw SyntaxNodeExceptionUtils.createError(message, source);
-        }
-
-        try {
-            IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
-            Object result = convertor.parse(code, null, bindingContext);
-
-            if (result instanceof IMetaHolder) {
-                ((IMetaHolder) result).setMetaInfo(meta);
+            Class<?> instanceClass = type.getInstanceClass();
+            if (instanceClass == null) {
+                String message = String.format("Type '%s' was loaded with errors", type.getName());
+                throw SyntaxNodeExceptionUtils.createError(message, source);
             }
 
-            return result;
-        } catch (Throwable t) {
-            String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-            throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
+            try {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
+                Object result = convertor.parse(code, null, bindingContext);
+
+                if (result instanceof IMetaHolder) {
+                    ((IMetaHolder) result).setMetaInfo(meta);
+                }
+
+                spreadsheetCell.setValue(result);
+            } catch (Throwable t) {
+                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
+            }
         }
     }
 
