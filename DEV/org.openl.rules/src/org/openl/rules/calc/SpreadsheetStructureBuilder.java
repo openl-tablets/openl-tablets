@@ -202,7 +202,7 @@ public class SpreadsheetStructureBuilder {
                 Class<?> instanceClass = type.getInstanceClass();
                 if (instanceClass == null) {
                     String message = String.format("Type '%s' was loaded with errors", type.getName());
-                    throw SyntaxNodeExceptionUtils.createError(message, source);
+                    addError(SyntaxNodeExceptionUtils.createError(message, source));
                 }
 
                 try {
@@ -216,19 +216,19 @@ public class SpreadsheetStructureBuilder {
                     spreadsheetCell.setValue(result);
                 } catch (Throwable t) {
                     String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                    throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
+                    addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
                 }
             }
-        } catch (SyntaxNodeException e) {
+        } catch (CompositeSyntaxNodeException e) {
 
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
-        catch (CompositeSyntaxNodeException e) {
+    }
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
-        }
+    private void addError(SyntaxNodeException e) {
+        componentsBuilder.getTableSyntaxNode().addError(e);
+        BindHelper.processError(e, spreadsheetBindingContext);
     }
 
     /**
