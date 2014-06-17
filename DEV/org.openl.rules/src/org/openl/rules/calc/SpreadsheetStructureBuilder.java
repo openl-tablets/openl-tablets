@@ -16,10 +16,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
-import org.openl.rules.calc.element.CellLoader;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -174,7 +171,7 @@ public class SpreadsheetStructureBuilder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = source.getCode();
 
-        if (CellLoader.isFormula(code)) {
+        if (SpreadsheetExpressionMarker.isFormula(code)) {
             formulaCells.add(spreadsheetCell);
         }
 
@@ -274,7 +271,7 @@ public class SpreadsheetStructureBuilder {
         spreadsheetCell.setType(cellType);
         if (cellCode == null || cellCode.isEmpty())
             spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
-        else if (CellLoader.isFormula(cellCode))
+        else if (SpreadsheetExpressionMarker.isFormula(cellCode))
             spreadsheetCell.setKind(SpreadsheetCellType.METHOD);
         else
             spreadsheetCell.setKind(SpreadsheetCellType.VALUE);
@@ -294,7 +291,7 @@ public class SpreadsheetStructureBuilder {
             // Try to derive cell type as double.
             //
             try {
-                if (CellLoader.isFormula(cellValue)) {
+                if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
                     return JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
 

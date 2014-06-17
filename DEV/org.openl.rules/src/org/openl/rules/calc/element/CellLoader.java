@@ -1,6 +1,5 @@
 package org.openl.rules.calc.element;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.IMetaHolder;
@@ -35,7 +34,7 @@ public class CellLoader {
 
         if (bindingContext != null) {
 
-            if (isFormula(code)) {
+            if (SpreadsheetExpressionMarker.isFormula(code)) {
 
                 int end = 0;
 
@@ -70,25 +69,6 @@ public class CellLoader {
             String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
             throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
         }
-    }
-
-    public static boolean isFormula(String src) {
-
-        if (StringUtils.isBlank(src)) {
-            return false;
-        }
-        
-        if (src.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol()) 
-                && src.endsWith(SpreadsheetExpressionMarker.CLOSED_CURLY_BRACKET.getSymbol())) {
-            return true;
-        }
-
-        if (src.startsWith(SpreadsheetExpressionMarker.EQUALS_SIGN.getSymbol()) 
-                && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)))) {
-            return true;
-        }
-
-        return false;
     }
 
 }
