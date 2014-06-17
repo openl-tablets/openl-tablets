@@ -616,7 +616,7 @@
             var page = pageToOpen || getCurrentPage();
 
             if (page && page.indexOf("table?id=") > -1) {
-                var tableId = page.split("id=")[1].split("&")[0];
+                var tableId = page.split("id=")[1].split();
                 expandAndSelectNode(tableId);
             }
         }
