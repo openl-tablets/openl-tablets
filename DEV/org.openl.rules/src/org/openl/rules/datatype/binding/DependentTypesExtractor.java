@@ -25,8 +25,7 @@ import java.util.*;
  */
 public class DependentTypesExtractor {
 
-    public Set<String> extract(TableSyntaxNode node, IBindingContext cxt)
-            throws OpenLCompilationException {
+    public Set<String> extract(TableSyntaxNode node, IBindingContext cxt) {
         ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(
                 node.getTable(),
                 OpenL.getInstance(XlsBinder.DEFAULT_OPENL_NAME),
@@ -61,12 +60,19 @@ public class DependentTypesExtractor {
         return dependencies;
     }
 
-    private String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
+    private String getParentDatatypeName(TableSyntaxNode tsn) {
 
         if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
-            IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(src);
+            IdentifierNode[] parsedHeader = new IdentifierNode[0];
+            try {
+                parsedHeader = DatatypeHelper.tokenizeHeader(src);
+            } catch (OpenLCompilationException e) {
+                // Suppress the exception
+                // This exception has already been processed when parsing the table header
+                //
+            }
 
             if (parsedHeader.length == 4) {
                 return parsedHeader[DatatypeNodeBinder.PARENT_TYPE_INDEX].getIdentifier();
@@ -78,11 +84,17 @@ public class DependentTypesExtractor {
         return null;
     }
 
-    private String getType(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+    private String getType(ILogicalTable row, IBindingContext cxt) {
         // Get the cell that has index 0. This cell contains the Type name
         //
         GridCellSourceCodeModule type = getCellSource(row, cxt, 0);
-        IdentifierNode[] idn = getIdentifierNode(type);
+        IdentifierNode[] idn = new IdentifierNode[0];
+        try {
+            idn = getIdentifierNode(type);
+        } catch (OpenLCompilationException e) {
+            // Suppress the exception
+            //
+        }
         if (idn.length == 1) {
             // Return the Type name
             //
