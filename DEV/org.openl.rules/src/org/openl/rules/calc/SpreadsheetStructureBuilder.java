@@ -204,27 +204,23 @@ public class SpreadsheetStructureBuilder {
         String code = StringUtils.trimToNull(source.getCode());
         if (code == null) return null;
 
-        if (bindingContext != null) {
+        if (bindingContext != null && SpreadsheetExpressionMarker.isFormula(code)) {
 
-            if (SpreadsheetExpressionMarker.isFormula(code)) {
+            int end = 0;
+            if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+                end = -1;
+            }
 
-                int end = 0;
-
-                if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
-                    end = -1;
-                }
-
-                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-                try {
-                    Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
-                            header, bindingContext);
-                    return method;
-                } catch (CompositeSyntaxNodeException e) {
-                    // catch the error of making method and wrap it to SyntaxNodeException.
-                    //
-                    //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
-                    throw e;
-                }
+            IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+            try {
+                Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
+                        header, bindingContext);
+                return method;
+            } catch (CompositeSyntaxNodeException e) {
+                // catch the error of making method and wrap it to SyntaxNodeException.
+                //
+                //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
+                throw e;
             }
         }
 
