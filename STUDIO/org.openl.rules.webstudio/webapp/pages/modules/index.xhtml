@@ -108,7 +108,7 @@
                 }
             };
 
-            this.addClickListener = function(selector) {
+            this.addChangesListener = function(selector) {
                 $j(selector).each(function() {
                     var $a = $j(this);
 
@@ -571,8 +571,12 @@
             done && callbacks.push(done);
 
             callbacks.push(function() {
-                ws.changes.addClickListener(".changes-listener");
+                ws.changes.addChangesListener(".changes-listener");
                 $j(".changes-listener").toggleClass("changes-listener changes-listener-added");
+
+                $j('.restore-changed-state').click(function () {
+                    ws.changes.restoreChangedState();
+                }).toggleClass("restore-changed-state restore-changed-state-added");
             });
 
             var initUrl = urlRewrite.prefix + "init.xhtml";
