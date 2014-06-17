@@ -55,10 +55,6 @@ public class SpreadsheetStructureBuilder {
         this.componentsBuilder = rowColumnExtractor;
     }
 
-    public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
-        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
-    }
-
     private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
     private Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
 
