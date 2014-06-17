@@ -259,7 +259,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
+    public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
         return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);        
     }
 
@@ -277,12 +277,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return defaultValue;
     }
 
-    private IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc) 
+    public static IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc)
         throws OpenLCompilationException {
         
         IdentifierNode[] idn = Tokenizer.tokenize(cellSrc, " \r\n");
 
         return idn;
+    }
+
+    /**
+     * Encapsulates the wrapping the row and bindingContext with the GridCellSourceCodeModule
+     */
+    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+        return canProcessRow(rowSrc);
     }
     
     /**
@@ -291,7 +299,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @param rowSrc
      * @return false if row content is empty, or was commented with special symbols.
      */
-    private boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
+    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
         String srcCode = rowSrc.getCode().trim();
 
         if (srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode)) {
