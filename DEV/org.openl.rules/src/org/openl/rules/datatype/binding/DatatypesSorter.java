@@ -1,7 +1,6 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.binding.IBindingContext;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
 
@@ -28,12 +27,8 @@ public class DatatypesSorter {
     private List<TopoGraphNode<TableSyntaxNode>> wrapAll(Map<String, TableSyntaxNode> datatypes,
                                                          IBindingContext bindingContext) {
         List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<TopoGraphNode<TableSyntaxNode>>();
-        for (TableSyntaxNode datatype: datatypes.values()) {
-            try {
-                toSort.add(wrap(datatype, datatypes, bindingContext));
-            } catch (OpenLCompilationException e) {
-                e.printStackTrace();
-            }
+        for (TableSyntaxNode datatype : datatypes.values()) {
+            toSort.add(wrap(datatype, datatypes, bindingContext));
         }
         return toSort;
     }
@@ -52,7 +47,7 @@ public class DatatypesSorter {
 
     private TopologicalSort.TopoGraphNode<TableSyntaxNode> wrap(
             TableSyntaxNode datatype, Map<String, TableSyntaxNode> datatypes,
-            IBindingContext bindingContext) throws OpenLCompilationException {
+            IBindingContext bindingContext) {
 
         Set<String> dependencies = new DependentTypesExtractor().extract(datatype, bindingContext);
         TopoGraphNode<TableSyntaxNode> forSort = new TopoGraphNode<TableSyntaxNode>(datatype);
