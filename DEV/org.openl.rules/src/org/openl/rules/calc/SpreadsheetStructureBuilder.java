@@ -179,7 +179,6 @@ public class SpreadsheetStructureBuilder {
         IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
         IOpenClass type = spreadsheetCell.getType();
-        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
         IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
         // columnBindingContext - is never null
@@ -195,6 +194,7 @@ public class SpreadsheetStructureBuilder {
                 }
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+                IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
                 Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
                 spreadsheetCell.setValue(method);
             } else {
