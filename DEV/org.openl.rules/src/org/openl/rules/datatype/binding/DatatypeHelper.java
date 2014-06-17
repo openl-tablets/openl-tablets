@@ -187,11 +187,6 @@ public class DatatypeHelper {
         return map;
     }
 
-    public static TableSyntaxNode[] orderDatatypes(Map<String, TableSyntaxNode> typesMap,
-            IBindingContext bindingContext) {
-        return new DatatypesSorter().sort(typesMap, bindingContext);
-    }
-
     public static boolean isCommented(String s) {
         return s.startsWith("//");
     }
