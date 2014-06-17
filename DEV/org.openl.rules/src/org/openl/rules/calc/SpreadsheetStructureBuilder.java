@@ -212,16 +212,8 @@ public class SpreadsheetStructureBuilder {
             }
 
             IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-            try {
-                Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
-                        header, bindingContext);
-                return method;
-            } catch (CompositeSyntaxNodeException e) {
-                // catch the error of making method and wrap it to SyntaxNodeException.
-                //
-                //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
-                throw e;
-            }
+            Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode, header, bindingContext);
+            return method;
         }
 
         Class<?> instanceClass = type.getInstanceClass();
