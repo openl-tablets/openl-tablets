@@ -1,6 +1,6 @@
 package org.openl.rules.convertor;
 
-public class String2FloatConvertor extends String2NumberConverter<Float> {
+class String2FloatConvertor extends String2NumberConverter<Float> {
 
     public String2FloatConvertor() {
         super("0.##");

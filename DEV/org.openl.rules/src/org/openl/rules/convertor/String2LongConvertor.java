@@ -2,7 +2,7 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 
-public class String2LongConvertor extends String2NumberConverter<Long> {
+class String2LongConvertor extends String2NumberConverter<Long> {
 
     @Override
     Long convert(Number number, String data) {

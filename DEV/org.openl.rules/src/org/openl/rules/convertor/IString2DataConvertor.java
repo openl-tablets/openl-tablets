@@ -9,12 +9,15 @@ package org.openl.rules.convertor;
 import org.openl.binding.IBindingContext;
 
 /**
- * @author snshor
+ * A converter to parse and to format data from/to String.
  *
+ * @param <T> type of converted data
+ * @author Yury Molchan
+ * @author snshor
  */
-public interface IString2DataConvertor {
-    
-    String format(Object data, String format);
+public interface IString2DataConvertor<T> {
 
-    Object parse(String data, String format, IBindingContext bindingContext);
+    String format(T data, String format);
+
+    T parse(String data, String format, IBindingContext bindingContext);
 }

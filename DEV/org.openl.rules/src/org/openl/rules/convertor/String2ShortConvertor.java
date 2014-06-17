@@ -2,7 +2,7 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 
-public class String2ShortConvertor extends String2NumberConverter<Short> {
+class String2ShortConvertor extends String2NumberConverter<Short> {
 
     @Override
     Short convert(Number number, String data) {

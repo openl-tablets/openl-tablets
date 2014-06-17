@@ -14,7 +14,7 @@ import java.util.Locale;
  * @param <T> type of a number
  * @author Yury Molchan
  */
-abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor {
+abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor<T> {
 
     private final String defaultFormat;
 
@@ -34,7 +34,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * @return a String or null
      */
     @Override
-    public String format(Object data, String format) {
+    public String format(T data, String format) {
         if (data == null) return null;
 
         DecimalFormat df = getFormatter(format);

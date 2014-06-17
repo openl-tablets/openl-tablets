@@ -4,13 +4,17 @@ import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 
-public class String2OpenClassConvertor implements IString2DataConvertor {
+class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass> {
 
-    public String format(Object data, String format) {
-        return String.valueOf(data);
+    @Override
+    public String format(IOpenClass data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public IOpenClass parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
 
         if (data.endsWith("[]")) {
 

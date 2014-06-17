@@ -49,7 +49,7 @@ public class String2FloatConvertorTest {
     @Test
     public void testFormat() {
         String2FloatConvertor converter = new String2FloatConvertor();
-        String result = converter.format(1234567890.12345, null);
-        assertEquals("1234567890.12", result);
+        String result = converter.format(98765.4321f, null);
+        assertEquals("98765.43", result);
     }
 }

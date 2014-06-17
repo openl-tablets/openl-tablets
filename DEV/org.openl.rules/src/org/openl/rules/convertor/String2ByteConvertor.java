@@ -2,7 +2,7 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 
-public class String2ByteConvertor extends String2NumberConverter<Byte> {
+class String2ByteConvertor extends String2NumberConverter<Byte> {
 
     @Override
     Byte convert(Number number, String data) {

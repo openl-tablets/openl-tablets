@@ -11,15 +11,10 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.IMetaInfo;
-import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
-import org.openl.rules.calc.element.CellLoader;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.meta.*;
+import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -30,8 +25,10 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -174,7 +171,7 @@ public class SpreadsheetStructureBuilder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = source.getCode();
 
-        if (CellLoader.isFormula(code)) {
+        if (SpreadsheetExpressionMarker.isFormula(code)) {
             formulaCells.add(spreadsheetCell);
         }
 
@@ -183,14 +180,11 @@ public class SpreadsheetStructureBuilder {
 
         IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
-        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader,
-                spreadsheetCell.getType());
-        IString2DataConvertor convertor = makeConvertor(spreadsheetCell.getType());
-
-        CellLoader loader = new CellLoader(columnBindingContext, header, convertor);
+        IOpenClass type = spreadsheetCell.getType();
+        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
         try {
-            Object cellValue = loader.loadSingleParam(source, meta);
+            Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
             spreadsheetCell.setValue(cellValue);
         } catch (SyntaxNodeException e) {
 
@@ -202,7 +196,54 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
+    }
 
+    private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
+
+        String code = source.getCode();
+
+        if (code == null || (code = code.trim()).length() == 0) {
+            return null;
+        }
+
+        if (bindingContext != null) {
+
+            if (SpreadsheetExpressionMarker.isFormula(code)) {
+
+                int end = 0;
+
+                if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+                    end = -1;
+                }
+
+                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+                Object method = null;
+                try {
+                    method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
+                            header, bindingContext);
+                    return method;
+                } catch (CompositeSyntaxNodeException e) {
+                    // catch the error of making method and wrap it to SyntaxNodeException.
+                    //
+                    //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
+                    throw e;
+                }
+            }
+        }
+
+        try {
+            IString2DataConvertor convertor = makeConvertor(type);
+            Object result = convertor.parse(code, null, bindingContext);
+
+            if (result instanceof IMetaHolder) {
+                ((IMetaHolder) result).setMetaInfo(meta);
+            }
+
+            return result;
+        } catch (Throwable t) {
+            String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+            throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
+        }
     }
 
     /**
@@ -274,7 +315,7 @@ public class SpreadsheetStructureBuilder {
         spreadsheetCell.setType(cellType);
         if (cellCode == null || cellCode.isEmpty())
             spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
-        else if (CellLoader.isFormula(cellCode))
+        else if (SpreadsheetExpressionMarker.isFormula(cellCode))
             spreadsheetCell.setKind(SpreadsheetCellType.METHOD);
         else
             spreadsheetCell.setKind(SpreadsheetCellType.VALUE);
@@ -294,7 +335,7 @@ public class SpreadsheetStructureBuilder {
             // Try to derive cell type as double.
             //
             try {
-                if (CellLoader.isFormula(cellValue)) {
+                if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
                     return JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
 

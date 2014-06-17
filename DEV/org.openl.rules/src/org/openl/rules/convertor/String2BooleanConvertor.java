@@ -3,24 +3,24 @@ package org.openl.rules.convertor;
 import org.openl.binding.IBindingContext;
 import org.openl.util.BooleanUtils;
 
-public class String2BooleanConvertor implements IString2DataConvertor {
+class String2BooleanConvertor implements IString2DataConvertor<Boolean> {
 
-    public String format(Object data, String format) {
-        return String.valueOf(data);
+    @Override
+    public String format(Boolean data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
-        if (data == null || data.length() == 0) {
-            return Boolean.FALSE;
-        }            
-        
+    @Override
+    public Boolean parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
+
         Boolean boolValue = BooleanUtils.toBooleanObject(data);
-        
-        if (boolValue != null) {
-            return boolValue;
-        } else {
-            throw new RuntimeException("Invalid boolean value: " + data);
-        }            
-    }
 
+        if (boolValue == null) {
+            throw new IllegalArgumentException("Cannon convert \"" + data + "\" to boolean type");
+        }
+
+        return boolValue;
+    }
 }

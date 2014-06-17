@@ -6,26 +6,19 @@
 
 package org.openl.rules.convertor;
 
-import java.lang.reflect.Constructor;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 
+import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
 /**
  * @author snshor
- * 
  */
 public class String2DataConvertorFactory {
 
@@ -82,17 +75,17 @@ public class String2DataConvertorFactory {
         // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference 
         // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
-            convertor = new String2EnumConvertor(clazz);
+            convertor = new String2EnumConvertor((Class<? extends Enum<?>>) clazz);
         } else if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
             IString2DataConvertor componentConvertor = getConvertor(componentType);
             convertor = new String2ArrayConvertor(componentConvertor);
         } else {
             try {
-                Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
+                Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[]{String.class});
                 convertor = new String2ConstructorConvertor(ctr);
             } catch (NoSuchMethodException t) {
-                convertor = new NoConvertor(clazz);
+                throw new IllegalArgumentException("Public Constructor " + clazz.getName() + "(String s) does not exist");
             }
         }
 
@@ -103,7 +96,7 @@ public class String2DataConvertorFactory {
 
     /**
      * Removes the specified Class from convertors cache.
-     * 
+     *
      * @param clazz Class to unregister.
      */
     private static void unregisterConvertorForClass(Class<?> clazz) {
@@ -112,7 +105,7 @@ public class String2DataConvertorFactory {
 
     /**
      * Unregister all Classes from the specified class loader.
-     * 
+     *
      * @param classLoader ClassLoader to unregister.
      */
     public static synchronized void unregisterClassLoader(ClassLoader classLoader) {
