@@ -14,17 +14,7 @@ import org.openl.types.IOpenMethodHeader;
 
 public class CellLoader {
 
-    private IBindingContext bindingContext;
-    private IOpenMethodHeader header;
-    private IString2DataConvertor convertor;
-
-    public CellLoader(IBindingContext bindingContext, IOpenMethodHeader header, IString2DataConvertor convertor) {
-        this.bindingContext = bindingContext;
-        this.header = header;
-        this.convertor = convertor;
-    }
-
-    public Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta) throws SyntaxNodeException {
+    public static Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IString2DataConvertor convertor) throws SyntaxNodeException {
 
         String code = source.getCode();
 
