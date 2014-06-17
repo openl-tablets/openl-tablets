@@ -1,11 +1,11 @@
 package org.openl.rules.convertor;
 
-import java.lang.reflect.Constructor;
-
 import org.openl.binding.IBindingContext;
 import org.openl.util.RuntimeExceptionWrapper;
 
-public class String2ConstructorConvertor implements IString2DataConvertor {
+import java.lang.reflect.Constructor;
+
+class String2ConstructorConvertor implements IString2DataConvertor<Object> {
 
     private Constructor<?> ctr;
 
@@ -13,17 +13,20 @@ public class String2ConstructorConvertor implements IString2DataConvertor {
         this.ctr = ctr;
     }
 
+    @Override
     public String format(Object data, String format) {
-        return String.valueOf(data);
+        if (data == null) return null;
+        return data.toString();
     }
 
+    @Override
     public Object parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
 
         try {
-            return ctr.newInstance(new Object[] { data });
+            return ctr.newInstance(new Object[]{data});
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
     }
-
 }

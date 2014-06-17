@@ -2,8 +2,6 @@ package org.openl.rules.convertor;
 
 import org.junit.Test;
 
-import java.math.BigDecimal;
-
 import static org.junit.Assert.assertEquals;
 
 public class String2DoubleConvertorTest {

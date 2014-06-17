@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 
-public class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
+class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
 
     @Override
     BigInteger convert(Number number, String data) {

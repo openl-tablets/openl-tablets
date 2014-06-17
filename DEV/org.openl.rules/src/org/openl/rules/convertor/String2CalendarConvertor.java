@@ -1,27 +1,26 @@
 package org.openl.rules.convertor;
 
+import org.openl.binding.IBindingContext;
+
 import java.util.Calendar;
 import java.util.Date;
 
-import org.openl.binding.IBindingContext;
+class String2CalendarConvertor implements IString2DataConvertor<Calendar> {
 
-public class String2CalendarConvertor implements IString2DataConvertor {
-
-    public String format(Object data, String format) {
-        return new String2DateConvertor().format(((Calendar) data).getTime(), format);
+    @Override
+    public String format(Calendar data, String format) {
+        if (data == null) return null;
+        return new String2DateConvertor().format(data.getTime(), format);
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
-        return parseCalendar(data, format);
+    @Override
+    public Calendar parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
+
+        Date date = new String2DateConvertor().parse(data, format, cxt);
+        Calendar calendar = Calendar.getInstance(LocaleDependConvertor.getLocale());
+        calendar.setTime(date);
+
+        return calendar;
     }
-
-    public Calendar parseCalendar(String data, String format) {
-
-        Date d = new String2DateConvertor().parseDate(data, format);
-        Calendar c = Calendar.getInstance(LocaleDependConvertor.getLocale());
-        c.setTime(d);
-
-        return c;
-    }
-
 }
