@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -200,11 +201,8 @@ public class SpreadsheetStructureBuilder {
 
     private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
 
-        String code = source.getCode();
-
-        if (code == null || (code = code.trim()).length() == 0) {
-            return null;
-        }
+        String code = StringUtils.trimToNull(source.getCode());
+        if (code == null) return null;
 
         if (bindingContext != null) {
 
@@ -217,9 +215,8 @@ public class SpreadsheetStructureBuilder {
                 }
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-                Object method = null;
                 try {
-                    method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
+                    Object method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
                             header, bindingContext);
                     return method;
                 } catch (CompositeSyntaxNodeException e) {
