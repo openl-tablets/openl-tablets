@@ -184,10 +184,9 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.getType());
         IString2DataConvertor convertor = makeConvertor(spreadsheetCell.getType());
 
-        CellLoader loader = new CellLoader(columnBindingContext, header, convertor);
 
         try {
-            Object cellValue = loader.loadSingleParam(source, meta);
+            Object cellValue = CellLoader.loadSingleParam(source, meta, columnBindingContext, header, convertor);
             spreadsheetCell.setValue(cellValue);
         } catch (SyntaxNodeException e) {
 
