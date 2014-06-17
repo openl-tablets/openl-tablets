@@ -3,14 +3,17 @@ package org.openl.rules.convertor;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.helpers.DoubleRange;
 
-public class String2DoubleRangeConvertor implements IString2DataConvertor {
+class String2DoubleRangeConvertor implements IString2DataConvertor<DoubleRange> {
 
-    public String format(Object data, String format) {
-        return String.valueOf(data);
+    @Override
+    public String format(DoubleRange data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext bindingContext) {        
+    @Override
+    public DoubleRange parse(String data, String format, IBindingContext bindingContext) {
+        if (data == null) return null;
         return new DoubleRange(data);
     }
-
 }

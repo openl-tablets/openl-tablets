@@ -3,14 +3,17 @@ package org.openl.rules.convertor;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.helpers.IntRange;
 
-public class String2IntRangeConvertor implements IString2DataConvertor {
+class String2IntRangeConvertor implements IString2DataConvertor<IntRange> {
 
-    public String format(Object data, String format) {
-        return String.valueOf(data);
+    @Override
+    public String format(IntRange data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public IntRange parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
         return new IntRange(data);
     }
-
 }
