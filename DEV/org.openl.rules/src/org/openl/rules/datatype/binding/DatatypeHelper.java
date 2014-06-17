@@ -1,12 +1,7 @@
 package org.openl.rules.datatype.binding;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -150,23 +145,6 @@ public class DatatypeHelper {
         return parsedHeader;
     }
 
-    private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
-
-        if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
-            IOpenSourceCodeModule src = tsn.getHeader().getModule();
-
-            IdentifierNode[] parsedHeader = tokenizeHeader(src);
-
-            if (parsedHeader.length == 4) {
-                return parsedHeader[DatatypeNodeBinder.PARENT_TYPE_INDEX].getIdentifier();
-            } else {
-                return null;
-            }
-        }
-
-        return null;
-    }
-
     public static Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes, IBindingContext bindingContext) {
 
         Map<String, TableSyntaxNode> map = new HashMap<String, TableSyntaxNode>();
@@ -211,58 +189,10 @@ public class DatatypeHelper {
 
     public static TableSyntaxNode[] orderDatatypes(Map<String, TableSyntaxNode> typesMap,
             IBindingContext bindingContext) {
-        
-        Map<TableSyntaxNode, Integer> levelsMap = new HashMap<TableSyntaxNode, Integer>();
-        
-        for (TableSyntaxNode node: typesMap.values()) {
-            try {
-                int level = getInheritanceLevel(typesMap, node);
-                levelsMap.put(node, level);
-            } catch (OpenLCompilationException e) {
-                String message = "An error has occurred during compilation";
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
-                node.addError(error);
-                BindHelper.processError(error);
-            }
-        }
+        return new DatatypesSorter().sort(typesMap, bindingContext);
+    }
 
-        Set<TableSyntaxNode> nodes = levelsMap.keySet();
-        TableSyntaxNode[] nodesToOrder = nodes.toArray(new TableSyntaxNode[nodes.size()]);
-        DatatypeNodeLevelComparator comparator = new DatatypeNodeLevelComparator(levelsMap);
-        Arrays.sort(nodesToOrder, comparator);
-        
-        return nodesToOrder;
-    }
-    
-    public static int getInheritanceLevel(Map<String, TableSyntaxNode> types, TableSyntaxNode tsn)
-        throws OpenLCompilationException {
-        return getInheritanceLevel(types, tsn, new LinkedHashMap<String, TableSyntaxNode>());
-    }
-    
     public static boolean isCommented(String s) {
         return s.startsWith("//");
     }
-    
-    private static int getInheritanceLevel(
-            Map<String, TableSyntaxNode> types, TableSyntaxNode tsn, Map<String, TableSyntaxNode> children)
-        throws OpenLCompilationException {
-        
-        String parent = getParentDatatypeName(tsn);
-        
-        if (parent != null && types.containsKey(parent)) {
-            if (children.containsKey(parent)) {
-                Set<String> keys = children.keySet();
-                String typesCycle = StringUtils.join(keys, " -> ");
-
-                throw new OpenLCompilationException(String.format("Invalid type hierarchy found: %s", typesCycle));
-            }
-            
-            children.put(parent, tsn);
-            
-            return 1 + getInheritanceLevel(types, types.get(parent), children);
-        } else {
-            return 0;
-        }
-    }
-
 }
