@@ -225,7 +225,13 @@ public class SpreadsheetStructureBuilder {
         }
 
         try {
-            IString2DataConvertor convertor = makeConvertor(type);
+
+            Class<?> instanceClass = type.getInstanceClass();
+            if (instanceClass == null) {
+                throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
+            }
+
+            IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
             Object result = convertor.parse(code, null, bindingContext);
 
             if (result instanceof IMetaHolder) {
@@ -483,13 +489,4 @@ public class SpreadsheetStructureBuilder {
         return new OpenMethodHeader(name, type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
     }
 
-    private IString2DataConvertor makeConvertor(IOpenClass type) {
-
-        Class<?> instanceClass = type.getInstanceClass();
-        if (instanceClass == null) {
-            throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
-        }
-
-        return String2DataConvertorFactory.getConvertor(instanceClass);
-    }
 }
