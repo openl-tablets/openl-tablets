@@ -85,7 +85,7 @@ public class String2DataConvertorFactory {
                 Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[]{String.class});
                 convertor = new String2ConstructorConvertor(ctr);
             } catch (NoSuchMethodException t) {
-                convertor = new NoConvertor(clazz);
+                throw new IllegalArgumentException("Public Constructor " + clazz.getName() + "(String s) does not exist");
             }
         }
 
