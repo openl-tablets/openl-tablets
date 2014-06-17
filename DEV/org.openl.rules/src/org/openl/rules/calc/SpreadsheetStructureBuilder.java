@@ -194,7 +194,7 @@ public class SpreadsheetStructureBuilder {
                 }
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-                IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
+                IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
                 Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
                 spreadsheetCell.setValue(method);
             } else {
@@ -470,9 +470,4 @@ public class SpreadsheetStructureBuilder {
         }
         return rowOpenClass;
     }
-
-    private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader spreadsheetHeader, IOpenClass type) {
-        return new OpenMethodHeader(name, type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
-    }
-
 }
