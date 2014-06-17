@@ -180,13 +180,11 @@ public class SpreadsheetStructureBuilder {
 
         IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
-        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader,
-                spreadsheetCell.getType());
-        IString2DataConvertor convertor = makeConvertor(spreadsheetCell.getType());
-
+        IOpenClass type = spreadsheetCell.getType();
+        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
         try {
-            Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, convertor);
+            Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
             spreadsheetCell.setValue(cellValue);
         } catch (SyntaxNodeException e) {
 
@@ -198,10 +196,9 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
-
     }
 
-    private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IString2DataConvertor convertor) throws SyntaxNodeException {
+    private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
 
         String code = source.getCode();
 
@@ -235,6 +232,7 @@ public class SpreadsheetStructureBuilder {
         }
 
         try {
+            IString2DataConvertor convertor = makeConvertor(type);
             Object result = convertor.parse(code, null, bindingContext);
 
             if (result instanceof IMetaHolder) {
