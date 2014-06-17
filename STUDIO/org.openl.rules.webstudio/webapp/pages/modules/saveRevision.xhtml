@@ -46,7 +46,7 @@
 
       <footer>
         <a4j:commandButton value="Save" action="#{mainBean.saveProject}" styleClass="button-primary" oncomplete="#{rich:component('modalSave')}.hide();ws.nav.reload(true);" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();ws.changes.restoreChangedState();" />
+        <input class="restore-changed-state" type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
     </h:form>
 
