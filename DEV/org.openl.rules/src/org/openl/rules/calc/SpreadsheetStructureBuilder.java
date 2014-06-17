@@ -182,47 +182,47 @@ public class SpreadsheetStructureBuilder {
 
         IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
         // columnBindingContext - is never null
-        try {
 
-            if (code == null) {
-                spreadsheetCell.setValue(null);
-            } else if (SpreadsheetExpressionMarker.isFormula(code)) {
+        if (code == null) {
+            spreadsheetCell.setValue(null);
+        } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
-                int end = 0;
-                if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
-                    end = -1;
-                }
+            int end = 0;
+            if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+                end = -1;
+            }
 
-                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-                IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
+            IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+            IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
+            try {
                 Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
                 spreadsheetCell.setValue(method);
-            } else {
-
-                Class<?> instanceClass = type.getInstanceClass();
-                if (instanceClass == null) {
-                    String message = String.format("Type '%s' was loaded with errors", type.getName());
-                    addError(SyntaxNodeExceptionUtils.createError(message, source));
-                }
-
-                try {
-                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
-                    Object result = convertor.parse(code, null, columnBindingContext);
-
-                    if (result instanceof IMetaHolder) {
-                        ((IMetaHolder) result).setMetaInfo(meta);
-                    }
-
-                    spreadsheetCell.setValue(result);
-                } catch (Throwable t) {
-                    String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                    addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
-                }
+            } catch (CompositeSyntaxNodeException e) {
+                componentsBuilder.getTableSyntaxNode().addError(e);
+                BindHelper.processError(e, spreadsheetBindingContext);
             }
-        } catch (CompositeSyntaxNodeException e) {
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
+        } else {
+
+            Class<?> instanceClass = type.getInstanceClass();
+            if (instanceClass == null) {
+                String message = String.format("Type '%s' was loaded with errors", type.getName());
+                addError(SyntaxNodeExceptionUtils.createError(message, source));
+            }
+
+            try {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
+                Object result = convertor.parse(code, null, columnBindingContext);
+
+                if (result instanceof IMetaHolder) {
+                    ((IMetaHolder) result).setMetaInfo(meta);
+                }
+
+                spreadsheetCell.setValue(result);
+            } catch (Throwable t) {
+                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
+            }
         }
     }
 
