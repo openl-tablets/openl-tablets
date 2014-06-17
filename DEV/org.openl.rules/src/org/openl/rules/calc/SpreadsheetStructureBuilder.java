@@ -224,13 +224,13 @@ public class SpreadsheetStructureBuilder {
             }
         }
 
+        Class<?> instanceClass = type.getInstanceClass();
+        if (instanceClass == null) {
+            String message = String.format("Type '%s' was loaded with errors", type.getName());
+            throw SyntaxNodeExceptionUtils.createError(message, source);
+        }
+
         try {
-
-            Class<?> instanceClass = type.getInstanceClass();
-            if (instanceClass == null) {
-                throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
-            }
-
             IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
             Object result = convertor.parse(code, null, bindingContext);
 
