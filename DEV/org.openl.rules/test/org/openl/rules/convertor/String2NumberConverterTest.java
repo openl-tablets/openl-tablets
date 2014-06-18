@@ -221,13 +221,13 @@ public class String2NumberConverterTest {
     @Test(expected = NumberFormatException.class)
     public void testParseEmpty() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        converter.parse("", null, null);
+        converter.parse(new String(""), null, null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParsePercentSign() {
         String2NumberConverter<Number> converter = getNumberConverter();
-        converter.parse("%", null, null);
+        converter.parse(new String("%"), null, null);
     }
 
     @Test(expected = NumberFormatException.class)
