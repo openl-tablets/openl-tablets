@@ -71,7 +71,7 @@
                 </ul>
             </span>
             </h:panelGroup>
-            <a id="refreshBtn" onclick="reload();" title="Refresh" class="imageButton changes-listener"
+            <a id="refreshBtn" onclick="forceReload();" title="Refresh" class="imageButton changes-listener"
                style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
         </div>
         <div class="navbar-inner">
@@ -191,7 +191,7 @@
         </div>
         </h:panelGroup>
 
-        <a4j:jsFunction name="reload" action="#{mainBean.reload}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
+        <a4j:jsFunction name="forceReload" action="#{mainBean.reload}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
         <a4j:jsFunction name="useSingleModuleMode" action="#{studio.model.useSingleModuleMode}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
         <a4j:jsFunction name="useMultiModuleMode" action="#{studio.model.useMultiModuleMode}" onbegin="showLoader();" oncomplete="ws.nav.reload(true);hideLoader();" />
 

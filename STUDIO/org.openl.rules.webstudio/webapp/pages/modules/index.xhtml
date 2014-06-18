@@ -120,7 +120,8 @@
                             var proceed = function () {
                                 var result = onClickFunc();
                                 if (typeof result == "undefined" || result) {
-                                    $location.set($a.attr("href"));
+                                    var href = $a.attr("href");
+                                    href && $location.set(href);
                                 }
                             };
                             ws.changes.checkForChanges(proceed);
