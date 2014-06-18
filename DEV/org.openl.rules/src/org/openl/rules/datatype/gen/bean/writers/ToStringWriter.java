@@ -62,11 +62,11 @@ public class ToStringWriter extends MethodWriter {
             if (field.getValue().isArray()) { 
                 invokeStatic(
                         methodVisitor, ArrayUtils.class, METHOD_NAME_TO_STRING,
-                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+                        new Class<?>[] { field.getValue().getType() });
             }
             if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
             	invokeStatic(methodVisitor, Integer.class, METHOD_NAME_VALUE_OF,
-                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+                        new Class<?>[] { field.getValue().getType() });
             	invokeVirtual(methodVisitor, Integer.class, METHOD_NAME_INT_VALUE,
                         new Class<?>[] {});
             	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
@@ -74,7 +74,7 @@ public class ToStringWriter extends MethodWriter {
             }
             else {
             	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
-                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+                        new Class<?>[] { field.getValue().getType() });
             }
             
             methodVisitor.visitLdcInsn(" ");

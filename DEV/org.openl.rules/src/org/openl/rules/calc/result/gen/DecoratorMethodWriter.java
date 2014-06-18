@@ -88,7 +88,7 @@ public class DecoratorMethodWriter extends GettersWriter {
          * if the field is primitive, the cast to wrapper type should be
          * performed, and call for instance intValue() for return
          */
-        if (field.getType() != null && field.getType().isPrimitive()) {
+        if (field.getType().isPrimitive()) {
             String nameOftheWrapperMethod = String.format("%sValue", field.getCanonicalTypeName());
             methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(NumberUtils.getWrapperType(field.getCanonicalTypeName())),
@@ -117,7 +117,7 @@ public class DecoratorMethodWriter extends GettersWriter {
         /** representation of the type name in canonical view (See java specification), e.g. my.test.JavaClass, my.test.JavaClass[]*/
         String fieldCanonicalTypeName = fieldType.getCanonicalTypeName();
         
-        if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
+        if (fieldType.getType().isPrimitive()) {
             Class<?> wrapperType = NumberUtils.getWrapperType(fieldCanonicalTypeName);
             fieldCanonicalTypeName = wrapperType.getCanonicalName();
         }

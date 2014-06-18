@@ -63,20 +63,16 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testGetJavaClass() {
-        try {
-            FieldDescription.getNotNullType(null);
-            fail();
-        } catch(NullPointerException ex) {
-            assertTrue(true);
-        }
+    public void testArrayOpenClass() {
         // Create the IOpenClass for the policy
         //
-        DatatypeOpenClass policyClass = new DatatypeOpenClass(null, "Policy", "org.openl.generated.beans");
+        DatatypeOpenClass policyClass = new DatatypeOpenClass(null, Policy.class.getSimpleName(), Policy.class.getPackage().getName());
+        policyClass.setInstanceClass(Policy.class);
 
         // Create the IOpenClass for the Driver
         //
-        DatatypeOpenClass driverClass = new DatatypeOpenClass(null, "Driver", "org.openl.generated.beans");
+        DatatypeOpenClass driverClass = new DatatypeOpenClass(null, Driver.class.getSimpleName(), Driver.class.getPackage().getName());
+        driverClass.setInstanceClass(Driver.class);
 
         // Create the IOpenClass for the drivers[]
         //
@@ -87,20 +83,14 @@ public class FieldDescriptionTest {
         DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass);
 
         FieldDescription field = new FieldDescription(driversField);
-        assertNull("Null type for the fields that represents DatatypeOpenField for the array",
-                field.getType());
+        assertEquals(Driver[].class, field.getType());
+    }
 
-        assertEquals(Object.class, FieldDescription.getNotNullType(field));
+    public static class Policy {
 
     }
 
-    @Test
-    public void testDatatypeFieldTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("test/rules/datatype/DatatypeFieldTest.xlsx");
-        engineFactory.setExecutionMode(true);
+    public static class Driver {
 
-        Class<?> interfaceClass = engineFactory.getInterfaceClass();
     }
-
-
 }

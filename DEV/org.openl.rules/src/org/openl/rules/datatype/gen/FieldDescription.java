@@ -24,48 +24,31 @@ public class FieldDescription {
     private Object defaultValue;
     
     public FieldDescription(Class<?> type) {
-        this.type = type;
-        this.canonicalTypeName = type.getCanonicalName();
+        this(type, type.getCanonicalName());
     }
     
     public FieldDescription(IOpenField field) {
-        this.canonicalTypeName = getOpenFieldTypeName(field);        
-        this.type = field.getType().getInstanceClass();        
+        this(field.getType().getInstanceClass(), field.getType().getInstanceClass().getCanonicalName());
     }
-    
-    private String getOpenFieldTypeName(IOpenField field) {
-        IOpenClass typeDeclaration = getOpenFieldTypeDeclaration(field);
-        if (typeDeclaration instanceof DatatypeOpenClass) {
-            if (field.getType().getInstanceClass() == null) {
-              /** it means that name of the field has no package. Just datatype can have empty package, in this place.
-                  so we need to add it, to the name of type.
-                  Gets the name of the Datatype, e.g. Driver*/
-                String datatypeName = field.getType().getName();
-                String packageName = ((DatatypeOpenClass) typeDeclaration).getPackageName();
-                if (StringUtils.isBlank(packageName)) {
-                    return datatypeName;
-                }
-                return String.format("%s.%s", packageName, datatypeName);
-            }
-        } 
-        return field.getType().getInstanceClass().getCanonicalName();
-  }
 
-    private IOpenClass getOpenFieldTypeDeclaration(IOpenField field) {
-        IOpenClass fieldType = field.getType();
-        IOpenClass typeDeclaration = null;
-        if (fieldType.isArray() && fieldType instanceof ArrayOpenClass) { // Array of datatypes
-            typeDeclaration = ((ArrayOpenClass)fieldType).getComponentClass();
-        } else {
-            typeDeclaration = fieldType;
+    private FieldDescription(Class<?> type, String canonicalTypeName) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type cannot be null for the type declaration");
         }
-        return typeDeclaration;
-    }    
+        this.type = type;
+        this.canonicalTypeName = canonicalTypeName;
+    }
 
     public String getCanonicalTypeName() {
         return canonicalTypeName;
-    }    
+    }
 
+    /**
+     * Returns the actual type of the field.
+     * Is never null.
+     *
+     * @return
+     */
     public Class<?> getType() {
         return type;
     } 
@@ -79,7 +62,7 @@ public class FieldDescription {
 	}
 
 	public boolean isArray() {
-        if (type != null && type.isArray()) {
+        if (getType().isArray()) {
             return true;
         } else if (canonicalTypeName.endsWith("]")){
             return true;
@@ -120,16 +103,7 @@ public class FieldDescription {
         }
         return defaultValue;
     }
-    
-    public static Class<?> getJavaClass(FieldDescription fieldType) {
-        Class<?> fieldClass = fieldType.getType();
-        if (fieldClass == null) {
-            return Object.class;
-        } else {
-            return fieldClass;
-        }
-    }
-    
+
     public boolean hasDefaultValue() {
     	if (StringUtils.isNotBlank(defaultValueAsString) && getDefaultValue() != null) {
     		return true;
