@@ -1,6 +1,6 @@
 package org.openl.rules.convertor;
 
-public class String2DoubleConvertor extends String2NumberConverter<Double> {
+class String2DoubleConvertor extends String2NumberConverter<Double> {
 
     public String2DoubleConvertor() {
         super("0.##");
