@@ -76,7 +76,7 @@
                 showConfirmDialog = showConfirmDialogFunc;
                 setHasChanges = setHasChangesFunc;
                 window.onbeforeunload = function (e) {
-                    var result = beforeUnloadFunc();
+                    var result = beforeUnloadFunc(e);
                     for (var i = 0; i < afterUnloadActions.length; i++) {
                         afterUnloadActions[i](e);
                     }
@@ -112,13 +112,13 @@
                 $j(selector).each(function() {
                     var $a = $j(this);
 
-                    var onClickFunc = new Function($a.attr("onclick"));
+                    var onClickFunc = new Function("event", $a.attr("onclick"));
                     $a.removeAttr('onclick').off('click');
                     $a.click(function (e) {
                         if (e.which != 2) {
                             // Not a middle mouse button
                             var proceed = function () {
-                                var result = onClickFunc();
+                                var result = onClickFunc(e);
                                 if (typeof result == "undefined" || result) {
                                     var href = $a.attr("href");
                                     href && $location.set(href);
