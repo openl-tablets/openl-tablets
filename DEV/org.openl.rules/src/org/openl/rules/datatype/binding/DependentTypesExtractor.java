@@ -39,8 +39,6 @@ public class DependentTypesExtractor {
 
         Set<String> dependencies = new LinkedHashSet<String>();
 
-        // TODO: put this functionality to the current class
-        //
         String parentType = getParentDatatypeName(node);
         if (StringUtils.isNotBlank(parentType)) {
             dependencies.add(parentType);
@@ -87,18 +85,24 @@ public class DependentTypesExtractor {
     private String getType(ILogicalTable row, IBindingContext cxt) {
         // Get the cell that has index 0. This cell contains the Type name
         //
-        GridCellSourceCodeModule type = getCellSource(row, cxt, 0);
+        GridCellSourceCodeModule typeSrc = getCellSource(row, cxt, 0);
         IdentifierNode[] idn = new IdentifierNode[0];
         try {
-            idn = getIdentifierNode(type);
+            idn = getIdentifierNode(typeSrc);
         } catch (OpenLCompilationException e) {
             // Suppress the exception
             //
         }
         if (idn.length == 1) {
+            String type = idn[0].getIdentifier();
+            if (type.contains("[")) {
+                // Use the clean type, without array declarations
+                //
+                type = type.substring(0, type.indexOf("["));
+            }
             // Return the Type name
             //
-            return idn[0].getIdentifier();
+            return type;
         }
         // Alias Datatype don't have Type name
         //
