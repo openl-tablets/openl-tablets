@@ -18,8 +18,6 @@ import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.rules.convertor.String2DoubleConvertor;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -320,7 +318,7 @@ public class SpreadsheetStructureBuilder {
                 // If parse process will be finished with success then return
                 // double type else string type.
                 //
-                new String2DoubleConvertor().parse(cellValue, null, null);
+                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null, null);
 
                 return JavaOpenClass.getOpenClass(DoubleValue.class);
             } catch (Throwable t) {
