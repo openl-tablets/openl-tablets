@@ -40,21 +40,14 @@ public class ByteCodeGeneratorHelper {
 
     /**
      * Gets Java type corresponding to the given field type.<br>
-     * The algorithm depends on the existence of a class object for given field. If no, 
-     * it means we are working with datatype (there is no already generated java class).
      * 
-     * @param fieldType
+     * @param field
      * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
      */
-    public static String getJavaType(FieldDescription fieldType) {
-        Class<?> fieldClass = fieldType.getType();
-        if (fieldClass != null) {
-            /** gets the type by its class*/
-            return ByteCodeGeneratorHelper.getJavaType(fieldClass);
-        } else {
-            /** gets the type by the canonical name of the class*/
-            return JavaClassGeneratorHelper.getJavaType(fieldType.getCanonicalTypeName());
-        }
+    public static String getJavaType(FieldDescription field) {
+        Class<?> fieldClass = field.getType();
+        /** gets the type by its class*/
+        return ByteCodeGeneratorHelper.getJavaType(fieldClass);
     }
 
     /**
@@ -67,27 +60,26 @@ public class ByteCodeGeneratorHelper {
         return String.valueOf(Type.getType(fieldClass));
     }
     
-    public static TypeWriter getTypeWriter(FieldDescription fieldType) {
-        Class<?> javaFieldClass = FieldDescription.getJavaClass(fieldType);
-        return getTypeWriter(javaFieldClass);
+    public static TypeWriter getTypeWriter(FieldDescription field) {
+        if (field.hasDefaultKeyWord()) {
+            return new DefaultConstructorTypeWriter();
+        }
+        Class<?> clazz = field.getType();
+        return getTypeWriter(clazz);
     }
     
-    public static TypeWriter getTypeWriter(Class<?> fieldClass) {
-        TypeWriter typeWriter = typeWriters.get(fieldClass);
-        if (typeWriter == null && fieldClass instanceof Object) {
+    public static TypeWriter getTypeWriter(Class<?> clazz) {
+        TypeWriter typeWriter = typeWriters.get(clazz);
+        if (typeWriter == null && clazz instanceof Object) {
             return typeWriters.get(Object.class);
         } else  {
             return typeWriter;
         }
     }
     
-    public static int getConstantForVarInsn(FieldDescription fieldType) {
-        Class<?> retClass = fieldType.getType();
-        if (retClass != null) {
-            return getConstantForVarInsn(retClass);
-        } else {
-            return Opcodes.ALOAD;
-        }
+    public static int getConstantForVarInsn(FieldDescription field) {
+        Class<?> retClass = field.getType();
+        return getConstantForVarInsn(retClass);
     }
 
     public static int getConstantForVarInsn(Class<?> fieldClass) {
@@ -121,13 +113,9 @@ public class ByteCodeGeneratorHelper {
         return fields;
     }
     
-    public static int getConstantForReturn(FieldDescription fieldType) {
-        Class<?> retClass = fieldType.getType();
-        if (retClass != null) {
-            return getConstantForReturn(retClass);
-        } else {
-            return Opcodes.ARETURN;
-        }
+    public static int getConstantForReturn(FieldDescription field) {
+        Class<?> retClass = field.getType();
+        return getConstantForReturn(retClass);
     }
     
     /**
@@ -168,8 +156,8 @@ public class ByteCodeGeneratorHelper {
     
     public static int getTwoStackElementFieldsCount(Map<String, FieldDescription> fields) {
         int twoStackElementsCount = 0;
-        for (FieldDescription fieldType : fields.values()) {
-            if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+        for (FieldDescription field : fields.values()) {
+            if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
                 twoStackElementsCount++;
             }
         }

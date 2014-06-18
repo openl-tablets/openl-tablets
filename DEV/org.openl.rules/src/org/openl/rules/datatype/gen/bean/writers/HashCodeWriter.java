@@ -37,7 +37,7 @@ public class HashCodeWriter extends MethodWriter {
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             pushFieldToStack(methodVisitor, 0, field.getKey());
             ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, HashCodeBuilder.class, "append",
-                    new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+                    new Class<?>[] { field.getValue().getType() });
         }
         ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, HashCodeBuilder.class, "toHashCode", new Class<?>[] {});
         
