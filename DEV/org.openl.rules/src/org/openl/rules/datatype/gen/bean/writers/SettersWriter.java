@@ -24,28 +24,27 @@ public class SettersWriter extends MethodWriter {
     }
     
     /**
-     * Generates setter for the field.
+     * Generates setter for the fieldEntry.
      * 
-     * @param beanNameWithPackage
      * @param classWriter
-     * @param field
+     * @param fieldEntry
      */
-    protected void generateSetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {        
-        String fieldName = field.getKey();
-        FieldDescription fieldType = field.getValue(); 
+    protected void generateSetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> fieldEntry) {
+        String fieldName = fieldEntry.getKey();
+        FieldDescription field = fieldEntry.getValue();
         
         MethodVisitor methodVisitor;
         
-        methodVisitor = writeMethodSignature(classWriter, fieldType, fieldName);
+        methodVisitor = writeMethodSignature(classWriter, field, fieldName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), 1);
+        methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(field), 1);
         
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(field));
         methodVisitor.visitInsn(Opcodes.RETURN);
         
         // long and double types are the biggest ones, so they use a maximum of three stack  
         // elements and three local variables for setter method.
-        if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+        if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
             methodVisitor.visitMaxs(3, 3);
         } else {
             methodVisitor.visitMaxs(2, 2);

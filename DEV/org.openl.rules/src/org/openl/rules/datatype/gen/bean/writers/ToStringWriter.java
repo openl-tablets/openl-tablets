@@ -7,10 +7,17 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
+import static  org.openl.rules.datatype.gen.ByteCodeGeneratorHelper.*;
 
 public class ToStringWriter extends MethodWriter {
+
+    public static final String METHOD_NAME_APPEND = "append";
+    public static final String METHOD_NAME_TO_STRING = "toString";
+    public static final String METHOD_NAME_INT_VALUE = "intValue";
+    public static final String METHOD_NAME_VALUE_OF = "valueOf";
+    public static final String METHOD_NAME_GET_CLASS = "getClass";
+    public static final String METHOD_NAME_GET_SIMPLE_NAME = "getSimpleName";
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
@@ -23,8 +30,8 @@ public class ToStringWriter extends MethodWriter {
 
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "toString", String.format("()%s",
-                ByteCodeGeneratorHelper.getJavaType(String.class)), null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, METHOD_NAME_TO_STRING, String.format("()%s",
+                getJavaType(String.class)), null, null);
 
         // create StringBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(StringBuilder.class));
@@ -34,39 +41,54 @@ public class ToStringWriter extends MethodWriter {
 
         // write ClassName
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, Object.class, "getClass", new Class<?>[] {});
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, Class.class, "getSimpleName", new Class<?>[] {});
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
+        invokeVirtual(methodVisitor, Object.class, METHOD_NAME_GET_CLASS, new Class<?>[] {});
+        invokeVirtual(methodVisitor, Class.class, METHOD_NAME_GET_SIMPLE_NAME,
+                new Class<?>[] {});
+        invokeVirtual(
+                methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
 
         // write fields
         methodVisitor.visitLdcInsn("{ ");
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
+        invokeVirtual(
+                methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
+
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             methodVisitor.visitLdcInsn(field.getKey() + "=");
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
+            invokeVirtual(
+                    methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
             if (field.getValue().isArray()) { 
-                ByteCodeGeneratorHelper.invokeStatic(methodVisitor, ArrayUtils.class, "toString", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+                invokeStatic(
+                        methodVisitor, ArrayUtils.class, METHOD_NAME_TO_STRING,
+                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
             }
             if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
-            	ByteCodeGeneratorHelper.invokeStatic(methodVisitor, Integer.class, "valueOf", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
-            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, Integer.class, "intValue", new Class<?>[] {});
-            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { int.class });
-            }else{
-            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+            	invokeStatic(methodVisitor, Integer.class, METHOD_NAME_VALUE_OF,
+                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+            	invokeVirtual(methodVisitor, Integer.class, METHOD_NAME_INT_VALUE,
+                        new Class<?>[] {});
+            	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
+                        new Class<?>[] { int.class });
+            }
+            else {
+            	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
+                        new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
             }
             
             methodVisitor.visitLdcInsn(" ");
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
+            invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
+                    new Class<?>[] { String.class });
         }
         methodVisitor.visitLdcInsn("}");
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
+        invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
+                new Class<?>[] { String.class });
 		
         // return
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "toString", new Class<?>[] {});
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(String.class));
+        invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_TO_STRING,
+                new Class<?>[] {});
+        methodVisitor.visitInsn(getConstantForReturn(String.class));
         if (getTwoStackElementFieldsCount() > 0) {
             methodVisitor.visitMaxs(3, 1);
         } else {

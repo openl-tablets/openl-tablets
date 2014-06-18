@@ -43,17 +43,17 @@ public class ByteCodeGeneratorHelper {
      * The algorithm depends on the existence of a class object for given field. If no, 
      * it means we are working with datatype (there is no already generated java class).
      * 
-     * @param fieldType
+     * @param field
      * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
      */
-    public static String getJavaType(FieldDescription fieldType) {
-        Class<?> fieldClass = fieldType.getType();
+    public static String getJavaType(FieldDescription field) {
+        Class<?> fieldClass = field.getType();
         if (fieldClass != null) {
             /** gets the type by its class*/
             return ByteCodeGeneratorHelper.getJavaType(fieldClass);
         } else {
             /** gets the type by the canonical name of the class*/
-            return JavaClassGeneratorHelper.getJavaType(fieldType.getCanonicalTypeName());
+            return JavaClassGeneratorHelper.getJavaType(field.getCanonicalTypeName());
         }
     }
 
@@ -67,8 +67,8 @@ public class ByteCodeGeneratorHelper {
         return String.valueOf(Type.getType(fieldClass));
     }
     
-    public static TypeWriter getTypeWriter(FieldDescription fieldType) {
-        Class<?> javaFieldClass = FieldDescription.getJavaClass(fieldType);
+    public static TypeWriter getTypeWriter(FieldDescription field) {
+        Class<?> javaFieldClass = FieldDescription.getJavaClass(field);
         return getTypeWriter(javaFieldClass);
     }
     
@@ -81,8 +81,8 @@ public class ByteCodeGeneratorHelper {
         }
     }
     
-    public static int getConstantForVarInsn(FieldDescription fieldType) {
-        Class<?> retClass = fieldType.getType();
+    public static int getConstantForVarInsn(FieldDescription field) {
+        Class<?> retClass = field.getType();
         if (retClass != null) {
             return getConstantForVarInsn(retClass);
         } else {
@@ -121,8 +121,8 @@ public class ByteCodeGeneratorHelper {
         return fields;
     }
     
-    public static int getConstantForReturn(FieldDescription fieldType) {
-        Class<?> retClass = fieldType.getType();
+    public static int getConstantForReturn(FieldDescription field) {
+        Class<?> retClass = field.getType();
         if (retClass != null) {
             return getConstantForReturn(retClass);
         } else {
@@ -168,8 +168,8 @@ public class ByteCodeGeneratorHelper {
     
     public static int getTwoStackElementFieldsCount(Map<String, FieldDescription> fields) {
         int twoStackElementsCount = 0;
-        for (FieldDescription fieldType : fields.values()) {
-            if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+        for (FieldDescription field : fields.values()) {
+            if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
                 twoStackElementsCount++;
             }
         }

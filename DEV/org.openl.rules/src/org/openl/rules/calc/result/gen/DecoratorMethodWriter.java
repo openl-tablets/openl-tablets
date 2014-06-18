@@ -51,18 +51,18 @@ public class DecoratorMethodWriter extends GettersWriter {
     private String prefixForDecorator;
 
     @Override
-    protected void generateGetter(ClassWriter classWriter, Entry<String, FieldDescription> field) {
+    protected void generateGetter(ClassWriter classWriter, Entry<String, FieldDescription> fieldEntry) {
         MethodVisitor methodVisitor;
-        String fieldName = field.getKey();
+        String fieldName = fieldEntry.getKey();
 
-        FieldDescription fieldType = field.getValue();
+        FieldDescription field = fieldEntry.getValue();
 
         /** create method name for decorator */
         String methodName = String.format("%s%s", prefixForDecorator, fieldName);
 
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,
             methodName,
-            String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)),
+            String.format("()%s", ByteCodeGeneratorHelper.getJavaType(field)),
             null,
             null);
         methodVisitor.visitCode();
@@ -79,7 +79,7 @@ public class DecoratorMethodWriter extends GettersWriter {
         String typeNameForCast = null;
 
         /** need to perform special processing for type name for cast operation */
-        typeNameForCast = getTypeNameForCast(fieldType);
+        typeNameForCast = getTypeNameForCast(field);
 
         /** perform cast to the field type */
         methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, typeNameForCast);
@@ -88,15 +88,15 @@ public class DecoratorMethodWriter extends GettersWriter {
          * if the field is primitive, the cast to wrapper type should be
          * performed, and call for instance intValue() for return
          */
-        if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
-            String nameOftheWrapperMethod = String.format("%sValue", fieldType.getCanonicalTypeName());
+        if (field.getType() != null && field.getType().isPrimitive()) {
+            String nameOftheWrapperMethod = String.format("%sValue", field.getCanonicalTypeName());
             methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(NumberUtils.getWrapperType(fieldType.getCanonicalTypeName())),
+                Type.getInternalName(NumberUtils.getWrapperType(field.getCanonicalTypeName())),
                 nameOftheWrapperMethod,
-                String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)));
+                String.format("()%s", ByteCodeGeneratorHelper.getJavaType(field)));
         }
 
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType.getType()));
+        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(field.getType()));
         methodVisitor.visitMaxs(2, 1);
         methodVisitor.visitEnd();
     }
