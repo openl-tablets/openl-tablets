@@ -40,21 +40,14 @@ public class ByteCodeGeneratorHelper {
 
     /**
      * Gets Java type corresponding to the given field type.<br>
-     * The algorithm depends on the existence of a class object for given field. If no, 
-     * it means we are working with datatype (there is no already generated java class).
      * 
      * @param field
      * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(FieldDescription field) {
         Class<?> fieldClass = field.getType();
-        if (fieldClass != null) {
-            /** gets the type by its class*/
-            return ByteCodeGeneratorHelper.getJavaType(fieldClass);
-        } else {
-            /** gets the type by the canonical name of the class*/
-            return JavaClassGeneratorHelper.getJavaType(field.getCanonicalTypeName());
-        }
+        /** gets the type by its class*/
+        return ByteCodeGeneratorHelper.getJavaType(fieldClass);
     }
 
     /**
@@ -68,13 +61,13 @@ public class ByteCodeGeneratorHelper {
     }
     
     public static TypeWriter getTypeWriter(FieldDescription field) {
-        Class<?> javaFieldClass = FieldDescription.getJavaClass(field);
-        return getTypeWriter(javaFieldClass);
+        Class<?> clazz = field.getType();
+        return getTypeWriter(clazz);
     }
     
-    public static TypeWriter getTypeWriter(Class<?> fieldClass) {
-        TypeWriter typeWriter = typeWriters.get(fieldClass);
-        if (typeWriter == null && fieldClass instanceof Object) {
+    public static TypeWriter getTypeWriter(Class<?> clazz) {
+        TypeWriter typeWriter = typeWriters.get(clazz);
+        if (typeWriter == null && clazz instanceof Object) {
             return typeWriters.get(Object.class);
         } else  {
             return typeWriter;
@@ -83,11 +76,7 @@ public class ByteCodeGeneratorHelper {
     
     public static int getConstantForVarInsn(FieldDescription field) {
         Class<?> retClass = field.getType();
-        if (retClass != null) {
-            return getConstantForVarInsn(retClass);
-        } else {
-            return Opcodes.ALOAD;
-        }
+        return getConstantForVarInsn(retClass);
     }
 
     public static int getConstantForVarInsn(Class<?> fieldClass) {
@@ -123,11 +112,7 @@ public class ByteCodeGeneratorHelper {
     
     public static int getConstantForReturn(FieldDescription field) {
         Class<?> retClass = field.getType();
-        if (retClass != null) {
-            return getConstantForReturn(retClass);
-        } else {
-            return Opcodes.ARETURN;
-        }
+        return getConstantForReturn(retClass);
     }
     
     /**

@@ -54,7 +54,7 @@ public class EqualsWriter extends MethodWriter {
             pushFieldToStack(methodVisitor, 0, field.getKey());
             pushFieldToStack(methodVisitor, 2, field.getKey());
 
-            Class<?> fieldType = FieldDescription.getJavaClass(field.getValue());
+            Class<?> fieldType = field.getValue().getType();
             ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, EqualsBuilder.class, "append", new Class<?>[] { fieldType, fieldType });
         }
 
