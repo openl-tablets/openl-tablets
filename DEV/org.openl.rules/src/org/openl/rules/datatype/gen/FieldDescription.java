@@ -110,5 +110,8 @@ public class FieldDescription {
     	}
     	return false;
     }
-    
+
+    public boolean hasDefaultKeyWord() {
+        return hasDefaultValue() && DEFAULT_KEY_WORD.equals(getDefaultValue());
+    }
 }
