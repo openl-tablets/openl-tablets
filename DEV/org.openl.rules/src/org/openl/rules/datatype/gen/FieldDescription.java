@@ -9,6 +9,13 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.ArrayOpenClass;
 
 public class FieldDescription {
+
+    /**
+     * Key word for the default value.
+     * Some kind of the default value should be used when this word is found
+     *
+     */
+    public static final String DEFAULT_KEY_WORD = "_DEFAULT_";
     
     private String canonicalTypeName;
     private Class<?> type;
@@ -101,9 +108,15 @@ public class FieldDescription {
     public Object getDefaultValue() {
         if (defaultValue == null) {
             if (defaultValueAsString != null) {
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
-                defaultValue = convertor.parse(defaultValueAsString, null, null);                
-            } 
+                if (DEFAULT_KEY_WORD.equals(defaultValueAsString)) {
+                    // Keep the default value key word for all the types of the field as the default value.
+                    //
+                    defaultValue = DEFAULT_KEY_WORD;
+                } else {
+                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
+                    defaultValue = convertor.parse(defaultValueAsString, null, null);
+                }
+            }
         }
         return defaultValue;
     }
