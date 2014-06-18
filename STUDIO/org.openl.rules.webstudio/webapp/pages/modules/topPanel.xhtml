@@ -28,7 +28,7 @@
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
-            <a href="#{contextPath}/" class="projects-list">Projects</a>
+            <a href="#{contextPath}/" class="changes-listener">Projects</a>
             <h:panelGroup rendered="#{!empty rProject.name}">
             <span class="delimeter"></span>
             <span class="dropdown" id="breadcrumbs-project">
@@ -71,12 +71,12 @@
                 </ul>
             </span>
             </h:panelGroup>
-            <a id="refreshBtn" onclick="refreshIfNotChanged();" title="Refresh" class="imageButton"
+            <a id="refreshBtn" onclick="reload();" title="Refresh" class="imageButton changes-listener"
                style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
         </div>
         <div class="navbar-inner">
             <a4j:ajax oncomplete="ws.nav.reload(true)">
-                <h:commandLink onclick="ws.changes.checkForChanges(openSaveDialog);return false;" value="Save"
+                <h:commandLink styleClass="changes-listener" onclick="openSaveDialog(); return false;" value="Save"
                     title="Save the project to the Design Repository"
                     rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
                 <h:commandLink action="#{mainBean.editProject}" value="Edit"
@@ -85,10 +85,10 @@
                 <h:commandLink onclick="openUpdateProjectDialog();return false;"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />
-                <h:commandLink onclick="ws.changes.checkForChanges(openUpdateModuleDialog); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openUpdateModuleDialog(); return false;"
                     title="Update module" value="Update"
                     rendered="#{!empty module and studio.model.editable}" />
-                <h:commandLink onclick="ws.changes.checkForChanges(openExportModuleDialog); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog(); return false;"
                     title="Export module" value="Export"
                     rendered="#{!empty module and studio.model.editable}" />
             </a4j:ajax>
@@ -183,9 +183,9 @@
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu">
                     <h:panelGroup rendered="#{!empty rProject}">
-                        <li><a onclick="ws.changes.checkForChanges(useSingleModuleMode); return false;" href="#">Single-module mode</a></li>
+                        <li><a class="changes-listener" onclick="useSingleModuleMode(); return false;" href="#">Single-module mode</a></li>
                     </h:panelGroup>
-                    <li><a onclick="ws.changes.checkForChanges(useMultiModuleMode); return false;" href="#">Multi-module mode</a></li>
+                    <li><a class="changes-listener" onclick="useMultiModuleMode(); return false;" href="#">Multi-module mode</a></li>
                 </ul>
             </span>
         </div>
@@ -214,16 +214,6 @@
             });
             goTo(testUrl + "?" + query, true);
         }
-
-        function refreshIfNotChanged() {
-            ws.changes.checkForChanges(reload);
-        }
-
-        $j(function () {
-            if (typeof(ws) != "undefined") {
-                ws.changes.addClickListener("a.projects-list");
-            }
-        });
         //]]>
     </script>
 

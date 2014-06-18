@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -12,7 +13,6 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.*;
 import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
@@ -55,10 +55,6 @@ public class SpreadsheetStructureBuilder {
         this.componentsBuilder = rowColumnExtractor;
     }
 
-    public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
-        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
-    }
-
     private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
     private Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
 
@@ -96,16 +92,12 @@ public class SpreadsheetStructureBuilder {
         return componentsBuilder.buildResultBuilder(spreadsheet);
     }
 
-    public SpreadsheetComponentsBuilder getComponentsBuilder() {
-        return componentsBuilder;
-    }
-
     public String[] getRowNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getRowNames();
+        return componentsBuilder.getCellsHeadersExtractor().getRowNames();
     }
 
     public String[] getColumnNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getColumnNames();
+        return componentsBuilder.getCellsHeadersExtractor().getColumnNames();
     }
 
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
@@ -160,8 +152,6 @@ public class SpreadsheetStructureBuilder {
             return;
         }
 
-        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext,
-                spreadsheetHeader.getName());
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor()
                 .getRowNamesTable().getRow(rowIndex), componentsBuilder.getCellsHeadersExtractor()
@@ -169,7 +159,7 @@ public class SpreadsheetStructureBuilder {
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
-        String code = source.getCode();
+        String code = StringUtils.trimToNull(source.getCode());
 
         if (SpreadsheetExpressionMarker.isFormula(code)) {
             formulaCells.add(spreadsheetCell);
@@ -181,69 +171,56 @@ public class SpreadsheetStructureBuilder {
         IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
         IOpenClass type = spreadsheetCell.getType();
-        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader, type);
 
-        try {
-            Object cellValue = loadSingleParam(source, meta, columnBindingContext, header, type);
-            spreadsheetCell.setValue(cellValue);
-        } catch (SyntaxNodeException e) {
+        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
+        // columnBindingContext - is never null
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
-        }
-        catch (CompositeSyntaxNodeException e) {
+        if (code == null) {
+            spreadsheetCell.setValue(null);
+        } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
+            int end = 0;
+            if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+                end = -1;
+            }
+
+            IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+            IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
+            try {
+                Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
+                spreadsheetCell.setValue(method);
+            } catch (CompositeSyntaxNodeException e) {
+                componentsBuilder.getTableSyntaxNode().addError(e);
+                BindHelper.processError(e, spreadsheetBindingContext);
+            }
+
+        } else {
+
+            Class<?> instanceClass = type.getInstanceClass();
+            if (instanceClass == null) {
+                String message = String.format("Type '%s' was loaded with errors", type.getName());
+                addError(SyntaxNodeExceptionUtils.createError(message, source));
+            }
+
+            try {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
+                Object result = convertor.parse(code, null, columnBindingContext);
+
+                if (result instanceof IMetaHolder) {
+                    ((IMetaHolder) result).setMetaInfo(meta);
+                }
+
+                spreadsheetCell.setValue(result);
+            } catch (Throwable t) {
+                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
+            }
         }
     }
 
-    private Object loadSingleParam(IOpenSourceCodeModule source, IMetaInfo meta, IBindingContext bindingContext, IOpenMethodHeader header, IOpenClass type) throws SyntaxNodeException {
-
-        String code = source.getCode();
-
-        if (code == null || (code = code.trim()).length() == 0) {
-            return null;
-        }
-
-        if (bindingContext != null) {
-
-            if (SpreadsheetExpressionMarker.isFormula(code)) {
-
-                int end = 0;
-
-                if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
-                    end = -1;
-                }
-
-                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
-                Object method = null;
-                try {
-                    method = OpenLCellExpressionsCompiler.makeMethod(bindingContext.getOpenL(), srcCode,
-                            header, bindingContext);
-                    return method;
-                } catch (CompositeSyntaxNodeException e) {
-                    // catch the error of making method and wrap it to SyntaxNodeException.
-                    //
-                    //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
-                    throw e;
-                }
-            }
-        }
-
-        try {
-            IString2DataConvertor convertor = makeConvertor(type);
-            Object result = convertor.parse(code, null, bindingContext);
-
-            if (result instanceof IMetaHolder) {
-                ((IMetaHolder) result).setMetaInfo(meta);
-            }
-
-            return result;
-        } catch (Throwable t) {
-            String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-            throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
-        }
+    private void addError(SyntaxNodeException e) {
+        componentsBuilder.getTableSyntaxNode().addError(e);
+        BindHelper.processError(e, spreadsheetBindingContext);
     }
 
     /**
@@ -484,19 +461,5 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return rowOpenClass;
-    }
-
-    private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader spreadsheetHeader, IOpenClass type) {
-        return new OpenMethodHeader(name, type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
-    }
-
-    private IString2DataConvertor makeConvertor(IOpenClass type) {
-
-        Class<?> instanceClass = type.getInstanceClass();
-        if (instanceClass == null) {
-            throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
-        }
-
-        return String2DataConvertorFactory.getConvertor(instanceClass);
     }
 }

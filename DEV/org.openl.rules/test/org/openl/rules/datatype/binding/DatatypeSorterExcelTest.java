@@ -16,6 +16,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 
 /**
+ * @author PUdalau
  * @author DLiauchuk
  *
  */

@@ -56,20 +56,6 @@
 
             var afterUnloadActions = [];
 
-            var clickListener = function (e) {
-                if (e.which != 2) {
-                    // Not a middle mouse button
-                    var $url = $j(this);
-                    var proceed = function () {
-                        $location.set($url.attr("href"));
-                    };
-
-                    var revertUrl = function () {
-                    };
-                    return !self.checkForChanges(proceed, revertUrl, proceed);
-                }
-            };
-
             // Public members
             this.revertChanges = function() {
                 if (hasChanges()) {
@@ -122,9 +108,26 @@
                 }
             };
 
-            this.addClickListener = function(selector) {
-                $j(selector).off("click");
-                $j(selector).click(clickListener);
+            this.addChangesListener = function(selector) {
+                $j(selector).each(function() {
+                    var $a = $j(this);
+
+                    var onClickFunc = new Function($a.attr("onclick"));
+                    $a.removeAttr('onclick').off('click');
+                    $a.click(function (e) {
+                        if (e.which != 2) {
+                            // Not a middle mouse button
+                            var proceed = function () {
+                                var result = onClickFunc();
+                                if (typeof result == "undefined" || result) {
+                                    $location.set($a.attr("href"));
+                                }
+                            };
+                            ws.changes.checkForChanges(proceed);
+                            e.preventDefault();
+                        }
+                    });
+                });
             };
 
             this.addAfterUnloadAction = function(func) {
@@ -567,6 +570,15 @@
 
             done && callbacks.push(done);
 
+            callbacks.push(function() {
+                ws.changes.addChangesListener(".changes-listener");
+                $j(".changes-listener").toggleClass("changes-listener changes-listener-added");
+
+                $j('.restore-changed-state').click(function () {
+                    ws.changes.restoreChangedState();
+                }).toggleClass("restore-changed-state restore-changed-state-added");
+            });
+
             var initUrl = urlRewrite.prefix + "init.xhtml";
             if (init && init.project) {
                 initUrl += ("?project=" + init.project);
@@ -616,7 +628,7 @@
             var page = pageToOpen || getCurrentPage();
 
             if (page && page.indexOf("table?id=") > -1) {
-                var tableId = page.split("id=")[1].split();
+                var tableId = page.split("id=")[1].split("&")[0];
                 expandAndSelectNode(tableId);
             }
         }
