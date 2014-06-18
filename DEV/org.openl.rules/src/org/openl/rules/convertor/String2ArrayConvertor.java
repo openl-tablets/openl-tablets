@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Temporary class.
+ * A converter for arrays. It converts strings to an array of a specified type and vice versa.
+ * E.g. for int[]: "1,2,4,8" <==> int[]{1,2,4,8}
+ *
+ * @author Yury Molchan
  */
-class String2ArrayConvertor implements IString2DataConvertor<Object[]> {
+class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
@@ -24,13 +27,13 @@ class String2ArrayConvertor implements IString2DataConvertor<Object[]> {
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private IString2DataConvertor elementFormat;
+    private Class<T> componentType;
 
     /**
-     * @param elementFormat formatter for the component type of array.
+     * @param componentType a component type of an array.
      */
-    public String2ArrayConvertor(IString2DataConvertor elementFormat) {
-        this.elementFormat = elementFormat;
+    public String2ArrayConvertor(Class<T> componentType) {
+        this.componentType = componentType;
     }
 
     /**
@@ -42,13 +45,14 @@ class String2ArrayConvertor implements IString2DataConvertor<Object[]> {
      * <code>NULL</code> or if income value is not an array.
      */
     @Override
-    public String format(Object[] data, String format) {
+    public String format(T[] data, String format) {
         if (data == null) return null;
 
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
         String[] elementResults = new String[data.length];
         for (int i = 0; i < data.length; i++) {
-            Object element = data[i];
-            elementResults[i] = elementFormat.format(element, format);
+            T element = data[i];
+            elementResults[i] = converter.format(element, format);
         }
 
         String result = StringUtils.join(elementResults, ARRAY_ELEMENTS_SEPARATOR);
@@ -60,29 +64,28 @@ class String2ArrayConvertor implements IString2DataConvertor<Object[]> {
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
     @Override
-    public Object[] parse(String data, String format, IBindingContext bindingContext) {
+    public T[] parse(String data, String format, IBindingContext bindingContext) {
         if (data == null) return null;
-        Object[] result = null;
-        if (StringUtils.isNotEmpty(data)) {
-            String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
-                    ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
 
-            List<Object> elements = new ArrayList<Object>();
-            Class<?> elementType = null;
+        String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
+                ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
 
-            for (String elementValue : elementValues) {
-                Object element = elementFormat.parse(elementValue, format, bindingContext);
-                elements.add(element);
-                elementType = element.getClass();
+        List<Object> elements = new ArrayList<Object>();
+
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
+        for (String elementValue : elementValues) {
+            Object element;
+            if (elementValue.length() == 0) {
+                element = null;
+            } else {
+                element = converter.parse(elementValue, format, bindingContext);
             }
-
-            if (elementType == null) {
-                return result;
-            }
-
-            Object[] resultArray = (Object[]) Array.newInstance(elementType, elements.size());
-            result = elements.toArray(resultArray);
+            elements.add(element);
         }
+
+        T[] resultArray = (T[]) Array.newInstance(componentType, elements.size());
+        T[] result = elements.toArray(resultArray);
         return result;
     }
 }
