@@ -36,17 +36,17 @@ public class DatatypeSorterTest {
 
     @Test
     public void testOrderDatatypes_InheritanceDependency() {
-        Map<String, TableSyntaxNode> typesMap = new HashMap<String, TableSyntaxNode>();
-
         TableSyntaxNode parentNode = createStubTSN(DATATYPE_PARENT);
         TableSyntaxNode childNode = createStubTSN(DATATYPE_CHILD_EXTENDS_PARENT);
         TableSyntaxNode independentNode = createStubTSN(DATATYPE_INDEPENDENT);
 
-        typesMap.put(CHILD, childNode);
-        typesMap.put(INDEPENDENT, independentNode);
-        typesMap.put(PARENT, parentNode);
-
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(typesMap, null);
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+                DatatypeHelper.createTypesMap(
+                        new TableSyntaxNode[]{
+                                childNode,
+                                independentNode,
+                                parentNode}),
+                null);
         assertEquals(3, ordered.length);
         assertEquals("Parent should be compiled first", DATATYPE_PARENT, ordered[0].getHeader().getModule().getCode());
         assertEquals("Independent datatype position is not changed", DATATYPE_INDEPENDENT, ordered[1].getHeader().getModule().getCode());
@@ -85,13 +85,13 @@ public class DatatypeSorterTest {
         GridTable gridTable3 = new GridTable(table3);
         gridTable3.setGrid(new TestGrid(gridTable3));
 
-        Map<String, TableSyntaxNode> typesMap = new HashMap<String, TableSyntaxNode>();
-        typesMap.put("Type1", getTableSyntaxNode(gridTable1, gridTable1.getRow(0)));
-        typesMap.put("Type3", getTableSyntaxNode(gridTable2, gridTable2.getRow(0)));
-        typesMap.put("Type2", getTableSyntaxNode(gridTable3, gridTable3.getRow(0)));
-
-
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(typesMap, null);
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+                DatatypeHelper.createTypesMap(
+                        new TableSyntaxNode[]{
+                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
+                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Type3", ordered[0].getHeader().getModule().getCode());
         assertEquals("Datatype Type2", ordered[1].getHeader().getModule().getCode());

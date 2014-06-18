@@ -145,7 +145,7 @@ public class DatatypeHelper {
         return parsedHeader;
     }
 
-    public static Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes, IBindingContext bindingContext) {
+    public static Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes) {
 
         Map<String, TableSyntaxNode> map = new HashMap<String, TableSyntaxNode>();
 
