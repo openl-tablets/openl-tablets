@@ -25,7 +25,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
     @Override
     public Date parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
-        if (data == "") throw new IllegalArgumentException("Cannot convert an empty String to date type");
+        if (data.length() == 0) throw new IllegalArgumentException("Cannot convert an empty String to date type");
 
         DateFormat df;
         if (format == null) {
