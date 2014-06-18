@@ -78,8 +78,7 @@ public class String2DataConvertorFactory {
             convertor = new String2EnumConvertor((Class<? extends Enum<?>>) clazz);
         } else if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
-            IString2DataConvertor componentConvertor = getConvertor(componentType);
-            convertor = new String2ArrayConvertor(componentConvertor);
+            convertor = new String2ArrayConvertor(componentType);
         } else {
             try {
                 Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[]{String.class});
