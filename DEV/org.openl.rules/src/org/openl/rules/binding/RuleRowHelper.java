@@ -326,7 +326,7 @@ public class RuleRowHelper {
             Object result;
 
             try {
-                result = parseStringValue(source, expectedType, openlAdapter.getBindingContext());
+                result = parseStringValue(source, expectedType);
             } catch (Exception e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.
@@ -377,9 +377,9 @@ public class RuleRowHelper {
         return null;
     }
 
-    private static Object parseStringValue(String source, Class<?> expectedType, IBindingContext bindingContext) {
+    private static Object parseStringValue(String source, Class<?> expectedType) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
-        return convertor.parse(source, null, bindingContext);
+        return convertor.parse(source, null);
     }
 
     public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {

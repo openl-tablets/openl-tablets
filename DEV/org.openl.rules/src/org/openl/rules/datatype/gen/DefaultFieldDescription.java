@@ -96,7 +96,7 @@ public class DefaultFieldDescription implements FieldDescription {
                     defaultValue = DEFAULT_KEY_WORD;
                 } else {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
-                    defaultValue = convertor.parse(defaultValueAsString, null, null);
+                    defaultValue = convertor.parse(defaultValueAsString, null);
                 }
             }
         }

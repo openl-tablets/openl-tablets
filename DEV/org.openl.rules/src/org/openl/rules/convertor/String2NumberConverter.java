@@ -1,7 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
@@ -41,7 +39,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * @throws NumberFormatException if the specified string cannot be parsed
      */
     @Override
-    public T parse(String data, String format, IBindingContext cxt) {
+    public T parse(String data, String format) {
         if (data == null) return null;
         if (data.length() == 0) throw new NumberFormatException("Cannot convert an empty String to numeric type");
         if ("%".equals(data)) throw new NumberFormatException("Cannot convert \"%\" to numeric type");

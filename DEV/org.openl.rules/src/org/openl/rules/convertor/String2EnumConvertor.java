@@ -1,7 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-
 class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E> {
 
     private Class<E> enumType;
@@ -19,7 +17,7 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
     }
 
     @Override
-    public E parse(String data, String format, IBindingContext cxt) {
+    public E parse(String data, String format) {
         if (data == null) return null;
 
         for (E enumConstant : enumType.getEnumConstants()) {

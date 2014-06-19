@@ -170,8 +170,6 @@ public class SpreadsheetStructureBuilder {
 
         IOpenClass type = spreadsheetCell.getType();
 
-        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
-        // columnBindingContext - is never null
 
         if (code == null) {
             spreadsheetCell.setValue(null);
@@ -184,6 +182,8 @@ public class SpreadsheetStructureBuilder {
 
             IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
             IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
+            IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
+            // columnBindingContext - is never null
             try {
                 Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
                 spreadsheetCell.setValue(method);
@@ -202,7 +202,7 @@ public class SpreadsheetStructureBuilder {
 
             try {
                 IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
-                Object result = convertor.parse(code, null, columnBindingContext);
+                Object result = convertor.parse(code, null);
 
                 if (result instanceof IMetaHolder) {
                     ((IMetaHolder) result).setMetaInfo(meta);
@@ -318,7 +318,7 @@ public class SpreadsheetStructureBuilder {
                 // If parse process will be finished with success then return
                 // double type else string type.
                 //
-                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null, null);
+                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
 
                 return JavaOpenClass.getOpenClass(DoubleValue.class);
             } catch (Throwable t) {

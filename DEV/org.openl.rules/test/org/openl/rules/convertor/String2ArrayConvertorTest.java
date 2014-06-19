@@ -11,7 +11,7 @@ public class String2ArrayConvertorTest {
     @Test
     public void testParseEmpty() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        Integer[] result = converter.parse("", null, null);
+        Integer[] result = converter.parse("", null);
         assertArrayEquals(new Integer[]{}, result);
     }
 
@@ -25,7 +25,7 @@ public class String2ArrayConvertorTest {
     @Test
     public void testParseSingleElement() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        Integer[] result = converter.parse("123", null, null);
+        Integer[] result = converter.parse("123", null);
         assertArrayEquals(new Integer[]{123}, result);
     }
 
@@ -39,7 +39,7 @@ public class String2ArrayConvertorTest {
     @Test
     public void testParseTwoElements() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        Integer[] result = converter.parse("1,23", null, null);
+        Integer[] result = converter.parse("1,23", null);
         assertArrayEquals(new Integer[]{1,23}, result);
     }
 
@@ -53,7 +53,7 @@ public class String2ArrayConvertorTest {
     @Test
     public void testParseWithNullElement() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        Integer[] result = converter.parse("1,,3", null, null);
+        Integer[] result = converter.parse("1,,3", null);
         assertArrayEquals(new Integer[]{1,null,3}, result);
     }
 
@@ -67,7 +67,7 @@ public class String2ArrayConvertorTest {
     @Test
     public void testParseNull() {
         String2ArrayConvertor converter = new String2ArrayConvertor(null);
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test
@@ -79,12 +79,12 @@ public class String2ArrayConvertorTest {
     @Test(expected = NumberFormatException.class)
     public void testParseNotIntegers() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        converter.parse("12.30", null, null);
+        converter.parse("12.30", null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParseWrongValue() {
         String2ArrayConvertor<Integer> converter = new String2ArrayConvertor(Integer.class);
-        converter.parse("12,34,_,56", null, null);
+        converter.parse("12,34,_,56", null);
     }
 }

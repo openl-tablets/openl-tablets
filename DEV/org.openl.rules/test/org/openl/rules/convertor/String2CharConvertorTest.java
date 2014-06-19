@@ -10,7 +10,7 @@ public class String2CharConvertorTest {
     @Test
     public void testParse() {
         String2CharConvertor converter = new String2CharConvertor();
-        Character result = converter.parse("X", null, null);
+        Character result = converter.parse("X", null);
         assertEquals(new Character('X'), result);
     }
 
@@ -24,19 +24,19 @@ public class String2CharConvertorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        converter.parse("", null, null);
+        converter.parse("", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseWrongValue() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        converter.parse("12", null, null);
+        converter.parse("12", null);
     }
 
     @Test
     public void testParseNull() {
         String2CharConvertor converter = new String2CharConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test
