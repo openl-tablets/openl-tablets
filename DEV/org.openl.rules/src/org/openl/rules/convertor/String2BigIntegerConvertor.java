@@ -13,8 +13,10 @@ class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
     }
 
     @Override
-    void configureFormatter(DecimalFormat df) {
-        df.setParseIntegerOnly(true);
-        df.setParseBigDecimal(true);
+    DecimalFormat getFormatter(String format) {
+        DecimalFormat formatter = super.getFormatter(format);
+        formatter.setParseIntegerOnly(true);
+        formatter.setParseBigDecimal(true);
+        return formatter;
     }
 }

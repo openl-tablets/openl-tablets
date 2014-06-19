@@ -34,4 +34,11 @@ public class String2BigIntegerConvertorTest {
         String result = converter.format(new BigInteger("-123456789012345678901234567890"), null);
         assertEquals("-123456789012345678901234567890", result);
     }
+
+    @Test
+    public void testFormatZero() {
+        String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
+        String result = converter.format(BigInteger.ZERO, null);
+        assertEquals("0", result);
+    }
 }

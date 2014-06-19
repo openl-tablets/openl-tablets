@@ -49,7 +49,21 @@ public class String2FloatConvertorTest {
     @Test
     public void testFormat() {
         String2FloatConvertor converter = new String2FloatConvertor();
-        String result = converter.format(98765.4321f, null);
+        String result = converter.format(98765.43f, null);
         assertEquals("98765.43", result);
+    }
+
+    @Test
+    public void testFormatZero() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(0f, null);
+        assertEquals("0.0", result);
+    }
+
+    @Test
+    public void testFormatPrecision() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(0.000000000012345678f, null);
+        assertEquals("0.000000000012345678", result);
     }
 }
