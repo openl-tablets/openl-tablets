@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.table.Point;
 
@@ -18,8 +19,8 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         String field1 = "$Formula$Final_Value";
         String field2 = "$Value$Abra";
         
-        cells.put(field1, new FieldDescription(org.openl.meta.StringValue.class));        
-        cells.put(field2, new FieldDescription(org.openl.meta.DoubleValue.class));
+        cells.put(field1, new DefaultFieldDescription(org.openl.meta.StringValue.class));
+        cells.put(field2, new DefaultFieldDescription(org.openl.meta.DoubleValue.class));
         
         Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
         fieldCoordinates.put(field1, new Point(0, 0));
@@ -44,7 +45,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testArray() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(org.openl.meta.StringValue[].class));        
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(org.openl.meta.StringValue[].class));
         
         String className = "my.test.CustomSpreadsheetResArray";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
@@ -58,7 +59,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testSpreadsheetResult() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(SpreadsheetResult[].class));        
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(SpreadsheetResult[].class));
         
         String className = "my.test.CustomSpreadsheetResSprRes";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
@@ -72,7 +73,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testInt() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(int.class));        
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(int.class));
         
         String className = "my.test.CustomSpreadsheetIntRes";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
@@ -86,7 +87,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testDouble() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(double.class));        
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(double.class));
         
         String className = "my.test.CustomSpreadsheetDoubleRes";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
@@ -100,8 +101,8 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testRestrictedFieldName1() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final Value", new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
-        cells.put("$Formula$Final_Value", new FieldDescription(String.class));
+        cells.put("$Formula$Final Value", new DefaultFieldDescription(double.class)); // not allowed name of field, should be skipped in result class
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(String.class));
         
         String className = "my.test.CustomSpreadsheetRestricted1";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
@@ -118,8 +119,8 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         String field2 = "$Formula$Final_Value";
         
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put(field1, new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
-        cells.put(field2, new FieldDescription(String.class));
+        cells.put(field1, new DefaultFieldDescription(double.class)); // not allowed name of field, should be skipped in result class
+        cells.put(field2, new DefaultFieldDescription(String.class));
         
         Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
         fieldCoordinates.put(field1, new Point(0, 0));
@@ -137,7 +138,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void testPrimitiveAray() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(int[].class));        
+        cells.put("$Formula$Final_Value", new DefaultFieldDescription(int[].class));
         
         String className = "my.test.CustomSpreadsheetPrimitiveArray";
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);

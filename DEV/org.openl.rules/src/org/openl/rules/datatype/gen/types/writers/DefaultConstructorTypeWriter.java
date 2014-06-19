@@ -7,7 +7,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 /**
  * Generates the byte code, that calls the default constructor
- * of the class {@link org.openl.rules.datatype.gen.FieldDescription#getType()}
+ * of the class {@link org.openl.rules.datatype.gen.DefaultFieldDescription#getType()}
  *
  * e.g. if the type of the field is org.openl.rules.Driver -> generates 'new org.openl.rules.Driver()'
  *

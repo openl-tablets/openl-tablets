@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.table.Point;
 import org.openl.util.NumberUtils;
@@ -51,7 +52,7 @@ public class SettersWriter extends org.openl.rules.datatype.gen.bean.writers.Set
          *  as the method SUPER_CLASS_SETTER is expecting the Object.
          */
         if (field.getType().isPrimitive()) {
-            field = new FieldDescription(NumberUtils.getWrapperType(field.getCanonicalTypeName()));
+            field = new DefaultFieldDescription(NumberUtils.getWrapperType(field.getCanonicalTypeName()));
         }
         
         methodVisitor = writeMethodSignature(classWriter, field, fieldName);
