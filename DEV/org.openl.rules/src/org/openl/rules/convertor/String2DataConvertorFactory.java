@@ -10,9 +10,6 @@ import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.types.IOpenClass;
-
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -53,8 +50,6 @@ public class String2DataConvertorFactory {
         convertors.put(String.class, new String2StringConvertor());
         convertors.put(Date.class, new String2DateConvertor());
         convertors.put(Calendar.class, new String2CalendarConvertor());
-        convertors.put(Class.class, new String2ClassConvertor());
-        convertors.put(IOpenClass.class, new String2OpenClassConvertor());
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
