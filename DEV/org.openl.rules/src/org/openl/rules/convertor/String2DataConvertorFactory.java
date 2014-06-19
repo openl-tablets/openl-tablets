@@ -64,9 +64,9 @@ public class String2DataConvertorFactory {
         convertorsCache.putAll(convertors);
     }
 
-    public static synchronized IString2DataConvertor getConvertor(Class<?> clazz) {
+    public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
-        IString2DataConvertor convertor = convertorsCache.get(clazz);
+        IString2DataConvertor<T> convertor = convertorsCache.get(clazz);
 
         if (convertor != null) {
             return convertor;
@@ -75,17 +75,12 @@ public class String2DataConvertorFactory {
         // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference 
         // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
-            convertor = new String2EnumConvertor((Class<? extends Enum<?>>) clazz);
+            convertor = new String2EnumConvertor(clazz);
         } else if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
             convertor = new String2ArrayConvertor(componentType);
         } else {
-            try {
-                Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[]{String.class});
-                convertor = new String2ConstructorConvertor(ctr);
-            } catch (NoSuchMethodException t) {
-                throw new IllegalArgumentException("Public Constructor " + clazz.getName() + "(String s) does not exist");
-            }
+            convertor = new String2ConstructorConvertor<T>(clazz);
         }
 
         convertorsCache.put(clazz, convertor);
