@@ -12,7 +12,7 @@ public class ClassMatchMatcher implements IMatcher {
     }
 
     public Object fromString(String checkValue) {
-        return convertor.parse(checkValue, null, null);
+        return convertor.parse(checkValue, null);
     }
 
     public boolean match(Object var, Object checkValue) {

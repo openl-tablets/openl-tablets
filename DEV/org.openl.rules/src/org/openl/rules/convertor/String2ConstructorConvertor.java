@@ -1,6 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
 import org.openl.util.RuntimeExceptionWrapper;
 
 import java.lang.reflect.Constructor;
@@ -24,7 +23,7 @@ class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
     }
 
     @Override
-    public T parse(String data, String format, IBindingContext cxt) {
+    public T parse(String data, String format) {
         if (data == null) return null;
 
         try {

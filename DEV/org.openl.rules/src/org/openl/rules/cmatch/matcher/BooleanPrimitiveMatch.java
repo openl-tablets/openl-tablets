@@ -13,7 +13,7 @@ public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
     }
 
     public Object fromString(String checkValue) {
-        return convertor.parse(checkValue, null, null);
+        return convertor.parse(checkValue, null);
     }
 
     public IMatcher getInstanceIfSupports(IOpenClass type) {

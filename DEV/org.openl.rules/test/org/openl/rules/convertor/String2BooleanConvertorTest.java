@@ -10,14 +10,14 @@ public class String2BooleanConvertorTest {
     @Test
     public void testParseTrue() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        Boolean result = converter.parse("True", null, null);
+        Boolean result = converter.parse("True", null);
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
     public void testParseFalse() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        Boolean result = converter.parse("false", null, null);
+        Boolean result = converter.parse("false", null);
         assertEquals(Boolean.FALSE, result);
     }
 
@@ -38,19 +38,19 @@ public class String2BooleanConvertorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        converter.parse("", null, null);
+        converter.parse("", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseWrongValue() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        converter.parse("1", null, null);
+        converter.parse("1", null);
     }
 
     @Test
     public void testParseNull() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test

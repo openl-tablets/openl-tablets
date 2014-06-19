@@ -10,7 +10,7 @@ public class String2ConstructorConvertorTest {
     @Test
     public void testParse() {
         String2ConstructorConvertor<Integer> converter = new String2ConstructorConvertor<Integer>(Integer.class);
-        Integer result = converter.parse("123", null, null);
+        Integer result = converter.parse("123", null);
         assertEquals((Integer)123, result);
     }
 
@@ -24,7 +24,7 @@ public class String2ConstructorConvertorTest {
     @Test
     public void testParseNull() {
         String2ConstructorConvertor<?> converter = new String2ConstructorConvertor<Integer>(Integer.class);
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test
