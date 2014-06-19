@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.ClassDescriptionWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
@@ -31,10 +32,10 @@ public class CustomSpreadsheetResultByteCodeGenerator extends BeanByteCodeGenera
     static {
         /** populate with fields descriptions*/
         spreadsheetResultFields = new LinkedHashMap<String, FieldDescription>();
-        spreadsheetResultFields.put("results", new FieldDescription(Object[][].class));
-        spreadsheetResultFields.put("rowNames", new FieldDescription(String[].class));
-        spreadsheetResultFields.put("columnNames", new FieldDescription(String[].class));
-        spreadsheetResultFields.put("fieldsCoordinates", new FieldDescription(Map.class));
+        spreadsheetResultFields.put("results", new DefaultFieldDescription(Object[][].class));
+        spreadsheetResultFields.put("rowNames", new DefaultFieldDescription(String[].class));
+        spreadsheetResultFields.put("columnNames", new DefaultFieldDescription(String[].class));
+        spreadsheetResultFields.put("fieldsCoordinates", new DefaultFieldDescription(Map.class));
     }
 
     private Map<String, FieldDescription> cellFieldsDescription;

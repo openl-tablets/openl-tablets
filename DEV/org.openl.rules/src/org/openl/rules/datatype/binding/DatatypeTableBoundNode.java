@@ -17,9 +17,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
-import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
@@ -184,7 +182,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String defaultValue = getDefaultValue(row, cxt);
             try {
                 dataType.addField(field);
-                FieldDescription fieldDescription = new FieldDescription(field);
+                FieldDescription fieldDescription = fieldDescriptionFactory(field);
                 fieldDescription.setDefaultValueAsString(defaultValue);
 
                 Object value = fieldDescription.getDefaultValue();
@@ -219,7 +217,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
             try {
                 dataType.addField(field);
-                fields.put(fieldName, new FieldDescription(field));
+                fields.put(fieldName, fieldDescriptionFactory(field));
                 
                 if (firstField) {   
                     processFirstField(field);
@@ -228,6 +226,34 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 cannottAddField(row, cxt, fieldName, t);
             }
         }
+    }
+
+    private FieldDescription fieldDescriptionFactory(IOpenField field) {
+        if (isRecursiveField(field)) {
+            return new RecursiveFieldDescription(field);
+        }
+        return new DefaultFieldDescription(field);
+    }
+
+    /**
+     * Checks if the type of the field is equal to the current datatype.
+     *
+     * @param field
+     * @return true if the type of the field is equal to the given datatype
+     */
+    private boolean isRecursiveField(IOpenField field) {
+        IOpenClass fieldType = getRootComponentClass(field.getType());
+        return fieldType.getName().equals(dataType.getName());
+    }
+
+    public static IOpenClass getRootComponentClass(IOpenClass openClass) {
+        IOpenClass fieldType = openClass;
+        if (!fieldType.isArray()) {
+            return fieldType;
+        }
+        // Get the component type of the array
+        //
+        return getRootComponentClass(fieldType.getComponentClass());
     }
 
     private void processFirstField(IOpenField field) {

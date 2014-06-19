@@ -324,7 +324,6 @@ public class RunTest extends TestCase {
     public void testLongName()
     {
         _runNoError("new java.math.BigDecimal(10)", new java.math.BigDecimal(10), OpenL.OPENL_J_NAME);
-        _runNoError("java.io.File f = new java.io.File(\"c:\temp\"); f.getParent()", "c:", OpenL.OPENL_J_NAME);
+        _runNoError("java.io.File f = new java.io.File(\"./temp\"); f.getName()", "temp", OpenL.OPENL_J_NAME);
     }
-    
 }
