@@ -14,7 +14,9 @@ class String2ByteConvertor extends String2NumberConverter<Byte> {
     }
 
     @Override
-    void configureFormatter(DecimalFormat df) {
-        df.setParseIntegerOnly(true);
+    DecimalFormat getFormatter(String format) {
+        DecimalFormat formatter = super.getFormatter(format);
+        formatter.setParseIntegerOnly(true);
+        return formatter;
     }
 }

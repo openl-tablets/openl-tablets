@@ -138,6 +138,34 @@ public class String2NumberConverterTest {
     }
 
     @Test
+    public void testFormatZero() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(0d, null);
+        assertEquals("0", result);
+    }
+
+    @Test
+    public void testFormatFraction() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(0.001d, null);
+        assertEquals("0.001", result);
+    }
+
+    @Test
+    public void testFormatZeroEmptyFormat() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(0d, "");
+        assertEquals("0", result);
+    }
+
+    @Test
+    public void testFormatFractionEmptyFormat() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        String result = converter.format(0.001d, "");
+        assertEquals(".001", result);
+    }
+
+    @Test
     public void testFormatByPatternWithRound() {
         String2NumberConverter<Number> converter = getNumberConverter();
         String result = converter.format(3.1415d, "#,###.###");
