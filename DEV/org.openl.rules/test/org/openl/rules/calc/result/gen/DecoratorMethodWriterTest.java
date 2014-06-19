@@ -4,17 +4,17 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.MethodWriter;
 
 public class DecoratorMethodWriterTest {
     
     @Test
     public void test() {
-        assertEquals("org/openl/meta/DoubleValue", DecoratorMethodWriter.getTypeNameForCast(new FieldDescription(DoubleValue.class)));
-        assertEquals("[Lorg/openl/meta/DoubleValue;", DecoratorMethodWriter.getTypeNameForCast(new FieldDescription(DoubleValue[].class)));
-        assertEquals("java/lang/Integer", DecoratorMethodWriter.getTypeNameForCast(new FieldDescription(int.class)));
-        assertEquals("[I", DecoratorMethodWriter.getTypeNameForCast(new FieldDescription(int[].class)));
+        assertEquals("org/openl/meta/DoubleValue", DecoratorMethodWriter.getTypeNameForCast(new DefaultFieldDescription(DoubleValue.class)));
+        assertEquals("[Lorg/openl/meta/DoubleValue;", DecoratorMethodWriter.getTypeNameForCast(new DefaultFieldDescription(DoubleValue[].class)));
+        assertEquals("java/lang/Integer", DecoratorMethodWriter.getTypeNameForCast(new DefaultFieldDescription(int.class)));
+        assertEquals("[I", DecoratorMethodWriter.getTypeNameForCast(new DefaultFieldDescription(int[].class)));
     }
     
     @Test
