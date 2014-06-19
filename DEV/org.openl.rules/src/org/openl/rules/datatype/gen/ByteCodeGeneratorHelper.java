@@ -45,6 +45,9 @@ public class ByteCodeGeneratorHelper {
      * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(FieldDescription field) {
+        if (field instanceof RecursiveFieldDescription) {
+            return JavaClassGeneratorHelper.getJavaType(field.getCanonicalTypeName());
+        }
         Class<?> fieldClass = field.getType();
         /** gets the type by its class*/
         return ByteCodeGeneratorHelper.getJavaType(fieldClass);
@@ -108,7 +111,7 @@ public class ByteCodeGeneratorHelper {
     public static Map<String, FieldDescription> convertFields(Map<String, IOpenField> fieldsToConvert) {
         LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
         for (Entry<String, IOpenField> field : fieldsToConvert.entrySet()) {
-            fields.put(field.getKey(), new FieldDescription(field.getValue()));
+            fields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
         }
         return fields;
     }

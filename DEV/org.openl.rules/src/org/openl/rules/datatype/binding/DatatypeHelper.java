@@ -123,7 +123,12 @@ public class DatatypeHelper {
         return OpenLManager.makeType(openl, source, (IBindingContextDelegator) cxt);
     }
 
-    private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
+    /**
+     * TODO: This method should be generic for the TableSyntaxNode
+     * and return the type of the table
+     * e.g. TableSyntaxNode.getTableReturnType()
+     */
+    public static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
         if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
