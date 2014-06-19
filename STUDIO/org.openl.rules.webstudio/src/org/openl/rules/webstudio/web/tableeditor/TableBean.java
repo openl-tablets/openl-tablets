@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -16,7 +15,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -40,6 +38,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.webstudio.web.TraceTreeBean;
 import org.openl.rules.webstudio.web.test.InputArgsBean;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -295,6 +294,11 @@ public class TableBean {
         }
         studio.getModel().addTestSuiteToRun(testSuite);
         return null;
+    }
+
+    public void makeTraceTree() {
+        makeTestSuite();
+        ((TraceTreeBean) FacesUtils.getBackingBean("traceTreeBean")).getTree();
     }
     
     public void runAllTestsForTable(){
