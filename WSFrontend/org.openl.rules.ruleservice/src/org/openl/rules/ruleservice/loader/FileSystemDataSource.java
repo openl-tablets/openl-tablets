@@ -166,7 +166,7 @@ public class FileSystemDataSource implements DataSource {
     private void validateDeployment(Deployment deployment) {
         if (log.isWarnEnabled() && deployment.getProjects().isEmpty()) {
             log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory()
-                    + "\" does not contain projects. Make sure you have specified correct folder!");
+                    + "\" does not contain projects. Make sure that you have specified correct folder!");
         }
     }
 

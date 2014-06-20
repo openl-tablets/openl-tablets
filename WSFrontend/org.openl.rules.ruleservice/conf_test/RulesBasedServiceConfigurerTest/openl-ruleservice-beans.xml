@@ -7,7 +7,7 @@
 
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
-	<import resource="classpath:RulesBasedServiceConfigurerTest/openl-ruleservice-filesystemdatasource-beans.xml"/>
+	<import resource="classpath:RulesBasedServiceConfigurerTest/openl-ruleservice-datasource-beans.xml"/>
 	<import resource="classpath:RulesBasedServiceConfigurerTest/openl-ruleservice-conf-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
