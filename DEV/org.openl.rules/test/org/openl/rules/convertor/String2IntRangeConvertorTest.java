@@ -9,7 +9,7 @@ public class String2IntRangeConvertorTest {
     @Test
     public void testParseNull() {
         String2IntRangeConvertor converter = new String2IntRangeConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test

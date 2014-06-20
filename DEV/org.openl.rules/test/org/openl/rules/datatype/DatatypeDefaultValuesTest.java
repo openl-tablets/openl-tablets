@@ -109,6 +109,17 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         } 
     }
 
+    @Test
+    public void testDefaultValue_Bean() {
+        try {
+            Class<?> clazz = Class.forName("org.openl.generated.beans.BeanType1", true, Thread.currentThread().getContextClassLoader());
+            checkTestDefaultBean(clazz);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+
     private void checkTestBigTypes(Class<?> clazz) throws InstantiationException,
                                                     IllegalAccessException,
                                                     NoSuchMethodException,
@@ -235,6 +246,23 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         assertNotNull(method);
         Object result = method.invoke(instance, new Object[0]);
         assertEquals(expectedResult, result);
+    }
+
+    private void checkTestDefaultBean(Class<?> clazz)
+            throws InstantiationException, IllegalAccessException,
+            NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
+        Object instance = getInstance(clazz);
+
+        String methodName = "getName";
+        testValue(clazz, instance, methodName, "Test name");
+
+        methodName = "getSurname";
+        testValue(clazz, instance, methodName, "Test surname");
+
+        methodName = "getObj";
+        Class<?> clazz1 = Class.forName("org.openl.generated.beans.BeanType2", true, Thread.currentThread().getContextClassLoader());
+        Object defaultInstance = getInstance(clazz1);
+        testValue(clazz, instance, methodName, defaultInstance);
     }
     
     private Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {

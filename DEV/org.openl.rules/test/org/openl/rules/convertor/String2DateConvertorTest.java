@@ -28,14 +28,14 @@ public class String2DateConvertorTest {
     @Test
     public void testParse() {
         String2DateConvertor converter = new String2DateConvertor();
-        Date result = converter.parse("06/17/2014", null, null);
+        Date result = converter.parse("06/17/2014", null);
         assertEquals(new Date(114, 5, 17), result);
     }
 
     @Test
     public void testParseByPattern() {
         String2DateConvertor converter = new String2DateConvertor();
-        Date result = converter.parse("17-06-2014", "dd-MM-yyyy", null);
+        Date result = converter.parse("17-06-2014", "dd-MM-yyyy");
         assertEquals(new Date(114, 5, 17), result);
     }
 
@@ -56,19 +56,19 @@ public class String2DateConvertorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("", null, null);
+        converter.parse("", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseWrongValue() {
         String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("Kin-Dza-Dza", null, null);
+        converter.parse("Kin-Dza-Dza", null);
     }
 
     @Test
     public void testParseNull() {
         String2DateConvertor converter = new String2DateConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test

@@ -1,31 +1,26 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
+class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E> {
 
-class String2EnumConvertor implements IString2DataConvertor<Enum<?>> {
+    private Class<E> enumType;
 
-    private Class<? extends Enum<?>> enumType;
-
-    @SuppressWarnings("unchecked")
-    public String2EnumConvertor(Class<? extends Enum<?>> clazz) {
+    public String2EnumConvertor(Class<E> clazz) {
         this.enumType = clazz;
     }
 
     @Override
-    public String format(Enum<?> data, String format) {
+    public String format(E data, String format) {
         if (data == null) return null;
         // An enum can override toString() method to display user-friendly
         // values
         return data.name();
     }
 
-    ;
-
     @Override
-    public Enum<?> parse(String data, String format, IBindingContext cxt) {
+    public E parse(String data, String format) {
         if (data == null) return null;
 
-        for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+        for (E enumConstant : enumType.getEnumConstants()) {
             if (data.equalsIgnoreCase(enumConstant.name())) {
                 return enumConstant;
             }

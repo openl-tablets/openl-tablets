@@ -1,6 +1,7 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
 
@@ -49,17 +50,27 @@ public class DatatypesSorter {
             TableSyntaxNode datatype, Map<String, TableSyntaxNode> datatypes,
             IBindingContext bindingContext) {
 
-        Set<String> dependencies = new DependentTypesExtractor().extract(datatype, bindingContext);
+        DependentTypesExtractor dependeciesExtractor = new DependentTypesExtractor();
+        Set<String> dependencies = dependeciesExtractor.extract(datatype, bindingContext);
         TopoGraphNode<TableSyntaxNode> forSort = new TopoGraphNode<TableSyntaxNode>(datatype);
         if (dependencies.isEmpty()) {
             return forSort;
         }
         else {
+            String currentName = null;
+            try {
+                currentName = DatatypeHelper.getDatatypeName(datatype);
+            } catch (OpenLCompilationException e) {
+                // Suppress the exception
+                //
+            }
             for (String dependency : dependencies) {
-                if (datatypes.containsKey(dependency)) {
-                    TopoGraphNode<TableSyntaxNode> dependencyForSort =
-                            wrap(datatypes.get(dependency), datatypes, bindingContext);
-                    forSort.addDependency(dependencyForSort);
+                if (datatypes.containsKey(dependency)
+                        // Avoid recursive dependencies
+                        //
+                        && !dependency.equals(currentName)) {
+                    forSort.addDependency(
+                            wrap(datatypes.get(dependency), datatypes, bindingContext));
                 }
             }
             return forSort;

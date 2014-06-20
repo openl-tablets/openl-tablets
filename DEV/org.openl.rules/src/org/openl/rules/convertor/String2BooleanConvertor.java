@@ -1,6 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
 import org.openl.util.BooleanUtils;
 
 class String2BooleanConvertor implements IString2DataConvertor<Boolean> {
@@ -12,7 +11,7 @@ class String2BooleanConvertor implements IString2DataConvertor<Boolean> {
     }
 
     @Override
-    public Boolean parse(String data, String format, IBindingContext cxt) {
+    public Boolean parse(String data, String format) {
         if (data == null) return null;
 
         Boolean boolValue = BooleanUtils.toBooleanObject(data);

@@ -26,7 +26,7 @@ public class TopologicalSort<T extends Object> {
     private void visit(final TopoGraphNode<T> n, final Set<TopoGraphNode<T>> alreadySeen,
                        final Set<TopoGraphNode<T>> visited, final LinkedHashSet<TopoGraphNode<T>> order) {
         if (alreadySeen.contains(n)) {
-            throw new IllegalStateException("cycle containing " + n + " found!");
+            return;
         }
 
         alreadySeen.add(n);

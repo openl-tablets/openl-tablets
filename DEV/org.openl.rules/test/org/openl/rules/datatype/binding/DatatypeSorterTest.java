@@ -98,6 +98,102 @@ public class DatatypeSorterTest {
         assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
     }
 
+    @Test
+    public void testOrderDatatypes_fieldsDependency_Recursion() {
+        String[][] table1 = new String[4][2];
+        table1[0][0] = "Datatype Type1";
+        table1[0][1] = null;
+        table1[1][0] = "String";
+        table1[1][1] = "name";
+        table1[2][0] = "Type2";
+        table1[2][1] = "type2Obj";
+
+        // Added Recursion dependency
+        //
+        table1[3][0] = "Type1";
+        table1[3][1] = "type1Obj";
+
+        GridTable gridTable1 = new GridTable(table1);
+        gridTable1.setGrid(new TestGrid(gridTable1));
+
+        String[][] table2 = new String[3][2];
+        table2[0][0] = "Datatype Type3";
+        table2[0][1] = null;
+        table2[1][0] = "Integer";
+        table2[1][1] = "num";
+        table2[2][0] = "Boolean";
+        table2[2][1] = "flag";
+        GridTable gridTable2 = new GridTable(table2);
+        gridTable2.setGrid(new TestGrid(gridTable2));
+
+        String[][] table3 = new String[3][2];
+        table3[0][0] = "Datatype Type2";
+        table3[0][1] = null;
+        table3[1][0] = "Integer";
+        table3[1][1] = "num";
+        table3[2][0] = "Boolean";
+        table3[2][1] = "flag";
+        GridTable gridTable3 = new GridTable(table3);
+        gridTable3.setGrid(new TestGrid(gridTable3));
+
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+                DatatypeHelper.createTypesMap(
+                        new TableSyntaxNode[]{
+                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
+                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                null);
+        assertEquals(3, ordered.length);
+        assertEquals("Datatype Type3", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype Type2", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
+    }
+
+    @Test
+    public void testOrderDatatypes_arrayFieldsDependency() {
+        String[][] table1 = new String[3][2];
+        table1[0][0] = "Datatype Type1";
+        table1[0][1] = null;
+        table1[1][0] = "String";
+        table1[1][1] = "name";
+        table1[2][0] = "Boolean";
+        table1[2][1] = "boolVal";
+        GridTable gridTable1 = new GridTable(table1);
+        gridTable1.setGrid(new TestGrid(gridTable1));
+
+        String[][] table2 = new String[3][2];
+        table2[0][0] = "Datatype Type3";
+        table2[0][1] = null;
+        table2[1][0] = "Integer";
+        table2[1][1] = "num";
+        table2[2][0] = "Type2[]";
+        table2[2][1] = "type2Array";
+        GridTable gridTable2 = new GridTable(table2);
+        gridTable2.setGrid(new TestGrid(gridTable2));
+
+        String[][] table3 = new String[3][2];
+        table3[0][0] = "Datatype Type2";
+        table3[0][1] = null;
+        table3[1][0] = "Integer";
+        table3[1][1] = "num";
+        table3[2][0] = "Boolean";
+        table3[2][1] = "flag";
+        GridTable gridTable3 = new GridTable(table3);
+        gridTable3.setGrid(new TestGrid(gridTable3));
+
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+                DatatypeHelper.createTypesMap(
+                        new TableSyntaxNode[]{
+                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
+                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                null);
+        assertEquals(3, ordered.length);
+        assertEquals("Datatype Type2", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype Type3", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
+    }
+
     private TableSyntaxNode createStubTSN(final String datatypeHeader) {
         IGridTable gridTable = new org.openl.rules.table.GridTable(1, 1, 1, 1, null);
 

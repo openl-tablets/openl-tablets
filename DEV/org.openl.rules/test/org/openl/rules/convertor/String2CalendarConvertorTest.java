@@ -31,7 +31,7 @@ public class String2CalendarConvertorTest {
         Calendar time = Calendar.getInstance();
         time.setTime(new Date(114, 5, 17));
         String2CalendarConvertor converter = new String2CalendarConvertor();
-        Calendar result = converter.parse("06/17/2014", null, null);
+        Calendar result = converter.parse("06/17/2014", null);
         assertEquals(time, result);
     }
 
@@ -40,7 +40,7 @@ public class String2CalendarConvertorTest {
         Calendar time = Calendar.getInstance();
         time.setTime(new Date(114, 5, 17));
         String2CalendarConvertor converter = new String2CalendarConvertor();
-        Calendar result = converter.parse("17-06-2014", "dd-MM-yyyy", null);
+        Calendar result = converter.parse("17-06-2014", "dd-MM-yyyy");
         assertEquals(time, result);
     }
 
@@ -65,19 +65,19 @@ public class String2CalendarConvertorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2CalendarConvertor converter = new String2CalendarConvertor();
-        converter.parse("", null, null);
+        converter.parse("", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseWrongValue() {
         String2CalendarConvertor converter = new String2CalendarConvertor();
-        converter.parse("Kin-Dza-Dza", null, null);
+        converter.parse("Kin-Dza-Dza", null);
     }
 
     @Test
     public void testParseNull() {
         String2CalendarConvertor converter = new String2CalendarConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test

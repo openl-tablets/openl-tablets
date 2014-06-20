@@ -1,7 +1,6 @@
 package org.openl.rules.convertor;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.binding.IBindingContext;
 import org.openl.util.StringTool;
 
 import java.lang.reflect.Array;
@@ -64,7 +63,7 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
     @Override
-    public T[] parse(String data, String format, IBindingContext bindingContext) {
+    public T[] parse(String data, String format) {
         if (data == null) return null;
         if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
 
@@ -79,7 +78,7 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
             if (elementValue.length() == 0) {
                 element = null;
             } else {
-                element = converter.parse(elementValue, format, bindingContext);
+                element = converter.parse(elementValue, format);
             }
             elements.add(element);
         }

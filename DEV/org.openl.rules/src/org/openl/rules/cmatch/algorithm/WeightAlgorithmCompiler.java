@@ -131,7 +131,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             TableRow row = rows.get(i);
             SubValue weightSV = row.get(WEIGHT)[0];
 
-            Integer rowWeight = (Integer) convertor.parse(weightSV.getString(), null, null);
+            Integer rowWeight = (Integer) convertor.parse(weightSV.getString(), null);
             nodes[i].setWeight(rowWeight);
         }
 
