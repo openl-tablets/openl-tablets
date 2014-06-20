@@ -22,7 +22,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 
-public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, PropertiesPatternValidator {
+public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
     private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
 
     private static Pattern pathPattern = Pattern.compile(".*[^A-Za-z0-9-_,\\s]([A-Za-z0-9-_,\\s]+)\\..*");
