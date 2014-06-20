@@ -15,7 +15,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.PropertiesPatternValidator;
+import org.openl.rules.project.resolving.FileNamePatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -155,8 +155,8 @@ public class ProjectBean {
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePattern(pattern);
                 PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
-                if (processor instanceof PropertiesPatternValidator) {
-                    ((PropertiesPatternValidator) processor).validate(pattern);
+                if (processor instanceof FileNamePatternValidator) {
+                    ((FileNamePatternValidator) processor).validate(pattern);
                 }
             } catch (InvalidFileNamePatternException e) {
                 FacesUtils.throwValidationError(e.getMessage());
@@ -468,7 +468,7 @@ public class ProjectBean {
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
         try {
             PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
-            if (!(processor instanceof PropertiesPatternValidator)) {
+            if (!(processor instanceof FileNamePatternValidator)) {
                 return "Validation isn't supported";
             }
         } catch (InvalidFileNameProcessorException ignored) {
