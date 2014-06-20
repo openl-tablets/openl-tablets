@@ -155,22 +155,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField) 
-        throws SyntaxNodeException, OpenLCompilationException {
-        
-        if (row.getWidth() > 2) {
-            processWithAdditionalColumns(row, cxt, fields, firstField);
-        } else {
-            processSimple(row, cxt, fields, firstField);
-        }
-    }
-    
-    /**
-     * Process datatype table row, that contains more than 2 columns.<br>
-     * The 3rd column is a default value one.
-     * 
-     */
-    private void processWithAdditionalColumns(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields,
-            boolean firstField) throws OpenLCompilationException {
+        throws OpenLCompilationException {
+
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
         if (canProcessRow(rowSrc)) {
@@ -179,51 +165,39 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
 
-            String defaultValue = getDefaultValue(row, cxt);
             try {
                 dataType.addField(field);
                 FieldDescription fieldDescription = fieldDescriptionFactory(field);
-                fieldDescription.setDefaultValueAsString(defaultValue);
 
-                Object value = fieldDescription.getDefaultValue();
-                if (value != null) {
-                    // Validate not null default value
-                    // The null value is allowed for alias types
-                    RuleRowHelper.validateValue(value, fieldType);
+                if (row.getWidth() > 2) {
+                    String defaultValue = getDefaultValue(row, cxt);
+                    fieldDescription.setDefaultValueAsString(defaultValue);
+
+                    Object value = fieldDescription.getDefaultValue();
+                    if (value != null) {
+                        // Validate not null default value
+                        // The null value is allowed for alias types
+                        RuleRowHelper.validateValue(value, fieldType);
+                    }
                 }
 
                 fields.put(fieldName, fieldDescription);
 
                 if (firstField) {
-                    processFirstField(field);
+                    // This is done for operations like people["john"] in OpenL
+                    // rules to access one instance of datatype from array by
+                    // user defined index.
+                    // If first field type of Datatype is int, for calling the instance, wrap it
+                    // with quotes, e.g. vehicle["23"].
+                    // Calling the instance like: drivers[7], you will get the 8 element of array.
+                    //
+                    // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
+                    // and DatatypeArrayTest
+                    dataType.setIndexField(field);
                 }
             } catch (Throwable t) {
-                cannottAddField(row, cxt, fieldName, t);
-            }
-        }
-    }
-    
-    /**
-     * Process datatype table row, that contains only 2 columns.<br>
-     * The 1st column is a type definition. The 2nd one is a field name.
-     */
-    private void processSimple(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField) 
-        throws OpenLCompilationException {
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
-        if (canProcessRow(rowSrc)) {
-            String fieldName = getName(row, cxt);
-            
-            IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
-            IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
-            try {
-                dataType.addField(field);
-                fields.put(fieldName, fieldDescriptionFactory(field));
-                
-                if (firstField) {   
-                    processFirstField(field);
-                }
-            } catch (Throwable t) {
-                cannottAddField(row, cxt, fieldName, t);
+                String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, getCellSource(row, cxt, 1));
             }
         }
     }
@@ -254,24 +228,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // Get the component type of the array
         //
         return getRootComponentClass(fieldType.getComponentClass());
-    }
-
-    private void processFirstField(IOpenField field) {
-        // This is done for operations like people["john"] in OpenL
-        // rules to access one instance of datatype from array by
-        // user defined index.
-        // If first field type of Datatype is int, for calling the instance, wrap it
-        // with quotes, e.g. vehicle["23"].
-        // Calling the instance like: drivers[7], you will get the 8 element of array.
-        //
-        // See DynamicArrayAggregateInfo#getIndex(IOpenClass aggregateType, IOpenClass indexType)
-        // and DatatypeArrayTest
-        dataType.setIndexField(field);
-    }    
-
-    private void cannottAddField(ILogicalTable row, IBindingContext cxt, String fieldName, Throwable t) throws SyntaxNodeException {
-        String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
-        throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, getCellSource(row, cxt, 1));
     }
 
     private String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
