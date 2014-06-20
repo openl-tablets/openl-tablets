@@ -501,15 +501,18 @@
 
             ws.ui.show("editProjectPopup");
 
-            $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("keyup", function() {
+            var updateButtonState = function () {
                 var name = $j("#projectName").val();
                 var description = $j("#projectDescription").val();
                 var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
                 var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
                 btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription &&
-                                propertiesFileNamePattern == initPropertiesFileNamePattern &&
-                                propertiesFileNameProcessor == initPropertiesFileNameProcessor));
-            })
+                        propertiesFileNamePattern == initPropertiesFileNamePattern &&
+                        propertiesFileNameProcessor == initPropertiesFileNameProcessor));
+            };
+
+            $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("keyup", updateButtonState);
+            $j("#customPropertiesFileNameProcessor").click(updateButtonState);
         }
 
         function addModule() {
