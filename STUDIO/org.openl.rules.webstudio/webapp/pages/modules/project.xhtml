@@ -457,6 +457,10 @@
         <h:form prependId="false" id="showPropertiesFileNamePatternDescriptionForm">
             <h:panelGroup id="showPropertiesFileNamePatternDescriptionData">
                 <h:outputText escape="false" value="#{projectBean.propertiesFileNamePatternDescription}" />
+
+                <div>
+                    <h:outputText value="#{projectBean.propertiesPatternWarnings}" />
+                </div>
             </h:panelGroup>
 
             <footer>

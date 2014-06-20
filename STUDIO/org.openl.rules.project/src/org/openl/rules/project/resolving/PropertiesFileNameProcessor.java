@@ -7,7 +7,4 @@ public interface PropertiesFileNameProcessor {
     ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
                                                                    InvalidFileNamePatternException;
 
-    void validateFileNamePattern(String fileNamePattern) throws InvalidFileNamePatternException;
-
-    String getDescription();
 }
