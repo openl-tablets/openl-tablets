@@ -108,29 +108,23 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
 
     private PropertiesFileNameProcessor buildProcessor(final Set<String> globalErrorMessages,
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
-        return new PropertiesFileNameProcessorBuilder() {
-            @Override
-            protected PropertiesFileNameProcessor buildCustomProcessor(ProjectDescriptor projectDescriptor, ClassLoader classLoader) {
-                try {
-                    return super.buildCustomProcessor(projectDescriptor, classLoader);
-                } catch (InvalidFileNameProcessorException e) {
-                    String message = e.getMessage();
-                    if (log.isWarnEnabled()) {
-                        log.warn(message);
-                    }
-                    globalErrorMessages.add(message);
-                    return null;
+        if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
+            try {
+                return PropertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
+            } catch (InvalidFileNameProcessorException e) {
+                String message = e.getMessage();
+                if (log.isWarnEnabled()) {
+                    log.warn(message);
                 }
-            }
-
-            @Override
-            protected PropertiesFileNameProcessor buildDefaultProcessor(ProjectDescriptor projectDescriptor, ClassLoader classLoader) throws InvalidFileNameProcessorException {
-                if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNamePattern())) {
-                    return super.buildDefaultProcessor(projectDescriptor, classLoader);
-                }
-
+                globalErrorMessages.add(message);
                 return null;
             }
-        }.build(projectDescriptor);
+        } else {
+            if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNamePattern())) {
+                return PropertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
+            }
+
+            return null;
+        }
     }
 }
