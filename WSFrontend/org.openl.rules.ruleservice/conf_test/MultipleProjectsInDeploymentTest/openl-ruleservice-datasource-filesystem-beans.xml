@@ -5,10 +5,10 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
-	<!-- This implementation based on file system repository -->
-	<bean id="datasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource">
-		<constructor-arg name="loadDeploymentsFromDirectory" value="test-resources/RulesBasedServiceConfigurerTest"/>
+	<bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource" lazy-init="true">
+		<constructor-arg name="loadDeploymentsFromDirectory" value="test-resources/MultipleProjectsInDeploymentTest"/>
 		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
 		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
 	</bean>
+
 </beans>
