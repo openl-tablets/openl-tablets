@@ -1,8 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,18 +16,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 
-public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor {
-    private final Log log = LogFactory.getLog(DefaultPropertiesFileNameProcessor.class);
-
+public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, PropertiesPatternValidator {
     private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
 
     private static Pattern pathPattern = Pattern.compile(".*[^A-Za-z0-9-_,\\s]([A-Za-z0-9-_,\\s]+)\\..*");
@@ -49,7 +41,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
-                                                                          InvalidFileNamePatternException {
+            InvalidFileNamePatternException {
         ITableProperties props = new TableProperties();
 
         PatternModel patternModel = new PatternModel(fileNamePattern);
@@ -79,9 +71,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     @Override
-    public void validateFileNamePattern(String fileNamePattern) throws InvalidFileNamePatternException {
+    public void validate(String pattern) throws InvalidFileNamePatternException {
         // Some validations are processed while object is created.
-        PatternModel patternModel = new PatternModel(fileNamePattern);
+        PatternModel patternModel = new PatternModel(pattern);
 
         // Validate date formats
         for (Map.Entry<String, SimpleDateFormat> entry : patternModel.getDateFormats().entrySet()) {
@@ -106,27 +98,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         Set<String> propertyNames = new HashSet<String>();
         for (String propertyName : patternModel.getPropertyNames()) {
             if (propertyNames.contains(propertyName)) {
-                throw new InvalidFileNamePatternException(String.format("Property '%s' is declared in pattern '%s' several times", propertyName, fileNamePattern));
+                throw new InvalidFileNamePatternException(String.format("Property '%s' is declared in pattern '%s' several times", propertyName, pattern));
             }
             propertyNames.add(propertyName);
-        }
-    }
-
-    @Override
-    public String getDescription() {
-
-        String fileName = "/" + getClass().getName().replace(".", "/") + ".html";
-        try {
-            InputStream inputStream = getClass().getResourceAsStream(fileName);
-            if (inputStream == null) {
-                throw new FileNotFoundException("File " + fileName + " not found");
-            }
-            return IOUtils.toString(inputStream, "UTF-8");
-        } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-            return "Can't load the file " + fileName;
         }
     }
 
@@ -134,7 +108,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         try {
             Class<?> returnType = getReturnTypeByPropertyName(propertyName);
             Method setMethod = ITableProperties.class.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1),
-                returnType);
+                    returnType);
             if (Boolean.class.equals(returnType)) {
                 if ("YES".equals(value.toUpperCase()) || "TRUE".equals(value.toUpperCase())) {
                     setMethod.invoke(props, Boolean.TRUE);

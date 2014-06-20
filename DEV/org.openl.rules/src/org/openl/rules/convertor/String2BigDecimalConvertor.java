@@ -3,7 +3,7 @@ package org.openl.rules.convertor;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
-public class String2BigDecimalConvertor extends String2NumberConverter<BigDecimal> {
+class String2BigDecimalConvertor extends String2NumberConverter<BigDecimal> {
 
     @Override
     BigDecimal convert(Number number, String data) {
@@ -12,7 +12,11 @@ public class String2BigDecimalConvertor extends String2NumberConverter<BigDecima
     }
 
     @Override
-    void configureFormatter(DecimalFormat df) {
-        df.setParseBigDecimal(true);
+    DecimalFormat getFormatter(String format) {
+        DecimalFormat formatter = super.getFormatter(format);
+        // Always show .0 at the end for integer numbers
+        formatter.setMinimumFractionDigits(1);
+        formatter.setParseBigDecimal(true);
+        return formatter;
     }
 }

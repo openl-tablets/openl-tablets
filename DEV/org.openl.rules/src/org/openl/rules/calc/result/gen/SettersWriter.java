@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.table.Point;
 import org.openl.util.NumberUtils;
@@ -41,20 +42,20 @@ public class SettersWriter extends org.openl.rules.datatype.gen.bean.writers.Set
     }
 
     @Override
-    protected void generateSetter(ClassWriter classWriter,  Entry<String, FieldDescription> field) {
-        String fieldName = field.getKey();
-        FieldDescription fieldType = field.getValue(); 
+    protected void generateSetter(ClassWriter classWriter,  Entry<String, FieldDescription> fieldEntry) {
+        String fieldName = fieldEntry.getKey();
+        FieldDescription field = fieldEntry.getValue();
         
         MethodVisitor methodVisitor;
         
-        /** if the field is a primitive, its type should be changed for wrapper type
+        /** if the fieldEntry is a primitive, its type should be changed for wrapper type
          *  as the method SUPER_CLASS_SETTER is expecting the Object.
          */
-        if (fieldType.getType().isPrimitive()) {
-            fieldType = new FieldDescription(NumberUtils.getWrapperType(fieldType.getCanonicalTypeName()));
+        if (field.getType().isPrimitive()) {
+            field = new DefaultFieldDescription(NumberUtils.getWrapperType(field.getCanonicalTypeName()));
         }
         
-        methodVisitor = writeMethodSignature(classWriter, fieldType, fieldName);
+        methodVisitor = writeMethodSignature(classWriter, field, fieldName);
         
         methodVisitor.visitTypeInsn(Opcodes.NEW, JavaClassGeneratorHelper.replaceDots(Point.class.getCanonicalName()));
         methodVisitor.visitInsn(Opcodes.DUP);

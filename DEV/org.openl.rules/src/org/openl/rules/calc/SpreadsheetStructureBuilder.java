@@ -5,33 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.IMetaInfo;
-import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
-import org.openl.rules.calc.element.CellLoader;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.meta.*;
+import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.rules.convertor.String2DoubleConvertor;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -56,10 +51,6 @@ public class SpreadsheetStructureBuilder {
 
     public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder rowColumnExtractor) {
         this.componentsBuilder = rowColumnExtractor;
-    }
-
-    public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
-        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
     }
 
     private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
@@ -99,16 +90,12 @@ public class SpreadsheetStructureBuilder {
         return componentsBuilder.buildResultBuilder(spreadsheet);
     }
 
-    public SpreadsheetComponentsBuilder getComponentsBuilder() {
-        return componentsBuilder;
-    }
-
     public String[] getRowNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getRowNames();
+        return componentsBuilder.getCellsHeadersExtractor().getRowNames();
     }
 
     public String[] getColumnNames() {
-        return getComponentsBuilder().getCellsHeadersExtractor().getColumnNames();
+        return componentsBuilder.getCellsHeadersExtractor().getColumnNames();
     }
 
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
@@ -163,8 +150,6 @@ public class SpreadsheetStructureBuilder {
             return;
         }
 
-        IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext,
-                spreadsheetHeader.getName());
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor()
                 .getRowNamesTable().getRow(rowIndex), componentsBuilder.getCellsHeadersExtractor()
@@ -172,9 +157,9 @@ public class SpreadsheetStructureBuilder {
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
-        String code = source.getCode();
+        String code = StringUtils.trimToNull(source.getCode());
 
-        if (CellLoader.isFormula(code)) {
+        if (SpreadsheetExpressionMarker.isFormula(code)) {
             formulaCells.add(spreadsheetCell);
         }
 
@@ -183,26 +168,57 @@ public class SpreadsheetStructureBuilder {
 
         IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
-        IOpenMethodHeader header = makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheetHeader,
-                spreadsheetCell.getType());
-        IString2DataConvertor convertor = makeConvertor(spreadsheetCell.getType());
+        IOpenClass type = spreadsheetCell.getType();
 
-        CellLoader loader = new CellLoader(columnBindingContext, header, convertor);
 
-        try {
-            Object cellValue = loader.loadSingleParam(source, meta);
-            spreadsheetCell.setValue(cellValue);
-        } catch (SyntaxNodeException e) {
+        if (code == null) {
+            spreadsheetCell.setValue(null);
+        } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
+            int end = 0;
+            if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+                end = -1;
+            }
+
+            IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
+            IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT), type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
+            IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
+            // columnBindingContext - is never null
+            try {
+                Object method = OpenLCellExpressionsCompiler.makeMethod(columnBindingContext.getOpenL(), srcCode, header, columnBindingContext);
+                spreadsheetCell.setValue(method);
+            } catch (CompositeSyntaxNodeException e) {
+                componentsBuilder.getTableSyntaxNode().addError(e);
+                BindHelper.processError(e, spreadsheetBindingContext);
+            }
+
+        } else {
+
+            Class<?> instanceClass = type.getInstanceClass();
+            if (instanceClass == null) {
+                String message = String.format("Type '%s' was loaded with errors", type.getName());
+                addError(SyntaxNodeExceptionUtils.createError(message, source));
+            }
+
+            try {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
+                Object result = convertor.parse(code, null);
+
+                if (result instanceof IMetaHolder) {
+                    ((IMetaHolder) result).setMetaInfo(meta);
+                }
+
+                spreadsheetCell.setValue(result);
+            } catch (Throwable t) {
+                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
+            }
         }
-        catch (CompositeSyntaxNodeException e) {
+    }
 
-            componentsBuilder.getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, spreadsheetBindingContext);
-        }
-
+    private void addError(SyntaxNodeException e) {
+        componentsBuilder.getTableSyntaxNode().addError(e);
+        BindHelper.processError(e, spreadsheetBindingContext);
     }
 
     /**
@@ -274,7 +290,7 @@ public class SpreadsheetStructureBuilder {
         spreadsheetCell.setType(cellType);
         if (cellCode == null || cellCode.isEmpty())
             spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
-        else if (CellLoader.isFormula(cellCode))
+        else if (SpreadsheetExpressionMarker.isFormula(cellCode))
             spreadsheetCell.setKind(SpreadsheetCellType.METHOD);
         else
             spreadsheetCell.setKind(SpreadsheetCellType.VALUE);
@@ -294,7 +310,7 @@ public class SpreadsheetStructureBuilder {
             // Try to derive cell type as double.
             //
             try {
-                if (CellLoader.isFormula(cellValue)) {
+                if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
                     return JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
 
@@ -302,7 +318,7 @@ public class SpreadsheetStructureBuilder {
                 // If parse process will be finished with success then return
                 // double type else string type.
                 //
-                new String2DoubleConvertor().parse(cellValue, null, null);
+                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
 
                 return JavaOpenClass.getOpenClass(DoubleValue.class);
             } catch (Throwable t) {
@@ -443,19 +459,5 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return rowOpenClass;
-    }
-
-    private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader spreadsheetHeader, IOpenClass type) {
-        return new OpenMethodHeader(name, type, spreadsheetHeader.getSignature(), spreadsheetHeader.getDeclaringClass());
-    }
-
-    private IString2DataConvertor makeConvertor(IOpenClass type) {
-
-        Class<?> instanceClass = type.getInstanceClass();
-        if (instanceClass == null) {
-            throw new OpenLRuntimeException(String.format("Type '%s' was loaded with errors", type.getName()));
-        }
-
-        return String2DataConvertorFactory.getConvertor(instanceClass);
     }
 }

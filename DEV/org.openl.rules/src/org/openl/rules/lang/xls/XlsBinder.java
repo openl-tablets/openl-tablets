@@ -46,6 +46,7 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
+import org.openl.rules.datatype.binding.DatatypesSorter;
 import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
@@ -432,9 +433,9 @@ public class XlsBinder implements IOpenBinder {
      * @return array of datatypes in order of binding
      */
     private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
-        Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes, bindingContext);
+        Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes);
         
-        TableSyntaxNode[] orderedTypes = DatatypeHelper.orderDatatypes(typesMap, bindingContext);
+        TableSyntaxNode[] orderedTypes = new DatatypesSorter().sort(typesMap, bindingContext);
         
         return orderedTypes;
     }

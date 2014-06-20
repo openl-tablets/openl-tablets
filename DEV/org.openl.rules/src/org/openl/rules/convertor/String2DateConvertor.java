@@ -1,34 +1,37 @@
 package org.openl.rules.convertor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.binding.IBindingContext;
-import org.openl.util.RuntimeExceptionWrapper;
+class String2DateConvertor implements IString2DataConvertor<Date> {
 
-public class String2DateConvertor extends LocaleDependConvertor implements IString2DataConvertor {
-
-    private final Log log = LogFactory.getLog(String2DateConvertor.class);
     private static final int YEAR_START_COUNT = 1900;
+    private final Log log = LogFactory.getLog(String2DateConvertor.class);
 
-    private DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
-
-    public String format(Object data, String format) {
+    @Override
+    public String format(Date data, String format) {
+        if (data == null) return null;
         DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
         return df.format(data);
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
-        return parseDate(data, format);
-    }
+    @Override
+    public Date parse(String data, String format) {
+        if (data == null) return null;
+        if (data.length() == 0) throw new IllegalArgumentException("Cannot convert an empty String to date type");
 
-    public synchronized Date parseDate(String data, String format) {
-        DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
+        DateFormat df;
+        if (format == null) {
+            df = DateFormat.getDateInstance(DateFormat.SHORT, LocaleDependConvertor.getLocale());
+        } else {
+            df = new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
+        }
         df.setLenient(false);
 
         try {
@@ -44,7 +47,7 @@ public class String2DateConvertor extends LocaleDependConvertor implements IStri
             } catch (NumberFormatException t) {
                 log.debug(t);
             }
-            throw RuntimeExceptionWrapper.wrap(e);
+            throw new IllegalArgumentException("Cannot convert \"" + data + "\" to date type");
         }
     }
 }

@@ -37,27 +37,27 @@ public class GettersWriter extends MethodWriter {
     }
     
     /**
-     * Generates getter for the field.
+     * Generates getter for the fieldEntry.
      * 
-     * @param beanNameWithPackage
      * @param classWriter
-     * @param field
+     * @param fieldEntry
      */
-    protected void generateGetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {
+    protected void generateGetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> fieldEntry) {
         MethodVisitor methodVisitor;
-        String fieldName = field.getKey();
-        FieldDescription fieldType = field.getValue();
+        String fieldName = fieldEntry.getKey();
+        FieldDescription field = fieldEntry.getValue();
         String getterName = StringTool.getGetterName(fieldName);
         
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, String.format("()%s",
-            ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);
+            ByteCodeGeneratorHelper.getJavaType(field)), null, null);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType));
+        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName,
+                ByteCodeGeneratorHelper.getJavaType(field));
+        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(field));
         
         // long and double types are the biggest ones, so they use a maximum of two stack  
         // elements and one local variable for getter method.
-        if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+        if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
             methodVisitor.visitMaxs(2, 1);
         } else {
             methodVisitor.visitMaxs(1, 1);

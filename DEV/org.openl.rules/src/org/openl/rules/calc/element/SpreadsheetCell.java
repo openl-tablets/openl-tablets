@@ -94,11 +94,6 @@ public class SpreadsheetCell {
         if (isValueCell()) {
 
             Object value = getValue();
-
-            if (value instanceof AnyCellValue) {
-                return ((AnyCellValue) value).getValue();
-            }
-
             return value;
         } else if (isMethodCell()) {
             return getMethod().invoke(spreadsheetResult, params, env);

@@ -1,100 +1,90 @@
 package org.openl.rules.convertor;
 
+import org.apache.commons.lang.StringUtils;
+import org.openl.util.StringTool;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.binding.IBindingContext;
-import org.openl.util.ArrayTool;
-import org.openl.util.Log;
-import org.openl.util.StringTool;
-
 /**
- * Temporary class. 
- * 
+ * A converter for arrays. It converts strings to an array of a specified type and vice versa.
+ * E.g. for int[]: "1,2,4,8" <==> int[]{1,2,4,8}
  *
+ * @author Yury Molchan
  */
-public class String2ArrayConvertor implements IString2DataConvertor {
+class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
 
     /**
-     * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains 
-     * separator as part of object name, e.g: Mike\\,Sara`s Son.     
-     * 
+     * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
+     * separator as part of object name, e.g: Mike\\,Sara`s Son.
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
-    
+
     /**
      * Separator for elements of array, represented as <code>{@link String}</code>.
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private IString2DataConvertor elementFormat;
-    
+    private Class<T> componentType;
+
     /**
-     * @param elementFormat formatter for the component type of array.
+     * @param componentType a component type of an array.
      */
-    public String2ArrayConvertor(IString2DataConvertor elementFormat) {
-        this.elementFormat = elementFormat;
+    public String2ArrayConvertor(Class<T> componentType) {
+        this.componentType = componentType;
     }
-    
+
     /**
-     * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will separated by 
+     * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will separated by
      * {@link #ARRAY_ELEMENTS_SEPARATOR}. Null safety.
-     * 
-     * @param value array of elements that should be represented as <code>{@link String}</code>. 
+     *
+     * @param data array of elements that should be represented as <code>{@link String}</code>.
      * @return <code>{@link String}</code> representation of the income array. <code>NULL</code> if the income value is
      * <code>NULL</code> or if income value is not an array.
-     */    
-    public String format(Object value, String format) {
-        String result = null;
-        if (value != null) {
-            if (!(value.getClass().isArray())) {
-                Log.error(String.format("Should be an array: ", value.toString()));
-                return result;
-            }
-    
-            Object[] array = ArrayTool.toArray(value);
-                    
-            String[] elementResults = new String[array.length];
-            
-            for (int i=0; i<array.length; i++) {
-                Object element = array[i];
-                elementResults[i] = elementFormat.format(element, format);
-                result = StringUtils.join(elementResults, ",");
-            }
-        }
-        return result;
-    }
-    
-    /** 
-     * 
-     * @param value <code>{@link String}</code> representation of the array.
-     * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.  
      */
-    public Object parse(String data, String format, IBindingContext bindingContext) {        
-        Object result = null;
-        if (StringUtils.isNotEmpty(data)) {
-            String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
-                    ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
-            
-            List<Object> elements = new ArrayList<Object>();
-            Class<?> elementType = null;         
-            
-            for (String elementValue : elementValues) {
-                Object element = elementFormat.parse(elementValue, format, bindingContext);
-                elements.add(element);
-                elementType = element.getClass();            
-            }        
-            
-            if (elementType == null) {
-                return result;
-            }
-            
-            Object[] resultArray = (Object[])Array.newInstance(elementType, elements.size());        
-            result = elements.toArray(resultArray);
+    @Override
+    public String format(T[] data, String format) {
+        if (data == null) return null;
+
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
+        String[] elementResults = new String[data.length];
+        for (int i = 0; i < data.length; i++) {
+            T element = data[i];
+            elementResults[i] = converter.format(element, format);
         }
+
+        String result = StringUtils.join(elementResults, ARRAY_ELEMENTS_SEPARATOR);
         return result;
     }
 
+    /**
+     * @param data <code>{@link String}</code> representation of the array.
+     * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
+     */
+    @Override
+    public T[] parse(String data, String format) {
+        if (data == null) return null;
+        if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
+
+        String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
+                ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+
+        List<Object> elements = new ArrayList<Object>();
+
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
+        for (String elementValue : elementValues) {
+            Object element;
+            if (elementValue.length() == 0) {
+                element = null;
+            } else {
+                element = converter.parse(elementValue, format);
+            }
+            elements.add(element);
+        }
+
+        T[] resultArray = (T[]) Array.newInstance(componentType, elements.size());
+        T[] result = elements.toArray(resultArray);
+        return result;
+    }
 }

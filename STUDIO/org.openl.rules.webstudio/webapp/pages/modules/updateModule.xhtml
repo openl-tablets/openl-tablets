@@ -25,7 +25,7 @@
             <footer>
                 <a4j:commandButton value="Update" action="#{studio.updateModule}"
                     oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
+                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
             </footer>
         </h:form>
     </rich:popupPanel>

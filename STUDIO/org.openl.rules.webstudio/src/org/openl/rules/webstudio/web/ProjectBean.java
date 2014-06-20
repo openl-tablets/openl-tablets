@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web;
 
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -14,6 +15,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.resolving.PropertiesPatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -37,6 +39,9 @@ import javax.faces.context.FacesContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +101,7 @@ public class ProjectBean {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         List<PathEntry> sourceList = currentProject.getClasspath();
         if (sourceList != null) {
-            sources  = "";
+            sources = "";
             for (PathEntry source : sourceList) {
                 sources += source.getPath() + StringTool.NEW_LINE;
             }
@@ -132,7 +137,7 @@ public class ProjectBean {
             projectDescriptor.setPropertiesFileNameProcessor(className);
             PropertiesFileNameProcessor processor;
             try {
-                processor = new PropertiesFileNameProcessorBuilder().build(projectDescriptor);
+                processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
                 FacesUtils.validate(processor != null, "Can't find class " + className);
             } catch (InvalidFileNameProcessorException e) {
                 FacesUtils.throwValidationError(e.getMessage());
@@ -149,7 +154,10 @@ public class ProjectBean {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePattern(pattern);
-                new PropertiesFileNameProcessorBuilder().build(projectDescriptor).validateFileNamePattern(pattern);
+                PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+                if (processor instanceof PropertiesPatternValidator) {
+                    ((PropertiesPatternValidator) processor).validate(pattern);
+                }
             } catch (InvalidFileNamePatternException e) {
                 FacesUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
@@ -210,7 +218,7 @@ public class ProjectBean {
             module = new Module();
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
-        // Edit current Module
+            // Edit current Module
         } else {
             module = studio.getModule(newProjectDescriptor, oldName);
         }
@@ -326,7 +334,7 @@ public class ProjectBean {
 
 
     private static final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-    
+
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
         try {
@@ -429,9 +437,43 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
         try {
-            return new PropertiesFileNameProcessorBuilder().build(projectDescriptor).getDescription();
+            PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+
+            Class<? extends PropertiesFileNameProcessor> processorClass = processor.getClass();
+            String fileName = "/" + processorClass.getName().replace(".", "/") + ".info";
+            InputStream inputStream = null;
+            try {
+                inputStream = processorClass.getResourceAsStream(fileName);
+                if (inputStream == null) {
+                    throw new FileNotFoundException("File " + fileName + " not found");
+                }
+                return IOUtils.toString(inputStream, "UTF-8");
+            } catch (FileNotFoundException e) {
+                return "Description file " + fileName + " is absent";
+            } catch (IOException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+                return  "Can't load the file " + fileName;
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
         } catch (InvalidFileNameProcessorException e) {
             return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";
         }
+    }
+
+    public String getPropertiesPatternWarnings() {
+        ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+        projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
+        try {
+            PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+            if (!(processor instanceof PropertiesPatternValidator)) {
+                return "Validation isn't supported";
+            }
+        } catch (InvalidFileNameProcessorException ignored) {
+        }
+
+        return "";
     }
 }

@@ -1,29 +1,35 @@
 package org.openl.rules.convertor;
 
-import java.lang.reflect.Constructor;
-
-import org.openl.binding.IBindingContext;
 import org.openl.util.RuntimeExceptionWrapper;
 
-public class String2ConstructorConvertor implements IString2DataConvertor {
+import java.lang.reflect.Constructor;
 
-    private Constructor<?> ctr;
+class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
 
-    public String2ConstructorConvertor(Constructor<?> ctr) {
-        this.ctr = ctr;
+    private Constructor<T> ctr;
+
+    public String2ConstructorConvertor(Class<T> clazz) {
+        try {
+            ctr = clazz.getDeclaredConstructor(String.class);
+        } catch (NoSuchMethodException t) {
+            throw new IllegalArgumentException("Public Constructor " + clazz.getName() + "(String s) does not exist");
+        }
     }
 
+    @Override
     public String format(Object data, String format) {
-        return String.valueOf(data);
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public T parse(String data, String format) {
+        if (data == null) return null;
 
         try {
-            return ctr.newInstance(new Object[] { data });
+            return ctr.newInstance(data);
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
     }
-
 }

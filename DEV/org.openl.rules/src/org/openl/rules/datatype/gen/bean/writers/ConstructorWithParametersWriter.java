@@ -44,29 +44,32 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         MethodVisitor methodVisitor;
 
         Constructor<?> parentConstructorWithFields = null;
-        if(getParentClass() != null){
-            parentConstructorWithFields = JavaClassGeneratorHelper.getBeanConstructorWithAllFields(getParentClass(), parentFields.size());
+        if (getParentClass() != null) {
+            parentConstructorWithFields =
+                    JavaClassGeneratorHelper.getBeanConstructorWithAllFields(getParentClass(), parentFields.size());
         }
         int i = 1;
         int stackSizeForParentConstructorCall = 0;
-        if(parentConstructorWithFields == null){
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
-                    getBeanFields(), null), null, null);
+        if (parentConstructorWithFields == null) {
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
+                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(getBeanFields(), null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             String parentName = getParentInternalName();
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
-        }else{
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(
-                    allFields, null), null, null);
+        }
+        else {
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
+                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(allFields, null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
             // push to stack all parameters for parent constructor
-            for (Map.Entry<String, FieldDescription> field : parentFields.entrySet()) {
-                FieldDescription fieldType = field.getValue();
-                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
-                if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+            for (Map.Entry<String, FieldDescription> fieldEntry : parentFields.entrySet()) {
+                FieldDescription field = fieldEntry.getValue();
+                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(field), i);
+                if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
                     i += 2;
-                } else {
+                }
+                else {
                     i++;
                 }
             }
@@ -85,10 +88,12 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 FieldDescription fieldType = field.getValue();
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
-                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName,
+                        ByteCodeGeneratorHelper.getJavaType(fieldType));
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
                     i += 2;
-                } else {
+                }
+                else {
                     i++;
                 }
             }
@@ -97,7 +102,8 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         if (twoStackElementFieldsCount > 0) {
             methodVisitor.visitMaxs(3 + stackSizeForParentConstructorCall, allFields.size() + 1
                     + twoStackElementFieldsCount);
-        } else {
+        }
+        else {
             methodVisitor.visitMaxs(2 + stackSizeForParentConstructorCall, allFields.size() + 1);
         }
         

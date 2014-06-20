@@ -1,15 +1,14 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
+class String2StringConvertor implements IString2DataConvertor<String> {
 
-public class String2StringConvertor implements IString2DataConvertor {
-
-    public String format(Object data, String format) {
-        return String.valueOf(data);
-    }
-
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public String format(String data, String format) {
         return data;
     }
 
+    @Override
+    public String parse(String data, String format) {
+        return data;
+    }
 }

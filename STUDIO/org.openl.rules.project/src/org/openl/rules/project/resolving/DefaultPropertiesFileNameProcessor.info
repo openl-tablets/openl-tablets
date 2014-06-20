@@ -6,7 +6,7 @@
     <div>The file name pattern can include:</div>
     <ul>
         <li>text symbols;</li>
-        <li>table property names enclosed in ‘%’ marks;</li>
+        <li>table property names enclosed in '%' marks;</li>
         <li>if a table property value is supposed to be Date then Date format should be also specified right after the
             property name and colon:
             <pre>&lt;text&gt;%&lt;property name&gt;%&lt;text&gt;%&lt;property name&gt;:&lt;date format&gt;%</pre>
@@ -38,12 +38,12 @@
         properties <b>US State</b> and <b>Effective date</b> via a file name for a whole module.
     </div>
     <div>For instance, for the module with file name <b>AUTO-FL-01022014.xlsx</b> the following module
-        properties: <b>US State= ‘Florida’</b>, <b>Effective date = 02 Jan 2014</b> - will be retrieved and inherited
+        properties: <b>US State= 'Florida'</b>, <b>Effective date = 02 Jan 2014</b> - will be retrieved and inherited
         by module tables.
     </div>
 
     <br/>
 
-    <div>If a file name doesn’t match the pattern then module properties are not defined.</div>
+    <div>If a file name doesn't match the pattern then module properties are not defined.</div>
 
 </div>

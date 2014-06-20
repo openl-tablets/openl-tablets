@@ -11,7 +11,6 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
-import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
 
@@ -77,7 +76,7 @@ public class BeanResultComparator implements TestResultComparator {
                 // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on compilation state.
                 if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
-                    expectedFieldValue = convertor.parse((String) expectedFieldValue, null, null);
+                    expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
                 }
 
                 fieldComparisonResults.setActualValue(actualFieldValue);

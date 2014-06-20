@@ -1,19 +1,19 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
+class String2CharConvertor implements IString2DataConvertor<Character> {
 
-public class String2CharConvertor implements IString2DataConvertor {
-
-    public String format(Object data, String forma) {
-        return new String(new char[] { ((Character) data).charValue() });
+    @Override
+    public String format(Character data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public Character parse(String data, String format) {
+        if (data == null) return null;
         if (data.length() != 1) {
             throw new IndexOutOfBoundsException("Character field must have only one symbol");
         }
-
-        return new Character(data.charAt(0));
+        return data.charAt(0);
     }
-
 }

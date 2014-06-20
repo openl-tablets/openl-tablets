@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 
-public class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
+class String2BigIntegerConvertor extends String2NumberConverter<BigInteger> {
 
     @Override
     BigInteger convert(Number number, String data) {
@@ -13,8 +13,10 @@ public class String2BigIntegerConvertor extends String2NumberConverter<BigIntege
     }
 
     @Override
-    void configureFormatter(DecimalFormat df) {
-        df.setParseIntegerOnly(true);
-        df.setParseBigDecimal(true);
+    DecimalFormat getFormatter(String format) {
+        DecimalFormat formatter = super.getFormatter(format);
+        formatter.setParseIntegerOnly(true);
+        formatter.setParseBigDecimal(true);
+        return formatter;
     }
 }

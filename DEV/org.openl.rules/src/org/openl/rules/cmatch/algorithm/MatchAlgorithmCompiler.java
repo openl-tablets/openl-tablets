@@ -323,7 +323,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             String s = sv.getString();
 
             try {
-                result[i] = converter.parse(s, null, null);
+                result[i] = converter.parse(s, null);
             } catch (Exception ex) {
                 throw SyntaxNodeExceptionUtils.createError(null, ex, null, sv.getStringValue().asSourceCodeModule());
             }

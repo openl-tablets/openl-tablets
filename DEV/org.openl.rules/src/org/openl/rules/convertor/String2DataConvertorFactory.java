@@ -6,26 +6,16 @@
 
 package org.openl.rules.convertor;
 
-import java.lang.reflect.Constructor;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.types.IOpenClass;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
 
 /**
  * @author snshor
- * 
  */
 public class String2DataConvertorFactory {
 
@@ -60,8 +50,6 @@ public class String2DataConvertorFactory {
         convertors.put(String.class, new String2StringConvertor());
         convertors.put(Date.class, new String2DateConvertor());
         convertors.put(Calendar.class, new String2CalendarConvertor());
-        convertors.put(Class.class, new String2ClassConvertor());
-        convertors.put(IOpenClass.class, new String2OpenClassConvertor());
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
@@ -71,9 +59,9 @@ public class String2DataConvertorFactory {
         convertorsCache.putAll(convertors);
     }
 
-    public static synchronized IString2DataConvertor getConvertor(Class<?> clazz) {
+    public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
-        IString2DataConvertor convertor = convertorsCache.get(clazz);
+        IString2DataConvertor<T> convertor = convertorsCache.get(clazz);
 
         if (convertor != null) {
             return convertor;
@@ -85,15 +73,9 @@ public class String2DataConvertorFactory {
             convertor = new String2EnumConvertor(clazz);
         } else if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
-            IString2DataConvertor componentConvertor = getConvertor(componentType);
-            convertor = new String2ArrayConvertor(componentConvertor);
+            convertor = new String2ArrayConvertor(componentType);
         } else {
-            try {
-                Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
-                convertor = new String2ConstructorConvertor(ctr);
-            } catch (NoSuchMethodException t) {
-                convertor = new NoConvertor(clazz);
-            }
+            convertor = new String2ConstructorConvertor<T>(clazz);
         }
 
         convertorsCache.put(clazz, convertor);
@@ -103,7 +85,7 @@ public class String2DataConvertorFactory {
 
     /**
      * Removes the specified Class from convertors cache.
-     * 
+     *
      * @param clazz Class to unregister.
      */
     private static void unregisterConvertorForClass(Class<?> clazz) {
@@ -112,7 +94,7 @@ public class String2DataConvertorFactory {
 
     /**
      * Unregister all Classes from the specified class loader.
-     * 
+     *
      * @param classLoader ClassLoader to unregister.
      */
     public static synchronized void unregisterClassLoader(ClassLoader classLoader) {

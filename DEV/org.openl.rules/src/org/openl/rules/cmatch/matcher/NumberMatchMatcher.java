@@ -21,14 +21,14 @@ public class NumberMatchMatcher implements IMatcher {
         RuntimeException directParseException = null;
         try {
             IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(directClass);
-            return convertor.parse(checkValue, null, null);
+            return convertor.parse(checkValue, null);
         } catch (RuntimeException e) {
             directParseException = e;
         }
 
         try {
             IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(rangeClass);
-            return convertor.parse(checkValue, null, null);
+            return convertor.parse(checkValue, null);
         } catch (Exception e) {
             // throw exception from direct parsing
             throw directParseException;

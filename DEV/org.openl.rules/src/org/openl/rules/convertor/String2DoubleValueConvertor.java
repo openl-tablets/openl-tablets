@@ -1,16 +1,18 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
 import org.openl.meta.DoubleValue;
 
-public class String2DoubleValueConvertor implements IString2DataConvertor {
+class String2DoubleValueConvertor implements IString2DataConvertor<DoubleValue> {
 
-    public String format(Object data, String format) {
-        return String.valueOf(data);
+    @Override
+    public String format(DoubleValue data, String format) {
+        if (data == null) return null;
+        return data.toString();
     }
 
-    public Object parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public DoubleValue parse(String data, String format) {
+        if (data == null) return null;
         return new DoubleValue(data);
     }
-
 }

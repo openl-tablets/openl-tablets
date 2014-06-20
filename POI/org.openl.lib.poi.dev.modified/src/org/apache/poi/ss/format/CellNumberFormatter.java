@@ -658,7 +658,7 @@ public class CellNumberFormatter extends CellFormatter {
                             delEndPos + adjust; // delete end point in current
 
                     if (modPos < modEndPos) {
-                        if (nextChange.toAdd == "")
+                        if (nextChange.toAdd.length() == 0)
                             output.delete(modPos, modEndPos);
                         else {
                             char fillCh = nextChange.toAdd.charAt(0);

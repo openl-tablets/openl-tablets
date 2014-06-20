@@ -51,30 +51,48 @@
             var hasChanges = function() {return false};
             var showConfirmDialog = function() {};
 
-            var clickListener = function (e) {
-                if (e.which != 2) {
-                    // Not a middle mouse button
-                    var $url = $j(this);
-                    var proceed = function () {
-                        $location.set($url.attr("href"));
-                    };
+            var setHasChanges = function () {};
+            var hadChanges = false;
 
-                    var revertUrl = function () {
-                    };
-                    return !self.checkForChanges(proceed, revertUrl, proceed);
+            var afterUnloadActions = [];
+
+            // Public members
+            this.revertChanges = function() {
+                if (hasChanges()) {
+                    hadChanges = true;
+                    setHasChanges(false);
                 }
             };
 
-            // Public members
-            this.revertChanges = function() {};
+            this.restoreChangedState = function() {
+                if (hadChanges) {
+                    setHasChanges(true);
+                    hadChanges = false;
+                }
+            };
 
-            this.configure = function (hasChangesFunc, revertChangesFunc, showConfirmDialogFunc) {
+            this.configure = function (hasChangesFunc, setHasChangesFunc, showConfirmDialogFunc, beforeUnloadFunc) {
                 hasChanges = hasChangesFunc;
                 showConfirmDialog = showConfirmDialogFunc;
-                self.revertChanges = revertChangesFunc;
+                setHasChanges = setHasChangesFunc;
+                window.onbeforeunload = function (e) {
+                    var result = beforeUnloadFunc(e);
+                    for (var i = 0; i < afterUnloadActions.length; i++) {
+                        afterUnloadActions[i](e);
+                    }
+                    afterUnloadActions = [];
+                    return result;
+                };
+                hadChanges = hasChanges();
             };
 
             this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
+                if (typeof revertUrlChange == "undefined") {
+                    revertUrlChange = function() {};
+                }
+                if (typeof retryUrlChange == "undefined") {
+                    retryUrlChange = proceed;
+                }
                 if (hasChanges()) {
                     revertUrlChange();
 
@@ -90,9 +108,31 @@
                 }
             };
 
-            this.addClickListener = function(selector) {
-                $j(selector).off("click");
-                $j(selector).click(clickListener);
+            this.addChangesListener = function(selector) {
+                $j(selector).each(function() {
+                    var $a = $j(this);
+
+                    var onClickFunc = new Function("event", $a.attr("onclick"));
+                    $a.removeAttr('onclick').off('click');
+                    $a.click(function (e) {
+                        if (e.which != 2) {
+                            // Not a middle mouse button
+                            var proceed = function () {
+                                var result = onClickFunc(e);
+                                if (typeof result == "undefined" || result) {
+                                    var href = $a.attr("href");
+                                    href && $location.set(href);
+                                }
+                            };
+                            ws.changes.checkForChanges(proceed);
+                            e.preventDefault();
+                        }
+                    });
+                });
+            };
+
+            this.addAfterUnloadAction = function(func) {
+                afterUnloadActions.push(func);
             };
 
         };
@@ -531,6 +571,15 @@
 
             done && callbacks.push(done);
 
+            callbacks.push(function() {
+                ws.changes.addChangesListener(".changes-listener");
+                $j(".changes-listener").toggleClass("changes-listener changes-listener-added");
+
+                $j('.restore-changed-state').click(function () {
+                    ws.changes.restoreChangedState();
+                }).toggleClass("restore-changed-state restore-changed-state-added");
+            });
+
             var initUrl = urlRewrite.prefix + "init.xhtml";
             if (init && init.project) {
                 initUrl += ("?project=" + init.project);
@@ -580,7 +629,7 @@
             var page = pageToOpen || getCurrentPage();
 
             if (page && page.indexOf("table?id=") > -1) {
-                var tableId = page.split("id=")[1].split();
+                var tableId = page.split("id=")[1].split("&")[0];
                 expandAndSelectNode(tableId);
             }
         }

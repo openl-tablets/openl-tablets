@@ -1,7 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
@@ -14,17 +12,7 @@ import java.util.Locale;
  * @param <T> type of a number
  * @author Yury Molchan
  */
-abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor {
-
-    private final String defaultFormat;
-
-    String2NumberConverter() {
-        defaultFormat = null;
-    }
-
-    String2NumberConverter(String defaultFormat) {
-        this.defaultFormat = defaultFormat;
-    }
+abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor<T> {
 
     /**
      * Format a number to String according to a format. If the input string is null then null will be returned.
@@ -34,7 +22,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * @return a String or null
      */
     @Override
-    public String format(Object data, String format) {
+    public String format(T data, String format) {
         if (data == null) return null;
 
         DecimalFormat df = getFormatter(format);
@@ -51,10 +39,10 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * @throws NumberFormatException if the specified string cannot be parsed
      */
     @Override
-    public T parse(String data, String format, IBindingContext cxt) {
+    public T parse(String data, String format) {
         if (data == null) return null;
-        if (data == "") throw new NumberFormatException("Cannot convert an empty String to numeric type");
-        if (data == "%") throw new NumberFormatException("Cannot convert \"%\" to numeric type");
+        if (data.length() == 0) throw new NumberFormatException("Cannot convert an empty String to numeric type");
+        if ("%".equals(data)) throw new NumberFormatException("Cannot convert \"%\" to numeric type");
         DecimalFormat df = getFormatter(format);
         if (data.endsWith("%")) {
             // Configure to parse percents
@@ -80,17 +68,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      */
     abstract T convert(Number number, String data);
 
-    /**
-     * This method allows to configure additional parameters for parsing and formatting
-     * in the specific cases like parsing Integers or BigDecimals.
-     *
-     * @param df an object to configure.
-     */
-    void configureFormatter(DecimalFormat df) {
-        // Empty
-    }
-
-    private DecimalFormat getFormatter(String format) {
+    DecimalFormat getFormatter(String format) {
         // Reset using a default locale and set force the US locale.
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setInfinity("Infinity");
@@ -107,13 +85,11 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         DecimalFormat df;
         if (format != null) {
             df = new DecimalFormat(format, symbols);
-        } else if (defaultFormat != null) {
-            df = new DecimalFormat(defaultFormat, symbols);
         } else {
             df = new DecimalFormat("", symbols);
             df.setGroupingUsed(false);
+            df.setMinimumIntegerDigits(1);
         }
-        configureFormatter(df);
         return df;
     }
 }
