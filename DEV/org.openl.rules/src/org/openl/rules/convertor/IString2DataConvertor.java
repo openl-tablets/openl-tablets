@@ -19,5 +19,5 @@ public interface IString2DataConvertor<T> {
 
     String format(T data, String format);
 
-    T parse(String data, String format, IBindingContext bindingContext);
+    T parse(String data, String format);
 }

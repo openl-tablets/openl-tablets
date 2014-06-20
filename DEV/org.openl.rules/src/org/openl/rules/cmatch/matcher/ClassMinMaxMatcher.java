@@ -18,7 +18,7 @@ public class ClassMinMaxMatcher implements IMatcher {
 
     public Object fromString(String checkValue) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(clazz);
-        return convertor.parse(checkValue, null, null);
+        return convertor.parse(checkValue, null);
     }
 
     @SuppressWarnings("unchecked")

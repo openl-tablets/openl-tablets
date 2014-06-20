@@ -14,7 +14,9 @@ class String2IntConvertor extends String2NumberConverter<Integer> {
     }
 
     @Override
-    void configureFormatter(DecimalFormat df) {
-        df.setParseIntegerOnly(true);
+    DecimalFormat getFormatter(String format) {
+        DecimalFormat formatter = super.getFormatter(format);
+        formatter.setParseIntegerOnly(true);
+        return formatter;
     }
 }

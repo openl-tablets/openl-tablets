@@ -15,14 +15,14 @@ public class ObjectTypeWriter implements TypeWriter {
         return Opcodes.ARETURN;
     }
 
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
+    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         // try to process object field with String constructor.
-        Class<?> fieldClass = FieldDescription.getJavaClass(fieldType);
+        Class<?> fieldClass = field.getType();
         String fieldinternalName = Type.getInternalName(fieldClass);
         methodVisitor.visitTypeInsn(Opcodes.NEW, fieldinternalName); 
         methodVisitor.visitInsn(Opcodes.DUP);
 
-        String value = updateValue(fieldType);
+        String value = updateValue(field);
         methodVisitor.visitLdcInsn(value);
         methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, fieldinternalName, "<init>", 
             "(Ljava/lang/String;)V"); 

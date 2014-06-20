@@ -1,7 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
@@ -15,16 +13,6 @@ import java.util.Locale;
  * @author Yury Molchan
  */
 abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor<T> {
-
-    private final String defaultFormat;
-
-    String2NumberConverter() {
-        defaultFormat = null;
-    }
-
-    String2NumberConverter(String defaultFormat) {
-        this.defaultFormat = defaultFormat;
-    }
 
     /**
      * Format a number to String according to a format. If the input string is null then null will be returned.
@@ -51,7 +39,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * @throws NumberFormatException if the specified string cannot be parsed
      */
     @Override
-    public T parse(String data, String format, IBindingContext cxt) {
+    public T parse(String data, String format) {
         if (data == null) return null;
         if (data.length() == 0) throw new NumberFormatException("Cannot convert an empty String to numeric type");
         if ("%".equals(data)) throw new NumberFormatException("Cannot convert \"%\" to numeric type");
@@ -80,17 +68,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      */
     abstract T convert(Number number, String data);
 
-    /**
-     * This method allows to configure additional parameters for parsing and formatting
-     * in the specific cases like parsing Integers or BigDecimals.
-     *
-     * @param df an object to configure.
-     */
-    void configureFormatter(DecimalFormat df) {
-        // Empty
-    }
-
-    private DecimalFormat getFormatter(String format) {
+    DecimalFormat getFormatter(String format) {
         // Reset using a default locale and set force the US locale.
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setInfinity("Infinity");
@@ -107,13 +85,11 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         DecimalFormat df;
         if (format != null) {
             df = new DecimalFormat(format, symbols);
-        } else if (defaultFormat != null) {
-            df = new DecimalFormat(defaultFormat, symbols);
         } else {
             df = new DecimalFormat("", symbols);
             df.setGroupingUsed(false);
+            df.setMinimumIntegerDigits(1);
         }
-        configureFormatter(df);
         return df;
     }
 }

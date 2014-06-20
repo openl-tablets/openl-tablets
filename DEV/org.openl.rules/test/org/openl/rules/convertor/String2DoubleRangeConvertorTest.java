@@ -9,7 +9,7 @@ public class String2DoubleRangeConvertorTest {
     @Test
     public void testParseNull() {
         String2DoubleRangeConvertor converter = new String2DoubleRangeConvertor();
-        assertNull(converter.parse(null, null, null));
+        assertNull(converter.parse(null, null));
     }
 
     @Test

@@ -2,7 +2,6 @@ package org.openl.rules.convertor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.binding.IBindingContext;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -23,7 +22,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
     }
 
     @Override
-    public Date parse(String data, String format, IBindingContext cxt) {
+    public Date parse(String data, String format) {
         if (data == null) return null;
         if (data.length() == 0) throw new IllegalArgumentException("Cannot convert an empty String to date type");
 

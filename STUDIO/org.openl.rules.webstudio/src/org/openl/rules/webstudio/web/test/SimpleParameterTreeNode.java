@@ -52,7 +52,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             try {
                 IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType().getInstanceClass());
-                setValueForced(convertor.parse(value, null, null));
+                setValueForced(convertor.parse(value, null));
             } catch (Exception e) {
                 // TODO message on UI
                 log.warn(String.format("Failed to set \"%s\" value to field [%s]", value, getName()), e);

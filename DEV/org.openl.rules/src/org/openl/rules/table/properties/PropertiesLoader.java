@@ -156,8 +156,8 @@ public class PropertiesLoader {
 
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
             Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
-                propertyWithDefaultValue.getFormat(),
-                null);
+                propertyWithDefaultValue.getFormat()
+            );
 
             defaultProperties.put(defaultPropertyName, defaultValue);
         }
