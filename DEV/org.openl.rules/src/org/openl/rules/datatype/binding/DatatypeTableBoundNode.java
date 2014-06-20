@@ -90,11 +90,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         for (int i = 0; i < tableHeight; i++) {
             ILogicalTable row = dataTable.getRow(i);
-            boolean firstField = false;
-            if (i == 0) {
-                firstField = true;
-            }
-            processRow(row, cxt, fields, firstField);            
+            boolean firstField = (i == 0);
+            processRow(row, cxt, fields, firstField);
         }
         checkInheritedFieldsDuplication(cxt);
         
@@ -154,8 +151,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return String.format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);        
     }
 
-    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField) 
-        throws OpenLCompilationException {
+    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField)
+            throws OpenLCompilationException {
 
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
@@ -165,24 +162,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
 
+            FieldDescription fieldDescription;
             try {
                 dataType.addField(field);
-                FieldDescription fieldDescription = fieldDescriptionFactory(field);
-
-                if (row.getWidth() > 2) {
-                    String defaultValue = getDefaultValue(row, cxt);
-                    fieldDescription.setDefaultValueAsString(defaultValue);
-
-                    Object value = fieldDescription.getDefaultValue();
-                    if (value != null) {
-                        // Validate not null default value
-                        // The null value is allowed for alias types
-                        RuleRowHelper.validateValue(value, fieldType);
-                    }
-                }
-
-                fields.put(fieldName, fieldDescription);
-
                 if (firstField) {
                     // This is done for operations like people["john"] in OpenL
                     // rules to access one instance of datatype from array by
@@ -195,9 +177,27 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     // and DatatypeArrayTest
                     dataType.setIndexField(field);
                 }
+
+                fieldDescription = fieldDescriptionFactory(field);
+                fields.put(fieldName, fieldDescription);
             } catch (Throwable t) {
-                String errorMessage = String.format("Can not add field %s: %s", fieldName, t.getMessage());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, getCellSource(row, cxt, 1));
+                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), null, null, getCellSource(row, cxt, 1));
+            }
+
+            if (row.getWidth() > 2) {
+                String defaultValue = getDefaultValue(row, cxt);
+                fieldDescription.setDefaultValueAsString(defaultValue);
+
+                Object value = fieldDescription.getDefaultValue();
+                if (value != null) {
+                    // Validate not null default value
+                    // The null value is allowed for alias types
+                    try {
+                        RuleRowHelper.validateValue(value, fieldType);
+                    } catch (Exception e) {
+                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), null, null, getCellSource(row, cxt, 2));
+                    }
+                }
             }
         }
     }
