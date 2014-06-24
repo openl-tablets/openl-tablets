@@ -43,11 +43,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+    private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -69,7 +72,11 @@ public class ProjectBean {
             return null;
 
         String moduleFullPath = modulePath.getPath();
-        String projectFullPath = module.getProject().getProjectFolder().getAbsolutePath();
+        ProjectDescriptor project = module.getProject();
+        if (project == null || project.getProjectFolder() == null) {
+            return moduleFullPath;
+        }
+        String projectFullPath = project.getProjectFolder().getAbsolutePath();
 
         if (moduleFullPath.contains(projectFullPath)) {
             return moduleFullPath.replace(projectFullPath, "").substring(1);
@@ -202,7 +209,7 @@ public class ProjectBean {
     }
 
     public void editModule() {
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
@@ -475,5 +482,60 @@ public class ProjectBean {
         }
 
         return "";
+    }
+
+    public List<Module> getModulesWithWildcard() {
+        return getOriginalProjectDescriptor().getModules();
+    }
+
+    public boolean isModuleWithWildcard(Module module) {
+        return projectDescriptorManager.isModuleWithWildcard(module);
+    }
+
+    public List<Module> getModulesMatchingPathPattern(Module module) {
+        if (module == null || !projectDescriptorManager.isModuleWithWildcard(module)) {
+            return Collections.emptyList();
+        }
+
+        return projectDescriptorManager.getAllModulesMatchingPathPattern(studio.getCurrentProjectDescriptor(), module, module.getRulesRootPath().getPath());
+    }
+
+    public boolean isEmptyMethodFilter(Module module) {
+        MethodFilter methodFilter = module.getMethodFilter();
+        if (methodFilter == null) {
+            return true;
+        }
+
+        if (methodFilter.getIncludes() != null) {
+            ArrayList<String> includes = new ArrayList<String>(methodFilter.getIncludes());
+            includes.removeAll(Arrays.asList("", null));
+            if (!includes.isEmpty()) {
+                return false;
+            }
+        }
+        if (methodFilter.getExcludes() != null) {
+            ArrayList<String> excludes = new ArrayList<String>(methodFilter.getExcludes());
+            excludes.removeAll(Arrays.asList("", null));
+            if (!excludes.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private ProjectDescriptor getOriginalProjectDescriptor() {
+        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+        try {
+            File file = new File(descriptor.getProjectFolder(), PROJECT_DESCRIPTOR_FILE);
+            return projectDescriptorManager.readOriginalDescriptor(file);
+        } catch (FileNotFoundException ignored) {
+            return descriptor;
+        } catch (ValidationException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            return descriptor;
+        }
     }
 }
