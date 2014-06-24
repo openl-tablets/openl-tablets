@@ -106,7 +106,7 @@ public class ProjectDescriptorManager {
         dest.write(serializedObject.getBytes("UTF-8"));
     }
 
-    private boolean isModuleWithWildcard(Module module) {
+    public boolean isModuleWithWildcard(Module module) {
         if (module.getRulesRootPath() != null) {
             return module.getRulesRootPath().getPath().contains("*") || module.getRulesRootPath()
                 .getPath()
@@ -130,7 +130,7 @@ public class ProjectDescriptorManager {
         }
     }
 
-    private List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
+    public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
             Module module,
             String pathPattern) {
         List<Module> modules = new ArrayList<Module>();

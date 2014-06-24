@@ -24,6 +24,11 @@
             padding-left: 20px;
             float: right;
         }
+
+        .nested-item {
+            padding-left: 5px;
+            padding-top: 8px;
+        }
     </style>
 
     <ui:param name="editable" value="#{studio.model.editable}" />
@@ -107,38 +112,49 @@
                 </h3>
                 <div class="block-content">
                     <div class="list list-modules">
-                        <ui:param name="modulesNumber" value="#{project.modules.size()}" />
-                        <ui:repeat var="module" value="#{project.modules}" varStatus="i">
+                        <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}" />
+                        <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
                             <div id="#{i.index}currentModule" class="list-item editable-inner">
                                 <div>
-                                    <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
+                                    <h:panelGroup rendered="#{projectBean.isModuleWithWildcard(module)}">
+                                        #{module.name}
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{!projectBean.isModuleWithWildcard(module)}">
+                                        <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
+                                    </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
-                                <h:panelGroup rendered="#{module.type != 'API'}">
-                                <div style="margin-top:4px">
-                                    <span>#{module.classname}</span>
-                                </div>
+                                <ui:repeat var="matchedModule" value="#{projectBean.getModulesMatchingPathPattern(module)}">
+                                    <div class="nested-item">
+                                        <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(matchedModule.name)}">#{matchedModule.name}</a>
+                                        <span class="path">#{projectBean.getModulePath(matchedModule)}</span>
+                                    </div>
+                                </ui:repeat>
+                                <h:panelGroup rendered="#{!empty module.type and module.type != 'API'}">
+                                    <div style="margin-top:4px">
+                                        <span>#{module.classname}</span>
+                                    </div>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
-                                <div style="margin-top:4px">
-                                    <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
-                                        <div title="Included Methods">
-                                            <img src="webresource/images/include.png" style="opacity:0.6" />
-                                            <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
-                                                #{include}
-                                            </a4j:repeat>
-                                        </div>
-                                    </h:panelGroup>
+                                <h:panelGroup rendered="#{!projectBean.isEmptyMethodFilter(module)}">
+                                    <div style="margin-top:4px">
+                                        <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
+                                            <div title="Included Methods">
+                                                <img src="webresource/images/include.png" style="opacity:0.6" />
+                                                <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                                    #{include}
+                                                </a4j:repeat>
+                                            </div>
+                                        </h:panelGroup>
 
-                                    <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
-                                        <div title="Excluded Methods">
-                                            <img src="webresource/images/exclude.png" style="opacity:0.6" />
-                                            <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
-                                                #{exclude}
-                                            </a4j:repeat>
-                                        </div>
-                                    </h:panelGroup>
-                                </div>
+                                        <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
+                                            <div title="Excluded Methods">
+                                                <img src="webresource/images/exclude.png" style="opacity:0.6" />
+                                                <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                                    #{exclude}
+                                                </a4j:repeat>
+                                            </div>
+                                        </h:panelGroup>
+                                    </div>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
