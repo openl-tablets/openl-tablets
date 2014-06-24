@@ -4,9 +4,9 @@
 
 	<parent>
 		<groupId>org.openl.rules</groupId>
-		<artifactId>org.openl.rules.base-pom</artifactId>
+		<artifactId>openl-tablets</artifactId>
 		<version>5.13.0-SNAPSHOT</version>
-		<relativePath>../../BasePom/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
+        <relativePath>../..</relativePath>
 	</parent>
 
 	<groupId>org.openl.rules</groupId>
