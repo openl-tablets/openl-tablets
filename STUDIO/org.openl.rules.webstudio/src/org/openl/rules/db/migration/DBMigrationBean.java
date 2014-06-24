@@ -21,7 +21,7 @@ import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
 import org.openl.rules.db.utils.DBUtils;
 
-import com.googlecode.flyway.core.Flyway;
+import org.flywaydb.core.Flyway;
 
 public class DBMigrationBean  {
     private static final String SCHEMA_SEPARATOR = ".";
