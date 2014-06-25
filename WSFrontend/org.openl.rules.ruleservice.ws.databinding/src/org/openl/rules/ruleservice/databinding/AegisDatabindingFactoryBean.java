@@ -36,7 +36,7 @@ import org.apache.cxf.aegis.type.basic.IntType;
 import org.apache.cxf.aegis.type.basic.LongType;
 import org.apache.cxf.aegis.type.basic.ShortType;
 import org.apache.cxf.aegis.type.basic.StringType;
-import org.apache.cxf.common.util.XMLSchemaQNames;
+import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.Point;
 
@@ -111,23 +111,23 @@ public class AegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
-            StringType.class, XMLSchemaQNames.XSD_STRING, typeMapping);
+            StringType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-                ShortType.class, XMLSchemaQNames.XSD_SHORT, typeMapping);
+                ShortType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
-                LongType.class, XMLSchemaQNames.XSD_LONG, typeMapping);
+                LongType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
-                IntType.class, XMLSchemaQNames.XSD_INT, typeMapping);
+                IntType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-                FloatType.class, XMLSchemaQNames.XSD_FLOAT, typeMapping);
+                FloatType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-                DoubleType.class, XMLSchemaQNames.XSD_DOUBLE, typeMapping);
+                DoubleType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
-                ByteType.class, XMLSchemaQNames.XSD_BYTE, typeMapping);
+                ByteType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-                BigIntegerType.class, XMLSchemaQNames.XSD_INTEGER, typeMapping);
+                BigIntegerType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-                BigDecimalType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
+                BigDecimalType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
 
         return aegisDatabinding;
     }

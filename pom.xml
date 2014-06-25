@@ -76,7 +76,7 @@
         <org.hibernate.version>4.1.8.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>2.7.3</org.apache.cxf.version>
+        <org.apache.cxf.version>3.0.0</org.apache.cxf.version>
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.6.4</org.slf4j.version>
         <org.apache.jackrabbit.version>2.4.4</org.apache.jackrabbit.version>
@@ -938,37 +938,52 @@
                 <version>2.2.2</version>
             </dependency>
 
+            <!-- Apache CXF Runtime JAX-WS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+
+            <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-extension-providers</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+
+            <!-- Apache CXF Runtime HTTP Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime HTTP Jetty Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime Aegis Databinding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-databinding-aegis</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+
+            <!-- Apache CXF Runtime CORBA Binding -->
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-bindings-corba</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
