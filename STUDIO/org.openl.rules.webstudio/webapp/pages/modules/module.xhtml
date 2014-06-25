@@ -9,9 +9,18 @@
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
     <ui:param name="module" value="#{studio.currentModule}" />
 
-    <div class="page">
+    <ui:param name="editable" value="#{studio.model.editable}" />
 
-        <h1 class="page-header">#{module.name}</h1>
+    <div class="page editable">
+
+        <h1 class="page-header">
+            <span>#{module.name}</span>
+            <h:panelGroup rendered="#{editable}">
+                <a href="javascript:void(0)" title="Edit" class="editable-link"
+                   onclick="editModule({name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'}, function(){ws.nav.go('#' + encodeURIComponent('#{module.project.name}') + '/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                        src="webresource/images/edit.png" style="opacity:0.4" /></a>
+            </h:panelGroup>
+        </h1>
 
         <div class="block-column">
             <div class="block">
@@ -113,5 +122,9 @@
         </h:panelGroup>
 
     </div>
+
+    <c:if test="#{editable}">
+        <ui:include src="/pages/modules/editModule.xhtml" />
+    </c:if>
 
 </ui:composition>
