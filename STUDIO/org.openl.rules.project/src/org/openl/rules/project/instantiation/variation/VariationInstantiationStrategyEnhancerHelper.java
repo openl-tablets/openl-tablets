@@ -10,10 +10,10 @@ import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.InterfaceGenerator;
 import org.openl.rules.variation.VariationsPack;
@@ -228,14 +228,14 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * 
      * @author PUdalau
      */
-    private static class UndecoratingClassWriter extends ClassAdapter {
+    private static class UndecoratingClassWriter extends ClassVisitor {
         // *TODO
         private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/variation/VariationsPack;";
         private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/variation/VariationsResult;";
         private String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
-            super(delegatedClassVisitor);
+            super(Opcodes.ASM5, delegatedClassVisitor);
             this.className = className;
         }
 

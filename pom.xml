@@ -1023,10 +1023,11 @@
                 <version>0.5.0</version>
             </dependency>
 
+            <!-- Java bytecode manipulation and analysis framework. -->
             <dependency>
-                <groupId>asm</groupId>
+                <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>3.3</version>
+                <version>5.0.3</version>
             </dependency>
 
             <dependency>
