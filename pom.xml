@@ -1077,10 +1077,11 @@
                 <version>1.8.5</version>
             </dependency>
 
+            <!-- Java library which deep-clones objects. -->
             <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
-                <version>1.7.9</version>
+                <version>1.9.0</version>
             </dependency>
 
             <dependency>
