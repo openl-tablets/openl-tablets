@@ -16,11 +16,15 @@
         </f:facet>
 
         <h:form prependId="false" id="editModuleForm">
+            <input type="hidden" id="moduleIndex" name="moduleIndex" />
             <input type="hidden" id="moduleNameOld" name="moduleNameOld" />
+
+            <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
+            <a4j:outputPanel ajaxRendered="true"/>
 
             <table class="properties properties-form wide">
                 <tr>
-                    <td class="required">Name</td>
+                    <td>Name</td>
                     <td><h:inputText id="moduleName"
                         validator="#{projectBean.validateModuleName}" /></td>
                 </tr>
@@ -92,6 +96,7 @@
 
             $j("#moduleHeader").text((add ? "Add" : "Edit") + " Module");
 
+            $j("#moduleIndex").val(module.index);
             $j("#moduleNameOld").val(module.name);
             $j("#moduleName").val(module.name);
             $j("#modulePath").val(module.path);
