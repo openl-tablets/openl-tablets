@@ -73,10 +73,10 @@
     <properties>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
         <org.springframework.version>3.1.3.RELEASE</org.springframework.version>
-        <org.hibernate.version>4.1.8.Final</org.hibernate.version>
+        <org.hibernate.version>4.3.5.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>2.7.3</org.apache.cxf.version>
+        <org.apache.cxf.version>3.0.0</org.apache.cxf.version>
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.6.4</org.slf4j.version>
         <org.apache.jackrabbit.version>2.4.4</org.apache.jackrabbit.version>
@@ -115,17 +115,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.1</version>
+                    <version>2.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.8.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.7</version>
                 </plugin>
 
                 <plugin>
@@ -137,24 +137,24 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>2.4.1</version>
+                    <version>2.5</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.8</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-plugin</artifactId>
-                    <version>1.1</version>
+                    <version>1.9</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
+                    <version>3.1</version>
                     <configuration>
                         <source>1.6</source>
                         <target>1.6</target>
@@ -164,19 +164,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.8</version>
+                    <version>2.17</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.1.1</version>
+                    <version>2.4</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2.1</version>
+                    <version>2.4</version>
                     <configuration>
                         <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
@@ -185,13 +185,13 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>1.0</version>
+                    <version>1.3</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.3.1</version>
+                    <version>2.5</version>
                     <configuration>
                         <archive>
                             <manifest>
@@ -206,12 +206,27 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.7</version>
+                    <version>2.9.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>2.0</version>
+                    <version>2.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.0-alpha-2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pdf-plugin</artifactId>
+                    <version>1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>2.7</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -868,23 +883,24 @@
             </dependency>
 
             <!-- Hibernate -->
-
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>${org.hibernate.version}</version>
             </dependency>
 
+            <!-- Integration for Ehcache into Hibernate as a second-level caching service -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-ehcache</artifactId>
                 <version>${org.hibernate.version}</version>
             </dependency>
 
+            <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>4.2.0.Final</version>
+                <version>5.1.1.Final</version>
             </dependency>
 
             <dependency>
@@ -923,37 +939,52 @@
                 <version>2.2.2</version>
             </dependency>
 
+            <!-- Apache CXF Runtime JAX-WS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+
+            <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-extension-providers</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+
+            <!-- Apache CXF Runtime HTTP Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime HTTP Jetty Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
+            <!-- Apache CXF Runtime Aegis Databinding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-databinding-aegis</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
+
+            <!-- Apache CXF Runtime CORBA Binding -->
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-bindings-corba</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
 
@@ -1023,10 +1054,11 @@
                 <version>0.5.0</version>
             </dependency>
 
+            <!-- Java bytecode manipulation and analysis framework. -->
             <dependency>
-                <groupId>asm</groupId>
+                <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>3.3</version>
+                <version>5.0.3</version>
             </dependency>
 
             <dependency>
@@ -1077,10 +1109,11 @@
                 <version>1.8.5</version>
             </dependency>
 
+            <!-- Java library which deep-clones objects. -->
             <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
-                <version>1.7.9</version>
+                <version>1.9.0</version>
             </dependency>
 
             <dependency>
@@ -1101,10 +1134,11 @@
                 <version>4.0.7</version>
             </dependency>
 
+            <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
-                <groupId>com.googlecode.flyway</groupId>
+                <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>2.1.1</version>
+                <version>3.0</version>
             </dependency>
 
         </dependencies>

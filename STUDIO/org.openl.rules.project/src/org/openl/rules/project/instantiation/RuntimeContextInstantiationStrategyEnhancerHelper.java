@@ -9,10 +9,10 @@ import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.InterfaceGenerator;
@@ -173,13 +173,13 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      * 
      * @author PUdalau
      */
-    static class UndecoratingClassWriter extends ClassAdapter {
+    static class UndecoratingClassWriter extends ClassVisitor {
 
         private static final String RUNTIME_CONTEXT = "Lorg/openl/rules/context/IRulesRuntimeContext;";
         private String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
-            super(delegatedClassVisitor);
+            super(Opcodes.ASM5, delegatedClassVisitor);
             this.className = className;
         }
 

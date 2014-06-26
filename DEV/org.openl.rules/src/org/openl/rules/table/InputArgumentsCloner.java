@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 import java.util.Map;
 
-import org.objenesis.Objenesis;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -50,11 +49,6 @@ public class InputArgumentsCloner extends Cloner {
         dontClone(StringValue.class);
     }
 
-    public InputArgumentsCloner(final Objenesis objenesis) {
-        super(objenesis);
-        dontCloneClasses();
-    }
-    
     //Overriden to avoid cloning generated at runtime custom SpreadsheetResult children classes
 	@Override
 	public <T> T cloneInternal(final T o, final Map<Object, Object> clones) throws IllegalAccessException {
