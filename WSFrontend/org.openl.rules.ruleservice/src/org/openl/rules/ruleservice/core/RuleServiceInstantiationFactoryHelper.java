@@ -7,10 +7,10 @@ import java.util.Set;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -26,7 +26,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      * 
      * @author PUdalau
      */
-    private static class ResultConvertorsSupportClassVisitor extends ClassAdapter {
+    private static class ResultConvertorsSupportClassVisitor extends ClassVisitor {
         private Collection<Method> methods;
 
         /**
@@ -37,7 +37,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
          * @param methods Methods where to change return type.
          */
         public ResultConvertorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
-            super(visitor);
+            super(Opcodes.ASM5, visitor);
             this.methods = methods;
         }
 

@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 import net.sf.cglib.core.ReflectUtils;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -19,7 +19,7 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class DynamicInterfaceAnnotationEnchancerHelper {
 
-    private static class DynamicInterfaceAnnotationEnchancerClassAdaptor extends ClassAdapter {
+    private static class DynamicInterfaceAnnotationEnchancerClassAdaptor extends ClassVisitor {
         private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
@@ -27,7 +27,7 @@ public class DynamicInterfaceAnnotationEnchancerHelper {
         private Class<?> templateClass;
 
         public DynamicInterfaceAnnotationEnchancerClassAdaptor(ClassVisitor arg0, Class<?> templateClass) {
-            super(arg0);
+            super(Opcodes.ASM5, arg0);
             this.templateClass = templateClass;
         }
 

@@ -43,11 +43,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+    private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -69,7 +72,11 @@ public class ProjectBean {
             return null;
 
         String moduleFullPath = modulePath.getPath();
-        String projectFullPath = module.getProject().getProjectFolder().getAbsolutePath();
+        ProjectDescriptor project = module.getProject();
+        if (project == null || project.getProjectFolder() == null) {
+            return moduleFullPath;
+        }
+        String projectFullPath = project.getProjectFolder().getAbsolutePath();
 
         if (moduleFullPath.contains(projectFullPath)) {
             return moduleFullPath.replace(projectFullPath, "").substring(1);
@@ -170,15 +177,23 @@ public class ProjectBean {
     public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
+        String modulePath = FacesUtils.getRequestParameter("modulePath");
 
-        FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+        Module toCheck = new Module();
+        toCheck.setRulesRootPath(new PathEntry(modulePath));
+        boolean withWildcard = isModuleWithWildcard(toCheck);
+        if (!withWildcard) {
+            FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+        }
 
         if (StringUtils.isBlank(oldName)       // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
-            FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+            if (!withWildcard || !StringUtils.isBlank(newName)) {
+                FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
-            Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
-            FacesUtils.validate(module == null, "Module with such name already exists");
+                Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
+                FacesUtils.validate(module == null, "Module with such name already exists");
+            }
         }
     }
 
@@ -202,9 +217,10 @@ public class ProjectBean {
     }
 
     public void editModule() {
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
+        String index = FacesUtils.getRequestParameter("moduleIndex");
         String oldName = FacesUtils.getRequestParameter("moduleNameOld");
         String name = FacesUtils.getRequestParameter("moduleName");
         String path = FacesUtils.getRequestParameter("modulePath");
@@ -213,14 +229,18 @@ public class ProjectBean {
 
         Module module;
 
-        // Add new Module
-        if (StringUtils.isBlank(oldName)) {
+        if (StringUtils.isBlank(oldName) && StringUtils.isBlank(index)) {
+            // Add new Module
             module = new Module();
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
-            // Edit current Module
         } else {
-            module = studio.getModule(newProjectDescriptor, oldName);
+            // Edit current Module
+            if (!StringUtils.isBlank(oldName)) {
+                module = studio.getModule(newProjectDescriptor, oldName);
+            } else {
+                module = newProjectDescriptor.getModules().get(Integer.parseInt(index));
+            }
         }
 
         if (module != null) {
@@ -254,18 +274,13 @@ public class ProjectBean {
     }
 
     public void removeModule() {
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
 
         List<Module> modules = newProjectDescriptor.getModules();
-        for (Module module : modules) {
-            if (module.getName().equals(toRemove)) {
-                modules.remove(module);
-                break;
-            }
-        }
+        modules.remove(Integer.parseInt(toRemove));
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
@@ -475,5 +490,60 @@ public class ProjectBean {
         }
 
         return "";
+    }
+
+    public List<Module> getModulesWithWildcard() {
+        return getOriginalProjectDescriptor().getModules();
+    }
+
+    public boolean isModuleWithWildcard(Module module) {
+        return projectDescriptorManager.isModuleWithWildcard(module);
+    }
+
+    public List<Module> getModulesMatchingPathPattern(Module module) {
+        if (module == null || !projectDescriptorManager.isModuleWithWildcard(module)) {
+            return Collections.emptyList();
+        }
+
+        return projectDescriptorManager.getAllModulesMatchingPathPattern(studio.getCurrentProjectDescriptor(), module, module.getRulesRootPath().getPath());
+    }
+
+    public boolean isEmptyMethodFilter(Module module) {
+        MethodFilter methodFilter = module.getMethodFilter();
+        if (methodFilter == null) {
+            return true;
+        }
+
+        if (methodFilter.getIncludes() != null) {
+            ArrayList<String> includes = new ArrayList<String>(methodFilter.getIncludes());
+            includes.removeAll(Arrays.asList("", null));
+            if (!includes.isEmpty()) {
+                return false;
+            }
+        }
+        if (methodFilter.getExcludes() != null) {
+            ArrayList<String> excludes = new ArrayList<String>(methodFilter.getExcludes());
+            excludes.removeAll(Arrays.asList("", null));
+            if (!excludes.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private ProjectDescriptor getOriginalProjectDescriptor() {
+        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+        try {
+            File file = new File(descriptor.getProjectFolder(), PROJECT_DESCRIPTOR_FILE);
+            return projectDescriptorManager.readOriginalDescriptor(file);
+        } catch (FileNotFoundException ignored) {
+            return descriptor;
+        } catch (ValidationException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            return descriptor;
+        }
     }
 }

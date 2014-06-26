@@ -31,7 +31,7 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Project module is not defined");
         }
 
-        if (StringUtils.isEmpty(module.getName())) {
+        if (StringUtils.isEmpty(module.getName()) && !isModuleWithWildcard(module)) {
             throw new ValidationException("Module name is not defined");
         }
 
@@ -46,4 +46,13 @@ public class ProjectDescriptorValidator {
         }
 
     }
+
+    private boolean isModuleWithWildcard(Module module) {
+        if (module.getRulesRootPath() != null) {
+            String path = module.getRulesRootPath().getPath();
+            return path.contains("*") || path.contains("?");
+        }
+        return false;
+    }
+
 }

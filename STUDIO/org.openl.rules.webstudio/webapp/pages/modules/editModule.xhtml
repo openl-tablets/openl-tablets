@@ -1,0 +1,128 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="editModulePopup" width="470" autosized="true">
+        <f:facet name="header">
+            <h:outputText id="moduleHeader" value="Edit Module" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                 onclick="ws.ui.hide('editModulePopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="false" id="editModuleForm">
+            <input type="hidden" id="moduleIndex" name="moduleIndex" />
+            <input type="hidden" id="moduleNameOld" name="moduleNameOld" />
+
+            <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
+            <a4j:outputPanel ajaxRendered="true"/>
+
+            <table class="properties properties-form wide">
+                <tr>
+                    <td>Name</td>
+                    <td><h:inputText id="moduleName"
+                        validator="#{projectBean.validateModuleName}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="moduleName" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td class="required">Path</td>
+                    <td><h:inputText id="modulePath"
+                        validator="#{projectBean.validateModulePath}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="modulePath" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr><td class="delimeter"></td></tr>
+                <tr>
+                    <td>Included Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleIncludes" /></td>
+                </tr>
+                <tr>
+                    <td>Excluded Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleExcludes" /></td>
+                </tr>
+            </table>
+
+            <footer>
+                <a4j:commandButton id="editModuleBtn" value="Save" action="#{projectBean.editModule}"
+                    styleClass="button-primary"
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editModulePopup');editModuleDone();}" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('editModulePopup');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <script>
+    //<![CDATA[
+
+        function editModule(module, callback) {
+            var add = !module;
+
+            if (callback) {
+                editModuleDone = callback;
+            }
+
+            if (add) {
+                module = {
+                    name: "",
+                    path: "",
+                    includes: "",
+                    excludes: ""
+                };
+            }
+
+            if (module.includes) {
+                module.includes = module.includes.substr(1, module.includes.length - 2).replace(/, /g, "\n");
+            }
+            if (module.excludes) {
+                module.excludes = module.excludes.substr(1, module.excludes.length - 2).replace(/, /g, "\n");
+            }
+
+            var btn = $j("#editModuleBtn");
+            btn.prop("disabled", true);
+
+            $j("#moduleHeader").text((add ? "Add" : "Edit") + " Module");
+
+            $j("#moduleIndex").val(module.index);
+            $j("#moduleNameOld").val(module.name);
+            $j("#moduleName").val(module.name);
+            $j("#modulePath").val(module.path);
+            $j("#moduleIncludes").val(module.includes);
+            $j("#moduleExcludes").val(module.excludes);
+
+            $j("#editModuleForm span.error").remove();
+
+            $j("#editModuleForm .properties :input").on("keyup change", function() {
+                var changed =
+                        module.name != $j("#moduleName").val()
+                     || module.path != $j("#modulePath").val()
+                     || module.includes != $j("#moduleIncludes").val()
+                     || module.excludes != $j("#moduleExcludes").val();
+
+                btn.prop("disabled", !changed);
+            })
+
+            ws.ui.show("editModulePopup");
+        }
+
+        function editModuleDone() {
+            ws.nav.reload(true);
+        }
+
+    //]]>
+    </script>
+
+</ui:composition>

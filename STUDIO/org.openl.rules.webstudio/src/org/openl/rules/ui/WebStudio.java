@@ -345,6 +345,7 @@ public class WebStudio {
                     String projectName = currentProject.getName();
                     if (currentModule != null) {
                         String moduleName = currentModule.getName();
+                        currentProject = null; // To reload current project
                         selectModule(projectName, moduleName);
                     } else {
                         selectProject(projectName);
