@@ -22,7 +22,7 @@ public class DynamicInterfaceAnnotationEnchancerHelper {
     private static class DynamicInterfaceAnnotationEnchancerClassAdaptor extends ClassAdapter {
         private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
-        private static final String DECORATED_CLASS_NAME_SUFFIX = "$Original";
+        private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
         private Class<?> templateClass;
 
@@ -30,11 +30,6 @@ public class DynamicInterfaceAnnotationEnchancerHelper {
             super(arg0);
             this.templateClass = templateClass;
         }
-
-        /*@Override
-        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, arg2 + DECORATED_CLASS_NAME_SUFFIX, arg3, arg4, arg5);
-        }*/
 
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
