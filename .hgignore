@@ -30,3 +30,4 @@ TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/.classpath
 TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/target/*
 TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/test-output/*
 TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/bin/*
+POI/org.openl.lib.poi.dev.modified/test/functions/Statistics.xls
