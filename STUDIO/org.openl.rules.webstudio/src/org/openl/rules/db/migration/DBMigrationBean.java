@@ -18,10 +18,11 @@ import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.Oracle8iDialect;
 import org.hibernate.dialect.SQLServerDialect;
-import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
+import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
+import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.openl.rules.db.utils.DBUtils;
 
-import com.googlecode.flyway.core.Flyway;
+import org.flywaydb.core.Flyway;
 
 public class DBMigrationBean  {
     private static final String SCHEMA_SEPARATOR = ".";
@@ -46,7 +47,8 @@ public class DBMigrationBean  {
         Connection dbConnection = dbUtils.createConnection(dbDriver, prefix, url, dbLogin, dbPassword);
         try {
             dbConnection.setAutoCommit(false);
-            Dialect dialect = new StandardDialectResolver().resolveDialect(dbConnection.getMetaData());
+            DatabaseMetaDataDialectResolutionInfoAdapter dialectResolutionInfo = new DatabaseMetaDataDialectResolutionInfoAdapter(dbConnection.getMetaData());
+            Dialect dialect = new StandardDialectResolver().resolveDialect(dialectResolutionInfo);
 
             Flyway flyway = flywayInit(dialect);
             if (isExistMySQLWithoutFlyway(dbConnection, dbUtils, dialect)) {

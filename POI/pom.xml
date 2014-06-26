@@ -28,17 +28,10 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.1</version>
 					<configuration>
 						<tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags</tagBase>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.1</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
