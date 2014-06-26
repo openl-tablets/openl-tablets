@@ -118,7 +118,7 @@
                             <div id="#{i.index}currentModule" class="list-item editable-inner">
                                 <div>
                                     <h:panelGroup rendered="#{projectBean.isModuleWithWildcard(module)}">
-                                        #{module.name}
+                                        #{empty module.name ? 'Multiple modules' : module.name}
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!projectBean.isModuleWithWildcard(module)}">
                                         <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
@@ -159,11 +159,11 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
-                                        onclick="editModule({name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
                                         <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
-                                               onclick="removeModule('#{module.name}')" style="right:-55px;padding-left: 5px"><img
+                                               onclick="removeModule('#{i.index}')" style="right:-55px;padding-left: 5px"><img
                                                     src="webresource/images/remove.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                 </h:panelGroup>
