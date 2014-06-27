@@ -17,17 +17,4 @@ DEMO/*/overlays/
 DEV/org.openl.rules/unit_tests/*.xls
 DEV/org.openl.rules.test/*.xls
 STUDIO/org.openl.rules.webstudio/webapps/webstudio/WEB-INF/conf/config.properties
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests/_ReSharper.OpenLSmokeTests
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests/obj
-TESTS/org.openl.rules.integration.tests/WebDriverFrameWork/_ReSharper.WebDriverFrameWork
-TESTS/org.openl.rules.integration.tests/WebDriverFrameWork/WebDriverFrameWork/obj
-TESTS/org.openl.rules.integration.tests/WebAiiFrameWork/_ReSharper.WebDriverFrameWork
-TESTS/org.openl.rules.integration.tests/WebAiiFrameWork/obj
-TESTS/org.openl.rules.integration.tests/**/*.suo
-TESTS/org.openl.rules.integration.tests/TestReports
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/.project
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/.classpath
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/target/*
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/test-output/*
-TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/bin/*
 POI/org.openl.lib.poi.dev.modified/test/functions/Statistics.xls
