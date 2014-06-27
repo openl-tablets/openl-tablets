@@ -15,9 +15,14 @@
     <h:panelGroup rendered="#{!empty rProject and studio.model.editable and empty module}">
         <ui:include src="/pages/modules/updateProject.xhtml" />
     </h:panelGroup>
+    <h:panelGroup rendered="#{!empty rProject and empty module}">
+        <ui:include src="/pages/modules/exportProject.xhtml" />
+    </h:panelGroup>
 
     <h:panelGroup rendered="#{!empty module and studio.model.editable}">
         <ui:include src="/pages/modules/updateModule.xhtml" />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{!empty module}">
         <ui:include src="/pages/modules/exportModule.xhtml" />
     </h:panelGroup>
 
@@ -85,12 +90,15 @@
                 <h:commandLink onclick="openUpdateProjectDialog();return false;"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />
+                <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog(); return false;"
+                               title="Export project" value="Export"
+                               rendered="#{!empty rProject and empty module}" />
                 <h:commandLink styleClass="changes-listener" onclick="openUpdateModuleDialog(); return false;"
                     title="Update module" value="Update"
                     rendered="#{!empty module and studio.model.editable}" />
                 <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog(); return false;"
                     title="Export module" value="Export"
-                    rendered="#{!empty module and studio.model.editable}" />
+                    rendered="#{!empty module}" />
             </a4j:ajax>
 
             <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
