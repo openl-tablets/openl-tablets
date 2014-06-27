@@ -23,7 +23,7 @@
               </h:panelGrid>
 
             <footer>
-                <a4j:commandButton value="Update" action="#{studio.updateModule}"
+                <a4j:commandButton value="Update" action="#{studio.updateModule}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
             </footer>
