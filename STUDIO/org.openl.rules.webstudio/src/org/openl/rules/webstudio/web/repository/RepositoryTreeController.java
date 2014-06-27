@@ -856,7 +856,7 @@ public class RepositoryTreeController {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
                 new CommonVersionImpl(version));
-            zipFile = new ProjectExportHelper().export(userWorkspace.getUser(), forExport);
+            zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (ProjectException e) {
             String msg = "Failed to export project version.";
