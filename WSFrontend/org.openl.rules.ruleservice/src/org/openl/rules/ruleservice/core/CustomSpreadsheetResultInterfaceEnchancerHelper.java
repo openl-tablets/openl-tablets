@@ -6,12 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.cglib.core.ReflectUtils;
-
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -25,7 +20,7 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelper {
      * 
      * @author Marat Kamalov
      */
-    private static class CustomSpreadsheetResultInterfaceClassAdaptor extends ClassAdapter {
+    private static class CustomSpreadsheetResultInterfaceClassVisitor extends ClassVisitor {
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Original";
 
@@ -38,8 +33,8 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelper {
          * @param visitor delegated {@link ClassVisitor}.
          * @param methods Methods where to change return type.
          */
-        public CustomSpreadsheetResultInterfaceClassAdaptor(ClassVisitor visitor, Collection<Method> methods) {
-            super(visitor);
+        public CustomSpreadsheetResultInterfaceClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
+	    super(Opcodes.ASM5, visitor);
             this.methods = methods;
         }
 
@@ -93,12 +88,12 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelper {
             return originalClass;
         }
 
-        CustomSpreadsheetResultInterfaceClassAdaptor customSpreadsheetResultInterfaceClassAdaptor = new CustomSpreadsheetResultInterfaceClassAdaptor(cw,
+        CustomSpreadsheetResultInterfaceClassVisitor customSpreadsheetResultInterfaceClassVisitor = new CustomSpreadsheetResultInterfaceClassVisitor(cw,
             methodsWithCustomSpreadSheetResult);
 
-        String enchancedClassName = originalClass.getCanonicalName() + CustomSpreadsheetResultInterfaceClassAdaptor.DECORATED_CLASS_NAME_SUFFIX;
+        String enchancedClassName = originalClass.getCanonicalName() + CustomSpreadsheetResultInterfaceClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
-        transformer.accept(customSpreadsheetResultInterfaceClassAdaptor);
+        transformer.accept(customSpreadsheetResultInterfaceClassVisitor);
         cw.visitEnd();
         Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
