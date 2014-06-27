@@ -867,7 +867,7 @@ public class RepositoryTreeController {
         if (zipFile != null) {
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, zipFile, zipFileName, "zip");
+            ExportModule.writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
             zipFile.delete();
@@ -895,8 +895,7 @@ public class RepositoryTreeController {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            String fileType = fileName.endsWith("xls") ? "xls" : "xlsx";
-            ExportModule.writeOutContent(response, file, fileName, fileType);
+            ExportModule.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version.";

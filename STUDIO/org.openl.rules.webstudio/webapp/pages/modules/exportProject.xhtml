@@ -1,0 +1,38 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <f:view transient="true">
+    <rich:popupPanel id="exportProject" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Export project" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('exportProject').hide();" alt="Close" />
+        </f:facet>
+
+        <h:form id="exportProjectForm">
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportProjectData">
+                <h:outputText value="Project Name" />
+                <h:outputLabel id="exportingProjectName" value="#{studio.currentProject.name}" />
+            </h:panelGrid>
+
+            <footer>
+                <h:commandButton value="Export" action="#{studio.exportProject}"
+                    onclick="RichFaces.$('exportProject').hide();ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
+                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportProject').hide();" />
+            </footer>
+        </h:form>
+
+    </rich:popupPanel>
+    </f:view>
+
+    <script>
+        function openExportProjectDialog() {
+            RichFaces.$('exportProject').show();
+        }
+    </script>
+</ui:composition>

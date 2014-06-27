@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,7 +16,7 @@ import org.openl.commons.web.util.WebTool;
 public class ExportModule {
     private final static Log log = LogFactory.getLog(ExportModule.class);
     
-    public static void writeOutContent(final HttpServletResponse res, final File content, final String filename, final String type) {
+    public static void writeOutContent(final HttpServletResponse res, final File content, final String filename) {
         if (content == null) {
             return;
         }
@@ -23,7 +24,7 @@ public class ExportModule {
         try {
             res.setHeader("Pragma", "no-cache");
             res.setDateHeader("Expires", 0);
-            res.setContentType("application/" + type);
+            res.setContentType("application/" + FilenameUtils.getExtension(filename));
             WebTool.setContentDisposition(res, filename);
 
             input = new FileInputStream(content);
