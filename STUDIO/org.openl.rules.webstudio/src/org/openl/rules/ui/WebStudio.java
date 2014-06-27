@@ -258,7 +258,7 @@ public class WebStudio {
             String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
 
             String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getVersion().getVersionName());
-            file = new ProjectExportHelper().export(new WorkspaceUserImpl(userName), forExport);
+            file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();

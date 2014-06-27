@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.uw.impl;
 
+import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -15,50 +17,44 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
-public class ProjectExportHelper {
+public final class ProjectExportHelper {
     private static FileFilter FILE_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return !FolderHelper.PROPERTIES_FOLDER.equalsIgnoreCase(pathname.getName());
         }
     };
 
-    public File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
-        File zipFile;
-        try {
-            zipFile = File.createTempFile("export-", "-zip");
-        } catch (IOException e) {
-            throw new ProjectException("Failed to create temporary file!", e);
-        }
+    private ProjectExportHelper() {
+    }
 
-        File tempWsLocation = new File(zipFile.getParentFile(), "export-" + System.currentTimeMillis());
+    public static File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
+        File tempWsLocation = new File(getTempDirectoryPath(), "export-" + System.currentTimeMillis());
         if (!tempWsLocation.mkdir() && !tempWsLocation.exists()) {
             throw new ProjectException("Failed to create a temporary folder!");
         }
 
-        LocalWorkspaceImpl tempWS = new LocalWorkspaceImpl(user, tempWsLocation, FILE_FILTER, FILE_FILTER);
-        AProject localProject = tempWS.addProject(oldRP);
-
-        String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
-                + "\nExported by " + user.getUserName();
-
-        IOException packException = null;
+        LocalWorkspaceImpl tempWS = null;
         try {
+            tempWS = new LocalWorkspaceImpl(user, tempWsLocation, FILE_FILTER, FILE_FILTER);
+            AProject localProject = tempWS.addProject(oldRP);
+
+            String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
+                    + "\nExported by " + user.getUserName();
+
+            File zipFile = File.createTempFile("export-", "-zip");
             packIntoZip(zipFile, new File(tempWsLocation, localProject.getName()), zipComment);
+            return zipFile;
         } catch (IOException e) {
-            packException = e;
+            throw new ProjectException("Failed to export project due I/O error!", e);
+        } finally {
+            if (tempWS != null) {
+                tempWS.release();
+            }
+            FolderHelper.deleteFolder(tempWsLocation);
         }
-
-        tempWS.release();
-        FolderHelper.deleteFolder(tempWsLocation);
-
-        if (packException != null) {
-            throw new ProjectException("Failed to export project due I/O error!", packException);
-        }
-
-        return zipFile;
     }
 
-    protected void packDir(ZipOutputStream zipOutputStream, File dir, String path) throws IOException {
+    protected static void packDir(ZipOutputStream zipOutputStream, File dir, String path) throws IOException {
         File[] files = dir.listFiles(FILE_FILTER);
         if (files == null) {
             return;
@@ -73,7 +69,7 @@ public class ProjectExportHelper {
         }
     }
 
-    protected void packFile(ZipOutputStream zipOutputStream, File file, String path) throws IOException {
+    protected static void packFile(ZipOutputStream zipOutputStream, File file, String path) throws IOException {
         ZipEntry entry = new ZipEntry(path + file.getName());
         zipOutputStream.putNextEntry(entry);
 
@@ -90,7 +86,7 @@ public class ProjectExportHelper {
         zipOutputStream.closeEntry();
     }
 
-    protected void packIntoZip(File zipFile, File rootDir, String zipComment) throws IOException {
+    protected static void packIntoZip(File zipFile, File rootDir, String zipComment) throws IOException {
         FileOutputStream fileOutputStream = null;
         ZipOutputStream zipOutputStream = null;
 
