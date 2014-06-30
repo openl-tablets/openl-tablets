@@ -17,23 +17,34 @@
         </f:facet>
 
         <h:form id="updateProjectForm">
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <h:panelGrid id="updateProjectFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="projectUpload" styleClass="required" value="File" />
-                <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}" />
-              </h:panelGrid>
+                <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
+                                 acceptedTypes="zip" maxFilesQuantity="1">
+                    <a4j:ajax event="uploadcomplete" execute="@none"
+                              oncomplete="disableUploadProjectButton(false);" />
+                </rich:fileUpload>
+            </h:panelGrid>
 
             <footer>
-                <a4j:commandButton value="Update" action="#{studio.updateProject}"
+                <a4j:commandButton id="uploadProject" value="Update" action="#{studio.updateProject}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateProject').hide();ws.nav.reload(true);message('Project was updated successfully!', 7000);" />
                 <input type="button" value="Cancel" onclick="RichFaces.$('updateProject').hide();" />
             </footer>
+
+            <a4j:jsFunction name="initUpdateProjectDialog" action="#{studio.clearUploadedFiles}" render="updateProjectFormData" oncomplete="RichFaces.$('updateProject').show();" />
         </h:form>
     </rich:popupPanel>
     </f:view>
 
     <script>
-    function openUpdateProjectDialog() {
-      RichFaces.$('updateProject').show();
-    }
+        function openUpdateProjectDialog() {
+            disableUploadProjectButton(true);
+            initUpdateProjectDialog();
+        }
+
+        function disableUploadProjectButton(disable) {
+            #{rich:element('updateProjectForm:uploadProject')}.disabled = disable;
+        }
     </script>
 </ui:composition>

@@ -17,23 +17,32 @@
         </f:facet>
 
         <h:form id="updateModuleForm">
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <h:panelGrid id="updateModuleFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
-                <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}" />
-              </h:panelGrid>
+                <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
+                                 acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1">
+                    <a4j:ajax event="uploadcomplete" execute="@none"
+                              oncomplete="disableUploadModuleButton(false);" />
+                </rich:fileUpload>
+            </h:panelGrid>
 
             <footer>
-                <a4j:commandButton value="Update" action="#{studio.updateModule}"
+                <a4j:commandButton id="uploadModule" value="Update" action="#{studio.updateModule}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);message('Module was updated successfully!', 7000);" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
             </footer>
+            <a4j:jsFunction name="initUpdateModuleDialog" action="#{studio.clearUploadedFiles}" render="updateModuleFormData" oncomplete="RichFaces.$('updateModule').show();" />
         </h:form>
     </rich:popupPanel>
     </f:view>
 
     <script>
     function openUpdateModuleDialog() {
-      RichFaces.$('updateModule').show();
+        disableUploadModuleButton(true);
+        initUpdateModuleDialog();
+    }
+    function disableUploadModuleButton(disable) {
+        #{rich:element('updateModuleForm:uploadModule')}.disabled = disable;
     }
     </script>
 </ui:composition>
