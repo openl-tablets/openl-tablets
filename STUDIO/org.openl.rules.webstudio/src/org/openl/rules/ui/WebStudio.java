@@ -484,7 +484,7 @@ public class WebStudio {
 
         reset(ReloadType.FORCED);
         rebuildModel();
-        uploadedFiles.clear();
+        clearUploadedFiles();
 
         return null;
     }
@@ -493,11 +493,11 @@ public class WebStudio {
         UploadedFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("File wasn't uploaded");
+            throw new IllegalArgumentException("No file was uploaded. Please upload .zip file to update project");
         }
         if (!FileTypeHelper.isZipFile(FilenameUtils.getName(lastUploadedFile.getName()))) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("Uploaded file must be zip");
+            throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
         }
         File uploadedFile = null;
         ZipFile zipFile = null;
@@ -570,7 +570,7 @@ public class WebStudio {
 
         reset(ReloadType.FORCED);
         rebuildModel();
-        uploadedFiles.clear();
+        clearUploadedFiles();
 
         return null;
     }
@@ -792,6 +792,10 @@ public class WebStudio {
         if (model != null) {
             model.destroy();
         }
+    }
+
+    public void clearUploadedFiles() {
+        uploadedFiles.clear();
     }
 
     /**
