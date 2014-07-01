@@ -1,4 +1,4 @@
-<project name="overallRelease" default="help" basedir=".">
+<project name="overallRelease" default="help" basedir="BasePom/org.openl.rules.base-pom">
 
 	<description>
 	    This script is designed to build all projects from base-pom in two ways:
