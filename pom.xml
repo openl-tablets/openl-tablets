@@ -86,7 +86,7 @@
     <modules>
         <module>POI</module>
         <module>DEV</module>
-        <module>STUDIO/org.openl.rules.studio-pom</module>
+        <module>STUDIO</module>
         <module>WSFrontend/org.openl.rules.ruleservice-pom</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>

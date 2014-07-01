@@ -6,7 +6,6 @@
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.studio-pom</artifactId>
 		<version>5.13.0-SNAPSHOT</version>
-		<relativePath>../org.openl.rules.studio-pom</relativePath>
 	</parent>
 
 	<artifactId>org.openl.rules.variation</artifactId>
