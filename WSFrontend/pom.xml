@@ -1,42 +1,185 @@
-<!-- This file is for releasing OpenL version with maven-release-plugin -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openl.rules</groupId>
-  <artifactId>openl-ruleservice-svn-pom</artifactId>
-  <packaging>pom</packaging>
-  <version>5.13.0-SNAPSHOT</version>
-  <name>OpenL WSFrontend SVN root pom</name>
-  <url>http://openl-tablets.sourceforge.net/</url>
 
-  <scm>
-       <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
-       <developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
-  </scm>
+    <modelVersion>4.0.0</modelVersion>
 
-  <modules>
-    <module>org.openl.rules.ruleservice-pom</module>
-  </modules>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>openl-tablets</artifactId>
+        <version>5.13.0-SNAPSHOT</version>
+    </parent>
 
-  <distributionManagement>
-    <repository>
-      <id>exigen-repo-release</id>
-      <name>Exigen Release Repository</name>
-      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-    </repository>
-  </distributionManagement>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+    <version>5.13.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>OpenL - RuleService</name>
+    <description>Rules Service Pom Project</description>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+    <modules>
+        <module>org.openl.rules.ruleservice.context</module>
+        <module>org.openl.rules.ruleservice</module>
+        <module>org.openl.rules.ruleservice.ws.databinding</module>
+        <module>org.openl.rules.ruleservice.ws</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+            <id>local-wsfrontend-repo</id>
+            <url>file:///${basedir}/org.openl.rules.ruleservice-pom/m2_repo</url>
+        </repository>
+
+        <repository>
+            <id>apache-incubating</id>
+            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+            <id>local-wsfrontend-plugin-repo</id>
+            <url>file:///${basedir}/org.openl.rules.ruleservice-pom/m2_repo</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <profiles>
+        <profile>
+            <id>internal-deploy</id>
+            <distributionManagement>
+                <site>
+                    <id>internal-minsk</id>
+                    <url>file://d:/reports/org.openl.rules.ruleservice-pom</url>
+                </site>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>cobertura-summary-report</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <tasks>
+                                <taskdef resource="tasks.properties" />
+
+                                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                                    <fileset dir="..">
+                                        <include name="org.openl.rules.ruleservice\target\cobertura\cobertura.ser" />
+                                    </fileset>
+                                </cobertura-merge>
+
+                                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                                    <fileset dir="org.openl.rules.ruleservice\src\">
+                                        <include name="**\*.java" />
+                                    </fileset>
+                                </cobertura-report>
+                            </tasks>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.context</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- DEV -->
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.calculation.result</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.conf.ant</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- STUDIO -->
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.workspace</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
