@@ -272,17 +272,6 @@
                         <version>2.6</version>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>cobertura-maven-plugin</artifactId>
-                        <version>2.4</version>
-                        <configuration>
-                            <formats>
-                                <format>xml</format>
-                                <format>html</format>
-                            </formats>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-pmd-plugin</artifactId>
                         <version>2.5</version>
@@ -445,24 +434,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>cobertura-summary-report</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.6</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>net.sourceforge.cobertura</groupId>
-                                <artifactId>cobertura</artifactId>
-                                <version>2.3</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
