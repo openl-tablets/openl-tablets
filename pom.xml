@@ -90,7 +90,7 @@
         <module>WSFrontend</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
-        <module>DEMO/org.openl.rules.demo-pom</module>
+        <module>DEMO</module>
         <module>Util/openl-sourceforge-publisher</module>
     </modules>
 
