@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
-import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
@@ -44,9 +43,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -57,6 +54,7 @@ import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
+import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -69,7 +67,6 @@ import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.xml.sax.SAXParseException;
 
 /**
  * TODO Remove JSF dependency
@@ -519,7 +516,7 @@ public class WebStudio {
             PathFilter filter = getZipFilter();
             RootFolderExtractor folderExtractor = new RootFolderExtractor(zipEntryNames, filter);
 
-            String errorMessage = validateUploadedFiles(zipFile, folderExtractor, projectDescriptor);
+            String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor);
             if (errorMessage != null) {
                 // TODO Replace exceptions with FacesUtils.addErrorMessage()
                 throw new ValidationException(errorMessage);
@@ -592,39 +589,10 @@ public class WebStudio {
         return null;
     }
 
-    private String validateUploadedFiles(ZipFile zipFile, RootFolderExtractor folderExtractor, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
-            ZipEntry item = items.nextElement();
-            if (item.isDirectory()) {
-                continue;
-            }
-
-            if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(folderExtractor.extractFromRootFolder(item.getName()))) {
-                InputStream inputStream = null;
-                try {
-                    inputStream = zipFile.getInputStream(item);
-                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                    ProjectDescriptor newProjectDescriptor = serializer.deserialize(inputStream);
-
-                    if (!newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
-                        String errorMessage = validateProjectName(newProjectDescriptor.getName());
-                        if (errorMessage != null) {
-                            return errorMessage;
-                        }
-                    }
-                } catch (XStreamException e) {
-                    StringBuilder message = new StringBuilder("Can't parse rules.xml.");
-                    if (e.getCause() instanceof SAXParseException) {
-                        SAXParseException parseException = (SAXParseException) e.getCause();
-                        message.append(" Line number: ").append(parseException.getLineNumber())
-                                .append(", column number: ").append(parseException.getColumnNumber())
-                                .append(".");
-                    }
-                    return message.toString();
-                } finally {
-                    IOUtils.closeQuietly(inputStream);
-                }
-            }
+    private String validateUploadedFiles(UploadedFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
+        ProjectDescriptor newProjectDescriptor = new ZipProjectDescriptorExtractor(zipFilter).getProjectDescriptor(zipFile);
+        if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
+            return validateProjectName(newProjectDescriptor.getName());
         }
 
         return null;
