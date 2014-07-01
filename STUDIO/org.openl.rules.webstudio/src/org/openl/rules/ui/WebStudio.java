@@ -590,7 +590,7 @@ public class WebStudio {
     }
 
     private String validateUploadedFiles(UploadedFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
-        ProjectDescriptor newProjectDescriptor = new ZipProjectDescriptorExtractor(zipFilter).getProjectDescriptor(zipFile);
+        ProjectDescriptor newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptor(zipFile, zipFilter);
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());
         }

@@ -14,16 +14,11 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class ZipProjectDescriptorExtractor {
-    private final Log log = LogFactory.getLog(ZipProjectDescriptorExtractor.class);
-
-    private final PathFilter zipFilter;
-
-    public ZipProjectDescriptorExtractor(PathFilter zipFilter) {
-        this.zipFilter = zipFilter;
+public final class ZipProjectDescriptorExtractor {
+    private ZipProjectDescriptorExtractor() {
     }
 
-    public ProjectDescriptor getProjectDescriptor(UploadedFile uploadedFile) {
+    public static ProjectDescriptor getProjectDescriptor(UploadedFile uploadedFile, PathFilter zipFilter) {
         ProjectDescriptor projectDescriptor = null;
         ZipInputStream zipInputStream = null;
         try {
@@ -50,6 +45,7 @@ public class ZipProjectDescriptorExtractor {
                 }
             }
         } catch (Exception e) {
+            Log log = LogFactory.getLog(ZipProjectDescriptorExtractor.class);
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
