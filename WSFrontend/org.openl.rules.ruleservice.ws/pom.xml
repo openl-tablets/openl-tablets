@@ -182,11 +182,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jvnet.annox</groupId>
-			<artifactId>annox</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>compile</scope>
