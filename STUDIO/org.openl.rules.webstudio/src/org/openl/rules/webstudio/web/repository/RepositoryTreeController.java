@@ -1332,7 +1332,7 @@ public class RepositoryTreeController {
             this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
 
             if (FileTypeHelper.isZipFile(fileName)) {
-                ProjectDescriptor projectDescriptor = new ZipProjectDescriptorExtractor(zipFilter).getProjectDescriptor(file);
+                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptor(file, zipFilter);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
                 }
