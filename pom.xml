@@ -84,7 +84,7 @@
     </properties>
 
     <modules>
-        <module>POI/org.openl.lib.poi.dev-pom</module>
+        <module>POI</module>
         <module>DEV/org.openl.rules.dev-pom</module>
         <module>STUDIO/org.openl.rules.studio-pom</module>
         <module>WSFrontend/org.openl.rules.ruleservice-pom</module>
