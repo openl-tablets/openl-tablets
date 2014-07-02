@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.engine.OpenLSourceManager;
@@ -45,7 +46,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
         URL[] urls = projectDescriptor.getClassPathUrls();
         classLoader.addClassLoader(projectDescriptor.getClassLoader(false));
-        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
         return classLoader;
     }
 
@@ -54,9 +55,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         Set<String> globalErrorMessages = new LinkedHashSet<String>();
         Set<String> globalWarnMessages = new LinkedHashSet<String>();
+        PropertiesFileNameProcessor processor = null;
         try {
             ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
-            PropertiesFileNameProcessor processor = buildProcessor(globalErrorMessages, projectDescriptor);
+            processor = buildProcessor(globalErrorMessages, projectDescriptor);
             if (processor != null) {
                 for (Module module : projectDescriptor.getModules()) {
                     Set<String> moduleErrorMessages = new HashSet<String>(globalErrorMessages);
@@ -113,6 +115,8 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                 e);
         } catch (Exception e) {
             throw new ProjectResolvingException("Project descriptor reading failed.", e);
+        } finally {
+            destroyProcessor(processor);
         }
     }
 
@@ -148,5 +152,11 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
             }
         }
         return processor;
+    }
+
+    private static void destroyProcessor(PropertiesFileNameProcessor processor) {
+        if (processor != null) {
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(processor.getClass().getClassLoader());
+        }
     }
 }
