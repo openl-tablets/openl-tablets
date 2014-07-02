@@ -7,15 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -53,15 +47,16 @@ import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
+import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
+import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
@@ -504,17 +499,9 @@ public class WebStudio {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
         }
-        File uploadedFile = null;
-        ZipFile zipFile = null;
         try {
-            uploadedFile = FileTool.toTempFile(lastUploadedFile.getInputStream(), lastUploadedFile.getName());
-            zipFile = new ZipFile(uploadedFile);
-
             ProjectDescriptor projectDescriptor = getCurrentProjectDescriptor();
-
-            Set<String> zipEntryNames = sortZipEntryNames(zipFile);
             PathFilter filter = getZipFilter();
-            RootFolderExtractor folderExtractor = new RootFolderExtractor(zipEntryNames, filter);
 
             String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor);
             if (errorMessage != null) {
@@ -522,46 +509,44 @@ public class WebStudio {
                 throw new ValidationException(errorMessage);
             }
 
-            File projectFolder = projectDescriptor.getProjectFolder();
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter);
+
+            FilePathsCollector filesCollector = new FilePathsCollector();
+            zipWalker.iterateEntries(filesCollector);
+            List<String> filesInZip = filesCollector.getFilePaths();
+
+            final File projectFolder = projectDescriptor.getProjectFolder();
             Collection<File> files = getProjectFiles(projectFolder, filter);
 
+            // Delete absent files in project
             for (File file : files) {
                 String relative = getRelativePath(projectFolder, file);
-                boolean found = false;
-                for (String zipEntryName : zipEntryNames) {
-                    if (relative.equals(folderExtractor.extractFromRootFolder(zipEntryName))) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
+                if (!filesInZip.contains(relative)) {
                     FileUtils.deleteQuietly(file);
                 }
             }
 
-            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
+            // Update/create other files in project
+            final XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                     model.getHistoryManager());
-            for (String zipEntryName : zipEntryNames) {
-                ZipEntry item = zipFile.getEntry(zipEntryName);
-                if (item.isDirectory()) {
-                    continue;
-                }
+            zipWalker.iterateEntries(new DefaultZipEntryCommand() {
+                @Override
+                public boolean execute(String filePath, InputStream inputStream) throws IOException {
+                    File outputFile = new File(projectFolder, filePath);
+                    historyListener.beforeSave(outputFile);
 
-                File outputFile = new File(projectFolder, folderExtractor.extractFromRootFolder(zipEntryName));
-                historyListener.beforeSave(outputFile);
+                    OutputStream outputStream = null;
+                    try {
+                        outputStream = new FileOutputStream(outputFile);
+                        IOUtils.copy(inputStream, outputStream);
+                    } finally {
+                        IOUtils.closeQuietly(outputStream);
+                    }
+                    historyListener.afterSave(outputFile);
 
-                InputStream inputStream = null;
-                OutputStream outputStream = null;
-                try {
-                    inputStream = zipFile.getInputStream(item);
-                    outputStream = new FileOutputStream(outputFile);
-                    IOUtils.copy(inputStream, outputStream);
-                } finally {
-                    IOUtils.closeQuietly(outputStream);
-                    IOUtils.closeQuietly(inputStream);
+                    return true;
                 }
-                historyListener.afterSave(outputFile);
-            }
+            });
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw e;
@@ -569,17 +554,6 @@ public class WebStudio {
             log.error("Error while updating project in user workspace.", e);
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalStateException("Error while updating project in user workspace.", e);
-        } finally {
-            try {
-                if (zipFile != null) {
-                    zipFile.close();
-                }
-            } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-            FileUtils.deleteQuietly(uploadedFile);
         }
 
         reset(ReloadType.FORCED);
@@ -635,21 +609,6 @@ public class WebStudio {
 
     private String getRelativePath(File baseFolder, File file) {
         return baseFolder.toURI().relativize(file.toURI()).getPath().replace("\\", "/");
-    }
-
-    private SortedSet<String> sortZipEntryNames(ZipFile zipFile) {
-        // Sort zip entries names alphabetically
-        SortedSet<String> sortedNames = new TreeSet<String>();
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
-            try {
-                ZipEntry item = items.nextElement();
-                sortedNames.add(item.getName());
-            } catch (Exception e) {
-                // TODO message on UI
-                log.warn("Can not extract zip entry.", e);
-            }
-        }
-        return sortedNames;
     }
 
     private UploadedFile getLastUploadedFile() {
