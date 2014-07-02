@@ -179,7 +179,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
         private String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
-            super(Opcodes.ASM5, delegatedClassVisitor);
+            super(Opcodes.ASM4, delegatedClassVisitor);
             this.className = className;
         }
 
