@@ -34,7 +34,7 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelper {
          * @param methods Methods where to change return type.
          */
         public CustomSpreadsheetResultInterfaceClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
-	    super(Opcodes.ASM5, visitor);
+	    super(Opcodes.ASM4, visitor);
             this.methods = methods;
         }
 

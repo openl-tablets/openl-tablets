@@ -945,7 +945,7 @@
             <!-- Code generation library with shaded ASM dependecies -->
             <dependency>
                 <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
+                <artifactId>cglib</artifactId>
                 <version>3.1</version>
             </dependency>
 
@@ -954,6 +954,12 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>asm</groupId>
+				<artifactId>asm</artifactId>
+			</exclusion>
+		</exclusions>
             </dependency>
 
             <!-- Apache CXF Runtime JAX-RS Frontend -->
@@ -989,6 +995,12 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-databinding-aegis</artifactId>
                 <version>${org.apache.cxf.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>asm</groupId>
+				<artifactId>asm</artifactId>
+			</exclusion>
+		</exclusions>
             </dependency>
 
             <!-- Apache CXF Runtime CORBA Binding -->
@@ -996,6 +1008,12 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-corba</artifactId>
                 <version>${org.apache.cxf.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>asm</groupId>
+				<artifactId>asm</artifactId>
+			</exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
@@ -1062,13 +1080,6 @@
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>2.2.7</version>
-            </dependency>
-
-            <!-- Java bytecode manipulation and analysis framework. -->
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>5.0.3</version>
             </dependency>
 
             <!-- serialize objects to XML (or JSON) and back again. -->

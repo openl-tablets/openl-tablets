@@ -19,15 +19,15 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class DynamicInterfaceAnnotationEnchancerHelper {
 
-    private static class DynamicInterfaceAnnotationEnchancerClassAdaptor extends ClassVisitor {
+    private static class DynamicInterfaceAnnotationEnchancerClassVisitor extends ClassVisitor {
         private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
         private Class<?> templateClass;
 
-        public DynamicInterfaceAnnotationEnchancerClassAdaptor(ClassVisitor arg0, Class<?> templateClass) {
-            super(Opcodes.ASM5, arg0);
+        public DynamicInterfaceAnnotationEnchancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
+            super(Opcodes.ASM4, arg0);
             this.templateClass = templateClass;
         }
 
@@ -113,11 +113,11 @@ public class DynamicInterfaceAnnotationEnchancerHelper {
     public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass, ClassLoader classLoader)
             throws Exception {
         ClassWriter cw = new ClassWriter(0);
-        DynamicInterfaceAnnotationEnchancerClassAdaptor dynamicInterfaceAnnotationEnchancerClassAdaptor = new DynamicInterfaceAnnotationEnchancerClassAdaptor(
+        DynamicInterfaceAnnotationEnchancerClassVisitor dynamicInterfaceAnnotationEnchancerClassAdaptor = new DynamicInterfaceAnnotationEnchancerClassVisitor(
                 cw, templateClass);
 
         String enchancedClassName = originalClass.getCanonicalName()
-                + DynamicInterfaceAnnotationEnchancerClassAdaptor.DECORATED_CLASS_NAME_SUFFIX;
+                + DynamicInterfaceAnnotationEnchancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnchancerClassAdaptor);
         cw.visitEnd();

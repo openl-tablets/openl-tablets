@@ -37,7 +37,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
          * @param methods Methods where to change return type.
          */
         public ResultConvertorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
-            super(Opcodes.ASM5, visitor);
+            super(Opcodes.ASM4, visitor);
             this.methods = methods;
         }
 
