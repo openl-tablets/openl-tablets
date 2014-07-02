@@ -44,9 +44,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         Set<String> globalErrorMessages = new LinkedHashSet<String>();
         Set<String> globalWarnMessages = new LinkedHashSet<String>();
+        PropertiesFileNameProcessor processor = null;
         try {
             ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
-            PropertiesFileNameProcessor processor = buildProcessor(globalErrorMessages, projectDescriptor);
+            processor = buildProcessor(globalErrorMessages, projectDescriptor);
             if (processor != null) {
                 for (Module module : projectDescriptor.getModules()) {
                     Set<String> moduleErrorMessages = new HashSet<String>(globalErrorMessages);
@@ -103,6 +104,8 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                 e);
         } catch (Exception e) {
             throw new ProjectResolvingException("Project descriptor reading failed.", e);
+        } finally {
+            PropertiesFileNameProcessorBuilder.destroy(processor);
         }
     }
 

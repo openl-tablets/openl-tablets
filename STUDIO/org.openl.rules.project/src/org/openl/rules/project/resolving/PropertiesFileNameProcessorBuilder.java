@@ -3,6 +3,7 @@ package org.openl.rules.project.resolving;
 import java.net.URL;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -45,6 +46,12 @@ public final class PropertiesFileNameProcessorBuilder {
         } catch (Exception e) {
             // Should not occur in normal situation.
             throw new InvalidFileNameProcessorException(e);
+        }
+    }
+
+    public static void destroy(PropertiesFileNameProcessor processor) {
+        if (processor != null) {
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(processor.getClass().getClassLoader());
         }
     }
 
