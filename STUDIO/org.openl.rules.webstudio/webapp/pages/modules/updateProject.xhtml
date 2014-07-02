@@ -22,6 +22,7 @@
                 <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
                                  acceptedTypes="zip" maxFilesQuantity="1">
                     <a4j:ajax event="uploadcomplete" execute="@none"
+                              render="structureChangedFormData"
                               oncomplete="disableUploadProjectButton(false);" />
                 </rich:fileUpload>
             </h:panelGrid>
@@ -33,6 +34,35 @@
             </footer>
 
             <a4j:jsFunction name="initUpdateProjectDialog" action="#{studio.clearUploadedFiles}" render="updateProjectFormData" oncomplete="RichFaces.$('updateProject').show();" />
+        </h:form>
+    </rich:popupPanel>
+
+    <rich:popupPanel id="structureChanged" width="500" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Update project"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="RichFaces.$('structureChanged').hide();" alt="Close" />
+        </f:facet>
+
+        <h:form id="structureChangedForm">
+            <h:panelGrid id="structureChangedFormData">
+                <h:panelGroup>
+                    Warning: You've uploaded a project which structure differs from the current one. Please, ensure you've chosen the correct project to update.
+                </h:panelGroup>
+
+                <h:panelGrid rendered="#{studio.uploadedProjectStructureChanged}">
+                    <script>
+                        RichFaces.$('structureChanged').show();
+                    </script>
+                </h:panelGrid>
+            </h:panelGrid>
+
+            <footer>
+                <input type="button" value="OK" onclick="RichFaces.$('structureChanged').hide();" />
+            </footer>
         </h:form>
     </rich:popupPanel>
     </f:view>

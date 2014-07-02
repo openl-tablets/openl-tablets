@@ -563,6 +563,48 @@ public class WebStudio {
         return null;
     }
 
+    public boolean isUploadedProjectStructureChanged() {
+        UploadedFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null) {
+            return false;
+        }
+        try {
+            PathFilter filter = getZipFilter();
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter);
+
+            FilePathsCollector filesCollector = new FilePathsCollector();
+            zipWalker.iterateEntries(filesCollector);
+            List<String> filesInZip = filesCollector.getFilePaths();
+
+            final File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
+            Collection<File> files = getProjectFiles(projectFolder, filter);
+            final List<String> filesInProject = new ArrayList<String>();
+            for (File file : files) {
+                filesInProject.add(getRelativePath(projectFolder, file));
+            }
+
+            for (String filePath : filesInProject) {
+                if (!filesInZip.contains(filePath)) {
+                    // Deleted file
+                    return true;
+                }
+            }
+
+            for (String filePath : filesInZip) {
+                if (!filesInProject.contains(filePath)) {
+                    // Added file
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        return false;
+    }
+
     private String validateUploadedFiles(UploadedFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
         ProjectDescriptor newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptor(zipFile, zipFilter);
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
