@@ -34,7 +34,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import com.googlecode.flyway.core.api.FlywayException;
+import org.flywaydb.core.api.FlywayException;
 
 @ManagedBean
 @SessionScoped

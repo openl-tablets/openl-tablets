@@ -122,7 +122,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     log.info(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
                         service.getName()));
                 }
-                serviceClass = processGeneratedServiceClass(instantiationStrategy.getInstanceClass(),
+                serviceClass = processGeneratedServiceClass(service,
+                    instantiationStrategy.getInstanceClass(),
                     serviceClassLoader);
             }
         } else {
@@ -130,19 +131,48 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 log.info(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
                     service.getName()));
             }
-            serviceClass = processGeneratedServiceClass(instantiationStrategy.getInstanceClass(), serviceClassLoader);
+            serviceClass = processGeneratedServiceClass(service,
+                instantiationStrategy.getInstanceClass(),
+                serviceClassLoader);
         }
         service.setServiceClass(serviceClass);
     }
 
-    private Class<?> processGeneratedServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
+    private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
+        Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
+        return processCustomSpreadSheetResults(service, resultClass, classLoader);
+    }
+
+    private Class<?> processCustomSpreadSheetResults(OpenLService service,
+            Class<?> serviceClass,
+            ClassLoader classLoader) {
         if (serviceClass == null) {
-            return null; // It shouldn't happen
+            throw new IllegalStateException("It shouldn't happen!");
+        }
+        try {
+            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnchancerHelper.decorate(serviceClass, classLoader);
+            return decoratedClass;
+        }catch(Exception e){
+            if (log.isErrorEnabled()) {
+                log.error(String.format("Failed to applying custom spreadsheet result convertor for class with name \"%s\"",
+                    serviceClass.getCanonicalName()),
+                    e);
+            }
+        }
+        return serviceClass;
+    }
+
+    private Class<?> processInterceptingTemplateClassConfiguration(OpenLService service,
+            Class<?> serviceClass,
+            ClassLoader classLoader) {
+        if (serviceClass == null) {
+            throw new IllegalStateException("It shouldn't happen!");
         }
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription == null) {
-            if (log.isWarnEnabled()) {
-                log.warn("Service description didn't find! Something wrong!");
+            if (log.isErrorEnabled()) {
+                log.error("Service description didn't find! Something wrong!");
+                log.error("Interceptor template configuration was ignored for service '" + service.getName() + "'!");
             }
             return serviceClass;
         } else {

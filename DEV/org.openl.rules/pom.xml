@@ -83,8 +83,8 @@
 
 		<!-- 3rd party dependencies -->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
 		</dependency>
 
 		<dependency>
@@ -93,12 +93,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>asm</groupId>
+			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
 		</dependency>
 
@@ -109,7 +109,7 @@
 
 		<dependency>
 			<groupId>org.jgrapht</groupId>
-			<artifactId>jgrapht-jdk1.5</artifactId>
+			<artifactId>jgrapht-core</artifactId>
 		</dependency>
 
 		<dependency>

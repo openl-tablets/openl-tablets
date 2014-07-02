@@ -75,6 +75,10 @@
 			<artifactId>cxf-rt-databinding-aegis</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-bindings-corba</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
