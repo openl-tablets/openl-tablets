@@ -12,6 +12,7 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -19,7 +20,9 @@ import java.util.zip.ZipFile;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.ValidationException;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +43,10 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -48,6 +54,7 @@ import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportModule;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -62,6 +69,7 @@ import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.xml.sax.SAXParseException;
 
 /**
  * TODO Remove JSF dependency
@@ -511,6 +519,12 @@ public class WebStudio {
             PathFilter filter = getZipFilter();
             RootFolderExtractor folderExtractor = new RootFolderExtractor(zipEntryNames, filter);
 
+            String errorMessage = validateUploadedFiles(zipFile, folderExtractor, projectDescriptor);
+            if (errorMessage != null) {
+                // TODO Replace exceptions with FacesUtils.addErrorMessage()
+                throw new ValidationException(errorMessage);
+            }
+
             File projectFolder = projectDescriptor.getProjectFolder();
             Collection<File> files = getProjectFiles(projectFolder, filter);
 
@@ -551,6 +565,9 @@ public class WebStudio {
                 }
                 historyListener.afterSave(outputFile);
             }
+        } catch (ValidationException e) {
+            // TODO Replace exceptions with FacesUtils.addErrorMessage()
+            throw e;
         } catch (Exception e) {
             log.error("Error while updating project in user workspace.", e);
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
@@ -575,6 +592,61 @@ public class WebStudio {
         return null;
     }
 
+    private String validateUploadedFiles(ZipFile zipFile, RootFolderExtractor folderExtractor, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+            ZipEntry item = items.nextElement();
+            if (item.isDirectory()) {
+                continue;
+            }
+
+            if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(folderExtractor.extractFromRootFolder(item.getName()))) {
+                InputStream inputStream = null;
+                try {
+                    inputStream = zipFile.getInputStream(item);
+                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                    ProjectDescriptor newProjectDescriptor = serializer.deserialize(inputStream);
+
+                    if (!newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
+                        String errorMessage = validateProjectName(newProjectDescriptor.getName());
+                        if (errorMessage != null) {
+                            return errorMessage;
+                        }
+                    }
+                } catch (XStreamException e) {
+                    StringBuilder message = new StringBuilder("Can't parse rules.xml.");
+                    if (e.getCause() instanceof SAXParseException) {
+                        SAXParseException parseException = (SAXParseException) e.getCause();
+                        message.append(" Line number: ").append(parseException.getLineNumber())
+                                .append(", column number: ").append(parseException.getColumnNumber())
+                                .append(".");
+                    }
+                    return message.toString();
+                } finally {
+                    IOUtils.closeQuietly(inputStream);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private String validateProjectName(String projectName) throws ProjectException {
+        String msg = null;
+        if (StringUtils.isBlank(projectName)) {
+            msg = "Project name must not be empty.";
+        } else if (!NameChecker.checkName(projectName)) {
+            msg = NameChecker.BAD_PROJECT_NAME_MSG;
+        } else if (isProjectExists(projectName)) {
+            msg = "Cannot update the project. Another project with the same name already exists in Repository.";
+        }
+        return msg;
+    }
+
+    private ProjectDescriptorArtefactResolver getProjectDescriptorResolver() {
+        return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils.
+                getWebApplicationContext(FacesUtils.getServletContext()).getBean("projectDescriptorArtefactResolver");
+    }
+
     private PathFilter getZipFilter() {
         return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext()).getBean("zipFilter");
     }
@@ -597,9 +669,9 @@ public class WebStudio {
         return baseFolder.toURI().relativize(file.toURI()).getPath().replace("\\", "/");
     }
 
-    private Set<String> sortZipEntryNames(ZipFile zipFile) {
+    private SortedSet<String> sortZipEntryNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
-        Set<String> sortedNames = new TreeSet<String>();
+        SortedSet<String> sortedNames = new TreeSet<String>();
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
             try {
                 ZipEntry item = items.nextElement();
@@ -636,8 +708,40 @@ public class WebStudio {
         });
     }
 
+    /**
+     * Checks if there is any project with specified name in repository.
+     *
+     * @param name physical or logical project name
+     * @return true only if there is a project with specified name and it is not current project
+     */
     public boolean isProjectExists(final String name) {
-        return getProjectByName(name) != null;
+        HttpSession session = FacesUtils.getSession();
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+
+        if (userWorkspace.hasProject(name)) {
+            try {
+                if (getCurrentProject() != userWorkspace.getProject(name)) {
+                    return true;
+                }
+            } catch (ProjectException e) {
+                // Should not occur
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
+
+        ProjectDescriptorArtefactResolver projectDescriptorResolver = getProjectDescriptorResolver();
+        for (RulesProject rulesProject : userWorkspace.getProjects()) {
+            if (getCurrentProject() == rulesProject) {
+                continue;
+            }
+            if (projectDescriptorResolver.getLogicalName(rulesProject).equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
