@@ -6,7 +6,6 @@
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.dev-pom</artifactId>
 		<version>5.13.0-SNAPSHOT</version>
-		<relativePath>../org.openl.rules.dev-pom</relativePath>
 	</parent>
 
 	<groupId>org.openl</groupId>
@@ -17,6 +16,11 @@
 	<url>http://openl-tablets.sf.net/</url>
 
 	<dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
