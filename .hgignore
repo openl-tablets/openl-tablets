@@ -3,6 +3,7 @@ syntax: glob
 *.iws
 *.ipr
 *.iml
+*.orig
 .settings
 .project
 .classpath
