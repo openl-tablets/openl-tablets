@@ -34,10 +34,10 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public class OpenLSourceManager extends OpenLHolder {
 
-    private static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
+    public static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
 
-    public static final String PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY = "properties-file-name-pattern-warn-messages";
-    public static final String PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY = "properties-file-name-pattern-error-messages";
+    public static final String ADDITIONAL_WARN_MESSAGES_KEY = "additional-warn-messages";
+    public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
 
     private OpenLParseManager parseManager;
     private OpenLBindManager bindManager;
@@ -149,14 +149,14 @@ public class OpenLSourceManager extends OpenLHolder {
 
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
-            if (externalParams.containsKey(PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY)) {
-                Set<String> warnMessages = (Set<String>) externalParams.get(PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY);
+            if (externalParams.containsKey(ADDITIONAL_WARN_MESSAGES_KEY)) {
+                Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String warnMessage : warnMessages) {
                     OpenLMessagesUtils.addWarn(warnMessage);
                 }
             }
-            if (externalParams.containsKey(PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY)) {
-                Set<String> warnMessages = (Set<String>) externalParams.get(PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY);
+            if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
+                Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String warnMessage : warnMessages) {
                     OpenLMessagesUtils.addError(warnMessage);
                 }

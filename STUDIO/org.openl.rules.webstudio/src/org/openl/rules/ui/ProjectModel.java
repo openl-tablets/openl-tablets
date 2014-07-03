@@ -42,7 +42,10 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
-import org.openl.rules.lang.xls.syntax.*;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -1300,6 +1303,7 @@ public class ProjectModel {
             factory.disallowUnload();
 
             compiledOpenClass = instantiationStrategy.compile();
+            
             WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);

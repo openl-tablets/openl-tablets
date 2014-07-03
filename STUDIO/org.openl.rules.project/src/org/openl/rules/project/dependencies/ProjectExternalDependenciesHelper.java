@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -24,6 +25,17 @@ public final class ProjectExternalDependenciesHelper {
         return "VIRTUAL_MODULE(" + projectName + ")";
     }
 
+    public static boolean isProject(String dependencyName) {
+        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName.lastIndexOf(")") == dependencyName.length() - 1;
+    }
+
+    public static String getProjectName(String dependencyName) {
+        if (isProject(dependencyName)){
+            return dependencyName.substring("VIRTUAL_MODULE(".length(), dependencyName.length() - 1);
+        }
+        return null;
+    }
+    
     public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
             Collection<Module> modules) {
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -31,7 +43,7 @@ public final class ProjectExternalDependenciesHelper {
             parameters.putAll(externalParams);
         }
         if (modules == null) {
-            parameters.put("external-dependencies", null);
+            parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, null);
             return parameters;
         }
         Set<String> virtualModules = new HashSet<String>();
@@ -52,15 +64,16 @@ public final class ProjectExternalDependenciesHelper {
                 virualModule,
                 null)));
         }
-        /*Object ed = parameters.get("external-dependencies");
-        if (ed != null) {
-            @SuppressWarnings("unchecked")
-            List<IDependency> dependencies = (List<IDependency>) ed;
-            externalDependencies.addAll(dependencies);
-        }*/
-        //if (!externalDependencies.isEmpty()) {
-        parameters.put("external-dependencies", externalDependencies);
-        //}
+        /*
+         * Object ed = parameters.get("external-dependencies"); if (ed != null)
+         * {
+         * 
+         * @SuppressWarnings("unchecked") List<IDependency> dependencies =
+         * (List<IDependency>) ed; externalDependencies.addAll(dependencies); }
+         */
+        // if (!externalDependencies.isEmpty()) {
+        parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
+        // }
         return parameters;
     }
 }

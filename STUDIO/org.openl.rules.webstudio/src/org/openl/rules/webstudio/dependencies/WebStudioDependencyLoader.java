@@ -25,7 +25,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
 
     @Override
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
-        ClassLoader classLoader = dependencyManager.getClassLoader(getModules());
+        ClassLoader classLoader = dependencyManager.getClassLoader(getModules().iterator().next().getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
     };
 
