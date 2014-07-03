@@ -127,7 +127,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     private void _testListeners() throws ProjectException, InterruptedException {
         final boolean[] flag = new boolean[1];
         class TestListener implements RDeploymentListener {
-            public void projectsAdded() {
+            public void onEvent() {
                 flag[0] = true;
             }
         }

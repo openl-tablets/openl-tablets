@@ -1,8 +1,8 @@
 package org.openl.rules.repository.jcr;
 
-import javax.jcr.Session;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.observation.EventListener;
 
 import org.apache.commons.logging.Log;
@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RTransactionManager;
 
-public abstract class BaseJcrRepository implements RRepository, EventListener{
+public abstract class BaseJcrRepository implements RRepository, EventListener {
     private final Log log = LogFactory.getLog(BaseJcrRepository.class);
     private final String name;
     /** JCR Session */
