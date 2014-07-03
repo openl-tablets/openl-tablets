@@ -99,7 +99,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         this.deployment = deployment;
         this.modules = modules;
     }
-
+ 
     public LazyEngineFactory(DeploymentDescription deployment,
             Collection<Module> modules,
             IDependencyManager dependencyManager) {
