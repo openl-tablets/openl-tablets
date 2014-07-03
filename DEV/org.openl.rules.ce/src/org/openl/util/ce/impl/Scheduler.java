@@ -11,15 +11,15 @@ import org.openl.util.ce.IActivity;
 import org.openl.util.ce.IInvokableActivity;
 import org.openl.util.ce.IScheduledActivity;
 import org.openl.util.ce.IScheduler;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 public class Scheduler implements IScheduler {
 
-	IServiceMTConfiguration config;
+	ServiceMTConfiguration config;
 
-	public Scheduler(IServiceMTConfiguration config, long singleCellLength) {
+	public Scheduler(ServiceMTConfiguration config, long singleCellLength) {
 		this.config = config;
-		this.parLevel = config.getParallelLevel();
+		this.parLevel = config.getTotalParallelLevel();
 		this.minSeqLength = Math.max(
 				(int) (config.getMinSequenceLengthNs() / singleCellLength), 1);
 	}

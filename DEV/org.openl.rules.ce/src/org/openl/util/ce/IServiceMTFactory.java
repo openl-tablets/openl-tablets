@@ -1,9 +1,9 @@
 package org.openl.util.ce;
 
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 public interface IServiceMTFactory {
 
-	IServiceMT makeService(IServiceMTConfiguration config);
+	IServiceMT makeService(ServiceMTConfiguration config);
 	
 }

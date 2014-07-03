@@ -8,18 +8,18 @@ import java.util.concurrent.Callable;
 import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IServiceMT;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 public abstract class ServiceBase implements IServiceMT {
 
-	protected IServiceMTConfiguration config;
+	protected ServiceMTConfiguration config;
 
-	public ServiceBase(IServiceMTConfiguration config) {
+	public ServiceBase(ServiceMTConfiguration config) {
 		super();
 		this.config = config;
 	}
 
-	public IServiceMTConfiguration getConfig() {
+	public ServiceMTConfiguration getConfig() {
 		return config;
 	}
 	
@@ -43,7 +43,8 @@ public abstract class ServiceBase implements IServiceMT {
 				if (errs == null)
 					errs = new TreeMap<Integer, Throwable>();
 				errs.put(i, t);
-				if (errs.size() > config.getErrorLimit())
+				
+				if (config.getErrorLimit() > 0 && errs.size() >= config.getErrorLimit())
 					throw new ArrayExecutionException("Error Limit exceeded " + config.getErrorLimit() , errs);
 			}
 		}

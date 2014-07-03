@@ -1,8 +1,9 @@
 package org.openl.util.ce.impl;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.openl.util.ce.IActivity;
 import org.openl.util.ce.IServiceMT;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
 import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 public abstract class ServiceMT extends ServiceBase {
@@ -21,24 +22,33 @@ public abstract class ServiceMT extends ServiceBase {
 
 
 
-	public ServiceMT(IServiceMTConfiguration config) {
+	@Override
+	public int getActiveThreadCounter() {
+		return activeThreadCounter.get();
+	}
+
+	public ServiceMT(ServiceMTConfiguration config) {
 
 		super(config);
 	}
 
+	static AtomicInteger activeThreadCounter = new AtomicInteger(0);
 
 	protected int calcSplitSize(int length, long durationEstimate) {
 		
 		long minSize = config.getMinSequenceLengthNs();
 		
-		int maxSplits = config.getParallelLevel() * 2 + 1;
+		int maxSplits = config.getMaxPerRequestParallelLevel();
+		int activeCounter = getActiveThreadCounter();
+		int availableThreads = config.getTotalParallelLevel() - activeCounter;
+		
+		maxSplits = Math.min(availableThreads, maxSplits);
+		
 		
 		long totalSizeEstimate = length * durationEstimate;
 				
-		double busyRatio = getBusyRatio();
 
 		
-		maxSplits =  (int) (maxSplits * (1 - busyRatio));
 		
 		int maxSplits2 = (int)(totalSizeEstimate / minSize);
 		

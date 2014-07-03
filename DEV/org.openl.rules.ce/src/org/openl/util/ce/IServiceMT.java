@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 import org.openl.binding.impl.MultiCallMethodBoundNode;
 import org.openl.util.IConvertor;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 /**
  * 
@@ -177,7 +177,7 @@ public interface IServiceMT {
 	 *         measurement
 	 */
 
-	double getBusyRatio();
+	int getActiveThreadCounter();
 
 	void shutdown();
 
@@ -187,7 +187,7 @@ public interface IServiceMT {
 	IScheduler getScheduler(long singleCellLength);
 	
 	
-	IServiceMTConfiguration getConfig();
+	ServiceMTConfiguration getConfig();
 
 
 }
