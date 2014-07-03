@@ -1,22 +1,14 @@
 package org.openl.rules.repository.jcr;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RProductionDeployment;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RRepositoryListener;
-import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -27,14 +19,22 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.repository.RDeploymentDescriptorProject;
+import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.RProductionDeployment;
+import org.openl.rules.repository.RProductionRepository;
+import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RTransactionManager;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private final Log log = LogFactory.getLog(JcrProductionRepository.class);
@@ -100,7 +100,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     public static final String DEPLOY_ROOT = "/deploy";
 
     private Node deployLocation;
-    private List<RDeploymentListener> listeners = new ArrayList<RDeploymentListener>();
+    private List<RDeploymentListener> listeners = new CopyOnWriteArrayList<RDeploymentListener>();
 
     public JcrProductionRepository(String name, Session session, RTransactionManager transactionManager) throws RepositoryException {
         super(name, session, transactionManager);
@@ -110,11 +110,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             session.save();
         }
 
-        session.getWorkspace().getObservationManager().addEventListener(this, Event.PROPERTY_ADDED, DEPLOY_ROOT, false,
+        session.getWorkspace().getObservationManager().addEventListener(this, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED, DEPLOY_ROOT, false,
                 null, null, false);
     }
 
-    public synchronized void addListener(RDeploymentListener listener) throws RRepositoryException {
+    public void addListener(RDeploymentListener listener) throws RRepositoryException {
         listeners.add(listener);
     }
 
@@ -278,12 +278,12 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public void onEvent(EventIterator eventIterator) {
-        boolean hasInterestingEvents = false;
+        boolean activate = false;
         while (eventIterator.hasNext()) {
             Event event = eventIterator.nextEvent();
             try {
                 if (event.getPath().equals(DEPLOY_ROOT + "/" + PROPERTY_NOTIFICATION)) {
-                    hasInterestingEvents = true;
+                    activate = true;
                     break;
                 }
             } catch (RepositoryException e) {
@@ -293,11 +293,10 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             }
         }
 
-        if (hasInterestingEvents) {
-            Collection<RDeploymentListener> listenersCopy = new ArrayList<RDeploymentListener>(listeners);
-            for (RDeploymentListener l : listenersCopy) {
+        if (activate) {
+            for (RDeploymentListener listener : listeners) {
                 try {
-                    l.projectsAdded();
+                    listener.onEvent();
                 } catch (Exception e) {
                     if (log.isDebugEnabled()) {
                         log.debug("onEvent-2", e);
@@ -308,7 +307,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
-    public synchronized boolean removeListener(RDeploymentListener listener) throws RRepositoryException {
+    public boolean removeListener(RDeploymentListener listener) throws RRepositoryException {
         return listeners.remove(listener);
     }
 

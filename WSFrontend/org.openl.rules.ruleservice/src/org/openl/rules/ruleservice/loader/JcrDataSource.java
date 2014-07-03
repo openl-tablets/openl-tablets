@@ -227,7 +227,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
             this.dataSourceListener = dataSourceListener;
         }
 
-        public void projectsAdded() {
+        public void onEvent() {
             dataSourceListener.onDeploymentAdded();
         }
 
