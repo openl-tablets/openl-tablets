@@ -90,8 +90,8 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                             }
                         }
                     }
-                    params.put(OpenLSourceManager.PROPERTIES_FILE_NAME_PATTERN_ERROR_MESSAGES_KEY, moduleErrorMessages);
-                    params.put(OpenLSourceManager.PROPERTIES_FILE_NAME_PATTERN_WARN_MESSAGES_KEY, moduleWarnMessages);
+                    params.put(OpenLSourceManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
+                    params.put(OpenLSourceManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
                     module.setProperties(params);
                 }
             }

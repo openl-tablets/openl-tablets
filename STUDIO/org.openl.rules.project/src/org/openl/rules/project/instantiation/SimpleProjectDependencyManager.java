@@ -18,6 +18,8 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     private final Log log = LogFactoryImpl.getLog(SimpleProjectDependencyManager.class);
 
     private Collection<ProjectDescriptor> projects;
+    
+    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
 
     private boolean singleModuleMode = false;
     private boolean executionMode = true;
@@ -37,6 +39,11 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects, boolean singleModuleMode) {
         this(projects, singleModuleMode, true);
+    }
+    
+    @Override
+    protected Collection<ProjectDescriptor> getProjectDescriptors() {
+        return projectDescriptors;
     }
 
     @Override
@@ -62,6 +69,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                     project.getModules(),
                     singleModuleMode,
                     executionMode);
+                projectDescriptors.add(project);
                 dependencyLoaders.add(projectLoader);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {

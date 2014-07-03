@@ -4,12 +4,20 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -20,7 +28,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
-
 
 /**
  * Caches instantiation strategies for Modules.
@@ -34,15 +41,15 @@ public class InstantiationStrategyFactory {
     private Cache cache = CacheManager.getCacheManager(STUDIO_CACHE_MANAGER).getCache(INSTANTIATION_STRATEGIES_CACHE);
 
     /**
-     * Cache of dependent modules usages.
-     * Key is dependent module name, value is a set of modules that depend on that module.
-     * References to the modules are weak reference objects.
+     * Cache of dependent modules usages. Key is dependent module name, value is
+     * a set of modules that depend on that module. References to the modules
+     * are weak reference objects.
      */
     private Map<String, Set<Module>> dependencyUsages = new HashMap<String, Set<Module>>();
     /**
-     * Cache of dependent project usages.
-     * Key is dependent project name, value is a set of project that depend on that project.
-     * References to the projects are weak reference objects.
+     * Cache of dependent project usages. Key is dependent project name, value
+     * is a set of project that depend on that project. References to the
+     * projects are weak reference objects.
      */
     private Map<String, Set<ProjectDescriptor>> projectDependencyUsages = new HashMap<String, Set<ProjectDescriptor>>();
 
@@ -58,7 +65,8 @@ public class InstantiationStrategyFactory {
      * Gets cached instantiation strategy for the module or creates it in cache.
      * 
      * @param module Module
-     * @param singleModuleMode if true - function will return single module instantiation strategy and multi module otherwise
+     * @param singleModuleMode if true - function will return single module
+     *            instantiation strategy and multi module otherwise
      * @return Instantiation strategy for the module.
      */
     public ModuleInstantiator getInstantiationStrategy(Module module, boolean singleModuleMode) {
@@ -74,7 +82,7 @@ public class InstantiationStrategyFactory {
 
     /**
      * Removes cached instantiation strategy for the module.
-     *
+     * 
      * @param module Module
      */
     public void removeCachedModule(Module module) {
@@ -95,7 +103,8 @@ public class InstantiationStrategyFactory {
                 Key k = (Key) key;
                 InstantiationStrategyFactory factory = k.getFactory();
                 if (factory == this || factory == null) {
-                    // As far as cache.getKeys() returns the copy of key list, we can remove from cache while iterating the list
+                    // As far as cache.getKeys() returns the copy of key list,
+                    // we can remove from cache while iterating the list
                     cache.remove(key);
                 }
             }
@@ -151,16 +160,16 @@ public class InstantiationStrategyFactory {
         RulesInstantiationStrategy strategy;
 
         if (singleModuleMode) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
+            ClassLoader classLoader = dependencyManager.getClassLoader(module.getProject());
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, false, dependencyManager, classLoader);
             externalParameters = studio.getSystemConfigManager().getProperties();
         } else {
             List<Module> modules = module.getProject().getModules();
             strategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
 
-            externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
-                    studio.getSystemConfigManager().getProperties(),
-                    modules
-            );
+            externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(studio.getSystemConfigManager()
+                .getProperties(),
+                modules);
 
         }
         strategy.setExternalParameters(externalParameters);
@@ -170,8 +179,9 @@ public class InstantiationStrategyFactory {
     }
 
     /**
-     * Remove instantiation strategies, depending on specified module, from the cache
-     *
+     * Remove instantiation strategies, depending on specified module, from the
+     * cache
+     * 
      * @param module depending module
      */
     private void removeModuleDependencies(Module module) {
@@ -188,8 +198,9 @@ public class InstantiationStrategyFactory {
     }
 
     /**
-     * Remove instantiation strategies, depending on specified project, from the cache
-     *
+     * Remove instantiation strategies, depending on specified project, from the
+     * cache
+     * 
      * @param project depending project
      */
     private void removeProjectDependencies(ProjectDescriptor project) {
@@ -206,7 +217,8 @@ public class InstantiationStrategyFactory {
     }
 
     private WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
-        WebStudioWorkspaceRelatedDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(module, singleModuleMode);
+        WebStudioWorkspaceRelatedDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(module,
+            singleModuleMode);
         dependencyManager.addListener(new DependenciesCollectingHandler(module));
         return dependencyManager;
     }
@@ -220,7 +232,8 @@ public class InstantiationStrategyFactory {
 
         @Override
         public void onLoadDependency(IDependency dependency) {
-            if (dependency.getType() == DependencyType.MODULE && !mainModule.getName().equals(dependency.getNode().getIdentifier())) {
+            if (dependency.getType() == DependencyType.MODULE && !mainModule.getName().equals(dependency.getNode()
+                .getIdentifier())) {
                 Set<Module> modules = dependencyUsages.get(dependency.getNode().getIdentifier());
                 if (modules == null) {
                     modules = Collections.newSetFromMap(new WeakHashMap<Module, Boolean>());
@@ -276,8 +289,10 @@ public class InstantiationStrategyFactory {
         public boolean equals(Object o) {
             purge();
 
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             Key key = (Key) o;
 
@@ -295,9 +310,12 @@ public class InstantiationStrategyFactory {
                 return false;
             }
 
-            if (factory != null ? !factory.equals(keyFactory) : keyFactory != null) return false;
-            if (module != null ? !module.equals(keyModule) : keyModule != null) return false;
-            if (project != null ? !project.equals(keyProject) : keyProject != null) return false;
+            if (factory != null ? !factory.equals(keyFactory) : keyFactory != null)
+                return false;
+            if (module != null ? !module.equals(keyModule) : keyModule != null)
+                return false;
+            if (project != null ? !project.equals(keyProject) : keyProject != null)
+                return false;
 
             return true;
         }
@@ -321,7 +339,8 @@ public class InstantiationStrategyFactory {
         private final RulesInstantiationStrategy instantiationStrategy;
         private final WebStudioWorkspaceRelatedDependencyManager dependencyManager;
 
-        private ModuleInstantiator(RulesInstantiationStrategy instantiationStrategy, WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
+        private ModuleInstantiator(RulesInstantiationStrategy instantiationStrategy,
+                WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
             this.instantiationStrategy = instantiationStrategy;
             this.dependencyManager = dependencyManager;
         }

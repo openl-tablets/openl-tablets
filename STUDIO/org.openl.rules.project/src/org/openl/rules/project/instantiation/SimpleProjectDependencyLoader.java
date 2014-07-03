@@ -81,14 +81,14 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
             }
 
             try {
-                if (dependencyManager.getModuleCompilationStack().contains(dependencyName)) {
+                if (dependencyManager.getCompilationStack().contains(dependencyName)) {
                     OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
                     return null;
                 }
                 RulesInstantiationStrategy rulesInstantiationStrategy;
-                ClassLoader classLoader = dependencyManager.getClassLoader(modules);
+                ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
                 if (modules.size() == 1) {
-                    dependencyManager.getModuleCompilationStack().add(dependencyName);
+                    dependencyManager.getCompilationStack().add(dependencyName);
                     if (log.isDebugEnabled()) {
                         log.debug("Creating dependency for dependencyName = " + dependencyName);
                     }
@@ -125,7 +125,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                     return onCompilationFailure(ex, dependencyManager);
                 }
             } finally {
-                dependencyManager.getModuleCompilationStack().pollLast();
+                dependencyManager.getCompilationStack().pollLast();
             }
         }
         return null;

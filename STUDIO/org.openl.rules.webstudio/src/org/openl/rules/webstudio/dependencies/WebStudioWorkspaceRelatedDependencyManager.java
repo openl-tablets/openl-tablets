@@ -27,8 +27,10 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private final List<String> moduleNames = new ArrayList<String>();
     
+    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    
     private boolean singleModuleMode = false;
-
+    
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects,
             boolean singleModuleMode) {
         super();
@@ -51,7 +53,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
         }
         return super.loadDependency(dependency);
     }
-
+    
+    @Override
+    protected Collection<ProjectDescriptor> getProjectDescriptors() {
+        return projectDescriptors;
+    }
+    
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
         if (dependencyLoaders != null) {
@@ -74,6 +81,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
                 IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
                     project.getModules(),
                     singleModuleMode);
+                projectDescriptors.add(project);
                 dependencyLoaders.add(projectLoader);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {

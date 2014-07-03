@@ -27,6 +27,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     private DeploymentDescription deploymentDescription;
 
+    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    
     private boolean lazy;
 
     public boolean isLazy() {
@@ -87,12 +89,14 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     public void resetAll() {
         throw new UnsupportedOperationException();
     }
-
+    
     @Override
-    public synchronized List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders != null) {
-            return dependencyLoaders;
-        }
+    public Collection<ProjectDescriptor> getProjectDescriptors() {
+        return projectDescriptors;
+    }
+    
+    @Override
+    public List<IDependencyLoader> getDependencyLoaders() {
         dependencyLoaders = new ArrayList<IDependencyLoader>();
         Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
         for (Deployment deployment : deployments) {
@@ -135,12 +139,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                             IDependencyLoader projectLoader;
                             if (isLazy()) {
                                 projectLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                    ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()),
+                                    ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
                                     projectDescriptor.getModules());
                             } else {
-                                projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()),
+                                projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
                                     projectDescriptor.getModules());
                             }
+                            projectDescriptors.add(projectDescriptor);
                             dependencyLoaders.add(projectLoader);
                         }
                     } catch (Exception e) {
