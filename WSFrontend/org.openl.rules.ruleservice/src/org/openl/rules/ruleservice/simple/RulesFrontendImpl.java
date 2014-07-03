@@ -69,14 +69,13 @@ public class RulesFrontendImpl implements RulesFrontend {
         if (ruleName == null) {
             throw new IllegalArgumentException("ruleName argument can't be null");
         }
-        Object result = null;
 
         OpenLService service = runningServices.get(serviceName);
         if (service != null) {
             try {
                 Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
                         ruleName, inputParamsTypes);
-                result = serviceMethod.invoke(service.getServiceBean(), params);
+                return serviceMethod.invoke(service.getServiceBean(), params);
             } catch (Exception e) {
                 if (log.isWarnEnabled()) {
                     log.warn(String.format("Error during method \"%s\" calculation from the service \"%s\"", ruleName,
@@ -85,10 +84,11 @@ public class RulesFrontendImpl implements RulesFrontend {
                 if (e.getCause() instanceof RuleServiceWrapperException) {
                     throw new MethodInvocationException(e.getMessage(), e.getCause());
                 }
+                throw new MethodInvocationException(e);
             }
+        }else{
+            throw new MethodInvocationException("Service not found!");
         }
-
-        return result;
     }
 
     /** {@inheritDoc} */
