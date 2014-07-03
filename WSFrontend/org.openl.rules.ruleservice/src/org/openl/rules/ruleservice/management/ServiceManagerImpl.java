@@ -111,17 +111,17 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
             Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
-            Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
+            Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-                if (newServices.containsKey(serviceDescription.getName())) {
+                if (services.containsKey(serviceDescription.getName())) {
                     if (log.isWarnEnabled()) {
                         log.warn("Service with name \"" + serviceDescription.getName() + "\" is dublicated! Only one service with this name will be deployed! Please, check your configuration!");
                     }
                 } else {
-                    newServices.put(serviceDescription.getName(), serviceDescription);
+                    services.put(serviceDescription.getName(), serviceDescription);
                 }
             }
-            return newServices;
+            return services;
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("Failed to gather services to be deployed", e);
@@ -132,16 +132,16 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     protected void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
         for (OpenLService runningService : ruleService.getServices()) {
-            String serviceName = runningService.getName();
-            if (!newServices.containsKey(serviceName)) {
+            String runningServiceName = runningService.getName();
+            if (!newServices.containsKey(runningServiceName)) {
                 try {
-                    ServiceDescription serviceDescription = serviceDescriptions.get(serviceName);
+                    ServiceDescription serviceDescription = serviceDescriptions.get(runningServiceName);
                     ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                    ruleService.undeploy(serviceName);
-                    serviceDescriptions.remove(serviceName);
+                    ruleService.undeploy(runningServiceName);
+                    serviceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
                     if (log.isErrorEnabled()) {
-                        log.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
+                        log.error(String.format("Failed to undeploy \"%s\" service", runningServiceName), e);
                     }
                 } finally {
                     ServiceDescriptionHolder.getInstance().remove();
