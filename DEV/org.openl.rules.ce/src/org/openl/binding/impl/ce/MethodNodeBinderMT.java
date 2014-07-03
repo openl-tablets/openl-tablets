@@ -6,7 +6,7 @@ import org.openl.binding.impl.ArrayArgumentsMethodBinder;
 import org.openl.binding.impl.MethodNodeBinder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 import org.openl.util.ce.impl.ServiceMT;
 
 public class MethodNodeBinderMT extends MethodNodeBinder {
@@ -16,7 +16,7 @@ public class MethodNodeBinderMT extends MethodNodeBinder {
 			IBindingContext bindingContext, String methodName,
 			IOpenClass[] argumentTypes, IBoundNode[] children) throws Exception {
 
-		IServiceMTConfiguration config = ServiceMT.getService().getConfig();
+		ServiceMTConfiguration config = ServiceMT.getService().getConfig();
 
 		if (config.isCallComponentUsingMT(methodName))
 			return new ArrayArgumentsMethodBinderMT(methodName, argumentTypes,

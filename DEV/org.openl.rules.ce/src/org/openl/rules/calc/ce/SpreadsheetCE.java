@@ -12,6 +12,11 @@ public class SpreadsheetCE extends Spreadsheet {
 		super(header, boundNode);
 	}
 
+	public SpreadsheetCE(IOpenMethodHeader header,
+			SpreadsheetBoundNode boundNode, boolean customSpreadsheetType) {
+		super(header, boundNode, customSpreadsheetType);
+	}
+
 	@Override
     protected Invokable createInvoker()
     {

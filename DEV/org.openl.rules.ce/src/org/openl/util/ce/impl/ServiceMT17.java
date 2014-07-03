@@ -1,6 +1,6 @@
 package org.openl.util.ce.impl;
 
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 
 /**
@@ -13,7 +13,7 @@ import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 public class ServiceMT17 extends  ServiceMT16 {
 
-	public ServiceMT17(IServiceMTConfiguration config) {
+	public ServiceMT17(ServiceMTConfiguration config) {
 		super(config);
 	}
 

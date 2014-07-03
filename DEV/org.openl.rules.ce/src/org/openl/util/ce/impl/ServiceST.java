@@ -7,7 +7,7 @@ import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IMTConvertorFactory;
 import org.openl.util.ce.IScheduler;
-import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 /**
  * 
@@ -35,7 +35,7 @@ public class ServiceST extends ServiceBase {
 
 	
 
-	public ServiceST(IServiceMTConfiguration config) {
+	public ServiceST(ServiceMTConfiguration config) {
 		super(config);
 	}
 
@@ -70,15 +70,6 @@ public class ServiceST extends ServiceBase {
 
 
 
-	/**
-	 * N/A
-	 */
-
-	@Override
-	public double getBusyRatio() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 
 
@@ -124,6 +115,14 @@ public class ServiceST extends ServiceBase {
 	@Override
 	public IScheduler getScheduler(long singleCellLength) {
 		return new Scheduler(config, singleCellLength);
+	}
+
+
+
+
+	@Override
+	public int getActiveThreadCounter() {
+		return 0;
 	}
 
 
