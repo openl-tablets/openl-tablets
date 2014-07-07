@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    color: #444;
+    font-family: Verdana, Helvetica, Arial;
+    font-size: 12px;
+}
+
+#header {
+    border-bottom: 1px solid #ccc;
+    font-family: Georgia, Verdana, Helvetica, Arial;
+    font-size: 20px;
+    color: #777;
+    padding: 11px 15px;
+}
+
+#header > span {
+    color: #8c2;
+}
+
+#main {
+    padding: 20px 20px 60px;
+    text-align: center;
+}
+
+#main > div {
+    display: inline-block;
+    text-align: left;
+    width: 700px;
+}
+
+#main h1 {
+    font-weight: normal;
+    margin-top: 23px;
+    margin-bottom: 27px;
+    font-size: 25px;
+    font-family: "Times New Roman";
+    color: #666;
+}
+
+#main .description {
+    padding: 15px 0 32px;
+    border-bottom: 1px dashed #ddd;
+    line-height: 21px;
+}
+
+#main .links {
+    margin-top: 27px;
+}
+
+#main .links td {
+    padding: 10px 0;
+}
+
+#main .links td:first-child {
+    width: 180px;
+}
+
+#main .links td:nth-child(2) {
+    line-height: 18px;
+}
+
+#main .links a {
+    color: #28b;
+    font-size: 14px;
+}
+
+#footer {
+    border-top: 1px solid #ccc;
+    font-size: 11px;
+    color: #666;
+    padding: 11px;
+    text-align: center;
+    background: #fff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#footer a {
+    color: #666;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 16px;
+    color: #28b;
+    margin: 29px 0 16px;
+}
