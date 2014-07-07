@@ -42,5 +42,17 @@
 		<unzip src="${data.location}" dest="${openl.basedir}" />
 	</target>
 
-	<target name="install" depends="conf_tomcat, jackrabbit_configure"/>
+	<target name="set_rootapp" depends="unzip_tomcat">
+		<property name="root.dir" value="${tomcat.webapps.dir}/ROOT" />
+		<delete dir="${root.dir}" />
+		<mkdir dir="${root.dir}" />
+		<copy todir="${root.dir}">
+			<fileset dir="ROOT">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<unzip src="${data.location}" dest="${openl.basedir}" />
+	</target>
+
+	<target name="install" depends="conf_tomcat, jackrabbit_configure, set_rootapp"/>
 </project>
