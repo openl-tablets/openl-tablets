@@ -60,7 +60,12 @@ public class SimpleBeanByteCodeGenerator extends BeanByteCodeGenerator {
         addWriter(new ClassDescriptionWriter(getBeanNameWithPackage(), parentClass));
         addWriter(new PrivateFieldsWriter(beanFields));
         addWriter(new DefaultConstructorWriter(getBeanNameWithPackage(), parentClass, beanFields));
-        addWriter(new ConstructorWithParametersWriter(getBeanNameWithPackage(), parentClass, beanFields, parentFields, allFields));
+        if (allFields.size() < 256) {
+            // Generate constructor with parameters only in case where there are less than 256 arguments.
+            // 255 arguments to the method is a Java limitation
+            //
+            addWriter(new ConstructorWithParametersWriter(getBeanNameWithPackage(), parentClass, beanFields, parentFields, allFields));
+        }
         addWriter(new GettersWriter(getBeanNameWithPackage(), beanFields));
         addWriter(new SettersWriter(getBeanNameWithPackage(), beanFields));
         addWriter(new ToStringWriter(getBeanNameWithPackage(), allFields));
