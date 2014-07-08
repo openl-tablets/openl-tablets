@@ -603,7 +603,7 @@ public class StringTool {
         return result;
     }
 
-    public static String listObjectToStringThroughSymbol(List<Object> values, String symbol) {
+    public static String listObjectToStringThroughSymbol(List<?> values, String symbol) {
         if (values == null || values.isEmpty()) {
             return StringUtils.EMPTY;
         }
