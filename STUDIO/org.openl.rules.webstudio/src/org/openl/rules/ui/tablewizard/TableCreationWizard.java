@@ -176,6 +176,8 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     public void setNewTableId(String newTableId) {
         this.newTableId = TableUtils.makeTableId(newTableId);
+        // TODO: It should be removed when the table can be resolved by the ID
+        WebStudioUtils.getWebStudio().setTableUri(newTableId);
     }
 
     public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
