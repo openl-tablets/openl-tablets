@@ -4,6 +4,7 @@
 package org.openl.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,10 +19,12 @@ import junit.framework.TestCase;
  */
 public class StringToolTest extends TestCase {
 
+    public static final String COMMA = ",";
+
     /*
-     * Test method for 'org.openl.util.StringTool.append(StringBuffer, char,
-     * int)'
-     */
+                 * Test method for 'org.openl.util.StringTool.append(StringBuffer, char,
+                 * int)'
+                 */
     public void testAppend() {
 
     }
@@ -429,33 +432,33 @@ public class StringToolTest extends TestCase {
     @Test
     public void testSplitAndEscape() {
         String escaper = "\\";        
-        String[] escapedTokens = StringTool.splitAndEscape("Hello! I want to split it, Right , Lets Do it", ",", escaper);
+        String[] escapedTokens = StringTool.splitAndEscape("Hello! I want to split it, Right , Lets Do it", COMMA, escaper);
         assertTrue(escapedTokens.length == 3);
                 
-        String[] escapedTokens1 = StringTool.splitAndEscape("Hello! I want to split it\\, Right,Lets Do it", ",", escaper);
+        String[] escapedTokens1 = StringTool.splitAndEscape("Hello! I want to split it\\, Right,Lets Do it", COMMA, escaper);
         assertTrue(escapedTokens1.length == 2);
         assertTrue("Hello! I want to split it, Right".equals(escapedTokens1[0]));
         assertTrue("Lets Do it".equals(escapedTokens1[1]));        
         
-        String[] escapedTokens2 = StringTool.splitAndEscape("12,23,34", ",", null);
+        String[] escapedTokens2 = StringTool.splitAndEscape("12,23,34", COMMA, null);
         assertNotNull(escapedTokens2);
         assertTrue(escapedTokens2.length == 3);
         assertTrue("12".equals(escapedTokens2[0]));
         assertTrue("23".equals(escapedTokens2[1]));
         assertTrue("34".equals(escapedTokens2[2]));
         
-        String[] escapedTokens3 = StringTool.splitAndEscape("12\\,23\\,34", ",", escaper);
+        String[] escapedTokens3 = StringTool.splitAndEscape("12\\,23\\,34", COMMA, escaper);
         assertNotNull(escapedTokens3);
         assertTrue(escapedTokens3.length == 1);
         assertTrue("12,23,34".equals(escapedTokens3[0]));
         
-        String[] escapedTokens4 = StringTool.splitAndEscape("12\\,23\\,34,456", ",", escaper);
+        String[] escapedTokens4 = StringTool.splitAndEscape("12\\,23\\,34,456", COMMA, escaper);
         assertNotNull(escapedTokens4);
         assertTrue(escapedTokens4.length == 2);
         assertTrue("12,23,34".equals(escapedTokens4[0]));
         assertTrue("456".equals(escapedTokens4[1]));
         
-        String[] escapedTokens5 = StringTool.splitAndEscape("Spencer\\, Sara's Son, Sara", ",", escaper);
+        String[] escapedTokens5 = StringTool.splitAndEscape("Spencer\\, Sara's Son, Sara", COMMA, escaper);
         assertNotNull(escapedTokens4);
         assertTrue(escapedTokens5.length == 2);
         assertTrue("Spencer, Sara's Son".equals(escapedTokens5[0]));
@@ -465,7 +468,7 @@ public class StringToolTest extends TestCase {
     @Test
     public void testInsertStringToString() {
         String insertion = "\\";
-        String strToInsertAfter = ",";
+        String strToInsertAfter = COMMA;
         String baseString = "Spencer,Sara`s son";
         
         String result = StringTool.insertStringToString(baseString, strToInsertAfter, insertion);
@@ -485,16 +488,27 @@ public class StringToolTest extends TestCase {
         listStrings.add(str3);
         listStrings.add(str4);
         
-        String result = StringTool.listToStringThroughSymbol(listStrings, ",");
+        String result = StringTool.listToStringThroughSymbol(listStrings, COMMA);
         assertEquals(String.format("%s, %s, %s, %s", str1, str2, str3, str4), result);
         
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(null, ","));
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(new ArrayList<String>(), ","));
+        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(null, COMMA));
+        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(new ArrayList<String>(), COMMA));
         
         List<String> listToTest = new ArrayList<String>();
         listToTest.add("aaaa");
         listToTest.add(null);
         listToTest.add("bbbb");
-        assertEquals("aaaa, null, bbbb", StringTool.listToStringThroughSymbol(listToTest, ","));
+        assertEquals("aaaa, null, bbbb", StringTool.listToStringThroughSymbol(listToTest, COMMA));
+    }
+
+    @Test
+    public void testListObjectToStringThroughSymbol() {
+        assertEquals(StringUtils.EMPTY, StringTool.listObjectToStringThroughSymbol(null, null));
+        assertEquals("Test default symbol(comma)", "a, b, c",
+                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", "b", "c"}), null));
+        assertEquals("a, b, c",
+                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", "b", "c"}), COMMA));
+        assertEquals("a, c",
+                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", null, "c"}), COMMA));
     }
 }
