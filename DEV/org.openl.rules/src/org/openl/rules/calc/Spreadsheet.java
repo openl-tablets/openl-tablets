@@ -29,7 +29,17 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private IResultBuilder resultBuilder;
 
     private SpreadsheetCell[][] cells;
+
+    /**
+     * Top left cell of the whole Spreadsheet is not included.
+     * So the row names starts from [1, 0] in the Spreadsheet table body
+     */
     private String[] rowNames;
+
+    /**
+     * Top left cell is not included.
+     * So the column names starts from [0, 1] in the Spreadsheet table body
+     */
     private String[] columnNames;
 
     /**
