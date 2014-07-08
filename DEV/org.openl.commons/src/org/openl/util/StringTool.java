@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
+    private static final String COMMA = ",";
 
     public interface Convertor {
         void convert(char c, int idx, StringBuilder out);
@@ -584,6 +585,9 @@ public class StringTool {
 
     public static String listToStringThroughSymbol(List<String> values, String symbol) {
         String result = StringUtils.EMPTY;
+        if (StringUtils.isBlank(symbol)) {
+            symbol = COMMA;
+        }
         if (values != null && !values.isEmpty()) {
             StringBuilder strBuf = new StringBuilder();
             int paramNum = values.size();
@@ -591,13 +595,28 @@ public class StringTool {
                 paramNum--;
                 strBuf.append(value);
                 if (paramNum > 0) {
-                    strBuf.append(", ");
+                    strBuf.append(String.format("%s ", symbol));
                 }
             }
             result = strBuf.toString();
         }
         return result;
     }
+
+    public static String listObjectToStringThroughSymbol(List<Object> values, String symbol) {
+        if (values == null || values.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+
+        List<String> strList = new ArrayList<String>(values.size());
+        for (Object obj : values) {
+            if (obj != null) {
+                strList.add(obj.toString());
+            }
+        }
+        return listToStringThroughSymbol(strList, symbol);
+    }
+
 
     /**
      * Returns the setter name, by adding set, to the field name, and upper case
