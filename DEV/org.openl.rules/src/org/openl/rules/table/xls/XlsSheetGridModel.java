@@ -7,6 +7,8 @@
 package org.openl.rules.table.xls;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -31,17 +33,11 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.AGrid;
-import org.openl.rules.table.CellKey;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.RegionsPool;
+import org.openl.rules.table.*;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
@@ -335,6 +331,13 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
+    public Point setCellValue(Point position, Object value) {
+        setCellValue(position.getColumn(), position.getRow(), value);
+        return position;
+    }
+
+
     public void setCellStringValue(int col, int row, String value) {
         PoiExcelHelper.setCellStringValue(col, row, value, getSheet());
     }
@@ -587,6 +590,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
         return result;
     }
+
+    @Override
+    public void write(OutputStream out) {
+        try {
+            sheetSource.getSheet().getWorkbook().write(out);
+        } catch (IOException e) {
+            throw new OpenlNotCheckedException("Cannot write model to the stream");
+        }
+    }
+
 
     private Sheet getSheet() {
         return sheetSource.getSheet();

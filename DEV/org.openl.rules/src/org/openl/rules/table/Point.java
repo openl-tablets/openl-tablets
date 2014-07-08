@@ -59,7 +59,24 @@ public class Point implements Serializable {
         
         return hashCode;
     }
-    
+
+    public Point moveRight() {
+        return new Point(column + 1, row);
+    }
+
+    public Point moveDown() {
+        return moveDown(1);
+    }
+
+    public Point moveDown(int shift) {
+        return new Point(column, row + shift);
+    }
+
+    public Point moveRightAndDown() {
+        return new Point(column + 1, row + 1);
+    }
+
+
     @Override
     public String toString() {
         return String.format("column index: %s\nrow index: %s", column, row);
