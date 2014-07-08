@@ -600,6 +600,19 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
+    public IWritableGrid createGrid(String name) {
+        try {
+            return XlsSheetGridHelper.createVirtualGrid(
+                    getSheet().getWorkbook().createSheet(name),
+                    sheetSource.getWorkbookSource().getSourceFile().getName());
+        } catch (IllegalArgumentException ex) {
+            // Such sheet already exists
+            return XlsSheetGridHelper.createVirtualGrid(
+                    getSheet().getWorkbook().getSheet(name),
+                    sheetSource.getWorkbookSource().getSourceFile().getName());
+        }
+    }
 
     private Sheet getSheet() {
         return sheetSource.getSheet();
