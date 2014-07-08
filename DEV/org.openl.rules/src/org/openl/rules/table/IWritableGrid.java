@@ -698,4 +698,7 @@ public interface IWritableGrid extends IGrid {
      * @param out
      */
     void write(OutputStream out);
+
+    IWritableGrid createGrid(String name);
+
 }
