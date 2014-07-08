@@ -118,4 +118,19 @@ public class GridRegion implements IGridRegion {
         return true;
     }
 
+    public static IGridRegion shiftRight(Point start, int shiftRight) {
+        return new GridRegion(start.getRow(),
+                start.getColumn(),
+                start.getRow(),
+                start.getColumn() + shiftRight);
+    }
+
+    public static IGridRegion shiftBottom(Point start, int shiftBottom) {
+        return new GridRegion(start.getRow(),
+                start.getColumn(),
+                start.getRow() + shiftBottom,
+                start.getColumn());
+    }
+
+
 }
