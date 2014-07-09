@@ -42,11 +42,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private static final String NOT_INITIALIZED = "<not_initialized>";
     private IdentifierNode foreignKeyTable;
+    IdentifierNode[] foreignKeyTableAccessorChainTokens;
     private IdentifierNode foreignKey;
 
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
+            IdentifierNode[] foreignKeyTableAccessorChainTokens,
             StringValue displayValue,
             OpenL openl, boolean constructor, IdentifierNode[] fieldChainTokens) {
 
@@ -54,6 +56,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
+        this.foreignKeyTableAccessorChainTokens = foreignKeyTableAccessorChainTokens;
     }
 
     /**
@@ -93,6 +96,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
+            IdentifierNode[] foreignKeyTableAccessorChainTokens,
             DomainOpenClass domainClass) throws SyntaxNodeException {
 
         int valuesHeight = valuesTable.getHeight();
@@ -105,7 +109,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             multiValue = true;
             if(!bindingContext.isExecutionMode())
-            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -115,6 +119,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     Object res = getValueByForeignKeyIndex(bindingContext,
                         foreignTable,
                         foreignKeyIndex,
+                        foreignKeyTableAccessorChainTokens,
                         valuesTable,
                         token);
 
@@ -131,14 +136,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
                     if(!bindingContext.isExecutionMode())
-                    	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);
                     continue;
                 }
 
                 if(!bindingContext.isExecutionMode())
-                	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
-                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
+                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
                 setResValues(values, res);
             }
@@ -148,11 +153,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private void setResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
-        if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
-            ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
+        /*if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
+            ResultChainObject chainRes = getChainObject(res, foreignKeyTableAccessorChainTokens);
 
             res = chainRes.getValue();
-        }
+        }*/
 
         if (res.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(res); i++) {
@@ -178,6 +183,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
+            IdentifierNode[] foreignKeyTableAccessorChainTokens,
             ILogicalTable valueTable,
             String key) throws SyntaxNodeException {
 
@@ -185,14 +191,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         try {
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
+            if (result == null) {
+                throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+            }
+     
+            if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
+                ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
+                result = chainRes.getValue();
+            }
+            
         } catch (SyntaxNodeException ex) {
             throwIndexNotFound(foreignTable, valueTable, key, ex, bindingContext);
         }
-
-        if (result == null) {
-            throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
-        }
-
+       
         return result;
     }
 
@@ -248,7 +259,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String value = getCellStringValue(valuesTable);
 
             if (value != null && value.length() > 0) {
-                result = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valuesTable, value);
+                result = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valuesTable, value);
             }
 
         } else {
@@ -265,7 +276,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     break;
                 }
 
-                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
+                Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
                 values.add(res);
             }
 
@@ -307,7 +318,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (foreignTable == null) {
                     String message = String.format("Table '%s' not found", foreignKeyTableName);
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-
                 } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
                     String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
@@ -359,29 +369,27 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     if (s == null || s.length() == 0) {
                         // Set meta info for empty cells
                         if(!cxt.isExecutionMode())
-                        	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                     } else {
                         if (s.length() > 0) {
                             if(!cxt.isExecutionMode())
-                            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
-                            Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
-
-                            if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
-                                ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
-
+                                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valuesTable, s);
+                            try {
+                                Object result = foreignTable.findObject(foreignKeyIndex, s, cxt);
+                                ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
                                 if (chainRes.instanceClass.isArray()) {
                                     String message = String.format("Wrong types: Field '%s' has type [%s], but tried to convert into [%s]",
                                             getField().getName(),
-                                            fieldType,
+                                            getField().getType(),
                                             chainRes.instanceClass.getSimpleName());
                                         throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                                 } else {
                                     resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, chainRes.getInstanceClass().getSimpleName());
                                 }
-
-                                res = chainRes.getValue();
+                            } catch (SyntaxNodeException ex) {
+                                throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
                             }
-
                             getField().set(target, res, getRuntimeEnv());
                         }
                     }
@@ -398,6 +406,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     // processing array or list values.
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
                         foreignKeyIndex,
+                        foreignKeyTableAccessorChainTokens,
                         domainClass);
                     List<Object> values = new ArrayList<Object>();
 
