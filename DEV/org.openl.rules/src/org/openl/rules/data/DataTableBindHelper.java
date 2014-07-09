@@ -10,7 +10,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
-import org.openl.rules.calc.SpreadsheetResultField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -22,7 +21,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 
 public class DataTableBindHelper {
@@ -396,7 +394,7 @@ public class DataTableBindHelper {
                     // process the chain of fields, e.g. driver.homeAdress.street;
                     descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
                 }
-
+                //IdentifierNode[] foreignKeyTableAccessorChainTokens = null;
                 if (hasForeignKeysRow) {
                     IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(bindingContext, descriptorRows, columnNum);
                     foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
@@ -408,8 +406,9 @@ public class DataTableBindHelper {
                         if (!ArrayUtils.isEmpty(accessorChainTokens)) {
                             foreignKeyTable = accessorChainTokens.length > 0 ? accessorChainTokens[0] : null;
 
-                            fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.addAll(fieldAccessorChainTokens, 
-                                        (IdentifierNode[]) ArrayUtils.subarray(accessorChainTokens, 1, accessorChainTokens.length));
+                            //fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.addAll(fieldAccessorChainTokens, 
+                            //            (IdentifierNode[]) ArrayUtils.subarray(accessorChainTokens, 1, accessorChainTokens.length));
+                            //foreignKeyTableAccessorChainTokens = (IdentifierNode[]) ArrayUtils.subarray(accessorChainTokens, 1, accessorChainTokens.length);
                         }
                     }
                 }
@@ -422,6 +421,7 @@ public class DataTableBindHelper {
                     constructorField,
                     foreignKeyTable,
                     foreignKey,
+                    accessorChainTokens,
                     header, fieldAccessorChainTokens);
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;      
@@ -486,6 +486,7 @@ public class DataTableBindHelper {
             boolean constructorField,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
+            IdentifierNode[] foreignKeyTableAccessorChainTokens,
             StringValue header, IdentifierNode[] fieldChainTokens) {
         ColumnDescriptor currentColumnDescriptor;
 
@@ -493,6 +494,7 @@ public class DataTableBindHelper {
             currentColumnDescriptor = new ForeignKeyColumnDescriptor(descriptorField,
                 foreignKeyTable,
                 foreignKey,
+                foreignKeyTableAccessorChainTokens,
                 header,
                 openl, constructorField, fieldChainTokens);
         } else {
