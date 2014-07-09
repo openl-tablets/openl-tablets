@@ -82,8 +82,10 @@ public class TableSyntaxNodeUtils {
     // @author DLiauchuk
     public static String str2name(String methodHeader, XlsNodeTypes tableType) {
         String resultName = methodHeader;
+
         if (StringUtils.isBlank(resultName)) {
             resultName = "NO NAME";
+
         } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
             String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
             // ensure that the appropriate index exists
@@ -91,15 +93,19 @@ public class TableSyntaxNodeUtils {
             if (tokens.length > DatatypeNodeBinder.TYPE_INDEX) {
                 resultName = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
             }            
+
         } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET)
                 || tableType.equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH)
                 || tableType.equals(XlsNodeTypes.XLS_DATA) || tableType.equals(XlsNodeTypes.XLS_DATATYPE)
                 || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
                 || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD)) {
-
             String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
             resultName = tokens[tokens.length - 1].trim();
+
+        } else if (tableType.equals(XlsNodeTypes.XLS_OTHER)) {
+            resultName = StringUtils.abbreviate(resultName, 57);
         }
+
         return resultName;
     }
 
