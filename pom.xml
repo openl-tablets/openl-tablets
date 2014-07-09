@@ -22,9 +22,9 @@
         <developer>
             <id>StanislavShor</id>
             <name>Stanislav Shor</name>
-            <email>SShor@eisgroup.com</email>
+            <email>sshor@eisgroup.com</email>
             <organization>EIS</organization>
-            <organizationUrl>http://www.exigeninsurance.com/</organizationUrl>
+            <organizationUrl>http://eisgroup.com</organizationUrl>
             <roles>
                 <role>architect</role>
             </roles>
@@ -33,9 +33,9 @@
         <developer>
             <id>AndreiOstrovski</id>
             <name>Andrei Ostrovski</name>
-            <email>Andrei.Astrouski@eisgroup.com</email>
-            <organization>Exigen Services</organization>
-            <organizationUrl>http://www.exigenservices.com/</organizationUrl>
+            <email>aastrouski@eisgroup.com</email>
+            <organization>EIS</organization>
+            <organizationUrl>http://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
@@ -44,9 +44,9 @@
         <developer>
             <id>MaratKamalov</id>
             <name>Marat Kamalov</name>
-            <email>Marat.Kamalov@eisgroup.com</email>
-            <organization>Exigen Services</organization>
-            <organizationUrl>http://www.exigenservices.com/</organizationUrl>
+            <email>mkamalov@eisgroup.com</email>
+            <organization>EIS</organization>
+            <organizationUrl>http://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
@@ -55,9 +55,9 @@
         <developer>
             <id>NailSamatov</id>
             <name>Nail Samatov</name>
-            <email>Nail.Samatov@eisgroup.com</email>
-            <organization>Exigen Services</organization>
-            <organizationUrl>http://www.exigenservices.com/</organizationUrl>
+            <email>nsamatov@eisgroup.com</email>
+            <organization>EIS</organization>
+            <organizationUrl>http://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
