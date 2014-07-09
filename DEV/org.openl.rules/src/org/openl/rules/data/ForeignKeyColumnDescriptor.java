@@ -153,12 +153,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private void setResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
-        /*if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
-            ResultChainObject chainRes = getChainObject(res, foreignKeyTableAccessorChainTokens);
-
-            res = chainRes.getValue();
-        }*/
-
         if (res.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(res); i++) {
                 values.add(Array.get(res, i));
