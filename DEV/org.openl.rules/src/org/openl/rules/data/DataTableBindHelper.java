@@ -394,7 +394,6 @@ public class DataTableBindHelper {
                     // process the chain of fields, e.g. driver.homeAdress.street;
                     descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
                 }
-                //IdentifierNode[] foreignKeyTableAccessorChainTokens = null;
                 if (hasForeignKeysRow) {
                     IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(bindingContext, descriptorRows, columnNum);
                     foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
@@ -405,10 +404,6 @@ public class DataTableBindHelper {
 
                         if (!ArrayUtils.isEmpty(accessorChainTokens)) {
                             foreignKeyTable = accessorChainTokens.length > 0 ? accessorChainTokens[0] : null;
-
-                            //fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.addAll(fieldAccessorChainTokens, 
-                            //            (IdentifierNode[]) ArrayUtils.subarray(accessorChainTokens, 1, accessorChainTokens.length));
-                            //foreignKeyTableAccessorChainTokens = (IdentifierNode[]) ArrayUtils.subarray(accessorChainTokens, 1, accessorChainTokens.length);
                         }
                     }
                 }
