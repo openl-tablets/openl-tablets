@@ -101,12 +101,20 @@ public class TestDescription {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
-            try {
-                args[i] = cloner.deepClone(value);
-            } catch (RuntimeException e) {
-                Log.error("Failed to clone an argument \"{0}\". Original argument will be used.",
-                        executionParams[i].getName());
-                args[i] = value;
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            try{
+                if (value != null){
+                    Thread.currentThread().setContextClassLoader(value.getClass().getClassLoader());
+                }
+                try {
+                    args[i] = cloner.deepClone(value);
+                } catch (RuntimeException e) {
+                    Log.error("Failed to clone an argument \"{0}\". Original argument will be used.",
+                            executionParams[i].getName());
+                    args[i] = value;
+                }
+            }finally{
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
         return args;
