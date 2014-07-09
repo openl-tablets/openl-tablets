@@ -25,7 +25,7 @@ body {
 #main > div {
     display: inline-block;
     text-align: left;
-    width: 700px;
+    width: 755px;
 }
 
 #main h1 {
@@ -52,7 +52,7 @@ body {
 }
 
 #main .links td:first-child {
-    width: 180px;
+    width: 210px;
 }
 
 #main .links td:nth-child(2) {
