@@ -123,7 +123,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         valuesTable,
                         token);
 
-                    setResValues(values, res);
+                    addResValues(values, res);
                 }
             }
         } else {
@@ -145,15 +145,15 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
-                setResValues(values, res);
+                addResValues(values, res);
             }
         }
 
         return values;
     }
 
-    private void setResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
-        if (res.getClass().isArray()) {
+    private void addResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
+        if (res != null && res.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(res); i++) {
                 values.add(Array.get(res, i));
             }
@@ -355,9 +355,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 boolean valueAnArray = isValuesAnArray(fieldType);
                 boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
-                IOpenClass resType = foreignTable.getDataModel().getType();
 
                 if (!valueAnArray && !isList) {
+                    IOpenClass resType = foreignTable.getDataModel().getType();
                     String s = getCellStringValue(valuesTable);
 
                     if (s == null || s.length() == 0) {
@@ -384,17 +384,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             } catch (SyntaxNodeException ex) {
                                 throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
                             }
+                            
+                            IOpenCast cast = cxt.getCast(resType,fieldType);
+                            if (cast == null || !cast.isImplicit()) {
+                                String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                                    getField().getName(),
+                                    fieldType,
+                                    resType);
+                                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                            }
+                            
                             getField().set(target, res, getRuntimeEnv());
                         }
-                    }
-
-                    IOpenCast cast = cxt.getCast(resType,fieldType);
-                    if (cast == null || !cast.isImplicit()) {
-                        String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
-                            getField().getName(),
-                            fieldType,
-                            resType);
-                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                     }
                 } else {
                     // processing array or list values.
