@@ -410,12 +410,6 @@ public class RuleRowHelper {
         cell.setMetaInfo(meta);
     }
 
-//    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue, List<MethodUsage> usedMethods) {
-//        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue, usedMethods);
-//        ICell cell = logicalCell.getSource().getCell(0, 0);
-//        cell.setMetaInfo(meta);
-//    }
-
     private static void setMetaInfo(IMetaHolder holder,
             ILogicalTable cell,
             String paramName,
