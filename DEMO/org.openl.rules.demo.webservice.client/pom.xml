@@ -26,33 +26,6 @@
         </resources>
     </build>
 
-    <profiles>
-        <profile>
-            <id>deploy-to-demo-server</id>
-            <properties>
-                <webservice.url>
-                    http://openl.exigengroup.com:8082/webservice/Example%203%20-%20Auto%20Policy%20Calculation/Example%203%20-%20Auto%20Policy%20Calculation
-                </webservice.url>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>tomcat-maven-plugin</artifactId>
-                        <configuration>
-                            <url>http://openl.exigengroup.com:8082/manager/text</url>
-                            <server>demo-server</server>
-                            <path>/webservice-client</path>
-                            <warFile>target/webservice-client.war</warFile>
-                            <update>true</update>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
