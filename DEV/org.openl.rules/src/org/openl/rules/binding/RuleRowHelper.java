@@ -108,8 +108,7 @@ public class RuleRowHelper {
                     cell,
                     openlAdaptor,
                     token,
-                    null,
-                    true);
+                        true);
 
                 if (res == null) {
                     res = paramType.nullObject();
@@ -199,7 +198,7 @@ public class RuleRowHelper {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
             if (src != null) src = src.intern();
-            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
+            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
         }
         
         // load value as native type
@@ -231,7 +230,7 @@ public class RuleRowHelper {
         // has negative performance implication
         String src = theCell.getStringValue();
         if (src != null) src = src.intern();
-        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
+        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
     }
 
     private static Object loadNativeValue(ICell cell,
@@ -272,14 +271,13 @@ public class RuleRowHelper {
         return res;
     }
 
-    public static Object loadSingleParam(IOpenClass paramType,
-            String paramName,
-            String ruleName,
-            ILogicalTable cell,
-            OpenlToolAdaptor openlAdapter,
-            String source,
-            Object value,
-            boolean isPartOfArray) throws SyntaxNodeException {
+    private static Object loadSingleParam(IOpenClass paramType,
+                                          String paramName,
+                                          String ruleName,
+                                          ILogicalTable cell,
+                                          OpenlToolAdaptor openlAdapter,
+                                          String source,
+                                          boolean isPartOfArray) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
