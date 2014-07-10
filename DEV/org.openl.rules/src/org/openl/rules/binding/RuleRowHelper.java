@@ -310,7 +310,6 @@ public class RuleRowHelper {
 
             Class<?> expectedType = paramType.getInstanceClass();
 
-            // try {
             // Set cell meta information at first.
             //
             if (!openlAdapter.getBindingContext().isExecutionMode())
@@ -356,16 +355,6 @@ public class RuleRowHelper {
             }
 
             return result;
-            // } catch (Throwable t) {
-            // String message = String.format("Cannot load cell value '%s'",
-            // source);
-            // IOpenSourceCodeModule cellSourceCodeModule= new
-            // GridCellSourceCodeModule(cell.getSource(),
-            // openlAdapter.getBindingContext());
-            //                
-            // throw SyntaxNodeExceptionUtils.createError(message,
-            // cellSourceCodeModule);
-            // }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
             // according to cell type.
