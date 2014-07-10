@@ -507,18 +507,18 @@ public class RuleRowHelper {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass arrayType) throws SyntaxNodeException {
+            IOpenClass paramType) throws SyntaxNodeException {
 
         int height = RuleRowHelper.calculateHeight(dataTable);
-        IOpenClass paramType = arrayType.getAggregateInfo().getComponentType(arrayType);
+        IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
 
         if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) {
             // load comma separated array
-            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         } else if (height == 1 && isFormula(dataTable)) {
-            return loadSingleParam(arrayType, paramName, ruleName, dataTable, openlAdaptor);
+            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         } else {
-            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         }
     }
 
