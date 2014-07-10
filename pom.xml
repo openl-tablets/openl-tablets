@@ -565,6 +565,13 @@
                 </exclusions>
             </dependency>
 
+            <!-- Configuration library for JVM languages. -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+
             <!-- Spring Framework -->
 
             <!-- Core utilities used by other modules. Define this if you use Spring
@@ -954,12 +961,12 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Apache CXF Runtime JAX-RS Frontend -->
