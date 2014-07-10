@@ -180,7 +180,7 @@ public class ColumnDescriptor {
         throws SyntaxNodeException {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
-            return loadSingleRowArray(valuesTable, ota, paramType);
+            return RuleRowHelper.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getRow(0), ota);
         }
 
         if (valuesTable.getHeight() != 1) {
@@ -189,11 +189,6 @@ public class ColumnDescriptor {
         }
 
         return loadMultiRowArray(valuesTable, ota, paramType);
-    }
-
-    private Object loadSingleRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-        throws SyntaxNodeException {
-        return getValuesArrayCommaSeparated(logicalTable, openlAdaptor, paramType);
     }
 
     private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
@@ -231,14 +226,6 @@ public class ColumnDescriptor {
         }
 
         return arrayValues;
-    }
-
-    private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws SyntaxNodeException {
-        return RuleRowHelper.loadCommaSeparatedParam(paramType,
-            field.getName(),
-            null,
-            valuesTable.getRow(0),
-            ota);
     }
 
 }
