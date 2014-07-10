@@ -500,16 +500,7 @@ public class RuleRowHelper {
 
         // Load parameter value as an array of values.
         //
-        return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, paramType);
-    }
 
-    private static Object loadArrayParameters(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
         IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
 
         if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) {
