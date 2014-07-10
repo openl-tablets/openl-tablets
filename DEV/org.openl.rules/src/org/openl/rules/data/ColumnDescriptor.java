@@ -185,7 +185,6 @@ public class ColumnDescriptor {
 
         if (valuesTable.getHeight() != 1) {
             valuesTable.transpose();
-            return loadMultiRowArray(valuesTable, ota, paramType);
         }
 
         return loadMultiRowArray(valuesTable, ota, paramType);
