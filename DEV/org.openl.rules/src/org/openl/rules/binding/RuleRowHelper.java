@@ -322,9 +322,9 @@ public class RuleRowHelper {
             Object result;
 
             try {
-                openlAdapter.getBindingContext();
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
-                result = convertor.parse(source, null);
+                IBindingContext bindingContext = openlAdapter.getBindingContext();
+                result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+
             } catch (Exception e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.

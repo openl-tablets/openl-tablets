@@ -201,8 +201,8 @@ public class SpreadsheetStructureBuilder {
             }
 
             try {
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(instanceClass);
-                Object result = convertor.parse(code, null);
+                IBindingContext bindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
+                Object result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
 
                 if (result instanceof IMetaHolder) {
                     ((IMetaHolder) result).setMetaInfo(meta);

@@ -6,10 +6,13 @@
 
 package org.openl.rules.convertor;
 
+import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.types.IOpenClass;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -25,6 +28,7 @@ public class String2DataConvertorFactory {
     private static HashMap<Class<?>, IString2DataConvertor> convertors;
 
     private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
+    static ThreadLocal<IBindingContext> threadBindingContext = new ThreadLocal<IBindingContext>();
 
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor>();
@@ -50,6 +54,8 @@ public class String2DataConvertorFactory {
         convertors.put(String.class, new String2StringConvertor());
         convertors.put(Date.class, new String2DateConvertor());
         convertors.put(Calendar.class, new String2CalendarConvertor());
+        convertors.put(Class.class, new String2ClassConvertor());
+        convertors.put(IOpenClass.class, new String2OpenClassConvertor());
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
@@ -57,6 +63,13 @@ public class String2DataConvertorFactory {
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
 
         convertorsCache.putAll(convertors);
+    }
+
+    public static synchronized <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
+        // Share binding context to the String2ClassConvertor and String2OpenClassConvertor
+        threadBindingContext.set(bindingContext);
+        IString2DataConvertor<T> convertor = getConvertor(clazz);
+        return convertor.parse(data, null);
     }
 
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
