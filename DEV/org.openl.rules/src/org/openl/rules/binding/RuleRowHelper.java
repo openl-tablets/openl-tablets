@@ -92,9 +92,8 @@ public class RuleRowHelper {
             ILogicalTable cell,
             OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
 
-        Object arrayValues = null;
-        String[] tokens = null;
-        tokens = extractElementsFromCommaSeparatedArray(cell);
+        Object arrayValues;
+        String[] tokens = extractElementsFromCommaSeparatedArray(cell);
 
         if (tokens != null) {
 
