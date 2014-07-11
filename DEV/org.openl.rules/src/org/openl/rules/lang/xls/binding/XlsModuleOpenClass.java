@@ -8,6 +8,8 @@ package org.openl.rules.lang.xls.binding;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +24,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
@@ -32,6 +35,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
@@ -44,6 +48,7 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -61,7 +66,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  * 
  */
-public class XlsModuleOpenClass extends ModuleOpenClass {
+public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
     private IDataBase dataBase = null;
 
@@ -71,6 +76,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
+    
+    private Collection<String> imports = new HashSet<String>();
 
     public XlsModuleOpenClass(IOpenSchema schema,
             String name,
@@ -96,9 +103,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+        initImports(metaInfo.getXlsModuleNode());
         additionalInitDependencies(); // Required for data tables.
     }
 
+    private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode){
+        imports.addAll(xlsModuleSyntaxNode.getImports());
+    }
+    
     // TODO: should be placed to ModuleOpenClass
     public IDataBase getDataBase() {
         return dataBase;
@@ -111,8 +123,35 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     private void additionalInitDependencies() {
         for (CompiledOpenClass dependency : this.getDependencies()) {
             addDataTables(dependency);
+            //addImports(dependency);
         }
     }
+    
+    public Collection<String> getImports() {
+        return imports;
+    }
+
+    @Override
+    public void applyToDependentParsedCode(IParsedCode parsedCode) {
+        if (parsedCode == null) {
+            throw new IllegalArgumentException("parsedCode argument can't be null!");
+        }
+        if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode){
+            XlsModuleSyntaxNode xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
+            for (String value : getImports()){
+                xlsModuleSyntaxNode.addImport(value);
+            }
+        }
+    }
+    
+    
+    /*private void addImports(CompiledOpenClass dependency){
+        IOpenClass openClass = dependency.getOpenClass();
+        if (openClass instanceof XlsModuleOpenClass){
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            imports.addAll(xlsModuleOpenClass.getImports());
+        }
+    }*/
 
     private void addDataTables(CompiledOpenClass dependency) {
         IOpenClass openClass = dependency.getOpenClassWithErrors();

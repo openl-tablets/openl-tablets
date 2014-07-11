@@ -7,6 +7,7 @@
 package org.openl.binding.impl.module;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -221,7 +222,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return compiled module dependencies for current module.
      */
     public Set<CompiledOpenClass> getDependencies() {
-        return new HashSet<CompiledOpenClass>(usingModules);
+        if (usingModules == null){
+            return Collections.emptySet();
+        }
+        return Collections.unmodifiableSet(usingModules);
     }
     
     /**
