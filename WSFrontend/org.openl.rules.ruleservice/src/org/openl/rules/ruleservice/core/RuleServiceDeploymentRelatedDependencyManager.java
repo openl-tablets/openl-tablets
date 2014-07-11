@@ -49,26 +49,30 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         return ruleServiceLoader;
     }
 
+
     private static class SemaphoreHolder {
         private static Semaphore limitCompilationThreadsSemaphore = new Semaphore(RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
+        private static ThreadLocal<Object> threadsMarker = new ThreadLocal<Object>();
     }
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
     @Override
-    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         try {
-            SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
-            String dependencyName = dependency.getNode().getIdentifier();
-            CompiledDependency compiledDependency = handleLoadDependency(dependency);
-            if (compiledDependency == null) {
-                throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found",
-                    dependencyName), null, dependency.getNode().getSourceLocation());
+            boolean requiredSemophore = SemaphoreHolder.threadsMarker.get() == null;
+            try{
+                if (requiredSemophore){
+                    SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
+                }
+                return super.loadDependency(dependency);
+            }finally{
+                SemaphoreHolder.threadsMarker.remove();
+                if (requiredSemophore){
+                    SemaphoreHolder.limitCompilationThreadsSemaphore.release();
+                }
             }
-            return compiledDependency;
         } catch (InterruptedException e) {
             throw new OpenLCompilationException("Interrupter exception!", e);
-        } finally {
-            SemaphoreHolder.limitCompilationThreadsSemaphore.release();
         }
     }
 
