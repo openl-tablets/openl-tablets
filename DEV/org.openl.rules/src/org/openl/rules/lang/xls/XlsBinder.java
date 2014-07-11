@@ -6,6 +6,7 @@ package org.openl.rules.lang.xls;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -481,7 +482,7 @@ public class XlsBinder implements IOpenBinder {
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
 
         String openlName = getOpenLName(moduleNode.getOpenlNode());
-        List<String> allImports = moduleNode.getAllImports();
+        Collection<String> allImports = moduleNode.getImports();
 
         if (allImports == null) {
             return OpenL.getInstance(openlName, userContext);

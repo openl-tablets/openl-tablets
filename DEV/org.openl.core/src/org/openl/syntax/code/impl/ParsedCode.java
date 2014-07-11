@@ -36,8 +36,8 @@ public class ParsedCode implements IParsedCode {
         this(topnode, source, syntaxErrors, new IDependency[0]);
     }
     
-    public ParsedCode(ISyntaxNode topnode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors, IDependency[] dependencies) {
-        this.topNode = topnode;
+    public ParsedCode(ISyntaxNode topNode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors, IDependency[] dependencies) {
+        this.topNode = topNode;
         this.syntaxErrors = syntaxErrors;
         this.source = source;
         this.dependencies = dependencies;

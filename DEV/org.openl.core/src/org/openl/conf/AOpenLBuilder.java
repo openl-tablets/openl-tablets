@@ -78,10 +78,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
                 naot.execute(mycxt, getUserEnvironmentContext().getUserHome());
             }
 
-            // OpenLConfiguration conf =
-            // (OpenLConfiguration)helper.getConfigurationObject(
-            // getAntProjectConfigurationVariable(openl));
-
             IOpenLConfiguration conf = NoAntOpenLTask.retrieveConfiguration();
 
             op.setParser(new Parser(conf));

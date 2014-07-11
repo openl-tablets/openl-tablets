@@ -86,7 +86,7 @@ public class WizardUtils {
         });        
         
         ClassFinder finder = new ClassFinder();
-        for (String packageName : getXlsModuleNode().getAllImports()) {
+        for (String packageName : getXlsModuleNode().getImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {
                 // This package is added automatically in XlsLoader.addInnerImports() for inner usage, not for user.
                 continue;
