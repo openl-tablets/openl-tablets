@@ -7,7 +7,11 @@
 package org.openl.rules.lang.xls.syntax;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
@@ -16,47 +20,39 @@ import org.openl.syntax.impl.NaryNode;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class XlsModuleSyntaxNode extends NaryNode  {
-	
-	private List<IdentifierNode> extensionNodes;
+public class XlsModuleSyntaxNode extends NaryNode {
+
+    private List<IdentifierNode> extensionNodes;
 
     private OpenlSyntaxNode openlNode;
-    
-    private IdentifierNode vocabularyNode;
-    
-    private List<String> allImports = new ArrayList<String>();
-//    private List<String> modules = new ArrayList<String>();
 
-    public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
-            IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes) {
+    private IdentifierNode vocabularyNode;
+
+    private Set<String> imports = new HashSet<String>();
+
+    public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
+            IOpenSourceCodeModule module,
+            OpenlSyntaxNode openlNode,
+            IdentifierNode vocabularyNode,
+            Collection<String> imports,
+            List<IdentifierNode> extensionNodes) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
-        this.allImports = allImports;
+        this.imports.addAll(imports);
         this.extensionNodes = extensionNodes;
     }
-    
-//    public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
-//            IdentifierNode vocabularyNode, List<String> allImports, List<IdentifierNode> extensionNodes, List<String> modules) {
-//        super(ITableNodeTypes.XLS_MODULE, null, nodes, module);
-//
-//        this.openlNode = openlNode;
-//        this.vocabularyNode = vocabularyNode;
-//        this.allImports = allImports;
-//        this.extensionNodes = extensionNodes;
-//        this.modules = modules;
-//    }
 
-    public List<String> getAllImports() {
-        return allImports;
+    public Collection<String> getImports() {
+        return Collections.unmodifiableSet(imports);
     }
-    
-//    public List<String> getImportedModules() {
-//        return modules;
-//    }
+
+    public void addImport(String value) {
+        imports.add(value);
+    }
 
     public OpenlSyntaxNode getOpenlNode() {
         return openlNode;
@@ -69,16 +65,16 @@ public class XlsModuleSyntaxNode extends NaryNode  {
     public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {
         return (WorkbookSyntaxNode[]) getNodes();
     }
-    
+
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
-        
+
         List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
-        
+
         for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
             for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
                 tsnodes.add(tableSyntaxNode);
-            }            
-        }        
+            }
+        }
         return tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
     }
 
