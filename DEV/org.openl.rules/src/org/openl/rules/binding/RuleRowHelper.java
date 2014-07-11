@@ -92,9 +92,8 @@ public class RuleRowHelper {
             ILogicalTable cell,
             OpenlToolAdaptor openlAdaptor) throws SyntaxNodeException {
 
-        Object arrayValues = null;
-        String[] tokens = null;
-        tokens = extractElementsFromCommaSeparatedArray(cell);
+        Object arrayValues;
+        String[] tokens = extractElementsFromCommaSeparatedArray(cell);
 
         if (tokens != null) {
 
@@ -108,8 +107,7 @@ public class RuleRowHelper {
                     cell,
                     openlAdaptor,
                     token,
-                    null,
-                    true);
+                        true);
 
                 if (res == null) {
                     res = paramType.nullObject();
@@ -199,7 +197,7 @@ public class RuleRowHelper {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
             if (src != null) src = src.intern();
-            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
+            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
         }
         
         // load value as native type
@@ -231,7 +229,7 @@ public class RuleRowHelper {
         // has negative performance implication
         String src = theCell.getStringValue();
         if (src != null) src = src.intern();
-        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
+        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
     }
 
     private static Object loadNativeValue(ICell cell,
@@ -272,14 +270,13 @@ public class RuleRowHelper {
         return res;
     }
 
-    public static Object loadSingleParam(IOpenClass paramType,
-            String paramName,
-            String ruleName,
-            ILogicalTable cell,
-            OpenlToolAdaptor openlAdapter,
-            String source,
-            Object value,
-            boolean isPartOfArray) throws SyntaxNodeException {
+    private static Object loadSingleParam(IOpenClass paramType,
+                                          String paramName,
+                                          String ruleName,
+                                          ILogicalTable cell,
+                                          OpenlToolAdaptor openlAdapter,
+                                          String source,
+                                          boolean isPartOfArray) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
@@ -313,7 +310,6 @@ public class RuleRowHelper {
 
             Class<?> expectedType = paramType.getInstanceClass();
 
-            // try {
             // Set cell meta information at first.
             //
             if (!openlAdapter.getBindingContext().isExecutionMode())
@@ -326,7 +322,9 @@ public class RuleRowHelper {
             Object result;
 
             try {
-                result = parseStringValue(source, expectedType);
+                IBindingContext bindingContext = openlAdapter.getBindingContext();
+                result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+
             } catch (Exception e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.
@@ -357,16 +355,6 @@ public class RuleRowHelper {
             }
 
             return result;
-            // } catch (Throwable t) {
-            // String message = String.format("Cannot load cell value '%s'",
-            // source);
-            // IOpenSourceCodeModule cellSourceCodeModule= new
-            // GridCellSourceCodeModule(cell.getSource(),
-            // openlAdapter.getBindingContext());
-            //                
-            // throw SyntaxNodeExceptionUtils.createError(message,
-            // cellSourceCodeModule);
-            // }
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
             // according to cell type.
@@ -375,11 +363,6 @@ public class RuleRowHelper {
         }
 
         return null;
-    }
-
-    private static Object parseStringValue(String source, Class<?> expectedType) {
-        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(expectedType);
-        return convertor.parse(source, null);
     }
 
     public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
@@ -414,12 +397,6 @@ public class RuleRowHelper {
         ICell cell = logicalCell.getSource().getCell(0, 0);
         cell.setMetaInfo(meta);
     }
-
-//    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue, List<MethodUsage> usedMethods) {
-//        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue, usedMethods);
-//        ICell cell = logicalCell.getSource().getCell(0, 0);
-//        cell.setMetaInfo(meta);
-//    }
 
     private static void setMetaInfo(IMetaHolder holder,
             ILogicalTable cell,
@@ -505,25 +482,16 @@ public class RuleRowHelper {
 
         // Load parameter value as an array of values.
         //
-        return loadArrayParameters(dataTable, paramName, ruleName, openlAdaptor, paramType);
-    }
 
-    private static Object loadArrayParameters(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass arrayType) throws SyntaxNodeException {
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
-        IOpenClass paramType = arrayType.getAggregateInfo().getComponentType(arrayType);
+        IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
 
         if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) {
             // load comma separated array
-            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         } else if (height == 1 && isFormula(dataTable)) {
-            return loadSingleParam(arrayType, paramName, ruleName, dataTable, openlAdaptor);
+            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         } else {
-            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         }
     }
 

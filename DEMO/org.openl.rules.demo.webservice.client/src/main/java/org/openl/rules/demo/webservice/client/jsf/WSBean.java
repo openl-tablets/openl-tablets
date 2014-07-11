@@ -69,7 +69,7 @@ public class WSBean {
         this.gender = gender;
     }
 
-    public String getAddress() throws Exception {
+    public String getAddress() {
         return WebServiceTemplate.getInstance().getAddress();
     }
 

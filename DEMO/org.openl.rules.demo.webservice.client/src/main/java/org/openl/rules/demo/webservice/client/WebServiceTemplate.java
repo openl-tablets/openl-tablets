@@ -1,23 +1,24 @@
 package org.openl.rules.demo.webservice.client;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 public class WebServiceTemplate {
 
     private Client clientInterface;
 
-	private static final WebServiceTemplate INSTANCE = new WebServiceTemplate();
+    private static final WebServiceTemplate INSTANCE = new WebServiceTemplate();
 
-	private WebServiceTemplate(){}
+    private WebServiceTemplate() {
+    }
 
-	public static WebServiceTemplate getInstance() {
-		return INSTANCE;
-	}
+    public static WebServiceTemplate getInstance() {
+        return INSTANCE;
+    }
 
     private Client createClientInterface() throws IOException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -30,21 +31,14 @@ public class WebServiceTemplate {
     }
 
     public synchronized Client getClientInterface() throws IOException {
-    	if (clientInterface == null) {
-    		return clientInterface = createClientInterface();
-    	}
-    	return clientInterface;
+        if (clientInterface == null) {
+            return clientInterface = createClientInterface();
+        }
+        return clientInterface;
     }
 
-	public String getAddress() throws IOException {
-		Properties properties = new Properties();
-		InputStream stream = getClass().getResourceAsStream("/ws.properties");
-		try {
-			properties.load(stream);
-			return properties.getProperty("ws.address");
-		} finally {
-			stream.close();
-		}
-	}
-
+    public String getAddress() {
+        Config conf = ConfigFactory.load();
+        return conf.getString("ws.address");
+    }
 }

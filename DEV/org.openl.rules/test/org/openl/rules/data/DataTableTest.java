@@ -2,11 +2,13 @@ package org.openl.rules.data;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -173,4 +175,11 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertTrue(dataList.contains("four"));
     }
 
+    @Test
+    public void testDataTableWithClass() {
+        //TODO: Fix it. There should be no error messages
+        List<OpenLMessage> messages = getJavaWrapper().getCompiledClass().getMessages();
+        assertEquals(1, messages.size());
+        assertEquals("Cannot parse cell value '1 < 2'", messages.get(0).getSummary());
+    }
 }
