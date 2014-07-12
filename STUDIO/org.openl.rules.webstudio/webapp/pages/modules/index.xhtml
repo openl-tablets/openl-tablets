@@ -41,189 +41,148 @@
         //<![CDATA[
         var $j = $.noConflict();
 
-        var loadingPanel;
-
-        var reqs = 0;
-
-        var ChangesListener = function () {
-            // Private members
-            var self = this;
-            var hasChanges = function() {return false};
-            var showConfirmDialog = function() {};
-
-            var setHasChanges = function () {};
-            var hadChanges = false;
-
-            var afterUnloadActions = [];
-
-            // Public members
-            this.revertChanges = function() {
-                if (hasChanges()) {
-                    hadChanges = true;
-                    setHasChanges(false);
-                }
-            };
-
-            this.restoreChangedState = function() {
-                if (hadChanges) {
-                    setHasChanges(true);
-                    hadChanges = false;
-                }
-            };
-
-            this.configure = function (hasChangesFunc, setHasChangesFunc, showConfirmDialogFunc, beforeUnloadFunc) {
-                hasChanges = hasChangesFunc;
-                showConfirmDialog = showConfirmDialogFunc;
-                setHasChanges = setHasChangesFunc;
-                window.onbeforeunload = function (e) {
-                    var result = beforeUnloadFunc(e);
-                    for (var i = 0; i < afterUnloadActions.length; i++) {
-                        afterUnloadActions[i](e);
-                    }
-                    afterUnloadActions = [];
-                    return result;
-                };
-                hadChanges = hasChanges();
-            };
-
-            this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
-                if (typeof revertUrlChange == "undefined") {
-                    revertUrlChange = function() {};
-                }
-                if (typeof retryUrlChange == "undefined") {
-                    retryUrlChange = proceed;
-                }
-                if (hasChanges()) {
-                    revertUrlChange();
-
-                    var revertAndProceed = function () {
-                        self.revertChanges();
-                        retryUrlChange();
-                    };
-                    showConfirmDialog(revertAndProceed);
-                    return true;
-                } else {
-                    proceed();
-                    return false;
-                }
-            };
-
-            this.addChangesListener = function(selector) {
-                $j(selector).each(function() {
-                    var $a = $j(this);
-
-                    var onClickFunc = new Function("event", $a.attr("onclick"));
-                    $a.removeAttr('onclick').off('click');
-                    $a.click(function (e) {
-                        if (e.which != 2) {
-                            // Not a middle mouse button
-                            var proceed = function () {
-                                var result = onClickFunc(e);
-                                if (typeof result == "undefined" || result) {
-                                    var href = $a.attr("href");
-                                    href && $location.set(href);
-                                }
-                            };
-                            ws.changes.checkForChanges(proceed);
-                            e.preventDefault();
-                        }
-                    });
-                });
-            };
-
-            this.addAfterUnloadAction = function(func) {
-                afterUnloadActions.push(func);
-            };
-
-        };
-
+        // TODO Move to external file
+        // TODO Remove contextPath dependency
         var WebStudio = function() {
-        };
 
-        WebStudio.prototype = (function() {
+            var $ = jQuery;
+
             // Init
-            (function initRouter() {
-                crossroads.ignoreState = true;
 
-                // Home page
-                crossroads.addRoute("/", function(reload) {
-                    var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
-                    var toOpen = { bottom: 0, right: 0 };
-                    render("home.xhtml", 0, toReload, toOpen);
-                });
-                // Project page
-                crossroads.addRoute("{project}", function(reload, project) {
-                    var url = "project.xhtml?name=" + project;
-                    setModule(project);
-                    var leftReload = reload == "true" || !$j("#projects-tree").length;
-                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
-                    var toOpen = { bottom: 0, right: 0 };
-                    render(url, { project: project }, toReload, toOpen, openProjectNode);
-                });
-                // Module page
-                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
-                    var url = "module.xhtml?project=" + project + "&name=" + module;
-                    var newModule = setModule(project, module);
-                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
-                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
-                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
-                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
-                    var toOpen = { bottom: 1, right: 0 };
-                    render(url, { project: project, module: module }, toReload, toOpen);
-                });
-                // Table page
-                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
-                    var url = [
-                        { url: "table.xhtml?" + query },
-                        { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
-                    ];
+            var reqs = 0;
+            var lastSavedHash = $location.getHash();
+            var fullreload = false;
 
-                    //var toReload = !current.module || setModule(project, module);
-                    var newModule = setModule(project, module);
-                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
-                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
-                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
-                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
-                    var toOpen = { bottom: 1, right: 1 };
-                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
-                });
-                // Other pages
-                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
-                    var query;
-                    if (page.indexOf("?") > -1) {
-                        var parts = page.split("?");
-                        page = parts[0];
-                        query = parts[1];
+            var urlRewrite = {
+                prefix: "#{pathRoot}/"
+            };
+
+            var DEFAULT_CONTENT = {
+                left:    { target: "#leftContent",   url: urlRewrite.prefix +  "leftPanel.xhtml" },
+                top:     { target: "#top",           url: urlRewrite.prefix +  "topPanel.xhtml" },
+                bottom:  { target: "#bottomContent", url: urlRewrite.prefix +  "bottomPanel.xhtml" },
+                right:   { target: "#rightContent",  url: urlRewrite.prefix +  "rightPanel.xhtml" },
+                content: { target: "#content",       url: urlRewrite.prefix +  "home.xhtml" }
+            };
+
+            var current  = {
+                project: 0,
+                module: 0
+            };
+
+            var loadingPanel;
+            var mainLayout;
+            var centerLayout;
+
+            var ChangesListener = function () {
+                // Private members
+                var self = this;
+                var hasChanges = function() {return false};
+                var showConfirmDialog = function() {};
+
+                var setHasChanges = function () {};
+                var hadChanges = false;
+
+                var afterUnloadActions = [];
+
+                // Public members
+                this.revertChanges = function() {
+                    if (hasChanges()) {
+                        hadChanges = true;
+                        setHasChanges(false);
                     }
-                    var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    var newModule = setModule(project, module);
-                    var topReload =  reload == "true" || !$j("#breadcrumbs-module").length || newModule;
-                    var leftReload = reload == "true" || !$j("#rulesTree").length || newModule;
-                    var bottomReload = reload == "true" || !$j("#bottomPanel").length || newModule;
-                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
-                    var toOpen = { bottom: 1, right: 0 };
-                    render(url, { project: project, module: module }, toReload, toOpen);
-                });
-            })();
+                };
 
-            // Private API
+                this.restoreChangedState = function() {
+                    if (hadChanges) {
+                        setHasChanges(true);
+                        hadChanges = false;
+                    }
+                };
+
+                this.configure = function (hasChangesFunc, setHasChangesFunc, showConfirmDialogFunc, beforeUnloadFunc) {
+                    hasChanges = hasChangesFunc;
+                    showConfirmDialog = showConfirmDialogFunc;
+                    setHasChanges = setHasChangesFunc;
+                    window.onbeforeunload = function (e) {
+                        var result = beforeUnloadFunc(e);
+                        for (var i = 0; i < afterUnloadActions.length; i++) {
+                            afterUnloadActions[i](e);
+                        }
+                        afterUnloadActions = [];
+                        return result;
+                    };
+                    hadChanges = hasChanges();
+                };
+
+                this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
+                    if (typeof revertUrlChange == "undefined") {
+                        revertUrlChange = function() {};
+                    }
+                    if (typeof retryUrlChange == "undefined") {
+                        retryUrlChange = proceed;
+                    }
+                    if (hasChanges()) {
+                        revertUrlChange();
+
+                        var revertAndProceed = function () {
+                            self.revertChanges();
+                            retryUrlChange();
+                        };
+                        showConfirmDialog(revertAndProceed);
+                        return true;
+                    } else {
+                        proceed();
+                        return false;
+                    }
+                };
+
+                this.addChangesListener = function(selector) {
+                    $(selector).each(function() {
+                        var $a = $(this);
+
+                        var onClickFunc = new Function("event", $a.attr("onclick"));
+                        $a.removeAttr('onclick').off('click');
+                        $a.click(function (e) {
+                            if (e.which != 2) {
+                                // Not a middle mouse button
+                                var proceed = function () {
+                                    var result = onClickFunc(e);
+                                    if (typeof result == "undefined" || result) {
+                                        var href = $a.attr("href");
+                                        href && $location.set(href);
+                                    }
+                                };
+                                api.changes.checkForChanges(proceed);
+                                e.preventDefault();
+                            }
+                        });
+                    });
+                };
+
+                this.addAfterUnloadAction = function(func) {
+                    afterUnloadActions.push(func);
+                };
+
+            };
 
             // Public API
-            return {
+
+            var api = {
                 ajax: {
                     get: function(urls, done) {
                         if (typeof urls === "string") {
                             // One page
-                            $j.get(urls, function() {
+                            $.get(urls, function() {
                                 done(arguments);
                             });
                         } else {
                             // Few pages
                             var requests = [];
                             for (var i = 0; i < urls.length; i++) {
-                                requests.push($j.get(urls[i]));
+                                requests.push($.get(urls[i]));
                             }
-                            $j.when.apply($j, requests).done(function() {
+                            $.when.apply($, requests).done(function() {
                                 // After all pages are loaded
                                 done(arguments);
                             });
@@ -236,10 +195,10 @@
                         }
                         this.get(urls, function(result) {
                             if (parts.length == 1) {
-                                $j(parts[0].target).html(result[0]);
+                                $(parts[0].target).html(result[0]);
                             } else {
                                 for (var i = 0; i < parts.length; i++) {
-                                    $j(parts[i].target).html(result[i][0]);
+                                    $(parts[i].target).html(result[i][0]);
                                 }
                             }
                             done && done();
@@ -255,24 +214,45 @@
                         // Reload all page (if args is true) or only content
                         if (typeof args == "boolean") {
                             loadContent("", args);
-                        // Reload only content with new params
+                            // Reload only content with new params
                         } else if (typeof args == "object") {
                             var currentPage = getCurrentPage();
                             var newPage = $location.utils.setParams(currentPage, args);
-                            goTo(newPage);
-                        // Reload only content
+                            api.nav.go(newPage);
+                            // Reload only content
                         } else {
                             loadContent();
                         }
                     },
                     reloadPanel: function(panel, callback) {
                         if (panel == "left") {
-                            // TODO Refactor to not use ws instance
-                            ws.ajax.load([DEFAULT_CONTENT.left], callback);
+                            api.ajax.load([DEFAULT_CONTENT.left], callback);
                         }
                     },
+                    openHistoryPanel: function() {
+                        api.nav.reloadPanel("left", function() {
+                            $("#projectsTreePanel").hide();
+                            $("#rulesTreePanel").hide();
+                            $("#recentVisitedTablesPanel").show();
+                        });
+                    },
+                    closeHistoryPanel: function() {
+                        openTreeNode();
+                        $("#projectsTreePanel").hide();
+                        $("#rulesTreePanel").show();
+                        $("#recentVisitedTablesPanel").hide();
+                    },
                     go: function(page, reload) {
-                        goTo(page, reload);
+                        if (page) {
+                            page = page.replace(urlRewrite.prefix, "");
+                            // Check if requested page is the same as current
+                            if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
+                                loadContent('', reload);
+                            } else {
+                                fullreload = reload;
+                                location.hash = page;
+                            }
+                        }
                     },
                     // prefixPage will be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
@@ -285,460 +265,467 @@
 
                                 // Advanced Search
                             } else {
-                                query = $j.param(params);
+                                query = $.param(params);
                             }
                         }
 
-                        goTo(prefixPage + "search" + (query ? "?" + query : ""));
+                        api.nav.go(prefixPage + "search" + (query ? "?" + query : ""));
                     }
                 },
 
                 ui: {
                     show: function(id, params) {
                         // RichFaces Popup
-                        if ($j("#" + id + "_container").length) {
+                        if ($("#" + id + "_container").length) {
                             RichFaces.$(id).show();
 
                             if (!params || (params && params.focus !== false)) {
                                 // Focus the first visible enabled input
-                                $j("#" + id + "_container :input:enabled:visible:first").focus();
+                                $("#" + id + "_container :input:enabled:visible:first").focus();
                             }
                         }
                     },
                     hide: function(id) {
                         // RichFaces Popup
-                        if ($j("#" + id + "_container").length) {
+                        if ($("#" + id + "_container").length) {
                             RichFaces.$(id).hide();
+                        }
+                    },
+                    // TODO Merge with 'show' method
+                    showPopupMenu: function(event, popupId, elem, params) {
+                        var elem = $(elem);
+                        var elemPos = elem.position();
+
+                        var left = elemPos.left + ((params && params.offsetLeft) || 0);
+                        var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
+                        var closeIcon = (params && params.closeIcon && 'webresource/images/close.gif') || false;
+
+                        var popupParams = {
+                            caller   : event.target,
+                            left     : left,
+                            top      : top,
+                            closeIcon: closeIcon
+                        };
+                        if (params && params.fitToScreen === true) {
+                            popupParams.maxWidth = "calc(100% - " + left + "px)";
+                            popupParams.maxHeight = "calc(100% - " + top + "px)";
+                        }
+
+                        $("#" + popupId).popup(popupParams);
+                    },
+                    showLoader: function () {
+                        if (reqs++ == 0) {
+                            loadingPanel.show();
+                        }
+                    },
+                    hideLoader: function () {
+                        if (reqs-- == 1) {
+                            loadingPanel.hide();
+                        }
+                    },
+                    message: function(content, life, closable) {
+                        var messages = $(".message");
+
+                        function remove() {
+                            message.remove();
+
+                            var top = 33;
+                            $(".message").each(function() {
+                                $(this).css({"top" : top + "px"});
+                                top += ($(this).outerHeight() + 5);
+                            });
+                        }
+
+                        var message = $("<div />").addClass("message").html(content);
+
+                        if (closable !== false) {
+                            message.css({"cursor" : "pointer"})
+                            message.click(remove);
+                        }
+
+                        var top;
+                        if (messages.length) {
+                            var lastMessage = $(messages[messages.length - 1]);
+                            top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
+                        } else {
+                            top = "33px";
+                        }
+
+                        message.css({"top": top});
+                        $("body").append(message);
+
+                        if (life > -1) {
+                            setTimeout(remove, life);
                         }
                     }
                 },
 
                 changes: new ChangesListener()
             };
-        })();
 
-        var ws = new WebStudio();
+            (function initUI(){
+                $(function () {
+                    mainLayout = $("#center").layout({
+                        spacing_open: 1,
+                        spacing_closed: 17,
+                        minSize: 209,
+                        west__size: 235,
+                        east__size: 235,
+                        east__initHidden: true,
+                        slidable: false,
+                        enableCursorHotkey: false
+                    });
+                    mainLayout.addCloseBtn("#west-closer", "west");
+                    mainLayout.addCloseBtn("#east-closer", "east");
 
-        $j.ajaxSetup({
-            handleLoginPage: true,
-            cache: false,
-            beforeSend: showLoader,
-            // Handle jQuery AJAX errors
-            error: function(response, message, error) {
-                handleError(response.status);
-            },
-            complete: hideLoader
-        });
+                    centerLayout = $("#center .ui-layout-center").layout({
+                        spacing_open: 1,
+                        spacing_closed: 17,
+                        minSize: 57,
+                        south__size: 110,
+                        south__initHidden: true,
+                        slidable: false,
+                        enableCursorHotkey: false
+                    });
+                    centerLayout.addCloseBtn("#south-closer", "south");
 
-        $j.ajaxPrefilter(function(options, _, jqXHR) {
-            if (options.handleLoginPage) {
-                var deferredRequest = $j.Deferred();
+                    loadingPanel = $("#loadingPanel");
 
-                jqXHR.done(
-                    function (data) {
-                        if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
-                            location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                        } else {
-                            deferredRequest.resolveWith(this, arguments);
+                    loadContent();
+
+                    $("body").css({"visibility": "visible"});
+                });
+            })();
+
+            (function initNavigation() {
+                $.ajaxSetup({
+                    handleLoginPage: true,
+                    cache: false,
+                    beforeSend: api.ui.showLoader,
+                    // Handle jQuery AJAX errors
+                    error: function(response, message, error) {
+                        handleError(response.status);
+                    },
+                    complete: api.ui.hideLoader
+                });
+
+                $.ajaxPrefilter(function(options, _, jqXHR) {
+                    if (options.handleLoginPage) {
+                        var deferredRequest = $.Deferred();
+
+                        jqXHR.done(
+                                function (data) {
+                                    if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                                        location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                                    } else {
+                                        deferredRequest.resolveWith(this, arguments);
+                                    }
+                                }
+                        );
+
+                        deferredRequest.promise(jqXHR);
+
+                        jqXHR.success = jqXHR.done;
+                    }
+                });
+
+                // Fix Mojarra bug. Make rerendered forms work.
+                // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
+                jsf.ajax.addOnEvent(function (data) {
+                    if (data.status === "success") {
+                        var viewState = $("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML);
+                        if (viewState.length) {
+                            $("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
+                                $("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
+                                    var field = $("input[name='javax.faces.ViewState']", f);
+                                    if (!field.length) {
+                                        field = $("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
+                                    }
+                                    field.val(viewState.text());
+                                });
+                            });
                         }
                     }
-                );
+                });
 
-                deferredRequest.promise(jqXHR);
+                // Handle JSF / Richfaces AJAX errors
+                jsf.ajax.addOnError(function (data) {
+                    if (typeof console != "undefined") console.error(data);
 
-                jqXHR.success = jqXHR.done;
-            }
-        });
+                    // @Deprecated
+                    var errorMessage = data.errorMessage;
+                    if (errorMessage) {
+                        // TODO Create mechanism to disable editing in UI when Excel file is opened.
+                        if (errorMessage.indexOf(".xls") > -1) {
+                            api.ui.message("#{msg['ws.common.error.save']}", 7000);
+                        } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
+                            api.nav.reload(true);
+                        } else {
+                            api.ui.message(errorMessage, 7000);
+                        }
+                        return;
+                    }
 
-        // Fix Mojarra bug. Make rerendered forms work.
-        // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
-        jsf.ajax.addOnEvent(function (data) {
-            if (data.status === "success") {
-                var viewState = $j("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML);
-                if (viewState.length) {
-                    $j("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
-                        $j("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
-                            var field = $j("input[name='javax.faces.ViewState']", f);
-                            if (!field.length) {
-                                field = $j("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
-                            }
-                            field.val(viewState.text());
-                        });
-                    });
-                }
-            }
-        });
+                    handleError(data.responseCode);
+                });
 
-        // Handle JSF / Richfaces AJAX errors
-        jsf.ajax.addOnError(function (data) {
-            if (typeof console != "undefined") console.error(data);
+                $(window).bind("hashchange", function() {
+                    var ch = $location.getHash();
+                    if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
+                        // Workaround for a bug in firefox.
+                        // Sometimes it decodes a loading url and then loads decoded url.
+                        location.hash = lastSavedHash;
+                        return;
+                    } else {
+                        if (ch == lastSavedHash) {
+                            return;
+                        }
+                        var proceed = function() {
+                            lastSavedHash = ch;
+                            loadContent(getCurrentPage(), fullreload);
+                            fullreload = false;
+                        };
+                        var retry = function() {
+                            $location.setHash(ch);
+                        };
+                        var revert = function() {
+                            $location.setHash(lastSavedHash);
+                        };
 
-            // @Deprecated
-            var errorMessage = data.errorMessage;
-            if (errorMessage) {
-                // TODO Create mechanism to disable editing in UI when Excel file is opened.
-                if (errorMessage.indexOf(".xls") > -1) {
-                    message("#{msg['ws.common.error.save']}", 7000);
-                } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
-                    ws.nav.reload(true);
+                        api.changes.checkForChanges(proceed, revert, retry);
+                    }
+                });
+            })();
+
+            (function initRouter() {
+                crossroads.ignoreState = true;
+
+                // Home page
+                crossroads.addRoute("/", function(reload) {
+                    var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render("home.xhtml", 0, toReload, toOpen);
+                });
+                // Project page
+                crossroads.addRoute("{project}", function(reload, project) {
+                    var url = "project.xhtml?name=" + project;
+                    setModule(project);
+                    var leftReload = reload == "true" || !$("#projects-tree").length;
+                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    render(url, { project: project }, toReload, toOpen, openProjectNode);
+                });
+                // Module page
+                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
+                    var url = "module.xhtml?project=" + project + "&name=" + module;
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
+                });
+                // Table page
+                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
+                    var url = [
+                        { url: "table.xhtml?" + query },
+                        { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
+                    ];
+
+                    //var toReload = !current.module || setModule(project, module);
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
+                    var toOpen = { bottom: 1, right: 1 };
+                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
+                });
+                // Other pages
+                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
+                    var query;
+                    if (page.indexOf("?") > -1) {
+                        var parts = page.split("?");
+                        page = parts[0];
+                        query = parts[1];
+                    }
+                    var url = page + ".xhtml" + (query ? ("?" + query) : "");
+                    var newModule = setModule(project, module);
+                    var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    render(url, { project: project, module: module }, toReload, toOpen);
+                });
+            })();
+
+
+            // Private API
+
+            var handleError = function(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else if (code == 404) { // File Not Found
+                    api.ui.message("#{msg['ws.common.error.404']}", 7000);
                 } else {
-                    message(errorMessage, 7000);
+                    api.ui.message("#{msg['ws.common.error.500']}", 7000);
                 }
-                return;
-            }
+            };
 
-            handleError(data.responseCode);
-        });
+            var getCurrentPage = function() {
+                if (location.hash) {
+                    var page = lastSavedHash;
+                    if (page && page.indexOf(urlRewrite.prefix) < 0) {
+                        page = urlRewrite.prefix + page;
+                    }
+                    return page;
+                }
+            };
 
-        var urlRewrite = {
-            prefix: "#{pathRoot}/"
-        };
+            var loadContent = function(page, reload) {
+                var page = page || getCurrentPage();
 
-        var lastSavedHash = $location.getHash();
-        var fullreload = false;
-
-        $j(window).bind("hashchange", function() {
-            var ch = $location.getHash();
-            if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
-                // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
-                location.hash = lastSavedHash;
-                return;
-            } else {
-                if (ch == lastSavedHash) {
+                if (!page) {
+                    crossroads.parse("/", ["false"]);
                     return;
                 }
-                var proceed = function() {
-                    lastSavedHash = ch;
-                    loadContent(getCurrentPage(), fullreload);
-                    fullreload = false;
-                };
-                var retry = function() {
-                    $location.setHash(ch);
-                };
-                var revert = function() {
-                    $location.setHash(lastSavedHash);
-                };
 
-                ws.changes.checkForChanges(proceed, revert, retry);
-            }
-        });
-
-        var mainLayout;
-        var centerLayout;
-
-        $j(function () {
-            mainLayout = $j("#center").layout({
-                spacing_open: 1,
-                spacing_closed: 17,
-                minSize: 209,
-                west__size: 235,
-                east__size: 235,
-                east__initHidden: true,
-                slidable: false,
-                enableCursorHotkey: false
-            });
-            mainLayout.addCloseBtn("#west-closer", "west");
-            mainLayout.addCloseBtn("#east-closer", "east");
-
-            centerLayout = $j("#center .ui-layout-center").layout({
-                spacing_open: 1,
-                spacing_closed: 17,
-                minSize: 57,
-                south__size: 110,
-                south__initHidden: true,
-                slidable: false,
-                enableCursorHotkey: false
-            });
-            centerLayout.addCloseBtn("#south-closer", "south");
-
-            loadingPanel = $j("#loadingPanel");
-            loadContent();
-
-            $j("body").css({"visibility": "visible"});
-        });
-
-        function handleError(code) {
-            if (code == 399) { // Session Timeout
-                location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-            } else if (code == 404) { // File Not Found
-                message("#{msg['ws.common.error.404']}", 7000);
-            } else {
-                message("#{msg['ws.common.error.500']}", 7000);
-            }
-        }
-
-        // Deprecated
-        // Moved to WebStudio.nav
-        function goTo(page, reload) {
-            if (page) {
-                page = page.replace(urlRewrite.prefix, "");
-                // Check if requested page is the same as current
-                if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
-                    loadContent('', reload);
-                } else {
-                    fullreload = reload;
-                    location.hash = page;
+                if (page.indexOf(urlRewrite.prefix) > -1) {
+                    page = page.split(urlRewrite.prefix)[1];
                 }
-            }
-        }
 
-        // Deprecated
-        // TODO Move to WebStudio
-        function getCurrentPage() {
-            if (location.hash) {
-                var page = lastSavedHash;
-                if (page && page.indexOf(urlRewrite.prefix) < 0) {
-                    page = urlRewrite.prefix + page;
-                }
-                return page;
-            }
-        }
-
-        function loadContent(page, reload) {
-            var page = page || getCurrentPage();
-
-            if (!page) {
-                crossroads.parse("/", ["false"]);
-                return;
-            }
-
-            if (page.indexOf(urlRewrite.prefix) > -1) {
-                page = page.split(urlRewrite.prefix)[1];
-            }
-
-            var params = [reload ? "true" : "false"];
-            crossroads.parse(page, params);
-        }
-
-        var DEFAULT_CONTENT = {
-            left:    { target: "#leftContent",   url: urlRewrite.prefix +  "leftPanel.xhtml" },
-            top:     { target: "#top",           url: urlRewrite.prefix +  "topPanel.xhtml" },
-            bottom:  { target: "#bottomContent", url: urlRewrite.prefix +  "bottomPanel.xhtml" },
-            right:   { target: "#rightContent",  url: urlRewrite.prefix +  "rightPanel.xhtml" },
-            content: { target: "#content",       url: urlRewrite.prefix +  "home.xhtml" }
-        }
-
-        var current  = {
-            project: 0,
-            module: 0
-        }
-
-        function setModule(project, module) {
-            var newModule = project && module
-                    && (!current.module || (current.project && current.module
-                    && (current.project != project || current.module != module)));
-
-            current.project = project || 0;
-            current.module = module || 0;
-
-            return newModule;
-        }
-
-        function render(page, init, load, open, done) {
-            var content = [];
-            var callbacks = [];
-
-            load.left   && content.push(DEFAULT_CONTENT.left);
-            load.top    && content.push(DEFAULT_CONTENT.top);
-            load.bottom && content.push(DEFAULT_CONTENT.bottom);
-            load.right  && content.push(DEFAULT_CONTENT.right);
-
-            if (page) {
-                if (typeof page === "string") {
-                    // One page
-                    content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
-                } else {
-                    // Few pages
-                    for (var i = 0; i < page.length; i++) {
-                        content.push(
-                            { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
-                    }
-                }
-            }
-
-            callbacks.push(open.bottom ?
-                function() {
-                    centerLayout.show("south");
-            } : function() {
-                    centerLayout.hide("south");
-            });
-            callbacks.push(open.right ?
-               function() {
-                    mainLayout.show("east");
-               } : function() {
-                    mainLayout.hide("east");
-            });
-
-            done && callbacks.push(done);
-
-            callbacks.push(function() {
-                ws.changes.addChangesListener(".changes-listener");
-                $j(".changes-listener").toggleClass("changes-listener changes-listener-added");
-
-                $j('.restore-changed-state').click(function () {
-                    ws.changes.restoreChangedState();
-                }).toggleClass("restore-changed-state restore-changed-state-added");
-            });
-
-            var initUrl = urlRewrite.prefix + "init.xhtml";
-            if (init && init.project) {
-                initUrl += ("?project=" + init.project);
-                if (init.module) {
-                    initUrl += "&module=" + init.module;
-                }
-            }
-
-            ws.ajax.get(initUrl, function() {
-                // Load all pages after project/module model initialized
-                ws.ajax.load(content, function() {
-                    for (var i = 0; i < callbacks.length; i++) {
-                        callbacks[i].call();
-                    }
-                });
-            });
-        }
-
-        function expandAndSelectNode(tableId) {
-            var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
-            if (tableLink.length) { // Firefox has bug with decoding url after refresh
-                // Expand nodes
-                tableLink.parents(".rf-tr-nd-colps").each(function () {
-                    var node = $j(this);
-                    node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
-                    node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
-                });
-                // Select node
-                $j("#rulesTree .rf-trn.sel").removeClass("sel");
-                tableLink.closest(".rf-trn").addClass("sel");
-
-                // Select the last used table in the history view
-                $j("#historyTable a.selected-link").removeClass("selected-link");
-                $j("#historyTable a[href *= '" + tableId + "']").addClass("selected-link");
-
-                var panelBody = tableLink.closest(".panel-body");
-                var linkPos = tableLink.position().top;
-                if (linkPos < 0 || linkPos > panelBody.height()) {
-                    panelBody.animate({
-                        scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
-                    });
-                }
-            }
-        }
-
-        function openTreeNode(pageToOpen) {
-            var page = pageToOpen || getCurrentPage();
-
-            if (page && page.indexOf("table?id=") > -1) {
-                var tableId = page.split("id=")[1].split("&")[0];
-                expandAndSelectNode(tableId);
-            }
-        }
-
-        function openProjectNode(pageToOpen) {
-            var page = pageToOpen || getCurrentPage();
-
-            if (page && page.indexOf("modules/") > -1) {
-                var projectName = page.split("modules/")[1];
-                var projectLink = $j("#projects-tree a[href = '#" + projectName + "']");
-                if (projectLink.length) { // Firefox has bug with decoding url after refresh
-                    // Select node
-                    $j("#projects-tree li.sel").removeClass("sel");
-                    projectLink.closest("li").addClass("sel");
-                }
-            }
-        }
-
-        function toProjectsPanel() {
-            $j("#projectsTreePanel").show();
-            $j("#rulesTreePanel").hide();
-            $j("#recentVisitedTablesPanel").hide();
-        }
-
-        function toRulesPanel() {
-            $j("#projectsTreePanel").hide();
-            $j("#rulesTreePanel").show();
-            $j("#recentVisitedTablesPanel").hide();
-        }
-
-        function toHistoryPanel() {
-            $j("#projectsTreePanel").hide();
-            $j("#rulesTreePanel").hide();
-            $j("#recentVisitedTablesPanel").show();
-        }
-
-        function showLoader() {
-            if (reqs++ == 0) {
-                loadingPanel.show();
-            }
-        }
-
-        function hideLoader() {
-            if (reqs-- == 1) {
-                loadingPanel.hide();
-            }
-        }
-
-        // Deprecated
-        // TODO Move to ws.ui namespace
-        function showPopupMenu(event, popupId, elem, params) {
-            var elem = $j(elem);
-            var elemPos = elem.position();
-
-            var left = elemPos.left + ((params && params.offsetLeft) || 0);
-            var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
-            var closeIcon = (params && params.closeIcon && 'webresource/images/close.gif') || false;
-
-            var popupParams = {
-                caller   : event.target,
-                left     : left,
-                top      : top,
-                closeIcon: closeIcon
+                var params = [reload ? "true" : "false"];
+                crossroads.parse(page, params);
             };
-            if (params && params.fitToScreen === true) {
-                popupParams.maxWidth = "calc(100% - " + left + "px)";
-                popupParams.maxHeight = "calc(100% - " + top + "px)";
-            }
 
-            $j("#" + popupId).popup(popupParams);
-        }
+            var setModule = function(project, module) {
+                var newModule = project && module
+                        && (!current.module || (current.project && current.module
+                        && (current.project != project || current.module != module)));
 
-        // Deprecated
-        // TODO Move to ws.ui namespace
-        function message(content, life, closable) {
-            var messages = $j(".message");
+                current.project = project || 0;
+                current.module = module || 0;
 
-            function remove() {
-                message.remove();
+                return newModule;
+            };
 
-                var top = 33;
-                $j(".message").each(function() {
-                    $j(this).css({"top" : top + "px"});
-                    top += ($j(this).outerHeight() + 5);
+            var render = function(page, init, load, open, done) {
+                var content = [];
+                var callbacks = [];
+
+                load.left   && content.push(DEFAULT_CONTENT.left);
+                load.top    && content.push(DEFAULT_CONTENT.top);
+                load.bottom && content.push(DEFAULT_CONTENT.bottom);
+                load.right  && content.push(DEFAULT_CONTENT.right);
+
+                if (page) {
+                    if (typeof page === "string") {
+                        // One page
+                        content.push({ target: DEFAULT_CONTENT.content.target, url: urlRewrite.prefix +  page });
+                    } else {
+                        // Few pages
+                        for (var i = 0; i < page.length; i++) {
+                            content.push(
+                                    { target: (page[i].target || DEFAULT_CONTENT.content.target), url: urlRewrite.prefix +  page[i].url } );
+                        }
+                    }
+                }
+
+                callbacks.push(open.bottom ?
+                        function() {
+                            centerLayout.show("south");
+                        } : function() {
+                    centerLayout.hide("south");
                 });
-            }
+                callbacks.push(open.right ?
+                        function() {
+                            mainLayout.show("east");
+                        } : function() {
+                    mainLayout.hide("east");
+                });
 
-            var message = $j("<div />").addClass("message").html(content);
+                done && callbacks.push(done);
 
-            if (closable !== false) {
-                message.css({"cursor" : "pointer"})
-                message.click(remove);
-            }
+                callbacks.push(function() {
+                    api.changes.addChangesListener(".changes-listener");
+                    $(".changes-listener").toggleClass("changes-listener changes-listener-added");
 
-            var top;
-            if (messages.length) {
-                var lastMessage = $j(messages[messages.length - 1]);
-                top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
-            } else {
-                top = "33px";
-            }
+                    $('.restore-changed-state').click(function () {
+                        api.changes.restoreChangedState();
+                    }).toggleClass("restore-changed-state restore-changed-state-added");
+                });
 
-            message.css({"top": top});
-            $j("body").append(message);
+                var initUrl = urlRewrite.prefix + "init.xhtml";
+                if (init && init.project) {
+                    initUrl += ("?project=" + init.project);
+                    if (init.module) {
+                        initUrl += "&module=" + init.module;
+                    }
+                }
 
-            if (life > -1) {
-                setTimeout(remove, life);
-            }
-        }
+                api.ajax.get(initUrl, function() {
+                    // Load all pages after project/module model initialized
+                    api.ajax.load(content, function() {
+                        for (var i = 0; i < callbacks.length; i++) {
+                            callbacks[i].call();
+                        }
+                    });
+                });
+            };
+
+            var openTreeNode = function(pageToOpen) {
+                var page = pageToOpen || getCurrentPage();
+
+                if (page && page.indexOf("table?id=") > -1) {
+                    var tableId = page.split("id=")[1].split("&")[0];
+                    var tableLink = $("#rulesTree a[href *= '" + tableId + "']");
+
+                    if (tableLink.length) { // Firefox has bug with decoding url after refresh
+                        // Expand nodes
+                        tableLink.parents(".rf-tr-nd-colps").each(function () {
+                            var node = $(this);
+                            node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                            node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                        });
+                        // Select node
+                        $("#rulesTree .rf-trn.sel").removeClass("sel");
+                        tableLink.closest(".rf-trn").addClass("sel");
+
+                        // Select the last used table in the history view
+                        $("#historyTable a.selected-link").removeClass("selected-link");
+                        $("#historyTable a[href *= '" + tableId + "']").addClass("selected-link");
+
+                        var panelBody = tableLink.closest(".panel-body");
+                        var linkPos = tableLink.position().top;
+                        if (linkPos < 0 || linkPos > panelBody.height()) {
+                            panelBody.animate({
+                                scrollTop: tableLink.position().top + panelBody.scrollTop() - 7
+                            });
+                        }
+                    }
+                }
+            };
+
+            var openProjectNode = function(pageToOpen) {
+                var page = pageToOpen || getCurrentPage();
+
+                if (page && page.indexOf("modules/") > -1) {
+                    var projectName = page.split("modules/")[1];
+                    var projectLink = $("#projects-tree a[href = '#" + projectName + "']");
+                    if (projectLink.length) { // Firefox has bug with decoding url after refresh
+                        // Select node
+                        $("#projects-tree li.sel").removeClass("sel");
+                        projectLink.closest("li").addClass("sel");
+                    }
+                }
+            };
+
+            return api;
+        };
+
+        var ws = new WebStudio();
     //]]>
     </script>
 
@@ -783,7 +770,7 @@
     </div>
 
     <div style="display: none">
-        <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+        <a4j:status onstart="ws.ui.showLoader()" onstop="ws.ui.hideLoader()" />
 
         <iframe src="#{contextPath}/faces/pages/modules/sourceModified.xhtml" width="0" height="0" />
         <iframe name="hidden" width="0" height="0" />

@@ -42,7 +42,7 @@
                     </div>
                     <a title="Recently visited tables" class="imageButton" href="javascript:void(0)"
                         style="background:url('webresource/images/menu.png'); border: 0; background-color: transparent !important; margin: 0 3px 0 2px; padding: 5px 11px;opacity:0.5"
-                        onclick="ws.nav.reloadPanel('left', toHistoryPanel);" />
+                        onclick="ws.nav.openHistoryPanel()" />
                 </h:panelGroup>
             </h:form>
         </div>
@@ -165,15 +165,13 @@
             </rich:tree>
 
             <script>
-                openTreeNode();
-
                 function changeNode(event, url) {
                     event = event || window.event
                     var target = event.target || event.srcElement
 
                     // ensure that we didn't click on "a href" element
                     if ( (target.nodeName != 'A') &amp;&amp; (target.nodeName !='SPAN') ){
-                        goTo(url);
+                        ws.nav.go(url);
                     };
                 }
             </script>

@@ -11,11 +11,11 @@ function PropsEditor () {
             data: "propName="+propName,
             dataType: "json",
             success:function(data, textStatus, XMLHttpRequest){
-                hideLoader();
+                ws.ui.hideLoader();
                 initComplexSelect(data, cell);
             },
             error:function(XMLHttpRequest, textStatus, errorThrown){
-                hideLoader();
+                ws.ui.hideLoader();
             }
         });
     };

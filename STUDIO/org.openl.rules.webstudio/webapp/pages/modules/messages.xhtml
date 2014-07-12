@@ -34,8 +34,8 @@
 
                 <h:panelGroup rendered="#{editable}">
                     <h:outputLink title="#{msg['ws.table.error.edit']}" value="#{studio.url('table')}"
-                        onclick="goTo(this.href.replace(/^.+#/, '')); return false;">
-                        <!-- If not use goTo(), we can't press "edit cell" repeatedly, only once -->
+                        onclick="ws.nav.go(this.href.replace(/^.+#/, '')); return false;">
+                        <!-- If not use go(), we can't press "edit cell" repeatedly, only once -->
                         <f:param name="id" value="#{messagesBean.tableId}" />
                         <f:param name="cell" value="#{messagesBean.errorCell}" />
                         <f:param name="mode" value="edit" />

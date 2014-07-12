@@ -135,7 +135,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{tableBean.copyable}"
-                                        oncomplete="goTo('#{studio.url('copyTable')}')" title="Create a new table based on the existing one"
+                                        oncomplete="ws.nav.go('#{studio.url('copyTable')}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
@@ -145,7 +145,7 @@
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
                                         rendered="#{tableBean.canRemove}"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="ws.changes.revertChanges();goTo('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
+                                        oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.png" />
                                         <span>Remove</span>
@@ -237,7 +237,7 @@
                                 <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
                                     rendered="#{tableBean.canBenchmark}"
                                     value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                    oncomplete="goTo('#{studio.url('test/benchmark')}')" style="display:none" />
+                                    oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')" style="display:none" />
                             </div>
                         </div>
                         <table>
@@ -245,7 +245,7 @@
                                 <td>
                                     <a4j:commandLink id="runLink" action="#{tableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canRun}"
-                                        onclick=" return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                        onclick=" return isAnyTestSelected();" oncomplete="ws.nav.go('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
@@ -300,7 +300,7 @@
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="goTo('#{studio.url('test/benchmark')}')"
+                                        oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
                                         style="padding-right: 1px">
                                         <table>
                                             <tr>
@@ -355,7 +355,7 @@
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Run" title="Launch the table"
-                                            oncomplete="goTo('#{runLink}')"/>
+                                            oncomplete="ws.nav.go('#{runLink}')"/>
                                         <a4j:commandButton id="traceButtonHidden" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" />
@@ -372,7 +372,7 @@
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
                                 <a4j:commandLink action="#{tableBean.makeTestSuite}" styleClass="toolbarButton" title="Run"
                                     rendered="#{tableBean.canRun}"
-                                    oncomplete="goTo('#{runLink}')">
+                                    oncomplete="ws.nav.go('#{runLink}')">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a4j:commandLink>
@@ -403,7 +403,7 @@
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
                             styleClass="toolbarButton" title="Create a new Test table" 
-                            oncomplete="goTo('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
+                            oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
                             <span>Create Test</span>
@@ -427,7 +427,7 @@
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
-                                onclick="showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
+                                onclick="ws.ui.showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
                                 style="margin-left: 4px">
                                 <h:graphicImage url="/webresource/images/arrow_down.png" title="Other Target Tables" />
                             </h:outputLink>
@@ -462,7 +462,7 @@
                                 <h:outputText value="#{tableBean.getTestName(test)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
-                                onclick="showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
+                                onclick="ws.ui.showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
                                 style="margin-left: 4px">
                                 <h:graphicImage url="/webresource/images/arrow_down.png"
                                     title="Other Available Tests/Runs" />
@@ -569,7 +569,7 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
+            ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
         }
 
         function editInExcel(f) {
@@ -578,17 +578,17 @@
         }
 
         function onBeforeSave() {
-            showLoader();
+            ws.ui.showLoader();
         }
 
         function onAfterSave(data) {
-            goTo("#{studio.url('table')}?id=" + data.newId, true);
-            hideLoader();
+            ws.nav.go("#{studio.url('table')}?id=" + data.newId, true);
+            ws.ui.hideLoader();
         }
 
         function onError(data) {
-            hideLoader();
-            message(data.message, 7000);
+            ws.ui.hideLoader();
+            ws.ui.message(data.message, 7000);
         }
 
         function isAnyTestSelected() {
@@ -598,7 +598,7 @@
                 return true;
             }
 
-            message("No tests selected", 3000);
+            ws.ui.message("No tests selected", 3000);
             return false;
         }
 
@@ -607,7 +607,7 @@
             jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
                 query += '&' + this.name + '=false';
             });
-            goTo("#{runLink}&" + query);
+            ws.nav.go("#{runLink}&" + query);
         }
 
         function getCurrentTable() {
