@@ -7,6 +7,7 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,7 +45,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
         return library;
     }
 
-    public void setAllImports(List<String> allImports) {
+    public void setAllImports(Collection<String> allImports) {
         if (allImports != null && !allImports.isEmpty()) {
             imports = new ArrayList<String>(allImports);
         }

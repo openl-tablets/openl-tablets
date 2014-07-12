@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +30,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     private DeploymentDescription deploymentDescription;
 
     private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
-    
+
     private boolean lazy;
 
     public boolean isLazy() {
@@ -41,17 +43,26 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     private static class SemaphoreHolder {
         private static Semaphore limitCompilationThreadsSemaphore = new Semaphore(RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
+        private static ThreadLocal<Object> threadsMarker = new ThreadLocal<Object>();
     }
 
     @Override
-    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         try {
-            SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
-            return super.loadDependency(dependency);
+            boolean requiredSemophore = SemaphoreHolder.threadsMarker.get() == null;
+            try{
+                if (requiredSemophore){
+                    SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
+                }
+                return super.loadDependency(dependency);
+            }finally{
+                SemaphoreHolder.threadsMarker.remove();
+                if (requiredSemophore){
+                    SemaphoreHolder.limitCompilationThreadsSemaphore.release();
+                }
+            }
         } catch (InterruptedException e) {
             throw new OpenLCompilationException("Interrupter exception!", e);
-        } finally {
-            SemaphoreHolder.limitCompilationThreadsSemaphore.release();
         }
     }
 
@@ -89,12 +100,12 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     public void resetAll() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public Collection<ProjectDescriptor> getProjectDescriptors() {
         return projectDescriptors;
     }
-    
+
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
         dependencyLoaders = new ArrayList<IDependencyLoader>();
