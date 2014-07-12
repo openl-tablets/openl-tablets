@@ -1,17 +1,9 @@
 package org.openl.conf;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.openl.OpenL;
-import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.JavaImportTypeConfiguration;
-import org.openl.conf.JavaLibraryConfiguration;
-import org.openl.conf.LibraryFactoryConfiguration;
-import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NoAntOpenLTask;
-import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
@@ -20,7 +12,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private List<String> imports = new ArrayList<String>();
+    private Collection<String> imports = new HashSet<String>();
 
     private String libName;
 
@@ -45,7 +37,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         return extendsCategory;
     }
 
-    public List<String> getImports() {
+    public Collection<String> getImports() {
         return imports;
     }
 
@@ -78,7 +70,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
          * </libraries>
          */
 
-        if (!imports.isEmpty()) {
+        if (!getImports().isEmpty()) {
             TypeFactoryConfiguration types = op.createTypes();
             NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
             typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
@@ -88,7 +80,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             // typelibrary.addJavaImport(javaimport);
 
             javaimport = new JavaImportTypeConfiguration();
-            javaimport.setAllImports(imports);
+            javaimport.setAllImports(getImports());
 
             typelibrary.addConfiguration(javaimport);
 
@@ -113,7 +105,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.extendsCategory = extendsCategory;
     }
 
-    public void setImports(List<String> imports) {
+    public void setImports(Collection<String> imports) {
         this.imports = imports;
     }
 

@@ -126,6 +126,12 @@ public class OpenLSourceManager extends OpenLHolder {
                                 currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             }
                             compiledDependencies.add(loadedDependency.getCompiledOpenClass());
+                            
+                            if (loadedDependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof ExtendableModuleOpenClass){
+                                ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                                extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
+                            }
+                            
                             OpenLMessages.getCurrentInstance().clear();// clear
                                                                        // all
                                                                        // messages

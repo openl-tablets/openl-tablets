@@ -97,14 +97,14 @@
 
     <distributionManagement>
         <repository>
-            <id>exigen-repo-release</id>
-            <name>Exigen Release Repository</name>
-            <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
+            <id>internal-minsk</id>
+            <name>Release Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
         </repository>
         <snapshotRepository>
-            <id>exigen-repo-snapshot</id>
-            <name>Exigen Snapshot Repository</name>
-            <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
+            <id>internal-minsk</id>
+            <name>Snapshot Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -128,13 +128,6 @@
                     <artifactId>license-maven-plugin</artifactId>
                     <version>1.7</version>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>tomcat-maven-plugin</artifactId>
-                    <version>1.1</version>
-                </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
@@ -347,41 +340,12 @@
             </reporting>
         </profile>
         <profile>
-            <id>internal-deploy</id>
-            <distributionManagement>
-                <repository>
-                    <id>internal-minsk</id>
-                    <name>Release Repository</name>
-                    <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>internal-minsk</id>
-                    <name>Snapshot Repository</name>
-                    <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
             <id>distributable-build</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>buildnumber-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>run-its</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <argLine>-javaagent:${jacoco.agent.path}=destfile=${jacoco.file.path} -XX:MaxPermSize=128m</argLine>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
