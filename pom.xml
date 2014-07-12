@@ -97,14 +97,14 @@
 
     <distributionManagement>
         <repository>
-            <id>exigen-repo-release</id>
-            <name>Exigen Release Repository</name>
-            <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
+            <id>internal-minsk</id>
+            <name>Release Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
         </repository>
         <snapshotRepository>
-            <id>exigen-repo-snapshot</id>
-            <name>Exigen Snapshot Repository</name>
-            <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
+            <id>internal-minsk</id>
+            <name>Snapshot Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -345,21 +345,6 @@
                     </plugin>
                 </plugins>
             </reporting>
-        </profile>
-        <profile>
-            <id>internal-deploy</id>
-            <distributionManagement>
-                <repository>
-                    <id>internal-minsk</id>
-                    <name>Release Repository</name>
-                    <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>internal-minsk</id>
-                    <name>Snapshot Repository</name>
-                    <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
-                </snapshotRepository>
-            </distributionManagement>
         </profile>
         <profile>
             <id>distributable-build</id>

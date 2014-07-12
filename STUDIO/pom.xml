@@ -32,18 +32,6 @@
         <module>org.openl.rules.diff</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>internal-deploy</id>
-            <distributionManagement>
-                <site>
-                    <id>internal-minsk</id>
-                    <url>file://d:/reports/org.openl.rules.studio-pom</url>
-                </site>
-            </distributionManagement>
-        </profile>
-    </profiles>
-
     <dependencyManagement>
         <dependencies>
 
