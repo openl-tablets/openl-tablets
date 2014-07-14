@@ -16,8 +16,8 @@ public class Cell implements ICell {
     private int row;
     private int column;
 
-    private int width;
-    private int height;
+    private int width = 1;
+    private int height = 1;
 
     private ICellStyle style;
 

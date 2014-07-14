@@ -1,23 +1,18 @@
 package org.openl.rules.dt.trace;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ATableTracerLeaf;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.*;
+
+import java.util.List;
 
 /**
  * Tracer leaf for the Decision Table Rule.
- * 
- * @author DLiauchuk
  *
+ * @author DLiauchuk
  */
 public class DTRuleTracerLeaf extends ATableTracerLeaf {
-    
-    private static final String NAME = "Rule"; 
+
+    private static final String NAME = "Rule";
 
     private int ruleIndex;
     private DecisionTableTraceObject decisionTableTraceObject;
@@ -57,24 +52,17 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
     }
 
     public List<IGridRegion> getGridRegions() {
-        
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+
         ILogicalTable ruleTable = getRuleTable();
-      
-        ICell cell = null;
-        for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell.getHeight()) {
-            for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell.getWidth()) {
-                cell = ruleTable.getSource().getCell(column, row);
-                regions.add(cell.getAbsoluteRegion());
-            }
-        }
-        
-        return regions;
+        IGridTable table = ruleTable.getSource();
+        return GridTableUtils.getGridRegions(table);
     }
-    
-    /** Overriden to return the result of the Decision Table on trace**/
+
+    /**
+     * Overriden to return the result of the Decision Table on trace*
+     */
     @Override
-    public Object getResult() {        
+    public Object getResult() {
         return getParentTraceObject().getResult();
     }
 }

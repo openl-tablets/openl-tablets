@@ -1,14 +1,16 @@
 package org.openl.rules.dt.trace;
 
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.openl.rules.dt.DecisionTableRuleNode;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
 
 public class DTIndexedTraceObject extends DTConditionTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableIndex";
@@ -25,7 +27,7 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
         for (int i = 0; i < ruleNames.length; i++) {
             ruleNames[i] = getDecisionTable().getRuleName(linkedRule.getRules()[i]);
         }
-        
+
         return String.format("Indexed condition: %s, Rules: %s", condition.getName(), Arrays.toString(ruleNames));
     }
 
@@ -39,23 +41,15 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
         for (int rule : linkedRule.getRules()) {
-            addRegionsForeRule(regions, condition.getValueCell(rule));
+            ILogicalTable ruleTable = condition.getValueCell(rule);
+            IGridTable table = ruleTable.getSource();
+            regions.addAll(GridTableUtils.getGridRegions(table));
         }
-        
+
         return regions;
     }
 
     public DecisionTableRuleNode getLinkedRule() {
         return linkedRule;
-    }
-
-    private void addRegionsForeRule(List<IGridRegion> regions, ILogicalTable ruleTable) {
-        ICell cell = null;
-        for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell.getHeight()) {
-            for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell.getWidth()) {
-                cell = ruleTable.getSource().getCell(column, row);
-                regions.add(cell.getAbsoluteRegion());
-            }
-        }
     }
 }

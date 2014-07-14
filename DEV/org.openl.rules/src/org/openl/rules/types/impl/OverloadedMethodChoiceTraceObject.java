@@ -1,28 +1,24 @@
 package org.openl.rules.types.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.binding.MethodUtil;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.table.ATableTracerNode;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.*;
 import org.openl.types.IOpenMethod;
+
+import java.util.List;
 
 /**
  * Trace object for step of choosing the method from overloaded by properties
  * group of tables.
- * 
+ *
  * @author PUdalau
  */
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     private static final String TYPE = "overloadedMethodChoice";
     private List<IOpenMethod> methodCandidates;
 
-    public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params,
-            List<IOpenMethod> methodCandidates) {
+    public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params, 
+                                             List<IOpenMethod> methodCandidates) {
         super(dispatcherTable, params);
         this.methodCandidates = methodCandidates;
     }
@@ -30,29 +26,19 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     public DecisionTable getDispatcherTable() {
         return (DecisionTable) getTraceObject();
     }
-    
+
     @Override
     public String getUri() {
         return getDispatcherTable().getSourceUrl();
     }
 
     public List<IGridRegion> getGridRegions() {
-		List<IGridRegion> regions = new ArrayList<IGridRegion>();
-		IOpenMethod method = (IOpenMethod) getResult();
-		int methodIndex = methodCandidates.indexOf(method);
-		ILogicalTable ruleTable = getDispatcherTable().getRuleTable(methodIndex);
+        IOpenMethod method = (IOpenMethod) getResult();
+        int methodIndex = methodCandidates.indexOf(method);
 
-		ICell cell = null;
-		for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell
-				.getHeight()) {
-			for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell
-					.getWidth()) {
-				cell = ruleTable.getSource().getCell(column, row);
-				regions.add(cell.getAbsoluteRegion());
-			}
-		}
-
-		return regions;
+        ILogicalTable ruleTable = getDispatcherTable().getRuleTable(methodIndex);
+        IGridTable table = ruleTable.getSource();
+        return GridTableUtils.getGridRegions(table);
     }
 
     public String getType() {
