@@ -26,7 +26,6 @@ public class DecisionTableTraceFilterFactory {
     private List<IGridRegion> unsuccessfulChecks = new ArrayList<IGridRegion>();
     private List<IGridRegion> resultRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> allCheckedRegions = new ArrayList<IGridRegion>();
-    private List<IGridRegion> selectedRegions;
     private List<IGridRegion> successfulSelectedRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> indexedRegions = new ArrayList<IGridRegion>();
@@ -34,7 +33,6 @@ public class DecisionTableTraceFilterFactory {
     public DecisionTableTraceFilterFactory(ITableTracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
         this.selectedTraceObject = selectedTraceObject;
         this.defaultColorFilter = defaultColorFilter;
-        this.selectedRegions = selectedTraceObject.getGridRegions();
     }
 
     public IGridFilter[] createFilters() {
@@ -90,6 +88,7 @@ public class DecisionTableTraceFilterFactory {
             }
         }
 
+        List<IGridRegion> selectedRegions = selectedTraceObject.getGridRegions();
         if (selectedRegions != null) {
             for (IGridRegion region : selectedRegions) {
                 if (successfulChecks.contains(region) || resultRegions.contains(region)) {
