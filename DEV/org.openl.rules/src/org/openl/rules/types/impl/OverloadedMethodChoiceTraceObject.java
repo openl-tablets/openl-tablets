@@ -17,7 +17,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     private static final String TYPE = "overloadedMethodChoice";
     private List<IOpenMethod> methodCandidates;
 
-    public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params, 
+    public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params,
                                              List<IOpenMethod> methodCandidates) {
         super(dispatcherTable, params);
         this.methodCandidates = methodCandidates;

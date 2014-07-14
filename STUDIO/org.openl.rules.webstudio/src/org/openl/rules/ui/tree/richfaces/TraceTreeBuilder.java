@@ -1,12 +1,11 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import java.util.Iterator;
-
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.dt.trace.DTConditionTraceObject;
+import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.tree.ITreeElement;
-import org.openl.rules.dt.trace.*;
 
 public class TraceTreeBuilder extends TreeBuilder {
     private static final int UNSUCCESSFUL = 0;
@@ -37,7 +36,7 @@ public class TraceTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected Iterator<?> getChildrenIterator(ITreeElement<?> source) {
+    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         if (source instanceof DecisionTableTraceObject) {
             DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
             return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();

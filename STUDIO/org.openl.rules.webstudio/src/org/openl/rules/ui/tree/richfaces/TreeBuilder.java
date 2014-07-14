@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
@@ -37,8 +35,8 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
 
     private void addNodes(TreeNode dest, ITreeElement<?> source) {
         int index = 1;
-        for (Iterator<?> pi = getChildrenIterator(source); pi.hasNext();) {
-            ITreeElement<?> child = (ITreeElement<?>) pi.next();
+        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(source);
+        for (ITreeElement<?> child : children) {
             TreeNode rfChild = toRFNode(child);
             dest.addChild(index, rfChild);
             if (child != null) {
@@ -48,7 +46,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         }
     }
 
-    protected Iterator<?> getChildrenIterator(ITreeElement<?> source) {
+    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
     }
 
@@ -95,7 +93,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return StringUtils.EMPTY;
     }
 
-    protected String getDisplayName(Object obj, int mode) { 
+    protected String getDisplayName(Object obj, int mode) {
         if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
             return FormattersManager.getFormatter(obj).format(obj);
         }

@@ -2,6 +2,8 @@ package org.openl.rules.dt.trace;
 
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.table.*;
+import org.openl.util.tree.ITreeElement;
+import org.openl.vm.trace.ITracerObject;
 
 import java.util.Iterator;
 import java.util.List;
@@ -62,14 +64,13 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
         return hasRuleResult(this);
     }
 
-    private boolean hasRuleResult(ITableTracerObject rootTraceObject) {
-        for (Iterator<?> iterator = rootTraceObject.getChildren(); iterator.hasNext();) {
-            ITableTracerObject child = (ITableTracerObject) iterator.next();
+    private boolean hasRuleResult(ITreeElement<ITracerObject> rootTraceObject) {
+        Iterable<? extends ITreeElement<ITracerObject>> children = rootTraceObject.getChildren();
+        for (ITreeElement<ITracerObject> child: children) {
             if (child instanceof DTRuleTracerLeaf || hasRuleResult(child)) {
                 return true;
             }
         }
-
         return false;
     }
 }

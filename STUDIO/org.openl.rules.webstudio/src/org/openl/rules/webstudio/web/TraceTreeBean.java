@@ -1,9 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.util.Iterator;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
@@ -14,7 +10,11 @@ import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
+import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.
@@ -46,15 +46,15 @@ public class TraceTreeBean {
         }
         return null;
     }
-    
+
     public boolean isDetailedTraceTree() {
         return WebStudioUtils.getWebStudio().getTraceHelper().isDetailedTraceTree();
     }
-    
+
     public void setDetailedTraceTree(boolean detailedTraceTree) {
         WebStudioUtils.getWebStudio().getTraceHelper().setDetailedTraceTree(detailedTraceTree);
     }
-    
+
     public boolean hasDecisionTables() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
@@ -63,7 +63,7 @@ public class TraceTreeBean {
         if (model.hasTestSuitesToRun()) {
             Tracer tracer = model.traceElement(model.popLastTest());
 
-            ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
+            ITreeElement<ITracerObject> tree = traceHelper.getTraceTree(tracer);
             return tree != null && hasDecisionTables(tree);
         } else {
             if (traceHelper.getTreeRoot() != null) {
@@ -74,11 +74,9 @@ public class TraceTreeBean {
         }
     }
 
-    private boolean hasDecisionTables(ITreeElement<?> node) {
-        Iterator<? extends ITreeElement<?>> children = node.getChildren();
-
-        while (children.hasNext()) {
-            ITreeElement<?> child = children.next();
+    private boolean hasDecisionTables(ITreeElement<ITracerObject> node) {
+        Iterable<? extends ITreeElement<ITracerObject>> children = node.getChildren();
+        for (ITreeElement<ITracerObject> child : children) {
             if (child instanceof DecisionTableTraceObject || child instanceof DTRuleTracerLeaf) {
                 return true;
             }
@@ -86,7 +84,6 @@ public class TraceTreeBean {
                 return true;
             }
         }
-
         return false;
     }
 

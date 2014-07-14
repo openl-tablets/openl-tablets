@@ -4,10 +4,6 @@
  */
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
@@ -26,15 +22,17 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author snshor
- * 
  */
 public class TraceHelper {
 
     private TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
     private int treeElementsNumber = 0;
-    private ITreeElement<?> treeRoot;
+    private ITreeElement<ITracerObject> treeRoot;
     private boolean detailedTraceTree = true;
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
@@ -118,15 +116,15 @@ public class TraceHelper {
             IGridRegion[] aRegions = new IGridRegion[regions.size()];
             aRegions = regions.toArray(aRegions);
 
-            return new IGridFilter[] { 
+            return new IGridFilter[]{
                     new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter())
             };
         }
         return null;
     }
 
-    public ITreeElement<?> getTraceTree(Tracer tracer) {
-        ITreeElement<?> tree = tracer.getRoot();
+    public ITreeElement<ITracerObject> getTraceTree(Tracer tracer) {
+        ITreeElement<ITracerObject> tree = tracer.getRoot();
         cleanCachedTree();
         cacheTree(tree);
         treeRoot = tree;
@@ -138,9 +136,9 @@ public class TraceHelper {
         treeElementsNumber = 0;
     }
 
-    private void cacheTree(ITreeElement<?> treeNode) {
-        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
-            ITreeElement<?> child = (ITreeElement<?>) iterator.next();
+    private void cacheTree(ITreeElement<ITracerObject> treeNode) {
+        Iterable<? extends ITreeElement<ITracerObject>> children = treeNode.getChildren();
+        for (ITreeElement<ITracerObject> child : children) {
             traceTreeCache.put(treeElementsNumber++, child);
             cacheTree(child);
         }
@@ -156,7 +154,7 @@ public class TraceHelper {
         return new TableSyntaxNodeAdapter(tsn);
     }
 
-    public ITreeElement<?> getTreeRoot() {
+    public ITreeElement<ITracerObject> getTreeRoot() {
         return treeRoot;
     }
 

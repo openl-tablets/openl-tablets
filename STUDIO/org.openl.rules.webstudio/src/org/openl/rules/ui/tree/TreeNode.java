@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tree;
 
-import java.util.Iterator;
 import java.util.TreeMap;
 
 /**
@@ -42,8 +41,8 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * {@inheritDoc}
      */
-    public Iterator<ITreeNode<T>> getChildren() {
-        return elements.values().iterator();
+    public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
+        return elements.values();
     }
 
     /**

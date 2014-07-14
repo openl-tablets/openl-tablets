@@ -5,6 +5,8 @@ import java.util.Iterator;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.util.tree.ITreeElement;
+import org.openl.vm.trace.ITracerObject;
 
 public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
 
@@ -54,11 +56,8 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
             return true;
         }
 
-        Iterator<ITreeNode<Object>> iterator = getChildren();
-
-        while (iterator.hasNext()) {
-            ITreeNode<Object> treeNode = iterator.next();
-
+        Iterable<? extends ITreeElement<Object>> children = getChildren();
+        for (ITreeElement<Object> treeNode: children) {
             if (treeNode instanceof ProjectTreeNode) {
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
                 if (projectTreeNode.hasProblems()) {
@@ -82,17 +81,13 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
             }
         }
 
-        Iterator<ITreeNode<Object>> iterator = getChildren();
-
-        while (iterator.hasNext()) {
-            ITreeNode<Object> treeNode = iterator.next();
-
+        Iterable<? extends ITreeElement<Object>> children = getChildren();
+        for (ITreeElement<Object> treeNode: children) {
             if (treeNode instanceof ProjectTreeNode) {
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
                 result += projectTreeNode.getNumErrors();
             }
         }
-
         return result;
     }
 

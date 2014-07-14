@@ -1,9 +1,7 @@
 package org.openl.rules.webstudio.web.trace;
 
-import java.util.Iterator;
 import java.util.List;
 
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -12,7 +10,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.ui.ObjectViewer;
 import org.openl.types.IParameterDeclaration;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.tree.ITreeElement;
@@ -26,7 +23,7 @@ public class TracerObjectDecorator implements ITableTracerObject {
         this.tracerObject = tracerObject;
     }
 
-    public Iterator<? extends ITreeElement<ITracerObject>> getChildren() {
+    public Iterable<? extends ITreeElement<ITracerObject>> getChildren() {
         if (tracerObject != null) {
             return tracerObject.getChildren();
         }

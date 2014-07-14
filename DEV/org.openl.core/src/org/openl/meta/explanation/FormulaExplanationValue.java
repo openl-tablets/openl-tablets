@@ -1,7 +1,5 @@
 package org.openl.meta.explanation;
 
-import java.util.Iterator;
-
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue;
 import org.openl.meta.number.NumberValue.ValueType;
@@ -23,8 +21,8 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
     }
     
     @Override
-    public Iterator<T> getChildren() {
-        return formulaHolder.getArguments().iterator();
+    public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
+        return formulaHolder.getArguments();
     }
     
     @Override

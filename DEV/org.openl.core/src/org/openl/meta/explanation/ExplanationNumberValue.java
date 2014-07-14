@@ -1,7 +1,5 @@
 package org.openl.meta.explanation;
 
-import java.util.Iterator;
-
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
@@ -95,7 +93,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         explanation.setName(name);
     }
 
-    public Iterator<? extends ITreeElement<T>> getChildren() {
+    public Iterable<? extends ITreeElement<T>> getChildren() {
         return explanation.getChildren();
     }
 
