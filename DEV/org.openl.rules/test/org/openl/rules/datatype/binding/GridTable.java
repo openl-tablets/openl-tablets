@@ -86,13 +86,17 @@ public class GridTable extends AGridTable {
             // 1 is the given cell itself
             // add the number of empty cells to the right (merged cell)
             //
-            cell.setWidth(1 + rightEmptyCells(column, row));
+            int rightEmptyCells = rightEmptyCells(column, row);
+            cell.setWidth(1 + rightEmptyCells);
 
             // Set height of the cell
             // 1 is the given cell itself
             // add the number of empty cells down (merged cell)
             //
-            cell.setHeight(1 + downEmptyCells(column, row));
+            int downEmptyCells = downEmptyCells(column, row);
+            cell.setHeight(1 + downEmptyCells);
+            GridRegion region = new GridRegion(row, column, row + downEmptyCells, column + rightEmptyCells);
+            cell.setRegion(region);
         }
         // If value is null, nothing should be set
         // to the cell
@@ -109,7 +113,7 @@ public class GridTable extends AGridTable {
      */
     private int downEmptyCells(int column, int row) {
         int i = 0;
-        while (row + 1 != getHeight()) {
+        while (row + 1 < getHeight()) {
             Object nextRowValue = values[row + 1][column];
             if (nextRowValue == null) {
                 i++;
@@ -131,7 +135,7 @@ public class GridTable extends AGridTable {
      */
     private int rightEmptyCells(int column, int row) {
         int i = 0;
-        while(column + 1 != getWidth()) { // Last Column in the row
+        while(column + 1 < getWidth()) { // Last Column in the row
             Object next = values[row][column + 1];
             if (next == null) {
                 i++;
