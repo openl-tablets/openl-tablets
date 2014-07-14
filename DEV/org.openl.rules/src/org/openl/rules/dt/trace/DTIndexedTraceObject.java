@@ -23,9 +23,12 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
 
     @Override
     public String getDisplayName(int mode) {
-        String[] ruleNames = new String[linkedRule.getRules().length];
+        int[] rules = linkedRule.getRules();
+        DecisionTable decisionTable = getDecisionTable();
+
+        String[] ruleNames = new String[rules.length];
         for (int i = 0; i < ruleNames.length; i++) {
-            ruleNames[i] = getDecisionTable().getRuleName(linkedRule.getRules()[i]);
+            ruleNames[i] = decisionTable.getRuleName(rules[i]);
         }
 
         return String.format("Indexed condition: %s, Rules: %s", condition.getName(), Arrays.toString(ruleNames));
