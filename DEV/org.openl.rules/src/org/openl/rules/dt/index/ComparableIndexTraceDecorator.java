@@ -55,10 +55,8 @@ public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
             return;
         }
 
-        traceStack.push(new DTIndexedTraceObject(baseTraceObject, condition, linkedRule, successful));
-
-        if (!successful) {
-            traceStack.pop();
+        if (successful) {
+            traceStack.push(new DTIndexedTraceObject(baseTraceObject, condition, linkedRule, true));
         }
     }
 
