@@ -62,6 +62,19 @@ public class GridTableUtilsTest {
         assertEquals(expected, regions);
     }
 
+    @Test
+    public void getGridRegionsMixedMerged() {
+        String[][] arr = new String[2][3];
+        arr[0][0] = "cell_0_0";
+        arr[0][1] = "cell_0_1";
+        arr[1][1] = "cell_1_1";
+        IGridTable table = new GridTable(arr);
+        List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
+        assertEquals(3, regions.size());
+        List<IGridRegion> expected = Arrays.asList(mr(0, 0, 1, 0), mr(0, 1, 0, 2), mr(1, 1, 1, 2));
+        assertEquals(expected, regions);
+    }
+
     // Simple Region
     private static IGridRegion sr(int top, int left) {
         return new GridRegion(top, left, top, left);
