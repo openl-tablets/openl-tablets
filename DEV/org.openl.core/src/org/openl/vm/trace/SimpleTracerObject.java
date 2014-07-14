@@ -1,7 +1,7 @@
 package org.openl.vm.trace;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
@@ -40,12 +40,11 @@ public abstract class SimpleTracerObject implements ITracerObject {
         children.add(child);
     }
 
-    public Iterator<ITracerObject> getChildren() {
+    public Iterable<? extends org.openl.util.tree.ITreeElement<ITracerObject>> getChildren() {
         if (children == null) {
-            return AOpenIterator.empty();
+            return Collections.EMPTY_LIST;
         }
-
-        return children.iterator();
+        return children;
     }
 
     public String getName() {

@@ -1,10 +1,5 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openl.rules.dt.trace.DTConditionTraceObject;
 import org.openl.rules.dt.trace.DTIndexedTraceObject;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
@@ -13,13 +8,13 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.ui.filters.CellStyleGridFilter;
-import org.openl.rules.table.ui.filters.ColorGridFilter;
-import org.openl.rules.table.ui.filters.FontGridFilter;
-import org.openl.rules.table.ui.filters.IColorFilter;
-import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.table.ui.filters.*;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DecisionTableTraceFilterFactory {
     private static final int SELECTED_ITEM_INCREMENT_SIZE = 1;
@@ -61,14 +56,15 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private void fillRegions(ITableTracerObject rootTraceObject) {
-        Iterator<? extends ITreeElement<ITracerObject>> children;
+        Iterable<? extends ITreeElement<ITracerObject>> children;
         if (rootTraceObject instanceof DecisionTableTraceObject) {
             children = ((DecisionTableTraceObject) rootTraceObject).getTraceConditions();
         } else {
             children = rootTraceObject.getChildren();
         }
-        for (Iterator<?> iterator = children; iterator.hasNext();) {
-            ITableTracerObject child = (ITableTracerObject) iterator.next();
+        for (ITreeElement<ITracerObject> item : children) {
+            // TODO: Remove class casting
+            ITableTracerObject child = (ITableTracerObject) item;
             List<IGridRegion> regions = child.getGridRegions();
 
             if (child instanceof DTConditionTraceObject) {
@@ -106,7 +102,7 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private List<IGridFilter> buildFilters() {
-        short[] resultColor = new short[] { 0, 0xaa, 0 };
+        short[] resultColor = new short[]{0, 0xaa, 0};
 
         FontGridFilter successfulFontFilter = new FontGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(successfulChecks), false))
@@ -155,19 +151,19 @@ public class DecisionTableTraceFilterFactory {
         if (!successfulSelectedRegions.isEmpty()) {
             filters.add(createColorFilter(toArray(successfulSelectedRegions), resultColor, ColorGridFilter.BACKGROUND));
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
-                .setSelector(new RegionGridSelector(toArray(successfulSelectedRegions), false))
-                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                .setFontColor(IColorFilter.WHITE)
-                .build();
+                    .setSelector(new RegionGridSelector(toArray(successfulSelectedRegions), false))
+                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                    .setFontColor(IColorFilter.WHITE)
+                    .build();
             filters.add(selectedFontFilter);
         }
         if (!unsuccessfulSelectedRegions.isEmpty()) {
             filters.add(createColorFilter(toArray(unsuccessfulSelectedRegions), IColorFilter.RED, ColorGridFilter.BACKGROUND));
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
-                .setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions), false))
-                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                .setFontColor(IColorFilter.WHITE)
-                .build();
+                    .setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions), false))
+                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                    .setFontColor(IColorFilter.WHITE)
+                    .build();
             filters.add(selectedFontFilter);
         }
         filters.add(new ColorGridFilter(new RegionGridSelector(toArray(allCheckedRegions), true), defaultColorFilter));
@@ -190,5 +186,5 @@ public class DecisionTableTraceFilterFactory {
 
         return new ColorGridFilter(new RegionGridSelector(region, false), colorFilter, scope);
     }
-    
+
 }

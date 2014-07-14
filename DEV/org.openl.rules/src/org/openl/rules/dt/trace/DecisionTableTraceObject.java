@@ -1,13 +1,12 @@
 package org.openl.rules.dt.trace;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.vm.trace.ITracerObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DecisionTableTraceObject extends ATableTracerNode {
 
@@ -47,12 +46,12 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         traceConditions.add(child);
     }
 
-    public Iterator<ITracerObject> getTraceResults() {
-        return traceResults.iterator();
+    public Iterable<ITracerObject> getTraceResults() {
+        return traceResults;
     }
 
-    public Iterator<ITracerObject> getTraceConditions() {
-        return traceConditions.iterator();
+    public Iterable<ITracerObject> getTraceConditions() {
+        return traceConditions;
     }
 
     public DTRuleTracerLeaf traceRule(int i) {

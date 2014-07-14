@@ -1,22 +1,5 @@
 package org.openl.rules.ui;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -54,12 +37,8 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.search.IOpenLSearch;
-import org.openl.rules.search.ISearchTableRow;
-import org.openl.rules.search.OpenLAdvancedSearchResult;
+import org.openl.rules.search.*;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
-import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
-import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -70,11 +49,7 @@ import org.openl.rules.table.search.TableSearcher;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
@@ -104,6 +79,12 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.trace.Tracer;
+
+import java.io.File;
+import java.util.*;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 public class ProjectModel {
 
@@ -211,7 +192,7 @@ public class ProjectModel {
                     }
 
                 };
-                BenchmarkUnit[] buu = { bu };
+                BenchmarkUnit[] buu = {bu};
                 return new Benchmark(buu).runUnit(bu, ms, false);
 
             } catch (Throwable t) {
@@ -254,12 +235,12 @@ public class ProjectModel {
 
             @Override
             public String[] unitName() {
-                return new String[] { testSuite.getName() + ":" + testIndex };
+                return new String[]{testSuite.getName() + ":" + testIndex};
             }
 
         };
 
-        BenchmarkUnit[] buu = { bu };
+        BenchmarkUnit[] buu = {bu};
         return new Benchmark(buu).runUnit(bu, ms, false);
 
     }
@@ -325,7 +306,7 @@ public class ProjectModel {
 
                 }
 
-                BenchmarkUnit[] buu = { bu };
+                BenchmarkUnit[] buu = {bu};
                 return new Benchmark(buu).runUnit(bu, ms, false);
 
             } catch (Throwable t) {
@@ -598,11 +579,11 @@ public class ProjectModel {
      * {@link IOpenMethod} object must have the same syntax node as given one.
      * If given method is instance of {@link OpenMethodDispatcher}
      * <code>false</code> value will be returned.
-     * 
-     * @param method method to check
+     *
+     * @param method     method to check
      * @param syntaxNode syntax node
      * @return <code>true</code> if {@link IOpenMethod} object represents the
-     *         given table syntax node; <code>false</code> - otherwise
+     * given table syntax node; <code>false</code> - otherwise
      */
     private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
 
@@ -732,7 +713,7 @@ public class ProjectModel {
 
     /**
      * Gets test methods for method by uri.
-     * 
+     *
      * @param forTable
      * @return test methods
      */
@@ -746,11 +727,11 @@ public class ProjectModel {
 
     /**
      * Gets all test methods for method by uri.
-     * 
+     *
      * @param tableUri
      * @return all test methods, including tests with test cases, runs with
-     *         filled runs, tests without cases(empty), runs without any
-     *         parameters and tests without cases and runs.
+     * filled runs, tests without cases(empty), runs without any
+     * parameters and tests without cases and runs.
      */
     public IOpenMethod[] getTestAndRunMethods(String tableUri) {
         IOpenMethod method = getMethod(tableUri);
@@ -1026,8 +1007,10 @@ public class ProjectModel {
     }
 
     private void cacheTree(ProjectTreeNode treeNode) {
-        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
-            ProjectTreeNode child = (ProjectTreeNode) iterator.next();
+        Iterable<? extends ITreeElement<Object>> children = treeNode.getChildren();
+        for (ITreeElement<Object> item : children) {
+            // TODO: Remove class casting
+            ProjectTreeNode child = (ProjectTreeNode) item;
             if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
                 TableSyntaxNode tsn = child.getTableSyntaxNode();
                 uriTableCache.put(child.getUri(), tsn);
@@ -1054,12 +1037,12 @@ public class ProjectModel {
 
     private ProjectTreeNode makeProjectTreeRoot() {
         String moduleName = getModuleDisplayName(moduleInfo);
-        return new ProjectTreeNode(new String[] { moduleName, moduleName, moduleName }, "root", null, null, 0, null);
+        return new ProjectTreeNode(new String[]{moduleName, moduleName, moduleName}, "root", null, null, 0, null);
     }
 
     /**
      * Gets module display name.
-     * 
+     *
      * @param module OpenL project module
      * @return display name
      */
@@ -1115,7 +1098,7 @@ public class ProjectModel {
         for (int i = 0; i < tests.length; i++) {
             if (!isParallel) {
                 results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
-            }else {
+            } else {
                 results[i] = new TestSuite(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
                     @Override
                     public IRuntimeEnv buildIRuntimeEnv() {
@@ -1157,7 +1140,7 @@ public class ProjectModel {
                 test = new TestSuite((TestSuiteMethod) testMethod, caseNumbers);
             }
         } else { // Method without cases
-            test = new TestSuite(new TestDescription(testMethod, new Object[] {}));
+            test = new TestSuite(new TestDescription(testMethod, new Object[]{}));
         }
         boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
@@ -1166,9 +1149,9 @@ public class ProjectModel {
     public TestUnitsResults runTest(TestSuite test, boolean isParallel) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        if (!isParallel){
+        if (!isParallel) {
             return test.invoke(target, env, 1);
-        }else {
+        } else {
             return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
                 @Override
                 public IRuntimeEnv buildIRuntimeEnv() {
@@ -1305,7 +1288,7 @@ public class ProjectModel {
             factory.disallowUnload();
 
             compiledOpenClass = instantiationStrategy.compile();
-            
+
             WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
@@ -1369,7 +1352,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
-                runTest(testSuite,false);
+                runTest(testSuite, false);
             } finally {
                 Tracer.setTracer(null);
             }
@@ -1507,7 +1490,7 @@ public class ProjectModel {
     public void useSingleModuleMode() throws Exception {
         setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
     }
-    
+
     public void useMultiModuleMode() throws Exception {
         setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
     }
@@ -1595,7 +1578,7 @@ public class ProjectModel {
     /**
      * Release classLoader that will not be used anymore TODO Must be moved to a
      * separate class.
-     * 
+     *
      * @param classLoader class loader
      */
     private void releaseClassLoader(ClassLoader classLoader) {
@@ -1611,7 +1594,7 @@ public class ProjectModel {
         return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
     }
 
-    private boolean isVirtualWorkbook(){
+    private boolean isVirtualWorkbook() {
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         return xmi.getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
     }

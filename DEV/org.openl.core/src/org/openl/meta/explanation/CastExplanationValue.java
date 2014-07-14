@@ -1,7 +1,6 @@
 package org.openl.meta.explanation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.meta.number.NumberCast;
@@ -16,10 +15,10 @@ public class CastExplanationValue extends SingleValueExplanation {
     }
     
     @Override
-    public Iterator<ExplanationNumberValue<?>> getChildren() {
+    public Iterable<? extends org.openl.util.tree.ITreeElement> getChildren() {
         List<ExplanationNumberValue<?>> list = new ArrayList<ExplanationNumberValue<?>>();
         list.add(castHolder.getValue());
-        return list.iterator();
+        return list;
     }
     
     @Override

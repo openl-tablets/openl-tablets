@@ -1,13 +1,13 @@
 package org.openl.meta.explanation;
 
-import java.util.Iterator;
-
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.number.NumberValue;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.util.AOpenIterator;
 import org.openl.util.tree.ITreeElement;
+
+import java.util.Collections;
 
 /**
  * Explanation implementation for number values that are of type {@link ValueType#SINGLE_VALUE}, see also
@@ -93,8 +93,8 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
         }
     }
 
-    public Iterator<? extends ITreeElement<T>> getChildren() {
-        return AOpenIterator.empty();
+    public Iterable<? extends ITreeElement<T>> getChildren() {
+        return Collections.EMPTY_LIST;
     }
 
     public boolean isLeaf() {
