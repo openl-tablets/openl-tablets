@@ -39,7 +39,6 @@ public class TraceableEqualsIndex extends EqualsIndex {
 
         if (result == emptyOrFormulaNodes && result.getRules() != null && result.getRules().length > 0) {
             traceStack.push(new DTIndexedTraceObject(baseTraceObject, condition, result, true));
-            return result;
         }
 
         return result;
