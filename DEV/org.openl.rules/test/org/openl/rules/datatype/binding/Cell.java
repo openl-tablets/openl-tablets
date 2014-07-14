@@ -1,8 +1,12 @@
-package org.openl.rules.table;
+package org.openl.rules.datatype.binding;
 
 import java.util.Date;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.formatters.IFormatter;
