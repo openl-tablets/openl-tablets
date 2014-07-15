@@ -78,6 +78,7 @@ public class Tracer implements TraceStack {
 
     @Override
     public void push(ITracerObject obj) {
+        // TODO: remove side effect from the push method
         if (stack.size() == 0) {
             addTracerObject(obj);
         } else {
