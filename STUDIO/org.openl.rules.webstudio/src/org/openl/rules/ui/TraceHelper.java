@@ -48,13 +48,11 @@ public class TraceHelper {
     }
 
     public ITableTracerObject getTableTracer(int elementId) {
-        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(elementId);
-
-        if (!(tt instanceof ITableTracerObject)) {
-            return null;
+        ITreeElement<?> node = traceTreeCache.getNode(elementId);
+        if (node instanceof ITableTracerObject) {
+            return (ITableTracerObject) node;
         }
-
-        return (ITableTracerObject) tt;
+        return null;
     }
 
     public String getTracerUri(int elementId) {
