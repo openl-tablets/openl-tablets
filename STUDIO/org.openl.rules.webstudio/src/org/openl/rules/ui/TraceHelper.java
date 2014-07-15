@@ -16,6 +16,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
@@ -97,30 +98,30 @@ public class TraceHelper {
 
     public IGridFilter[] makeFilters(int elementId, ProjectModel model) {
         ITableTracerObject tto = getTableTracer(elementId);
+        if (tto == null) {
+            return null;
+        }
 
+        IColorFilter defaultColorFilter = model.getFilterHolder().makeFilter();
         if (tto instanceof DecisionTableTraceObject || tto instanceof DTRuleTracerLeaf) {
-            return new DecisionTableTraceFilterFactory(tto, model.getFilterHolder().makeFilter()).createFilters();
+            return new DecisionTableTraceFilterFactory(tto, defaultColorFilter).createFilters();
         }
 
-        if (tto != null) {
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-            List<IGridRegion> regions = new ArrayList<IGridRegion>();
-
-            List<IGridRegion> r = tto.getGridRegions();
-            if (CollectionUtils.isNotEmpty(r)) {
-                regions.addAll(r);
-            } else {
-                fillRegions(tto, regions);
-            }
-
-            IGridRegion[] aRegions = new IGridRegion[regions.size()];
-            aRegions = regions.toArray(aRegions);
-
-            return new IGridFilter[]{
-                    new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter())
-            };
+        List<IGridRegion> r = tto.getGridRegions();
+        if (CollectionUtils.isNotEmpty(r)) {
+            regions.addAll(r);
+        } else {
+            fillRegions(tto, regions);
         }
-        return null;
+
+        IGridRegion[] aRegions = new IGridRegion[regions.size()];
+        aRegions = regions.toArray(aRegions);
+
+        RegionGridSelector gridSelector = new RegionGridSelector(aRegions, true);
+        ColorGridFilter colorGridFilter = new ColorGridFilter(gridSelector, defaultColorFilter);
+        return new IGridFilter[]{colorGridFilter};
     }
 
     public ITreeElement<ITracerObject> getTraceTree(Tracer tracer) {
