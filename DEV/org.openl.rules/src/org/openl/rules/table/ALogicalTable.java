@@ -51,10 +51,6 @@ public abstract class ALogicalTable implements ILogicalTable {
         return getSource().isNormalOrientation();
     }
 
-    public ICell getCell(int column, int row) {
-        return null;
-    }
-
     @Override
     public String toString() {
         StringBuilder tableVisualization = new StringBuilder();     

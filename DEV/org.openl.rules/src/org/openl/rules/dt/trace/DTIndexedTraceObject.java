@@ -44,8 +44,7 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
         for (int rule : linkedRule.getRules()) {
-            ILogicalTable ruleTable = condition.getValueCell(rule);
-            IGridTable table = ruleTable.getSource();
+            ILogicalTable table = condition.getValueCell(rule);
             regions.addAll(GridTableUtils.getGridRegions(table));
         }
 

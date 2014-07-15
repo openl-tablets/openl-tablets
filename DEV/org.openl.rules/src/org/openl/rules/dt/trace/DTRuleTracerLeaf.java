@@ -52,9 +52,7 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
     }
 
     public List<IGridRegion> getGridRegions() {
-
-        ILogicalTable ruleTable = getRuleTable();
-        IGridTable table = ruleTable.getSource();
+        ILogicalTable table = getRuleTable();
         return GridTableUtils.getGridRegions(table);
     }
 

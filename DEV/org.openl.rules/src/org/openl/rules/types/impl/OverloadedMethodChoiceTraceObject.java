@@ -36,8 +36,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         IOpenMethod method = (IOpenMethod) getResult();
         int methodIndex = methodCandidates.indexOf(method);
 
-        ILogicalTable ruleTable = getDispatcherTable().getRuleTable(methodIndex);
-        IGridTable table = ruleTable.getSource();
+        ILogicalTable table = getDispatcherTable().getRuleTable(methodIndex);
         return GridTableUtils.getGridRegions(table);
     }
 
