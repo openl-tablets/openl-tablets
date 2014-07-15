@@ -55,8 +55,7 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
 
     @Override
     public List<IGridRegion> getGridRegions() {
-        ILogicalTable ruleTable = condition.getValueCell(ruleIndex);
-        IGridTable table = ruleTable.getSource();
+        ILogicalTable table = condition.getValueCell(ruleIndex);
         return GridTableUtils.getGridRegions(table);
     }
 

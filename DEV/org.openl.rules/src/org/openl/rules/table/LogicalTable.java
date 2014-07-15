@@ -123,4 +123,10 @@ public class LogicalTable extends ALogicalTable {
         return columnOffset;
     }
 
+    @Override
+    public ICell getCell(int column, int row) {
+        int r = rowOffset[row];
+        int c = columnOffset[column];
+        return getSource().getCell(c, r);
+    }
 }
