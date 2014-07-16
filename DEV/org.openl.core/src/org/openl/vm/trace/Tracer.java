@@ -65,6 +65,7 @@ public class Tracer implements TraceStack {
                 return null;
             }
         };
+        stack.clear();
     }
 
     private void addTracerObject(ITracerObject to) {
