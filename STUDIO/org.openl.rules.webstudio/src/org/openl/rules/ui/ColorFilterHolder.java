@@ -15,7 +15,7 @@ public class ColorFilterHolder {
 
     public static String[] filterNames = { "Red Filter", "Green Filter", "Blue Filter", "Grey Filter" };
 
-    public static String[] imageNames = { "#ff2233", "#66ff44", "#3399ff", "#bbbbbb" };
+    public static String[] imageNames = { "#ff2233", "#66dd00", "#3399ff", "#bbbbbb" };
 
     int transparency = 80;
     int filterType = 3;

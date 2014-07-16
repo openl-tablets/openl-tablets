@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.NumberValue;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
@@ -18,7 +19,14 @@ public class ExplainTreeBuilder extends TreeBuilder {
 
     @Override
     protected String getDisplayName(Object obj, int mode) {
-        return super.getDisplayName(obj, mode + 1);
+        String result = super.getDisplayName(obj, mode + 1);
+        ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) obj;
+        if (NumberValue.ValueType.FUNCTION.equals(explanationValue.getValueType())
+                && mode == INamedThing.SHORT) {
+            String functionName = explanationValue.getFunction().getFunctionName().toUpperCase();
+            result = functionName + " = " + result;
+        }
+        return result;
     }
 
     @Override

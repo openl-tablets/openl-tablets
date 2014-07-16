@@ -8,18 +8,10 @@
 
     <ui:define name="content">
 
-        <h:panelGroup>
-            <!-- Menu BEGIN -->
-            <table class="treeMenu" style="border-color: #ddd">
-                <tr>
-                    <td>
-                        <h:outputLink value="#{contextPath}/faces/pages/modules/explain/explain.xhtml?rootID=#{param.rootID}"
-                            title="Table View"><img src="webresource/images/tableview.gif"/></h:outputLink>
-                    </td>
-                </tr>
-            </table>
-            <!-- Menu END -->
-        </h:panelGroup>
+        <div class="tree-menu">
+            <a href="#{contextPath}/faces/pages/modules/explain/explain.xhtml?rootID=#{param.rootID}"
+                title="Table View"><img src="webresource/images/tableview.gif" /></a>
+        </div>
 
         <p />
 

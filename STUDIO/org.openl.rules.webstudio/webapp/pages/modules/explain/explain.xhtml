@@ -9,9 +9,45 @@
 
     <ui:define name="content">
 
+        <script src="webresource/javascript/vendor/jquery-1.7.2.min.js"></script>
+
         <style>
-            .explainTable td {
-                border: 1px solid #969696;
+            .table-explain {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            .table-explain th {
+                padding: 6px 4px 9px;
+                text-align: left;
+                font-weight: normal;
+                font-size: 14px;
+            }
+            .table-explain td {
+                padding: 8px 4px;
+                border-bottom: 1px solid #d7d7d7;
+                white-space: nowrap;
+            }
+            .table-explain td a.explain {
+                text-decoration: none;
+                border-bottom: 1px dashed #8be;
+            }
+            .table-explain td span.expanded {
+                color: #777;
+            }
+            .table-explain td a.open {
+                color: #2a0;
+                text-decoration: none;
+                border-bottom: 1px solid #ada;
+            }
+            .table-explain .explain-selected td {
+                background: #f7f7f7;
+            }
+            .table-explain td span.expanded:hover,
+            .table-explain td span.expand-selected,
+            .table-explain td:first-child:hover,
+            .table-explain .explain-selected td:first-child {
+                color: orange;
+                cursor: default;
             }
         </style>
 
@@ -22,53 +58,53 @@
         <c:set var="checkedShowNames" value="#{empty showNames ? '' : 'checked'}" />
         <c:set var="checkedShowValues" value="#{empty showValues ? '' : 'checked'}" />
 
+        <div class="tree-menu">
+            <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}"
+                title="Tree View"><img src="webresource/images/treeview.gif" /></a>
+        </div>
+
         <h:form>
-            <table class="treeMenu" style="border-color: #ddd">
-                <tr>
-                    <td>
-                        <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}"
-                            title="Tree View"><img src="webresource/images/treeview.gif" /></a>
-                    </td>
-                    <td style="text-align: right">
-                        <h:selectBooleanCheckbox value="#{explainBean.showNames}">
-                            <f:ajax event="change" render="explainData" />
-                        </h:selectBooleanCheckbox>
-                        <h:outputText value="Names" />
-                        <h:selectBooleanCheckbox value="#{explainBean.showValues}">
-                            <f:ajax event="change" render="explainData" />
-                        </h:selectBooleanCheckbox>
-                        <h:outputText value="Values" />
-                    </td>
-                </tr>
-            </table>
-    
+
             <input type="hidden" name="header" value="#{header}" />
             <input type="hidden" name="rootID" value="#{rootID}" />
     
             <p />
     
             <h:panelGroup id="explainData">
-                <table class="explainTable">
+                <table class="table-explain">
                     <tr>
-                        <th>Value</th>
-                        <th>Name</th>
-                        <th>Formula</th>
+                        <th>Result</th>
+                        <th></th>
+                        <th>Explanation</th>
                     </tr>
                     <tr>
-                        <ui:repeat value="#{explainBean.explainTree}" var="token">
-                        <td><h:outputText value=" #{token}" escape="false" /></td>
-                        </ui:repeat>
+                        <td>#{explainBean.explainTree[2]}</td>
+                        <td>=</td>
+                        <td><h:outputText value="#{explainBean.explainTree[3]}" escape="false" /></td>
                     </tr>
                     <ui:repeat value="#{explainBean.expandedValues}" var="value">
-                    <tr>
-                        <ui:repeat value="#{value}" var="subvalue">
-                        <td><h:outputText value=" #{subvalue}" escape="false" /></td>
-                        </ui:repeat>
+                    <tr id="#{value[0]}">
+                        <td style="padding-left:#{4 + 9 * value[1]}px">#{value[2]}</td>
+                        <td>=</td>
+                        <td><h:outputText value="#{value[3]}" escape="false" /></td>
                     </tr>
                     </ui:repeat>
                 </table>
             </h:panelGroup>
         </h:form>
+
+        <script>
+            //<![CDATA[
+            $("span.expanded").hover(function () {
+                var id = $(this).data("id");
+                $("#" + id).toggleClass("explain-selected");
+            });
+            $(".table-explain tr[id] > td:first-child").hover(function () {
+                var id = $(this).closest("tr").attr("id");
+                $(".table-explain span[data-id='" + id + "']").toggleClass("expand-selected");
+            });
+            //]]>
+        </script>
 
     </ui:define>
 
