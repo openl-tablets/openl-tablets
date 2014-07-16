@@ -72,4 +72,8 @@ public class SimpleLogicalTable extends ALogicalTable {
         return new SimpleLogicalTable(getSource().getSubtable(column, row, width, height));
     }
 
+    @Override
+    public ICell getCell(int column, int row) {
+        return super.getSource().getCell(column, row);
+    }
 }
