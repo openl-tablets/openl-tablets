@@ -135,7 +135,7 @@
             <f:ajax listener="#{smartRedeployController.openDialogListener}" render=":smartRedeployForm"/>
         </h:commandButton>
         
-        <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;">
+        <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;">
             <rich:tooltip showDelay="500">Compare tables in Excel file between two project versions</rich:tooltip>
         </h:commandButton>
 

@@ -19,18 +19,10 @@ import org.openl.rules.webstudio.web.util.Constants;
 @RequestScoped
 public class ExplainBean {
 
-    private boolean showNames;
-    private boolean showValues;
     private Explanator explanator;
     private Explanation explanation;
 
     public ExplainBean() {
-        String showNamesStr = FacesUtils.getRequestParameter("showNames");
-        showNames = "true".equals(showNamesStr);
-
-        String showValuesStr = FacesUtils.getRequestParameter("showValues");
-        showValues = "true".equals(showValuesStr);
-
         explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
         String rootID = FacesUtils.getRequestParameter("rootID");
         explanation = explanator.getExplanation(rootID);
@@ -39,12 +31,11 @@ public class ExplainBean {
     public String[] getExplainTree() {
         String header = FacesUtils.getRequestParameter("header");
         String expandID = FacesUtils.getRequestParameter("expandID");
+        String fromID = FacesUtils.getRequestParameter("from");
 
-        explanation.setShowNamesInFormula(showNames);
-        explanation.setShowValuesInFormula(showValues);
         explanation.setHeader(header);
         if (expandID != null) {
-             explanation.expand(expandID);
+             explanation.expand(expandID, fromID);
         }
 
         return explanation.htmlTable(explanation.getExplainTree());
@@ -60,22 +51,6 @@ public class ExplainBean {
         }
 
         return expandedValuesList;
-    }
-
-    public boolean isShowNames() {
-        return showNames;
-    }
-    
-    public void setShowNames(boolean showNames) {
-        this.showNames = showNames;
-    }
-
-    public boolean isShowValues() {
-        return showValues;
-    }
-
-    public void setShowValues(boolean showValues) {
-        this.showValues = showValues;
     }
 
 }

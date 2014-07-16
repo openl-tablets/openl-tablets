@@ -30,7 +30,7 @@ public class TreeViewBean {
     public String getPagesWidth() {
         String mainPageWidth = FacesUtils.getRequestParameter("relWidth");
         if (StringUtils.isBlank(mainPageWidth)) {
-            mainPageWidth = "70";
+            mainPageWidth = "65";
         }
         return String.format("*,%s%%", mainPageWidth);
     }

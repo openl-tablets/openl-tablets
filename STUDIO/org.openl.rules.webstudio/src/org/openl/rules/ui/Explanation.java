@@ -1,10 +1,8 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+import org.apache.poi.util.IntegerField;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -12,10 +10,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue.ValueType;
-import org.openl.rules.table.GridTableUtils;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.source.IOpenSourceCodeModule;
@@ -28,8 +23,7 @@ import org.openl.util.tree.TreeIterator;
 public class Explanation {
     static class ExplanationValueIterator implements TreeIterator.TreeAdaptor {
 
-        public Iterator<?> children(Object node) { // node.getType ==
-                                                   // NumberValueTypes.Formula
+        public Iterator<?> children(Object node) { // node.getType == NumberValueTypes.Formula
             if (node.getClass() == ExplanationNumberValue.class
                     && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.FORMULA)) {
                 return ((ExplanationNumberValue<?>) node).getFormula().getArguments().iterator();
@@ -47,18 +41,14 @@ public class Explanation {
         }
     }
 
-    private static final int MAX_LEVEL = 2; // Maximum expansion level for
-                                            // formulas
+    private static final int MAX_LEVEL = 2; // Maximum expansion level for formulas
 
     private ExplanationNumberValue<?> root;
 
     private List<ExplanationNumberValue<?>> expandedValues = new ArrayList<ExplanationNumberValue<?>>();
+    private Map<Integer, Integer> expandLevels = new HashMap<Integer, Integer>();
 
     private String header;
-
-    private boolean showNamesInFormula = false;
-
-    private boolean showValuesInFormula = true;
 
     private Explanator explanator;
 
@@ -72,50 +62,73 @@ public class Explanation {
         this.explanator = explanator;
     }
 
-    public void expand(String expandID) {
+    public void expand(String expandID, String fromID) {
         ExplanationNumberValue<?> ev = explanator.find(expandID);
-        if (!expandedValues.contains(ev)) {
+
+        if (!isExpanded(ev)) {
             expandedValues.add(ev);
+
+            int from = Integer.valueOf(fromID);
+            Integer levelFrom = expandLevels.get(from);
+            if (levelFrom != null) {
+                expandLevels.put(Integer.valueOf(expandID), levelFrom + 1);
+            } else {
+                expandLevels.put(levelFrom, 0);
+                expandLevels.put(Integer.valueOf(expandID), 1);
+            }
         }
+    }
+
+    public boolean isExpanded(ExplanationNumberValue<?> v) {
+        for (ExplanationNumberValue value : expandedValues) {
+            if (value == v) { // Don't use equals
+                return true;
+            }
+        }
+        return false;
     }
 
     protected String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl,
             int level) {
+
         if (value == null) {
             return null;
         }
+
         String url = findUrl(value, parentUrl);
         if (value.getValueType().equals(ValueType.FORMULA)) {
             NumberFormula<?> formula = value.getFormula();
             if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
                 return expandFormula(value, url, level + 1);
             }
+
         } else if (value.getValueType().equals(ValueType.CAST)) {
             return expandCast(value, isMultiplicative, url, level);
         }
 
-        return expandValue(value);
-
+        return isExpandable(value) ? expandValue(value) : resultValue(value);
     }
 
     protected String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
-
         String url = findUrl(value, parentUrl);
-        return expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level)
-                + value.getFormula().getOperand()
-                + expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), url, level);
+
+        String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level);
+        String arg2 = expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), url, level);
+        String operand = value.getFormula().getOperand();
+
+        return String.format("%s %s %s", arg1, operand, arg2);
     }
 
     private String expandFunction(ExplanationNumberValue<?> value, String parentUrl) {
         String url = findUrl(value, parentUrl);
-        String ret = value.getFunction().getFunctionName() + "(";
+        String ret = value.getFunction().getFunctionName().toUpperCase() + " (";
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
         for (int i = 0; params != null && i < params.length; i++) {
             if (i > 0) {
                 ret += ", ";
             }
-            ret += expandArgument(params[i], false, url, 0);
+            ret += expandArgument(params[i], true, url, 0);
         }
         return ret + ")";
     }
@@ -133,23 +146,29 @@ public class Explanation {
 
     public String expandValue(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
-
-        String name = getName(explanationValue);
-
-        if (name != null && showNamesInFormula) {
-            if (showValuesInFormula) {
-                value = name + "(" + value + ")";
-            } else {
-                value = name;
-            }
-        }
-
-        if (expandedValues.contains(explanationValue)) {
-            return value;
-        }
         int id = explanator.getUniqueId(explanationValue);
 
-        return HTMLHelper.urlLink(makeExpandUrl(id), name == null ? "expand" : name, value, null);
+        if (isExpanded(explanationValue)) {
+            return "<span class='expanded' data-id='" + id + "'>" + value + "</span>";
+        } else {
+            return HTMLHelper.urlLink(makeExpandUrl(id), "Explain", value, null, "explain");
+        }
+    }
+
+    private String resultValue(ExplanationNumberValue<?> explanationValue) {
+        String value = getFormattedValue(explanationValue);
+
+        String name = getName(explanationValue);
+        String url = findUrl(explanationValue, null);
+
+        if (url != null && name != null) {
+            value = HTMLHelper.urlLink(
+                    WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
+                            + StringTool.encodeURL(url) + "&text=" + name,
+                    "Show in table", value, "mainFrame", "open");
+        }
+
+        return value;
     }
 
     private String getFormattedValue(ExplanationNumberValue<?> explanationValue) {
@@ -207,29 +226,30 @@ public class Explanation {
     public String htmlString(ExplanationNumberValue<?> value) {
         if (ValueType.FORMULA.equals(value.getValueType())) {
             return expandFormula(value, null, 0);
+
         } else if (ValueType.FUNCTION.equals(value.getValueType())) {
             return expandFunction(value, null);
+
         } else if (ValueType.CAST.equals(value.getValueType())) {
             return expandCast(value, false, null, 0);
         }
-        return expandValue(value);
+
+        return resultValue(value);
     }
+
+    private int currentId;
 
     public String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
-        String url = findUrl(explanationValue, null);
-        IMetaInfo mi = explanationValue.getMetaInfo();
-        String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
+        int id = explanator.getUniqueId(explanationValue);
+        currentId = id;
 
-        if (name == null) {
-            name = "";
-        } else if (url != null) {
-            name = HTMLHelper.urlLink(WebContext.getContextPath()
-                    + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool.encodeURL(url) + "&text="
-                    + name, "show", name, "mainFrame");
+        Integer level = expandLevels.get(id);
+        if (level == null) {
+            level = 0;
         }
 
-        return new String[] { value, name, htmlString(explanationValue) };
+        return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
     }
 
     protected boolean isExpandable(ExplanationNumberValue<?> value) {
@@ -243,23 +263,12 @@ public class Explanation {
         }
     }
 
-    public boolean isShowNamesInFormula() {
-        return showNamesInFormula;
-    }
-
-    public boolean isShowValuesInFormula() {
-        return showValuesInFormula;
-    }
-
     protected String makeBasicUrl() {
-        return "?rootID=" + explanator.getUniqueId(root) + "&header=" + header
-        // + "&pname=" + pname
-        // + "&period=" + period
-                + (showNamesInFormula ? "&showNames=true" : "") + (showValuesInFormula ? "&showValues=true" : "");
+        return "?rootID=" + explanator.getUniqueId(root) + "&header=" + header;
     }
 
     protected String makeExpandUrl(int id) {
-        return makeBasicUrl() + "&expandID=" + id;
+        return makeBasicUrl() + "&expandID=" + id + "&from=" + currentId;
     }
 
     public void setExpandedValues(List<ExplanationNumberValue<?>> expandedValues) {
@@ -268,14 +277,6 @@ public class Explanation {
 
     public void setHeader(String header) {
         this.header = header;
-    }
-
-    public void setShowNamesInFormula(boolean showNamesInFormula) {
-        this.showNamesInFormula = showNamesInFormula;
-    }
-
-    public void setShowValuesInFormula(boolean showValuesInFormula) {
-        this.showValuesInFormula = showValuesInFormula;
     }
 
     public ExplanationNumberValue<?> getRoot() {

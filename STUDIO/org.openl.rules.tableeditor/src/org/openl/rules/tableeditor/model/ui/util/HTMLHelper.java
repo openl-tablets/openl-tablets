@@ -50,13 +50,16 @@ public class HTMLHelper {
                 + ")";
     }
 
-    public static String urlLink(String url, String title, String htmltext, String target) {
+    public static String urlLink(String url, String title, String htmltext, String target, String classes) {
         String s1 = "<a href=\"" + url + "\"";
         if (title != null) {
             s1 += (" title=\"" + title + "\"");
         }
         if (target != null) {
             s1 += (" target=\"" + target + "\"");
+        }
+        if (classes != null) {
+            s1 += (" class=\"" + classes + "\"");
         }
         s1 += (">" + htmltext + "</a>");
         return s1;
