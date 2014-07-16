@@ -162,7 +162,7 @@
                 <td>
                     <c:set var="testIndices" value="#{tableBean.selectedIndices}" />
                     <c:set var="traceUrl"
-                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
+                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
                     <h:form prependId="false">
                         <c:set var="runLink"
                             value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
@@ -333,7 +333,7 @@
                             <c:set var="runLink"
                                 value="#{studio.url('test/run')}?id=#{tableBean.id}" />
                             <c:set var="traceUrl"
-                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
+                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
@@ -561,7 +561,7 @@
     <script>
       //<![CDATA[
         function open_win(url, name) {
-            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700, top=20, left=100")
         }
 
         function showButtonMenu(event, popupId, buttonElem) {
