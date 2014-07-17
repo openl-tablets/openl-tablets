@@ -196,6 +196,7 @@
                                     <th>
                                         <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
                                     </th>
+                                    <th>ID</th>
                                     <th colspan="100">
                                         #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
                                     </th>
@@ -205,6 +206,7 @@
                                     <td>
                                         <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
                                     </td>
+                                    <td>#{test.id}</td>
                                     <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
                                     <td>
                                         <ui:include src="/pages/modules/test/parameter.xhtml">
