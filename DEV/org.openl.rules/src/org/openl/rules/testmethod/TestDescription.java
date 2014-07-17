@@ -21,6 +21,7 @@ public class TestDescription {
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
     private Map<String, Object> testTableProps = null;
+    private int index;
 
     public TestDescription(IOpenMethod testedMethod, DynamicObject testObject) {
         this.testedMethod = testedMethod;
@@ -242,4 +243,23 @@ public class TestDescription {
         return null;
     }
 
+    /**
+     * Returns an ID of the test case. The ID is get from _id_ column or generated on index base.
+     */
+    public String getId() {
+        if (testObject.containsField(TestMethodHelper.TEST_ID)) {
+            return String.valueOf(getArgumentValue(TestMethodHelper.TEST_ID));
+        } else {
+            return String.valueOf(index + 1);
+        }
+
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 }
