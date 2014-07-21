@@ -159,8 +159,7 @@ public interface IWritableGrid extends IGrid {
 
             int firstToMove = region.getTop() + beforeRow;
             // Shift cells by row, copy cells of inserted row and resize merged regions after
-            actions.addAll(
-                    shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
+            actions.addAll(shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
             for (int rowFromCopy = firstToMove + nRows - 1; rowFromCopy >= firstToMove; rowFromCopy--) {
                 for (int column = region.getRight(); column >= region.getLeft(); column--) {
                     IUndoableGridTableAction action = copyCell(column, rowFromCopy, column, rowFromCopy + nRows, table);
@@ -458,7 +457,6 @@ public interface IWritableGrid extends IGrid {
             }
             
             return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false);
-            //return null;
         }
 
         private static AUndoableCellAction copyCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
@@ -530,16 +528,6 @@ public interface IWritableGrid extends IGrid {
         private static List<IUndoableGridTableAction> shiftRows(int startRow, int nRows, boolean isInsert,
                 IGridRegion region, IGridTable table) {
             ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<IUndoableGridTableAction>();
-            int direction, rowFromCopy, rowToCopy;
-            if (isInsert) {// shift rows down
-                direction = -1;                
-                rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are
-                                                  // going to shift it down.
-            } else {// shift rows up
-                direction = 1;
-                rowFromCopy = startRow; // we gets the startRow and are
-                                        // going to shift it up.
-            }
             IGrid grid = table.getGrid();
 
             // The first step: clear cells that will be lost after shifting
@@ -563,9 +551,19 @@ public interface IWritableGrid extends IGrid {
             }
 
             //The second step: shift cells
+            int direction, rowFromCopy;
+            if (isInsert) {// shift rows down
+                direction = -1;
+                rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are
+                // going to shift it down.
+            } else {// shift rows up
+                direction = 1;
+                rowFromCopy = startRow; // we gets the startRow and are
+                // going to shift it up.
+            }
+            int rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
             int numRowsToBeShifted = region.getBottom() - startRow;
             for (int i = 0; i <= numRowsToBeShifted; i++) {
-                rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
                 // from right to left, it is made for copying non_top_left cells
                 // of merged before the topleft cell of merged region
                 for (int column = region.getRight(); column >= region.getLeft(); column--) {
