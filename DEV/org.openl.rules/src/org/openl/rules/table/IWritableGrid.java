@@ -145,6 +145,7 @@ public interface IWritableGrid extends IGrid {
             }
 
             actions.addAll(resizeMergedRegions(table, beforeColumns, nColumns, INSERT, COLUMNS, region));
+            actions.addAll(emptyCells(firstToMove, nColumns, region.getTop(), h, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -169,6 +170,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
             actions.addAll(resizeMergedRegions(table, beforeRow, nRows, INSERT, ROWS, region));
+            actions.addAll(emptyCells(region.getLeft(), w, firstToMove, nRows, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -448,6 +450,26 @@ public interface IWritableGrid extends IGrid {
             return clearActions;
         }
 
+        private static List<IUndoableGridTableAction> emptyCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
+            ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
+            for (int i = startColumn; i < startColumn + nCols; i++) {
+                for (int j = startRow; j < startRow + nRows; j++) {
+                    if (grid.isTopLeftCellInMergedRegion(i, j)) {
+                        ICell cell = grid.getCell(i, j);
+                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
+                            // Don't clear merged cells which are bigger than the cleaned region.
+                            continue;
+                        }
+                    } else if (grid.isPartOfTheMergedRegion(i, j)) {
+                        // Don't clear middle of the merged cells.
+                        continue;
+                    }
+                    clearActions.add(new UndoableSetValueAction(i, j, null));
+                }
+            }
+            return clearActions;
+        }
+
         private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
             IGrid grid = table.getGrid();
             
@@ -561,9 +583,9 @@ public interface IWritableGrid extends IGrid {
                 rowFromCopy = startRow; // we gets the startRow and are
                 // going to shift it up.
             }
-            int rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
             int numRowsToBeShifted = region.getBottom() - startRow;
             for (int i = 0; i <= numRowsToBeShifted; i++) {
+                int rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
                 // from right to left, it is made for copying non_top_left cells
                 // of merged before the topleft cell of merged region
                 for (int column = region.getRight(); column >= region.getLeft(); column--) {
