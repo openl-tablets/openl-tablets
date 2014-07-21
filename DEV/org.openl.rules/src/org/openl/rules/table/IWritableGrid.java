@@ -480,14 +480,6 @@ public interface IWritableGrid extends IGrid {
         private static List<IUndoableGridTableAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
                 IGridRegion region, IGrid grid) {
             ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<IUndoableGridTableAction>();
-            int direction, colFromCopy, colToCopy;
-            if (isInsert) {// shift columns left
-                direction = -1;
-                colFromCopy = region.getRight();
-            } else {// shift columns right
-                direction = 1;
-                colFromCopy = startColumn;
-            }
 
             // The first step: clear cells that will be lost after shifting
             // columns(just because we need to restore this cells after UNDO)
@@ -510,6 +502,14 @@ public interface IWritableGrid extends IGrid {
             }
 
             //The second step: shift cells
+            int direction, colFromCopy, colToCopy;
+            if (isInsert) {// shift columns left
+                direction = -1;
+                colFromCopy = region.getRight();
+            } else {// shift columns right
+                direction = 1;
+                colFromCopy = startColumn;
+            }
             int numColumnsToBeShifted = region.getRight() - startColumn;
             for (int i = 0; i <= numColumnsToBeShifted; i++) {
                 colToCopy = colFromCopy - direction * nCols;
