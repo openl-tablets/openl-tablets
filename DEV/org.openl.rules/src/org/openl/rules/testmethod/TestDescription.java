@@ -3,7 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.table.InputArgumentsCloner;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
@@ -96,8 +96,7 @@ public class TestDescription {
     }
 
     public Object[] getArguments() {
-        InputArgumentsCloner cloner = new InputArgumentsCloner();
-
+        OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();

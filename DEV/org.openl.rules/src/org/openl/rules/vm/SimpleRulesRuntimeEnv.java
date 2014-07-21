@@ -8,7 +8,7 @@ import java.util.WeakHashMap;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.openl.rules.table.InputArgumentsCloner;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
@@ -129,7 +129,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         throw new ResultNotFoundException();
     }
 
-    private static final InputArgumentsCloner cloner = new InputArgumentsCloner();
+    private static final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     public void putToCache(Object member, Object[] params, Object result) {
         if (!CacheMode.READ_WRITE.equals(getCacheMode())) {
