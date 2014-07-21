@@ -31,7 +31,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
          * @author DLiauchuk
          */
         super(traceObject);
-        InputArgumentsCloner cloner = new InputArgumentsCloner();
+        OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
         	Object[] clonedParams = null;
             try {
