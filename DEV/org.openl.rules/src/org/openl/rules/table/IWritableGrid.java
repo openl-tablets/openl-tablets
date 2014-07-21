@@ -136,7 +136,7 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftColumns(firstToMove + nColumns, nColumns, INSERT, region, table));
             actions.addAll(copyCells(firstToMove, region.getTop(), firstToMove + nColumns, region.getTop(), nColumns, h, table.getGrid()));
             actions.addAll(resizeMergedRegions(table, beforeColumns, nColumns, INSERT, COLUMNS, region));
-            actions.addAll(emptyCells(firstToMove, nColumns, region.getTop(), h, table.getGrid()));
+            actions.addAll(emptyCells(firstToMove, region.getTop(), nColumns, h, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -154,7 +154,7 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
             actions.addAll(copyCells(region.getLeft(), firstToMove, region.getLeft(), firstToMove + nRows, w, nRows, table.getGrid()));
             actions.addAll(resizeMergedRegions(table, beforeRow, nRows, INSERT, ROWS, region));
-            actions.addAll(emptyCells(region.getLeft(), w, firstToMove, nRows, table.getGrid()));
+            actions.addAll(emptyCells(region.getLeft(), firstToMove, w, nRows, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
         }
@@ -170,6 +170,28 @@ public interface IWritableGrid extends IGrid {
                     if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
                         actions.add(new UndoableCopyValueAction(cFrom, rFrom, cTo, rTo));
                     }
+                }
+            }
+            return actions;
+        }
+
+        private static List<IUndoableGridTableAction> emptyCells(int colFrom, int rowFrom, int nCols, int nRows, IGrid grid) {
+            List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+            for (int i = nCols - 1; i >= 0; i--) {
+                for (int j = nRows - 1; j >= 0; j--) {
+                    int cFrom = colFrom + i;
+                    int rFrom = rowFrom + j;
+                    if (grid.isTopLeftCellInMergedRegion(cFrom, rFrom)) {
+                        ICell cell = grid.getCell(cFrom, rFrom);
+                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
+                            // Don't clear merged cells which are bigger than the cleaned region.
+                            continue;
+                        }
+                    } else if (grid.isPartOfTheMergedRegion(cFrom, rFrom)) {
+                        // Don't clear middle of the merged cells.
+                        continue;
+                    }
+                    actions.add(new UndoableSetValueAction(cFrom, rFrom, null));
                 }
             }
             return actions;
@@ -445,26 +467,6 @@ public interface IWritableGrid extends IGrid {
                             || (grid.isTopLeftCellInMergedRegion(i, j))){
                         clearActions.add(new UndoableClearAction(i, j));
                     }
-                }
-            }
-            return clearActions;
-        }
-
-        private static List<IUndoableGridTableAction> emptyCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
-            List<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
-            for (int i = startColumn; i < startColumn + nCols; i++) {
-                for (int j = startRow; j < startRow + nRows; j++) {
-                    if (grid.isTopLeftCellInMergedRegion(i, j)) {
-                        ICell cell = grid.getCell(i, j);
-                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
-                            // Don't clear merged cells which are bigger than the cleaned region.
-                            continue;
-                        }
-                    } else if (grid.isPartOfTheMergedRegion(i, j)) {
-                        // Don't clear middle of the merged cells.
-                        continue;
-                    }
-                    clearActions.add(new UndoableSetValueAction(i, j, null));
                 }
             }
             return clearActions;
