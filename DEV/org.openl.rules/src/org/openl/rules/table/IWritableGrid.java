@@ -134,16 +134,7 @@ public interface IWritableGrid extends IGrid {
             int firstToMove = region.getLeft() + beforeColumns;
             // shift cells by column, copy cells of inserted column and resize merged regions after
             actions.addAll(shiftColumns(firstToMove + nColumns, nColumns, INSERT, region, table));
-
-            for (int colFromCopy = firstToMove + nColumns - 1; colFromCopy >= firstToMove; colFromCopy--) {
-                for (int row = region.getBottom(); row >= region.getTop(); row--) {
-                    AUndoableCellAction action = copyCell(colFromCopy, row, colFromCopy + nColumns, row, table);
-                    if (action != null) {
-                        actions.add(action);
-                    }
-                }
-            }
-
+            actions.addAll(copyCells(firstToMove, region.getTop(), firstToMove + nColumns, region.getTop(), nColumns, h, table.getGrid()));
             actions.addAll(resizeMergedRegions(table, beforeColumns, nColumns, INSERT, COLUMNS, region));
             actions.addAll(emptyCells(firstToMove, nColumns, region.getTop(), h, table.getGrid()));
 
@@ -161,18 +152,27 @@ public interface IWritableGrid extends IGrid {
             int firstToMove = region.getTop() + beforeRow;
             // Shift cells by row, copy cells of inserted row and resize merged regions after
             actions.addAll(shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
-            for (int rowFromCopy = firstToMove + nRows - 1; rowFromCopy >= firstToMove; rowFromCopy--) {
-                for (int column = region.getRight(); column >= region.getLeft(); column--) {
-                    IUndoableGridTableAction action = copyCell(column, rowFromCopy, column, rowFromCopy + nRows, table);
-                    if (action != null) {
-                        actions.add(action);
-                    }
-                }
-            }
+            actions.addAll(copyCells(region.getLeft(), firstToMove, region.getLeft(), firstToMove + nRows, w, nRows, table.getGrid()));
             actions.addAll(resizeMergedRegions(table, beforeRow, nRows, INSERT, ROWS, region));
             actions.addAll(emptyCells(region.getLeft(), w, firstToMove, nRows, table.getGrid()));
 
             return new UndoableCompositeAction(actions);
+        }
+
+        private static List<IUndoableGridTableAction> copyCells(int colFrom, int rowFrom, int colTo, int rowTo, int nCols, int nRows, IGrid grid) {
+            List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+            for (int i = nCols - 1; i >= 0; i--) {
+                for (int j = nRows - 1; j >= 0; j--) {
+                    int cFrom = colFrom + i;
+                    int rFrom = rowFrom + j;
+                    int cTo = colTo + i;
+                    int rTo = rowTo + j;
+                    if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
+                        actions.add(new UndoableCopyValueAction(cFrom, rFrom, cTo, rTo));
+                    }
+                }
+            }
+            return actions;
         }
 
         /**
@@ -438,7 +438,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
-            ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
+            List<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {
                 for (int j = startRow; j < startRow + nRows; j++) {
                     if (!grid.isPartOfTheMergedRegion(i, j)
@@ -451,7 +451,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         private static List<IUndoableGridTableAction> emptyCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
-            ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
+            List<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {
                 for (int j = startRow; j < startRow + nRows; j++) {
                     if (grid.isTopLeftCellInMergedRegion(i, j)) {
@@ -479,14 +479,6 @@ public interface IWritableGrid extends IGrid {
             }
             
             return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false);
-        }
-
-        private static AUndoableCellAction copyCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
-            if (!grid.isInOneMergedRegion(colFrom, rowFrom, colTo, rowTo)) {
-                return new UndoableCopyValueAction(colFrom, rowFrom, colTo, rowTo);
-            }
-            return null;
         }
 
         private static List<IUndoableGridTableAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
