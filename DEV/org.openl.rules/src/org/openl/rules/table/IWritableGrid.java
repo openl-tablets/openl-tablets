@@ -123,7 +123,7 @@ public interface IWritableGrid extends IGrid {
             }
         }
 
-        public static IUndoableGridTableAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
+        public static IUndoableGridTableAction insertColumns(int nCols, int beforeColumns, IGridRegion region,
                 IGridTable table) {
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
@@ -131,12 +131,15 @@ public interface IWritableGrid extends IGrid {
 
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(h * columnsToMove);
 
+            IGrid grid = table.getGrid();
             int firstToMove = region.getLeft() + beforeColumns;
+            int colTo = firstToMove + nCols;
+            int top = region.getTop();
             // shift cells by column, copy cells of inserted column and resize merged regions after
-            actions.addAll(shiftColumns(firstToMove + nColumns, nColumns, INSERT, region, table));
-            actions.addAll(copyCells(firstToMove, region.getTop(), firstToMove + nColumns, region.getTop(), nColumns, h, table.getGrid()));
-            actions.addAll(resizeMergedRegions(table, beforeColumns, nColumns, INSERT, COLUMNS, region));
-            actions.addAll(emptyCells(firstToMove, region.getTop(), nColumns, h, table.getGrid()));
+            actions.addAll(shiftColumns(colTo, nCols, INSERT, region, table));
+            actions.addAll(copyCells(firstToMove, top, colTo, top, nCols, h, grid));
+            actions.addAll(resizeMergedRegions(table, beforeColumns, nCols, INSERT, COLUMNS, region));
+            actions.addAll(emptyCells(firstToMove, top, nCols, h, grid));
 
             return new UndoableCompositeAction(actions);
         }
@@ -149,12 +152,15 @@ public interface IWritableGrid extends IGrid {
 
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(w * rowsToMove);
 
+            IGrid grid = table.getGrid();
             int firstToMove = region.getTop() + beforeRow;
+            int rowTo = firstToMove + nRows;
+            int left = region.getLeft();
             // Shift cells by row, copy cells of inserted row and resize merged regions after
-            actions.addAll(shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
-            actions.addAll(copyCells(region.getLeft(), firstToMove, region.getLeft(), firstToMove + nRows, w, nRows, table.getGrid()));
+            actions.addAll(shiftRows(rowTo, nRows, INSERT, region, table));
+            actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid));
             actions.addAll(resizeMergedRegions(table, beforeRow, nRows, INSERT, ROWS, region));
-            actions.addAll(emptyCells(region.getLeft(), firstToMove, w, nRows, table.getGrid()));
+            actions.addAll(emptyCells(left, firstToMove, w, nRows, grid));
 
             return new UndoableCompositeAction(actions);
         }
