@@ -39,7 +39,7 @@ public class TestUndoable extends TestCase {
         IUndoableGridTableAction[] uaa0 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
             uaa0[j] = IWritableGrid.Tool
-                    .insertColumns(1, 2, tables[j].getRegion(), tables[j]);
+                    .insertColumns(1, 2, tables[j].getRegion(), tables[j].getGrid());
             uaa0[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
@@ -49,7 +49,7 @@ public class TestUndoable extends TestCase {
 
         IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
-            uaa1[j] = IWritableGrid.Tool.removeColumns(1, 3, tables[j].getRegion(), tables[j]);
+            uaa1[j] = IWritableGrid.Tool.removeColumns(1, 3, tables[j].getRegion(), tables[j].getGrid());
             uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
@@ -75,7 +75,7 @@ public class TestUndoable extends TestCase {
 
         IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
-            uaa1[j] = IWritableGrid.Tool.removeRows(1, 0, tables[j].getRegion(), tables[j]);
+            uaa1[j] = IWritableGrid.Tool.removeRows(1, 0, tables[j].getRegion(), tables[j].getGrid());
             uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
@@ -101,7 +101,7 @@ public class TestUndoable extends TestCase {
         for (int j = 0; j < tables.length; j++) {
 
             uaa1[j] = IWritableGrid.Tool
-                    .insertColumns(1, 1, tables[j].getRegion(), tables[j]);
+                    .insertColumns(1, 1, tables[j].getRegion(), tables[j].getGrid());
             uaa1[j].doAction(tables[j]);
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
@@ -112,7 +112,7 @@ public class TestUndoable extends TestCase {
         IUndoableGridTableAction[] uaa2 = new IUndoableGridTableAction[tables.length];
 
         for (int j = 0; j < tables.length; j++) {
-            uaa2[j] = IWritableGrid.Tool.insertRows(3, 1, tables[j].getRegion(), tables[j]);
+            uaa2[j] = IWritableGrid.Tool.insertRows(3, 1, tables[j].getRegion(), tables[j].getGrid());
             uaa2[j].doAction(tables[j]);
         }
 
