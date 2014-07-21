@@ -262,7 +262,7 @@ public class MergedRegionsTest {
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeRowsAction = IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table);
+                    test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, removeRowsAction);
         }
     }
@@ -278,7 +278,7 @@ public class MergedRegionsTest {
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertRowsAction = IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table);
+                    test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, insertRowsAction);
         }
     }
@@ -294,7 +294,7 @@ public class MergedRegionsTest {
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeColumnsAction = IWritableGrid.Tool.removeColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table);
+                    .getFrom(), test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, removeColumnsAction);
         }
     }
@@ -310,7 +310,7 @@ public class MergedRegionsTest {
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertColumnsAction = IWritableGrid.Tool.insertColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table);
+                    .getFrom(), test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, insertColumnsAction);
         }
     }

@@ -52,7 +52,7 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
     
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {
-        return IWritableGrid.Tool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table);
+        return IWritableGrid.Tool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table.getGrid());
     }
     
     @Override
