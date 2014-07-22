@@ -56,7 +56,7 @@ public interface IWritableGrid extends IGrid {
          * Searches all merged regions inside the specified region of table for
          * regions that have to be resized.
          * 
-         * @param wgrid Current writable grid.
+         * @param grid Current writable grid.
          * @param firstRowOrColumn Index of row or column for
          *            insertion/removing.
          * @param numberOfRowsOrColumns Number of elements to insert/remove.
@@ -65,9 +65,8 @@ public interface IWritableGrid extends IGrid {
          * @param regionOfTable Region of current table.
          * @return All actions to resize merged regions.
          */
-        public static List<IUndoableGridTableAction> resizeMergedRegions(IGridTable table, int firstRowOrColumn,
+        public static List<IUndoableGridTableAction> resizeMergedRegions(IGrid grid, int firstRowOrColumn,
                 int numberOfRowsOrColumns, boolean isInsert, boolean isColumns, IGridRegion regionOfTable) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
             ArrayList<IUndoableGridTableAction> resizeActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
                 IGridRegion existingMergedRegion = grid.getMergedRegion(i);
@@ -123,8 +122,8 @@ public interface IWritableGrid extends IGrid {
             }
         }
 
-        public static IUndoableGridTableAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
-                IGridTable table) {
+        public static IUndoableGridTableAction insertColumns(int nCols, int beforeColumns, IGridRegion region,
+                IGrid grid) {
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
             int columnsToMove = w - beforeColumns;
@@ -132,25 +131,19 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(h * columnsToMove);
 
             int firstToMove = region.getLeft() + beforeColumns;
+            int colTo = firstToMove + nCols;
+            int top = region.getTop();
             // shift cells by column, copy cells of inserted column and resize merged regions after
-            actions.addAll(shiftColumns(firstToMove + nColumns, nColumns, INSERT, region, table));
-
-            for (int colFromCopy = firstToMove + nColumns - 1; colFromCopy >= firstToMove; colFromCopy--) {
-                for (int row = region.getBottom(); row >= region.getTop(); row--) {
-                    AUndoableCellAction action = copyCell(colFromCopy, row, colFromCopy + nColumns, row, table);
-                    if (action != null) {
-                        actions.add(action);
-                    }
-                }
-            }
-
-            actions.addAll(resizeMergedRegions(table, beforeColumns, nColumns, INSERT, COLUMNS, region));
+            actions.addAll(shiftColumns(colTo, nCols, INSERT, region, grid));
+            actions.addAll(copyCells(firstToMove, top, colTo, top, nCols, h, grid));
+            actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, INSERT, COLUMNS, region));
+            actions.addAll(emptyCells(firstToMove, top, nCols, h, grid));
 
             return new UndoableCompositeAction(actions);
         }
 
         public static IUndoableGridTableAction insertRows(int nRows, int beforeRow,
-                IGridRegion region, IGridTable table) {
+                IGridRegion region, IGrid grid) {
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
             int rowsToMove = h - beforeRow;
@@ -158,27 +151,59 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(w * rowsToMove);
 
             int firstToMove = region.getTop() + beforeRow;
+            int rowTo = firstToMove + nRows;
+            int left = region.getLeft();
             // Shift cells by row, copy cells of inserted row and resize merged regions after
-            actions.addAll(
-                    shiftRows(firstToMove + nRows, nRows, INSERT, region, table));
-            for (int rowFromCopy = firstToMove + nRows - 1; rowFromCopy >= firstToMove; rowFromCopy--) {
-                for (int column = region.getRight(); column >= region.getLeft(); column--) {
-                    IUndoableGridTableAction action = copyCell(column, rowFromCopy, column, rowFromCopy + nRows, table);
-                    if (action != null) {
-                        actions.add(action);
+            actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid));
+            actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid));
+            actions.addAll(resizeMergedRegions(grid, beforeRow, nRows, INSERT, ROWS, region));
+            actions.addAll(emptyCells(left, firstToMove, w, nRows, grid));
+
+            return new UndoableCompositeAction(actions);
+        }
+
+        private static List<IUndoableGridTableAction> copyCells(int colFrom, int rowFrom, int colTo, int rowTo, int nCols, int nRows, IGrid grid) {
+            List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+            for (int i = nCols - 1; i >= 0; i--) {
+                for (int j = nRows - 1; j >= 0; j--) {
+                    int cFrom = colFrom + i;
+                    int rFrom = rowFrom + j;
+                    int cTo = colTo + i;
+                    int rTo = rowTo + j;
+                    if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
+                        actions.add(new UndoableCopyValueAction(cFrom, rFrom, cTo, rTo));
                     }
                 }
             }
-            actions.addAll(resizeMergedRegions(table, beforeRow, nRows, INSERT, ROWS, region));
+            return actions;
+        }
 
-            return new UndoableCompositeAction(actions);
+        private static List<IUndoableGridTableAction> emptyCells(int colFrom, int rowFrom, int nCols, int nRows, IGrid grid) {
+            List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+            for (int i = nCols - 1; i >= 0; i--) {
+                for (int j = nRows - 1; j >= 0; j--) {
+                    int cFrom = colFrom + i;
+                    int rFrom = rowFrom + j;
+                    if (grid.isTopLeftCellInMergedRegion(cFrom, rFrom)) {
+                        ICell cell = grid.getCell(cFrom, rFrom);
+                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
+                            // Don't clear merged cells which are bigger than the cleaned region.
+                            continue;
+                        }
+                    } else if (grid.isPartOfTheMergedRegion(cFrom, rFrom)) {
+                        // Don't clear middle of the merged cells.
+                        continue;
+                    }
+                    actions.add(new UndoableSetValueAction(cFrom, rFrom, null));
+                }
+            }
+            return actions;
         }
 
         /**
          * Checks if the table specified by its region contains property.
          */
-        public static CellKey getPropertyCoordinates(IGridRegion region, IGridTable table, String propName) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+        public static CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
             int left = region.getLeft();
             int top = region.getTop();
 
@@ -205,22 +230,21 @@ public interface IWritableGrid extends IGrid {
         /**
          * @return null if set new property with empty or same value
          */
-        public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGridTable table,
+        public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGrid grid,
                 String newPropName, Object newPropValue) {
             if (newPropValue == null) {
                 return null;
             }
 
-            int propertyRowIndex = getPropertyRowIndex(tableRegion, table, newPropName);
+            int propertyRowIndex = getPropertyRowIndex(tableRegion, grid, newPropName);
             if (propertyRowIndex > 0) {
-                return setExistingPropertyValue(tableRegion, table, newPropName, newPropValue, propertyRowIndex);
+                return setExistingPropertyValue(tableRegion, grid, newPropValue, propertyRowIndex);
             } else {
-                return insertNewProperty(tableRegion, table, newPropName, newPropValue);
+                return insertNewProperty(tableRegion, grid, newPropName, newPropValue);
             }
         }
 
-        private static int getPropertyRowIndex(IGridRegion tableRegion, IGridTable table, String newPropName) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+        private static int getPropertyRowIndex(IGridRegion tableRegion, IGrid grid, String newPropName) {
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -240,9 +264,7 @@ public interface IWritableGrid extends IGrid {
             return -1;
         }
         
-        private static IUndoableGridTableAction setExistingPropertyValue(IGridRegion tableRegion, IGridTable table,
-                String newPropName, Object newPropValue, int propertyRowIndex) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+        private static IUndoableGridTableAction setExistingPropertyValue(IGridRegion tableRegion, IGrid grid, Object newPropValue, int propertyRowIndex) {
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int propNameCellOffset = grid.getCell(leftCell, topCell + 1).getWidth();
@@ -260,8 +282,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion,
-                IGridTable table, String newPropName, Object newPropValue) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+                IGrid grid, String newPropName, Object newPropValue) {
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -275,13 +296,13 @@ public interface IWritableGrid extends IGrid {
             int propValueCellOffset;
 
             if (!tableContainsPropertySection(propsHeader)) {
-                actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, table));
-                actions.add(createPropertiesSection(tableRegion, table));
+                actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, grid));
+                actions.add(createPropertiesSection(tableRegion, grid));
                 propNameCellOffset = 1;
                 propValueCellOffset = 2;
             } else {
-                actions.add(insertRows(1, firstPropertyRow, tableRegion, table));
-                actions.add(resizePropertiesHeader(tableRegion, table));
+                actions.add(insertRows(1, firstPropertyRow, tableRegion, grid));
+                actions.add(resizePropertiesHeader(tableRegion, grid));
                 propNameCellOffset = grid.getCell(leftCell, topCell + firstPropertyRow).getWidth();
                 propValueCellOffset = propNameCellOffset
                         + grid.getCell(leftCell + propNameCellOffset, topCell + firstPropertyRow).getWidth();
@@ -305,8 +326,7 @@ public interface IWritableGrid extends IGrid {
             return result;
         }
 
-        private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion, IGridTable table) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+        private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion, IGrid grid) {
             int regionWidth = IGridRegion.Tool.width(tableRegion);
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
@@ -315,7 +335,7 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
 
             actions.add(new SetBorderStyleAction(leftCell, headerRegion.getBottom() + 1,
-                    makeNewPropStyle(grid, leftCell, headerRegion.getBottom() + 1, leftCell, regionWidth, null) ));
+                    makeNewPropStyle(grid, leftCell, headerRegion.getBottom() + 1, leftCell, regionWidth) ));
             actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
                     .getBottom() + 1, tableRegion.getRight())));
             actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME));
@@ -331,7 +351,7 @@ public interface IWritableGrid extends IGrid {
                 // set cell style
                 //leftCell + 2 - this is index of last property column
                 for (int j = leftCell + 2; j < leftCell + regionWidth; j++) {
-                    actions.add(new SetBorderStyleAction(j, headerRegion.getBottom() + 1, makeNewPropStyle(grid, j, headerRegion.getBottom() + 1, leftCell, regionWidth, null)));
+                    actions.add(new SetBorderStyleAction(j, headerRegion.getBottom() + 1, makeNewPropStyle(grid, j, headerRegion.getBottom() + 1, leftCell, regionWidth)));
                 }
             } else if (regionWidth < 3) {
                 // expand table by including neighboring cell in merged
@@ -373,7 +393,7 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
 
-        private static CellStyle makeNewPropStyle(IWritableGrid grid, int col, int row, int regionLeftCell, int regionWidth, ActionType actionType) {
+        private static CellStyle makeNewPropStyle(IGrid grid, int col, int row, int regionLeftCell, int regionWidth) {
             ICell cell = grid.getCell(col, row);
             CellStyle newCellStyle = new CellStyle(cell.getStyle());
 
@@ -381,7 +401,6 @@ public interface IWritableGrid extends IGrid {
             short[] borderStyle = cellStyle != null ? cellStyle.getBorderStyle() : null;
 
             /*Create new cell style*/
-            //int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
 
             if (borderStyle != null && col == regionLeftCell) {
                 // Only left border will be set
@@ -409,8 +428,7 @@ public interface IWritableGrid extends IGrid {
             return newCellStyle;
         }
 
-        private static IUndoableGridTableAction resizePropertiesHeader(IGridRegion tableRegion, IGridTable table) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
+        private static IUndoableGridTableAction resizePropertiesHeader(IGridRegion tableRegion, IGrid grid) {
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -423,7 +441,7 @@ public interface IWritableGrid extends IGrid {
                 }
                 return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
             } else {
-                return new UndoableCompositeAction(resizeMergedRegions(table, firstPropertyRow, 1, INSERT, ROWS, tableRegion));
+                return new UndoableCompositeAction(resizeMergedRegions(grid, firstPropertyRow, 1, INSERT, ROWS, tableRegion));
             }
 
         }
@@ -437,7 +455,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {
-            ArrayList<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
+            List<IUndoableGridTableAction> clearActions = new ArrayList<IUndoableGridTableAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {
                 for (int j = startRow; j < startRow + nRows; j++) {
                     if (!grid.isPartOfTheMergedRegion(i, j)
@@ -449,38 +467,19 @@ public interface IWritableGrid extends IGrid {
             return clearActions;
         }
 
-        private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
-            IGrid grid = table.getGrid();
-            
+        private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGrid grid) {
+
             if (!grid.isPartOfTheMergedRegion(colFrom, rowFrom) || grid.isTopLeftCellInMergedRegion(colFrom, rowFrom)) {
                 // non top left cell of merged region have to be skipped
                 return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
             }
             
             return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false);
-            //return null;
-        }
-
-        private static AUndoableCellAction copyCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
-            IWritableGrid grid = (IWritableGrid) table.getGrid();
-            if (!grid.isInOneMergedRegion(colFrom, rowFrom, colTo, rowTo)) {
-                return new UndoableCopyValueAction(colFrom, rowFrom, colTo, rowTo);
-            }
-            return null;
         }
 
         private static List<IUndoableGridTableAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
-                IGridRegion region, IGridTable table) {
+                IGridRegion region, IGrid grid) {
             ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<IUndoableGridTableAction>();
-            int direction, colFromCopy, colToCopy;
-            if (isInsert) {// shift columns left
-                direction = -1;
-                colFromCopy = region.getRight();
-            } else {// shift columns right
-                direction = 1;
-                colFromCopy = startColumn;
-            }
-            IGrid grid = table.getGrid();
 
             // The first step: clear cells that will be lost after shifting
             // columns(just because we need to restore this cells after UNDO)
@@ -503,13 +502,21 @@ public interface IWritableGrid extends IGrid {
             }
 
             //The second step: shift cells
+            int direction, colFromCopy, colToCopy;
+            if (isInsert) {// shift columns left
+                direction = -1;
+                colFromCopy = region.getRight();
+            } else {// shift columns right
+                direction = 1;
+                colFromCopy = startColumn;
+            }
             int numColumnsToBeShifted = region.getRight() - startColumn;
             for (int i = 0; i <= numColumnsToBeShifted; i++) {
                 colToCopy = colFromCopy - direction * nCols;
                 // from bottom to top, it is made for copying non_top_left cells
                 // of merged before the topleft cell of merged region
                 for (int row = region.getBottom(); row >= region.getTop(); row--) {
-                    AUndoableCellAction action =  shiftCell(colFromCopy, row, colToCopy, row, table);
+                    AUndoableCellAction action =  shiftCell(colFromCopy, row, colToCopy, row, grid);
                     if (action != null) {
                         shiftActions.add(action);
                     }
@@ -528,19 +535,8 @@ public interface IWritableGrid extends IGrid {
          * @return
          */
         private static List<IUndoableGridTableAction> shiftRows(int startRow, int nRows, boolean isInsert,
-                IGridRegion region, IGridTable table) {
+                IGridRegion region, IGrid grid) {
             ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<IUndoableGridTableAction>();
-            int direction, rowFromCopy, rowToCopy;
-            if (isInsert) {// shift rows down
-                direction = -1;                
-                rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are
-                                                  // going to shift it down.
-            } else {// shift rows up
-                direction = 1;
-                rowFromCopy = startRow; // we gets the startRow and are
-                                        // going to shift it up.
-            }
-            IGrid grid = table.getGrid();
 
             // The first step: clear cells that will be lost after shifting
             // rows(just because we need to restore this cells after UNDO)
@@ -563,13 +559,23 @@ public interface IWritableGrid extends IGrid {
             }
 
             //The second step: shift cells
+            int direction, rowFromCopy;
+            if (isInsert) {// shift rows down
+                direction = -1;
+                rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are
+                // going to shift it down.
+            } else {// shift rows up
+                direction = 1;
+                rowFromCopy = startRow; // we gets the startRow and are
+                // going to shift it up.
+            }
             int numRowsToBeShifted = region.getBottom() - startRow;
             for (int i = 0; i <= numRowsToBeShifted; i++) {
-                rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
+                int rowToCopy = rowFromCopy - direction * nRows; // compute to which row we need to shift.
                 // from right to left, it is made for copying non_top_left cells
                 // of merged before the topleft cell of merged region
                 for (int column = region.getRight(); column >= region.getLeft(); column--) {
-                    AUndoableCellAction action = shiftCell(column, rowFromCopy, column, rowToCopy, table);
+                    AUndoableCellAction action = shiftCell(column, rowFromCopy, column, rowToCopy, grid);
                     if (action != null) {
                         shiftActions.add(action);
                     }
@@ -579,8 +585,7 @@ public interface IWritableGrid extends IGrid {
             return shiftActions;
         }
 
-        public static IUndoableGridTableAction removeColumns(int nCols, int startColumn, IGridRegion region,
-                IGridTable table) {
+        public static IUndoableGridTableAction removeColumns(int nCols, int startColumn, IGridRegion region, IGrid grid) {
             int firstToMove = region.getLeft() + startColumn + nCols;
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
@@ -588,15 +593,14 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(h * (w - startColumn));
 
             // resize merged regions -> shift cells by column -> clear cells 
-            actions.addAll(resizeMergedRegions(table, startColumn, nCols, REMOVE, COLUMNS, region));
-            actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, table));
-            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, table.getGrid()));
+            actions.addAll(resizeMergedRegions(grid, startColumn, nCols, REMOVE, COLUMNS, region));
+            actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, grid));
+            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid));
 
             return new UndoableCompositeAction(actions);
         }
 
-        public static IUndoableGridTableAction removeRows(int nRows, int startRow,
-                IGridRegion region, IGridTable table) {
+        public static IUndoableGridTableAction removeRows(int nRows, int startRow, IGridRegion region, IGrid grid) {
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
             int firstToMove = region.getTop() + startRow + nRows;
@@ -604,9 +608,9 @@ public interface IWritableGrid extends IGrid {
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(w * (h - startRow));
 
             // resize merged regions -> shift cells by row -> clear cells 
-            actions.addAll(resizeMergedRegions(table, startRow, nRows, REMOVE, ROWS, region));
-            actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, table));
-            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, table.getGrid()));
+            actions.addAll(resizeMergedRegions(grid, startRow, nRows, REMOVE, ROWS, region));
+            actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, grid));
+            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid));
 
             return new UndoableCompositeAction(actions);
         }

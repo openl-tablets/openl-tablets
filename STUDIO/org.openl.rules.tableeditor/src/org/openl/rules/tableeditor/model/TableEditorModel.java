@@ -198,7 +198,7 @@ public class TableEditorModel {
         IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
 
-        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable, name);
+        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
@@ -232,7 +232,7 @@ public class TableEditorModel {
             return;
         }
 
-        IUndoableGridTableAction action = IWritableGrid.Tool.insertProp(fullTableRegion, gridTable, name, value);
+        IUndoableGridTableAction action = IWritableGrid.Tool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);

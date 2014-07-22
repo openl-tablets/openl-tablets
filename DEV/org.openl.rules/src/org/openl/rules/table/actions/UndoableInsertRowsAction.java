@@ -57,6 +57,6 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {        
-        return IWritableGrid.Tool.insertRows(numberToInsert, beforeRow, fullTableRegion, table);
+        return IWritableGrid.Tool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid());
     }
 }

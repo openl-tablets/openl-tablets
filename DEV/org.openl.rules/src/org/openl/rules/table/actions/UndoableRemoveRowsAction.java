@@ -42,7 +42,7 @@ public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {        
-        return IWritableGrid.Tool.removeRows(numberToRemove, startRow, fullTableRegion, table);
+        return IWritableGrid.Tool.removeRows(numberToRemove, startRow, fullTableRegion, table.getGrid());
     }
 
 }
