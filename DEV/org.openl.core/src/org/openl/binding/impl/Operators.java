@@ -67,6 +67,11 @@ public class Operators {
         return x + y;
     }
 
+    public static Long add(Long x, Long y) {
+        return x + y;
+    }
+    
+    
     public static float add(float x, float y) {
         return x + y;
     }
@@ -1164,10 +1169,19 @@ public class Operators {
         return BigInteger.valueOf(x);
     }
 
+    public static Long autocast(Integer x, Long y) {
+        return x.longValue();
+    }
+
     public static BigInteger autocast(Long x, BigInteger y) {
         return BigInteger.valueOf(x);
     }
 
+    public static Double autocast(Long x, Double y) {
+        return x.doubleValue();
+    }
+
+    
     public static Number autocast(int i, Number N) {
         return i;
     }
