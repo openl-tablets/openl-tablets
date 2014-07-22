@@ -27,11 +27,9 @@ public class LocalTemporaryDeploymentsStorage {
 
     private final Log log = LogFactory.getLog(LocalTemporaryDeploymentsStorage.class);
 
-    private final static String DEPLOYMENTS_TMP_DIRECTORY_DEFAULT = "/tmp/rules-deploy";
-
     private File folderToLoadDeploymentsIn;
 
-    private String directoryToLoadDeploymentsIn = DEPLOYMENTS_TMP_DIRECTORY_DEFAULT;
+    private String directoryToLoadDeploymentsIn;
 
     private final static Object flag = new Object();
 
@@ -45,6 +43,7 @@ public class LocalTemporaryDeploymentsStorage {
      * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
      */
     public LocalTemporaryDeploymentsStorage() {
+        directoryToLoadDeploymentsIn = System.getProperty("user.home") + "/.openl/tmp";
     }
 
     /**
