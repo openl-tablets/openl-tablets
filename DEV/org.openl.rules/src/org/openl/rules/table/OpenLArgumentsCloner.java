@@ -2,10 +2,13 @@ package org.openl.rules.table;
 
 import java.util.Map;
 
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
 import com.rits.cloning.Cloner;
+import com.rits.cloning.IInstantiationStrategy;
 
 /**
  * Extension for {@link Cloner}. To add OpenL classes
@@ -20,7 +23,7 @@ import com.rits.cloning.Cloner;
 public class OpenLArgumentsCloner extends Cloner {
     
     public OpenLArgumentsCloner() {
-        super();
+        super(new ObjenesisInstantiationStrategy());
         dontCloneClasses();
     }
     
@@ -50,4 +53,20 @@ public class OpenLArgumentsCloner extends Cloner {
 	    }
 	    return super.cloneInternal(o, clones);
 	}
+	
+    public static class ObjenesisInstantiationStrategy implements IInstantiationStrategy { // Required for correct working with classloaders.
+        private final Objenesis objenesis = new ObjenesisStd();
+
+        @SuppressWarnings("unchecked")
+        public <T> T newInstance(Class<T> c) {
+            return (T) objenesis.newInstance(c);
+        }
+
+        private static ObjenesisInstantiationStrategy instance = new ObjenesisInstantiationStrategy();
+
+        public static ObjenesisInstantiationStrategy getInstance() {
+            return instance;
+        }
+    }
+
 }
