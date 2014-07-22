@@ -79,7 +79,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        if (indexType == JavaOpenClass.INT) {
+        if (indexType == JavaOpenClass.INT || indexType.getInstanceClass() == Integer.class) {
             // if index type is int we return simple java array index.
             return new ArrayIndex(getComponentType(aggregateType));
         } else {

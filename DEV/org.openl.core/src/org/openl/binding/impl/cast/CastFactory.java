@@ -132,11 +132,14 @@ public class CastFactory implements ICastFactory {
         if (typeCast != null) {
             return typeCast;
         }
+        
+        
 
         return null;
     }
 
-    /**
+
+	/**
      * Checks that instance class of open class is primitive.
      * 
      * @param openClass type to check
@@ -206,6 +209,11 @@ public class CastFactory implements ICastFactory {
         if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
             return JAVA_BOXING_CAST;
         }
+        
+        
+        //Apache ClassUtils has error in 2.6
+        if (fromClass == void.class && toClass == Void.class)
+        	return JAVA_BOXING_CAST;
 
         return null;
     }
@@ -229,6 +237,10 @@ public class CastFactory implements ICastFactory {
         if (toClass == ClassUtils.wrapperToPrimitive(fromClass)) {
             return JAVA_UNBOXING_CAST;
         }
+
+        //Apache ClassUtils has error in 2.6
+        if (fromClass == Void.class && toClass == void.class)
+        	return JAVA_UNBOXING_CAST;
 
         return null;
     }

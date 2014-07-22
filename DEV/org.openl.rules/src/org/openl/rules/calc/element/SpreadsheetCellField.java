@@ -2,38 +2,42 @@ package org.openl.rules.calc.element;
 
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField {
 
 	protected SpreadsheetCell cell;
+	private SpreadsheetStructureBuilder spreadsheetBuilder;
 
-	public static SpreadsheetCellField createSpreadsheetCellField(
+	public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder, IOpenMethodHeader spreadsheetHeader,
 			IOpenClass declaringClass, String name, SpreadsheetCell cell) {
 		if (cell.getKind() == SpreadsheetCellType.METHOD)
-			return new SpreadsheetCellField(declaringClass, name, cell);
-		return new ConstSpreadsheetCellField(declaringClass, name, cell);
+			return new SpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+		return new ConstSpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
 	}
 
-	SpreadsheetCellField(IOpenClass declaringClass, String name,
+	SpreadsheetCellField(SpreadsheetStructureBuilder spreadsheetBuilder, IOpenMethodHeader spreadsheetHeader, IOpenClass declaringClass, String name,
 			SpreadsheetCell cell) {
 		super(declaringClass, name, cell.getType());
 
 		this.cell = cell;
+		this.spreadsheetBuilder = spreadsheetBuilder;
 	}
 
 	@Override
 	public Object get(Object target, IRuntimeEnv env) {
 
-		if (cell.getKind() == SpreadsheetCellType.METHOD) {
+//		if (cell.getKind() == SpreadsheetCellType.METHOD) {
 			SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
 
 			return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
-		}
-
-		return cell.getValue();
+//		}
+//
+//		return cell.getValue();
 
 	}
 
@@ -43,6 +47,21 @@ public class SpreadsheetCellField extends ASpreadsheetField {
 
 	@Override
 	public IOpenClass getType() {
+		
+		IOpenClass type = cell.getType();
+		if (type == null)
+		{
+			type = spreadsheetBuilder.makeType(cell);
+			if (type == null)
+			{
+				spreadsheetBuilder.makeType(cell);
+				throw new RuntimeException("Type cannot be defined");
+
+			}	
+			spreadsheetBuilder = null;
+			
+		}	
+		
 		return cell.getType();
 	}
 
@@ -70,16 +89,16 @@ public class SpreadsheetCellField extends ASpreadsheetField {
 
 		Object value;
 
-		ConstSpreadsheetCellField(IOpenClass declaringClass, String name,
+		ConstSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder, IOpenMethodHeader spreadsheetHeader, IOpenClass declaringClass, String name,
 				SpreadsheetCell cell) {
-			super(declaringClass, name, cell);
+			super(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
 			this.value = cell.getValue();
 		}
 
 		@Override
 		public Object get(Object target, IRuntimeEnv env) {
-			if (cell.getKind() == SpreadsheetCellType.METHOD)
-				return super.get(target, env);
+//			if (cell.getKind() == SpreadsheetCellType.METHOD)
+//				return super.get(target, env);
 
 			return cell.getValue();
 		}
