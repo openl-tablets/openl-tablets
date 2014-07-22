@@ -1,19 +1,22 @@
 package org.openl.rules.project.resolving;
 
 import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.classloader.ClassLoaderCloserFactory;
-import org.openl.classloader.OpenLClassLoaderHelper;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 public final class PropertiesFileNameProcessorBuilder {
-    private PropertiesFileNameProcessorBuilder() {
+    public PropertiesFileNameProcessorBuilder() {
     }
 
-    public static PropertiesFileNameProcessor build(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
-        PropertiesFileNameProcessor processor;
+    PropertiesFileNameProcessor processor;
+    
+    public PropertiesFileNameProcessor build(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
+        if (processor != null){
+            throw new IllegalStateException("Processor has already built! Use a new builder!");
+        }
         if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
             processor = buildCustomProcessor(projectDescriptor);
         } else {
@@ -22,9 +25,11 @@ public final class PropertiesFileNameProcessorBuilder {
         return processor;
     }
 
-    public static PropertiesFileNameProcessor buildCustomProcessor(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
-        ClassLoader classLoader = getClassLoader(projectDescriptor);
-        PropertiesFileNameProcessor processor;
+    public PropertiesFileNameProcessor buildCustomProcessor(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
+        if (processor != null){
+            throw new IllegalStateException("Processor has already built! Use a new builder!");
+        }
+        ClassLoader classLoader = getCustomClassLoader(projectDescriptor);
         try {
             Class<?> clazz = classLoader.loadClass(projectDescriptor.getPropertiesFileNameProcessor());
             processor = (PropertiesFileNameProcessor) clazz.newInstance();
@@ -38,8 +43,11 @@ public final class PropertiesFileNameProcessorBuilder {
         return processor;
     }
 
-    public static PropertiesFileNameProcessor buildDefaultProcessor(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
-        ClassLoader classLoader = getClassLoader(projectDescriptor);
+    public PropertiesFileNameProcessor buildDefaultProcessor(ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
+        if (processor != null){
+            throw new IllegalStateException("Processor has already built! Use a new builder!");
+        }
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
             Class<?> clazz = classLoader.loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
             return (PropertiesFileNameProcessor) clazz.newInstance();
@@ -49,17 +57,17 @@ public final class PropertiesFileNameProcessorBuilder {
         }
     }
 
-    public static void destroy(PropertiesFileNameProcessor processor) {
-        if (processor != null) {
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(processor.getClass().getClassLoader());
+    public void destroy() {
+        if (classLoader != null){
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
         }
     }
 
-    protected static ClassLoader getClassLoader(ProjectDescriptor projectDescriptor) {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
+    URLClassLoader classLoader;
+    
+    protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) {
         URL[] urls = projectDescriptor.getClassPathUrls();
-        classLoader.addClassLoader(projectDescriptor.getClassLoader(false));
-        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
+        classLoader = new URLClassLoader(urls, PropertiesFileNameProcessorBuilder.class.getClassLoader());
         return classLoader;
     }
 }
