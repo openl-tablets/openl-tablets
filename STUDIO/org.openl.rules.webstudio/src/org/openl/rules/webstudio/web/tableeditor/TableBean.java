@@ -86,16 +86,12 @@ public class TableBean {
 
         table = model.getTableById(id);
 
+        // TODO: There is should be a method to get the table by the ID without using URI which is used to generate the ID.
         if (table == null) {
-            uri = studio.getTableUri();
-            table = model.getTable(uri);
-            id = table.getId();
-        } else {
-            uri = table.getUri();
-            studio.setTableUri(uri);
+            table = model.getTable(studio.getTableUri());
         }
-
-        //uri = table.getId();
+        id = table.getId();
+        uri = table.getUri();
 
         if (table != null) {
             /*try {
