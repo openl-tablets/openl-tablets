@@ -45,9 +45,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         Set<String> globalErrorMessages = new LinkedHashSet<String>();
         Set<String> globalWarnMessages = new LinkedHashSet<String>();
         PropertiesFileNameProcessor processor = null;
+        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
             ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
-            processor = buildProcessor(globalErrorMessages, projectDescriptor);
+            processor = buildProcessor(globalErrorMessages, projectDescriptor, propertiesFileNameProcessorBuilder);
             if (processor != null) {
                 for (Module module : projectDescriptor.getModules()) {
                     Set<String> moduleErrorMessages = new HashSet<String>(globalErrorMessages);
@@ -105,15 +106,15 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         } catch (Exception e) {
             throw new ProjectResolvingException("Project descriptor reading failed.", e);
         } finally {
-            PropertiesFileNameProcessorBuilder.destroy(processor);
+            propertiesFileNameProcessorBuilder.destroy();
         }
     }
 
     private PropertiesFileNameProcessor buildProcessor(final Set<String> globalErrorMessages,
-            ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException {
+            ProjectDescriptor projectDescriptor, PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder) throws InvalidFileNameProcessorException {
         if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
             try {
-                return PropertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
+                return propertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
             } catch (InvalidFileNameProcessorException e) {
                 String message = e.getMessage();
                 if (log.isWarnEnabled()) {
@@ -124,7 +125,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
             }
         } else {
             if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNamePattern())) {
-                return PropertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
+                return propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
             }
 
             return null;
