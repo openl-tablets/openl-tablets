@@ -1,5 +1,6 @@
 package org.openl.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.PassCoder;
@@ -10,7 +11,7 @@ import java.util.*;
  * @author Aleh Bykhavets
  */
 public class ConfigSet {
-    private static String REPO_PASS_KEY = "repository.encode.decode.key";
+    public static String REPO_PASS_KEY = "repository.encode.decode.key";
     private final Log log = LogFactory.getLog(ConfigSet.class);
 
     private Map<String, Object> properties;
@@ -79,12 +80,15 @@ public class ConfigSet {
 
         String pass = objectValue.toString();
         String passKey = this.getPassKey();
-
-        try {
-            prop.setTextValue(PassCoder.decode(pass, passKey));
-        } catch (Exception e) {
-            log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
-                    + "'!", e);
+        if (StringUtils.isEmpty(passKey)){
+            try {
+                prop.setTextValue(PassCoder.decode(pass, passKey));
+            } catch (Exception e) {
+                log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
+                        + "'!", e);
+            }
+        }else{
+            prop.setTextValue(pass);
         }
     }
 

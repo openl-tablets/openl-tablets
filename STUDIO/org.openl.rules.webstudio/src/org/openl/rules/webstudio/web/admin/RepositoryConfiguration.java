@@ -22,7 +22,7 @@ public class RepositoryConfiguration {
     private static final String PRODUCTION_REPOSITORY_NAME = "production-repository.name";
 
     private static final String PRODUCTION_REPOSITORY_LOGIN = "production-repository.login";
-    private static final String PRODUCTION_REPOSITORY_PASS = "production-repository.pass";
+    private static final String PRODUCTION_REPOSITORY_PASS = "production-repository.password";
     
     private static final String PRODUCTION_REPOSITORY_CONFIG_FILE = "production-repository.config";
 
