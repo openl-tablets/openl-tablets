@@ -92,6 +92,8 @@ public class TableBean {
         }
         id = table.getId();
         uri = table.getUri();
+        // Save URI because some actions don't provide table ID
+        studio.setTableUri(uri);
 
         if (table != null) {
             /*try {

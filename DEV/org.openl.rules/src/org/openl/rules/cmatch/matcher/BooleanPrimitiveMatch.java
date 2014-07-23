@@ -6,7 +6,7 @@ import org.openl.types.IOpenClass;
 
 public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
 
-    private final IString2DataConvertor convertor;
+    private final IString2DataConvertor<?> convertor;
 
     public BooleanPrimitiveMatch() {
         convertor = String2DataConvertorFactory.getConvertor(boolean.class);

@@ -276,6 +276,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setPrecision(java.lang.String precision) {
 		setFieldValue("precision", precision);
 	}	
+	public java.lang.Boolean getAutoType() {
+		return (java.lang.Boolean) getPropertyValue("autoType"); 
+	}
+	public void setAutoType(java.lang.Boolean autoType) {
+		setFieldValue("autoType", autoType);
+	}	
 // <<< END INSERT >>>
 
     /**

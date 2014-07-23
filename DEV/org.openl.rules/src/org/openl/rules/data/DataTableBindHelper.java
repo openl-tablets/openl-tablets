@@ -28,7 +28,7 @@ public class DataTableBindHelper {
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
     private static final String FPK = "_PK_";
-    
+
     /** Indicates that field is a constructor.<br> */
     // Protected to make javadoc reference. 
     protected static final String CONSTRUCTOR_FIELD = "this";
@@ -174,7 +174,10 @@ public class DataTableBindHelper {
 
     public static IOpenField findField(String fieldName, ITable table, IOpenClass tableType) {
 
-        if (FPK.equals(fieldName)) {
+        if (RowIdField.ROW_ID.equals(fieldName)) {
+            return new RowIdField(table);
+        } else if (FPK.equals(fieldName)) {
+            // TODO: Remove it ASAP. USE _id_ instead
             return new PrimaryKeyField(FPK, table);
         }
 

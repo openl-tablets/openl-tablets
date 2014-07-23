@@ -133,6 +133,7 @@
                     <h:panelGroup rendered="#{testFailed or !failuresOnly}">
                     <table class="table">
                         <tr>
+                            <th>ID</th>
                             <h:panelGroup rendered="#{test.hasDescription()}">
                                 <th>Description</th>
                             </h:panelGroup>
@@ -156,6 +157,7 @@
                         <ui:param name="compareResult" value="#{testCase.compareResult()}" />
                         <h:panelGroup>
                             <tr>
+                                <td>#{testCase.test.id}</td>
                                 <h:panelGroup rendered="#{test.hasDescription()}">
                                     <td><h:outputText value="#{testCase.getDescription()}" /></td>
                                 </h:panelGroup>

@@ -181,6 +181,8 @@ public interface ITableProperties {
 	void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
 	java.lang.String getPrecision();
 	void setPrecision(java.lang.String precision);
+	java.lang.Boolean getAutoType();
+	void setAutoType(java.lang.Boolean autoType);
 // <<< END INSERT >>>
 	
 	
