@@ -3,6 +3,7 @@ package org.openl.rules.project.resolving;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -42,11 +43,11 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         }
     }
 
+    private URLClassLoader classLoader;
+
     protected ClassLoader getClassLoader(ProjectDescriptor projectDescriptor) {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
         URL[] urls = projectDescriptor.getClassPathUrls();
-        classLoader.addClassLoader(projectDescriptor.getClassLoader(false));
-        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
+        classLoader = new URLClassLoader(urls, ProjectDescriptorBasedResolvingStrategy.class.getClassLoader());
         return classLoader;
     }
 
@@ -116,7 +117,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         } catch (Exception e) {
             throw new ProjectResolvingException("Project descriptor reading failed.", e);
         } finally {
-            destroyProcessor(processor);
+            destroy();
         }
     }
 
@@ -124,10 +125,10 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
             ProjectDescriptor projectDescriptor) throws ClassNotFoundException,
                                                 InstantiationException,
                                                 IllegalAccessException {
-        ClassLoader classLoader = getClassLoader(projectDescriptor);
         PropertiesFileNameProcessor processor = null;
         if (projectDescriptor.getPropertiesFileNameProcessor() != null && !projectDescriptor.getPropertiesFileNameProcessor()
             .isEmpty()) {
+            ClassLoader classLoader = getClassLoader(projectDescriptor);
             try {
                 Class<?> clazz = classLoader.loadClass(projectDescriptor.getPropertiesFileNameProcessor());
                 processor = (PropertiesFileNameProcessor) clazz.newInstance();
@@ -147,16 +148,17 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         } else {
             if (projectDescriptor.getPropertiesFileNamePattern() != null && !projectDescriptor.getPropertiesFileNamePattern()
                 .isEmpty()) {
-                Class<?> clazz = classLoader.loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
+                Class<?> clazz = ProjectDescriptorBasedResolvingStrategy.class.getClassLoader().loadClass("org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor");
                 processor = (PropertiesFileNameProcessor) clazz.newInstance();
             }
         }
         return processor;
     }
 
-    private static void destroyProcessor(PropertiesFileNameProcessor processor) {
-        if (processor != null) {
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(processor.getClass().getClassLoader());
+    private void destroy() {
+        if (classLoader != null) {
+            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+	    classLoader = null;
         }
     }
 }
