@@ -10,7 +10,6 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
@@ -19,16 +18,13 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
 
-    private String tableName;
     private IOpenMethod testedMethod;
-    private IOpenClass methodBasedClass;
     private TestDescription[] tests;
 
-    public TestSuiteMethod(String tableName, IOpenMethod testedMethod, IOpenMethodHeader header,
+    public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
             TestMethodBoundNode boundNode) {
         super(header, boundNode);
 
-        this.tableName = tableName;
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
     }
@@ -118,15 +114,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     public int getColumnsCount() {
         return getBoundNode().getTable().getNumberOfColumns();
-    }
-
-    public synchronized IOpenClass getMethodBasedClass() {
-
-        if (methodBasedClass == null) {
-            methodBasedClass = new TestMethodOpenClass(tableName, testedMethod);
-        }
-
-        return methodBasedClass;
     }
 
     public IOpenMethod getTestedMethod() {

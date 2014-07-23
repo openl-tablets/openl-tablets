@@ -397,10 +397,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 new Object[] { null, null });
         }
         if (openMethod instanceof TestSuiteMethod) {
-            return (IOpenMethod) enhancer.create(new Class[] { String.class,
+            return (IOpenMethod) enhancer.create(new Class[] {
                     IOpenMethod.class,
                     IOpenMethodHeader.class,
-                    TestMethodBoundNode.class }, new Object[] { null, null, null, null });
+                    TestMethodBoundNode.class }, new Object[] { null, null, null });
         }
         if (openMethod instanceof Spreadsheet) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class,
