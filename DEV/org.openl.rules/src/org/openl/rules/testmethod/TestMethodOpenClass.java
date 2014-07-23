@@ -33,8 +33,6 @@ public class TestMethodOpenClass extends ADynamicClass {
         addContext();
         
         addExpectedError();
-
-        addTestId();
     }
 
     protected void addParameterFields(IOpenMethod testedMethod) {
@@ -74,12 +72,5 @@ public class TestMethodOpenClass extends ADynamicClass {
             TestMethodHelper.EXPECTED_RESULT_NAME,
             testedMethod.getType());
         addField(resultField);
-    }
-
-    protected void addTestId() {
-        IOpenField idField = new DynamicObjectField(this,
-                TestMethodHelper.TEST_ID,
-                JavaOpenClass.STRING);
-        addField(idField);
     }
 }
