@@ -4,6 +4,8 @@ import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCell {
@@ -73,6 +75,15 @@ public class SpreadsheetCell {
     }
 
     public void setType(IOpenClass type) {
+    	if (type == null)
+    		return;
+    	if (type == JavaOpenClass.VOID)
+    		type = JavaOpenClass.getOpenClass(Void.class);
+    	else if (type.getInstanceClass().isPrimitive())
+    	{
+    		Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
+    		type = JavaOpenClass.getOpenClass(wrapper);
+    	}	
         this.type = type;
     }
 

@@ -19,6 +19,7 @@ public class ConditionalArrayIndexTest extends BaseOpenlBuilderHelper {
 
     public ConditionalArrayIndexTest() {
         super(SRC);
+        
     }
 
     @Test

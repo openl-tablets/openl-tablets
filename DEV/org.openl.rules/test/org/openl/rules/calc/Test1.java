@@ -26,10 +26,10 @@ public class Test1 {
         Object o1 = result.getValue(0, 0);
         Object o2 = result.getValue(0, 1);
 
-        DoubleValue v1 = (DoubleValue) o1;
+        Number v1 = (Number) o1;
         assertEquals(10.0, v1.doubleValue(), 1e-8);
 
-        DoubleValue v2 = (DoubleValue) o2;
+        Number v2 = (Number) o2;
         assertEquals(20.0, v2.doubleValue(), 1e-8);
     }
 
@@ -43,7 +43,7 @@ public class Test1 {
         SpreadsheetResult result = test.calc1(10, 20);
 
         Object o1 = result.getValue(0, 2);
-        DoubleValue v1 = (DoubleValue) o1;
+        Number v1 = (Number) o1;
         assertEquals(30.0, v1.doubleValue(), 1e-8);
     }
 
