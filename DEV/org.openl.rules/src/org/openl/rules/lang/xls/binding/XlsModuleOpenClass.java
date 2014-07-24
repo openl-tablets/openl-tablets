@@ -8,7 +8,6 @@ package org.openl.rules.lang.xls.binding;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -123,7 +122,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private void additionalInitDependencies() {
         for (CompiledOpenClass dependency : this.getDependencies()) {
             addDataTables(dependency);
-            //addImports(dependency);
         }
     }
     
@@ -144,15 +142,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
     
-    
-    /*private void addImports(CompiledOpenClass dependency){
-        IOpenClass openClass = dependency.getOpenClass();
-        if (openClass instanceof XlsModuleOpenClass){
-            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-            imports.addAll(xlsModuleOpenClass.getImports());
-        }
-    }*/
-
     private void addDataTables(CompiledOpenClass dependency) {
         IOpenClass openClass = dependency.getOpenClassWithErrors();
 
