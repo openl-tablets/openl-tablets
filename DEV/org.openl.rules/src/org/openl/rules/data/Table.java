@@ -335,7 +335,7 @@ public class Table implements ITable {
     public synchronized void setPrimaryIndexKey(int row, String value) {
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null) {
-            throw new OpenLRuntimeException("Duplicated key: " + value + "in rows " + oldRow + "," + row);
+            throw new OpenLRuntimeException("Duplicated key: " + value + " in rows " + oldRow + " and " + row);
         }
         primaryIndexMap.put(row, value);
     }

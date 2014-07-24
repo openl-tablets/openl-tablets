@@ -483,6 +483,13 @@ public class TableBean {
         return isGranted(PRIVILEGE_BENCHMARK);
     }
 
+    public Integer getRowIndex() {
+        if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
+            return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
+        }
+        return null;
+    }
+
     public static class TestRunsResultBean {
 
         private TestSuite[] tests;

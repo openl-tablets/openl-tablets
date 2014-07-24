@@ -174,9 +174,7 @@ public class DataTableBindHelper {
 
     public static IOpenField findField(String fieldName, ITable table, IOpenClass tableType) {
 
-        if (RowIdField.ROW_ID.equals(fieldName)) {
-            return new RowIdField(table);
-        } else if (FPK.equals(fieldName)) {
+        if (FPK.equals(fieldName)) {
             // TODO: Remove it ASAP. USE _id_ instead
             return new PrimaryKeyField(FPK, table);
         }
