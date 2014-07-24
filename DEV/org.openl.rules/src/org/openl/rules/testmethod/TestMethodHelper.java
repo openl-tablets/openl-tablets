@@ -14,9 +14,6 @@ import org.openl.types.java.JavaOpenClass;
  * 
  */
 public class TestMethodHelper {
-    /** Field name for the test ID*/
-    public static final String TEST_ID = "_id_";
-
     /** Field name for the expected result in test*/
     public static final String EXPECTED_RESULT_NAME = "_res_";
     
