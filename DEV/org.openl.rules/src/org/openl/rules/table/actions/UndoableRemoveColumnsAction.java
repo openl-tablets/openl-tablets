@@ -37,7 +37,7 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {
-        return IWritableGrid.Tool.removeColumns(numberToRemove, startCol, fullTableRegion, table);
+        return IWritableGrid.Tool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid());
     }
 
     @Override

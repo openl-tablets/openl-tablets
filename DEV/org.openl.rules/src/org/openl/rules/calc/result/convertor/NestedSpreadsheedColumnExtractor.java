@@ -92,7 +92,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     	// Override it for you purpose		
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private NestedSpreadsheetResultConverter<?, ?> createNextLevelConverter() {
         return new NestedSpreadsheetResultConverter(nestingLevel + 1, configuration);
     }

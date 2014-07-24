@@ -3,7 +3,8 @@ package org.openl.rules.testmethod;
 import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.table.InputArgumentsCloner;
+import org.openl.rules.data.RowIdField;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
@@ -21,6 +22,7 @@ public class TestDescription {
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
     private Map<String, Object> testTableProps = null;
+    private int index;
 
     public TestDescription(IOpenMethod testedMethod, DynamicObject testObject) {
         this.testedMethod = testedMethod;
@@ -41,19 +43,34 @@ public class TestDescription {
         this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, null, null));
     }
 
-    public TestDescription(IOpenMethod testedMethod, Object[] arguments, Object expectedResult, String expectedError,
+    public TestDescription(IOpenMethod testedMethod,
+            Object[] arguments,
+            Object expectedResult,
+            String expectedError,
             IRulesRuntimeContext context) {
         this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, context, null));
     }
 
-    public TestDescription(IOpenMethod testedMethod, Object[] arguments, Object expectedResult, String expectedError,
-            IRulesRuntimeContext context, String description) {
-        this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, context,
-                description));
+    public TestDescription(IOpenMethod testedMethod,
+            Object[] arguments,
+            Object expectedResult,
+            String expectedError,
+            IRulesRuntimeContext context,
+            String description) {
+        this(testedMethod, createTestObject(testedMethod,
+            arguments,
+            expectedResult,
+            expectedError,
+            context,
+            description));
     }
 
-    public static DynamicObject createTestObject(IOpenMethod testedMethod, Object[] arguments, Object expectedResult,
-            String expectedError, IRulesRuntimeContext context, String description) {
+    public static DynamicObject createTestObject(IOpenMethod testedMethod,
+            Object[] arguments,
+            Object expectedResult,
+            String expectedError,
+            IRulesRuntimeContext context,
+            String description) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
         for (int i = 0; i < testedMethod.getSignature().getNumberOfParameters(); i++) {
@@ -95,25 +112,25 @@ public class TestDescription {
         return names;
     }
 
-    public Object[] getArguments() {
-        InputArgumentsCloner cloner = new InputArgumentsCloner();
+    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
+    public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-            try{
-                if (value != null){
+            try {
+                if (value != null) {
                     Thread.currentThread().setContextClassLoader(value.getClass().getClassLoader());
                 }
                 try {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
                     Log.error("Failed to clone an argument \"{0}\". Original argument will be used.",
-                            executionParams[i].getName());
+                        executionParams[i].getName());
                     args[i] = value;
                 }
-            }finally{
+            } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
@@ -122,13 +139,15 @@ public class TestDescription {
 
     protected ParameterWithValueDeclaration[] initExecutionParams() {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
-                .getNumberOfParameters()];
+            .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
-            executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, paramType,
-                    IParameterDeclaration.IN);
+            executionParams[i] = new ParameterWithValueDeclaration(paramName,
+                paramValue,
+                paramType,
+                IParameterDeclaration.IN);
         }
         return executionParams;
     }
@@ -174,8 +193,8 @@ public class TestDescription {
 
     public boolean isExpectedResultDefined() {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
-                // When all test cases contain empty (null) expected value
-                || testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+        // When all test cases contain empty (null) expected value
+        || testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {
@@ -217,11 +236,31 @@ public class TestDescription {
 
     public Integer getTestTablePrecision() {
         if (this.testTableProps != null) {
-            return this.testTableProps.containsKey(PRECISION_PARAM) ? Integer.parseInt(this.testTableProps
-                    .get(PRECISION_PARAM).toString()) : null;
+            return this.testTableProps.containsKey(PRECISION_PARAM) ? Integer.parseInt(this.testTableProps.get(PRECISION_PARAM)
+                                                                       .toString())
+                                                                   : null;
         }
 
         return null;
     }
 
+    /**
+     * Returns an ID of the test case. The ID is get from _id_ column or generated on index base.
+     */
+    public String getId() {
+        if (testObject.containsField(RowIdField.ROW_ID)) {
+            return String.valueOf(getArgumentValue(RowIdField.ROW_ID));
+        } else {
+            return String.valueOf(index + 1);
+        }
+
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 }

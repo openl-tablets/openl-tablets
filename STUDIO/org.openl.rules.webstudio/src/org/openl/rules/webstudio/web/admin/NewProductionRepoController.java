@@ -51,7 +51,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                         }
                     }
                 } finally {
-                    if (repoFactory != null) {
+                    if (repository != null) {
                         repository.release();
                         this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
                     }

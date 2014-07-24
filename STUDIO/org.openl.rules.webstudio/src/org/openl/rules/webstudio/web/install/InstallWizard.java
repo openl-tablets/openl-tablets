@@ -80,11 +80,11 @@ public class InstallWizard {
     private DBUtils dbUtils;
 
     public InstallWizard() {
-        appConfig = new ConfigurationManager(false,
+        appConfig = new ConfigurationManager(true,
             System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
-        externalDBConfig = new ConfigurationManager(false,
+        externalDBConfig = new ConfigurationManager(true,
             System.getProperty("webapp.root") + "/WEB-INF/conf/db/db-mysql.properties");
         dbUtils = new DBUtils();
     }

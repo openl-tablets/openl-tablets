@@ -72,6 +72,5 @@ public class TestMethodOpenClass extends ADynamicClass {
             TestMethodHelper.EXPECTED_RESULT_NAME,
             testedMethod.getType());
         addField(resultField);
-    }    
-
+    }
 }

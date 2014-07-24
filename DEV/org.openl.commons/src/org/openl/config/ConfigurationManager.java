@@ -36,8 +36,6 @@ public class ConfigurationManager {
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
 
-    private static final String REPO_PASS_KEY = "repository.encode.decode.key";
-
     public ConfigurationManager(boolean useSystemProperties, String propsLocation) {
         this(useSystemProperties, propsLocation, null, false);
     }
@@ -263,7 +261,7 @@ public class ConfigurationManager {
     }
 
     public String getRepoPassKey() {
-        return compositeConfiguration.containsKey(REPO_PASS_KEY) ? compositeConfiguration.getString(REPO_PASS_KEY) : "";
+        return compositeConfiguration.containsKey(ConfigSet.REPO_PASS_KEY) ? compositeConfiguration.getString(ConfigSet.REPO_PASS_KEY) : "";
     }
 
 }

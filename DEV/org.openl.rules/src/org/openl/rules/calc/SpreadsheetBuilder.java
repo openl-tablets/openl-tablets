@@ -32,8 +32,8 @@ public class SpreadsheetBuilder {
      * See {@link SpreadsheetStructureBuilder#addCellFields(SpreadsheetOpenClass, IOpenMethodHeader)}
      * @param spreadsheetHeader
      */
-    public void populateSpreadsheetOpenClass(IOpenMethodHeader spreadsheetHeader) {
-        structureBuilder.addCellFields(spreadsheetOpenClass, spreadsheetHeader.getType());
+    public void populateSpreadsheetOpenClass() {
+        structureBuilder.addCellFields(spreadsheetOpenClass);
     }
 
     public void finalizeBuild(Spreadsheet spreadsheet) {   
@@ -41,7 +41,7 @@ public class SpreadsheetBuilder {
         
         spreadsheet.setColumnNames(structureBuilder.getColumnNames());
 
-        spreadsheet.setCells(structureBuilder.getCells(spreadsheet.getHeader()));
+        spreadsheet.setCells(structureBuilder.getCells());
         
         spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));        
     }

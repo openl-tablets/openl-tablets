@@ -143,13 +143,14 @@ public class ProjectBean {
             ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
             projectDescriptor.setPropertiesFileNameProcessor(className);
             PropertiesFileNameProcessor processor = null;
+            PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
-                processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 FacesUtils.validate(processor != null, "Can't find class " + className);
             } catch (InvalidFileNameProcessorException e) {
                 FacesUtils.throwValidationError(e.getMessage());
             } finally {
-                PropertiesFileNameProcessorBuilder.destroy(processor);
+                propertiesFileNameProcessorBuilder.destroy();
             }
         }
     }
@@ -160,11 +161,12 @@ public class ProjectBean {
 
         if (!StringUtils.isBlank(pattern)) {
             PropertiesFileNameProcessor processor = null;
+            PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePattern(pattern);
-                processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
                     ((FileNamePatternValidator) processor).validate(pattern);
                 }
@@ -173,7 +175,7 @@ public class ProjectBean {
             } catch (InvalidFileNameProcessorException ignored) {
                 // Processed in other validator
             } finally {
-                PropertiesFileNameProcessorBuilder.destroy(processor);
+                propertiesFileNameProcessorBuilder.destroy();
             }
         }
     }
@@ -457,8 +459,9 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
         PropertiesFileNameProcessor processor = null;
+        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+            processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
 
             Class<? extends PropertiesFileNameProcessor> processorClass = processor.getClass();
             String fileName = "/" + processorClass.getName().replace(".", "/") + ".info";
@@ -482,7 +485,7 @@ public class ProjectBean {
         } catch (InvalidFileNameProcessorException e) {
             return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";
         } finally {
-            PropertiesFileNameProcessorBuilder.destroy(processor);
+            propertiesFileNameProcessorBuilder.destroy();
         }
     }
 
@@ -490,14 +493,15 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
         PropertiesFileNameProcessor processor = null;
+        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            processor = PropertiesFileNameProcessorBuilder.build(projectDescriptor);
+            processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
             if (!(processor instanceof FileNamePatternValidator)) {
                 return "Validation isn't supported";
             }
         } catch (InvalidFileNameProcessorException ignored) {
         } finally {
-            PropertiesFileNameProcessorBuilder.destroy(processor);
+            propertiesFileNameProcessorBuilder.destroy();
         }
 
         return "";

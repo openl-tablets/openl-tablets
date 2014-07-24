@@ -97,7 +97,7 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
     public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, null, true);
-    public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, null, true);
+    public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, null, false);
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, null, true);
 
     protected Class<?> instanceClass;
