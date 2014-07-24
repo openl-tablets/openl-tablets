@@ -183,15 +183,19 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     public RRepository createRepository() throws RRepositoryException {
+        Session session = null;
         try {
-            Session session = createSession();
+            session = createSession();
 
             RTransactionManager transactionManager = getTrasactionManager(session);
             return new JcrRepository(repositoryName, session, transactionManager,
                     confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
         } catch (RepositoryException e) {
+            if (session != null){
+                session.logout();
+            }
             throw new RRepositoryException("Failed to get Repository Instance", e);
-        }
+        } 
     }
 
     /** {@inheritDoc} */

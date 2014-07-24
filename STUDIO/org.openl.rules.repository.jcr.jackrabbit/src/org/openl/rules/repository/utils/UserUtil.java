@@ -18,55 +18,64 @@ import org.apache.jackrabbit.core.security.principal.PrincipalImpl;
 
 public class UserUtil {
     private TransientRepository repository;
-    private Session session;
 
     public UserUtil(TransientRepository repository) {
         this.repository = repository;
     }
 
-    private Session getSession() throws RepositoryException {
+    private Session createSession() throws RepositoryException {
         SimpleCredentials sc = new SimpleCredentials("admin", "admin".toCharArray());
         return this.repository.login(sc);
     }
 
     public void createNewAdminUser(String name, String password) throws RepositoryException {
-        Session session = getSession();
-        UserManager userManager = ((JackrabbitSession)session).getUserManager();
-        AccessControlManager accessControlManager =  (JackrabbitAccessControlManager) ((JackrabbitSession) session).getAccessControlManager();
+        Session session = null;
+        try {
+            session = createSession();
 
-        User user = userManager.createUser(name, password, new PrincipalImpl(name) , null);
+            UserManager userManager = ((JackrabbitSession) session).getUserManager();
+            AccessControlManager accessControlManager = (JackrabbitAccessControlManager) ((JackrabbitSession) session).getAccessControlManager();
 
-        AccessControlPolicy[] accessControlPolicies = accessControlManager.getPolicies(session.getRootNode().getPath());
+            User user = userManager.createUser(name, password, new PrincipalImpl(name), null);
 
-        /*Delete all priveleges from root node*/
-        for (int i = 0; i < accessControlPolicies.length; i++) {
-            AccessControlList acl = ((AccessControlList)accessControlPolicies[i]);
+            AccessControlPolicy[] accessControlPolicies = accessControlManager.getPolicies(session.getRootNode()
+                .getPath());
 
-            for (AccessControlEntry ace : acl.getAccessControlEntries()) {
-                acl.removeAccessControlEntry(ace);
+            /* Delete all priveleges from root node */
+            for (int i = 0; i < accessControlPolicies.length; i++) {
+                AccessControlList acl = ((AccessControlList) accessControlPolicies[i]);
+
+                for (AccessControlEntry ace : acl.getAccessControlEntries()) {
+                    acl.removeAccessControlEntry(ace);
+                }
+
+                accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
             }
 
-            accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
+            session.save();
+
+            accessControlPolicies = accessControlManager.getPolicies(session.getRootNode().getPath());
+            Privilege[] privileges = new Privilege[] { accessControlManager.privilegeFromName(Privilege.JCR_ALL) };
+
+            /* Set admin right of new user for root node */
+            for (int i = 0; i < accessControlPolicies.length; i++) {
+                AccessControlList acl = ((AccessControlList) accessControlPolicies[i]);
+                acl.addAccessControlEntry(new PrincipalImpl(name), privileges);
+                accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
+            }
+
+            session.save();
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
         }
-
-        session.save();
-
-        accessControlPolicies = accessControlManager.getPolicies(session.getRootNode().getPath());
-        Privilege[] privileges = new Privilege[]{accessControlManager.privilegeFromName(Privilege.JCR_ALL)};
-
-        /*Set admin right of new user for root node*/
-        for (int i = 0; i < accessControlPolicies.length; i++) {
-            AccessControlList acl = ((AccessControlList)accessControlPolicies[i]);
-            acl.addAccessControlEntry(new PrincipalImpl(name), privileges);
-            accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
-        }
-
-        session.save();
     }
 
     public boolean disableAnonymous() {
+        Session session = null;
         try {
-            Session session = getSession();
+            session = createSession();
             UserManager userManager = ((JackrabbitSession) session).getUserManager();
             User authorizable = (User) userManager.getAuthorizable("anonymous");
 
@@ -77,12 +86,17 @@ public class UserUtil {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
         }
     }
-    
+
     public boolean changeAdminPass(String pass) {
+        Session session = null;
         try {
-            Session session = getSession();
+            session = createSession();
             UserManager userManager = ((JackrabbitSession) session).getUserManager();
             User authorizable = (User) userManager.getAuthorizable("admin");
 
@@ -93,6 +107,10 @@ public class UserUtil {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
         }
     }
 }

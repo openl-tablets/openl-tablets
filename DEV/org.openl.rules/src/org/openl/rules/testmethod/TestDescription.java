@@ -3,6 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
@@ -247,8 +248,8 @@ public class TestDescription {
      * Returns an ID of the test case. The ID is get from _id_ column or generated on index base.
      */
     public String getId() {
-        if (testObject.containsField(TestMethodHelper.TEST_ID)) {
-            return String.valueOf(getArgumentValue(TestMethodHelper.TEST_ID));
+        if (testObject.containsField(RowIdField.ROW_ID)) {
+            return String.valueOf(getArgumentValue(RowIdField.ROW_ID));
         } else {
             return String.valueOf(index + 1);
         }
