@@ -6,7 +6,8 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
@@ -150,5 +151,11 @@
         </div>
 
         <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+
+        <c:if test="#{jsffn:getSystemProp('webstudio.analytics') != 'false'}">
+            <ui:include src="/pages/common/analytics.xhtml">
+                <ui:param name="id" value="#{jsffn:getSystemProp('webstudio.analytics')}" />
+            </ui:include>
+        </c:if>
     </h:body>
 </html>
