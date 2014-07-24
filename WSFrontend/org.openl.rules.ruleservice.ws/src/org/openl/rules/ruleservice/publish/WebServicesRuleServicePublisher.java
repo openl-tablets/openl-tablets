@@ -1,10 +1,16 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.databinding.DataBinding;
@@ -14,6 +20,8 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
@@ -21,7 +29,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class WebServicesRuleServicePublisher implements RuleServicePublisher {
+public class WebServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -29,6 +37,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
+    private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
 
     public String getBaseAddress() {
         return baseAddress;
@@ -95,6 +104,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             Server wsServer = svrFactory.create();
             ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
             runningServices.put(service, serviceServer);
+            availableServices.add(createServiceInfo(service));
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
@@ -132,6 +142,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         try {
             runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
+            removeServiceInfo(serviceName);
             service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
@@ -152,6 +163,48 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceRedeployException("Service redeploy was failed", e);
         }
 
+    }
+
+    @Override
+    public String getGroupName() {
+        return "SOAP";
+    }
+
+    @Override
+    public List<ServiceInfo> getAvailableServices() {
+        List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
+        Collections.sort(services, new Comparator<ServiceInfo>() {
+            @Override
+            public int compare(ServiceInfo o1, ServiceInfo o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+        return services;
+    }
+
+    private ServiceInfo createServiceInfo(OpenLService service) {
+        List<String> methodNames = new ArrayList<String>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
+        String url = service.getUrl() + "?wsdl";
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
+    }
+
+    private void removeServiceInfo(String serviceName) {
+        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext(); ) {
+            ServiceInfo serviceInfo = iterator.next();
+            if (serviceInfo.getName().equals(serviceName)) {
+                iterator.remove();
+                break;
+            }
+        }
     }
 
     private static class ServiceServer {

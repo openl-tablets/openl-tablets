@@ -1,8 +1,14 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -15,6 +21,8 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
@@ -22,12 +30,13 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author Nail Samatov
  */
-public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
+public class RESTServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
     private final Log log = LogFactory.getLog(RESTServicesRuleServicePublisher.class);
 
     private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
     private String baseAddress;
+    private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
 
     public String getBaseAddress() {
         return baseAddress;
@@ -74,6 +83,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
         try {
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);
+            availableServices.add(createServiceInfo(service));
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
                         getBaseAddress() + service.getUrl()));
@@ -111,6 +121,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
                         baseAddress + service.getUrl()));
             }
             runningServices.remove(service);
+            removeServiceInfo(serviceName);
             service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
@@ -131,5 +142,47 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceRedeployException("Service redeploy was failed", e);
         }
 
+    }
+
+    @Override
+    public String getGroupName() {
+        return "RESTful";
+    }
+
+    @Override
+    public List<ServiceInfo> getAvailableServices() {
+        List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
+        Collections.sort(services, new Comparator<ServiceInfo>() {
+            @Override
+            public int compare(ServiceInfo o1, ServiceInfo o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+        return services;
+    }
+
+    private ServiceInfo createServiceInfo(OpenLService service) {
+        List<String> methodNames = new ArrayList<String>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
+        String url = service.getUrl() + "?wadl";
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
+    }
+
+    private void removeServiceInfo(String serviceName) {
+        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext(); ) {
+            ServiceInfo serviceInfo = iterator.next();
+            if (serviceInfo.getName().equals(serviceName)) {
+                iterator.remove();
+                break;
+            }
+        }
     }
 }
