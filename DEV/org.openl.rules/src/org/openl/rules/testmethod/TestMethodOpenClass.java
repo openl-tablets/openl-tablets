@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.data.RowIdField;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -33,6 +34,8 @@ public class TestMethodOpenClass extends ADynamicClass {
         addContext();
         
         addExpectedError();
+
+        addTestId();
     }
 
     protected void addParameterFields(IOpenMethod testedMethod) {
@@ -72,5 +75,12 @@ public class TestMethodOpenClass extends ADynamicClass {
             TestMethodHelper.EXPECTED_RESULT_NAME,
             testedMethod.getType());
         addField(resultField);
+    }
+
+    protected void addTestId() {
+        IOpenField idField = new DynamicObjectField(this,
+                RowIdField.ROW_ID,
+                JavaOpenClass.STRING);
+        addField(idField);
     }
 }

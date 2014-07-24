@@ -519,7 +519,7 @@
                 <input type="hidden" name="id" value="" />
             </form>
 
-            <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
+            <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}" rowIndex="#{tableBean.rowIndex}"
                 linkBase="#{studio.url('table')}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
