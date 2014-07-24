@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.servlet;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -27,6 +28,13 @@ public class ServicesListBean {
 
         addServicesGroup(services, ruleServicePublisher);
 
+        for (Iterator<AvailableServicesGroup> iterator = services.iterator(); iterator.hasNext(); ) {
+            AvailableServicesGroup servicesGroup = iterator.next();
+            if (servicesGroup.getAvailableServices().isEmpty()) {
+                iterator.remove();
+            }
+        }
+
         return services;
     }
 
@@ -50,6 +58,9 @@ public class ServicesListBean {
 
     public TreeNode getTree(ServiceInfo service) {
         BasicTreeNode root = new BasicTreeNode("Root", "root");
+        if (service == null) {
+            return root;
+        }
         BasicTreeNode methodsRoot = new BasicTreeNode(service.getName(), "service");
         root.addChild(methodsRoot.getText(), methodsRoot);
 
