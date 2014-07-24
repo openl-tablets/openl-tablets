@@ -190,8 +190,18 @@
                                            value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
                                            style="vertical-align:-2px;margin:-4px" />
                                 </div>
+                                <div title="Deffine a range of IDs instead of checkboxes">
+                                    <span>Use the Range</span>
+                                    <h:selectBooleanCheckbox value="#{tableBean.useTestRanges}" id="useTestRanges"
+                                                             onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
+                                                             style="vertical-align:-2px;margin:-4px"/>
+                                </div>
+                                <div id="testRangeSetting" class="#{!tableBean.useTestRanges ? 'hidden' : ''}" title="Deffine ranges like: 2-4,7,10-12 or id3-id7">
+                                    <span>Range of IDs</span>
+                                    <h:inputText id="testRanges" value="#{tableBean.testRanges}"/>
+                                </div>
                             </h:panelGroup>
-                            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%">
+                            <table id="testTable" class="table #{tableBean.useTestRanges ? 'hidden' : ''}" style="margin: 2px 2px 1px 2px; width: 98%">
                                 <tr>
                                     <th>
                                         <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
@@ -594,6 +604,15 @@
         }
 
         function isAnyTestSelected() {
+
+            if($j("#useTestRanges").is(":checked")) {
+                if ($j("#testRanges").val().length > 0) {
+                    return true
+                } else {
+                    ws.ui.message("No tests ranges entered", 3000);
+                    return false;
+                }
+            }
 
             var numChecked = $j("#testTable :checked").length;
             if (numChecked > 0) {

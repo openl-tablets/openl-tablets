@@ -1,7 +1,8 @@
 package org.openl.rules.testmethod;
 
-import java.util.Set;
+import java.util.*;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
@@ -20,6 +21,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
+    private Map<String, Integer> indeces;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
             TestMethodBoundNode boundNode) {
@@ -32,11 +34,33 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     protected TestDescription[] initTests() {
         DynamicObject[] testObjects = getTestObejcts();
         TestDescription[] tests = new TestDescription[testObjects.length];
+        indeces = new HashMap<String, Integer>(tests.length);
         for (int i = 0; i < tests.length; i++) {
             tests[i] = new TestDescription(getTestedMethod(), testObjects[i], this.getProperties());
             tests[i].setIndex(i);
+            indeces.put(tests[i].getId(), i);
         }
         return tests;
+    }
+
+    public int[] getIndices(String ids) {
+        TreeSet<Integer> result = new TreeSet<Integer>();
+
+        String ranges[] = ids.trim().split(" *, *");
+        for(String range: ranges) {
+            String edges[] = range.split(" *- *");
+            String start = edges[0];
+            String end = edges[edges.length - 1];
+
+            int startIndex = indeces.get(start);
+            int endIndex = indeces.get(end);
+
+            for (int i = startIndex; i<=endIndex; i++) {
+                result.add(i);
+            }
+        }
+        Integer[] indices = new Integer[result.size()];
+        return ArrayUtils.toPrimitive(result.toArray(indices));
     }
 
     @Override
