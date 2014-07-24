@@ -1,0 +1,253 @@
+body {
+    margin: 0;
+    color: #444;
+    font-family: verdana, helvetica, arial, sans-serif;
+    font-size: 12px;
+}
+#header {
+    border-bottom: 1px solid #ccc;
+    font-family: georgia, verdana, helvetica, arial, sans-serif;
+    font-size: 20px;
+    color: #777;
+    padding: 11px 15px;
+}
+#main {
+    padding: 0 20px 0;
+    text-align: center;
+}
+#main > div {
+    display: inline-block;
+    text-align: left;
+    width: 100%;
+}
+#footer {
+    border-top: 1px solid #ccc;
+    font-size: 11px;
+    color: #666;
+    padding: 11px;
+    text-align: center;
+    background: #fff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+#footer a {
+    color: #666;
+}
+.description {
+    padding: 15px 0 32px;
+    border-bottom: 1px dashed #ddd;
+    line-height: 21px;
+}
+.description a {
+    color: #28b;
+    text-decoration: none;
+}
+h2 {
+    font-weight: normal;
+    font-size: 16px;
+    color: #28b;
+    margin: 29px 0 16px;
+}
+
+.messages ul {
+    margin: 0 0 10px 5px;
+    padding: 0;
+    list-style-type: none;
+}
+.error {
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
+
+/* RichFaces styles */
+
+.rf-trn, .rf-tr-nd {
+    background: none !important;
+}
+
+.rf-tr-nd {
+    padding: 0 1px !important;
+}
+
+.rf-trn {
+    cursor: pointer !important;
+}
+
+.rf-trn-sel {
+    background: none !important;
+}
+
+.rf-trn.sel {
+    font-weight: bold;
+    background: #f3f3f3 !important;
+}
+
+.rf-trn-cnt {
+    width: 100%;
+}
+
+*.rf-tr-nd *.rf-tr-nd {
+    margin-left: 11px !important;
+}
+
+.rf-tab-hdr {
+    vertical-align: middle !important;
+    color: #333333 !important;
+    background: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-right: none !important;
+    padding: 0 11px 5px 5px !important;
+}
+
+.rf-tab-hdr-act {
+    border-bottom: 1px solid #9c3 !important;
+    color: #111111 !important;
+}
+
+.rf-tab-hdr-tabline-vis {
+    height: 25px !important;
+    border: 0 !important;
+    background: none !important;
+}
+
+.rf-tab-cnt {
+    border: 0 !important;
+    background: none !important;
+}
+
+.rf-tab-hdr-brd {
+    border: 0 !important;
+    height: 0 !important;
+}
+
+.rf-insp {
+    border: 0 !important;
+    display: inline !important;
+}
+
+.rf-insp-btns {
+    border: 0 !important;
+    background: #e6e6e6 !important;
+}
+
+.rf-dt {
+    border: 1px solid #fff !important;
+}
+
+.rf-dt-hdr-c, .rf-dt-shdr-c {
+    background: #fff !important;
+    color: #222 !important;
+}
+
+.rf-pp-hdr {
+    background: #fff !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.rf-pp-hdr-cnt {
+    color: #555 !important;
+    font-size: 13px !important;
+    font-weight: normal !important;
+}
+
+.rf-pp-hdr-cntrls {
+    top: 8px !important;
+    right: 8px !important;
+}
+
+.rf-pp-cntr {
+    border: none !important;
+    box-shadow: 0 1px 31px #dadada;
+}
+
+.rf-pp-shade {
+    background-color: #f5f5f5 !important;
+    opacity: 0.7 !important;
+}
+
+.rf-pp-shdw {
+    display: none !important;
+}
+
+.rf-pp-cnt {
+    padding-top: 12px !important;
+}
+
+.rf-pp-cnt footer {
+    border-top: 1px solid #ddd;
+    margin-top: 15px;
+    padding: 13px 1px 4px;
+    text-align: right;
+}
+
+.rf-pp-cnt .rf-tab-cnt footer {
+    padding-bottom: 0;
+}
+
+.rf-pp-cnt footer > input {
+    margin: 0 0 0 2px;
+}
+
+.rf-pp-cnt-scrlr {
+    background: #fff !important;
+}
+
+.rf-fu {
+    background: #fefefe !important;
+}
+
+.rf-fu-hdr {
+    background: #fefefe !important;
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+}
+
+.rf-fu-btn-add, .rf-fu-btn-upl, .rf-fu-btn-clr {
+    height: 21px !important;
+    background: #f7f7f7 !important;
+}
+
+.rf-pp-hdr-cntrls .close {
+    margin: 8px 4px;
+}
+
+.rf-tt-cntr {
+    border: 0 !important;
+    background: #191919 !important;
+    opacity: 0.8 !important;
+    color: #fff !important;
+    border-radius: 1px !important;
+    padding: 8px 9px !important;
+}
+
+/* Table styles */
+.table {
+    font-size: 100%;
+    border: 1px solid #fff;
+    empty-cells: show;
+    border-collapse: collapse;
+}
+
+.table th {
+    border: 1px dotted #ccc;
+    border-right: 0;
+    border-left: 0;
+    border-bottom-style: solid;
+    padding: 6px 9px;
+    text-align: left;
+}
+
+.table td {
+    border: 1px dotted #ccc;
+    border-right: 0;
+    border-left: 0;
+    padding: 6px 9px;
+    line-height: 15px;
+}
