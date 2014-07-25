@@ -72,17 +72,17 @@
             margin-bottom: 3px;
         }
 
-        #runCasesSettings {
+        #runCasesSettings, #testSelector {
             border-bottom: 1px solid #eee;
             margin-bottom: 2px;
             padding: 8px 0;
             background: #fdfdfd;
             line-height: 1.5;
         }
-        #runCasesSettings > div {
+        #runCasesSettings > div, #testSelector > div {
             padding: 4px 15px;
         }
-        #runCasesSettings > div > span {
+        #runCasesSettings > div > span, #testSelector > div > span {
             display: inline-block;
             min-width: 110px;
         }
@@ -106,6 +106,100 @@
     </style>
 
     <c:if test="#{!tableBean.dispatcherValidationNode}">
+
+    <div id="unitsMenu" style="display: none; min-width: 175px">
+        <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
+        <c:set var="runLink" value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
+        <h:form prependId="false">
+            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}">
+                <div title="Show only failed test cases">
+                    <span>Failures Only</span>
+                    <input name="failuresOnly" type="checkbox"
+                           onclick="$j('#caseFailuresSetting').toggle(this.checked)"
+                           value="true" checked="#{testBean.testsFailuresOnly ? 'checked' : ''}"
+                           style="vertical-align:-2px;margin:-4px" />
+                </div>
+                <div id="caseFailuresSetting" class="#{!testBean.testsFailuresOnly ? 'hidden' : ''}">
+                    <span>Failures per test</span>
+                    <h:selectOneMenu id="failures" value="#{testBean.testsFailuresPerTest}">
+                        <f:selectItem itemLabel="1" itemValue="1" />
+                        <f:selectItem itemLabel="5" itemValue="5" />
+                        <f:selectItem itemLabel="20" itemValue="20" />
+                        <f:selectItem itemLabel="All" itemValue="-1" />
+                    </h:selectOneMenu>
+                </div>
+                <div title="Display the full result of running test cases, not only values which are being tested">
+                    <span>Compound Result</span>
+                    <input name="complexResult" type="checkbox"
+                           value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
+                           style="vertical-align:-2px;margin:-4px" />
+                </div>
+            </h:panelGroup>
+            <h:panelGroup id="testSelector">
+                <div title="Deffine a range of IDs instead of checkboxes">
+                    <span>Use the Range</span>
+                    <h:selectBooleanCheckbox value="#{tableBean.useTestRanges}" id="useTestRanges"
+                                             onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
+                                             style="vertical-align:-2px;margin:-4px"/>
+                </div>
+                <div id="testRangeSetting" class="#{!tableBean.useTestRanges ? 'hidden' : ''}" title="Deffine ranges like: 2-4,7,10-12 or id3-id7">
+                    <span>Range of IDs</span>
+                    <h:inputText id="testRanges" value="#{tableBean.testRanges}"/>
+                </div>
+            <table id="testTable" class="table #{tableBean.useTestRanges ? 'hidden' : ''}" style="margin: 2px 2px 1px 2px; width: 98%">
+                <tr>
+                    <th>
+                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
+                    </th>
+                    <th>ID</th>
+                    <th colspan="100">
+                        #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
+                    </th>
+                </tr>
+                <ui:repeat var="test" value="#{tableBean.tests}">
+                    <tr>
+                        <td>
+                            <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
+                        </td>
+                        <td>#{test.id}</td>
+                        <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
+                            <td>
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{inParam}" />
+                                </ui:include>
+                            </td>
+                        </ui:repeat>
+                    </tr>
+                </ui:repeat>
+            </table>
+            </h:panelGroup>
+            <div style="padding: 6px 5px">
+                <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
+                                   rendered="#{tableBean.canRun}"
+                                   title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
+                                   style="display:none" />
+                <a4j:commandButton id="traceButtonHidden" action="#{tableBean.makeTraceTree}"
+                                   rendered="#{tableBean.canTrace}"
+                                   oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
+                                   style="display:none" />
+                <a4j:commandButton id="traceButton"
+                                   rendered="#{tableBean.canTrace}"
+                                   value="Trace" title="Trace"
+                                   styleClass="changes-listener"
+                                   onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"
+                                   style="display:none" />
+                <h:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
+                                 rendered="#{tableBean.canTrace}"
+                                 value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
+                                 style="display:none" />
+                <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
+                                   rendered="#{tableBean.canBenchmark}"
+                                   value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
+                                   oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')" style="display:none" />
+            </div>
+        </h:form>
+    </div>
+
     <div id="tableToolbarPanel">
         <table>
             <tr>
@@ -160,99 +254,9 @@
 
                 <!-- Second Block -->
                 <td>
-                    <c:set var="testIndices" value="#{tableBean.selectedIndices}" />
-                    <c:set var="traceUrl"
-                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
-                    <h:form prependId="false">
-                        <c:set var="runLink"
-                            value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
-                        <div id="unitsMenu" style="display: none; min-width: 175px">
-                            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}">
-                                <div title="Show only failed test cases">
-                                    <span>Failures Only</span>
-                                    <input name="failuresOnly" type="checkbox"
-                                           onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                                           value="true" checked="#{testBean.testsFailuresOnly ? 'checked' : ''}"
-                                           style="vertical-align:-2px;margin:-4px" />
-                                </div>
-                                <div id="caseFailuresSetting" class="#{!testBean.testsFailuresOnly ? 'hidden' : ''}">
-                                    <span>Failures per test</span>
-                                    <h:selectOneMenu id="failures" value="#{testBean.testsFailuresPerTest}">
-                                        <f:selectItem itemLabel="1" itemValue="1" />
-                                        <f:selectItem itemLabel="5" itemValue="5" />
-                                        <f:selectItem itemLabel="20" itemValue="20" />
-                                        <f:selectItem itemLabel="All" itemValue="-1" />
-                                    </h:selectOneMenu>
-                                </div>
-                                <div title="Display the full result of running test cases, not only values which are being tested">
-                                    <span>Compound Result</span>
-                                    <input name="complexResult" type="checkbox"
-                                           value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
-                                           style="vertical-align:-2px;margin:-4px" />
-                                </div>
-                                <div title="Deffine a range of IDs instead of checkboxes">
-                                    <span>Use the Range</span>
-                                    <h:selectBooleanCheckbox value="#{tableBean.useTestRanges}" id="useTestRanges"
-                                                             onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
-                                                             style="vertical-align:-2px;margin:-4px"/>
-                                </div>
-                                <div id="testRangeSetting" class="#{!tableBean.useTestRanges ? 'hidden' : ''}" title="Deffine ranges like: 2-4,7,10-12 or id3-id7">
-                                    <span>Range of IDs</span>
-                                    <h:inputText id="testRanges" value="#{tableBean.testRanges}"/>
-                                </div>
-                            </h:panelGroup>
-                            <table id="testTable" class="table #{tableBean.useTestRanges ? 'hidden' : ''}" style="margin: 2px 2px 1px 2px; width: 98%">
-                                <tr>
-                                    <th>
-                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
-                                    </th>
-                                    <th>ID</th>
-                                    <th colspan="100">
-                                        #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
-                                    </th>
-                                </tr>
-                                <ui:repeat var="test" value="#{tableBean.tests}">
-                                <tr>
-                                    <td>
-                                        <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
-                                    </td>
-                                    <td>#{test.id}</td>
-                                    <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
-                                    <td>
-                                        <ui:include src="/pages/modules/test/parameter.xhtml">
-                                            <ui:param name="parameter" value="#{inParam}" />
-                                        </ui:include>
-                                    </td>
-                                    </ui:repeat>
-                                </tr>
-                                </ui:repeat>
-                            </table>
-                            <div style="padding: 6px 5px">
-                                <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
-                                    rendered="#{tableBean.canRun}"
-                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
-                                    style="display:none" />
-                                <a4j:commandButton id="traceButtonHidden" action="#{tableBean.makeTraceTree}"
-                                    rendered="#{tableBean.canTrace}"
-                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                    style="display:none" />
-                                <a4j:commandButton id="traceButton"
-                                    rendered="#{tableBean.canTrace}"
-                                    value="Trace" title="Trace"
-                                    styleClass="changes-listener"
-                                    onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"
-                                    style="display:none" />
-                                <h:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
-                                    rendered="#{tableBean.canTrace}"
-                                    value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
-                                    style="display:none" />
-                                <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
-                                    rendered="#{tableBean.canBenchmark}"
-                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                    oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')" style="display:none" />
-                            </div>
-                        </div>
-                        <table>
+
+
+                    <table>
                             <tr>
                                 <td>
                                     <a4j:commandLink id="runLink" action="#{tableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
@@ -335,7 +339,6 @@
                                 </td>
                             </tr>
                         </table>
-                    </h:form>
                 </td>
                 </c:if>
 
