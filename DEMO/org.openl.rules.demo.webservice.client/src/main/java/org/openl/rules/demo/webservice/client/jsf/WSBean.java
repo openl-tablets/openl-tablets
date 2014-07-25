@@ -21,6 +21,9 @@ public class WSBean {
 	private int numAccidents;
 	private int numMovingViolations;
 
+    // In future it can be changed to dynamic client
+    private boolean useStaticClient = true;
+
 	public int getNumDUI() {
         return numDUI;
     }
@@ -74,21 +77,56 @@ public class WSBean {
     }
 
     public void driverRisk() {
-        methodName = "DriverRisk"; 
-        String ret = (String) invoke(methodName,
-                new Object[] {null, new Integer(numDUI), new Integer(numAccidents), new Integer(numMovingViolations) });
+        methodName = "DriverRisk";
+
+        String ret = null;
+
+        if (useStaticClient) {
+            try {
+                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverRisk(numDUI, numAccidents, numMovingViolations);
+            } catch (Exception e) {
+                e.printStackTrace();
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+            }
+        } else {
+            ret = (String) invoke(methodName, new Object[]{null, numDUI, numAccidents, numMovingViolations});
+        }
+
         result = new String[] { ret };
     }
 
     public void accidentPremium() {
         methodName = "AccidentPremium";
-        Double ret = (Double) invoke(methodName, new Object[] { null });
+
+        Double ret = null;
+
+        if (useStaticClient) {
+            try {
+                ret = WebServiceTemplate.getInstance().getStaticClientInterface().AccidentPremium();
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+            }
+        } else {
+            ret = (Double) invoke(methodName, new Object[]{null});
+        }
+
         result = new String[] { ret != null ? String.valueOf(ret) : null };
     }
 
     public void driverAgeType() {
         methodName = "DriverAgeType";
-        String ret = (String) invoke(methodName, new Object[] { null, gender, age });
+
+        String ret = null;
+        if (useStaticClient) {
+            try {
+                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverAgeType(gender, age);
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+            }
+        } else {
+            ret = (String) invoke(methodName, new Object[] { null, gender, age });
+        }
+
         result = new String[] { ret };
     }
 
