@@ -784,5 +784,11 @@
         <rich:tree id="initRfTree" />
     </div>
 
+    <c:if test="#{jsffn:getSystemProp('webstudio.analytics') != 'false'}">
+        <ui:include src="/pages/common/analytics.xhtml">
+            <ui:param name="id" value="#{jsffn:getSystemProp('webstudio.analytics')}" />
+        </ui:include>
+    </c:if>
+
 </h:body>
 </html>

@@ -214,5 +214,11 @@
                 <type>String</type>
             </deferred-value>
         </attribute>
+        <attribute>
+            <name>rowIndex</name>
+            <deferred-value>
+                <type>java.lang.Integer</type>
+            </deferred-value>
+        </attribute>
     </tag>
 </taglib>
