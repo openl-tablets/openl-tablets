@@ -899,12 +899,7 @@ public class WebStudio {
             return "#" + pageUrl;
         }
 
-        return new StringBuilder()
-                .append("#")
-                .append(StringTool.encodeURL(projectName)).append("/")
-                .append(StringTool.encodeURL(moduleName)).append("/")
-                .append(pageUrl)
-                .toString();
+        return "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName) + "/" + pageUrl;
     }
 
 }
