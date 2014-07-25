@@ -21,7 +21,6 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -67,7 +66,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * TODO Remove JSF dependency
  * TODO Separate user session from app session
  * TODO Move settings to separate UserSettings class
- * 
+ *
  * @author snshor
  */
 public class WebStudio {
@@ -287,7 +286,7 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     * 
+     *
      * @return Returns the RulesProjectResolver.
      */
     public RulesProjectResolver getProjectResolver() {
@@ -326,7 +325,7 @@ public class WebStudio {
     /**
      * Returns path on the file system to user workspace this instance of web
      * studio works with.
-     * 
+     *
      * @return path to openL projects workspace, i.e. folder containing openL
      *         projects.
      */
@@ -537,6 +536,10 @@ public class WebStudio {
 
                     OutputStream outputStream = null;
                     try {
+                        File folder = outputFile.getParentFile();
+                        if (folder != null && !folder.mkdirs() && !folder.isDirectory()) {
+                            throw new IOException("Can't create parent folder");
+                        }
                         outputStream = new FileOutputStream(outputFile);
                         IOUtils.copy(inputStream, outputStream);
                     } finally {
@@ -636,17 +639,22 @@ public class WebStudio {
     }
 
     private Collection<File> getProjectFiles(File projectFolder, final PathFilter filter) {
-        return FileUtils.listFiles(projectFolder, new IOFileFilter() {
+        IOFileFilter fileFilter = new IOFileFilter() {
             @Override
             public boolean accept(File file) {
-                return filter.accept(file.getPath());
+                String path = file.getPath().replace(File.separator, "/");
+                if (file.isDirectory() && !path.endsWith("/")) {
+                    path += "/";
+                }
+                return filter.accept(path);
             }
 
             @Override
             public boolean accept(File dir, String name) {
-                return filter.accept(new File(dir, name).getPath());
+                return accept(new File(dir, name));
             }
-        }, FileFileFilter.FILE);
+        };
+        return FileUtils.listFiles(projectFolder, fileFilter, fileFilter);
     }
 
     private String getRelativePath(File baseFolder, File file) {
@@ -715,9 +723,9 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     * 
+     *
      * @param module The current module to set.
-     * 
+     *
      * @throws Exception
      */
     public void setCurrentModule(Module module) throws Exception {
