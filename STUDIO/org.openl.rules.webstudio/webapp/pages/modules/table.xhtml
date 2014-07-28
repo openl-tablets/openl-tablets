@@ -111,7 +111,8 @@
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
         <c:set var="runLink" value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
         <h:form prependId="false">
-            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}">
+            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
+                          styleClass="hidden b-run b-test">
                 <div title="Show only failed test cases">
                     <span>Failures Only</span>
                     <input name="failuresOnly" type="checkbox"
@@ -135,7 +136,7 @@
                            style="vertical-align:-2px;margin:-4px" />
                 </div>
             </h:panelGroup>
-            <h:panelGroup id="testSelector">
+            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace">
                 <div title="Deffine a range of IDs instead of checkboxes">
                     <span>Use the Range</span>
                     <h:selectBooleanCheckbox value="#{tableBean.useTestRanges}" id="useTestRanges"
@@ -174,10 +175,14 @@
             </table>
             </h:panelGroup>
             <div style="padding: 6px 5px">
+                <a4j:commandButton id="testButton" value="Test"
+                                   rendered="#{tableBean.canRun}"
+                                   title="Test" onclick="ws.nav.go('#{studio.url('test/test')}?id=#{tableBean.id}&amp;' + getTestQuery());"
+                                   styleClass="hidden b-test"/>
                 <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
                                    rendered="#{tableBean.canRun}"
                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
-                                   style="display:none" />
+                                   styleClass="hidden b-run"/>
                 <a4j:commandButton id="traceButtonHidden" action="#{tableBean.makeTraceTree}"
                                    rendered="#{tableBean.canTrace}"
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
@@ -185,17 +190,17 @@
                 <a4j:commandButton id="traceButton"
                                    rendered="#{tableBean.canTrace}"
                                    value="Trace" title="Trace"
-                                   styleClass="changes-listener"
-                                   onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"
-                                   style="display:none" />
-                <h:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
-                                 rendered="#{tableBean.canTrace}"
-                                 value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
-                                 style="display:none" />
+                                   styleClass="hidden b-trace changes-listener"
+                                   onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"/>
+                <a4j:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
+                                   rendered="#{tableBean.canTrace}"
+                                   value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
+                                   styleClass="hidden b-trace"/>
                 <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                   oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')" style="display:none" />
+                                   oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
+                                   styleClass="hidden b-benchmark"/>
             </div>
         </h:form>
     </div>
@@ -255,8 +260,8 @@
                 <!-- Second Block -->
                 <td>
 
-
-                    <table>
+                    <h:form prependId="false">
+                        <table>
                             <tr>
                                 <td>
                                     <a4j:commandLink id="runLink" action="#{tableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
@@ -271,7 +276,7 @@
                                                     <img src="webresource/images/run.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#runButton, #runCasesSettings').show();$j('#traceButton, #traceIntoFileButton, #benchmarkButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-run').show();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -297,7 +302,7 @@
                                                     <img src="webresource/images/trace.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#traceButton, #traceIntoFileButton').show();$j('#runButton, #runCasesSettings, #benchmarkButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-trace').show();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -324,7 +329,7 @@
                                                     <img src="webresource/images/clock-icon.png" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#benchmarkButton').show();$j('#runButton, #runCasesSettings, #traceButton, #traceIntoFileButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-benchmark').show();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -339,6 +344,7 @@
                                 </td>
                             </tr>
                         </table>
+                    </h:form>
                 </td>
                 </c:if>
 
@@ -404,11 +410,28 @@
 
                 <c:if test="#{tableBean.hasTests}">
                     <td>
-                        <h:outputLink value="#{studio.url('test/test')}" title="Run Tests" styleClass="toolbarButton"
-                            rendered="#{tableBean.canRun}"  >
-                            <f:param name="id" value="#{tableBean.id}" />
-                            <img src="webresource/images/test_ok.gif" />
-                            <span>Test</span>
+                        <c:set var="testLink" value="#{studio.url('test/test')}?id=#{tableBean.id}" />
+                        <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton menuButton"
+                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                      onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                      rendered="#{tableBean.canRun}"  >
+                            <table>
+                                <tr>
+                                    <td>
+                                        <img src="webresource/images/test_ok.gif" />
+                                    </td>
+                                    <td rowspan="2" class="arrow"
+                                        onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-test').show();;return false;"
+                                        style="visibility: hidden;">
+                                        <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>Test</span>
+                                    </td>
+                                </tr>
+                            </table>
                         </h:outputLink>
                     </td>
                 </c:if>
@@ -626,15 +649,19 @@
             return false;
         }
 
+      function getTestQuery() {
+          var query = $j("#runCasesSettings").find("select,input").serialize();
+          jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
+              query += '&' + this.name + '=false';
+          });
+          return query;
+      }
+
         function runTestCases() {
-            var query = $j("#runCasesSettings").find("select,input").serialize();
-            jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
-                query += '&' + this.name + '=false';
-            });
-            ws.nav.go("#{runLink}&" + query);
+            ws.nav.go("#{runLink}&" + getTestQuery());
         }
 
-        function getCurrentTable() {
+      function getCurrentTable() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
             return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
         }

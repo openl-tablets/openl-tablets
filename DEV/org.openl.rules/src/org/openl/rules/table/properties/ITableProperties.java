@@ -113,6 +113,13 @@ public interface ITableProperties {
      * @return <code>TRUE</code> if the property with given name is applied for current table by default.
      */
     boolean isPropertyAppliedByDefault(String propertyName);
+    
+    /**
+     * Checks that current table doesn't have properties.
+     * 
+     * @return 
+     */
+    public boolean isPropertiesEmpty();
 	
 	// <<< INSERT >>>
 	java.lang.String getName();

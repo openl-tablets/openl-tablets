@@ -241,6 +241,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodesWithoutErrors();
         for (TableSyntaxNode table : tables) {
             if (!table.hasErrors()) {
+                System.out.println(table.getDisplayName());
                 addResult(table, res, tableSelectors, columnSelectors);
             }
         }

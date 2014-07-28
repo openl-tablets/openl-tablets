@@ -36,8 +36,14 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is only one rules dependency", 1, rulesMethods.size());
 
-            IOpenMethod dependentMethod = (IOpenMethod) findTable("Rules int getCalcAge(int constant)").getMember();
-            assertTrue("DT contains expected dependency", rulesMethods.contains(dependentMethod));
+            ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Rules int getCalcAge(int constant)").getMember();
+            boolean f = false;
+            for (ExecutableMethod executableMethod : rulesMethods){
+                if (executableMethod.getHeader().equals(dependentMethod.getHeader())){
+                    f = true;
+                }
+            }
+            assertTrue("DT contains expected dependency", f);
         } else {
             fail("Can`t find expected table");
         }
@@ -83,8 +89,17 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             expectedRuledDependencies.add((ExecutableMethod) findTable(
                     "Rules DoubleValue driverAccidentPremium(Driver driver, String driverRisk)").getMember());
 
+            int d = 0;
+            for (ExecutableMethod executableMethod : rulesMethods){
+                for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies){
+                    if (executableMethod.getHeader().equals(expectedRuledDependency.getHeader())){
+                        d++;
+                    }
+                }
+            }
+            
             assertTrue("Spreadsheet contains all expected dependencies",
-                    rulesMethods.containsAll(expectedRuledDependencies));
+                    expectedRuledDependencies.size() == d);
         } else {
             fail("Can`t find expected table");
         }
@@ -99,8 +114,14 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is only one rules dependency", 1, rulesMethods.size());
 
-            IOpenMethod dependentMethod = (IOpenMethod) findTable("Method void foo()").getMember();
-            assertTrue("TBasic contains expected dependency", rulesMethods.contains(dependentMethod));
+            ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Method void foo()").getMember();
+            boolean f = false;
+            for (ExecutableMethod executableMethod : rulesMethods){
+                if (executableMethod.getHeader().equals(dependentMethod.getHeader())){
+                    f = true;
+                }
+            }
+            assertTrue("TBasic contains expected dependency", f);
         } else {
             fail("Can`t find expected table");
         }
@@ -119,7 +140,16 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method int start2()").getMember());
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method void callVoid()").getMember());
 
-            assertTrue("Method contains expected dependencies", rulesMethods.containsAll(expectedRuledDependencies));
+            int d = 0;
+            for (ExecutableMethod executableMethod : rulesMethods){
+                for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies){
+                    if (executableMethod.getHeader().equals(expectedRuledDependency.getHeader())){
+                        d++;
+                    }
+                }
+            }
+            
+            assertTrue("Method contains expected dependencies", expectedRuledDependencies.size() == d);
         } else {
             fail("Can`t find expected table");
         }

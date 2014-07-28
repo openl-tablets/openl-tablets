@@ -15,7 +15,7 @@ import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategy
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.instantiation.RuleServiceRuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnchancerHelper;
+import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
@@ -150,7 +150,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
-            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnchancerHelper.decorate(serviceClass, classLoader);
+            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(serviceClass, classLoader);
             return decoratedClass;
         }catch(Exception e){
             if (log.isErrorEnabled()) {
@@ -180,7 +180,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (clazzName != null) {
                 try {
                     Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName);
-                    Class<?> decoratedClass = DynamicInterfaceAnnotationEnchancerHelper.decorate(serviceClass,
+                    Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                         interceptingTemplateClass,
                         classLoader);
                     if (log.isInfoEnabled()) {
