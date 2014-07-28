@@ -18,8 +18,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:CustomSpreadsheetResultInterfaceEnchancerHelperTest/openl-ruleservice-beans.xml" })
-public class CustomSpreadsheetResultInterfaceEnchancerHelperTest implements ApplicationContextAware {
+@ContextConfiguration(locations = { "classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/openl-ruleservice-beans.xml" })
+public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
@@ -34,7 +34,7 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelperTest implements Appl
         assertNotNull(serviceManager);
         serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object result = frontend.execute("CustomSpreadsheetResultInterfaceEnchancerHelperTest_TestingSpreadsheet",
+        Object result = frontend.execute("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet",
             "test",
             "conv1",
             10,
@@ -42,16 +42,16 @@ public class CustomSpreadsheetResultInterfaceEnchancerHelperTest implements Appl
 
         assertTrue("CustomSpreadSheet should be returned by service bean!",
             (result instanceof SpreadsheetResult) && !SpreadsheetResult.class.equals(result.getClass()) && result.getClass().getCanonicalName()
-                .equals(CustomSpreadsheetResultInterfaceEnchancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + "test"));
+                .equals(CustomSpreadsheetResultInterfaceEnhancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + "test"));
 
-        Class<?> serviceClass = frontend.findServiceByName("CustomSpreadsheetResultInterfaceEnchancerHelperTest_TestingSpreadsheet")
+        Class<?> serviceClass = frontend.findServiceByName("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet")
             .getServiceClass();
 
         for (Method method : serviceClass.getMethods()) {
             Class<?> returnType = method.getReturnType();
             if (SpreadsheetResult.class.isAssignableFrom(returnType) && !SpreadsheetResult.class.equals(returnType)) {
                 if (returnType.getCanonicalName()
-                    .equals(CustomSpreadsheetResultInterfaceEnchancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + method.getName())) {
+                    .equals(CustomSpreadsheetResultInterfaceEnhancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + method.getName())) {
                     for (Method m : returnType.getDeclaredMethods()) {
                         if (m.getName().startsWith("get$")) {
                             fail("Custom spreadsheet result shouldn't be declared in service interface!");

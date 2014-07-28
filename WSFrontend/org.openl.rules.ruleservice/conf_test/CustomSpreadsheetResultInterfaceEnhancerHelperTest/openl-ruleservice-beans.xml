@@ -7,11 +7,11 @@
 
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
-	<import resource="classpath:CustomSpreadsheetResultInterfaceEnchancerHelperTest/openl-ruleservice-datasource-beans.xml"/>
-	<import resource="classpath:CustomSpreadsheetResultInterfaceEnchancerHelperTest/openl-ruleservice-conf-beans.xml"/>
+	<import resource="classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/openl-ruleservice-datasource-beans.xml"/>
+	<import resource="classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/openl-ruleservice-conf-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-core-beans.xml"/>
-	<import resource="classpath:CustomSpreadsheetResultInterfaceEnchancerHelperTest/openl-ruleservice-override-beans.xml"/>
+	<import resource="classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/openl-ruleservice-override-beans.xml"/>
 
 </beans>

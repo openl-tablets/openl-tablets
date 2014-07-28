@@ -9,7 +9,7 @@
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
 		<property name="externalParameters">
 			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-				<property name="location" value="classpath:CustomSpreadsheetResultInterfaceEnchancerHelperTest/system.properties"/>
+				<property name="location" value="classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/system.properties"/>
 			</bean>
 		</property>
 	</bean>

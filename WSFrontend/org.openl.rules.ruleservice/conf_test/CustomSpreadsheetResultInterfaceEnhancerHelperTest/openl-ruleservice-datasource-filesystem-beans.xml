@@ -6,7 +6,7 @@
 
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
 	<bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource" lazy-init="true">
-		<constructor-arg name="loadDeploymentsFromDirectory" value="test-resources/CustomSpreadsheetResultInterfaceEnchancerHelperTest"/>
+		<constructor-arg name="loadDeploymentsFromDirectory" value="test-resources/CustomSpreadsheetResultInterfaceEnhancerHelperTest"/>
 		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
 		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
 	</bean>
