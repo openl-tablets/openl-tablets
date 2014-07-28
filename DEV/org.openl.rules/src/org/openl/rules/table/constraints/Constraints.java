@@ -3,7 +3,7 @@ package org.openl.rules.table.constraints;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author Andrei Astrouski

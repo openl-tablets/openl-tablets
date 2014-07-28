@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -669,18 +669,18 @@ public class WebStudio {
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
-        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
-            public boolean evaluate(Object project) {
-                return ((ProjectDescriptor) project).getName().equals(name);
+        return CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+            public boolean evaluate(ProjectDescriptor project) {
+                return project.getName().equals(name);
             }
         });
     }
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return (ProjectDependencyDescriptor) CollectionUtils.find(dependencies, new Predicate() {
-            public boolean evaluate(Object dependency) {
-                return ((ProjectDependencyDescriptor) dependency).getName().equals(dependencyName);
+        return CollectionUtils.find(dependencies, new Predicate<ProjectDependencyDescriptor>() {
+            public boolean evaluate(ProjectDependencyDescriptor dependency) {
+                return dependency.getName().equals(dependencyName);
             }
         });
     }

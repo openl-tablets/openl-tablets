@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.base.INameSpacedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -108,16 +108,13 @@ public class OpenClassHelper {
      * 
      * @param type {@link IOpenClass} instance
      * @return <code>true</code> if given type equals
-     *         {@link JavaOpenClass.BOOLEAN} or
+     *         {@link JavaOpenClass#BOOLEAN} or
      *         JavaOpenClass.getOpenClass(Boolean.class); otherwise -
      *         <code>false</code>
      */
     public static boolean isBooleanType(IOpenClass type) {
-        if (type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type) {
-            return true;
-        }
+        return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
 
-        return false;
     }
 
     public static boolean isCollection(IOpenClass openClass) {

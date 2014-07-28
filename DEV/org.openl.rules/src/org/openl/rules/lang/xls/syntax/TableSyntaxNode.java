@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.indexer.IDocumentType;
@@ -87,7 +87,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     }
 
     public SyntaxNodeException[] getErrors() {
-        return errors == null ? null : (SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]);
+        return errors == null ? null : errors.toArray(new SyntaxNodeException[errors.size()]);
     }
 
     public boolean hasErrors() {

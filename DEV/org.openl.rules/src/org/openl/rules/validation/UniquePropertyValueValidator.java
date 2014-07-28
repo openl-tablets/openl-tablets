@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -119,14 +119,11 @@ public class UniquePropertyValueValidator extends TablesValidator {
 		return new OpenLWarnMessage(message, syntaxNode);
 	}
 
-	@SuppressWarnings("unchecked")
-    private ExecutableRulesMethod[] selectActiveMethods(List<IOpenMethod> methods) {        
+    private ExecutableRulesMethod[] selectActiveMethods(List<IOpenMethod> methods) {
 
-        Collection<IOpenMethod> outputCollection = CollectionUtils.select(methods, new Predicate() {
+        Collection<IOpenMethod> outputCollection = CollectionUtils.select(methods, new Predicate<IOpenMethod>() {
             
-            public boolean evaluate(Object arg0) {
-                IOpenMethod method = (IOpenMethod) arg0;
-                
+            public boolean evaluate(IOpenMethod method) {
                 if (method instanceof ITablePropertiesMethod) {
                     ITablePropertiesMethod executableMethod = (ITablePropertiesMethod) method;
                     if (executableMethod.getMethodProperties() == null || 

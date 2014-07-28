@@ -3,7 +3,7 @@ package org.openl.engine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.MethodUsagesSearcher;
@@ -32,7 +32,7 @@ public class OpenLCellExpressionsCompiler {
     /**
      * Compiles a method and sets meta info to the cells.
      * 
-     * @param opel OpenL engine context
+     * @param openl OpenL engine context
      * @param source method source
      * @param compositeMethod {@link CompositeMethod} instance
      * @param bindingContext binding context
@@ -52,7 +52,7 @@ public class OpenLCellExpressionsCompiler {
      * Makes a method from source using method header descriptor and sets meta
      * info to the cells.
      * 
-     * @param opel OpenL engine context
+     * @param openl OpenL engine context
      * @param source source
      * @param methodHeader method header descriptor
      * @param bindingContext binding context
@@ -76,7 +76,7 @@ public class OpenLCellExpressionsCompiler {
      * information of return type at compile time. Return type can be recognized
      * at runtime time. Sets meta info to the cells.
      * 
-     * @param opel OpenL engine context
+     * @param openl OpenL engine context
      * @param source source
      * @param methodName method name
      * @param signature method signature
@@ -105,7 +105,7 @@ public class OpenLCellExpressionsCompiler {
             IOpenSourceCodeModule src = source;
             // extract original cell source
             while (src instanceof SubTextSourceCodeModule) {
-                startIndex += ((SubTextSourceCodeModule) src).getStartPosition();
+                startIndex += src.getStartPosition();
                 src = ((SubTextSourceCodeModule) src).getBaseModule();
             }
             if (src instanceof GridCellSourceCodeModule) {

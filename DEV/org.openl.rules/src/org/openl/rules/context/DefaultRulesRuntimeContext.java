@@ -5,7 +5,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.openl.runtime.IRuntimeContext;
 
 public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
