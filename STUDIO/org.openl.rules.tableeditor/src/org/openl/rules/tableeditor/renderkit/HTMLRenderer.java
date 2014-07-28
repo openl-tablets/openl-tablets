@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridRegion;
@@ -187,7 +187,7 @@ public class HTMLRenderer {
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
         String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
-                .escapeJavaScript(value));
+                .escapeEcmaScript(value));
 
         return jsCode;
     }
@@ -204,7 +204,7 @@ public class HTMLRenderer {
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
         String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
-                .escapeJavaScript(value));
+                .escapeEcmaScript(value));
 
         return jsCode;
     }
@@ -401,7 +401,7 @@ public class HTMLRenderer {
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
                         s.append("<script type=\"text/javascript\">")
-                            .append("new Tooltip('" + cellId + "','" + StringEscapeUtils.escapeJavaScript(
+                            .append("new Tooltip('" + cellId + "','" + StringEscapeUtils.escapeEcmaScript(
                                     cell.getComment().replaceAll("\\n", "<br/>"))
                                     + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
                             .append("</script>");
