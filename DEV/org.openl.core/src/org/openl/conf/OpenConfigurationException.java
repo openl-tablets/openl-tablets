@@ -6,15 +6,12 @@
 
 package org.openl.conf;
 
-// import org.apache.commons.lang.exception.NestableException;
-import org.apache.commons.lang.exception.NestableRuntimeException;
-
 /**
  * @author snshor
  *
  */
 
-public class OpenConfigurationException extends NestableRuntimeException {
+public class OpenConfigurationException extends RuntimeException {
     // TODO add parameters, message etc.
 
     /**
