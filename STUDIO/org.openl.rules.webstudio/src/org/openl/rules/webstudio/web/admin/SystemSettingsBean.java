@@ -20,8 +20,8 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,7 +65,7 @@ public class SystemSettingsBean {
     private boolean secureDesignRepo = false;
 
     /** @deprecated */
-    private static final BidiMap DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
+    private static final BidiMap<String, String> DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
     static {
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
@@ -83,7 +83,7 @@ public class SystemSettingsBean {
     }
 
     /** @deprecated */
-    private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
+    private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
     static {
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
@@ -165,7 +165,7 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryType() {
         String factory = configManager.getStringProperty(DESIGN_REPOSITORY_FACTORY);
-        return (String) DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
+        return DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
     }
 
     public void setDesignRepositoryType(String type) {
@@ -352,8 +352,8 @@ public class SystemSettingsBean {
         }
         deletedConfigurations.clear();
 
-        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-            productionRepositoryConfigurations.get(i).delete();
+        for (RepositoryConfiguration productionRepositoryConfiguration : productionRepositoryConfigurations) {
+            productionRepositoryConfiguration.delete();
         }
         productionRepositoryConfigurations.clear();
 
@@ -458,11 +458,11 @@ public class SystemSettingsBean {
 
     public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = String.format("Repository name is empty. Please, enter repository name", prodConfig.getName());
+            String msg = "Repository name is empty. Please, enter repository name";
             throw new RepositoryValidationException(msg);
         }
         if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = String.format("Repository path is empty. Please, enter repository path", prodConfig.getName());
+            String msg = "Repository path is empty. Please, enter repository path";
             throw new RepositoryValidationException(msg);
         }
 

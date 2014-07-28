@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 
@@ -30,7 +30,7 @@ public class RepositoryConfiguration {
 
     private boolean secure = false;
     /** @deprecated */
-    private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
+    private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
     static {
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
@@ -67,7 +67,7 @@ public class RepositoryConfiguration {
 
     public String getType() {
         String factory = configManager.getStringProperty(PRODUCTION_REPOSITORY_FACTORY);
-        return (String) PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
+        return PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
     }
 
     public void setType(String type) {

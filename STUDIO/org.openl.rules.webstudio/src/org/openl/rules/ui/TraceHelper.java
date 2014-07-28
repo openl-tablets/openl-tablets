@@ -4,7 +4,7 @@
  */
 package org.openl.rules.ui;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
