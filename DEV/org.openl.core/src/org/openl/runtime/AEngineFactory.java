@@ -6,7 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;

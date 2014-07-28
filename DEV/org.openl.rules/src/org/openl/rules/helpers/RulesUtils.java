@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
@@ -5990,7 +5990,7 @@ public class RulesUtils {
      *         String input
      */
     public static String removeStart(String str, String remove) {
-        return org.apache.commons.lang.StringUtils.removeStart(str, remove);
+        return org.apache.commons.lang3.StringUtils.removeStart(str, remove);
     }
 
     /**

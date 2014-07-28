@@ -2,28 +2,28 @@ package org.openl.rules.ui.tree;
 
 import java.util.Collection;
 
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class TreeCache<K, V> {
 
-    private BidiMap nodesMap = new DualHashBidiMap();
+    private BidiMap<K, V> nodesMap = new DualHashBidiMap<K, V>();
 
     public TreeCache() {
     }
 
     @SuppressWarnings("unchecked")
     public V getNode(K key) {
-        return (V) nodesMap.get(key);
+        return nodesMap.get(key);
     }
 
-    public Collection<?> getAllNodes() {
+    public Collection<V> getAllNodes() {
         return nodesMap.values();
     }
 
     @SuppressWarnings("unchecked")
     public K getKey(V node) {
-        return (K) nodesMap.getKey(node);
+        return nodesMap.getKey(node);
     }
 
     public void put(K key, V node) {

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
@@ -90,7 +90,6 @@ public class OpenLSourceManager extends OpenLHolder {
      *            break source processing when an error has occurred
      * @return processed code descriptor
      */
-    @SuppressWarnings("unchecked")
     public ProcessedCode processSource(IOpenSourceCodeModule source,
             SourceType sourceType,
             IBindingContextDelegator bindingContextDelegator,
@@ -156,12 +155,14 @@ public class OpenLSourceManager extends OpenLHolder {
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
             if (externalParams.containsKey(ADDITIONAL_WARN_MESSAGES_KEY)) {
+                @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String warnMessage : warnMessages) {
                     OpenLMessagesUtils.addWarn(warnMessage);
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
+                @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String warnMessage : warnMessages) {
                     OpenLMessagesUtils.addError(warnMessage);

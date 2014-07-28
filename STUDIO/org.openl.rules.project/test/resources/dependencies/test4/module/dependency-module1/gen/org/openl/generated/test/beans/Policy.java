@@ -5,11 +5,11 @@
 package org.openl.generated.test.beans;
 
 import java.lang.String;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Vehicle;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Policy{
   protected java.lang.String name;

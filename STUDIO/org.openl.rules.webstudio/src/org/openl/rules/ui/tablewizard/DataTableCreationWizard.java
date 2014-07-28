@@ -13,7 +13,7 @@ import javax.faces.component.html.HtmlDataTable;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;

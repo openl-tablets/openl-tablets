@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

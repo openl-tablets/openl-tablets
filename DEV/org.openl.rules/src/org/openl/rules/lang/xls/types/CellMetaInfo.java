@@ -2,7 +2,7 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
@@ -16,7 +16,7 @@ public class CellMetaInfo {
         DT_CA_CODE,
         DT_CA_DISPLAY,
         DT_DATA_CELL
-    };
+    }
 
     private Type type;
     private IOpenClass domain;

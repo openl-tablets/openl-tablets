@@ -14,7 +14,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;

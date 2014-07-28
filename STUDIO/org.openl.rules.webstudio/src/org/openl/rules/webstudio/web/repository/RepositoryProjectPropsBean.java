@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +10,11 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactType;
 import org.openl.rules.common.InheritedProperty;
-import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.AProjectArtefact;

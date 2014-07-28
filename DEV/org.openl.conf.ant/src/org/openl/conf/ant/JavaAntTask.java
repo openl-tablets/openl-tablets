@@ -10,13 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
-import org.openl.CompiledOpenClass;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.UserContext;
@@ -317,7 +316,7 @@ public abstract class JavaAntTask extends Task {
             log("Loaded " + resourcesPath + srcFile + " in " + (end - start) + " ms");
         }
         List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(
-                ((CompiledOpenClass) jwrapper.getCompiledClass()).getMessages(), Severity.ERROR);
+                jwrapper.getCompiledClass().getMessages(), Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
             // throw new OpenLCompilationException(message);

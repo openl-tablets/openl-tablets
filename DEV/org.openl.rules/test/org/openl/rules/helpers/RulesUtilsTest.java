@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
@@ -32,7 +32,6 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
-import org.openl.rules.helpers.RulesUtils;
 import org.openl.util.ArrayTool;
 
 /**

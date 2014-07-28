@@ -2,7 +2,7 @@ package org.openl.rules.lang.xls;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 public class XlsNodeTypesTest {

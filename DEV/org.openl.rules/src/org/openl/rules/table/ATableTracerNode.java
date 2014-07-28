@@ -1,6 +1,6 @@
 package org.openl.rules.table;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
