@@ -5,12 +5,16 @@
  */
 package org.openl.rules.helpers;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -6115,5 +6119,20 @@ public class RulesUtils {
      */
     public static String replace(String str, String searchString, String replacement, int max) {
         return StringUtils.replace(str, searchString, replacement, max);
+    }
+
+    public static Object[] flatten(Object... data) {
+        List<Object> result = new ArrayList<Object>();
+        for (Object obj : data) {
+            if (obj.getClass().isArray()) {
+                for (int i = 0; i < Array.getLength(obj); i++) {
+                    Object o = Array.get(obj, i);
+                    result.addAll(Arrays.asList(flatten(o)));
+                }
+            } else {
+                result.add(obj);
+            }
+        }
+        return result.toArray();
     }
 }

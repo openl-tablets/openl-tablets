@@ -833,7 +833,8 @@ public class RulesUtilsTest {
 
 		byte testByteTypeBig(byte[] array, int i);
 
-	}
+        Object[] testFlatten(Object... objects);
+    }
 
 	@Before
 	public void init() {
@@ -5022,4 +5023,14 @@ public class RulesUtilsTest {
 	public void quotientIntTest() {
 		assertEquals(2, RulesUtils.quotient(9, 4));
 	}
+
+    @Test
+    public void flattenTest() {
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(1, 2, 3, 4));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[]{1, 2, 3, 4}));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[]{1, 2}, 3, 4));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[]{1, 2}, new Integer[]{3}, new Integer[]{}, 4));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[][]{{1}, {2}, {3, 4}}));
+        assertArrayEquals(new Object[]{1, 2, 3L, 4D}, instance.testFlatten(new Object[]{1, new Integer[]{2}, 3L}, 4D));
+    }
 }
