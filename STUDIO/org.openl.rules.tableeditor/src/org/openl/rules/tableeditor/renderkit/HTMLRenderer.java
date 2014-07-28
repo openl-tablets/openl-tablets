@@ -91,7 +91,7 @@ public class HTMLRenderer {
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
 
                 result.append("<div id=\"").append(tableId).append("\">");
-                result.append(tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId()));
+                result.append(tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId(), editor.getRowIndex()));
                 result.append("</div>");
 
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
@@ -342,10 +342,10 @@ public class HTMLRenderer {
         }
 
         public String render(boolean showFormulas) {
-            return render(showFormulas, null, "");
+            return render(showFormulas, null, "", null);
         }
 
-        public String render(boolean showFormulas, String errorCell, String editorId) {
+        public String render(boolean showFormulas, String errorCell, String editorId, Integer rowIndex) {
             String tdPrefix = "<td";
 
             IGridTable table = tableModel.getGridTable();
@@ -355,6 +355,14 @@ public class HTMLRenderer {
 
             for (int row = 0; row < tableModel.getCells().length; row++) {
                 s.append("<tr>\n");
+                if (rowIndex != null) {
+                    s.append("<td style='padding-left:5px; padding-right:5px; border: none;'>");
+                    long rowToPrint = row - rowIndex + 2;
+                    if (rowToPrint > 0) {
+                        s.append(rowToPrint);
+                    }
+                    s.append("</td>\n");
+                }
                 for (int col = 0; col < tableModel.getCells()[row].length; col++) {
 
                     ICellModel cell = tableModel.getCells()[row][col];

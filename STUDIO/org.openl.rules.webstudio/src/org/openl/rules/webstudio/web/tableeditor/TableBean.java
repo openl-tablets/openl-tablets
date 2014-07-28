@@ -60,6 +60,8 @@ public class TableBean {
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
     private Map<TestDescription, Boolean> selectedTests;
+    private String testRanges;
+    private boolean useTestRanges;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
@@ -280,13 +282,35 @@ public class TableBean {
         return selectedTests;
     }
 
+    public String getTestRanges() {
+        return testRanges;
+    }
+
+    public void setTestRanges(String testRanges) {
+        this.testRanges = testRanges;
+    }
+
+    public boolean isUseTestRanges() {
+        return useTestRanges;
+    }
+
+    public void setUseTestRanges(boolean useTestRanges) {
+        this.useTestRanges = useTestRanges;
+    }
+
     @Deprecated
     public String makeTestSuite() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TestSuite testSuite;
         if (method instanceof TestSuiteMethod) {
             TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) method;
-            testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
+            int[] selectedIndices;
+            if (useTestRanges) {
+                selectedIndices = testSuiteMethodSelected.getIndices(testRanges);
+            } else {
+                selectedIndices = getSelectedIndices();
+            }
+            testSuite = new TestSuite(testSuiteMethodSelected, selectedIndices);
         } else { // method without parameters
             testSuite = new TestSuite(new TestDescription(method, new Object[] {}));
         }
@@ -481,6 +505,13 @@ public class TableBean {
 
     public boolean getCanBenchmark() {
         return isGranted(PRIVILEGE_BENCHMARK);
+    }
+
+    public Integer getRowIndex() {
+        if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
+            return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
+        }
+        return null;
     }
 
     public static class TestRunsResultBean {
