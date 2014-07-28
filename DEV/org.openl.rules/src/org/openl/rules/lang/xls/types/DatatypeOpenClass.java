@@ -244,7 +244,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             return openClass.getName();
         }
 
-    };
+    }
 
     /**
      * <code>toString()</code> method.
@@ -295,7 +295,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             StringBuilder builder = new StringBuilder(openClass.getDisplayName(0) + "{ ");
             Map<String, IOpenField> fields = openClass.getFields();
             for (Entry<String, IOpenField> field : fields.entrySet()) {
-                builder.append(field.getKey() + "=" + field.getValue().get(target, env) + " ");
+                builder.append(field.getKey()).append("=").append(field.getValue().get(target, env)).append(" ");
             }
             builder.append('}');
             return builder.toString();

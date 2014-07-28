@@ -73,14 +73,14 @@ public class SystemSettingsBean {
                 "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory");
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
-    };
+    }
     /** @deprecated */
     private static final Map<String, String> DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
     static {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "design-repository.local.home");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "design-repository.remote.rmi.url");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
-    };
+    }
 
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
@@ -91,14 +91,14 @@ public class SystemSettingsBean {
                 "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
-    };
+    }
     /** @deprecated */
     private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
     static {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "production-repository.local.home");
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "production-repository.remote.rmi.url");
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
-    };
+    }
 
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
@@ -402,7 +402,7 @@ public class SystemSettingsBean {
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
 
-            configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
+            configNames = ArrayUtils.add(configNames, newConfigName);
 
             productionRepositoryConfigurations.add(newConfig);
             // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +

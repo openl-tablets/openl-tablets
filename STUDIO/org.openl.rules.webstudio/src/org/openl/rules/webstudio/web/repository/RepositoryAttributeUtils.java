@@ -3,18 +3,14 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openl.config.ConfigurationManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRowType;
-import org.openl.types.IOpenClass;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class RepositoryAttributeUtils {
     private Map<String, String> attribs;

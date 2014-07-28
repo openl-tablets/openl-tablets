@@ -6,9 +6,7 @@ package org.openl.benchmark;
 
 
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.openl.runtime.IRuntimeContext;
@@ -30,7 +28,7 @@ public class BenchmarkOpenLBasics {
 		@Override
 		protected void run() throws Exception {
 			Boolean b = BooleanUtils.toBoolean("y");
-			if (!b.booleanValue())
+			if (!b)
 				throw new Exception("y!");
 		}
     }	
@@ -40,7 +38,7 @@ public class BenchmarkOpenLBasics {
 		@Override
 		protected void run() throws Exception {
 			Boolean b =BooleanUtils.toBoolean("True");
-			if (!b.booleanValue())
+			if (!b)
 				throw new Exception("True!");
 		}
     }	
@@ -65,7 +63,7 @@ public class BenchmarkOpenLBasics {
     
     static class Cxt implements IRuntimeContext
     {
-    	public IRuntimeContext clone() 
+    	public IRuntimeContext clone()
     	{
     		return new Cxt();
     	}

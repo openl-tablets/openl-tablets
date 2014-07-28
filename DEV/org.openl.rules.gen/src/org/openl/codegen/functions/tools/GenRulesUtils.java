@@ -25,9 +25,9 @@ public class GenRulesUtils extends GenNumberValueFunctions {
     }
 
     public void run() throws Exception {
-        ALL_WRAPPER_TYPES = (Class<?>[]) ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
+        ALL_WRAPPER_TYPES = ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
                 GenNumberValueFunctions.BIG_NUMERIC_TYPES);
-        ALL_TYPES = (Class<?>[]) ArrayUtils.addAll(ALL_WRAPPER_TYPES, GenNumberValueFunctions.primitiveNumericTypes);
+        ALL_TYPES = ArrayUtils.addAll(ALL_WRAPPER_TYPES, GenNumberValueFunctions.primitiveNumericTypes);
         generateRulesFunctions();
     }
 

@@ -388,7 +388,7 @@ public class TableCopier extends TableCreationWizard {
         } else if (value instanceof String && StringUtils.isEmpty((String)value)) {
             return true;
         } else if (value.getClass().isArray()) {
-            return ((Object[])value).length > 0 ? false : true;
+            return ((Object[]) value).length <= 0;
         }
         return false;
     }    

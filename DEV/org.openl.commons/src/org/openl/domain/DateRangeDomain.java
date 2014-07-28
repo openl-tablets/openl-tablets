@@ -135,9 +135,8 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
         }
 
         Calendar date = new GregorianCalendar();
-        date.setTime((Date) value);
-        int index = (int) daysBetween(min, date);
-        return index;
+        date.setTime(value);
+        return (int) daysBetween(min, date);
     }
 
     /**

@@ -52,7 +52,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
 
     private void applyRulesRuntimeContext(Object serviceInstance, IRulesRuntimeContext context) {
 
-        Class<? extends Object> serviceClass = serviceInstance.getClass();
+        Class<?> serviceClass = serviceInstance.getClass();
 
         if (IEngineWrapper.class.isAssignableFrom(serviceClass)) {
             if (log.isDebugEnabled()) {

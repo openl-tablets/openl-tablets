@@ -40,7 +40,7 @@ public class Point implements Serializable {
     @Override
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
-        if (!(obj instanceof Point)) {;
+        if (!(obj instanceof Point)) {
             return false;
         }
         Point another = (Point)obj;

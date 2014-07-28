@@ -143,19 +143,19 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
                     IDependencyManager.class });
 
             if (ctr != null) {
-                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(),
-                        prepareExternalParameters(), getDependencyManager() });
+                return ctr.newInstance(!isExecutionMode(), isExecutionMode(),
+                        prepareExternalParameters(), getDependencyManager());
             }
 
             ctr = findConstructor(wrapperClass, new Class[] { boolean.class, boolean.class });
 
             if (ctr != null) {
-                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode() });
+                return ctr.newInstance(!isExecutionMode(), isExecutionMode());
             }
 
             ctr = wrapperClass.getConstructor(new Class[] { boolean.class });
 
-            return ctr.newInstance(new Object[] { Boolean.TRUE });
+            return ctr.newInstance(Boolean.TRUE);
         } catch (NoSuchMethodException e) {
             String errorMessage = String.format("Cannot find method in wrapper class %s. "
                     + "You are using older version of OpenL Wrapper, please run Generate ... Wrapper",
@@ -218,7 +218,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         // loading with its parameters classes and
         // return classes.
         Method m = wrapperClass.getMethod("reset", new Class[] {});
-        m.invoke(null, new Object[] {}); // we reset to reload wrapper due
+        m.invoke(null); // we reset to reload wrapper due
                                          // to its static implementation
     }
 

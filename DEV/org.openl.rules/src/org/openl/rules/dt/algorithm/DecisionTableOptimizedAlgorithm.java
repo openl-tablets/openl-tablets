@@ -250,7 +250,7 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType,
+    static IRangeAdaptor<?, ?> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {

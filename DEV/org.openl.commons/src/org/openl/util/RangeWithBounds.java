@@ -92,7 +92,7 @@ public class RangeWithBounds {
         } else {
             builder.append('(');
         }
-        builder.append(min + ".." + max);
+        builder.append(min).append("..").append(max);
         if (rightBoundType == BoundType.INCLUDING) {
             builder.append(']');
         } else {
