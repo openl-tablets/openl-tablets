@@ -37,6 +37,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -75,7 +77,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
-    
+
     private Collection<String> imports = new HashSet<String>();
 
     public XlsModuleOpenClass(IOpenSchema schema,
@@ -106,10 +108,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         additionalInitDependencies(); // Required for data tables.
     }
 
-    private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode){
+    private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {
         imports.addAll(xlsModuleSyntaxNode.getImports());
     }
-    
+
     // TODO: should be placed to ModuleOpenClass
     public IDataBase getDataBase() {
         return dataBase;
@@ -124,7 +126,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             addDataTables(dependency);
         }
     }
-    
+
     public Collection<String> getImports() {
         return imports;
     }
@@ -134,14 +136,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (parsedCode == null) {
             throw new IllegalArgumentException("parsedCode argument can't be null!");
         }
-        if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode){
+        if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode) {
             XlsModuleSyntaxNode xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
-            for (String value : getImports()){
+            for (String value : getImports()) {
                 xlsModuleSyntaxNode.addImport(value);
             }
         }
     }
-    
+
     private void addDataTables(CompiledOpenClass dependency) {
         IOpenClass openClass = dependency.getOpenClassWithErrors();
 
@@ -305,11 +307,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                     if (matchedMethod == null) {
                                         matchedMethod = topClass.getMatchingMethod(openMethod.getName(),
                                             openMethod.getSignature().getParameterTypes());
-                                        if (matchedMethod == null){
+                                        if (matchedMethod == null) {
                                             matchedMethod = EmptyMethod.getInstance();
                                         }
                                         cachedMatchedMethod.set(matchedMethod);
-                                    } 
+                                    }
                                     if (matchedMethod != EmptyMethod.getInstance()) {
                                         cachedMatchedMethod.set(matchedMethod);
                                         Object target = args[0];
@@ -320,7 +322,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                 } finally {
                                     invockedFromTop.remove();
                                 }
-                            }else{
+                            } else {
                                 invockedFromTop.remove();
                             }
                         }
@@ -386,8 +388,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 new Object[] { null, null });
         }
         if (openMethod instanceof TestSuiteMethod) {
-            return (IOpenMethod) enhancer.create(new Class[] {
-                    IOpenMethod.class,
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethod.class,
                     IOpenMethodHeader.class,
                     TestMethodBoundNode.class }, new Object[] { null, null, null });
         }
@@ -462,14 +463,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             } else {
                 IOpenMethod m = decorateForMultimoduleDispatching(method);
                 if (m != existedMethod) {
-                    createMethodDispatcher(m, key, existedMethod);
+                    OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
+                    dispatcher.addMethod(m);
                 }
             }
         } else {
-            // Just add original method.
+            // Just wrap original method with dispatcher functionality.
             //
             IOpenMethod m = decorateForMultimoduleDispatching(method);
-            methodMap().put(key, m);
+            ITableProperties props = PropertiesHelper.getTableProperties(m);
+            if (props.isPropertiesEmpty()){
+                methodMap().put(key, m);
+            }else{
+                createDispatcherMethod(m, key);
+            }
         }
     }
 
@@ -492,34 +499,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    /**
-     * In case we have two methods overloaded by dimensional properties we
-     * should create dispatcher.
-     * 
-     * @param method The methods that we are trying to add.
-     * @param key Method key of these methods based on signature.
-     * @param existedMethod The existing method.
-     */
-    public void createMethodDispatcher(IOpenMethod method, MethodKey key, IOpenMethod existedMethod) {
+    private OpenMethodDispatcher createDispatcherMethod(IOpenMethod method, MethodKey key) {
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
+
         if (useDescisionTableDispatcher) {
-            decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
+            decorator = new OverloadedMethodsDispatcherTable(method, this);
         } else {
-            decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
+            decorator = new MatchingOpenMethodDispatcher(method, this);
         }
-
-        // Add new method to decorator as candidate.
-        //
-        decorator.addMethod(method);
-
-        // Replace existed method with decorator using the same key.
-        //
 
         IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
 
         methodMap().put(key, openMethod);
+        
+        return decorator;
     }
 
     @Override

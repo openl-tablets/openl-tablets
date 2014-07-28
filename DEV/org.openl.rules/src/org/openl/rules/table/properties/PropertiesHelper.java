@@ -1,10 +1,12 @@
 package org.openl.rules.table.properties;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
 
@@ -31,6 +33,15 @@ public class PropertiesHelper {
     }
 
     public static ITableProperties getTableProperties(IOpenMethod method) {
+        if (method instanceof OpenMethodDispatcher){
+            List<IOpenMethod> methods = ((OpenMethodDispatcher )method).getCandidates();
+            if (methods.size() == 1){
+                return getTableProperties(methods.get(0));
+            }else{
+                throw new IllegalArgumentException("Dispatcher method with more than one candidate doesn't have properties!");
+            }
+        }
+        
         if (method instanceof ITablePropertiesMethod) {
             return ((ITablePropertiesMethod) method).getMethodProperties();
         } else if (method.getInfo() != null) {

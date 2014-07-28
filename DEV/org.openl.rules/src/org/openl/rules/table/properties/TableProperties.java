@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 //import org.apache.commons.logging.Log;
@@ -476,6 +477,19 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     public void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
         this.externalModuleProperties = moduleProperties;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPropertiesEmpty() {
+        Set<String> keys = getAllProperties().keySet();
+        for (String key : keys){
+            if (getAllProperties().get(key) != null){
+                return false;
+            }
+        }
+        return true;
     }
     
 }
