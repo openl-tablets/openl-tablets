@@ -43,7 +43,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     
     public IGridTable getTable() {
         return table;
-    };
+    }
 
     public GridCellSourceCodeModule(IGridTable table, IBindingContext bindingContext) {
         this(table, 0, 0, bindingContext);

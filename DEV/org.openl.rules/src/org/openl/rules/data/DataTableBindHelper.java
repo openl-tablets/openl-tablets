@@ -517,12 +517,12 @@ public class DataTableBindHelper {
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
-            IOpenField fieldInChain = null;
+            IOpenField fieldInChain;
             boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
 
             if(fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
-                fieldAccessorChain = (IOpenField[]) ArrayUtils.remove(fieldAccessorChain, fieldIndex);
-                fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
+                fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
+                fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
                 //Skip creation of IOpenField
                 continue;
             }

@@ -136,7 +136,7 @@ public class TestUnitsResults implements INamedThing {
                             }
                         }
                     } else {
-                        IOpenField[] fieldSequence = null;
+                        IOpenField[] fieldSequence;
                         boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
                         int startIndex = 0;
                         IOpenClass currentType = resultType;
@@ -178,7 +178,7 @@ public class TestUnitsResults implements INamedThing {
                                 if (nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.PRECISION_PATTERN)) {
                                     precision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
-                                    fieldSequence = (IOpenField[]) ArrayUtils.remove(fieldSequence, i);
+                                    fieldSequence = ArrayUtils.remove(fieldSequence, i);
                                     break;
                                 }
                             }

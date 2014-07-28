@@ -81,7 +81,7 @@ public class TablePropertiesSelector extends TableSelector {
                 result = DateUtils.isSameDay((Date) searchValue, (Date) value);
 
             } else if (value instanceof Comparable<?>) {
-                result = (((Comparable) value).compareTo(searchValue) == 0 ? true : false);
+                result = (((Comparable) value).compareTo(searchValue) == 0);
 
             } else if (value.getClass().isArray()) {
                 List<Object> valueArray = Arrays.asList((Object[]) value);

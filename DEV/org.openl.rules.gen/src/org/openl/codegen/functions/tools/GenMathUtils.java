@@ -23,7 +23,7 @@ public class GenMathUtils extends GenNumberValueFunctions {
     }
 
     public void run() throws Exception {
-        ALL_WRAPPER_TYPES = (Class<?>[]) ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
+        ALL_WRAPPER_TYPES = ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
                 GenNumberValueFunctions.BIG_NUMERIC_TYPES);
         generateMathFunctions();
     }

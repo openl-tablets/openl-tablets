@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Created by dl on 4/16/14.
  */
-public class TopologicalSort<T extends Object> {
+public class TopologicalSort<T> {
     public Set<TopoGraphNode<T>> sort(final Collection<TopoGraphNode<T>> nodes)
             throws IllegalStateException {
         final LinkedHashSet<TopoGraphNode<T>> order = new LinkedHashSet<TopoGraphNode<T>>();
@@ -43,7 +43,7 @@ public class TopologicalSort<T extends Object> {
         alreadySeen.remove(n);
     }
 
-    public static class TopoGraphNode<T extends Object> {
+    public static class TopoGraphNode<T> {
         private List<TopoGraphNode<T>> dependencies = new ArrayList<TopoGraphNode<T>>();
 
         private T obj;

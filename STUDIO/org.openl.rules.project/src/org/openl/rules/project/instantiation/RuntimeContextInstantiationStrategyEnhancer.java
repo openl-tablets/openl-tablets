@@ -104,7 +104,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
             Class<?>[] serviceMethodParameterTypes = serviceMethod.getParameterTypes();
 
             Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
-            Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(newParams, serviceMethodParameterTypes);
+            Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, serviceMethodParameterTypes);
 
             Method interfaceMethod;
             try {

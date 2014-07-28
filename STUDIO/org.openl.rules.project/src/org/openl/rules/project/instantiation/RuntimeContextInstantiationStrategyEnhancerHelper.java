@@ -157,7 +157,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = method.getReturnType();
             Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
-            Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(newParams, paramTypes);
+            Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, paramTypes);
 
             RuleInfo ruleInfo = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
 

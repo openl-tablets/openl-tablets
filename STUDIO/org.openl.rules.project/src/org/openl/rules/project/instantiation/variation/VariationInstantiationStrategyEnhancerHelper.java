@@ -188,7 +188,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = VariationsResult.class;
             Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
-            Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(paramTypes, newParams);
+            Class<?>[] extendedParamTypes = ArrayUtils.addAll(paramTypes, newParams);
 
             RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
             RuleInfo ruleInfoOriginal = InterfaceGenerator.createRuleInfo(methodName, paramTypes, method.getReturnType());

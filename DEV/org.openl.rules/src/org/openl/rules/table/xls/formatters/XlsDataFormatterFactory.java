@@ -13,8 +13,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.xls.XlsCell;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.xls.formatters.XlsNumberFormatter;
 import org.openl.types.IOpenClass;
 import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;

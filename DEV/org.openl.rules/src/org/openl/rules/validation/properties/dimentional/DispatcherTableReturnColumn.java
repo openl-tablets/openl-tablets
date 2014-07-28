@@ -160,7 +160,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
         }
         if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughSymbol(values, ",");; 
+            result = StringTool.listToStringThroughSymbol(values, ",");
         }        
         return result; 
     }

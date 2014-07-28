@@ -32,7 +32,6 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
-import org.openl.rules.helpers.RulesUtils;
 import org.openl.util.ArrayTool;
 
 /**
