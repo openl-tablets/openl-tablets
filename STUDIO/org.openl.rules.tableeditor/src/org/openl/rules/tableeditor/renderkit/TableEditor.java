@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -33,6 +34,7 @@ public class TableEditor {
     private String excludeScripts;
     private String linkBase;
     private String linkTarget;
+    private Integer rowIndex;
 
     public TableEditor() {
     }
@@ -55,6 +57,7 @@ public class TableEditor {
         onError = (String) attributes.get(Constants.ATTRIBUTE_ON_ERROR);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
+        rowIndex = (Integer) attributes.get(Constants.ATTRIBUTE_ROW_INDEX);
     }
 
     private void castToFilters(Object filtersParam) {
@@ -206,4 +209,11 @@ public class TableEditor {
         return linkBase != null;
     }
 
+    public void setRowIndex(Integer rowIndex) {
+        this.rowIndex = rowIndex;
+    }
+
+    public Integer getRowIndex() {
+        return rowIndex;
+    }
 }

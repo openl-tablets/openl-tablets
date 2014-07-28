@@ -17,6 +17,7 @@ public final class Constants {
     public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
     public static final String ATTRIBUTE_ON_ERROR = "onError";
     public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
+    public static final String ATTRIBUTE_ROW_INDEX = "rowIndex";
     public static final String ATTRIBUTE_LINK_BASE = "linkBase";
     public static final String ATTRIBUTE_LINK_TARGET = "linkTarget";
 

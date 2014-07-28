@@ -41,6 +41,6 @@ public class BaseTableEditorController {
         TableModel tableModel = initializeTableModel(editorId);
         TableEditorModel editorModel = getEditorModel(editorId);
         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(tableModel);
-        return tableRenderer.render(editorModel.isShowFormulas(), null, editorId);
+        return tableRenderer.render(editorModel.isShowFormulas(), null, editorId, null);
     }
 }
