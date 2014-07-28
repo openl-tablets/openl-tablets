@@ -425,9 +425,9 @@
 
             <!-- Apache Commons DBCP software implements Database Connection Pooling -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-dbcp2</artifactId>
-                <version>2.0.1</version>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
             </dependency>
 
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
