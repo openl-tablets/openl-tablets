@@ -9,7 +9,7 @@ package org.openl;
 import java.io.File;
 import java.util.Map;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.openl.cache.CacheUtils;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
@@ -48,7 +48,7 @@ public class OpenL {
 
     // Soft references to values are used to prevent memory leak
     @SuppressWarnings("unchecked")
-    private static Map<Object, OpenL> openLCache = new ReferenceMap();
+    private static Map<Object, OpenL> openLCache = new ReferenceMap<Object, OpenL>();
 
     private IOpenParser parser;
 
@@ -273,7 +273,7 @@ public class OpenL {
     /**
      * Gets virtual machine which used during rules execution.
      * 
-     * @return {@link IOpenVm} instance
+     * @return {@link IOpenVM} instance
      */
     public IOpenVM getVm() {
         return vm;
@@ -282,7 +282,7 @@ public class OpenL {
     /**
      * Sets virtual machine.
      * 
-     * @param openVM {@link IOpenVm} instance
+     * @param openVM {@link IOpenVM} instance
      */
     public void setVm(IOpenVM openVM) {
         vm = openVM;
