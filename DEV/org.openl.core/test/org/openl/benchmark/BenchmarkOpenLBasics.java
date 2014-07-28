@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;

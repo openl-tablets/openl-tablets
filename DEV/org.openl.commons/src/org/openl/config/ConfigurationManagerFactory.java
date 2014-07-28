@@ -1,6 +1,6 @@
 package org.openl.config;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class ConfigurationManagerFactory {
     private boolean useSystemProperties;

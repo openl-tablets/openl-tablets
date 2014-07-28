@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.codegen.tools.CodeGenTools;
 import org.openl.codegen.tools.VelocityTool;
 import org.openl.util.math.MathUtils;

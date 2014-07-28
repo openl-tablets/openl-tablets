@@ -1,6 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;

@@ -3,7 +3,7 @@ package org.openl.message;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLConstants;

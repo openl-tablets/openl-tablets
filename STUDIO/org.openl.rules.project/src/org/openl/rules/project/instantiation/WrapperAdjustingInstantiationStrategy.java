@@ -9,7 +9,7 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;

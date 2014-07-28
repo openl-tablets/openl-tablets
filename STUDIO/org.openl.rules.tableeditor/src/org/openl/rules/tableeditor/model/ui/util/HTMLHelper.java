@@ -1,6 +1,6 @@
  package org.openl.rules.tableeditor.model.ui.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Andrei Astrouski

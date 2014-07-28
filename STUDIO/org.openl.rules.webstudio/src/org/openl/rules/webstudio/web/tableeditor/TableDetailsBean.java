@@ -15,8 +15,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.ILogicalTable;

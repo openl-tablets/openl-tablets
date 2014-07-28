@@ -1,6 +1,6 @@
 package org.openl.util.formatters;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class DefaultFormatter implements IFormatter {
 

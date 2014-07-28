@@ -1,6 +1,6 @@
 package org.openl.rules.security.common.spring;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 

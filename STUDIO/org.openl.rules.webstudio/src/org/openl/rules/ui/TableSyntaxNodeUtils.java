@@ -1,6 +1,6 @@
 package org.openl.rules.ui;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

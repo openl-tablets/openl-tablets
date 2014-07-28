@@ -6,8 +6,8 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.ColumnDescriptor;

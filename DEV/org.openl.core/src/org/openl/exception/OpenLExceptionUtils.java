@@ -3,7 +3,7 @@ package org.openl.exception;
 import java.io.PrintWriter;
 import java.util.Stack;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;

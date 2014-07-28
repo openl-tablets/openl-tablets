@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;

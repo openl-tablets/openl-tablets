@@ -8,7 +8,7 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassWriter;

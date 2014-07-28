@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {

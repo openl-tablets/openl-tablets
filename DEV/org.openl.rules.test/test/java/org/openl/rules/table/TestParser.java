@@ -11,7 +11,7 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Assert;
 import org.openl.IOpenBinder;
 import org.openl.IOpenParser;
