@@ -27,15 +27,6 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.type.basic.BigDecimalType;
-import org.apache.cxf.aegis.type.basic.BigIntegerType;
-import org.apache.cxf.aegis.type.basic.ByteType;
-import org.apache.cxf.aegis.type.basic.DoubleType;
-import org.apache.cxf.aegis.type.basic.FloatType;
-import org.apache.cxf.aegis.type.basic.IntType;
-import org.apache.cxf.aegis.type.basic.LongType;
-import org.apache.cxf.aegis.type.basic.ShortType;
-import org.apache.cxf.aegis.type.basic.StringType;
 import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.Point;
@@ -111,24 +102,24 @@ public class AegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
-            StringType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
+            org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-                ShortType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
+            org.openl.meta.ShortValueType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
-                LongType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
+            org.openl.meta.LongValueType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
-                IntType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
+            org.openl.meta.IntValueType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-                FloatType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
+            org.openl.meta.FloatValueType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-                DoubleType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
+            org.openl.meta.DoubleValueType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
-                ByteType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
+            org.openl.meta.ByteValueType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-                BigIntegerType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
+            org.openl.meta.BigIntegerValueType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-                BigDecimalType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
-
+            org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
+        
         return aegisDatabinding;
     }
 
