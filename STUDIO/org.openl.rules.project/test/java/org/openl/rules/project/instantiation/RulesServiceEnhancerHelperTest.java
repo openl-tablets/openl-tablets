@@ -41,7 +41,7 @@ public class RulesServiceEnhancerHelperTest {
     private Method getEnhancedMethod(Method methodFromSimple, Class<?> simple, Class<?> enhanced) {
         return MethodUtils.getMatchingAccessibleMethod(enhanced,
             methodFromSimple.getName(),
-            (Class[]) ArrayUtils.add(methodFromSimple.getParameterTypes(), 0, IRulesRuntimeContext.class));
+            ArrayUtils.add(methodFromSimple.getParameterTypes(), 0, IRulesRuntimeContext.class));
     }
 
     @Test

@@ -23,10 +23,10 @@ public class NaryNode extends ASyntaxNode {
         super(type, pos, module);
         
         this.nodes = nodes == null ? EMPTY : nodes;
-        
-        for (int i = 0; i < this.nodes.length; i++) {
-            if (this.nodes[i] != null) {
-                this.nodes[i].setParent(this);
+
+        for (ISyntaxNode node : this.nodes) {
+            if (node != null) {
+                node.setParent(this);
             }
         }
     }
@@ -60,8 +60,7 @@ public class NaryNode extends ASyntaxNode {
     public void addNode(ISyntaxNode node) { 
         if (node != null) {          
             node.setParent(this);
-            ISyntaxNode[] newNodes = (ISyntaxNode[])ArrayUtils.add(nodes, node);
-            nodes = newNodes;
+            nodes = ArrayUtils.add(nodes, node);
         }
     }
 
