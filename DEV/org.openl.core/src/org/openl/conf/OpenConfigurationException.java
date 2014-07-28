@@ -18,16 +18,13 @@ public class OpenConfigurationException extends RuntimeException {
      *
      */
     private static final long serialVersionUID = 3292629986027365336L;
-    String uri;
-    Throwable cause;
+    private String uri;
 
     public OpenConfigurationException(String msg, String uri, Throwable t) {
         super(msg, t);
+        this.uri = uri;
     }
 
-    /**
-     * @return
-     */
     public String getUri() {
         return uri;
     }
