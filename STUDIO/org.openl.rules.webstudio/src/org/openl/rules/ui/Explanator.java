@@ -1,9 +1,9 @@
 package org.openl.rules.ui;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.map.IdentityMap;
 import org.openl.meta.explanation.ExplanationNumberValue;
 
 public class Explanator {
@@ -12,9 +12,9 @@ public class Explanator {
 
     private static int uniqueId = 0;
 
-    private IdentityMap value2id = new IdentityMap();
+    private IdentityHashMap<ExplanationNumberValue<?>, Integer> value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
 
-    private Map<Integer, Object> id2value = new HashMap<Integer, Object>();
+    private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
 
     private Map<String, Explanation> explanators = new HashMap<String, Explanation>();
 
@@ -27,7 +27,7 @@ public class Explanator {
     }
 
     public ExplanationNumberValue<?> find(String expandID) {
-        return (ExplanationNumberValue<?>) id2value.get(new Integer(Integer.parseInt(expandID)));
+        return id2value.get(Integer.parseInt(expandID));
     }
 
     public Explanation getExplanation(String rootID) {
@@ -35,7 +35,7 @@ public class Explanator {
         if (expl == null) {
             int id = Integer.parseInt(rootID);
 
-            ExplanationNumberValue<?> value = (ExplanationNumberValue<?>) id2value.get(new Integer(id));
+            ExplanationNumberValue<?> value = id2value.get(id);
             expl = new Explanation(this);
             expl.setRoot(value);
             explanators.put(rootID, expl);
@@ -44,21 +44,21 @@ public class Explanator {
     }
 
     public int getUniqueId(ExplanationNumberValue<?> value) {
-        Integer id = (Integer)value2id.get(value);
+        Integer id = value2id.get(value);
 
         if (id != null) {
-            return id.intValue();
+            return id;
         }
 
-        id = new Integer(++uniqueId);
+        id = ++uniqueId;
         value2id.put(value, id);
         id2value.put(id, value);
-        return id.intValue();
+        return id;
     }
     
     public void reset() {
-        id2value = new HashMap<Integer, Object>();
-        value2id = new IdentityMap();
+        id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
+        value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
         explanators = new HashMap<String, Explanation>();
     }
 }

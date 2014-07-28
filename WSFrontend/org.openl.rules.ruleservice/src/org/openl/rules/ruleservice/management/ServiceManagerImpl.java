@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.management;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
@@ -126,7 +126,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             if (log.isErrorEnabled()) {
                 log.error("Failed to gather services to be deployed", e);
             }
-            return MapUtils.EMPTY_MAP;
+            return Collections.emptyMap();
         }
     }
 
