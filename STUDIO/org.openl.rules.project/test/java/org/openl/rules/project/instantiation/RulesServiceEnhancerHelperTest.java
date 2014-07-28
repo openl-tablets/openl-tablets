@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.context.IRulesRuntimeContext;

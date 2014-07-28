@@ -5,10 +5,10 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.openl.util.ArrayTool;

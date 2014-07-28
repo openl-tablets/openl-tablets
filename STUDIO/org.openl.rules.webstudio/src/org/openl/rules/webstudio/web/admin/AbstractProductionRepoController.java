@@ -5,7 +5,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import javax.faces.bean.ManagedProperty;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;

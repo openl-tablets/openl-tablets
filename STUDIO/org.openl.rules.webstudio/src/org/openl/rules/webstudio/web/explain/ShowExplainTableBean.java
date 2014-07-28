@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.explain;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;

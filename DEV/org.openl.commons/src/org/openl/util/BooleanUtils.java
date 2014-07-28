@@ -59,9 +59,9 @@ public class BooleanUtils {
     public static Boolean toBooleanObject(Object value) {
         Boolean bValue = null;
         if (value instanceof String) {
-            bValue = org.apache.commons.lang.BooleanUtils.toBooleanObject((String) value);
+            bValue = org.apache.commons.lang3.BooleanUtils.toBooleanObject((String) value);
         } else if (value instanceof Integer) {
-            bValue = org.apache.commons.lang.BooleanUtils.toBoolean((Integer) value);
+            bValue = org.apache.commons.lang3.BooleanUtils.toBoolean((Integer) value);
         } else if (value instanceof Boolean) {
             bValue = (Boolean) value;
         }

@@ -4,11 +4,11 @@
 
 package org.openl.eclipse.interface.based;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.eclipse.interface.based.Vehicle;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.lang.String;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.eclipse.interface.based.Driver;
 
 public class Policy{

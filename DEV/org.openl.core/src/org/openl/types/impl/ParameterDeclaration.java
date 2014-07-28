@@ -6,9 +6,9 @@
 
 package org.openl.types.impl;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 

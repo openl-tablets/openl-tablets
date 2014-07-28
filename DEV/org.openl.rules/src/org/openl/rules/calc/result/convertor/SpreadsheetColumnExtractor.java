@@ -2,7 +2,7 @@ package org.openl.rules.calc.result.convertor;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.convertor.IObjectToDataConvertor;

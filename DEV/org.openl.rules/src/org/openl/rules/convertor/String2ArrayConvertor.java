@@ -1,6 +1,6 @@
 package org.openl.rules.convertor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.util.StringTool;
 
 import java.lang.reflect.Array;

@@ -2,7 +2,7 @@ package org.openl.rules.tableeditor.model;
 
 import java.util.Date;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.helpers.CharRange;

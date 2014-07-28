@@ -1,6 +1,6 @@
 package org.openl.rules.indexer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DefaultIndexer implements IIndexer {
 

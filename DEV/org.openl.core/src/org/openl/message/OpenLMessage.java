@@ -1,6 +1,6 @@
 package org.openl.message;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The <code>OpenLMessage</code> class defines a message abstraction. Messages
