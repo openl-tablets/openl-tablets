@@ -17,17 +17,16 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
+public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
-public class TablePropertiesTest extends BaseOpenlBuilderHelper{
-    
     private static final String PROPERTY_ACTIVE = "active";
 
-	public TablePropertiesTest() {
-        super(SRC);   
+    public TablePropertiesTest() {
+        super(SRC);
     }
 
     private static final String SRC = "test/rules/Tutorial_4_Test.xls";
-    
+
     private static final String PROPERTY_BUILD_PHASE = "buildPhase";
     private static final String PROPERTY_REGION = "region";
     private static final String PROPERTY_USREGION = "usregion";
@@ -37,8 +36,8 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     private static final String PROPERTY_EFFECTIVE_DATE = "effectiveDate";
     private static final String PROPERTY_EXPIRATION_DATE = "expirationDate";
     private static final String PROPERTY_NAME = "name";
-    private static final String PROPERTY_FAIL_ON_MISS ="failOnMiss";
-    
+    private static final String PROPERTY_FAIL_ON_MISS = "failOnMiss";
+
     private TableProperties initTableProperties() {
         TableProperties tableProperties = new TableProperties();
         tableProperties.setFieldValue(PROPERTY_NAME, "newName");
@@ -46,13 +45,12 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
         tableProperties.setFieldValue(PROPERTY_CREATED_BY, "tableLevelCreatedBy");
         return tableProperties;
     }
-    
+
     private Map<String, Object> initDefaultProperties() {
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
-                                                                        .getPropertiesToBeSetByDefault();    
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
-        
-        for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){            
+
+        for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
             String propertyName = propertyWithDefaultValue.getName();
             defaultProperties.put(propertyName, propertyName + "Value");
         }
@@ -75,100 +73,102 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
         categoryProperties.put(PROPERTY_BUILD_PHASE, "categoryLevelBuildPhase");
         return categoryProperties;
     }
-    
+
     private TableProperties initProperties() {
         TableProperties tableProperties = initTableProperties();
-        
+
         Map<String, Object> categoryProperties = initCategoryProperties();
         tableProperties.setPropertiesAppliedForCategory(categoryProperties);
-        
+
         Map<String, Object> moduleProperties = initModuleProperties();
         tableProperties.setPropertiesAppliedForModule(moduleProperties);
-        
+
         Map<String, Object> defaultProperties = initDefaultProperties();
         tableProperties.setPropertiesAppliedByDefault(defaultProperties);
-        
+
         return tableProperties;
     }
-    
+
     private String getPropertyValueAsString(String propertyName, Object propertyValue) {
         String result;
         TableProperties tablProp = new TableProperties();
-        tablProp.setFieldValue(propertyName, propertyValue);        
+        tablProp.setFieldValue(propertyName, propertyValue);
         result = tablProp.getPropertyValueAsString(propertyName);
         return result;
     }
-    
+
     @Test
-    public void testPropertyDef() {       
-        TableSyntaxNode[] tsns = getTableSyntaxNodes(); 
-        assertTrue(61 == tsns.length);        
-        assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
+    public void testPropertyDef() {
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
+        assertEquals(62, tsns.length);
+        assertEquals("Driver Age Type Table", tsns[5].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        assertEquals("02/04/2237", sdf.format(((Date)tsns[4].getTableProperties()
-                .getPropertyValue(PROPERTY_EFFECTIVE_DATE))));
+        assertEquals("02/04/2237",
+            sdf.format(((Date) tsns[5].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE))));
     }
-    
+
     @Test
     public void testGetValueAsString() {
-        String result = null;        
+        String result = null;
         String propertyNameValue = "MyName";
         result = getPropertyValueAsString(PROPERTY_NAME, propertyNameValue);
-        assertEquals(propertyNameValue, result);        
-        
+        assertEquals(propertyNameValue, result);
+
         Date dateValue = new Date(4098);
         result = getPropertyValueAsString(PROPERTY_EFFECTIVE_DATE, dateValue);
-        SimpleDateFormat sDF = new SimpleDateFormat(TablePropertyDefinitionUtils
-                .getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
+        SimpleDateFormat sDF = new SimpleDateFormat(TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE)
+            .getFormat());
         assertEquals(sDF.format(dateValue), result);
-        
-        result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, new Boolean(true));        
+
+        result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, new Boolean(true));
         assertEquals("true", result);
     }
-    
+
     @Test
     public void testInheritanceProperties() {
         TableProperties tableProperties = initProperties();
-        
+
         Map<String, Object> allProperties = tableProperties.getAllProperties();
-        
+
         // check table properties.
         assertTrue(allProperties.containsKey(PROPERTY_NAME));
-        assertTrue(allProperties.containsKey(PROPERTY_DESCRIPTION));   
-         
+        assertTrue(allProperties.containsKey(PROPERTY_DESCRIPTION));
+
         // check that property was overriden on TABLE level.
-        assertEquals("tableLevelCreatedBy", (String)allProperties.get(PROPERTY_CREATED_BY));
-        
+        assertEquals("tableLevelCreatedBy", (String) allProperties.get(PROPERTY_CREATED_BY));
+
         // check that CATEGORY properties are inherited.
         assertTrue(allProperties.containsKey(PROPERTY_LOB));
         assertTrue(allProperties.containsKey(PROPERTY_USREGION));
         assertTrue(allProperties.containsKey(PROPERTY_REGION));
-        
+
         // check that property was overriden on CATEGORY level.
-        assertEquals("categoryLevelBuildPhase", (String)allProperties.get(PROPERTY_BUILD_PHASE));
-        
+        assertEquals("categoryLevelBuildPhase", (String) allProperties.get(PROPERTY_BUILD_PHASE));
+
         // check that MODULE properties are inherited.
         assertTrue(allProperties.containsKey(PROPERTY_EXPIRATION_DATE));
-    }    
-    
+    }
+
     @Test
     public void testPropertiesLevelDefinedOn() {
         TableProperties tableProperties = initProperties();
-        
+
         // checks that property PROPERTY_NAME is defined on TABLE level.
         assertEquals(InheritanceLevel.TABLE, tableProperties.getPropertyLevelDefinedOn(PROPERTY_NAME));
-        
+
         // checks that property PROPERTY_LOB is defined on CATEGORY level.
         assertEquals(InheritanceLevel.CATEGORY, tableProperties.getPropertyLevelDefinedOn(PROPERTY_LOB));
-        
-        // checks that property PROPERTY_EXPIRATION_DATE is defined on MODULE level.
+
+        // checks that property PROPERTY_EXPIRATION_DATE is defined on MODULE
+        // level.
         assertEquals(InheritanceLevel.MODULE, tableProperties.getPropertyLevelDefinedOn(PROPERTY_EXPIRATION_DATE));
-        
-        // checks that property PROPERTY_ACTIVE, that is applied by default, doesn`t have defined level.
+
+        // checks that property PROPERTY_ACTIVE, that is applied by default,
+        // doesn`t have defined level.
         assertNull(tableProperties.getPropertyLevelDefinedOn(PROPERTY_ACTIVE));
-        
+
         // checks that property PROPERTY_ACTIVE is applied by default.
         assertTrue(tableProperties.isPropertyAppliedByDefault(PROPERTY_ACTIVE));
-        
+
     }
 }

@@ -49,6 +49,9 @@ public class IdentifiedMethodTest {
         assertEquals(100.0, res2.doubleValue(), 1e-8);
 
         // direct call to particular method avoiding method dispatcher
+        calendar.set(2003, 5, 15);
+
+        context.setCurrentDate(calendar.getTime());
         DoubleValue res2_2 = instance.driverRiskEarlier("High Risk Driver");
         assertEquals(120.0, res2_2.doubleValue(), 1e-8);
     }
