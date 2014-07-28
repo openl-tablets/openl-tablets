@@ -70,7 +70,7 @@ public class HTMLRenderer {
 
         result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode));
 
-        result.append("<div id='" + editor.getId() + Constants.TABLE_EDITOR_WRAPPER_PREFIX + "' class='te_editor_wrapper'></div>");
+        result.append("<div id='").append(editor.getId()).append(Constants.TABLE_EDITOR_WRAPPER_PREFIX).append("' class='te_editor_wrapper'></div>");
 
         if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
             String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
@@ -167,10 +167,7 @@ public class HTMLRenderer {
     public String renderCSS(String cssPath) {
         Set<String> resources = getResourcesWritten();
         if (resources.add(cssPath)) {
-            StringBuilder result = new StringBuilder();
-            result
-                .append("<link rel=\"stylesheet\" href=\"").append(WebUtil.internalPath(cssPath)).append("\"></link>");
-            return result.toString();
+            return "<link rel=\"stylesheet\" href=\"" + WebUtil.internalPath(cssPath) + "\"></link>";
         }
         return "";
     }
@@ -186,10 +183,8 @@ public class HTMLRenderer {
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
-        String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
+        return String.format("new DropdownEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
                 .escapeEcmaScript(value));
-
-        return jsCode;
     }
 
     public String getMultiSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
@@ -203,10 +198,8 @@ public class HTMLRenderer {
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
-        String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
+        return String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
                 .escapeEcmaScript(value));
-
-        return jsCode;
     }
 
     protected String getEditorJSAction(String action) {
@@ -219,7 +212,7 @@ public class HTMLRenderer {
         final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
                 + " class=\"item_separator\"></img>";
 
-        result.append("<div style=\"" + (mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "") + "\" class=\"te_toolbar\">")
+        result.append("<div style=\"").append(mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "").append("\" class=\"te_toolbar\">")
             .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save changes"))
             .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo changes"))
             .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo changes"))
@@ -290,9 +283,7 @@ public class HTMLRenderer {
     public String renderJS(String jsPath) {
         Set<String> resources = getResourcesWritten();
         if (resources.add(jsPath)) {
-            StringBuilder result = new StringBuilder();
-            result.append("<script src=\"").append(WebUtil.internalPath(jsPath)).append("\"></script>");
-            return result.toString();
+            return "<script src=\"" + WebUtil.internalPath(jsPath) + "\"></script>";
         }
         return "";
     }
@@ -300,9 +291,7 @@ public class HTMLRenderer {
     public String renderJSBody(String jsBody) {
         Set<String> resources = getResourcesWritten();
         if (resources.add(jsBody)) {
-            StringBuilder result = new StringBuilder();
-            result.append("<script>").append(jsBody).append("</script>");
-            return result.toString();
+            return "<script>" + jsBody + "</script>";
         }
         return "";
     }
@@ -401,9 +390,9 @@ public class HTMLRenderer {
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
                         s.append("<script type=\"text/javascript\">")
-                            .append("new Tooltip('" + cellId + "','" + StringEscapeUtils.escapeEcmaScript(
-                                    cell.getComment().replaceAll("\\n", "<br/>"))
-                                    + "', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
+                                .append("new Tooltip('").append(cellId).append("','")
+                                .append(StringEscapeUtils.escapeEcmaScript(cell.getComment().replaceAll("\\n", "<br/>")))
+                                .append("', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
                             .append("</script>");
                     }
                 }
@@ -413,8 +402,9 @@ public class HTMLRenderer {
 
             if (tableModel.getNumRowsToDisplay() > -1) {
                 s.append("<div class='te_bigtable_mes'>")
-                .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
-                        + tableModel.getNumRowsToDisplay() + " rows).</div>")
+                .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first ")
+                .append(tableModel.getNumRowsToDisplay())
+                .append(" rows).</div>")
                 .append("<div>To view the full table, use 'Open In Excel'.</div>")
                 .append("</div>");
             }
