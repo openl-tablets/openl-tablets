@@ -17,16 +17,16 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.util.generation.InterfaceTransformer;
 
-public class DynamicInterfaceAnnotationEnchancerHelper {
+public class DynamicInterfaceAnnotationEnhancerHelper {
 
-    private static class DynamicInterfaceAnnotationEnchancerClassVisitor extends ClassVisitor {
+    private static class DynamicInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
         private Class<?> templateClass;
 
-        public DynamicInterfaceAnnotationEnchancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
+        public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
             super(Opcodes.ASM4, arg0);
             this.templateClass = templateClass;
         }
@@ -113,13 +113,13 @@ public class DynamicInterfaceAnnotationEnchancerHelper {
     public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass, ClassLoader classLoader)
             throws Exception {
         ClassWriter cw = new ClassWriter(0);
-        DynamicInterfaceAnnotationEnchancerClassVisitor dynamicInterfaceAnnotationEnchancerClassAdaptor = new DynamicInterfaceAnnotationEnchancerClassVisitor(
+        DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassAdaptor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
                 cw, templateClass);
 
         String enchancedClassName = originalClass.getCanonicalName()
-                + DynamicInterfaceAnnotationEnchancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+                + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
-        transformer.accept(dynamicInterfaceAnnotationEnchancerClassAdaptor);
+        transformer.accept(dynamicInterfaceAnnotationEnhancerClassAdaptor);
         cw.visitEnd();
         Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(),
                 classLoader);

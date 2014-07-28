@@ -10,7 +10,7 @@ import org.objectweb.asm.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.util.generation.InterfaceTransformer;
 
-public class CustomSpreadsheetResultInterfaceEnchancerHelper {
+public class CustomSpreadsheetResultInterfaceEnhancerHelper {
 
     public static final String CUSTOMSPREADSHEETRESULT_PREFIX = "SpreadsheetResult";
 
