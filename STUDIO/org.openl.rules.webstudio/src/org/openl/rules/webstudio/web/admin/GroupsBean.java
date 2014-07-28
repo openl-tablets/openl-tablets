@@ -96,7 +96,7 @@ public class GroupsBean {
 
     public Privilege[] getDefaultPrivileges() {
         Privilege[] privileges = DefaultPrivileges.values();
-        return (Privilege[]) ArrayUtils.removeElement(
+        return ArrayUtils.removeElement(
                 privileges, DefaultPrivileges.PRIVILEGE_ALL);
     }
 
