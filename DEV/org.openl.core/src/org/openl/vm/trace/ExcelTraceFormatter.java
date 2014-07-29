@@ -1,6 +1,6 @@
 package org.openl.vm.trace;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Excel Trace Formatter Stub
@@ -8,7 +8,7 @@ import org.apache.commons.lang.NotImplementedException;
 public class ExcelTraceFormatter implements TraceFormatter {
 
     public String format(ITracerObject[] tracerObjects) {
-        throw new NotImplementedException();
+        throw new NotImplementedException(String.format("%s is not implemented yet", getClass().getName()));
     }
 
 }

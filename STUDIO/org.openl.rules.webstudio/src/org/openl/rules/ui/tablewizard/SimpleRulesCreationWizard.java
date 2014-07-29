@@ -19,7 +19,7 @@ import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
@@ -157,7 +157,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
             if (!items.isEmpty()) {
                 SelectItemGroup itemGroup = new SelectItemGroup(groupName);
-                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
+                itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
                 propertyNames.add(itemGroup);
             }
         }
@@ -317,32 +317,32 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             if (openClass != null) {
                 if(openClass.isArray()) {
                     this.type = "ARRAY";
-                } else if (openClass.toString().equals(Date.class.getCanonicalName().toString())) {
+                } else if (openClass.toString().equals(Date.class.getCanonicalName())) {
                     this.type = "DATE";
-                } else if (openClass.toString().equals(boolean.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(Boolean.class.getCanonicalName().toString())) {
+                } else if (openClass.toString().equals(boolean.class.getCanonicalName()) ||
+                        openClass.toString().equals(Boolean.class.getCanonicalName())) {
                     this.type = "BOOLEAN";
-                } else if (openClass.toString().equals(BigInteger.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigIntegerValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(ByteValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(LongValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(ShortValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(byte.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(long.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(short.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(int.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(IntValue.class.getCanonicalName().toString())) {
+                } else if (openClass.toString().equals(BigInteger.class.getCanonicalName()) ||
+                        openClass.toString().equals(BigIntegerValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(ByteValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(LongValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(ShortValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(byte.class.getCanonicalName()) ||
+                        openClass.toString().equals(long.class.getCanonicalName()) ||
+                        openClass.toString().equals(short.class.getCanonicalName()) ||
+                        openClass.toString().equals(int.class.getCanonicalName()) ||
+                        openClass.toString().equals(IntValue.class.getCanonicalName())) {
                     this.type = "INT";
-                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(Double.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(double.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(float.class.getCanonicalName().toString())) {
+                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName()) ||
+                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(DoubleValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(Double.class.getCanonicalName()) ||
+                        openClass.toString().equals(FloatValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(double.class.getCanonicalName()) ||
+                        openClass.toString().equals(float.class.getCanonicalName())) {
                     this.type = "FLOAT";
-                } else if (openClass.toString().equals(IntRange.class.getCanonicalName().toString()) ||
-                     openClass.toString().equals(DoubleRange.class.getCanonicalName().toString())) { 
+                } else if (openClass.toString().equals(IntRange.class.getCanonicalName()) ||
+                     openClass.toString().equals(DoubleRange.class.getCanonicalName())) {
                     this.type = "RANGE";
                 } else {
                     this.type = "STRING";
@@ -422,7 +422,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
         FacesMessage message = new FacesMessage();
-        ValidatorException validEx = null;
+        ValidatorException validEx;
         int paramId = this.getParamId(toValidate.getClientId());
 
         if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
@@ -510,7 +510,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     private void checkParameterName(String name) {
         String regex = "([a-zA-Z_][a-zA-Z_0-9]*)?";
         FacesMessage message = new FacesMessage();
-        ValidatorException validEx = null;
+        ValidatorException validEx;
 
         if (StringUtils.isEmpty(name)) {
             message.setDetail("Can not be empty");

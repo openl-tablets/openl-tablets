@@ -1,6 +1,6 @@
 package org.openl.rules.datatype.gen;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;

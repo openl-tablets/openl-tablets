@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;

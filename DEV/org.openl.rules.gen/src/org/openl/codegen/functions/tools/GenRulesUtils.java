@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.codegen.tools.CodeGenTools;
 import org.openl.codegen.tools.VelocityTool;
 import org.openl.rules.helpers.RulesUtils;
@@ -25,9 +25,9 @@ public class GenRulesUtils extends GenNumberValueFunctions {
     }
 
     public void run() throws Exception {
-        ALL_WRAPPER_TYPES = (Class<?>[]) ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
+        ALL_WRAPPER_TYPES = ArrayUtils.addAll(GenNumberValueFunctions.wrapperNumericTypes,
                 GenNumberValueFunctions.BIG_NUMERIC_TYPES);
-        ALL_TYPES = (Class<?>[]) ArrayUtils.addAll(ALL_WRAPPER_TYPES, GenNumberValueFunctions.primitiveNumericTypes);
+        ALL_TYPES = ArrayUtils.addAll(ALL_WRAPPER_TYPES, GenNumberValueFunctions.primitiveNumericTypes);
         generateRulesFunctions();
     }
 

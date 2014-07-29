@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -82,9 +82,6 @@ public class TableViewer {
 
     /**
      * Two argument constructor
-     *
-     * @param grid
-     * @param reg
      */
     public TableViewer(IGrid grid, IGridRegion reg, String linkBase, String linkTarget) {
         super();
@@ -104,7 +101,7 @@ public class TableViewer {
 
         String formattedValue = cell.getFormattedValue();
         if (StringUtils.isNotBlank(formattedValue)) {
-            String content = null;
+            String content;
             // has Explanation link
             //
             if (link(formattedValue)) {
@@ -117,7 +114,7 @@ public class TableViewer {
             } else if (image(formattedValue)) {
                 content = formattedValue;
             } else {            
-                content = StringEscapeUtils.escapeHtml(formattedValue);
+                content = StringEscapeUtils.escapeHtml4(formattedValue);
             }
             cm.setContent(content);
             if (cell.getFormula() != null) {
@@ -152,7 +149,7 @@ public class TableViewer {
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (tableUri != null) {
                     String tableId = TableUtils.makeTableId(tableUri);
-                    buff.append("<a href=\"" + linkBase + "?id=")
+                    buff.append("<a href=\"").append(linkBase).append("?id=")
                         .append(tableId).append("\"");
                     if (StringUtils.isNotBlank(linkTarget)) {
                         buff.append(" target=\"").append(linkTarget).append("\"");

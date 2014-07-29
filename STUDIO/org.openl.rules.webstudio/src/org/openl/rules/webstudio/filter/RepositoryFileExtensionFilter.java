@@ -7,7 +7,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.util.ASelector;
 import org.openl.util.filter.IFilter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Filter for <code>ProjectResource</code>s based on their file extension.

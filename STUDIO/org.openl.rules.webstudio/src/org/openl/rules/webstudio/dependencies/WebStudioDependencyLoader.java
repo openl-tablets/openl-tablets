@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -27,7 +27,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
         ClassLoader classLoader = dependencyManager.getClassLoader(getModules().iterator().next().getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
-    };
+    }
 
     private CompiledDependency createFailedCompiledDependency(String dependencyName,
             ClassLoader classLoader,

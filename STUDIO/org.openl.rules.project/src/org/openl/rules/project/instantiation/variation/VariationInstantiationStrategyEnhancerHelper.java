@@ -7,7 +7,7 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassVisitor;
@@ -188,7 +188,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = VariationsResult.class;
             Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
-            Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(paramTypes, newParams);
+            Class<?>[] extendedParamTypes = ArrayUtils.addAll(paramTypes, newParams);
 
             RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
             RuleInfo ruleInfoOriginal = InterfaceGenerator.createRuleInfo(methodName, paramTypes, method.getReturnType());

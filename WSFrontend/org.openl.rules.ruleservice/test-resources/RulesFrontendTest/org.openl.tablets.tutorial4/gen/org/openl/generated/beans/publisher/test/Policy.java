@@ -5,10 +5,10 @@
 package org.openl.generated.beans.publisher.test;
 
 import org.openl.generated.beans.publisher.test.Vehicle;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.lang.String;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.generated.beans.publisher.test.Driver;
 
 public class Policy{

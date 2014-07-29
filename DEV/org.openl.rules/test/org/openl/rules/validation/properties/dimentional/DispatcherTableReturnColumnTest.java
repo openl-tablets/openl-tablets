@@ -3,7 +3,7 @@ package org.openl.rules.validation.properties.dimentional;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;

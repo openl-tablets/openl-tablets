@@ -10,7 +10,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.domaintree.DomainTreeContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.

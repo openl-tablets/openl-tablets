@@ -11,7 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -43,7 +43,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     
     public IGridTable getTable() {
         return table;
-    };
+    }
 
     public GridCellSourceCodeModule(IGridTable table, IBindingContext bindingContext) {
         this(table, 0, 0, bindingContext);

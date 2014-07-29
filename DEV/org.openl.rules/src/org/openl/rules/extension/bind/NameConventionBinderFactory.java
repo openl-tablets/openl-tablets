@@ -1,6 +1,6 @@
 package org.openl.rules.extension.bind;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.syntax.impl.IdentifierNode;
 
 public class NameConventionBinderFactory implements IBinderFactory {

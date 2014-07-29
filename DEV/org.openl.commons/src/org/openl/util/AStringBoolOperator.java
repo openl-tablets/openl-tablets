@@ -5,7 +5,7 @@ package org.openl.util;
 
 import java.lang.reflect.Constructor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.base.NamedThing;
 
 /**

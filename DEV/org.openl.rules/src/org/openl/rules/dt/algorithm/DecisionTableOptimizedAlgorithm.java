@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -250,7 +250,7 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType,
+    static IRangeAdaptor<?, ?> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {

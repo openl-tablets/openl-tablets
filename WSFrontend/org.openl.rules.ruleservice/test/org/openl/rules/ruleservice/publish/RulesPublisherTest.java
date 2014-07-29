@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.dependency.loader.IDependencyLoader;

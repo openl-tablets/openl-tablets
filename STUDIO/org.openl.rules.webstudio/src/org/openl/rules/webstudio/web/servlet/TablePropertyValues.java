@@ -1,9 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -11,12 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.commons.web.util.WebTool;
-import org.openl.rules.table.constraints.Constraints;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.util.EnumUtils;
 
 public class TablePropertyValues extends HttpServlet {

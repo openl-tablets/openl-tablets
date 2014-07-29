@@ -2,8 +2,8 @@ package org.openl.cache;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * This is immutable object for using it as a key. Build key by array of

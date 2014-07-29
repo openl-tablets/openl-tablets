@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.AbsolutePosition;
