@@ -2,8 +2,8 @@ package org.openl.rules.table;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Handles two coordinates: column number and row number.
@@ -40,7 +40,7 @@ public class Point implements Serializable {
     @Override
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
-        if (!(obj instanceof Point)) {;
+        if (!(obj instanceof Point)) {
             return false;
         }
         Point another = (Point)obj;

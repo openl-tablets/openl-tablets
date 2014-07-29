@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -365,7 +365,7 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] spreadsheets = selectAndSortNodes(moduleNode, spreadsheetSelector, 
             new SpreadsheetNodeComparator());
         
-        TableSyntaxNode[] commonAndSpreadsheetTables = (TableSyntaxNode[])ArrayUtils.addAll(commonTables, spreadsheets);
+        TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(commonTables, spreadsheets);
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
         
         // Select Test and RunMethod tables

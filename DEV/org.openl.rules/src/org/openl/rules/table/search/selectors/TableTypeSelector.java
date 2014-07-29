@@ -1,7 +1,7 @@
 package org.openl.rules.table.search.selectors;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Handles array of table types (e.g. rules, spreadsheet, etc. see {@code ITableNodeTypes} constant 

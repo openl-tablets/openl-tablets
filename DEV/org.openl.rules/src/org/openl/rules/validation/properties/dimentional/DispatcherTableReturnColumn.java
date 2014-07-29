@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;
@@ -160,7 +160,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
         }
         if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughSymbol(values, ",");; 
+            result = StringTool.listToStringThroughSymbol(values, ",");
         }        
         return result; 
     }

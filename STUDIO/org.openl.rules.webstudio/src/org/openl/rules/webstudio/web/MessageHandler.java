@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsUrlParser;

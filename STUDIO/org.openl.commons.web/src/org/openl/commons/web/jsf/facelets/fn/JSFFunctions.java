@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.util.StringTool;
@@ -86,7 +86,7 @@ public class JSFFunctions {
     }
 
     public static String unescape(String string) {
-        return StringEscapeUtils.unescapeHtml(string);
+        return StringEscapeUtils.unescapeHtml4(string);
     }
 
     public static Number toNumber(String string) {
@@ -110,7 +110,7 @@ public class JSFFunctions {
     }
 
     public static String escapeJS(String value) {
-        return StringEscapeUtils.escapeJavaScript(value);
+        return StringEscapeUtils.escapeEcmaScript(value);
     }
 
 }

@@ -32,8 +32,8 @@ import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.collections.map.AbstractReferenceMap;
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.AbstractReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -83,9 +83,8 @@ public class JavaOpenClass extends AOpenClass {
      * Classes added to javaClassCache will not be garbage collected.
      * TODO use better cache implementation instead
      */
-    @SuppressWarnings("unchecked")
-    private static Map<Class<?>, JavaOpenClass> classCache = new ReferenceMap(AbstractReferenceMap.SOFT,
-            AbstractReferenceMap.SOFT);
+    private static Map<Class<?>, JavaOpenClass> classCache = new ReferenceMap<Class<?>, JavaOpenClass>(AbstractReferenceMap.ReferenceStrength.SOFT,
+            AbstractReferenceMap.ReferenceStrength.SOFT);
 
     public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, Integer.valueOf(0));
     public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, Long.valueOf(0));

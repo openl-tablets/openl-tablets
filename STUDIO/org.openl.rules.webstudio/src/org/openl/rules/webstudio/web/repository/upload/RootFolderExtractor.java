@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 
 /**

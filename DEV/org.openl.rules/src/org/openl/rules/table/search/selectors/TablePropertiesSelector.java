@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.AStringBoolOperator;
@@ -81,7 +81,7 @@ public class TablePropertiesSelector extends TableSelector {
                 result = DateUtils.isSameDay((Date) searchValue, (Date) value);
 
             } else if (value instanceof Comparable<?>) {
-                result = (((Comparable) value).compareTo(searchValue) == 0 ? true : false);
+                result = (((Comparable) value).compareTo(searchValue) == 0);
 
             } else if (value.getClass().isArray()) {
                 List<Object> valueArray = Arrays.asList((Object[]) value);

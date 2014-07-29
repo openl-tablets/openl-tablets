@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
@@ -388,7 +388,7 @@ public class TableCopier extends TableCreationWizard {
         } else if (value instanceof String && StringUtils.isEmpty((String)value)) {
             return true;
         } else if (value.getClass().isArray()) {
-            return ((Object[])value).length > 0 ? false : true;
+            return ((Object[]) value).length <= 0;
         }
         return false;
     }    

@@ -3,7 +3,7 @@ package org.openl.rules.project.resolving;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 

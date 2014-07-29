@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 /**
  * Domain for range of dates.
@@ -135,9 +135,8 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
         }
 
         Calendar date = new GregorianCalendar();
-        date.setTime((Date) value);
-        int index = (int) daysBetween(min, date);
-        return index;
+        date.setTime(value);
+        return (int) daysBetween(min, date);
     }
 
     /**

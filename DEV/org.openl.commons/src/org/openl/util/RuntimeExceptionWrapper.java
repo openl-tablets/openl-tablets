@@ -6,8 +6,7 @@
 
 package org.openl.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.NestableRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author snshor
@@ -16,14 +15,14 @@ import org.apache.commons.lang.exception.NestableRuntimeException;
 public class RuntimeExceptionWrapper {
 
     static public RuntimeException wrap(String msg, Throwable cause) {
-        return new NestableRuntimeException(msg, cause);
+        return new RuntimeException(msg, cause);
     }
 
     static public RuntimeException wrap(Throwable cause) {
         if (cause instanceof RuntimeException) {
             return (RuntimeException) cause;
         }
-        return new NestableRuntimeException(getErrorMessage(cause), cause);
+        return new RuntimeException(getErrorMessage(cause), cause);
     }
 
     /**

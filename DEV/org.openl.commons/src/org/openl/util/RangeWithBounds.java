@@ -1,6 +1,6 @@
 package org.openl.util;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class RangeWithBounds {
     public static enum BoundType {
@@ -92,7 +92,7 @@ public class RangeWithBounds {
         } else {
             builder.append('(');
         }
-        builder.append(min + ".." + max);
+        builder.append(min).append("..").append(max);
         if (rightBoundType == BoundType.INCLUDING) {
             builder.append(']');
         } else {

@@ -4,7 +4,7 @@ import java.util.Map.Entry;
 
 import org.junit.Assert;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.OpenL;
 import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;

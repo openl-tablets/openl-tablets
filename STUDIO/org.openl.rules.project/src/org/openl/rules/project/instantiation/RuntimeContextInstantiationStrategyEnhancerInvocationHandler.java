@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -52,7 +52,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
 
     private void applyRulesRuntimeContext(Object serviceInstance, IRulesRuntimeContext context) {
 
-        Class<? extends Object> serviceClass = serviceInstance.getClass();
+        Class<?> serviceClass = serviceInstance.getClass();
 
         if (IEngineWrapper.class.isAssignableFrom(serviceClass)) {
             if (log.isDebugEnabled()) {

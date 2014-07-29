@@ -17,7 +17,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.DefaultPrivileges;
@@ -96,7 +96,7 @@ public class GroupsBean {
 
     public Privilege[] getDefaultPrivileges() {
         Privilege[] privileges = DefaultPrivileges.values();
-        return (Privilege[]) ArrayUtils.removeElement(
+        return ArrayUtils.removeElement(
                 privileges, DefaultPrivileges.PRIVILEGE_ALL);
     }
 

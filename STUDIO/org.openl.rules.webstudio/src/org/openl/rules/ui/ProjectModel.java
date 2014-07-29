@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderCloserFactory;

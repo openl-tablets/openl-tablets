@@ -20,10 +20,10 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -65,7 +65,7 @@ public class SystemSettingsBean {
     private boolean secureDesignRepo = false;
 
     /** @deprecated */
-    private static final BidiMap DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
+    private static final BidiMap<String, String> DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
     static {
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
@@ -73,17 +73,17 @@ public class SystemSettingsBean {
                 "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory");
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
-    };
+    }
     /** @deprecated */
     private static final Map<String, String> DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
     static {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "design-repository.local.home");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "design-repository.remote.rmi.url");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
-    };
+    }
 
     /** @deprecated */
-    private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
+    private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
     static {
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
@@ -91,14 +91,14 @@ public class SystemSettingsBean {
                 "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
-    };
+    }
     /** @deprecated */
     private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
     static {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "production-repository.local.home");
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "production-repository.remote.rmi.url");
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
-    };
+    }
 
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
@@ -165,7 +165,7 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryType() {
         String factory = configManager.getStringProperty(DESIGN_REPOSITORY_FACTORY);
-        return (String) DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
+        return DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
     }
 
     public void setDesignRepositoryType(String type) {
@@ -352,8 +352,8 @@ public class SystemSettingsBean {
         }
         deletedConfigurations.clear();
 
-        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-            productionRepositoryConfigurations.get(i).delete();
+        for (RepositoryConfiguration productionRepositoryConfiguration : productionRepositoryConfigurations) {
+            productionRepositoryConfiguration.delete();
         }
         productionRepositoryConfigurations.clear();
 
@@ -402,7 +402,7 @@ public class SystemSettingsBean {
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
 
-            configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
+            configNames = ArrayUtils.add(configNames, newConfigName);
 
             productionRepositoryConfigurations.add(newConfig);
             // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
@@ -458,11 +458,11 @@ public class SystemSettingsBean {
 
     public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = String.format("Repository name is empty. Please, enter repository name", prodConfig.getName());
+            String msg = "Repository name is empty. Please, enter repository name";
             throw new RepositoryValidationException(msg);
         }
         if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = String.format("Repository path is empty. Please, enter repository path", prodConfig.getName());
+            String msg = "Repository path is empty. Please, enter repository path";
             throw new RepositoryValidationException(msg);
         }
 

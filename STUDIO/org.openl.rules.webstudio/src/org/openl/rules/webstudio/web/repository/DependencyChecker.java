@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
@@ -115,7 +115,7 @@ public class DependencyChecker {
         if (projectVersions.get(projectName) == null) {
             // project with such name wasn't found in the repository
             if (item != null) {
-                item.setMessages("Cannot find project <b>" + StringEscapeUtils.escapeHtml(projectName)
+                item.setMessages("Cannot find project <b>" + StringEscapeUtils.escapeHtml4(projectName)
                         + "</b> in the repository!");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             }
@@ -132,7 +132,7 @@ public class DependencyChecker {
             if (!projectVersions.containsKey(dependentProject.getName())) {
                 // dependent project is absent
                 if (item != null) {
-                    item.setMessages("Dependent project <b>" + StringEscapeUtils.escapeHtml(dependentProject.getName())
+                    item.setMessages("Dependent project <b>" + StringEscapeUtils.escapeHtml4(dependentProject.getName())
                             + "</b> should be added too!");
                     item.setStyleForMessages(UiConst.STYLE_WARNING);
                 }

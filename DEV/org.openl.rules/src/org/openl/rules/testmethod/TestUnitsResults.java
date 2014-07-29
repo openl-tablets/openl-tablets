@@ -6,8 +6,8 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -138,7 +138,7 @@ public class TestUnitsResults implements INamedThing {
                             }
                         }
                     } else {
-                        IOpenField[] fieldSequence = null;
+                        IOpenField[] fieldSequence;
                         boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
                         int startIndex = 0;
                         IOpenClass currentType = resultType;
@@ -196,7 +196,7 @@ public class TestUnitsResults implements INamedThing {
                                 if (nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.PRECISION_PATTERN)) {
                                     precision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
-                                    fieldSequence = (IOpenField[]) ArrayUtils.remove(fieldSequence, i);
+                                    fieldSequence = ArrayUtils.remove(fieldSequence, i);
                                     break;
                                 }
                             }
