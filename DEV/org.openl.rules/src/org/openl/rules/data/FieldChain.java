@@ -16,13 +16,18 @@ public class FieldChain extends AOpenField {
         this.fields = fields;
     }
 
-    public FieldChain(IOpenClass type, IOpenField[] fields, IdentifierNode[] fieldAccessorChainTokens, boolean hasAccessByArrayId) {
+    public FieldChain(IOpenClass type,
+            IOpenField[] fields,
+            IdentifierNode[] fieldAccessorChainTokens,
+            boolean hasAccessByArrayId) {
         super(getFieldName(fields, fieldAccessorChainTokens, hasAccessByArrayId), type);
 
         this.fields = fields;
     }
 
-    private static String getFieldName (IOpenField[] fields, IdentifierNode[] fieldAccessorChainTokens, boolean hasAccessByArrayId) {
+    private static String getFieldName(IOpenField[] fields,
+            IdentifierNode[] fieldAccessorChainTokens,
+            boolean hasAccessByArrayId) {
         String name;
 
         if (hasAccessByArrayId) {
@@ -55,7 +60,6 @@ public class FieldChain extends AOpenField {
         return name;
     }
 
-
     @Override
     public IOpenClass getDeclaringClass() {
         return fields[0].getDeclaringClass();
@@ -82,7 +86,7 @@ public class FieldChain extends AOpenField {
 
         // find last target, make if necessary
         for (int i = 0; i < fields.length - 1; i++) {
-            
+
             Object newTarget = fields[i].get(target, env);
 
             if (newTarget == null) {

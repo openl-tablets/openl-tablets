@@ -10,6 +10,8 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -20,7 +22,9 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 
 public class DataTableBindHelper {
@@ -30,7 +34,7 @@ public class DataTableBindHelper {
     private static final String FPK = "_PK_";
 
     /** Indicates that field is a constructor.<br> */
-    // Protected to make javadoc reference. 
+    // Protected to make javadoc reference.
     protected static final String CONSTRUCTOR_FIELD = "this";
 
     private static final String CODE_DELIMETERS = ". \n\r";
@@ -40,7 +44,8 @@ public class DataTableBindHelper {
     // patter for field like addressArry[0]
     public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
-
+    public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
+    
     /**
      * Foreign keys row is optional for data table. It consists reference for
      * field value to other table. Foreign keys always starts from
@@ -142,7 +147,7 @@ public class DataTableBindHelper {
         int width = dataTable.getWidth();
 
         for (int i = 0; i < width; ++i) {
-            
+
             String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
@@ -152,16 +157,16 @@ public class DataTableBindHelper {
             // Remove extra spaces.
             //
             fieldName = StringUtils.trim(fieldName);
-            
-            //if it is field chain get first token
+
+            // if it is field chain get first token
             if (fieldName.indexOf(".") > 0) {
                 fieldName = fieldName.substring(0, fieldName.indexOf("."));
             }
-            //if it is array field correct field name
+            // if it is array field correct field name
             if (fieldName.indexOf("[") > 0) {
                 fieldName = fieldName.substring(0, fieldName.indexOf("["));
             }
-            
+
             IOpenField field = findField(fieldName, null, tableType);
 
             if (field != null && !field.isConst() && field.isWritable()) {
@@ -218,9 +223,9 @@ public class DataTableBindHelper {
 
         return horizDataTableBody.getRows(startIndex);
     }
-    
+
     /**
-     * Gets the sub table for displaying on business view.<br> 
+     * Gets the sub table for displaying on business view.<br>
      * 
      * @param tableBody data table body.
      * @param tableType
@@ -233,11 +238,11 @@ public class DataTableBindHelper {
             return getVerticalDataWithTitle(tableBody);
         }
     }
-    
+
     /**
-     * Gets the Data_With_Titles columns from the data table body. Data_With_Titles
-     * start column consider to be the next column after descriptor section of the
-     * table and till the end of the table.
+     * Gets the Data_With_Titles columns from the data table body.
+     * Data_With_Titles start column consider to be the next column after
+     * descriptor section of the table and till the end of the table.
      * 
      * @param verticalTableBody Vertical representation of data table body.
      * @return Data_With_Titles columns for current data table body.
@@ -249,9 +254,10 @@ public class DataTableBindHelper {
     }
 
     /**
-     * Gets the start index of the Data_With_Titles section of the data
-     * table body.<br> 
-     * It depends on whether table has or no the foreign key row.<br><br>
+     * Gets the start index of the Data_With_Titles section of the data table
+     * body.<br>
+     * It depends on whether table has or no the foreign key row.<br>
+     * <br>
      * Works with horizontal representation of data table.
      * 
      * @param horizDataTableBody Horizontal representation of data table body.
@@ -320,13 +326,17 @@ public class DataTableBindHelper {
      *            index row, see {@link #hasForeignKeysRow(ILogicalTable)}).<br>
      *            This part of table may consists from optional first title row
      *            and followed data rows.
-     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.           
+     * @param bindingContext is used for optimization
+     *            {@link GridCellSourceCodeModule} in execution mode. Can be
+     *            <code>null</code>.
      * @param column Number of column in data table.
      * @param hasColumnTitleRow Flag shows if data table has column tytle row.
      * @return Column title (aka Display name).
      */
-    public static StringValue makeColumnTitle(IBindingContext bindingContext, ILogicalTable dataWithTitleRows,
-            int column, boolean hasColumnTitleRow) {
+    public static StringValue makeColumnTitle(IBindingContext bindingContext,
+            ILogicalTable dataWithTitleRows,
+            int column,
+            boolean hasColumnTitleRow) {
 
         String value = StringUtils.EMPTY;
 
@@ -339,15 +349,17 @@ public class DataTableBindHelper {
             value = StringUtils.trimToEmpty(value);
 
             return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getSource(),
-                    bindingContext));
+                bindingContext));
         }
 
         return new StringValue(value, value, value, null);
     }
-    
+
     /**
      * 
-     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
+     * @param bindingContext is used for optimization
+     *            {@link GridCellSourceCodeModule} in execution mode. Can be
+     *            <code>null</code>.
      * @param table
      * @param type
      * @param openl
@@ -358,8 +370,13 @@ public class DataTableBindHelper {
      * @return
      * @throws Exception
      */
-    public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
-            OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
+    public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext,
+            ITable table,
+            IOpenClass type,
+            OpenL openl,
+            ILogicalTable descriptorRows,
+            ILogicalTable dataWithTitleRows,
+            boolean hasForeignKeysRow,
             boolean hasColumnTytleRow) throws Exception {
 
         int width = descriptorRows.getWidth();
@@ -367,7 +384,7 @@ public class DataTableBindHelper {
 
         List<IdentifierNode[]> columnIdentifiers = getColumnIdentifiers(bindingContext, table, descriptorRows);
 
-        for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++)   {
+        for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++) {
             IdentifierNode[] fieldAccessorChainTokens = columnIdentifiers.get(columnNum);
             if (fieldAccessorChainTokens != null) {
 
@@ -392,7 +409,8 @@ public class DataTableBindHelper {
                         descriptorField = getWritableField(fieldNameNode, table, type);
                     }
                 } else {
-                    // process the chain of fields, e.g. driver.homeAdress.street;
+                    // process the chain of fields, e.g.
+                    // driver.homeAdress.street;
                     descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
                 }
                 if (hasForeignKeysRow) {
@@ -401,7 +419,9 @@ public class DataTableBindHelper {
                     foreignKey = foreignKeyTokens.length > 1 ? foreignKeyTokens[1] : null;
 
                     if (foreignKeyTable != null) {
-                        accessorChainTokens = Tokenizer.tokenize(foreignKeyTable.getModule() , LINK_DELIMETERS, foreignKeyTable.getLocation());
+                        accessorChainTokens = Tokenizer.tokenize(foreignKeyTable.getModule(),
+                            LINK_DELIMETERS,
+                            foreignKeyTable.getLocation());
 
                         if (!ArrayUtils.isEmpty(accessorChainTokens)) {
                             foreignKeyTable = accessorChainTokens.length > 0 ? accessorChainTokens[0] : null;
@@ -409,8 +429,10 @@ public class DataTableBindHelper {
                     }
                 }
 
-                StringValue header = DataTableBindHelper.makeColumnTitle(bindingContext, dataWithTitleRows, columnNum,
-                        hasColumnTytleRow);
+                StringValue header = DataTableBindHelper.makeColumnTitle(bindingContext,
+                    dataWithTitleRows,
+                    columnNum,
+                    hasColumnTytleRow);
 
                 ColumnDescriptor currentColumnDescriptor = getColumnDescriptor(openl,
                     descriptorField,
@@ -418,9 +440,10 @@ public class DataTableBindHelper {
                     foreignKeyTable,
                     foreignKey,
                     accessorChainTokens,
-                    header, fieldAccessorChainTokens);
+                    header,
+                    fieldAccessorChainTokens);
 
-                columnDescriptors[columnNum] = currentColumnDescriptor;      
+                columnDescriptors[columnNum] = currentColumnDescriptor;
             }
         }
         return columnDescriptors;
@@ -428,13 +451,18 @@ public class DataTableBindHelper {
 
     /**
      * 
-     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
-     * @param table is needed only for error processing. Can be <code>null</code>. 
+     * @param bindingContext is used for optimization
+     *            {@link GridCellSourceCodeModule} in execution mode. Can be
+     *            <code>null</code>.
+     * @param table is needed only for error processing. Can be
+     *            <code>null</code>.
      * @param descriptorRows
      * @return
      * @throws OpenLCompilationException
      */
-    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext, ITable table, ILogicalTable descriptorRows) {        
+    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext,
+            ITable table,
+            ILogicalTable descriptorRows) {
         int width = descriptorRows.getWidth();
         List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>();
         for (int columnNum = 0; columnNum < width; columnNum++) {
@@ -470,8 +498,7 @@ public class DataTableBindHelper {
         return identifiers;
     }
 
-    private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows,
-            int columnNum) {
+    private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows, int columnNum) {
         IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
         GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable);
         return cellSourceModule;
@@ -483,7 +510,8 @@ public class DataTableBindHelper {
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
             IdentifierNode[] foreignKeyTableAccessorChainTokens,
-            StringValue header, IdentifierNode[] fieldChainTokens) {
+            StringValue header,
+            IdentifierNode[] fieldChainTokens) {
         ColumnDescriptor currentColumnDescriptor;
 
         if (foreignKeyTable != null) {
@@ -492,9 +520,15 @@ public class DataTableBindHelper {
                 foreignKey,
                 foreignKeyTableAccessorChainTokens,
                 header,
-                openl, constructorField, fieldChainTokens);
+                openl,
+                constructorField,
+                fieldChainTokens);
         } else {
-            currentColumnDescriptor = new ColumnDescriptor(descriptorField, header, openl, constructorField, fieldChainTokens);
+            currentColumnDescriptor = new ColumnDescriptor(descriptorField,
+                header,
+                openl,
+                constructorField,
+                fieldChainTokens);
         }
         return currentColumnDescriptor;
     }
@@ -533,13 +567,20 @@ public class DataTableBindHelper {
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
-
+            
+            if (fieldIndex > 0 && fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField && fieldAccessorChain[fieldIndex - 1].getType().getOpenClass().equals(JavaOpenClass.OBJECT)){
+                if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)){
+                    AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
+                    aOpenField.setType(new SpreadsheetResultOpenClass(SpreadsheetResult.class));
+                }
+            }
+            
             if (fieldInChain == null) {
                 // in this case current field and all the followings in fieldAccessorChain will be nulls.
                 //
                 break;
             }
-
+            
             if (fieldInChain.getType() != null && fieldInChain.getType().isArray() && arrayAccess) {
                 loadedFieldType = fieldInChain.getType().getComponentClass();
             } else {
@@ -575,23 +616,24 @@ public class DataTableBindHelper {
 
     private static String getArrayName(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        return fieldName.substring(0,fieldName.indexOf("["));
+        return fieldName.substring(0, fieldName.indexOf("["));
     }
 
     private static void processError(ITable table, SyntaxNodeException error) {
         if (table != null) {
-            if(table.getTableSyntaxNode() != null){
+            if (table.getTableSyntaxNode() != null) {
                 table.getTableSyntaxNode().addError(error);
             }
             BindHelper.processError(error);
         }
     }
-    
 
     /**
      * Returns foreign_key_tokens from the current column.
      * 
-     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
+     * @param bindingContext is used for optimization
+     *            {@link GridCellSourceCodeModule} in execution mode. Can be
+     *            <code>null</code>.
      * @param descriptorRows
      * @param columnNum
      * @return
@@ -599,11 +641,13 @@ public class DataTableBindHelper {
      * 
      * @see {@link #hasForeignKeysRow(ILogicalTable)}.
      */
-    private static IdentifierNode[] getForeignKeyTokens(IBindingContext bindingContext, ILogicalTable descriptorRows, int columnNum) throws OpenLCompilationException {
+    private static IdentifierNode[] getForeignKeyTokens(IBindingContext bindingContext,
+            ILogicalTable descriptorRows,
+            int columnNum) throws OpenLCompilationException {
 
         ILogicalTable logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
-        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(
-                logicalRegion.getSource(), bindingContext);
+        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getSource(),
+            bindingContext);
 
         // Should be in format
         // "> reference_table_name [reference_table_key_column]"
@@ -617,7 +661,7 @@ public class DataTableBindHelper {
      * @param currentFieldNameNode
      * @param table
      * @param loadedFieldType
-     * @return     
+     * @return
      */
     private static IOpenField getWritableField(IdentifierNode currentFieldNameNode,
             ITable table,
@@ -625,7 +669,12 @@ public class DataTableBindHelper {
 
         String fieldName = currentFieldNameNode.getIdentifier();
         IOpenField field = DataTableBindHelper.findField(fieldName, table, loadedFieldType);
-
+        // Try use object type as SpreadsheetResult
+        if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
+            field = DataTableBindHelper.findField(fieldName,
+                table,
+                new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+        }
         if (field == null) {
             String errorMessage = String.format("Field \"%s\" not found in %s", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
@@ -643,27 +692,42 @@ public class DataTableBindHelper {
         return field;
     }
 
-    private static IOpenField getWritableArrayElement(IdentifierNode currentFieldNameNode, ITable table, IOpenClass loadedFieldType) {
+    private static IOpenField getWritableArrayElement(IdentifierNode currentFieldNameNode,
+            ITable table,
+            IOpenClass loadedFieldType) {
         String arrayName = getArrayName(currentFieldNameNode);
         int arrayIndex = getArrayIndex(currentFieldNameNode);
         IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
-        if (!field.getType().isArray()) {
-            String message = String.format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType().toString());
+        //Try find field in SpreadsheetResult type
+        if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
+            field = DataTableBindHelper.findField(arrayName,
+                table,
+                new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+        }
+        
+        if (!field.getType().isArray() && !field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
+            String message = String.format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType()
+                .toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;
         }
-        IOpenField arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
-        
+        IOpenField arrayAccessField = null;
+        if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
+            arrayAccessField = new DatatypeArrayElementField(field, arrayIndex, JavaOpenClass.OBJECT);
+        } else {
+            arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
+        }
         if (!arrayAccessField.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s", arrayName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;
         }
-        
+
         return arrayAccessField;
     }
+
     private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
         for (IdentifierNode[] existIdentifier : identifiers) {
             if (isEqualsIdentifier(existIdentifier, identifier)) {
