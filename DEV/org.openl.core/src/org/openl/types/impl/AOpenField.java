@@ -9,6 +9,7 @@ package org.openl.types.impl;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
@@ -16,11 +17,13 @@ import org.openl.types.IMemberMetaInfo;
  */
 public abstract class AOpenField implements IOpenField {
     private String name;
-    private IOpenClass type;
+    private IOpenClass type = JavaOpenClass.OBJECT;
 
     protected AOpenField(String name, IOpenClass type) {
         this.name = name;
-        this.type = type;
+        if (type != null){
+            this.type = type;
+        }
     }
 
     /*
