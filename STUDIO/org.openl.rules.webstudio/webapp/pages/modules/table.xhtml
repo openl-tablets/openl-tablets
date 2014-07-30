@@ -157,7 +157,7 @@
                         #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
                     </th>
                 </tr>
-                <ui:repeat var="test" value="#{tableBean.tests}">
+                <ui:repeat var="test" value="#{tableBean.tests}"> 
                     <tr>
                         <td>
                             <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
@@ -493,11 +493,11 @@
                 <td style="padding: 0 10px">
                     <div style="font-weight: bold; color: #333333; margin-bottom: 2px">Available Tests/Runs</div>
                     <div>
-                        <ui:repeat value="#{tableBean.allTests}" var="test" varStatus="i">
+                        <ui:repeat value="#{tableBean.allTests}" var="test2" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#{studio.url('table')}" >
-                                <f:param name="id" value="#{test.info.syntaxNode.id}" />
-                                <h:outputText value="#{tableBean.getTestName(test)}" />
+                                <f:param name="id" value="#{test2.info.syntaxNode.id}" />
+                                <h:outputText value="#{tableBean.getTestName(test2)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
                                 onclick="ws.ui.showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
