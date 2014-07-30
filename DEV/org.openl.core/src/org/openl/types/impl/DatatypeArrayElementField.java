@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
@@ -21,6 +22,12 @@ public class DatatypeArrayElementField extends AOpenField {
     private int elementIndex;
     private IOpenField field;
 
+    public DatatypeArrayElementField(IOpenField field, int elementIndex, IOpenClass type) {
+        super(getName(field.getName(), elementIndex), type);
+        this.elementIndex = elementIndex;
+        this.field = field;
+    }
+    
     public DatatypeArrayElementField(IOpenField field, int elementIndex) {
         super(getName(field.getName(), elementIndex), field.getType().getComponentClass());
         this.elementIndex = elementIndex;

@@ -1,5 +1,22 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -37,8 +54,12 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.search.*;
+import org.openl.rules.search.IOpenLSearch;
+import org.openl.rules.search.ISearchTableRow;
+import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
+import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
+import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -49,7 +70,11 @@ import org.openl.rules.table.search.TableSearcher;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
@@ -79,12 +104,6 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.trace.Tracer;
-
-import java.io.File;
-import java.util.*;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
 
 public class ProjectModel {
 
@@ -543,7 +562,7 @@ public class ProjectModel {
             IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
 
             if (resolvedMethod != null) {
-                return method;
+                return resolvedMethod;
             }
         }
 

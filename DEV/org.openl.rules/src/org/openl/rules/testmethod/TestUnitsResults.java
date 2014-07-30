@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
@@ -24,6 +25,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -167,11 +169,27 @@ public class TestUnitsResults implements INamedThing {
                                 .matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
                             if (isArray) {
                                 IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
+                                // Try process field as SpreadsheetResult
+                                if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
+                                    .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
+                                    SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
+                                    arrayField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
+                                    currentType = spreadsheetResultOpenClass;
+                                }
                                 int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
                                 IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
                                 fieldSequence[i] = arrayAccessField;
                             } else {
                                 fieldSequence[i] = currentType.getField(nodes[i + 1 - startIndex].getIdentifier());
+                                if (fieldSequence[i] == null) {
+                                    // Try process field as SpreadsheetResult
+                                    SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
+                                    IOpenField openField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
+                                    if (openField != null) {
+                                        fieldSequence[i] = openField;
+                                        currentType = spreadsheetResultOpenClass;
+                                    }
+                                }
                             }
 
                             if (fieldSequence[i] == null) {
