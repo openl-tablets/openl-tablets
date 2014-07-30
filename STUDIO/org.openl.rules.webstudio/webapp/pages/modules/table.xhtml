@@ -509,12 +509,12 @@
                         </ui:repeat>
                     </div>
                     <h:panelGroup id="availableTests" class="targetTablesPopup" rendered="#{!oneTest}" layout="block">
-                        <ui:repeat value="#{tableBean.allTests}" var="test" varStatus="i">
+                        <ui:repeat value="#{tableBean.allTests}" var="test3" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
                             <h:outputLink value="#{studio.url('table')}">
-                                <f:param name="id" value="#{test.info.syntaxNode.id}" />
-                                <h:outputText value="#{tableBean.getTestName(test)}" />
+                                <f:param name="id" value="#{test3.info.syntaxNode.id}" />
+                                <h:outputText value="#{tableBean.getTestName(test3)}" />
                             </h:outputLink>
                         </div>
                         </h:panelGroup>
