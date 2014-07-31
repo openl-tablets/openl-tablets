@@ -7,7 +7,7 @@ package org.openl.domain;
  * @author snshor
  */
 
-public interface IDomain<T> {
+public interface IDomain<T> extends Iterable<T> {
 
     /**
      * 

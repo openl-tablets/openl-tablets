@@ -63,7 +63,6 @@ public class ParameterTreeBuilder {
 
     /**
      * TODO: Refactor. Not a good way to check if it is possible to instantiate
-     * @return
      */
     public static boolean canConstruct(IOpenClass type) {
         boolean result = true;
@@ -89,9 +88,13 @@ public class ParameterTreeBuilder {
     }
 
     public String getRoot(ParameterWithValueDeclaration param) {
+        if (param == null) {
+            return "null";
+        }
+
         Object value = param.getValue();
 
-        if (param != null && value != null) {
+        if (value != null) {
             IOpenClass fieldType = param.getType();
             if (OpenClassHelper.isCollection(fieldType)) {
                 boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
@@ -119,10 +122,7 @@ public class ParameterTreeBuilder {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-    	if (value != null) {
-    		return SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
-    	} 
-    	return false;
+        return value != null && SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
     }
 
     public String formattedResult(Object value) {
@@ -148,11 +148,7 @@ public class ParameterTreeBuilder {
     }
 
     private boolean checkTableObjectType(Object value) {
-        if (value instanceof SubGridTable || value instanceof GridTable) {
-            return true;
-        }
-
-        return false;
+        return value instanceof SubGridTable || value instanceof GridTable;
     }
 
     public String tableToHtml(Object value) {
@@ -169,10 +165,7 @@ public class ParameterTreeBuilder {
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
                                 TableRenderer(TableModel.initializeTableModel((GridTable)singleValue, numRows));
 
-                        returnString = new StringBuilder().append(returnString)
-                                                        .append(tableRenderer.render(false, null, "testId", null))
-                                                        .append("<br/>")
-                                                        .toString();
+                        returnString = returnString + tableRenderer.render(false, null, "testId", null) + "<br/>";
                     } else if (singleValue instanceof SubGridTable) {
                         SubGridTable sgTable = (SubGridTable) singleValue;
                         GridTable gridTable = new GridTable(sgTable.getRegion(), sgTable.getGrid());
@@ -180,10 +173,7 @@ public class ParameterTreeBuilder {
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
                                 TableRenderer(TableModel.initializeTableModel(gridTable, numRows));
 
-                        returnString = new StringBuilder().append(returnString)
-                                .append(tableRenderer.render(false, null, "testId", null))
-                                .append("<br/>")
-                                .toString();
+                        returnString = returnString + tableRenderer.render(false, null, "testId", null) + "<br/>";
                     }
                 }
             }
@@ -191,7 +181,7 @@ public class ParameterTreeBuilder {
             return returnString;
         }
 
-        return value.toString();
+        return value == null ? "null" : value.toString();
     }
 
 }

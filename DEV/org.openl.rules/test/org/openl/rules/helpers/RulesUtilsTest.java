@@ -833,6 +833,12 @@ public class RulesUtilsTest {
 		byte testByteTypeBig(byte[] array, int i);
 
         Object[] testFlatten(Object... objects);
+
+        Object[] testGetValuesAlias();
+
+        Object[] testGetValuesData();
+
+        Object[] testGetValuesWrongType();
     }
 
 	@Before
@@ -5031,5 +5037,16 @@ public class RulesUtilsTest {
         assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[]{1, 2}, new Integer[]{3}, new Integer[]{}, 4));
         assertArrayEquals(new Integer[]{1, 2, 3, 4}, instance.testFlatten(new Integer[][]{{1}, {2}, {3, 4}}));
         assertArrayEquals(new Object[]{1, 2, 3L, 4D}, instance.testFlatten(new Object[]{1, new Integer[]{2}, 3L}, 4D));
+    }
+
+    @Test
+    public void getValuesTest() {
+        assertArrayEquals(new String[]{"Alias1", "Alias2", "Alias0", "Alias4"}, instance.testGetValuesAlias());
+        assertArrayEquals(new String[]{"Data1", "Data2", "Data0", "Data4"}, instance.testGetValuesData());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void getValuesTestWrongType() {
+        instance.testGetValuesWrongType();
     }
 }
