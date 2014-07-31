@@ -115,6 +115,10 @@ public class CastFactory implements ICastFactory {
             return JAVA_DOWN_CAST;
         }
 
+        if (to == JavaOpenClass.OBJECT && !isPrimitive(from)) {
+            return JAVA_UP_CAST;
+        }
+
         IOpenCast typeCast = findAliasCast(from, to);
 
         if (typeCast != null) {
