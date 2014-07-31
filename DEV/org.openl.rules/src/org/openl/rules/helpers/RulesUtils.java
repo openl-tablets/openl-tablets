@@ -11,13 +11,11 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
@@ -30,6 +28,8 @@ import org.openl.meta.ObjectValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
+import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
@@ -6135,4 +6135,19 @@ public class RulesUtils {
         }
         return result.toArray();
     }
+
+    public static Object[] getValues(Object obj){
+        if (obj.getClass().isArray() && obj.getClass().getComponentType() instanceof Object) {
+            return (Object[])obj;
+        } else if (!(obj instanceof IOpenClass)) {
+            throw new IllegalArgumentException("Not valid argument is in the getValues() function.");
+        }
+        IOpenClass clazz = (IOpenClass) obj;
+        IDomain<?> domain = clazz.getDomain();
+        List<Object> result = new ArrayList<Object>();
+        for (Object item: domain) {
+            result.add(item);
+        }
+        return result.toArray();
+    };
 }
