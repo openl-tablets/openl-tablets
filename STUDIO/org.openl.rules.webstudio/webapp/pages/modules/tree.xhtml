@@ -21,6 +21,7 @@
             display: none;
         }
     </style>
+    <ui:include src="/pages/modules/modal/treeFilter.xhtml" />
 
     <div class="panel">
         <div class="panel-header container">
@@ -42,7 +43,7 @@
                     </div>
                     <a title="Filter" class="imageButton" href="javascript:void(0)"
                        style="background:url('webresource/images/filter.png'); border: 0; background-color: transparent !important; margin: 0 3px 0 2px; padding: 5px 11px;opacity:0.5"
-                       onclick="return false;" />
+                       onclick="showTreeFilterDialog(); return false;" />
                     <a title="Recently visited tables" class="imageButton" href="javascript:void(0)"
                         style="background:url('webresource/images/menu.png'); border: 0; background-color: transparent !important; margin: 0 3px 0 2px; padding: 5px 11px;opacity:0.5"
                         onclick="ws.nav.openHistoryPanel()" />
