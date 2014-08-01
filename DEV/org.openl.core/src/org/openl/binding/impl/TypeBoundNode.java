@@ -50,7 +50,7 @@ public class TypeBoundNode extends ABoundNode {
         // TODO probably create another class for static method access
         // throw new UnsupportedOperationException("TypeNode can not be
         // evaluated");
-        return null;
+        return type;
     }
 
     /*

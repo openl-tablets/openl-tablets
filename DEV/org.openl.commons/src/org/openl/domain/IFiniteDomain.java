@@ -10,15 +10,13 @@ import java.util.Iterator;
  * 
  * 
  */
+@Deprecated
 public interface IFiniteDomain<T> extends IDomain<T> {
+    @Deprecated
     int UNKNOWN_SIZE = -1;
 
+    @Deprecated
     int REALLY_BIG = Integer.MAX_VALUE;
-
-    /**
-     * @return iterator over domain
-     */
-    Iterator<T> iterator();
 
     /**
      * @return the maximum size of the domain, guaranteed to be no less than
@@ -26,6 +24,7 @@ public interface IFiniteDomain<T> extends IDomain<T> {
      *         presented as a positive integer, return REALLY_BIG
      * 
      */
+    @Deprecated
     int maxSize();
 
     /**
@@ -33,6 +32,7 @@ public interface IFiniteDomain<T> extends IDomain<T> {
      *         actual size; in case when min size is not known return 0
      * 
      */
+    @Deprecated
     int minSize();
 
     /**
