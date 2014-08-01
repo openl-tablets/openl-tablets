@@ -40,6 +40,8 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.TraceTreeBean;
 import org.openl.rules.webstudio.web.test.InputArgsBean;
+import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
+import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -262,7 +264,7 @@ public class TableBean {
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils.getContextParams(
                     new TestSuite((TestSuiteMethod) method), testCase);
-            ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
+            ParameterWithValueDeclaration[] inputParams = new TestDescriptionWithPreview(testCase).getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
             int n = 0;
@@ -310,9 +312,9 @@ public class TableBean {
             } else {
                 selectedIndices = getSelectedIndices();
             }
-            testSuite = new TestSuite(testSuiteMethodSelected, selectedIndices);
+            testSuite = new TestSuiteWithPreview(testSuiteMethodSelected, selectedIndices);
         } else { // method without parameters
-            testSuite = new TestSuite(new TestDescription(method, new Object[] {}));
+            testSuite = new TestSuiteWithPreview(new TestDescription(method, new Object[] {}));
         }
         studio.getModel().addTestSuiteToRun(testSuite);
         return null;
@@ -327,7 +329,7 @@ public class TableBean {
         ProjectModel model = WebStudioUtils.getProjectModel();
         List<TestSuite> testSuites = new ArrayList<TestSuite>();
         for(IOpenMethod testSuiteMethod :  tests){
-            testSuites.add(new TestSuite((TestSuiteMethod)testSuiteMethod));
+            testSuites.add(new TestSuiteWithPreview((TestSuiteMethod)testSuiteMethod));
         }
         model.addTestSuitesToRun(testSuites);
     }

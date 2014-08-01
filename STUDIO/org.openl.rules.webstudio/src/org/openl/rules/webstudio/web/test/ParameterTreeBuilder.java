@@ -29,23 +29,30 @@ public class ParameterTreeBuilder {
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
             String fieldName, ParameterDeclarationTreeNode parent) {
+        return createNode(fieldType, value, null, fieldName, parent);
+    }
+
+    private static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, Object parameterPreview,
+            String fieldName, ParameterDeclarationTreeNode parent) {
         if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
         } else if (isSpreadsheetResult(value)) {
             return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent);
         } else if (!fieldType.isSimple()) {
-            return createComplexBeanNode(fieldType, value, fieldName, parent);
+            return createComplexBeanNode(fieldType, value, parameterPreview, fieldName, parent);
         } else {
             return createSimpleNode(fieldType, value, fieldName, parent);
         }
     }
 
-    public static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
+    private static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
             Object value,
+            Object parameterPreview,
             String fieldName,
             ParameterDeclarationTreeNode parent) {
         if (canConstruct(fieldType)) {
-            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent);
+            String valuePreview = parameterPreview == null ? null : createSimpleNode(fieldType, parameterPreview, null, null).getDisplayedValue();
+            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
             node.setWarnMessage(String.format("Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
@@ -100,7 +107,11 @@ public class ParameterTreeBuilder {
                 boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
                 return OpenClassHelper.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
-                return createComplexBeanNode(fieldType, null, null, null).getDisplayedValue();
+                Object parameterPreview = null;
+                if (param instanceof ParameterWithValueAndPreviewDeclaration) {
+                    parameterPreview = ((ParameterWithValueAndPreviewDeclaration) param).getPreview();
+                }
+                return createComplexBeanNode(fieldType, value, parameterPreview, null, null).getDisplayedValue();
             }
         }
 
@@ -111,7 +122,11 @@ public class ParameterTreeBuilder {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
-            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), null, null);
+            Object parameterPreview = null;
+            if (param instanceof ParameterWithValueAndPreviewDeclaration) {
+                parameterPreview = ((ParameterWithValueAndPreviewDeclaration) param).getPreview();
+            }
+            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), parameterPreview, null, null);
             root.addChild(param.getName(), treeNode);
         }
         return root;

@@ -82,6 +82,7 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -1116,9 +1117,9 @@ public class ProjectModel {
         boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         for (int i = 0; i < tests.length; i++) {
             if (!isParallel) {
-                results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
+                results[i] = new TestSuiteWithPreview(tests[i]).invoke(target, env, 1);
             } else {
-                results[i] = new TestSuite(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
+                results[i] = new TestSuiteWithPreview(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
                     @Override
                     public IRuntimeEnv buildIRuntimeEnv() {
                         return new SimpleVM().getRuntimeEnv();
@@ -1135,7 +1136,7 @@ public class ProjectModel {
             boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]), isParallel);
+                results[i] = runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]), isParallel);
             }
             return results;
         }
@@ -1145,7 +1146,7 @@ public class ProjectModel {
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
         boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
-        return runTest(new TestSuite(testMethod), isParallel);
+        return runTest(new TestSuiteWithPreview(testMethod), isParallel);
     }
 
     public TestUnitsResults runTest(String testUri, int... caseNumbers) {
@@ -1154,12 +1155,12 @@ public class ProjectModel {
 
         if (testMethod instanceof TestSuiteMethod) {
             if (caseNumbers == null) {
-                test = new TestSuite((TestSuiteMethod) testMethod);
+                test = new TestSuiteWithPreview((TestSuiteMethod) testMethod);
             } else {
-                test = new TestSuite((TestSuiteMethod) testMethod, caseNumbers);
+                test = new TestSuiteWithPreview((TestSuiteMethod) testMethod, caseNumbers);
             }
         } else { // Method without cases
-            test = new TestSuite(new TestDescription(testMethod, new Object[]{}));
+            test = new TestSuiteWithPreview(new TestDescription(testMethod, new Object[]{}));
         }
         boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
