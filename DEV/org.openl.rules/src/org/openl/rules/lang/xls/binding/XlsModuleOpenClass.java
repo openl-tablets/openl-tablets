@@ -244,7 +244,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                                                           // fix
                                                                                           // for
                                                                                           // multi-module
-        if (Enhancer.isEnhanced(openMethod.getClass())) {
+        if (Enhancer.isEnhanced(openMethod.getClass()) || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
         Enhancer enhancer = new Enhancer();
@@ -472,7 +472,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             //
             IOpenMethod m = decorateForMultimoduleDispatching(method);
             ITableProperties props = PropertiesHelper.getTableProperties(m);
-            if (props.isPropertiesEmpty()){
+            if (props.isPropertiesEmpty() || m instanceof TestSuiteMethod){
                 methodMap().put(key, m);
             }else{
                 createDispatcherMethod(m, key);
