@@ -36,7 +36,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         TestDescription[] tests = new TestDescription[testObjects.length];
         indeces = new HashMap<String, Integer>(tests.length);
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], this.getProperties());
+            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], getProperties(), getBoundNode().getTable().getDataModel().getDescriptor());
             tests[i].setIndex(i);
             indeces.put(tests[i].getId(), i);
         }
@@ -158,7 +158,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     public boolean isRunmethod() {
-        TableSyntaxNode tsn = (TableSyntaxNode) getSyntaxNode();
+        TableSyntaxNode tsn = getSyntaxNode();
         return XlsNodeTypes.XLS_RUN_METHOD.toString().equals(tsn.getType());
     }
 

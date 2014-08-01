@@ -4,7 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_RUN;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -19,8 +19,18 @@ import org.richfaces.model.TreeNodeImpl;
  * Request scope managed bean providing logic for tree page of OpenL Studio.
  */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class TreeBean {
+
+    boolean hideDispatcherTables = true;
+
+    public void setHideDispatcherTables(boolean hideDispatcherTables) {
+        this.hideDispatcherTables = hideDispatcherTables;
+    }
+
+    public boolean isHideDispatcherTables() {
+        return hideDispatcherTables;
+    }
 
     public void setCurrentView(String currentView) throws Exception {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -41,7 +51,7 @@ public class TreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
-            TreeNode rfTree = new ProjectTreeBuilder(tree, studio.getModel()).build();
+            TreeNode rfTree = new ProjectTreeBuilder(tree, studio.getModel(), hideDispatcherTables).build();
             return rfTree;
         }
         // Empty tree

@@ -41,9 +41,10 @@ import org.openl.util.StringTool;
 public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private static final String NOT_INITIALIZED = "<not_initialized>";
-    private IdentifierNode foreignKeyTable;
-    IdentifierNode[] foreignKeyTableAccessorChainTokens;
-    private IdentifierNode foreignKey;
+    private final IdentifierNode foreignKeyTable;
+    private final IdentifierNode[] foreignKeyTableAccessorChainTokens;
+    private final IdentifierNode foreignKey;
+    private String[] foreignKeyColumnChainTokens = {};
 
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
@@ -62,9 +63,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Gets the value as <code>String</code> from the cell. If there is no
      * value, returns <code>NULL</code>.
-     * 
-     * @param cellTable
-     * @return
      */
     private String getCellStringValue(ILogicalTable cellTable) {
 
@@ -90,7 +88,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @param foreignKeyIndex
      * @param domainClass
      * @return
-     * @throws BoundError
      */
     private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
             IBindingContext bindingContext,
@@ -165,14 +162,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Tries to find value by its key in foreign table. If no, throws an
      * exception.
-     * 
-     * @param bindingContext
-     * @param foreignTable
-     * @param foreignKeyIndex
-     * @param valueTable
-     * @param key
-     * @return
-     * @throws BoundError
      */
     private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
             ITable foreignTable,
@@ -184,16 +173,25 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         Object result = null;
 
         try {
+            if (foreignKeyColumnChainTokens.length == 0) {
+                foreignKeyColumnChainTokens = ArrayUtils.add(foreignKeyColumnChainTokens, foreignTable.getColumnName(foreignKeyIndex));
+                ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
+                if (foreignColumnDescriptor.isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
+                    // In the case when foreign key is like: ">policies.driver"
+                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).getForeignKeyColumnChainTokens();
+                    foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
+                }
+            }
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
             if (result == null) {
                 throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
             }
-     
+
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
                 ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
                 result = chainRes.getValue();
             }
-            
+
         } catch (SyntaxNodeException ex) {
             throwIndexNotFound(foreignTable, valueTable, key, ex, bindingContext);
         }
@@ -299,8 +297,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt) 
-        throws Exception {        
+    public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt)
+        throws Exception {
         if (getField() != null) {
 
             if (foreignKeyTable != null) {
@@ -384,7 +382,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             } catch (SyntaxNodeException ex) {
                                 throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
                             }
-                            
+
                             IOpenCast cast = cxt.getCast(resType,fieldType);
                             if (cast == null || !cast.isImplicit()) {
                                 String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
@@ -393,7 +391,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                     resType);
                                 throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                             }
-                            
+
                             getField().set(target, res, getRuntimeEnv());
                         }
                     }
@@ -454,7 +452,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         } else {
             /**
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during preparing column descriptor. 
+             * processed during preparing column descriptor.
              * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
              * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
              * boolean hasColumnTytleRow)}
@@ -485,11 +483,15 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
         }
- 
+
         return new ResultChainObject(resObj, resInctClass);
     }
 
-    class ResultChainObject {
+    public String[] getForeignKeyColumnChainTokens() {
+        return foreignKeyColumnChainTokens;
+    }
+
+    static class ResultChainObject {
         private Object value;
         private Class<?> instanceClass;
 

@@ -12,8 +12,8 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
         super(parameterType, paramName, direction);
         this.value = value;
     }
-    
-    public ParameterWithValueDeclaration(String paramName, Object value, int direction) {        
+
+    public ParameterWithValueDeclaration(String paramName, Object value, int direction) {
         super(getParamType(value), paramName, direction);
         this.value = value;
     }
