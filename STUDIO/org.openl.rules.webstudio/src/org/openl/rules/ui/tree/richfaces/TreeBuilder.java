@@ -6,14 +6,17 @@ import org.openl.base.INamedThing;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.tree.AbstractTreeBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.tree.ITreeElement;
 
 public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
 
     private ITreeElement<?> root;
+    private boolean hideDispatcherTables;
 
-    public TreeBuilder(ITreeElement<?> root) {
+    public TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
         this.root = root;
+        this.hideDispatcherTables = hideDispatcherTables;
     }
 
     @Override
@@ -38,6 +41,9 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         Iterable<? extends ITreeElement<?>> children = getChildrenIterator(source);
         for (ITreeElement<?> child : children) {
             TreeNode rfChild = toRFNode(child);
+            if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
+                continue;
+            }
             dest.addChild(index, rfChild);
             if (child != null) {
                 addNodes(rfChild, child);
