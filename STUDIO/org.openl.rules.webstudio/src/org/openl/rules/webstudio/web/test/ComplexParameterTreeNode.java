@@ -16,9 +16,11 @@ import org.openl.vm.SimpleVM;
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Log log = LogFactory.getLog(ComplexParameterTreeNode.class);
     public static final String COMPLEX_TYPE = "complex";
+    private String valuePreview;
 
-    public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
+    public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, String valuePreview) {
         super(fieldName, value, fieldType, parent);
+        this.valuePreview = valuePreview;
     }
 
     public ComplexParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
@@ -27,7 +29,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getDisplayedValue() {
-        return getType().getDisplayName(INameSpacedThing.SHORT);
+        String typeName = getType().getDisplayName(INameSpacedThing.SHORT);
+        return valuePreview == null ? typeName : typeName + " (" + valuePreview + ")";
     }
 
     @Override

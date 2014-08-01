@@ -3,6 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -21,8 +22,9 @@ public class TestDescription {
     private ParameterWithValueDeclaration[] executionParams;
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
-    private Map<String, Object> testTableProps = null;
+    private Map<String, Object> testTableProps = null; // TODO Store testTablePrecision value instead of full map
     private int index;
+    protected ColumnDescriptor[] columnDescriptors;
 
     public TestDescription(IOpenMethod testedMethod, DynamicObject testObject) {
         this.testedMethod = testedMethod;
@@ -30,9 +32,10 @@ public class TestDescription {
         executionParams = initExecutionParams();
     }
 
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Map<String, Object> params) {
+    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Map<String, Object> testTableProps, ColumnDescriptor[] columnDescriptors) {
         this(testedMethod, testObject);
-        this.testTableProps = params;
+        this.testTableProps = testTableProps;
+        this.columnDescriptors = columnDescriptors;
     }
 
     public TestDescription(IOpenMethod testedMethod, Object[] arguments) {
@@ -171,9 +174,7 @@ public class TestDescription {
                 env.setContext(oldContext);
             } catch (Throwable t) {
                 Log.error("Testing " + this, t);
-                if (exception == null) {
-                    exception = t;
-                }
+                exception = t;
             }
             return exception == null ? new TestUnit(this, res, null) : new TestUnit(this, null, exception);
         }
@@ -266,5 +267,13 @@ public class TestDescription {
 
     public int getIndex() {
         return index;
+    }
+
+    public ColumnDescriptor[] getColumnDescriptors() {
+        return columnDescriptors;
+    }
+
+    public Map<String, Object> getTestTableProps() {
+        return testTableProps;
     }
 }

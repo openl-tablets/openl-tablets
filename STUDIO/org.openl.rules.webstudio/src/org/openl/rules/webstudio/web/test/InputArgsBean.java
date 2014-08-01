@@ -78,7 +78,7 @@ public class InputArgsBean {
                 testDescription = new TestDescription(method, arguments);
             }
 
-            TestSuite testSuite = new TestSuite(testDescription);
+            TestSuite testSuite = new TestSuiteWithPreview(testDescription);
             WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
