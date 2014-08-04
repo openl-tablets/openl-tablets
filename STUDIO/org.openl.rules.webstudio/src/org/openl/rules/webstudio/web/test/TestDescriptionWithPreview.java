@@ -13,6 +13,7 @@ public class TestDescriptionWithPreview extends TestDescription {
 
     public TestDescriptionWithPreview(TestDescription delegate) {
         super(delegate.getTestedMethod(), delegate.getTestObject(), delegate.getTestTableProps(), delegate.getColumnDescriptors());
+        setIndex(delegate.getIndex());
     }
 
     @Override
