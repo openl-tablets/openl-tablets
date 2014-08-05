@@ -14,7 +14,8 @@ public class SpreadsheetCell {
     private int columnIndex;
     private ICell sourceCell;
 
-    private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
+
+	private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
     private Object value;
     private IOpenClass type;
 
@@ -112,5 +113,11 @@ public class SpreadsheetCell {
             return null;
         }
     }
+    
+    @Override
+	public String toString() {
+		return "R" + getRowIndex() + "C" + getColumnIndex() ;
+	}
+
 
 }

@@ -157,19 +157,36 @@ public class SpreadsheetStructureBuilder {
     
     
     
+    private List<SpreadsheetCell> processingCells = new ArrayList<SpreadsheetCell>();
+    
     public IOpenClass makeType(SpreadsheetCell cell)
     {
     	int rowIndex = cell.getRowIndex();
     	int columnIndex = cell.getColumnIndex();
     	
 		IBindingContext rowContext = getRowContext(rowIndex);
+		checkAndAddProcessingLoop(cell);
+		
     	extractCellValue(rowContext, rowIndex, columnIndex);
+    	cleanProcessingLoop(cell);
     	return cell.getType();
     }
     
     
 
-    private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
+    private void cleanProcessingLoop(SpreadsheetCell cell) {
+    	processingCells.remove(cell);
+	}
+
+	private void checkAndAddProcessingLoop(SpreadsheetCell cell) {
+		if (processingCells.contains(cell))
+		{
+			throw new RuntimeException("Spreadsheet Expression Loop:" + processingCells.toString());
+		}
+		processingCells.add(cell);
+	}
+
+	private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
         if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
