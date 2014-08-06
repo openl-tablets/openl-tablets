@@ -3,66 +3,8 @@
 	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>Openl Web Service</display-name>
-	<servlet>
-		<servlet-name>WSServlet</servlet-name>
-		<servlet-class>org.openl.rules.ruleservice.servlet.WSServlet</servlet-class>
-        <init-param>
-            <param-name>uriEncoding</param-name>
-            <param-value>UTF-8</param-value>
-        </init-param>
-        <init-param>
-            <param-name>static-resources-list</param-name>
-            <param-value>
-                /css/.+\.css
-                /images/.+\.png
-            </param-value>
-        </init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>WSServlet</servlet-name>
-		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
 
-	<context-param>
-		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>WEB-INF/openl-ruleservice-beans.xml</param-value>
-	</context-param>
-
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-
-    <context-param>
-        <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
-        <param-value>true</param-value>
-    </context-param>
-
-    <context-param>
-        <description>
-            Comma separated list of URIs of (additional) faces config files.
-        </description>
-        <param-name>javax.faces.CONFIG_FILES</param-name>
-        <param-value>
-            /WEB-INF/faces/faces-config.xml
-        </param-value>
-    </context-param>
-
-    <servlet>
-        <servlet-name>FacesServlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>FacesServlet</servlet-name>
-        <url-pattern>/faces/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>FacesServlet</servlet-name>
-        <url-pattern>*.xhtml</url-pattern>
-    </servlet-mapping>
+    <!-- Filters -->
 
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -77,22 +19,71 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <filter>
-        <filter-name>ForwardingFilter</filter-name>
-        <filter-class>org.openl.rules.ruleservice.servlet.ForwardingFilter</filter-class>
+    <!-- Servlets -->
+
+	<servlet>
+		<servlet-name>WSServlet</servlet-name>
+		<servlet-class>org.openl.rules.ruleservice.servlet.WSServlet</servlet-class>
         <init-param>
-            <param-name>forwardTo</param-name>
-            <param-value>/faces/index.xhtml</param-value>
+            <param-name>uriEncoding</param-name>
+            <param-value>UTF-8</param-value>
         </init-param>
-    </filter>
+        <init-param>
+            <param-name>static-resources-list</param-name>
+            <param-value>
+                /css/.+\.css
+                /images/.+\.png
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>redirects-list</param-name>
+            <param-value>
+                /
+                /services/?
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>redirect-servlet-name</param-name>
+            <param-value>servicesListServlet</param-value>
+        </init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-    <filter-mapping>
-        <filter-name>ForwardingFilter</filter-name>
-        <url-pattern>/</url-pattern>
-    </filter-mapping>
+    <servlet>
+        <servlet-name>servicesListServlet</servlet-name>
+        <servlet-class>org.openl.rules.ruleservice.servlet.ServicesListServlet</servlet-class>
+    </servlet>
 
-    <welcome-file-list>
-        <welcome-file>index.xhtml</welcome-file>
-    </welcome-file-list>
+    <servlet>
+        <servlet-name>index.jsp</servlet-name>
+        <jsp-file>/services/index.jsp</jsp-file>
+    </servlet>
+
+    <!-- Mapping -->
+
+    <servlet-mapping>
+        <servlet-name>WSServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>servicesListServlet</servlet-name>
+        <url-pattern>/services/</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>index.jsp</servlet-name>
+        <url-pattern>/services/index.jsp</url-pattern>
+    </servlet-mapping>
+
+    <!-- Other stuff -->
+
+	<context-param>
+		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>WEB-INF/openl-ruleservice-beans.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
 </web-app>
