@@ -32,7 +32,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     protected TestDescription[] initTests() {
-        DynamicObject[] testObjects = getTestObejcts();
+        DynamicObject[] testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
         indeces = new HashMap<String, Integer>(tests.length);
         for (int i = 0; i < tests.length; i++) {
@@ -99,7 +99,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return getSyntaxNode().getUri();
     }
 
-    public DynamicObject[] getTestObejcts() {
+    public DynamicObject[] getTestObjects() {
         Object testArray = getBoundNode().getField().getData();
         return (DynamicObject[]) testArray;
     }

@@ -72,20 +72,25 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         /**
          * this block is for overloaded by active property tables without any
-         * dimension property. all not active tables should be ignored.
+         * dimension property. All not active tables should be ignored.
          */
         List<IOpenMethod> methods = getCandidates();
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
-
-        traceObject = getTracedObject(selected, params);
-        tracer.push(traceObject);
+        if (selected.size() > 1){
+            traceObject = getTracedObject(selected, params);
+            tracer.push(traceObject);
+        }
         try {
             returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
-            traceObject.setError(e);
+            if (traceObject != null){
+                traceObject.setError(e);
+            }
             throw e;
         } finally {
-            tracer.pop();
+            if (traceObject != null){
+                tracer.pop();
+            }
         }
         return returnResult;
     }
@@ -100,12 +105,15 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
         if (selected.size() == 1) {
+            throw new IllegalStateException("Should be more than one overladed method!");
+        }
+        //if (selected.size() == 1) {
             /**
              * if only one table left, we need traced object for this type of
              * table.
              */
-            return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
-        } else {
+        //    return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
+        //} else {
             /**
              * in other case trace object for overloaded methods.
              */
@@ -119,7 +127,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 return traceObject;
             }
 
-        }
+        //}
     }
 
     @Override
@@ -146,7 +154,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // traceObject shouldn`t be the field of the class.
                 // trace information should be set only into trace method.
                 //
-                if (Tracer.isTracerOn()) {
+                if (Tracer.isTracerOn() && traceObject != null) {
                     traceObject.setResult(matchingMethod);
                 }
 
