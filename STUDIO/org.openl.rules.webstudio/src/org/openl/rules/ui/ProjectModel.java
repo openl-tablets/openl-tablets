@@ -146,7 +146,11 @@ public class ProjectModel {
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
     public boolean hasTestSuitesToRun() {
-        return testSuitesToRun.size() > 0;
+        return !testSuitesToRun.isEmpty();
+    }
+    
+    public int testSuitesToRunCount() {
+        return testSuitesToRun.size();
     }
 
     public TestSuite popLastTest() {
