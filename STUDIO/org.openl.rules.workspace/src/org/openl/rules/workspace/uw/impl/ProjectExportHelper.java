@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -21,14 +22,19 @@ public final class ProjectExportHelper {
     }
 
     public static File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
+        File zipFile = null;
         try {
             String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
                     + "\nExported by " + user.getUserName();
 
-            File zipFile = File.createTempFile("export-", "-zip");
+            zipFile = File.createTempFile("export-", "-zip");
             packIntoZip(zipFile, oldRP, zipComment);
             return zipFile;
-        } catch (IOException e) {
+        } catch (ProjectException e) {
+            FileUtils.deleteQuietly(zipFile);
+            throw e;
+        } catch (Exception e) {
+            FileUtils.deleteQuietly(zipFile);
             throw new ProjectException("Failed to export project due I/O error!", e);
         }
     }
