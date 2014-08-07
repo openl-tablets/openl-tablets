@@ -62,6 +62,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
@@ -317,13 +318,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                         Object target = args[0];
                                         Object[] params = (Object[]) args[1];
                                         IRuntimeEnv env = (IRuntimeEnv) args[2];
+                                        if (Tracer.isTracerDefined()){
+                                            Tracer.disableTrace();
+                                        }
                                         return matchedMethod.invoke(target, params, env);
                                     }
                                 } finally {
                                     invockedFromTop.remove();
+                                    if (Tracer.isTracerDefined()){
+                                        Tracer.enableTrace();
+                                    }
                                 }
                             } else {
                                 invockedFromTop.remove();
+                                if (Tracer.isTracerDefined()){
+                                    Tracer.enableTrace();
+                                }
                             }
                         }
                     }

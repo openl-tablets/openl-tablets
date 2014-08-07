@@ -10,7 +10,6 @@ import java.util.Set;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.DefaultInvokerWithTrace;
@@ -19,9 +18,7 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -43,8 +40,17 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private List<IOpenMethod> candidatesSorted;
 
     private ATableTracerNode traceObject;
-
     
+    private IOpenMethod dispatchingOpenMethod;
+
+    public IOpenMethod getDispatchingOpenMethod() {
+        return dispatchingOpenMethod;
+    }
+
+    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
+        this.dispatchingOpenMethod = dispatchingOpenMethod;
+    }
+
     public MatchingOpenMethodDispatcher() { //For CGLIB proxing
     }
     
@@ -83,9 +89,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         try {
             returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
-            if (traceObject != null){
-                traceObject.setError(e);
+            if (traceObject == null){
+                traceObject = getTracedObject(selected, params);
+                tracer.push(traceObject);
             }
+            traceObject.setError(e);
             throw e;
         } finally {
             if (traceObject != null){
@@ -105,15 +113,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
         if (selected.size() == 1) {
-            throw new IllegalStateException("Should be more than one overladed method!");
-        }
-        //if (selected.size() == 1) {
             /**
              * if only one table left, we need traced object for this type of
              * table.
              */
-        //    return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
-        //} else {
+            return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
+        } else {
             /**
              * in other case trace object for overloaded methods.
              */
@@ -127,7 +132,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 return traceObject;
             }
 
-        //}
+        }
     }
 
     @Override
@@ -171,26 +176,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     }
 
-    private TableSyntaxNode[] getTableSyntaxNodes() {
-        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
-        return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
-    }
-
     public TableSyntaxNode getDispatcherTable() {
-        TableSyntaxNode[] tables = getTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tables) {
-            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
-                return tsn;
-            }
+        if (dispatchingOpenMethod == null){
+            throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
         }
-        IMemberMetaInfo info = getTargetMethod().getInfo();
-        if (info != null) {
-            ISyntaxNode syntaxNode = info.getSyntaxNode();
-            if (syntaxNode instanceof TableSyntaxNode) {
-                return (TableSyntaxNode) syntaxNode;
-            }
-        }
-        throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
+        return (TableSyntaxNode) dispatchingOpenMethod.getInfo().getSyntaxNode();
     }
 
     @Override

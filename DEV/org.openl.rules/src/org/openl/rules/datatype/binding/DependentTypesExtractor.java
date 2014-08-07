@@ -24,7 +24,13 @@ import java.util.*;
  * @author Denis Levchuk
  */
 public class DependentTypesExtractor {
-
+    public static final String ALIASDATATYPE_PATTERN = "^.+\\<.+\\>\\s*$";
+    
+    private boolean isAliasDatatype(TableSyntaxNode node){
+        String header = node.getHeader().getSourceString();
+        return header.matches(ALIASDATATYPE_PATTERN);
+    }
+    
     public Set<String> extract(TableSyntaxNode node, IBindingContext cxt) {
         ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(
                 node.getTable(),
@@ -38,7 +44,10 @@ public class DependentTypesExtractor {
         }
 
         Set<String> dependencies = new LinkedHashSet<String>();
-
+        if (isAliasDatatype(node)){
+            //Alias datatype doens't have dependencies
+            return dependencies;
+        }
         String parentType = getParentDatatypeName(node);
         if (StringUtils.isNotBlank(parentType)) {
             dependencies.add(parentType);

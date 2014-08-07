@@ -12,7 +12,12 @@ import java.util.Stack;
 public class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
-
+    private static ThreadLocal<Boolean> tracerIsActive = new ThreadLocal<Boolean>(){
+      protected Boolean initialValue() {
+          return Boolean.TRUE;
+      };  
+    };
+    
     private Stack<ITracerObject> stack = new Stack<ITracerObject>();
     private ITracerObject root;
 
@@ -23,10 +28,23 @@ public class Tracer implements TraceStack {
     public static Tracer getTracer() {
         return tracer.get();
     }
-
-    public static boolean isTracerOn() {
+    
+    public static boolean isTracerDefined() {
         return tracer.get() != null;
     }
+    
+    public static boolean isTracerOn() {
+        return tracer.get() != null && tracerIsActive.get() != null && tracerIsActive.get();
+    }
+    
+    public static void disableTrace(){
+        tracerIsActive.set(Boolean.FALSE);
+    }
+    
+    public static void enableTrace(){
+        tracerIsActive.set(Boolean.TRUE);
+    }
+    
 
     public static void setTracer(Tracer t) {
         tracer.set(t);

@@ -26,19 +26,9 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         super(method, moduleOpenClass);
     }
 
-    private IOpenMethod dispatchingOpenMethod;
-
-    public IOpenMethod getDispatchingOpenMethod() {
-        return dispatchingOpenMethod;
-    }
-
-    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
-        this.dispatchingOpenMethod = dispatchingOpenMethod;
-    }
-
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (dispatchingOpenMethod != null) {
-            return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
+        if (getDispatchingOpenMethod() != null) {
+            return getDispatchingOpenMethod().invoke(target, updateArguments(params, env, getDispatchingOpenMethod()), env);
         } else {
             log.warn(String.format("Dispatcher table for methods group [%s] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
                 MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
@@ -70,8 +60,8 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
     }
 
     public TableSyntaxNode getDispatcherTable() {
-        if (dispatchingOpenMethod != null) {
-            return (TableSyntaxNode) dispatchingOpenMethod.getInfo().getSyntaxNode();
+        if (getDispatchingOpenMethod() != null) {
+            return (TableSyntaxNode) getDispatchingOpenMethod().getInfo().getSyntaxNode();
         } else {
             return super.getDispatcherTable();
         }
