@@ -64,6 +64,7 @@ public class TestBean {
 
     private WebStudio studio;
     private TestUnitsResults[] ranResults;
+    private boolean runResultsInitialized = false;
 
     private final static int ALL = -1;
 
@@ -90,7 +91,7 @@ public class TestBean {
         }
 
         TestResultsHelper.initExplanator();
-        testAll();
+        // testAll();
 
         initPagination();
         initFailures();
@@ -106,7 +107,7 @@ public class TestBean {
 
         if (ranResults != null && ranResults.length > 0) {
             lastPage = testsPerPage == ALL ? DEFAULT_PAGE
-                    : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+                                          : ((int) Math.ceil((double) ranResults.length / testsPerPage));
         }
 
         int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
@@ -118,14 +119,15 @@ public class TestBean {
     private void initFailures() {
         testsFailuresOnly = studio.isTestsFailuresOnly();
         String failuresOnlyParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY);
-        boolean failuresOnly = failuresOnlyParameter == null ? testsFailuresOnly : Boolean.valueOf(failuresOnlyParameter);
+        boolean failuresOnly = failuresOnlyParameter == null ? testsFailuresOnly
+                                                            : Boolean.valueOf(failuresOnlyParameter);
         if (failuresOnly != testsFailuresOnly) {
             testsFailuresOnly = failuresOnly;
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
-        int failuresPerTest = FacesUtils.getRequestIntParameter(
-                Constants.REQUEST_PARAM_FAILURES_NUMBER, testsFailuresPerTest);
+        int failuresPerTest = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
+            testsFailuresPerTest);
         if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != testsFailuresPerTest) {
             testsFailuresPerTest = failuresPerTest;
         }
@@ -134,7 +136,8 @@ public class TestBean {
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
         String isShowComplexResultParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
-        boolean isShowComplexResult = isShowComplexResultParameter == null ? showComplexResult : Boolean.valueOf(isShowComplexResultParameter);
+        boolean isShowComplexResult = isShowComplexResultParameter == null ? showComplexResult
+                                                                          : Boolean.valueOf(isShowComplexResultParameter);
         if (isShowComplexResult != showComplexResult) {
             showComplexResult = isShowComplexResult;
         }
@@ -157,13 +160,12 @@ public class TestBean {
         if (model.hasTestSuitesToRun()) {
             // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
-            while (model.hasTestSuitesToRun()){
+            while (model.hasTestSuitesToRun()) {
                 TestSuite test = model.popLastTest();
                 results.add(model.runTest(test, isParallel));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);
-
         } else {
             if (uri != null) {
                 // All tests for table or concrete test
@@ -201,8 +203,17 @@ public class TestBean {
         }
     }
 
+    private boolean ranTestsSorted = false;
+
     public TestUnitsResults[] getRanTests() {
-        Arrays.sort(ranResults, TEST_COMPARATOR);
+        if (!runResultsInitialized) {
+            testAll();
+            runResultsInitialized = true;
+        }
+        if (!ranTestsSorted) {
+            Arrays.sort(ranResults, TEST_COMPARATOR);
+            ranTestsSorted = true;
+        }
 
         int startPos = (page - 1) * testsPerPage;
         int endPos = startPos + testsPerPage;
@@ -224,27 +235,49 @@ public class TestBean {
     }
 
     public int getNumberOfTests() {
-        return ranResults!= null ? ranResults.length : 0;
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        if (model.hasTestSuitesToRun()) {
+            return model.testSuitesToRunCount();
+        }
+        return 0;
     }
+
+    private Integer numberOfFailedTests = null;
 
     public int getNumberOfFailedTests() {
-        int cnt = 0;
-        for (TestUnitsResults result : ranResults) {
-            if (result != null && result.getNumberOfFailures() > 0) {
-                cnt++;
-            }
+        if (!runResultsInitialized) {
+            testAll();
+            runResultsInitialized = true;
         }
-        return cnt;
+        if (numberOfFailedTests == null) {
+            int cnt = 0;
+            for (TestUnitsResults result : ranResults) {
+                if (result != null && result.getNumberOfFailures() > 0) {
+                    cnt++;
+                }
+            }
+            numberOfFailedTests = cnt;
+        }
+        return numberOfFailedTests;
     }
 
+    Integer numberOfFailedTestCases = null;
+
     public int getNumberOfFailedTestCases() {
-        int sum = 0;
-        for (TestUnitsResults result : ranResults) {
-            if (result != null) {
-                sum += result.getNumberOfFailures();
-            }
+        if (!runResultsInitialized) {
+            testAll();
+            runResultsInitialized = true;
         }
-        return sum;
+        if (numberOfFailedTestCases == null) {
+            int sum = 0;
+            for (TestUnitsResults result : ranResults) {
+                if (result != null) {
+                    sum += result.getNumberOfFailures();
+                }
+            }
+            numberOfFailedTestCases = sum;
+        }
+        return numberOfFailedTestCases;
     }
 
     public String formatExplanationValue(Object value) {
@@ -277,8 +310,9 @@ public class TestBean {
 
     public boolean isComplexResult(Object objTestUnit) {
         Object actualValue = getActualResultInternal(objTestUnit);
-        ParameterWithValueDeclaration param = new ParameterWithValueDeclaration(
-                "actual", actualValue, IParameterDeclaration.OUT);
+        ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual",
+            actualValue,
+            IParameterDeclaration.OUT);
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
@@ -326,7 +360,7 @@ public class TestBean {
         return fieldsCoordinates;
     }
 
-    public String getTestedTableUri(){
+    public String getTestedTableUri() {
         return uri;
     }
 
@@ -348,12 +382,11 @@ public class TestBean {
     }
 
     public boolean isTest() {
-        return StringUtils.isNotBlank(uri)
-                && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
+        return StringUtils.isNotBlank(uri) && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
     }
 
-    public boolean isExpired(){
-        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
+    public boolean isExpired() {
+        return StringUtils.isNotBlank(uri) && runResultsInitialized && (ranResults == null || ranResults.length == 0);
     }
 
     public int getTestsPerPage() {

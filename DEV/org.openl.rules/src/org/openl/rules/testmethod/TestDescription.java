@@ -161,11 +161,9 @@ public class TestDescription {
         } else {
             Object res = null;
             Throwable exception = null;
-
+            IRuntimeContext oldContext = env.getContext();
             try {
                 IRuntimeContext context = getRuntimeContext();
-
-                IRuntimeContext oldContext = env.getContext();
                 env.setContext(context);
                 Object[] args = getArguments();
                 for (int j = 0; j < ntimes; j++) {
@@ -175,6 +173,8 @@ public class TestDescription {
             } catch (Throwable t) {
                 Log.error("Testing " + this, t);
                 exception = t;
+            }finally{
+                env.setContext(oldContext);
             }
             return exception == null ? new TestUnit(this, res, null) : new TestUnit(this, null, exception);
         }
@@ -215,7 +215,13 @@ public class TestDescription {
     }
 
     public IRulesRuntimeContext getRuntimeContext() {
-        return (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
+        IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
+        try{
+            return cloner.deepClone(context);
+        }catch(Exception e){
+            Log.error("Failed to clone context. Original context will be used.");
+            return context;
+        }
     }
 
     @Override
