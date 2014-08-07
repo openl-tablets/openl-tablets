@@ -9,7 +9,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 
@@ -64,10 +63,7 @@ public class DispatcherTablesBuilder {
             if (!isVirtualWorkbook()) {
                 addNewTsnToTopNode(tsn);
             }
-            if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
-                ((OverloadedMethodsDispatcherTable) dispatcher)
-                        .setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
-            }
+            dispatcher.setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
         }
     }
     
