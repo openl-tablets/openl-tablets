@@ -47,6 +47,9 @@ public final class ProjectExportHelper {
 
         for (AProjectArtefact artefact : artefacts) {
             if (artefact.isFolder()) {
+                // Create zip entry for the folder even if it's empty, but don't add root folder to the zip
+                ZipEntry entry = new ZipEntry(path + artefact.getName() + "/");
+                zipOutputStream.putNextEntry(entry);
                 packDir(zipOutputStream, (AProjectFolder) artefact, path + artefact.getName() + "/");
             } else {
                 packFile(zipOutputStream, (AProjectResource) artefact, path);
