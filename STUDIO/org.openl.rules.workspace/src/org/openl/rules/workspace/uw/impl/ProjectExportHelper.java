@@ -1,81 +1,69 @@
 package org.openl.rules.workspace.uw.impl;
 
-import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
-
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
 public final class ProjectExportHelper {
-    private static FileFilter FILE_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !FolderHelper.PROPERTIES_FOLDER.equalsIgnoreCase(pathname.getName());
-        }
-    };
-
     private ProjectExportHelper() {
     }
 
-    public static File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
-        File tempWsLocation = new File(getTempDirectoryPath(), "export-" + System.currentTimeMillis());
-        if (!tempWsLocation.mkdir() && !tempWsLocation.exists()) {
-            throw new ProjectException("Failed to create a temporary folder!");
-        }
-
-        LocalWorkspaceImpl tempWS = null;
+    public static File export(WorkspaceUser user, AProject project) throws ProjectException {
+        File zipFile = null;
         try {
-            tempWS = new LocalWorkspaceImpl(user, tempWsLocation, FILE_FILTER, FILE_FILTER);
-            AProject localProject = tempWS.addProject(oldRP);
-
-            String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
+            String zipComment = "Project '" + project.getName() + "' version " + project.getVersion().getVersionName()
                     + "\nExported by " + user.getUserName();
 
-            File zipFile = File.createTempFile("export-", "-zip");
-            packIntoZip(zipFile, new File(tempWsLocation, localProject.getName()), zipComment);
+            zipFile = File.createTempFile("export-", "-zip");
+            packIntoZip(zipFile, project, zipComment);
             return zipFile;
-        } catch (IOException e) {
+        } catch (ProjectException e) {
+            FileUtils.deleteQuietly(zipFile);
+            throw e;
+        } catch (Exception e) {
+            FileUtils.deleteQuietly(zipFile);
             throw new ProjectException("Failed to export project due I/O error!", e);
-        } finally {
-            if (tempWS != null) {
-                tempWS.release();
-            }
-            FolderHelper.deleteFolder(tempWsLocation);
         }
     }
 
-    protected static void packDir(ZipOutputStream zipOutputStream, File dir, String path) throws IOException {
-        File[] files = dir.listFiles(FILE_FILTER);
-        if (files == null) {
+    protected static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir, String path) throws IOException, ProjectException {
+        Collection<AProjectArtefact> artefacts = dir.getArtefacts();
+        if (artefacts.isEmpty()) {
             return;
         }
 
-        for (File f : files) {
-            if (f.isDirectory()) {
-                packDir(zipOutputStream, f, path + f.getName() + "/");
+        for (AProjectArtefact artefact : artefacts) {
+            if (artefact.isFolder()) {
+                // Create zip entry for the folder even if it's empty, but don't add root folder to the zip
+                ZipEntry entry = new ZipEntry(path + artefact.getName() + "/");
+                zipOutputStream.putNextEntry(entry);
+                packDir(zipOutputStream, (AProjectFolder) artefact, path + artefact.getName() + "/");
             } else {
-                packFile(zipOutputStream, f, path);
+                packFile(zipOutputStream, (AProjectResource) artefact, path);
             }
         }
     }
 
-    protected static void packFile(ZipOutputStream zipOutputStream, File file, String path) throws IOException {
+    protected static void packFile(ZipOutputStream zipOutputStream, AProjectResource file, String path) throws IOException, ProjectException {
         ZipEntry entry = new ZipEntry(path + file.getName());
         zipOutputStream.putNextEntry(entry);
 
-        FileInputStream source = null;
+        InputStream source = null;
         try {
-            source = new FileInputStream(file);
+            source = file.getContent();
             IOUtils.copy(source, zipOutputStream);
         } finally {
             if (source != null) {
@@ -86,7 +74,7 @@ public final class ProjectExportHelper {
         zipOutputStream.closeEntry();
     }
 
-    protected static void packIntoZip(File zipFile, File rootDir, String zipComment) throws IOException {
+    protected static void packIntoZip(File zipFile, AProjectArtefact rootDir, String zipComment) throws IOException, ProjectException {
         FileOutputStream fileOutputStream = null;
         ZipOutputStream zipOutputStream = null;
 
@@ -96,7 +84,7 @@ public final class ProjectExportHelper {
             zipOutputStream.setLevel(9);
             zipOutputStream.setComment(zipComment);
 
-            packDir(zipOutputStream, rootDir, "");
+            packDir(zipOutputStream, (AProjectFolder) rootDir, "");
         } finally {
             if (zipOutputStream != null) {
                 zipOutputStream.close();
