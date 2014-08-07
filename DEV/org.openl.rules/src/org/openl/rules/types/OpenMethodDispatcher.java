@@ -153,7 +153,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // Check that founded required method.
         //
         if (method == null) {
-
             StringBuilder sb = new StringBuilder();
             sb.append("Method signature: ");
             MethodUtil.printMethod(getName(), getSignature(), sb);
