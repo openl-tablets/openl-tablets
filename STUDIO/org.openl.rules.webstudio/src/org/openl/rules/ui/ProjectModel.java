@@ -149,10 +149,6 @@ public class ProjectModel {
         return !testSuitesToRun.isEmpty();
     }
     
-    public int testSuitesToRunCount() {
-        return testSuitesToRun.size();
-    }
-
     public TestSuite popLastTest() {
         return testSuitesToRun.pop();
     }
