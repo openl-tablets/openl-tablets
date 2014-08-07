@@ -162,7 +162,7 @@
                         <td>
                             <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
                         </td>
-                        <td>#{test.id}</td>
+                        <td class="test-id">#{test.id}</td>
                         <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -179,7 +179,7 @@
                                    rendered="#{tableBean.canRun}"
                                    title="Test" onclick="ws.nav.go('#{studio.url('test/test')}?id=#{tableBean.id}&amp;' + getTestQuery());"
                                    styleClass="hidden b-test"/>
-                <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
+                <a4j:commandButton id="runButton" value="Run"
                                    rendered="#{tableBean.canRun}"
                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
                                    styleClass="hidden b-run"/>
@@ -264,7 +264,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <a4j:commandLink id="runLink" action="#{tableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
+                                    <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canRun}"
                                         onclick=" return isAnyTestSelected();" oncomplete="ws.nav.go('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -654,6 +654,16 @@
           jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
               query += '&' + this.name + '=false';
           });
+
+          if ($j("#useTestRanges").is(":checked")) {
+              query += '&testRanges=' + $j("#testRanges").val();
+          } else {
+              $j("#testTable").find("tr").filter(function() {
+                  return $j(this).find(":checked").length > 0;
+              }).find(".test-id").each(function() {
+                  query += '&testId=' + $j(this).text();
+              });
+          }
           return query;
       }
 
