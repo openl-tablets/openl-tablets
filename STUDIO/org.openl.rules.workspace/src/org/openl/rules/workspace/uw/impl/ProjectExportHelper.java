@@ -21,14 +21,14 @@ public final class ProjectExportHelper {
     private ProjectExportHelper() {
     }
 
-    public static File export(WorkspaceUser user, AProject oldRP) throws ProjectException {
+    public static File export(WorkspaceUser user, AProject project) throws ProjectException {
         File zipFile = null;
         try {
-            String zipComment = "Project '" + oldRP.getName() + "' version " + oldRP.getVersion().getVersionName()
+            String zipComment = "Project '" + project.getName() + "' version " + project.getVersion().getVersionName()
                     + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");
-            packIntoZip(zipFile, oldRP, zipComment);
+            packIntoZip(zipFile, project, zipComment);
             return zipFile;
         } catch (ProjectException e) {
             FileUtils.deleteQuietly(zipFile);
