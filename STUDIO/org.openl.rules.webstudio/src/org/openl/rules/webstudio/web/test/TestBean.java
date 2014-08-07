@@ -235,11 +235,11 @@ public class TestBean {
     }
 
     public int getNumberOfTests() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        if (model.hasTestSuitesToRun()) {
-            return model.testSuitesToRunCount();
+        if (!runResultsInitialized) {
+            testAll();
+            runResultsInitialized = true;
         }
-        return 0;
+        return ranResults != null ? ranResults.length : 0;
     }
 
     private Integer numberOfFailedTests = null;
