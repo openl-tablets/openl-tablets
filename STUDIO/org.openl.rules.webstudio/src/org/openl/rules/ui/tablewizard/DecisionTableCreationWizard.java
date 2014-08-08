@@ -1,15 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.model.SelectItem;
-import javax.validation.constraints.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
@@ -17,17 +7,26 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.model.SelectItem;
+import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Aliaksandr Antonik.
  */
 public class DecisionTableCreationWizard extends TableCreationWizard {
-    private final Log log = LogFactory.getLog(DecisionTableCreationWizard.class);
+    private final Logger log = LoggerFactory.getLogger(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
 
-    @NotEmpty(message="Technical name can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
+    @NotEmpty(message = "Technical name can not be empty")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid technical name")
     private String tableName;
 
     private String returnType;

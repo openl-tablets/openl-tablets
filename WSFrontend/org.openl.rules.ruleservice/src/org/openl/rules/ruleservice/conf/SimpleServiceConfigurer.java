@@ -1,11 +1,5 @@
 package org.openl.rules.ruleservice.conf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
@@ -13,17 +7,22 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Simple ServiceConfigurer bean is designed for using with data sources with
  * one deployment and one project in this deployment. All service properties
  * defined in this configurer by field properties.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class SimpleServiceConfigurer implements ServiceConfigurer {
-    private final Log log = LogFactory.getLog(SimpleServiceConfigurer.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleServiceConfigurer.class);
 
     private String serviceName;
     private String projectName;
@@ -35,20 +34,20 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
     private boolean useRuleServiceRuntimeContext;
     private Map<String, Object> configuration;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         if (loader.getDeployments().size() > 1) {
-            if (log.isErrorEnabled()) {
-                log.error("This configurer can be used only in case with one deployment.");
-            }
+            log.error("This configurer can be used only in case with one deployment.");
         }
         for (Deployment deployment : loader.getDeployments()) {
             for (AProject project : deployment.getProjects()) {
                 Collection<ModuleDescription> modulesForService = new ArrayList<ModuleDescription>();
                 for (Module module : loader.resolveModulesForProject(deployment.getDeploymentName(),
-                    deployment.getCommonVersion(),
-                    project.getName())) {
+                        deployment.getCommonVersion(),
+                        project.getName())) {
 
                     if (module.getProject().getName().equals(projectName)) {
                         ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
@@ -60,18 +59,18 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
                 }
                 if (!modulesForService.isEmpty()) {
                     DeploymentDescription deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
-                        deployment.getCommonVersion());
+                            deployment.getCommonVersion());
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder();
                     serviceDescriptionBuilder.setModules(modulesForService)
-                        .setName(serviceName)
-                        .setUrl(serviceUrl)
-                        .setServiceClassName(serviceClassName)
-                        .setProvideRuntimeContext(provideRuntimeContext)
-                        .setProvideVariations(supportVariations)
-                        .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext)
-                        .setInterceptingTemplateClassName(interceptingTemplateClassName)
-                        .setDeployment(deploymentDescription)
-                        .setConfiguration(configuration);
+                            .setName(serviceName)
+                            .setUrl(serviceUrl)
+                            .setServiceClassName(serviceClassName)
+                            .setProvideRuntimeContext(provideRuntimeContext)
+                            .setProvideVariations(supportVariations)
+                            .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext)
+                            .setInterceptingTemplateClassName(interceptingTemplateClassName)
+                            .setDeployment(deploymentDescription)
+                            .setConfiguration(configuration);
                     serviceDescriptions.add(serviceDescriptionBuilder.build());
                 }
             }

@@ -11,17 +11,6 @@ package org.openl.rules.ruleservice.databinding;
  */
 
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-import javax.xml.transform.dom.DOMSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.AegisType;
@@ -30,10 +19,20 @@ import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.dom.DOMSource;
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class AegisDatabindingFactoryBean {
 
-    private final Log log = LogFactory.getLog(AegisDatabindingFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(AegisDatabindingFactoryBean.class);
 
     private Boolean writeXsiTypes;
     private Set<String> overrideTypes;
@@ -88,7 +87,7 @@ public class AegisDatabindingFactoryBean {
                 typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.calc.SpreadSheetResultType.class, typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.table.PointType.class, typeMapping);
-        
+
         if (supportVariations) {
             loadAegisTypeClassAndRegister(org.openl.rules.variation.VariationsResultType.class, typeMapping);
             loadAegisTypeClassAndRegister(org.openl.rules.variation.JXPathVariationType.class, typeMapping);
@@ -102,24 +101,24 @@ public class AegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
-            org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
+                org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-            org.openl.meta.ShortValueType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
+                org.openl.meta.ShortValueType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
-            org.openl.meta.LongValueType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
+                org.openl.meta.LongValueType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
-            org.openl.meta.IntValueType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
+                org.openl.meta.IntValueType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-            org.openl.meta.FloatValueType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
+                org.openl.meta.FloatValueType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-            org.openl.meta.DoubleValueType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
+                org.openl.meta.DoubleValueType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
-            org.openl.meta.ByteValueType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
+                org.openl.meta.ByteValueType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-            org.openl.meta.BigIntegerValueType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
+                org.openl.meta.BigIntegerValueType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-            org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
-        
+                org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
+
         return aegisDatabinding;
     }
 
@@ -130,9 +129,7 @@ public class AegisDatabindingFactoryBean {
             AegisType aegisType = (AegisType) constructor.newInstance();
             typeMapping.register(aegisType);
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Aegis type \"" + aegisTypeClassName + "\" registration failed!", e);
-            }
+            log.warn("Aegis type \"{}\" registration failed!", aegisTypeClassName, e);
         }
     }
 
@@ -142,23 +139,19 @@ public class AegisDatabindingFactoryBean {
             AegisType aegisType = (AegisType) constructor.newInstance();
             typeMapping.register(aegisType);
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Aegis type \"" + aegisTypeClass.getName() + "\" registration failed!", e);
-            }
+            log.warn("Aegis type \"{}\" registration failed!", aegisTypeClass.getName(), e);
         }
     }
 
     protected void loadAegisTypeClassAndRegister(String typeClassName, Class<?> aegisTypeClass, QName qName,
-            TypeMapping typeMapping) {
+                                                 TypeMapping typeMapping) {
         try {
             Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
             Constructor<?> constructor = aegisTypeClass.getConstructor();
             AegisType aegisType = (AegisType) constructor.newInstance();
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Type \"" + typeClassName + "\" registration failed!", e);
-            }
+            log.warn("Type \"{}\" registration failed!", typeClassName, e);
         }
     }
 
@@ -169,7 +162,7 @@ public class AegisDatabindingFactoryBean {
         }
         overrideTypes.add(SpreadsheetResult.class.getCanonicalName());
         overrideTypes.add(Point.class.getCanonicalName());
-        
+
         if (supportVariations) {
             overrideTypes.add("org.openl.rules.variation.VariationsResult");
             overrideTypes.add("org.openl.rules.variation.Variation");

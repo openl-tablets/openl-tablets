@@ -1,9 +1,11 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.openl.commons.web.util.WebTool;
+import org.openl.rules.ui.WebStudio;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -11,13 +13,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.util.WebTool;
-import org.openl.rules.ui.WebStudio;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class DownloadServlet extends HttpServlet {
     private static final long serialVersionUID = -5102656998760586960L;
@@ -28,11 +27,11 @@ public class DownloadServlet extends HttpServlet {
      * currently opened project in webstudio.
      *
      * @param request current request
-     * @param file file to check
+     * @param file    file to check
      * @return if downloading the file is allowed
      */
     private static boolean checkFile(HttpServletRequest request, File file) {
-    	final Log log = LogFactory.getLog(DownloadServlet.class);
+        final Logger log = LoggerFactory.getLogger(DownloadServlet.class);
         WebStudio webStudio = getWebStudio(request);
         if (webStudio == null) {
             return false;
@@ -44,7 +43,7 @@ public class DownloadServlet extends HttpServlet {
             try {
                 return file.getParentFile().equals(fileSourceCodeModule.getFile().getParentFile().getCanonicalFile());
             } catch (IOException e) {
-                log.error("", e);
+                log.error(e.getMessage(), e);
             }
         }
         return false;
@@ -78,22 +77,22 @@ public class DownloadServlet extends HttpServlet {
             IOException {
         boolean found = false;
         String filename = request.getParameter("filename");
-        
+
         if (filename != null) {
             File file = new File(filename);
             if (file.isFile() && checkFile(request, file)) {
                 found = true;
-                
+
                 response.setContentType("application/octet-stream");
                 WebTool.setContentDisposition(response, file.getName());
-                
+
                 ServletOutputStream outputStream = response.getOutputStream();
                 dumpFile(file, outputStream);
                 outputStream.flush();
                 outputStream.close();
             }
         }
-        
+
         if (!found) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }

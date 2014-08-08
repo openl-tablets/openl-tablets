@@ -1,22 +1,5 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.word.WordUrlParser;
@@ -28,12 +11,28 @@ import org.openl.rules.webstudio.util.WordLauncher;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 public class LaunchFileServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private final Log log = LogFactory.getLog(LaunchFileServlet.class);
+    private final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -42,7 +41,7 @@ public class LaunchFileServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-                                                                                   IOException {
+            IOException {
         if (!isGranted(PRIVILEGE_EDIT_TABLES)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
@@ -87,7 +86,7 @@ public class LaunchFileServlet extends HttpServlet {
             int indexQuestionMark = file.indexOf('?');
             file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
         } catch (MalformedURLException e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
             return;
         }
         decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;

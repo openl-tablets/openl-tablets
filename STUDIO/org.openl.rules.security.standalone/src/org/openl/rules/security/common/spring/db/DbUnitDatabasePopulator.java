@@ -1,34 +1,26 @@
 package org.openl.rules.security.common.spring.db;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.dbunit.DatabaseUnitException;
-
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.DatabaseSequenceFilter;
-
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-
 import org.dbunit.operation.DatabaseOperation;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.core.io.Resource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 /**
  * Populates database using dbunit.
@@ -36,7 +28,7 @@ import javax.sql.DataSource;
  * @author Andrey Naumenko
  */
 public class DbUnitDatabasePopulator implements InitializingBean {
-    private final Log log = LogFactory.getLog(DbUnitDatabasePopulator.class);
+    private final Logger log = LoggerFactory.getLogger(DbUnitDatabasePopulator.class);
     private Resource[] locations;
     private DataSource dataSource;
     private boolean enabled = true;
@@ -70,7 +62,7 @@ public class DbUnitDatabasePopulator implements InitializingBean {
 
         // set DataTypeFactory
         if (dataTypeFactory != null) {
-            log.debug("Using " + dataTypeFactory);
+            log.debug("Using {}", dataTypeFactory);
             DatabaseConfig config = databaseConnection.getConfig();
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, dataTypeFactory);
         }
@@ -82,9 +74,7 @@ public class DbUnitDatabasePopulator implements InitializingBean {
         Connection connection = dataSource.getConnection();
         DatabaseConnection databaseConnection = createDbUnitConnection(connection);
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Loading data from " + resource.getFilename());
-            }
+            log.debug("Loading data from {}", resource.getFilename());
             IDataSet dataSet = new FlatXmlDataSet(resource.getInputStream());
             if (ordered) {
                 // replace with ordered dataset
@@ -106,7 +96,7 @@ public class DbUnitDatabasePopulator implements InitializingBean {
         IDataSet[] dataSets = new IDataSet[locations.length];
         for (int i = 0; i < locations.length; i++) {
             Resource res = locations[i];
-            log.info("Loading data from " + res.getFilename());
+            log.info("Loading data from {}", res.getFilename());
 
             dataSets[i] = new FlatXmlDataSet(res.getInputStream());
         }

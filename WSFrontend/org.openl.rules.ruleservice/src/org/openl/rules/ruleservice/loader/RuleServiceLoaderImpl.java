@@ -1,14 +1,5 @@
 package org.openl.rules.ruleservice.loader;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
@@ -20,17 +11,21 @@ import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the
  * OpenL projects/modules inside the projects. Contains own storage for all
  * projects that is used in services.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
-    private final Log log = LogFactory.getLog(RuleServiceLoaderImpl.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
     private DataSource dataSource;
 
@@ -44,7 +39,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Note: The dataSource, storage and projectResolver have to be set before
      * using the instance.
      * </p>
-     * 
+     *
      * @see #setDataSource, #setProjectResolver
      */
     public RuleServiceLoaderImpl() {
@@ -52,12 +47,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     /**
      * Construct a new RulesLoader for bean usage.
-     * 
+     *
      * @see #setDataSource, #setProjectResolver
      */
     public RuleServiceLoaderImpl(DataSource dataSource,
-            LocalTemporaryDeploymentsStorage storage,
-            RulesProjectResolver projectResolver) {
+                                 LocalTemporaryDeploymentsStorage storage,
+                                 RulesProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
@@ -73,7 +68,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         this.projectResolver = projectResolver;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public DataSource getDataSource() {
         return dataSource;
     }
@@ -98,7 +95,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     /**
      * Sets rules project resolver. Spring bean configuration property.
-     * 
+     *
      * @param projectResolver
      */
     public void setProjectResolver(RulesProjectResolver projectResolver) {
@@ -127,12 +124,16 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         this.storage = storage;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<Deployment> getDeployments() {
         return getDataSource().getDeployments();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
@@ -141,34 +142,24 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"",
-                deploymentName,
-                deploymentVersion.getVersionName()));
-        }
+        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"", deploymentName, deploymentVersion.getVersionName());
 
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
             Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been returned from data source",
-                    deploymentName,
-                    deploymentVersion.getVersionName()));
-            }
+            log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from data source", deploymentName, deploymentVersion.getVersionName());
             return deployment;
         }
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been returned from local repository",
-                deploymentName,
-                deploymentVersion.getVersionName()));
-        }
+        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from local repository", deploymentName, deploymentVersion.getVersionName());
         return localDeployment;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<Module> resolveModulesForProject(String deploymentName,
-            CommonVersion deploymentVersion,
-            String projectName) {
+                                                       CommonVersion deploymentVersion,
+                                                       String projectName) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
@@ -179,9 +170,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new IllegalArgumentException("projectName argument can't be null");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Resoliving modules for deployment with name=" + deploymentName + " and version=" + deploymentVersion.getVersionName() + " and projectName=" + projectName);
-        }
+        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}", deploymentName, deploymentVersion.getVersionName(), projectName);
 
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
@@ -198,9 +187,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             try {
                 projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
             } catch (ProjectResolvingException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Project resolving failed!", e);
-                }
+                log.error("Project resolving failed!", e);
                 return Collections.emptyList();
             }
             return Collections.unmodifiableList(projectDescriptor.getModules());
@@ -209,15 +196,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Resoliving modules for service with name=" + serviceDescription.getName());
-        }
+        log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
 
         Collection<Module> ret = new ArrayList<Module>();
         Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
@@ -256,9 +243,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 try {
                     projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
                 } catch (ProjectResolvingException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Project resolving failed!", e);
-                    }
+                    log.error("Project resolving failed!", e);
                     return Collections.emptyList();
                 }
                 Collection<Module> modules = projectDescriptor.getModules();

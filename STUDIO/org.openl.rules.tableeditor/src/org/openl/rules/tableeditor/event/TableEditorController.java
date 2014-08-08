@@ -1,29 +1,28 @@
 package org.openl.rules.tableeditor.event;
 
-import java.io.IOException;
-
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ICell;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Table editor controller.
@@ -33,7 +32,7 @@ import org.openl.util.formatters.IFormatter;
  */
 public class TableEditorController extends BaseTableEditorController {
 
-    private final Log log = LogFactory.getLog(TableEditorController.class);
+    private final Logger log = LoggerFactory.getLogger(TableEditorController.class);
 
     private static final String SERVER_ERROR = "Internal server error.";
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
@@ -42,7 +41,7 @@ public class TableEditorController extends BaseTableEditorController {
     private static final String ERROR_INSERT_ROW = "Can not insert row.";
     private static final String ERROR_INSERT_COLUMN = "Can not insert column.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
-        + " Please close module Excel file and try again.";
+            + " Please close module Excel file and try again.";
 
     public String insertRowBefore() {
         int row = getRow();
@@ -122,7 +121,7 @@ public class TableEditorController extends BaseTableEditorController {
 
     private int getCol() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
-        int numberOfNonShownColumns = editorModel.getNumberOfNonShownCols();        
+        int numberOfNonShownColumns = editorModel.getNumberOfNonShownCols();
         return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1 + numberOfNonShownColumns;
     }
 
@@ -149,7 +148,7 @@ public class TableEditorController extends BaseTableEditorController {
     }
 
     private String getRequestParam(String name) {
-        String value =  FacesUtils.getRequestParameter(name);
+        String value = FacesUtils.getRequestParameter(name);
         if (StringUtils.isEmpty(value)) {
             return null;
         }
@@ -227,9 +226,9 @@ public class TableEditorController extends BaseTableEditorController {
             String message = null;
             try {
                 editorModel.setCellValue(row, col, value, newFormatter);
-            } catch (FormulaParseException ex) {  
+            } catch (FormulaParseException ex) {
                 log.warn("ERROR_SET_NEW_VALUE", ex);
-                message = ERROR_SET_NEW_VALUE + ex.getMessage();   
+                message = ERROR_SET_NEW_VALUE + ex.getMessage();
             }
 
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
@@ -417,8 +416,8 @@ public class TableEditorController extends BaseTableEditorController {
                 if (color.length == 3 &&
                         (currentColor == null ||
                                 (color[0] != currentColor[0] || // red
-                                 color[1] != currentColor[1] || // green
-                                 color[2] != currentColor[2]))) { // blue
+                                        color[1] != currentColor[1] || // green
+                                        color[2] != currentColor[2]))) { // blue
                     try {
                         editorModel.setFillColor(row, col, color);
                     } catch (Exception e) {
@@ -449,8 +448,8 @@ public class TableEditorController extends BaseTableEditorController {
                 if (color.length == 3 &&
                         (currentColor == null ||
                                 (color[0] != currentColor[0] || // red
-                                 color[1] != currentColor[1] || // green
-                                 color[2] != currentColor[2]))) { // blue
+                                        color[1] != currentColor[1] || // green
+                                        color[2] != currentColor[2]))) { // blue
                     try {
                         editorModel.setFontColor(row, col, color);
                     } catch (Exception e) {
@@ -553,8 +552,8 @@ public class TableEditorController extends BaseTableEditorController {
         if (afterSaveAction != null) {
             FacesUtils.invokeMethodExpression(
                     afterSaveAction,
-                    StringUtils.isNotBlank(newId) ? new String[] { newId } : null,
-                    StringUtils.isNotBlank(newId) ? new Class[] { String.class } : null);
+                    StringUtils.isNotBlank(newId) ? new String[]{newId} : null,
+                    StringUtils.isNotBlank(newId) ? new Class[]{String.class} : null);
         }
     }
 
@@ -669,7 +668,7 @@ public class TableEditorController extends BaseTableEditorController {
         }
 
         public PropertyModificationResponse(String response, String status, TableEditorModel model,
-                String inheritedValue) {
+                                            String inheritedValue) {
             super(response, status, model);
             this.inheritedValue = inheritedValue;
         }

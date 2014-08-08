@@ -1,16 +1,15 @@
 package org.openl.rules.project.impl.local;
 
-import java.io.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.StateHolder;
-import org.openl.util.MsgHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 
 public class StatePersistance {
-    private final Log log = LogFactory.getLog(StatePersistance.class);
+    private final Logger log = LoggerFactory.getLogger(StatePersistance.class);
 
     private final LocalArtefactAPI artefact;
     private final File propertiesLocation;
@@ -50,8 +49,7 @@ public class StatePersistance {
 
             artefact.applyStateHolder(state);
         } catch (Exception e) {
-            String msg = MsgHelper.format("Could not read state from file ''{0}''!", sourceFile.getAbsolutePath());
-            log.error(msg, e);
+            log.error("Could not read state from file ''{}''!", sourceFile.getAbsolutePath(), e);
         } finally {
             if (ois != null) {
                 try {
@@ -66,14 +64,14 @@ public class StatePersistance {
     public void save() throws ProjectException {
         saveState(artefact);
     }
-    
+
     /**
      * Checks if state of the artefact was saved.
-     * 
+     *
      * @return <code>true</code> if state of the artefact was previously saved
-     *         and <code>false</code> otherwise.
+     * and <code>false</code> otherwise.
      */
-    public boolean isStateSaved(){
+    public boolean isStateSaved() {
         return getPropertiesFile(artefact).exists();
     }
 
@@ -81,8 +79,7 @@ public class StatePersistance {
         File destFile = getPropertiesFile(artefact);
         File folder = destFile.getParentFile();
         if (!FolderHelper.checkOrCreateFolder(folder)) {
-            String msg = MsgHelper.format("Could not create folder ''{0}''!", folder.getAbsolutePath());
-            log.error(msg);
+            log.error("Could not create folder ''{}''!", folder.getAbsolutePath());
             return;
         }
 
@@ -94,8 +91,7 @@ public class StatePersistance {
             oos.writeObject(state);
             oos.flush();
         } catch (IOException e) {
-            String msg = MsgHelper.format("Could not save state into file ''{0}''!", destFile.getAbsolutePath());
-            log.error(msg, e);
+            log.error("Could not save state into file ''{}''!", destFile.getAbsolutePath(), e);
         } finally {
             if (oos != null) {
                 try {

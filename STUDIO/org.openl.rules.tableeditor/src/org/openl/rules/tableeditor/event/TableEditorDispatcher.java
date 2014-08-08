@@ -1,10 +1,10 @@
 package org.openl.rules.tableeditor.event;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import org.apache.commons.io.FilenameUtils;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.tableeditor.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -13,18 +13,13 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.tableeditor.util.Constants;
+import java.io.*;
 
 public class TableEditorDispatcher implements PhaseListener {
 
     private static final long serialVersionUID = 8617343432886373802L;
 
-    private final Log log = LogFactory.getLog(TableEditorDispatcher.class);
+    private final Logger log = LoggerFactory.getLogger(TableEditorDispatcher.class);
 
     private static final String AJAX_MATCH = "ajax/";
 

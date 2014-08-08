@@ -1,29 +1,11 @@
 package org.openl.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.*;
 
 public final class FileTool {
 
@@ -486,14 +468,14 @@ public final class FileTool {
      * @param dir
      */
     private static void removeChildren(File dir) {
-        final Log log = LogFactory.getLog(FileTool.class);
         File[] file = dir.listFiles();
         for (int i = 0; i < file.length; i++) {
             if (file[i].isDirectory()) {
                 removeChildren(file[i]);
             }
             if (file[i].delete() == false) {
-                log.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
+                final Logger log = LoggerFactory.getLogger(FileTool.class);
+                log.warn("Cant delete file/dir: {}", file[i].getAbsolutePath());
                 // else
                 // Log.warn("Deleted: "+file[i].getAbsolutePath());
             }
@@ -549,13 +531,13 @@ public final class FileTool {
     }
 
     public static void saveFile(String fname, String s, boolean compareBeforeSave) throws Exception {
-        final Log log = LogFactory.getLog(FileTool.class);
         try {
             if (compareBeforeSave && compareFileSource(fname, s) == 0) {
                 return;
             }
         } catch (Exception ex) {
-            log.warn(ex);
+            final Logger log = LoggerFactory.getLogger(FileTool.class);
+            log.warn(ex.getMessage(), ex);
         }
 
         File file = new File(fname);
@@ -609,25 +591,25 @@ public final class FileTool {
     }
 
     public static File toFile(InputStream source, String pathName) {
-        final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = new File(pathName);
             FileUtils.copyInputStreamToFile(source, file);
         } catch (IOException e) {
-            log.error("Error when creating file: " + pathName, e);
+            final Logger log = LoggerFactory.getLogger(FileTool.class);
+            log.error("Error when creating file: {}", pathName, e);
         }
         return file;
     }
 
     public static File toTempFile(InputStream source, String fileName) {
-        final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = File.createTempFile(fileName, null);
             FileUtils.copyInputStreamToFile(source, file);
         } catch (IOException e) {
-            log.error("Error when creating file: " + fileName, e);
+            final Logger log = LoggerFactory.getLogger(FileTool.class);
+            log.error("Error when creating file: {}", fileName, e);
         }
         return file;
     }

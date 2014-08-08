@@ -1,25 +1,19 @@
 package org.openl.rules.lang.xls.classes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.*;
 
 /**
  * This class is used to find a classes in file system.
- * 
+ *
  * @author NSamatov
  */
 public class ClassFinder {
-    private final Log log = LogFactory.getLog(ClassFinder.class);
+    private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
 
     private Map<String, ClassLocator> locators = new HashMap<String, ClassLocator>();
 
@@ -38,7 +32,7 @@ public class ClassFinder {
     /**
      * Scans all classes accessible from the context class loader which belong
      * to the given package.
-     * 
+     *
      * @param packageName The package
      * @return The classes
      */
@@ -49,7 +43,7 @@ public class ClassFinder {
     /**
      * Scans all classes accessible from the given class loader which belong to
      * the given package.
-     * 
+     *
      * @param packageName The package
      * @param classLoader Class Loader
      * @return The classes
@@ -60,9 +54,7 @@ public class ClassFinder {
         try {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.debug(e.getMessage(), e);
             return new Class[0];
         }
 
@@ -77,10 +69,7 @@ public class ClassFinder {
                 if (locator != null) {
                     classes.addAll(locator.getClasses(resource, packageName, classLoader));
                 } else {
-                    if (log.isWarnEnabled()) {
-                        String message = String.format("A ClassLocator for protocol \"%s\" not found", protocol);
-                        log.warn(message);
-                    }
+                    log.warn("A ClassLocator for protocol \"{}\" not found", protocol);
                 }
             }
         }

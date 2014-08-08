@@ -1,23 +1,16 @@
 package org.openl.rules.repository.jcr;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RCommonProject;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.*;
 
 public class JcrCommonProject extends JcrEntity implements RCommonProject {
-    private final Log log = LogFactory.getLog(JcrCommonProject.class);
+    private final Logger log = LoggerFactory.getLogger(JcrCommonProject.class);
 
     private JcrVersion version;
 
@@ -52,10 +45,10 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
             version.updateRevision(n);
             n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
             n.save();
-            log.info("Checking in... " + n.getPath());
+            log.info("Checking in... {}", n.getPath());
             n.checkin();
         } else if (mustBeSaved) {
-            log.info("Saving... " + n.getPath());
+            log.info("Saving... {}", n.getPath());
             n.save();
         }
     }
@@ -106,7 +99,7 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
             Node parent = node().getParent();
             // ALL IS LOST
             // TODO: add logging here
-            log.info("Erasing project '" + getName() + "' on behalf of " + user.getUserName());
+            log.info("Erasing project '{}' on behalf of {}", getName(), user.getUserName());
 
             super.delete();
             commitParent(parent);
@@ -130,7 +123,6 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
         }
     }
 
-  
 
     public void undelete(CommonUser user) throws RRepositoryException {
         if (!isMarked4Deletion()) {

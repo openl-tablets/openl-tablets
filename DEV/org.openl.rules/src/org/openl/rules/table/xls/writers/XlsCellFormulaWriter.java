@@ -1,14 +1,14 @@
 package org.openl.rules.table.xls.writers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XlsCellFormulaWriter extends AXlsCellWriter {
 
-    private final Log log = LogFactory.getLog(XlsCellFormulaWriter.class);
+    private final Logger log = LoggerFactory.getLogger(XlsCellFormulaWriter.class);
 
     public XlsCellFormulaWriter(XlsSheetGridModel xlsSheetGridModel) {
         super(xlsSheetGridModel);
@@ -29,7 +29,7 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
             setMetaInfo(String.class);
         }
     }
-    
+
     private void writeExcelFormula(String formula) {
         getCellToWrite().setCellFormula(formula);
 

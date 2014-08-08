@@ -1,16 +1,18 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
+import org.flywaydb.core.api.FlywayException;
+import org.hibernate.validator.constraints.NotBlank;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
+import org.openl.rules.db.utils.DBUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -20,21 +22,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.rules.db.utils.DBUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
-
-import org.flywaydb.core.api.FlywayException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 @ManagedBean
 @SessionScoped
@@ -42,7 +36,7 @@ public class InstallWizard {
 
     private static final String MULTI_USER_MODE = "multi";
 
-    private final Log log = LogFactory.getLog(InstallWizard.class);
+    private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
     private int step;
 
@@ -81,11 +75,11 @@ public class InstallWizard {
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
-            System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+                System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
         externalDBConfig = new ConfigurationManager(true,
-            System.getProperty("webapp.root") + "/WEB-INF/conf/db/db-mysql.properties");
+                System.getProperty("webapp.root") + "/WEB-INF/conf/db/db-mysql.properties");
         dbUtils = new DBUtils();
     }
 
@@ -110,12 +104,12 @@ public class InstallWizard {
             // Get defaults from 'system.properties'
             if (newWorkingDir || systemConfig == null) {
                 systemConfig = new ConfigurationManager(true,
-                    workingDir + "/system-settings/system.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                        workingDir + "/system-settings/system.properties",
+                        System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
 
                 dbConfig = new ConfigurationManager(true,
-                    workingDir + "/system-settings/db.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+                        workingDir + "/system-settings/db.properties",
+                        System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
                 userMode = systemConfig.getStringProperty("user.mode");
 
@@ -159,13 +153,13 @@ public class InstallWizard {
 
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
 
-            context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
-                    "/WEB-INF/spring/system-config-beans.xml",
-                    "/WEB-INF/spring/cache-beans.xml",
-                    "/WEB-INF/spring/repository-beans.xml",
-                    "/WEB-INF/spring/security-beans.xml",
-                    "/WEB-INF/spring/security/security-" + userMode + ".xml"}
-                    );
+            context.setConfigLocations(new String[]{"/WEB-INF/spring/webstudio-beans.xml",
+                            "/WEB-INF/spring/system-config-beans.xml",
+                            "/WEB-INF/spring/cache-beans.xml",
+                            "/WEB-INF/spring/repository-beans.xml",
+                            "/WEB-INF/spring/security-beans.xml",
+                            "/WEB-INF/spring/security/security-" + userMode + ".xml"}
+            );
 
             context.refresh();
 
@@ -212,8 +206,7 @@ public class InstallWizard {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Select database type"));
             } else if (StringUtils.isEmpty(dbUrl)) {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Database URL can not be blank"));
-            }
-            else {
+            } else {
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
         }
@@ -223,7 +216,7 @@ public class InstallWizard {
     /**
      * Validates WebStudio working directory for write access. If specified
      * folder is not writable the validation error will appears
-     * 
+     *
      * @param context
      * @param toValidate
      * @param value
@@ -284,6 +277,7 @@ public class InstallWizard {
 
     /**
      * Creates a temp file for validating folder write permisions
+     *
      * @param file is a folder where temp file will be created
      * @return true if specified folder is writable, otherwise returns false
      */
@@ -303,11 +297,11 @@ public class InstallWizard {
 
     /**
      * Deletes the folder which was created for validating folder permissions
-     * 
+     *
      * @param existingFolder folder which already exists on file system
-     * @param studioFolder folder were studio will be installed
+     * @param studioFolder   folder were studio will be installed
      */
-    private void deleteFolder(File existingFolder, File  studioFolder) {
+    private void deleteFolder(File existingFolder, File studioFolder) {
 
         studioFolder.delete();
 
@@ -319,6 +313,7 @@ public class InstallWizard {
 
     /**
      * Returns collection of properties files for external databases
+     *
      * @return
      */
     public Collection<File> getDBPropetiesFiles() {
@@ -337,11 +332,12 @@ public class InstallWizard {
 
     /**
      * Returns a Map of data base vendors
+     *
      * @return
      */
     public List<SelectItem> getDBVendors() {
-       List<SelectItem> dbVendors = new ArrayList<SelectItem>();
-       Properties dbProps = new Properties();
+        List<SelectItem> dbVendors = new ArrayList<SelectItem>();
+        Properties dbProps = new Properties();
 
         for (File propFile : getDBPropetiesFiles()) {
             try {
@@ -351,9 +347,9 @@ public class InstallWizard {
 
                 dbVendors.add(new SelectItem(propertyFilePath, dbVendor));
             } catch (FileNotFoundException e) {
-                log.error("The file " + propFile.getAbsolutePath() + " not found", e);
+                log.error("The file {} not found", propFile.getAbsolutePath(), e);
             } catch (IOException e) {
-                log.error("Error while loading file " + propFile.getAbsolutePath(), e);
+                log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
             }
         }
         return dbVendors;
@@ -361,6 +357,7 @@ public class InstallWizard {
 
     /**
      * Listener for vendor selectOnMenu
+     *
      * @param e ajax event
      */
     public void dbVendorChanged(AjaxBehaviorEvent e) {
@@ -385,11 +382,11 @@ public class InstallWizard {
                 this.dbPrefix = prefix;
 
                 // For Oracle database schema is a username
-                if (StringUtils.containsIgnoreCase (dbVendor, "oracle")) {
+                if (StringUtils.containsIgnoreCase(dbVendor, "oracle")) {
                     this.dbSchema = externalDBConfig.getStringProperty("db.username");
                 }
             }
-        }else {
+        } else {
             // Reset database url and dtabase user name when no database type is selected
             this.dbUrl = "";
             this.dbUsername = "";
@@ -398,7 +395,7 @@ public class InstallWizard {
 
     /**
      * Ajax event for changing database url.
-     * 
+     *
      * @param e AjaxBehavior event
      */
     public void urlChanged(AjaxBehaviorEvent e) {
@@ -409,7 +406,7 @@ public class InstallWizard {
 
     /**
      * Ajax event for changing database username
-     * 
+     *
      * @param e AjaxBehavior event
      */
     public void usernameChanged(AjaxBehaviorEvent e) {
@@ -420,7 +417,7 @@ public class InstallWizard {
 
     /**
      * Ajax event for changing application mode: demo or production
-     * 
+     *
      * @param e AjaxBehavior event
      */
     public void appmodeChanged(AjaxBehaviorEvent e) {
@@ -531,7 +528,7 @@ public class InstallWizard {
     }
 
     public String getFolderSeparator() {
-        
+
         return File.separator;
     }
 
@@ -560,12 +557,12 @@ public class InstallWizard {
         try {
             ctx = new XmlWebApplicationContext();
             ctx.setServletContext(FacesUtils.getServletContext());
-            ctx.setConfigLocations(new String[] {
+            ctx.setConfigLocations(new String[]{
                     "classpath:META-INF/standalone/spring/security-hibernate-beans.xml",
                     "/WEB-INF/spring/security/db/flyway-bean.xml"
             });
             ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-                
+
                 @Override
                 public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
                     beanFactory.registerSingleton("dbConfig", dbProperties);

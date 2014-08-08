@@ -1,16 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
@@ -38,11 +28,17 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile
  * neccessary modules on demand.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
@@ -53,7 +49,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         OpenL.setConfig(new LazyOpenLConfigurator());
     }
 
-    private final Log log = LogFactory.getLog(LazyEngineFactory.class);
+    private final Logger log = LoggerFactory.getLogger(LazyEngineFactory.class);
 
     private CompiledOpenClass compiledOpenClass;
     private Class<T> interfaceClass;
@@ -73,9 +69,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             throw new IllegalArgumentException("interfaceClassGenerator argument can't be null");
         }
         if (interfaceClass != null) {
-            if (log.isWarnEnabled()) {
-                log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
-            }
+            log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }
@@ -87,7 +81,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     /**
      * Added to allow using openl that is different from default, such as
      * org.openl.xls.ce
-     * 
+     *
      * @param modules
      * @param openlName `
      */
@@ -99,18 +93,18 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         this.deployment = deployment;
         this.modules = modules;
     }
- 
+
     public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager) {
+                             Collection<Module> modules,
+                             IDependencyManager dependencyManager) {
         this(deployment, modules);
         this.dependencyManager = dependencyManager;
     }
 
     public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Map<String, Object> externalParameters) {
+                             Collection<Module> modules,
+                             IDependencyManager dependencyManager,
+                             Map<String, Object> externalParameters) {
         this(deployment, modules, dependencyManager);
         this.externalParameters = externalParameters;
     }
@@ -121,26 +115,26 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            Class<T> interfaceClass,
-            Map<String, Object> externalParameters) {
+                             Collection<Module> modules,
+                             Class<T> interfaceClass,
+                             Map<String, Object> externalParameters) {
         this(deployment, modules, interfaceClass);
         this.externalParameters = externalParameters;
     }
 
     public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Class<T> interfaceClass) {
+                             Collection<Module> modules,
+                             IDependencyManager dependencyManager,
+                             Class<T> interfaceClass) {
         this(deployment, modules, dependencyManager);
         this.interfaceClass = interfaceClass;
     }
 
     public LazyEngineFactory(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            Class<T> interfaceClass,
-            Map<String, Object> externalParameters) {
+                             Collection<Module> modules,
+                             IDependencyManager dependencyManager,
+                             Class<T> interfaceClass,
+                             Map<String, Object> externalParameters) {
         this(deployment, modules, dependencyManager, interfaceClass);
         this.externalParameters = externalParameters;
     }
@@ -153,7 +147,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         return compiledOpenClass;
     }
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({"unchecked"})
     public Class<T> getInterfaceClass() {
         if (interfaceClass == null) {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
@@ -161,13 +155,11 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             final String className = openClass.getName();
             try {
                 interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className,
-                    openClass,
-                    getCompiledOpenClass().getClassLoader());
+                        openClass,
+                        getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);
-                if (log.isErrorEnabled()) {
-                    log.error(errorMessage, e);
-                }
+                log.error(errorMessage, e);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
         }
@@ -176,7 +168,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
+        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
 
     @Override
@@ -188,9 +180,9 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
             return prepareProxyInstance(openClassInstance,
-                methodMap,
-                runtimeEnv,
-                getCompiledOpenClass().getClassLoader());
+                    methodMap,
+                    runtimeEnv,
+                    getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Can't instantiate engine instance";
             throw new OpenlNotCheckedException(errorMessage, ex);
@@ -214,16 +206,14 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             String modulePath = module.getRulesRootPath().getPath();
             try {
                 if (FilenameUtils.normalize(sourceUrl)
-                    .equals(FilenameUtils.normalize(new File(modulePath).getCanonicalFile()
-                        .toURI()
-                        .toURL()
-                        .toExternalForm()))) {
+                        .equals(FilenameUtils.normalize(new File(modulePath).getCanonicalFile()
+                                .toURI()
+                                .toURL()
+                                .toExternalForm()))) {
                     return module;
                 }
             } catch (Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Failed to build url of module '" + module.getName() + "' with path: " + modulePath, e);
-                }
+                log.warn("Failed to build url of module '{}' with path: {}", module.getName(), modulePath, e);
             }
         }
         return null;
@@ -236,7 +226,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
         return new LazyMethod(method.getName(), argTypes, method, dependencyManager, Thread.currentThread()
-            .getContextClassLoader(), true, externalParameters) {
+                .getContextClassLoader(), true, externalParameters) {
             @Override
             public DeploymentDescription getDeployment(IRuntimeEnv env) {
                 return deployment;
@@ -252,11 +242,11 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     private LazyField makeLazyField(IOpenField field) {
         final Module declaringModule = getModuleForMember(field);
         return new LazyField(field.getName(),
-            field,
-            dependencyManager,
-            Thread.currentThread().getContextClassLoader(),
-            true,
-            externalParameters) {
+                field,
+                dependencyManager,
+                Thread.currentThread().getContextClassLoader(),
+                true,
+                externalParameters) {
             @Override
             public DeploymentDescription getDeployment(IRuntimeEnv env) {
                 return deployment;
@@ -288,8 +278,8 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(mainModule,
-                AOpenLEngineFactory.DEFAULT_USER_HOME,
-                getOpenlName());// FIXME
+                    AOpenLEngineFactory.DEFAULT_USER_HOME,
+                    getOpenlName());// FIXME
             engineFactory.setDependencyManager(dependencyManager);
             engineFactory.setExecutionMode(true);
             CompiledOpenClass result = engineFactory.getCompiledOpenClass();

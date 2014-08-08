@@ -1,31 +1,25 @@
 package org.openl.rules.repository.jcr;
 
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.*;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionIterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 /**
  * JCR Node Utility
  *
  * @author Aleh Bykhavets
- *
  */
 public class NodeUtil {
 
@@ -41,13 +35,13 @@ public class NodeUtil {
             throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'!");
         }
     }
-    
+
     public static boolean isVersionable(Node node) throws RepositoryException {
         return node.isNodeType(JcrNT.MIX_VERSIONABLE);
     }
 
     public static Calendar convertDate2Calendar(Date date) {
-    	
+
         if (date == null) {
             return null;
         }
@@ -66,9 +60,9 @@ public class NodeUtil {
     /**
      * Creates node of given node type.
      *
-     * @param parentNode parent node, where new node is going to be added
-     * @param name name of new node
-     * @param type node type of new node
+     * @param parentNode    parent node, where new node is going to be added
+     * @param name          name of new node
+     * @param type          node type of new node
      * @param isVersionable whether new node is versionable
      * @return reference on newly created node
      * @throws RepositoryException if operation failed
@@ -117,7 +111,7 @@ public class NodeUtil {
 
     protected static long getFileNodeSize(Node node) {
         long result;
-        final Log log = LogFactory.getLog(NodeUtil.class);
+        final Logger log = LoggerFactory.getLogger(NodeUtil.class);
         try {
             Node resNode = node.getNode(ArtefactProperties.PROP_RES_CONTENT);
             result = resNode.getProperty(ArtefactProperties.PROP_RES_DATA).getLength();
@@ -164,7 +158,7 @@ public class NodeUtil {
      *
      * @param v version to be checked
      * @return <code>true</code> if the version is root; <code>false</code>
-     *         otherwise;
+     * otherwise;
      * @throws RepositoryException if operation failed
      */
     protected static boolean isRootVersion(Version v) throws RepositoryException {
@@ -275,7 +269,7 @@ public class NodeUtil {
     /**
      * Checkout node and parent (if needed).
      *
-     * @param node reference on node to be checked in
+     * @param node       reference on node to be checked in
      * @param openParent whether parent should be checked out
      * @throws RepositoryException if operation failed
      */

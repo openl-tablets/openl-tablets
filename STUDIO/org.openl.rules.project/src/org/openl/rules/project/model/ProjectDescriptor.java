@@ -1,19 +1,19 @@
 package org.openl.rules.project.model;
 
+import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.types.java.JavaOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.classloader.ClassLoaderCloserFactory;
-import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.types.java.JavaOpenClass;
-
 public class ProjectDescriptor {
-    private final Log log = LogFactory.getLog(ProjectDescriptor.class);
+    private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
     private String id;
     private String name;
     private String comment;
@@ -24,31 +24,31 @@ public class ProjectDescriptor {
     private ClassLoader classLoader;
     private String propertiesFileNamePattern;
     private String propertiesFileNameProcessor;
-    
+
     public String getPropertiesFileNamePattern() {
         return propertiesFileNamePattern;
     }
-    
+
     public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
         this.propertiesFileNamePattern = propertiesFileNamePattern;
     }
-    
+
     public String getPropertiesFileNameProcessor() {
         return propertiesFileNameProcessor;
     }
-    
+
     public void setPropertiesFileNameProcessor(String propertiesFileNameProcessor) {
         this.propertiesFileNameProcessor = propertiesFileNameProcessor;
     }
-    
+
     public List<ProjectDependencyDescriptor> getDependencies() {
         return dependencies;
     }
-    
+
     public void setDependencies(List<ProjectDependencyDescriptor> dependencies) {
         this.dependencies = dependencies;
     }
-    
+
     public File getProjectFolder() {
         return projectFolder;
     }
@@ -118,10 +118,10 @@ public class ProjectDescriptor {
 
     /**
      * @param reload Boolean flag that indicates whether classloader must be
-     *            reloaded or used existing.
+     *               reloaded or used existing.
      * @return ClassLoader for this project.
      * @deprecated Must be removed to separate class. Project descriptor is just
-     *             description of project and must be simple java bean.
+     * description of project and must be simple java bean.
      */
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
@@ -139,7 +139,7 @@ public class ProjectDescriptor {
 
     public URL[] getClassPathUrls() {
         if (classpath == null) {
-            return new URL[] {};
+            return new URL[]{};
         }
         URL[] urls = new URL[classpath.size()];
 
@@ -156,9 +156,7 @@ public class ProjectDescriptor {
                 }
                 i++;
             } catch (MalformedURLException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Bad URL in classpath \"" + entry.getPath() + "\"");
-                }
+                log.error("Bad URL in classpath \"{}\"", entry.getPath());
             }
         }
         return urls;
@@ -167,12 +165,10 @@ public class ProjectDescriptor {
     /**
      * Class loader of current project have to be unregistered if it is not in
      * use to prevent memory leaks.
-     * 
+     *
      * @param classLoader ClassLoader to unregister.
-     * 
      * @deprecated Must be removed to separate class. Project descriptor is just
-     *             description of project and must be simple java bean.
-     * 
+     * description of project and must be simple java bean.
      */
     private void unregisterClassloader(ClassLoader classLoader) {
         if (classLoader != null) {

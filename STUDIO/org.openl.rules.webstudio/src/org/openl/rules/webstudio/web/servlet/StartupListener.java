@@ -1,29 +1,23 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.io.InputStream;
-import java.util.Map;
+import org.openl.config.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.config.ClassPathConfigLocator;
-import org.openl.config.ConfigLocator;
-import org.openl.config.ConfigManager;
-import org.openl.config.ConfigurationManager;
-import org.openl.config.SysConfigManager;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Startup listener.
  *
  * @author Aleh Bykhavets
- *
  */
 public class StartupListener implements ServletContextListener {
 
-    private final Log log = LogFactory.getLog(StartupListener.class);
+    private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
     private class WebConfigLocator extends ConfigLocator {
         private ServletContext context;
@@ -50,7 +44,7 @@ public class StartupListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
         String name = context.getServletContextName();
-        log.info("Starting " + name + "...");
+        log.info("Starting {}...", name);
 
         ConfigManager configManager = new ConfigManager();
 
@@ -82,7 +76,7 @@ public class StartupListener implements ServletContextListener {
 
     public void contextDestroyed(ServletContextEvent event) {
         String name = event.getServletContext().getServletContextName();
-        log.info(name + " is down.");
+        log.info("{} is down.", name);
     }
 
 }

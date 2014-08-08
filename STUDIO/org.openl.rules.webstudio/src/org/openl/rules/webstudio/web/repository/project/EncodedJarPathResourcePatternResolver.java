@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
+
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URLConnection;
@@ -9,25 +16,18 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.util.StringTool;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.util.ResourceUtils;
-
 /**
  * Workaround for WebSphere
- * Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project" 
- * instead of "Empty Project") but JarEntry.getName() not encoded - in that cases 
+ * Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project"
+ * instead of "Empty Project") but JarEntry.getName() not encoded - in that cases
  * PathMatchingResourcePatternResolver cannot find the resource.
  * See the line with "Workaround" keyword for details.
  * TODO remove this class when the bug is fixed without workaround
- * 
+ *
  * @author NSamatov
  */
 final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePatternResolver {
-    private final Log logger = LogFactory.getLog(PathMatchingResourcePatternResolver.class);
+    private final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
 
     @Override
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource, String subPattern)
@@ -46,8 +46,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
             jarFileUrl = jarCon.getJarFileURL().toExternalForm();
             JarEntry jarEntry = jarCon.getJarEntry();
             rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
-        }
-        else {
+        } else {
             // No JarURLConnection -> need to resort to URL file parsing.
             // We'll assume URLs of the format "jar:path!/entry", with the protocol
             // being arbitrary as long as following the entry format.
@@ -59,8 +58,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 rootEntryPath = urlFile.substring(separatorIndex + ResourceUtils.JAR_URL_SEPARATOR.length());
                 rootEntryPath = StringTool.decodeURL(rootEntryPath); // !!! Workaround for WebSphere
                 jarFile = getJarFile(jarFileUrl);
-            }
-            else {
+            } else {
                 jarFile = new JarFile(urlFile);
                 jarFileUrl = urlFile;
                 rootEntryPath = "";
@@ -69,16 +67,14 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
         }
 
         try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Looking for matching resources in jar file [" + jarFileUrl + "]");
-            }
+            log.debug("Looking for matching resources in jar file [{}]", jarFileUrl);
             if (!"".equals(rootEntryPath) && !rootEntryPath.endsWith("/")) {
                 // Root entry path must end with slash to allow for proper matching.
                 // The Sun JRE does not return a slash here, but BEA JRockit does.
                 rootEntryPath = rootEntryPath + "/";
             }
             Set<Resource> result = new LinkedHashSet<Resource>(8);
-            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
+            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
                 JarEntry entry = entries.nextElement();
                 String entryPath = entry.getName();
                 if (entryPath.startsWith(rootEntryPath)) {
@@ -89,8 +85,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 }
             }
             return result;
-        }
-        finally {
+        } finally {
             // Close jar file, but only if freshly obtained -
             // not from JarURLConnection, which might cache the file reference.
             if (newJarFile) {

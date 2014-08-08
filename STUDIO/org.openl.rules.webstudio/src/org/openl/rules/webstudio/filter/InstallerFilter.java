@@ -1,23 +1,17 @@
 package org.openl.rules.webstudio.filter;
 
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
 
 public class InstallerFilter implements Filter {
 
-    private final Log LOG = LogFactory.getLog(InstallerFilter.class);
+    private final Logger log = LoggerFactory.getLogger(InstallerFilter.class);
 
     private static final int REDIRECT_ERROR_CODE = 399;
 
@@ -29,7 +23,7 @@ public class InstallerFilter implements Filter {
         config = filterConfig;
         wizardRoot = config.getInitParameter("wizardRoot");
         if (wizardRoot == null) {
-            LOG.error("Installer filter: could not get an initial parameter 'wizardRoot'");
+            log.error("Installer filter: could not get an initial parameter 'wizardRoot'");
         }
     }
 
@@ -47,11 +41,11 @@ public class InstallerFilter implements Filter {
 
             String redirectUrl = request.getContextPath() + wizardRoot + "index.xhtml";
 
-            LOG.info("WebStudio configuration: Redirect to Installation wizard");
+            log.info("WebStudio configuration: Redirect to Installation wizard");
 
             // Handle Ajax requests
             if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
-                   ||  StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
+                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {
