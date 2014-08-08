@@ -705,6 +705,7 @@ public class RepositoryTreeController {
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
+            studio.getModel().clearModuleInfo(); // Release resources like jars
             unregisterElementInProjectDescriptor();
             projectArtefact.deleteArtefact(childName);
             repositoryTreeState.refreshSelectedNode();
@@ -722,9 +723,9 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
+            studio.getModel().clearModuleInfo(); // Release resources like jars
             if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel()
                 .getProject())) {
-                studio.getModel().clearModuleInfo();
                 studio.setCurrentModule(null);
             }
             unregisterSelectedNodeInProjectDescriptor();
