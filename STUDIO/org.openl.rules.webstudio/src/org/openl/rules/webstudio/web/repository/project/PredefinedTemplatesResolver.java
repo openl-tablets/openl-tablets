@@ -1,23 +1,23 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.util.ResourceUtils;
-
 /**
  * @author nsamatov.
  */
 public class PredefinedTemplatesResolver extends TemplatesResolver {
-    private final Log log = LogFactory.getLog(PredefinedTemplatesResolver.class);
+    private final Logger log = LoggerFactory.getLogger(PredefinedTemplatesResolver.class);
 
     private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
 
@@ -66,7 +66,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
                 templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
             }
         } catch (Exception e) {
-            log.error("Failed to get project template: " + url, e);
+            log.error("Failed to get project template: {}", url, e);
         }
 
         return templateFiles.isEmpty() ? new ProjectFile[0]

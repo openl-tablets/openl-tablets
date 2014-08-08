@@ -1,18 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -23,15 +10,20 @@ import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
- * 
+ *
  * @author Nail Samatov
  */
 public class RESTServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
-    private final Log log = LogFactory.getLog(RESTServicesRuleServicePublisher.class);
+    private final Logger log = LoggerFactory.getLogger(RESTServicesRuleServicePublisher.class);
 
     private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
@@ -53,19 +45,19 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher, A
     public void setServerFactory(ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory) {
         this.serverFactory = serverFactory;
     }
-    
+
     /* internal for test */JAXRSServerFactoryBean getServerFactoryBean() {
         if (serverFactory != null) {
             return serverFactory.getObject();
         }
-        
+
         JAXRSServerFactoryBean sfb = new JAXRSServerFactoryBean();
 
         JSONProvider<?> provider = new JSONProvider<Object>();
         provider.setWriteXsiType(false);
 
         sfb.setProvider(provider);
-        
+
         return sfb;
     }
 
@@ -76,7 +68,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher, A
 
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setResourceProvider(service.getServiceClass(), new SingletonResourceProvider(service.getServiceBean()));
-        
+
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
 
@@ -84,10 +76,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher, A
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);
             availableServices.add(createServiceInfo(service));
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
-                        getBaseAddress() + service.getUrl()));
-            }
+            log.info("Service \"{}\" with URL \"{}{}\" succesfully deployed.", service.getName(), getBaseAddress(), service.getUrl());
         } catch (Throwable t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
@@ -116,10 +105,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher, A
         }
         try {
             runningServices.get(service).destroy();
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName,
-                        baseAddress + service.getUrl()));
-            }
+            log.info("Service \"{}\" with URL \"{}{}\" succesfully undeployed.", serviceName, baseAddress, service.getUrl());
             runningServices.remove(service);
             removeServiceInfo(serviceName);
             service.destroy();
@@ -127,7 +113,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher, A
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
     }
-    
+
     public void redeploy(OpenLService service) throws RuleServiceRedeployException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");

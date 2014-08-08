@@ -6,6 +6,16 @@
 
 package org.openl.main;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openl.exception.OpenLException;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.util.StringTool;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,25 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenLException;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.util.StringTool;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
-
 /**
  * @author snshor
- * 
  */
 public class SourceCodeURLTool implements SourceCodeURLConstants {
-	
+
     static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module, String openl) {
-    	final Log log = LogFactory.getLog(SourceCodeURLTool.class);
-    	
+        final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
+
         if (module != null && StringUtils.isEmpty(module.getUri(0))) {
             return StringUtils.EMPTY;
         }
@@ -57,12 +56,12 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             // "&lineTo=" + lineTo + "&columnTo=" + columnTo
             // ;
             try {
-            	start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
+                start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
                 end = location.getEnd().getAbsolutePosition(info) + module.getStartPosition();
             } catch (UnsupportedOperationException e) {
-            	log.warn("Cannot make source location URL",e);
-			}
-            
+                log.warn("Cannot make source location URL", e);
+            }
+
             lineInfo = START + "=" + start + QSEP + END + "=" + end;
 
         }

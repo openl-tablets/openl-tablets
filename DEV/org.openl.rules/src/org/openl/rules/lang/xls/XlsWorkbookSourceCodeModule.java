@@ -1,10 +1,25 @@
 package org.openl.rules.lang.xls;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ProxyOutputStream;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.indexer.IDocumentType;
+import org.openl.rules.indexer.IIndexElement;
+import org.openl.rules.lang.xls.load.WorkbookLoader;
+import org.openl.rules.lang.xls.load.WorkbookLoaders;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.ASourceCodeModule;
+import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.SourceCodeModuleDelegator;
+import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,27 +27,9 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ProxyOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.openl.rules.indexer.IDocumentType;
-import org.openl.rules.indexer.IIndexElement;
-import org.openl.rules.lang.xls.load.*;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ASourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
-import org.openl.source.impl.SourceCodeModuleDelegator;
-import org.openl.util.StringTool;
-
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
-    private final Log log = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
+    private final Logger log = LoggerFactory.getLogger(XlsWorkbookSourceCodeModule.class);
 
     /**
      * Delegates modification checking to parent
@@ -49,9 +46,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     private Set<Short> wbColors = new TreeSet<Short>();
 
     private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
-    
+
     private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
-    
+
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, WorkbookLoaders.getWorkbookLoader(src));
     }
@@ -153,7 +150,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             resetModified();
         }
     }
-    
+
     public ModificationChecker getModificationChecker() {
         return modificationChecker;
     }
@@ -201,13 +198,13 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     /**
      * Interface that provides modification checking
-     * 
+     *
      * @author NSamatov
      */
     public static interface ModificationChecker {
         /**
          * Returns a modification status
-         * 
+         *
          * @return true if a workbook is modified
          */
         boolean isModified();
@@ -216,7 +213,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     /**
      * Avoids rewriting the file before actual write operation is occurred.
      * For example if OutOfMemoryError is thrown before actual write operation begins, the file should not be corrupted.
-     * 
+     *
      * @author NSamatov
      */
     private static final class DeferredCreateFileOutputStream extends ProxyOutputStream {
@@ -224,11 +221,11 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
         /**
          * Create deferred output stream.
-         * 
+         *
          * @param fileName the system-dependent file name
          * @throws FileNotFoundException if the file exists but is a directory
-         *             rather than a regular file, does not exist but cannot be
-         *             created, or cannot be opened for any other reason.
+         *                               rather than a regular file, does not exist but cannot be
+         *                               created, or cannot be opened for any other reason.
          */
         private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
             super(null);
@@ -239,11 +236,11 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         /**
          * Check that file is writable. File should not be rewritten in this
          * method.
-         * 
+         *
          * @param fileName the checking file
          * @throws FileNotFoundException if the file exists but is a directory
-         *             rather than a regular file, does not exist but cannot be
-         *             created, or cannot be opened for any other reason.
+         *                               rather than a regular file, does not exist but cannot be
+         *                               created, or cannot be opened for any other reason.
          */
         private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
             FileOutputStream os = null;

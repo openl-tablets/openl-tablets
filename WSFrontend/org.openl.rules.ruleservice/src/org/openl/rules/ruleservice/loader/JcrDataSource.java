@@ -1,14 +1,5 @@
 package org.openl.rules.ruleservice.loader;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
@@ -17,18 +8,21 @@ import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+
+import java.util.*;
 
 /**
  * JCR repository data source. Uses
  * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository. Thread
  * safe implementation.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class JcrDataSource implements DataSource, DisposableBean {
-    private final Log log = LogFactory.getLog(JcrDataSource.class);
+    private final Logger log = LoggerFactory.getLogger(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
 
@@ -36,11 +30,13 @@ public class JcrDataSource implements DataSource, DisposableBean {
 
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
     private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
-                                                                                                                   // backward
-                                                                                                                   // compatibility
+    // backward
+    // compatibility
     private boolean shouldDestroyProxy = false;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<Deployment> getDeployments() {
         try {
             List<FolderAPI> deploymentProjects = getRProductionRepository().getDeploymentProjects();
@@ -64,7 +60,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
@@ -73,10 +71,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"", deploymentName,
-                    deploymentVersion.getVersionName()));
-        }
+        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"", deploymentName, deploymentVersion.getVersionName());
 
         try {
             StringBuilder sb = new StringBuilder(deploymentName);
@@ -91,7 +86,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public List<DataSourceListener> getListeners() {
         List<DataSourceListener> tmp = null;
         synchronized (listeners) {
@@ -112,7 +109,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void addListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
@@ -124,10 +123,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
                 try {
                     getRProductionRepository().addListener(rDeploymentListener);
                     listeners.put(dataSourceListener, rDeploymentListener);
-                    if (log.isInfoEnabled()) {
-                        log.info(dataSourceListener.getClass().toString()
-                                + " listener is registered in jcr data source");
-                    }
+                    log.info("{} listener is registered in jcr data source", dataSourceListener.getClass());
                 } catch (RRepositoryException e) {
                     throw new DataSourceException(e);
                 }
@@ -135,7 +131,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void removeListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
@@ -146,10 +144,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
                 try {
                     getRProductionRepository().removeListener(listener);
                     listeners.remove(dataSourceListener);
-                    if (log.isInfoEnabled()) {
-                        log.info(dataSourceListener.getClass().toString()
-                                + " listener is unregistered from jcr data source");
-                    }
+                    log.info("{} listener is unregistered from jcr data source", dataSourceListener.getClass());
                 } catch (RRepositoryException e) {
                     throw new DataSourceException(e);
                 }
@@ -157,7 +152,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void removeAllListeners() {
         synchronized (listeners) {
             RProductionRepository rProductionRepository = getRProductionRepository();
@@ -167,10 +164,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
                     try {
                         rProductionRepository.removeListener(listener);
                         listeners.remove(dataSourceListener);
-                        if (log.isInfoEnabled()) {
-                            log.info(dataSourceListener.getClass().toString()
-                                    + " class listener is removed from jcr data source");
-                        }
+                        log.info("{} class listener is removed from jcr data source", dataSourceListener.getClass());
                     } catch (RRepositoryException e) {
                         throw new DataSourceException(e);
                     }
@@ -180,9 +174,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
     }
 
     public void destroy() throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("JCR data source releasing");
-        }
+        log.debug("JCR data source releasing");
         productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
 
         if (shouldDestroyProxy) {

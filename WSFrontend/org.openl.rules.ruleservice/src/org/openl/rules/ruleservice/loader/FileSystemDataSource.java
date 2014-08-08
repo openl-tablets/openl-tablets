@@ -1,35 +1,26 @@
 package org.openl.rules.ruleservice.loader;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimerTask;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.*;
 
 /**
  * File based data source. Thread safe implementation.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class FileSystemDataSource implements DataSource {
 
-    private final Log log = LogFactory.getLog(FileSystemDataSource.class);
+    private final Logger log = LoggerFactory.getLogger(FileSystemDataSource.class);
 
     private String loadDeploymentsFromDirectory;
 
@@ -46,7 +37,7 @@ public class FileSystemDataSource implements DataSource {
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
      * configuration property.
-     * 
+     *
      * @param localWorkspaceFileFilter
      */
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
@@ -63,7 +54,7 @@ public class FileSystemDataSource implements DataSource {
     /**
      * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
      * configuration property.
-     * 
+     *
      * @param localWorkspaceFolderFilter
      */
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
@@ -102,15 +93,9 @@ public class FileSystemDataSource implements DataSource {
                     loadDeploymentsFromFolder = new File(getLoadDeploymentsFromDirectory());
                     if (!loadDeploymentsFromFolder.exists()) {
                         if (!loadDeploymentsFromFolder.mkdirs()) {
-                            if (log.isWarnEnabled()) {
-                                log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory()
-                                        + "\" creation was fail!");
-                            }
+                            log.warn("File system data source folder \"{}\" creation was fail!", getLoadDeploymentsFromDirectory());
                         } else {
-                            if (log.isInfoEnabled()) {
-                                log.info("File system data source \"" + getLoadDeploymentsFromDirectory()
-                                        + "\" was successfully created!");
-                            }
+                            log.info("File system data source \"{}\" was successfully created!", getLoadDeploymentsFromDirectory());
                         }
                     }
                 }
@@ -126,7 +111,9 @@ public class FileSystemDataSource implements DataSource {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
@@ -149,7 +136,9 @@ public class FileSystemDataSource implements DataSource {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<Deployment> getDeployments() {
         File folder = getLoadDeploymentsFromFolder();
         validateFileSystemDataSourceFolder(folder);
@@ -164,33 +153,35 @@ public class FileSystemDataSource implements DataSource {
     }
 
     private void validateDeployment(Deployment deployment) {
-        if (log.isWarnEnabled() && deployment.getProjects().isEmpty()) {
-            log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory()
-                    + "\" does not contain projects. Make sure that you have specified correct folder!");
+        if (deployment.getProjects().isEmpty()) {
+            log.warn("File system data source folder \"{}\" does not contain projects. Make sure that you have specified correct folder!", getLoadDeploymentsFromDirectory());
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public List<DataSourceListener> getListeners() {
         return Collections.unmodifiableList(listeners);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void addListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             listeners.add(dataSourceListener);
-            if (log.isInfoEnabled()) {
-                log.info(dataSourceListener.getClass().toString()
-                        + " class listener is registered in file system data source");
-            }
+            log.info("{} class listener is registered in file system data source", dataSourceListener.getClass());
         }
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void removeAllListeners() {
         synchronized (listeners) {
             Iterator<DataSourceListener> itr = listeners.iterator();
@@ -201,17 +192,16 @@ public class FileSystemDataSource implements DataSource {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void removeListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             listeners.remove(dataSourceListener);
-            if (log.isInfoEnabled()) {
-                log.info(dataSourceListener.getClass().toString()
-                        + " class listener is unregistered from file system data source");
-            }
+            log.info("{} class listener is unregistered from file system data source", dataSourceListener.getClass());
         }
     }
 
@@ -349,9 +339,8 @@ public class FileSystemDataSource implements DataSource {
 
     /**
      * TimerTask for check file data source modifications.
-     * 
+     *
      * @author
-     * 
      */
     public final static class CheckFileSystemChanges extends DirWatcher {
         private FileSystemDataSource fileSystemDataSource;
@@ -415,7 +404,7 @@ public class FileSystemDataSource implements DataSource {
         public FileSystemDataSource getFileSystemDataSource() {
             return fileSystemDataSource;
         }
-        
+
         public LocalTemporaryDeploymentsStorage getStorage() {
             return storage;
         }

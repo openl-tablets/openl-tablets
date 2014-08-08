@@ -1,8 +1,17 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.repository.RDeploymentDescriptorProject;
+import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
+import org.openl.rules.repository.RTransactionManager;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -13,28 +22,17 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RRepositoryListener;
-import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Implementation for JCR Repository. One JCR Repository instance per user.
  *
  * @author Aleh Bykhavets
- *
  */
 public class JcrRepository extends BaseJcrRepository {
-    private final Log log = LogFactory.getLog(JcrRepository.class);
+    private final Logger log = LoggerFactory.getLogger(JcrRepository.class);
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"
             + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]";
@@ -174,7 +172,9 @@ public class JcrRepository extends BaseJcrRepository {
 
     // ------ protected methods ------
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasProject(String name) throws RRepositoryException {
         try {
             return defRulesLocation.hasNode(name) && !defRulesLocation.getNode(name).isNodeType(JcrNT.NT_LOCK);
@@ -209,7 +209,7 @@ public class JcrRepository extends BaseJcrRepository {
                     JcrNT.NT_APROJECT, true);
             defDeploymentsLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name })); 
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create deploy configuration.", e);
         }
@@ -221,7 +221,7 @@ public class JcrRepository extends BaseJcrRepository {
                     JcrNT.NT_APROJECT, true);
             defRulesLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name })); 
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create rules project.", e);
         }
@@ -234,7 +234,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defDeploymentsLocation.getNode(name);
-            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }
@@ -245,7 +245,7 @@ public class JcrRepository extends BaseJcrRepository {
         try {
             ni = defDeploymentsLocation.getNodes();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any deployment project", e); 
+            throw new RRepositoryException("Cannot get any deployment project", e);
         }
 
         LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
@@ -253,7 +253,7 @@ public class JcrRepository extends BaseJcrRepository {
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
+                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
                 }
             } catch (RepositoryException e) {
                 log.debug("Failed to add deployment project.");
@@ -270,7 +270,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defRulesLocation.getNode(name);
-            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
@@ -281,7 +281,7 @@ public class JcrRepository extends BaseJcrRepository {
         try {
             ni = defRulesLocation.getNodes();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any rules project", e); 
+            throw new RRepositoryException("Cannot get any rules project", e);
         }
 
         LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
@@ -289,7 +289,7 @@ public class JcrRepository extends BaseJcrRepository {
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
+                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
                 }
             } catch (RepositoryException e) {
                 log.debug("Failed to add rules project.");
@@ -307,7 +307,7 @@ public class JcrRepository extends BaseJcrRepository {
         while (ni.hasNext()) {
             Node n = ni.nextNode();
             try {
-                result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
+                result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
             } catch (RepositoryException e) {
                 log.debug("Failed to add rules project for deletion.");
             }
@@ -315,19 +315,19 @@ public class JcrRepository extends BaseJcrRepository {
 
         return result;
     }
-    
+
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
-    
-    private String extractProjectName(String relativePath){
+
+    private String extractProjectName(String relativePath) {
         return new ArtefactPathImpl(relativePath).segment(0);
     }
-    
-    private boolean isProjectDeletedEvent(Event event, String relativePath){
+
+    private boolean isProjectDeletedEvent(Event event, String relativePath) {
         ArtefactPathImpl path = new ArtefactPathImpl(relativePath);
         return path.segmentCount() == 1 && event.getType() == Event.NODE_REMOVED;
     }
-    
-    private boolean isProjectModifiedEvent(Event event, String relativePath){
+
+    private boolean isProjectModifiedEvent(Event event, String relativePath) {
         return relativePath.contains(CHECKED_OUT_PROPERTY);
     }
 

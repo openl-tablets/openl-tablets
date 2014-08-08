@@ -1,11 +1,11 @@
 package org.openl.rules.extension.load;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NameConventionLoaderFactory implements ILoaderFactory {
-    private final Log log = LogFactory.getLog(NameConventionLoaderFactory.class);
+    private final Logger log = LoggerFactory.getLogger(NameConventionLoaderFactory.class);
 
     public static ILoaderFactory INSTANCE = new NameConventionLoaderFactory();
 
@@ -14,7 +14,7 @@ public class NameConventionLoaderFactory implements ILoaderFactory {
         try {
             return (IExtensionLoader) Class.forName(className).newInstance();
         } catch (Exception e) {
-            log.warn(String.format("Can't create loader: %s", className));
+            log.warn("Can't create loader: {}", className);
         }
         return null;
     }

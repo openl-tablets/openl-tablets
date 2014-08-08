@@ -1,13 +1,13 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
@@ -17,10 +17,8 @@ final class WorkbookLoadUtils {
     }
 
     static Workbook loadWorkbook(IOpenSourceCodeModule fileSource) {
-        Log log = LogFactory.getLog(LazyWorkbookLoader.class);
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Loading workbook '%s'...", fileSource.getUri(0)));
-        }
+        Logger log = LoggerFactory.getLogger(WorkbookLoadUtils.class);
+        log.debug("Loading workbook '{}'...", fileSource.getUri(0));
 
         InputStream is = null;
         Workbook workbook;

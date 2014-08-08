@@ -1,36 +1,29 @@
 package org.openl.rules.db.utils;
 
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
+import org.openl.rules.webstudio.web.install.InstallWizard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.validator.ValidatorException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.validator.ValidatorException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
-import org.openl.rules.webstudio.web.install.InstallWizard;
-
 public class DBUtils {
     private static final String USERS_TABLE = "openluser";
-    private final Log log = LogFactory.getLog(InstallWizard.class);
+    private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
     private Map<String, Object> dbErrors;
     private ConfigurationManager sqlErrorsConfig;
     private String sqlErrorsFilePath = "db/sql-errors.properties";
-    private  String tableForValidation = "schema_version";
+    private String tableForValidation = "schema_version";
 
     public DBUtils() {
         sqlErrorsConfig = new ConfigurationManager(false, null, System.getProperty("webapp.root") + "/WEB-INF/conf/" + sqlErrorsFilePath);
@@ -39,11 +32,11 @@ public class DBUtils {
 
     /**
      * Returns connection (session) to a specific database.
-     * 
+     *
      * @param dbDriver - database driver
      * @param dbPrefix - database prefix
-     * @param dbUrl - database url
-     * @param login - database login
+     * @param dbUrl    - database url
+     * @param login    - database login
      * @param password - database password
      * @return connection (session) to a specific database.
      */
@@ -75,7 +68,7 @@ public class DBUtils {
 
     /**
      * Validates database exists or not.
-     * 
+     *
      * @param conn is a connection (session) with a specific database.
      * @return true if database exists
      */
@@ -92,7 +85,7 @@ public class DBUtils {
 
     /**
      * Validates flyway table 'schema_version' exists or not.
-     * 
+     *
      * @param conn is a connection (session) with a specific database.
      * @return true if table 'schema_version' exists into DB
      */
@@ -106,7 +99,7 @@ public class DBUtils {
 
     /**
      * Returns a list of schemas form OpenL database
-     * 
+     *
      * @param conn is a connection (session) with a specific database.
      * @return a list of database schemas
      */
@@ -138,7 +131,7 @@ public class DBUtils {
 
     /**
      * Returns a list of tables from OpenL database
-     * 
+     *
      * @param conn is a connection (session) with a specific database.
      * @return a list of tables from OpenL database
      */
@@ -171,10 +164,10 @@ public class DBUtils {
     /**
      * Executes SQL script for changing columns and colums datatypes into
      * existing MySQL database
-     * 
+     *
      * @param sqlFilePath a path to SQL script
-     * @param connection - used for executing a static SQL
-     *            statement and returning the results it produces.
+     * @param connection  - used for executing a static SQL
+     *                    statement and returning the results it produces.
      */
     public void executeSQL(String sqlFilePath, Connection connection) {
         List<String> queries = new ArrayList<String>();
@@ -192,7 +185,7 @@ public class DBUtils {
                     sb.delete(0, sb.length());
                 }
             }
-            
+
             if (sb.length() > 0) {
                 queries.add(sb.toString());
             }

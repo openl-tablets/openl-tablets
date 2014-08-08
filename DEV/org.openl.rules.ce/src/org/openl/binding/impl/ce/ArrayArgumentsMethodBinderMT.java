@@ -1,11 +1,6 @@
 package org.openl.binding.impl.ce;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ANodeBinder;
@@ -15,37 +10,42 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.util.ArrayTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // try to bind given method if its single parameter is an array, considering that there is a method with 
 // equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)' 
 // try to bind it as 'double calculate(Premium premium)' and call several times on runtime).
 //
 public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
-    
-    private final Log log = LogFactory.getLog(ArrayArgumentsMethodBinder.class);
-    
+
+    private final Logger log = LoggerFactory.getLogger(ArrayArgumentsMethodBinder.class);
+
     private String methodName;
     private IOpenClass[] argumentsTypes;
     private IBoundNode[] children;
-    
+
     public ArrayArgumentsMethodBinderMT(String methodName, IOpenClass[] argumentsTypes, IBoundNode[] children) {
         this.methodName = methodName;
         this.argumentsTypes = argumentsTypes.clone();
         this.children = children.clone();
     }
 
-    private IBoundNode getMultiCallMethodNode(ISyntaxNode node, IBindingContext bindingContext, 
-            IOpenClass[] methodArguments, int arrayArgumentIndex) {
+    private IBoundNode getMultiCallMethodNode(ISyntaxNode node, IBindingContext bindingContext,
+                                              IOpenClass[] methodArguments, int arrayArgumentIndex) {
         // find method with given name and component type parameter.
         //
         IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
-        
+
         // if can`t find, return null.
         //
         if (singleParameterMethodCaller == null) {
             return null;
         }
-        
+
         // bound node that is going to call the single parameter method by several times on runtime and return an array 
         // of results.
         //
@@ -53,7 +53,7 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
     }
 
     private List<Integer> getIndexesOfArrayArguments() {
-        List<Integer> indexes = new ArrayList<Integer>();        
+        List<Integer> indexes = new ArrayList<Integer>();
         for (int i = 0; i < argumentsTypes.length; i++) {
             if (argumentsTypes[i].isArray()) {
                 indexes.add(i);
@@ -66,14 +66,14 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
         if (arrayArgumentIndex < argumentsTypes.length) {
             IOpenClass unwrappedType = argumentsTypes[arrayArgumentIndex].getComponentClass();
             return (IOpenClass[]) ArrayTool.replace(arrayArgumentIndex, argumentsTypes, unwrappedType);
-        } 
+        }
         log.warn("Can`t find the appropriate argument");
         return null;
     }
-    
+
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         List<Integer> indexesOfArrayArguments = getIndexesOfArrayArguments();
-        if (indexesOfArrayArguments.size() > 0 ) {
+        if (indexesOfArrayArguments.size() > 0) {
             for (Integer arrayArgumentIndex : indexesOfArrayArguments) {
                 IOpenClass[] unwrappedArgumentsTypes = unwrapArguments(arrayArgumentIndex);
                 if (unwrappedArgumentsTypes != null) {
@@ -84,8 +84,8 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
                 }
             }
         } else {
-            log.debug(String.format("There is no any array argument in signature for %s method", methodName));
+            log.debug("There is no any array argument in signature for {} method", methodName);
         }
         return null;
-    }    
+    }
 }

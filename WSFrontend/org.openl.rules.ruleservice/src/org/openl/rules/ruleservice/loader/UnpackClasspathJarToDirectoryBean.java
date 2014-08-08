@@ -1,11 +1,15 @@
 package org.openl.rules.ruleservice.loader;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -15,25 +19,15 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
 /**
  * Bean to unpack jar with rules.xml to defined folder. This bean is used by
  * FileSystemDataSource. Set depend-on property in bean definition. This class
  * implements InitializingBean.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
-    private final Log log = LogFactory.getLog(UnpackClasspathJarToDirectoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
     private final static String RULES_FILE_NAME = "rules.xml";
 
@@ -50,7 +44,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     /**
      * Returns directory to unpack path.
-     * 
+     *
      * @return destinationDirectory
      */
     public String getDestinationDirectory() {
@@ -67,7 +61,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     /**
      * Sets directory to unpack path.
-     * 
+     *
      * @param destinationDirectory
      */
     public void setDestinationDirectory(String destinationDirectory) {
@@ -138,10 +132,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     private void extractJarForJboss(URL resourceURL, File desFile) throws IOException,
-                                                                  NoSuchMethodException,
-                                                                  InvocationTargetException,
-                                                                  IllegalAccessException,
-                                                                  ClassNotFoundException {
+            NoSuchMethodException,
+            InvocationTargetException,
+            IllegalAccessException,
+            ClassNotFoundException {
         // This reflection implementation for JBoss vfs
         URLConnection conn = resourceURL.openConnection();
         Object content = conn.getContent();
@@ -157,11 +151,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 String name = (String) getNameMethod.invoke(jarFile);
                 File newProjectDir = new File(desFile, FilenameUtils.getBaseName(name));
                 Class<?> VFSUtilsClazz = Thread.currentThread()
-                    .getContextClassLoader()
-                    .loadClass("org.jboss.vfs.VFSUtils");
+                        .getContextClassLoader()
+                        .loadClass("org.jboss.vfs.VFSUtils");
                 java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
-                    clazz,
-                    File.class);
+                        clazz,
+                        File.class);
                 newProjectDir.mkdirs();
                 for (Object child : children) {
                     recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
@@ -175,38 +169,33 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     public void afterPropertiesSet() throws IOException {
-        if (getDestinationDirectory() == null) {
+        String destDirectory = getDestinationDirectory();
+        if (destDirectory == null) {
             throw new IllegalStateException("Distination directory is null. Please, check bean configuration.");
         }
 
-        File desFile = new File(getDestinationDirectory());
+        File desFile = new File(destDirectory);
 
         if (!isCreateAndClearDirectory()) {
             if (!desFile.exists()) {
-                throw new IOException("Destination folder does not exist. Path: " + getDestinationDirectory());
+                throw new IOException("Destination folder does not exist. Path: " + destDirectory);
             }
 
             if (!desFile.isDirectory()) {
-                throw new IOException("Destination path isn't a directory on file system. Path: " + getDestinationDirectory());
+                throw new IOException("Destination path isn't a directory on file system. Path: " + destDirectory);
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
-                if (log.isInfoEnabled()) {
-                    log.info("Destination folder is already exist. Path: " + getDestinationDirectory());
-                }
+                log.info("Destination folder is already exist. Path: {}", destDirectory);
             } else {
-                if (log.isInfoEnabled()) {
-                    log.info("Destination folder was created. Path: " + getDestinationDirectory());
-                }
+                log.info("Destination folder was created. Path: {}", destDirectory);
             }
         }
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
-        if (!FolderHelper.clearFolder(new File(getDestinationDirectory()))) {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("Failed on a folder clear. Path: \"%s\"", getDestinationDirectory()));
-            }
+        if (!FolderHelper.clearFolder(new File(destDirectory))) {
+            log.warn("Failed on a folder clear. Path: \"{}\"", destDirectory);
         }
         for (Resource rulesXmlResource : resources) {
             File file = null;
@@ -218,31 +207,22 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
                     extractJarForJboss(resourceURL, desFile);
-                    if (log.isInfoEnabled()) {
-                        log.info(String.format("Unpacking \"" + resourceURL.toString() + "\" into \"%s\" was completed",
-                            getDestinationDirectory()));
-                    }
+                    log.info("Unpacking \"{}\" into \"{}\" was completed", resourceURL, destDirectory);
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException("Protocol for URL doesn't supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Invalid resource!", e);
-                }
+                log.error("Invalid resource!", e);
                 throw new IOException("Invalid resource", e);
             }
             if (!file.exists()) {
                 throw new IOException("File not found. File: " + file.getAbsolutePath());
             }
 
-            unpack(file, getDestinationDirectory());
+            unpack(file, destDirectory);
 
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Unpacking \"" + file.getAbsolutePath() + "\" into \"%s\" was completed",
-                    getDestinationDirectory()));
-            }
-            // }
+            log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
         }
     }
 }

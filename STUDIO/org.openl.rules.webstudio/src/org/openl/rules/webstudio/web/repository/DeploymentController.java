@@ -1,19 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -30,6 +16,14 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+import java.util.*;
 
 /**
  * Deployment controller.
@@ -39,23 +33,23 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 @ManagedBean
 @ViewScoped
 public class DeploymentController {
-    private final Log log = LogFactory.getLog(DeploymentController.class);
+    private final Logger log = LoggerFactory.getLogger(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
     private String version;
     private String cachedForProject;
     private String repositoryConfigName;
 
-    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value="#{repositoryTreeState}")
+    @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value="#{deploymentManager}")
+    @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
@@ -76,7 +70,7 @@ public class DeploymentController {
 
         return null;
     }
-    
+
     public synchronized String addItem(String version) {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
@@ -155,7 +149,7 @@ public class DeploymentController {
     public String deleteItem() {
         String projectName = FacesUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
-        
+
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
@@ -173,7 +167,7 @@ public class DeploymentController {
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
-                String message = String.format("Configuration '%s' successfully deployed with id '%s' to repository '%s'", 
+                String message = String.format("Configuration '%s' successfully deployed with id '%s' to repository '%s'",
                         project.getName(), id.getName(), repo.getName());
                 FacesUtils.addInfoMessage(message);
 
@@ -243,9 +237,32 @@ public class DeploymentController {
 
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
-/* Deprecated
-    public SelectItem[] getProjectVersions() {
+
+    /* Deprecated
+        public SelectItem[] getProjectVersions() {
+            UserWorkspace workspace = RepositoryUtils.getWorkspace();
+            if (projectName != null) {
+                try {
+                    AProject project = workspace.getProject(projectName);
+                    // sort project versions in descending order (1.1 -> 0.0)
+                    List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
+                    Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
+
+                    List<SelectItem> selectItems = new ArrayList<SelectItem>();
+                    for (ProjectVersion version. : versions) {
+                        selectItems.add(new SelectItem(version.getVersionName()));
+                    }
+                    return selectItems.toArray(new SelectItem[selectItems.size()]);
+                } catch (ProjectException e) {
+                    log.error("Failed to get project versions!", e);
+                }
+            }
+            return new SelectItem[0];
+        }
+    */
+    public List<ProjectVersion> getProjectVersions() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
+
         if (projectName != null) {
             try {
                 AProject project = workspace.getProject(projectName);
@@ -253,34 +270,12 @@ public class DeploymentController {
                 List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
                 Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
 
-                List<SelectItem> selectItems = new ArrayList<SelectItem>();
-                for (ProjectVersion version. : versions) {
-                    selectItems.add(new SelectItem(version.getVersionName()));
-                }
-                return selectItems.toArray(new SelectItem[selectItems.size()]);
-            } catch (ProjectException e) {
-                log.error("Failed to get project versions!", e);
-            }
-        }
-        return new SelectItem[0];
-    }
-*/
-    public List<ProjectVersion> getProjectVersions() {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
-        
-        if (projectName != null) {
-            try {
-                AProject project = workspace.getProject(projectName);
-                // sort project versions in descending order (1.1 -> 0.0)
-                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
-                Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
-                
                 return versions;
             } catch (ProjectException e) {
                 log.error("Failed to get project versions!", e);
             }
         }
-        
+
         return new ArrayList<ProjectVersion>();
     }
 
@@ -308,7 +303,7 @@ public class DeploymentController {
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (ProjectException e) {
-                    log.error("Failed to open project '" + projectName + "'!", e);
+                    log.error("Failed to open project '{}'!", projectName, e);
                 }
             }
             item.setSelected(false);
@@ -317,7 +312,7 @@ public class DeploymentController {
     }
 
     private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project, String projectName,
-            ProjectDescriptorImpl newItem) {
+                                                      ProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
@@ -360,7 +355,7 @@ public class DeploymentController {
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
     public boolean isModified() {
         return getSelectedProject().isModifiedDescriptors();
     }
@@ -381,7 +376,7 @@ public class DeploymentController {
             RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
             repos.add(config);
         }
-        
+
         Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
         return repos;
     }

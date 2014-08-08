@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
@@ -35,7 +35,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class RulesModuleBindingContext extends ModuleBindingContext {
-    private final Log log = LogFactory.getLog(RulesModuleBindingContext.class);
+    private final Logger log = LoggerFactory.getLogger(RulesModuleBindingContext.class);
 
     public static String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static String CATEGORY_PROPERTIES_KEY = "Properties:Category:";

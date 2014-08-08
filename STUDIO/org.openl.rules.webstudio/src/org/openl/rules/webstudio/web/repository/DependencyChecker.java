@@ -1,12 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -16,18 +10,22 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- *
  * @author Aleh Bykhavets
- *
  */
 public class DependencyChecker {
 
-    private final Log log = LogFactory.getLog(DependencyChecker.class);
+    private final Logger log = LoggerFactory.getLogger(DependencyChecker.class);
     /**
      * project-name -> project-version
-     * <p>
+     * <p/>
      * value can be <code>null</code> if such project wasn't found in DTR
      */
     private Map<String, CommonVersion> projectVersions = new HashMap<String, CommonVersion>();
@@ -49,9 +47,7 @@ public class DependencyChecker {
             projectDependencies.put(projectName, projectDescriptorArtefactResolver.getDependencies(project));
             projectVersions.put(projectName, project.getVersion());
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             projectVersions.put(projectName, null);
         }
     }
@@ -70,13 +66,11 @@ public class DependencyChecker {
             try {
                 if (designRepository.hasProject(projectName)) {
                     addProject(designRepository.getProject(projectName, projectVersion));
-                }else{
+                } else {
                     projectVersions.put(projectName, null);
                 }
             } catch (RepositoryException e) {
-                String msg = "Cannot get project '" + projectName + "' version " + projectVersion.getVersionName()
-                        + "!";
-                log.error(msg, e);
+                log.error("Cannot get project '{}' version {}!", projectName, projectVersion.getVersionName(), e);
 
                 // WARNING: trick
                 projectVersions.put(projectName, null);

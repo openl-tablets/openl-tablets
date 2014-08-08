@@ -1,10 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
@@ -12,23 +7,27 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.AOpenLEngineFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * The simplest way of multimodule instantiation strategy. There will be created
  * virtual module that depends on each predefined module(means virtual module
  * will have dependency for each module).
- * 
+ *
  * @author PUdalau
- * 
  */
 public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
-    private final Log log = LogFactory.getLog(SimpleMultiModuleInstantiationStrategy.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleMultiModuleInstantiationStrategy.class);
 
     private RulesEngineFactory<?> engineFactory;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader) {
+                                                  IDependencyManager dependencyManager,
+                                                  ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader);
     }
 
@@ -88,15 +87,13 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to get service class.", e);
-            }
+            log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
             engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
-                AOpenLEngineFactory.DEFAULT_USER_HOME,
-                (Class<Object>) serviceClass);// FIXME
+                    AOpenLEngineFactory.DEFAULT_USER_HOME,
+                    (Class<Object>) serviceClass);// FIXME
 
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();
@@ -113,8 +110,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[] {};
-                String[] excludes = new String[] {};
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

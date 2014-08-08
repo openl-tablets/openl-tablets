@@ -1,25 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_DEPLOYMENT;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.event.AjaxBehaviorEvent;
-
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -37,19 +19,31 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.event.AjaxBehaviorEvent;
+import java.util.*;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_DEPLOYMENT;
 
 /**
- * 
  * @author Aleh Bykhavets
- * 
  */
 @ManagedBean
 @ViewScoped
 public class SmartRedeployController {
 
-    private final Log log = LogFactory.getLog(SmartRedeployController.class);
+    private final Logger log = LoggerFactory.getLogger(SmartRedeployController.class);
 
-    /** A controller which contains pre-built UI object tree. */
+    /**
+     * A controller which contains pre-built UI object tree.
+     */
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
@@ -125,10 +119,9 @@ public class SmartRedeployController {
             if (deploymentProject.isOpenedOtherVersion()) {
                 try {
                     latestDeploymentVersion = workspace.getDesignTimeRepository()
-                        .getDDProject(deploymentProject.getName());
+                            .getDDProject(deploymentProject.getName());
                 } catch (RepositoryException e) {
-                    log.error("Failed to get latest version for deployment project '" + deploymentProject.getName() + "'",
-                        e);
+                    log.error("Failed to get latest version for deployment project '{}'", deploymentProject.getName(), e);
                 }
             }
 
@@ -240,23 +233,17 @@ public class SmartRedeployController {
                     item.setCanDeploy(false);
                 }
             } catch (ProjectException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (ProjectResolvingException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             } catch (XStreamException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
@@ -306,14 +293,14 @@ public class SmartRedeployController {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
                 String message = String.format("Project '%s' is successfully deployed with id '%s' to repository '%s'",
-                    project.getName(),
-                    id.getName(),
-                    repositoryName);
+                        project.getName(),
+                        id.getName(),
+                        repositoryName);
                 FacesUtils.addInfoMessage(message);
             } catch (Exception e) {
                 String msg = String.format("Failed to deploy '%s' to repository '%s'",
-                    project.getName(),
-                    repositoryName);
+                        project.getName(),
+                        repositoryName);
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -366,7 +353,7 @@ public class SmartRedeployController {
             ADeploymentProject deployConfiguration = workspace.getDDProject(deploymentName);
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
-                .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
+                    .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;

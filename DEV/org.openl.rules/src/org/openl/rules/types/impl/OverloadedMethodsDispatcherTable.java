@@ -1,7 +1,5 @@
 package org.openl.rules.types.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -9,15 +7,17 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OpenMethodDispatcher based on dispatcher table.
- * 
+ *
  * @author PUdalau
  */
 public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatcher {
 
-    private final Log log = LogFactory.getLog(OverloadedMethodsDispatcherTable.class);
+    private final Logger log = LoggerFactory.getLogger(OverloadedMethodsDispatcherTable.class);
 
     public OverloadedMethodsDispatcherTable() { //For CGLIB proxing
     }
@@ -30,12 +30,12 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         if (getDispatchingOpenMethod() != null) {
             return getDispatchingOpenMethod().invoke(target, updateArguments(params, env, getDispatchingOpenMethod()), env);
         } else {
-            log.warn(String.format("Dispatcher table for methods group [%s] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
+            log.warn("Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
             return invokeJavaDispatching(target, params, env);
         }
     }
-    
+
     public Object invokeJavaDispatching(Object target, Object[] params, IRuntimeEnv env) {
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);

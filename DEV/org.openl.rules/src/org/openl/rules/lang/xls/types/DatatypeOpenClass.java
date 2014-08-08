@@ -6,47 +6,40 @@
 
 package org.openl.rules.lang.xls.types;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.types.IAggregateInfo;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
+import org.openl.types.*;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Open class for types represented as datatype table components in openl.
- * 
- * @author snshor
  *
+ * @author snshor
  */
 public class DatatypeOpenClass extends ADynamicClass {
-    
-    private final Log log = LogFactory.getLog(DatatypeOpenClass.class);
-    
+
+    private final Logger log = LoggerFactory.getLogger(DatatypeOpenClass.class);
+
     private IOpenClass superClass;
-    
+
     /**
      * see {@link #getPackageName()}
      */
     private String packageName;
-    
+
     public DatatypeOpenClass(IOpenSchema schema, String name, String packageName) {
         // NOTE! The instance class during the construction is null.
         // It will be set after the generating the appropriate byte code for the datatype.
@@ -60,12 +53,12 @@ public class DatatypeOpenClass extends ADynamicClass {
         addMethod(new ToStringMethod(this));
         this.packageName = packageName;
     }
-    
-	@Override
+
+    @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
-    
+
     public IOpenClass getSuperClass() {
         return superClass;
     }
@@ -73,41 +66,40 @@ public class DatatypeOpenClass extends ADynamicClass {
     public void setSuperClass(IOpenClass superClass) {
         this.superClass = superClass;
     }
-    
+
     @Override
     public Iterator<IOpenClass> superClasses() {
-        if(superClass != null){
+        if (superClass != null) {
             return AOpenIterator.single(superClass);
-        }else{
+        } else {
             return AOpenIterator.empty();
         }
     }
-    
+
     /**
-     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype 
+     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
      * beans classes. It is stored in this field.
-     * 
-     * 
+     *
      * @return package name for current datatype.
      */
-    public String getPackageName() {        
+    public String getPackageName() {
         return packageName;
     }
-    
+
     /**
      * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
      */
     @Override
     protected LinkedHashMap<String, IOpenField> fieldMap() {
-        if(fieldMap == null){
+        if (fieldMap == null) {
             fieldMap = new LinkedHashMap<String, IOpenField>();
         }
-        return (LinkedHashMap<String, IOpenField>)fieldMap;
+        return (LinkedHashMap<String, IOpenField>) fieldMap;
     }
-    
+
     @Override
     public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields =new LinkedHashMap<String, IOpenField>();
+        Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
         Iterator<IOpenClass> superClasses = superClasses();
         while (superClasses.hasNext()) {
             fields.putAll(superClasses.next().getFields());
@@ -119,65 +111,64 @@ public class DatatypeOpenClass extends ADynamicClass {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, IOpenField> getDeclaredFields() {
-        return (Map<String, IOpenField>)fieldMap().clone();
+        return (Map<String, IOpenField>) fieldMap().clone();
     }
 
     public Object newInstance(IRuntimeEnv env) {
         Object instance = null;
         try {
             instance = getInstanceClass().newInstance();
-        } catch (InstantiationException e) {            
-            log.error(this, e);
-        } catch (IllegalAccessException e) {            
-            log.error(this, e);
+        } catch (InstantiationException e) {
+            log.error("{}", this, e);
+        } catch (IllegalAccessException e) {
+            log.error("{}", this, e);
         } catch (Throwable e) {
-        	// catch e.g. NoClassDefFoundError
-        	//
-        	log.error(this, e);
-		}
+            // catch e.g. NoClassDefFoundError
+            log.error("{}", this, e);
+        }
         return instance;
     }
-    
+
     @Override
-    public IOpenClass getComponentClass() {        
+    public IOpenClass getComponentClass() {
         if (isArray()) {
             return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
         }
         return null;
-    }    
-    
+    }
+
     /**
      * Override super class implementation to provide possibility to compare datatypes with info about their fields
-     * 
+     *
      * @author DLiauchuk
      */
     @Override
-	public int hashCode() {    	
-    	return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(packageName).toHashCode();		
-	}
-    
+    public int hashCode() {
+        return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(packageName).toHashCode();
+    }
+
     /**
      * Override super class implementation to provide possibility to compare datatypes with info about their fields
      * Is used in {@link XlsBinder} (method filterDependencyTypes)
-     * 
+     *
      * @author DLiauchuk
      */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DatatypeOpenClass other = (DatatypeOpenClass) obj;
-		
-		return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(packageName, other.getPackageName()).isEquals();
-	}
-	
-	/**
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DatatypeOpenClass other = (DatatypeOpenClass) obj;
+
+        return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(packageName, other.getPackageName()).isEquals();
+    }
+
+    /**
      * Constructor with all parameters initialization.
-     * 
+     *
      * @author PUdalau
      */
     public static class OpenFieldsConstructor implements IOpenMethod {
@@ -213,7 +204,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             IOpenClass[] params = new IOpenClass[fields.size()];
             String[] names = new String[fields.size()];
             int i = 0;
-            for(Entry<String, IOpenField> field : fields.entrySet()){
+            for (Entry<String, IOpenField> field : fields.entrySet()) {
                 params[i] = field.getValue().getType();
                 names[i] = field.getKey();
                 i++;
@@ -228,7 +219,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             Object result = openClass.newInstance(env);
             int i = 0;
-            for(IOpenField field : openClass.getFields().values()){
+            for (IOpenField field : openClass.getFields().values()) {
                 field.set(result, params[i], env);
                 i++;
             }
@@ -248,13 +239,12 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     /**
      * <code>toString()</code> method.
-     * 
-     * @author PUdalau
      *
+     * @author PUdalau
      */
-    public static class ToStringMethod implements IOpenMethod{
+    public static class ToStringMethod implements IOpenMethod {
         private IOpenClass openClass;
-        
+
         public ToStringMethod(IOpenClass forClass) {
             this.openClass = forClass;
         }
@@ -301,15 +291,15 @@ public class DatatypeOpenClass extends ADynamicClass {
             return builder.toString();
         }
     }
-    
+
     /**
      * Method that compares two objects by fields defined in some {@link IOpenClass}
-     * 
+     *
      * @author PUdalau
      */
-    public static class EqualsMethod implements IOpenMethod{
+    public static class EqualsMethod implements IOpenMethod {
         private IOpenClass openClass;
-        
+
         public EqualsMethod(IOpenClass forClass) {
             this.openClass = forClass;
         }
@@ -358,12 +348,12 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     /**
      * Methods that returns hash code calculated using fields.
-     * @author PUdalau
      *
+     * @author PUdalau
      */
-    public static class HashCodeMethod implements IOpenMethod{
+    public static class HashCodeMethod implements IOpenMethod {
         private IOpenClass openClass;
-        
+
         public HashCodeMethod(IOpenClass forClass) {
             this.openClass = forClass;
         }

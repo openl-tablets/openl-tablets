@@ -1,17 +1,17 @@
 package org.openl.meta;
 
-import java.net.URL;
-import java.util.Arrays;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.ArrayTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.util.Arrays;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private final Log log = LogFactory.getLog(StringValue.class);
+    private final Logger log = LoggerFactory.getLogger(StringValue.class);
     private ValueMetaInfo metaInfo;
     private String value;
 
@@ -34,7 +34,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     public IOpenSourceCodeModule asSourceCodeModule() {
         return new StringSourceCodeModule(value, getMetaInfo().getSourceUrl());
     }
-    
+
     /**
      * Returns a character at position 'index' of current StringValue variable
      */
@@ -73,9 +73,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     public ValueMetaInfo getMetaInfo() {
         return metaInfo;
     }
-    
+
     /**
-     * 
      * @return the value of current StringValue variable
      */
     public String getValue() {
@@ -91,7 +90,6 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     /**
-     * 
      * @return true if value is empty, and false if not
      */
     public boolean isEmpty() {
@@ -114,11 +112,11 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
-                    metaInfo.getDisplayName(IMetaInfo.LONG),
-                    new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                        metaInfo.getDisplayName(IMetaInfo.LONG),
+                        new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 setMetaInfo(valueMetaInfo);
             } catch (Exception e) {
-                log.debug(String.format("Failed to set meta info for StringValue \"%s\"", value), e);
+                log.debug("Failed to set meta info for StringValue \"{}\"", value, e);
                 setMetaInfo((ValueMetaInfo) null);
             }
         }
@@ -132,7 +130,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     /**
-     * Sets a value for the current StringValue variable 
+     * Sets a value for the current StringValue variable
+     *
      * @param value
      */
     public void setValue(String value) {
@@ -153,6 +152,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     /**
      * Sorts the StringValue array
+     *
      * @param values array for sorting
      * @return the sorted array
      */

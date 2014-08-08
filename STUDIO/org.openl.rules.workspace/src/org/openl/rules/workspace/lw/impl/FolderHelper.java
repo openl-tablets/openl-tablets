@@ -1,10 +1,9 @@
 package org.openl.rules.workspace.lw.impl;
 
-import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.util.MsgHelper;
+import java.io.File;
 
 /**
  * Folder (File System) Helper for Local Workspace.
@@ -30,15 +29,13 @@ public class FolderHelper {
      * Clears the folder's content.
      * The folder itself will not be deleted.
      * If you want to delete a folder itself, use {@link #deleteFolder(File)} instead
-     * 
+     *
      * @param folder folder, which content will be deleted
      * @return true if all content is deleted and false if at least one file or sub-folder cannot be deleted.
      */
     public static boolean clearFolder(File folder) {
-    	final Log log = LogFactory.getLog(FolderHelper.class);
-        if (log.isDebugEnabled()) {
-            log.debug(MsgHelper.format("Clearing folder ''{0}''", folder));
-        }
+        final Logger log = LoggerFactory.getLogger(FolderHelper.class);
+        log.debug("Clearing folder ''{}''", folder);
 
         File[] files = folder.listFiles();
 
@@ -53,9 +50,7 @@ public class FolderHelper {
             if (file.isFile()) {
                 if (!file.delete()) {
                     failures = true;
-                    if (log.isDebugEnabled()) {
-                        log.debug(MsgHelper.format("Failed to delete file ''{0}''!", file.getAbsolutePath()));
-                    }
+                    log.debug("Failed to delete file ''{}''!", file.getAbsolutePath());
                 }
             } else {
                 if (!deleteFolder(file)) {
@@ -70,15 +65,13 @@ public class FolderHelper {
     /**
      * Deletes the folder and it's content recursively.
      * If you do not want to delete a folder itself, use {@link #clearFolder(File)} instead
-     * 
+     *
      * @param folder the folder, that will be deleted
      * @return true if the folder is deleted and false if the folder cannot be deleted.
      */
     public static boolean deleteFolder(File folder) {
-    	final Log log = LogFactory.getLog(FolderHelper.class);
-        if (log.isDebugEnabled()) {
-            log.debug(MsgHelper.format("Deleting folder ''{0}''", folder));
-        }
+        final Logger log = LoggerFactory.getLogger(FolderHelper.class);
+        log.debug("Deleting folder ''{}''", folder);
 
         boolean failures = false;
         if (folder.isDirectory()) {
@@ -96,18 +89,14 @@ public class FolderHelper {
                     // delete file
                     if (!f.delete()) {
                         failures = true;
-                        if (log.isDebugEnabled()) {
-                            log.debug(MsgHelper.format("Failed to delete file ''{0}''!", f.getAbsolutePath()));
-                        }
+                        log.debug("Failed to delete file ''{}''!", f.getAbsolutePath());
                     }
                 }
             }
 
             if (!folder.delete()) {
-                 failures = true;
-                 if (log.isDebugEnabled()) {
-                    log.debug(MsgHelper.format("Failed to delete folder ''{0}''!", folder.getAbsolutePath()));
-                }
+                failures = true;
+                log.debug("Failed to delete folder ''{}''!", folder.getAbsolutePath());
             }
         }
 

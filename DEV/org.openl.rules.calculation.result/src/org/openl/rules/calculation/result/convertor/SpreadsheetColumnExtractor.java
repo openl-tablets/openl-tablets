@@ -11,25 +11,27 @@ package org.openl.rules.calculation.result.convertor;
  */
 
 
-import java.lang.reflect.Method;
-
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
 
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
-    private final Log log = LogFactory.getLog(SpreadsheetColumnExtractor.class);
+    private final Logger log = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
 
     public SpreadsheetColumnExtractor(ColumnToExtract column, boolean mandatory) {
         this.column = column;
         this.mandatory = mandatory;
     }
 
-    /** column to extract */
+    /**
+     * column to extract
+     */
     private ColumnToExtract column;
 
     private boolean mandatory;
@@ -53,9 +55,9 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     /**
      * Convert the given value to the appropriate type that is expected. And
      * store it to the row instance.
-     * 
+     *
      * @param valueForStoraging
-     * @param spreadsheetRow for population with given data
+     * @param spreadsheetRow    for population with given data
      */
     public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
         if (valueForStoraging != null) {
@@ -70,12 +72,10 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             try {
                 setterMethod.invoke(step, value);
             } catch (Exception e) {
-                log.warn(e);
+                log.warn(e.getMessage(), e);
             }
         } else {
-            String message = String.format("Cannot find setter in %s class for [%s] column", step.getClass().getName(),
-                    column.getColumnName());
-            log.warn(message);
+            log.warn("Cannot find setter in {} class for [{}] column", step.getClass().getName(), column.getColumnName());
         }
     }
 
@@ -96,7 +96,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                 setterName = getSetterName(column.getColumnName());
                 setterMethod = step.getClass().getMethod(setterName, column.getExpectedType());
             } catch (Exception e1) {
-                log.warn(e1);
+                log.warn(e1.getMessage(), e1);
             }
         }
         return setterMethod;
@@ -114,8 +114,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             try {
                 return convertor.convert(x, null);
             } catch (Exception e) {
-                String message = String.format("Cannot convert value %s to %s", x, column.getExpectedType().getName());
-                log.warn(message, e);
+                log.warn("Cannot convert value {} to {}", x, column.getExpectedType().getName(), e);
             }
         }
         return x;

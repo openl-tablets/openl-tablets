@@ -1,12 +1,12 @@
 package org.openl.rules.table.xls.formatters;
 
-import java.util.Locale;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Locale;
 
 /**
  * This class provides default conversion of MS Excel formats to Java formats.
@@ -18,7 +18,7 @@ import org.openl.util.formatters.NumberFormatter;
  */
 public class XlsNumberFormatter implements IFormatter {
 
-    private final Log log = LogFactory.getLog(XlsNumberFormatter.class);
+    private final Logger log = LoggerFactory.getLogger(XlsNumberFormatter.class);
 
     private int formatIndex;
     private String format;
@@ -38,13 +38,13 @@ public class XlsNumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            log.debug("Should be Number: " + value);
+            log.debug("Should be Number: {}", value);
             return null;
         }
-        
+
         double doubleValue = ((Number) value).doubleValue();
         String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
-        
+
         if ((format.startsWith("# ?/")) || (format.startsWith("# ??/")) || (format.startsWith("# ???/"))) {
             if ((doubleValue < 1) && (doubleValue > 0)) {
                 formattedDate = formattedDate.substring(2);

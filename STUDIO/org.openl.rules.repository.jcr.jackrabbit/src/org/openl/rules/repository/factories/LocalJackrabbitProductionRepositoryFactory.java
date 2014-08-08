@@ -1,23 +1,22 @@
 package org.openl.rules.repository.factories;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import java.io.File;
+import java.io.IOException;
 
 public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory implements RulesRepositoryFactoryAware {
 
-    private final Log log = LogFactory.getLog(LocalJackrabbitProductionRepositoryFactory.class);
+    private final Logger log = LoggerFactory.getLogger(LocalJackrabbitProductionRepositoryFactory.class);
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
             "production-repository.local.home", "../local-repository");
@@ -49,7 +48,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
     @Override
     public RProductionRepository createRepository() throws RRepositoryException {
         try {
-            if(convert){
+            if (convert) {
                 convert();
                 convert = false;
             }
@@ -61,13 +60,13 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }
     }
-    
+
     /**
      * Checks whether jcr repository on filesystem will be used by production
      * and design repositories simultaneously.
-     * 
+     *
      * @return <code>true</code> if repository is used by local design
-     *         repository from current process.
+     * repository from current process.
      */
     private boolean isUsedByMyLocalDesignRepository() {
         if (rulesRepositoryFactory == null) {
@@ -94,7 +93,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         }
     }
 
-    protected void convert() throws RRepositoryException{
+    protected void convert() throws RRepositoryException {
         RProductionRepository repositoryInstance = null;
         String tempRepoHome = "/temp/prod_repo/";
         try {
@@ -113,7 +112,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
                 repositoryInstance.release();
             }
         }
-        
+
         File repoHome = new File(repHome);
         File tmpRepoHome = new File(tempRepoHome);
         try {

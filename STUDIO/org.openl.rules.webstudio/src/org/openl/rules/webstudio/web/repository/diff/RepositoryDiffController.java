@@ -2,38 +2,29 @@ package org.openl.rules.webstudio.web.repository.diff;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalArtefactAPI;
 import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -43,12 +34,12 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @SessionScoped
 public class RepositoryDiffController extends AbstractDiffController {
-    private final Log log = LogFactory.getLog(RepositoryDiffController.class);
+    private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
-    @ManagedProperty(value="#{repositoryTreeState}")
+    @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value="#{designTimeRepository}")
+    @ManagedProperty(value = "#{designTimeRepository}")
     private DesignTimeRepository designTimeRepository;
 
     private AProject projectUW; // User Workspace project
@@ -151,9 +142,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             try {
                 projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
             } catch (Exception e) {
-                log.warn(
-                        String.format("Could not get project\"%s\" of version \"%s\"", projectUW.getName(),
-                                version.getVersionName()), e);
+                log.warn("Could not get project\"{}\" of version \"{}\"", projectUW.getName(), version.getVersionName(), e);
                 projectRepo = designTimeRepository.getProject(projectUW.getName());
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
@@ -205,9 +194,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         try {
             in = ((AProjectResource) excelArtefact).getContent();
         } catch (ProjectException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
 
         File tempFile = null;
@@ -218,9 +205,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             out = new FileOutputStream(tempFile);
             IOUtils.copy(in, out);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(in);

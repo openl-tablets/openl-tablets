@@ -1,26 +1,25 @@
 package org.openl.rules.indexer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
  * Parser for tables. Parses the table to cells it contain. see {@link GridCellSourceCodeModule}
- * 
  */
 public class TableIndexParser implements IIndexParser {
-    
-    private final Log log = LogFactory.getLog(TableIndexParser.class);
+
+    private final Logger log = LoggerFactory.getLogger(TableIndexParser.class);
 
     public String getCategory() {
         return IDocumentType.WORKSHEET_TABLE.getCategory();
@@ -29,10 +28,10 @@ public class TableIndexParser implements IIndexParser {
     public String getType() {
         return "All";
     }
-    
+
     /**
      * Parses the table to cells it contain. see {@link GridCellSourceCodeModule}
-     * 
+     *
      * @param root Table for parsing.
      * @return Array of grid cells of this table.
      */
@@ -45,27 +44,27 @@ public class TableIndexParser implements IIndexParser {
         int h = table.getHeight();
 
         List<GridCellSourceCodeModule> gridCells = new ArrayList<GridCellSourceCodeModule>();
-                
+
         Map<String, IGridRegion> processedValuesFromRegions = new HashMap<String, IGridRegion>();
-        
-        
+
+
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 String cellValue = null;
                 ICell cell = null;
                 try {
-                    cell = table.getCell(j, i); 
+                    cell = table.getCell(j, i);
                     cellValue = cell.getStringValue();
                 } catch (RuntimeException e) {
-                    log.warn("There is an error in cell in table:["+tableSrc.getDisplayName()+"]", e);
+                    log.warn("There is an error in cell in table:[{}]", tableSrc.getDisplayName(), e);
                 }
-                
-                if (cellValue != null) {                    
+
+                if (cellValue != null) {
                     if (!isCellBelongingToProcessedRegion(cell, cellValue, processedValuesFromRegions)) {
                         if (isCellFromMergedRegion(cell)) {
                             processedValuesFromRegions.put(cellValue, cell.getRegion());
-                        }                        
-                        gridCells.add(new GridCellSourceCodeModule(table, j, i, null));                       
+                        }
+                        gridCells.add(new GridCellSourceCodeModule(table, j, i, null));
                     }
                 }
             }
@@ -73,42 +72,42 @@ public class TableIndexParser implements IIndexParser {
 
         return (GridCellSourceCodeModule[]) gridCells.toArray(new GridCellSourceCodeModule[gridCells.size()]);
     }
-    
+
     /**
      * Check if cell belongs to some merged region.
-     * 
-     * @param cell 
+     *
+     * @param cell
      * @return true if cell belongs to some merged region
      */
     private boolean isCellFromMergedRegion(ICell cell) {
         return cell.getRegion() != null;
     }
-    
+
     /**
      * Checks if current cell belongs to some previously processed merged region.
-     * 
-     * @param cell current cell.
-     * @param cellValue cellValue
+     *
+     * @param cell                       current cell.
+     * @param cellValue                  cellValue
      * @param processedValuesFromRegions values of the cells that belong to some merged regions.
      * @return true if current cell belongs to some previously processed merged region.
      */
     private boolean isCellBelongingToProcessedRegion(ICell cell,
-            String cellValue,
-            Map<String, IGridRegion> processedValuesFromRegions) {
-        
+                                                     String cellValue,
+                                                     Map<String, IGridRegion> processedValuesFromRegions) {
+
         boolean cellBelongsToProssedRegion = false;
         if (isCellFromMergedRegion(cell)) {
             if (processedValuesFromRegions.containsKey(cellValue)) { // if cellValue from region was previosly 
-                                                                     // processed we need to check if current cell 
-                                                                     // belongs to processed region.
+                // processed we need to check if current cell
+                // belongs to processed region.
                 cellBelongsToProssedRegion = IGridRegion.Tool.contains(processedValuesFromRegions.get(cellValue),
-                    cell.getAbsoluteColumn(),
-                    cell.getAbsoluteRow());
+                        cell.getAbsoluteColumn(),
+                        cell.getAbsoluteRow());
             }
         }
         return cellBelongsToProssedRegion;
     }
-    
+
 //  private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
 //  columns = new ArrayList<TableColumn>();
 //  Set<String> addedIds = new HashSet<String>();

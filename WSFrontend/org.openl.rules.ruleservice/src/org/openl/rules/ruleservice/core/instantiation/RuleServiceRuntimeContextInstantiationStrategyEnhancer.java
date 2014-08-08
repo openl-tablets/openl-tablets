@@ -1,31 +1,29 @@
 package org.openl.rules.ruleservice.core.instantiation;
 
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstantiationStrategy;
+import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
+import org.openl.rules.project.instantiation.ValidationServiceClassException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.project.instantiation.ValidationServiceClassException;
-
 /**
- * 
  * @author Marat Kamalov
- * 
  */
 public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
         AbstractServiceClassEnhancerInstantiationStrategy {
-    private final Log log = LogFactory.getLog(RuleServiceRuntimeContextInstantiationStrategyEnhancer.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceRuntimeContextInstantiationStrategyEnhancer.class);
 
     /**
      * Constructs new instance of instantiation strategy.
-     * 
+     *
      * @param instantiationStrategy instantiation strategy which used to
-     *            instantiate original service
+     *                              instantiate original service
      */
     public RuleServiceRuntimeContextInstantiationStrategyEnhancer(
             RuntimeContextInstantiationStrategyEnhancer instantiationStrategy) {
@@ -63,7 +61,7 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
 
     /**
      * Makes invocation handler.
-     * 
+     *
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
@@ -76,15 +74,13 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
     /**
      * Gets methods map where keys are interface class methods and values -
      * original service class methods.
-     * 
+     *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass original service class
+     * @param serviceClass   original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
-        }
+        log.debug("Creating methods map for classes: {} <-> {}", interfaceClass, serviceClass);
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
@@ -106,9 +102,7 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
             }
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(methodMap.toString());
-        }
+        log.debug("{}", methodMap);
 
         return methodMap;
     }

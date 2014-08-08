@@ -1,27 +1,24 @@
 package org.openl.rules.project.instantiation;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.cglib.core.ReflectUtils;
-
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.InterfaceGenerator;
+import org.openl.rules.runtime.RuleInfo;
 import org.openl.util.generation.InterfaceTransformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 
  * @author PUdalau, Marat Kamalov
- * 
  */
 public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
@@ -48,28 +45,25 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
     /**
      * Undecorates methods signatures of given class.
-     * 
-     * @param clazz interface to undecorate
+     *
+     * @param clazz       interface to undecorate
      * @param classLoader The classloader where generated class should be
-     *            placed.
+     *                    placed.
      * @return new class with undecorated methods signatures: removed
-     *         {@link IRulesRuntimeContext} as the first parameter for each
-     *         method.
+     * {@link IRulesRuntimeContext} as the first parameter for each
+     * method.
      * @throws Exception
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        if (!clazz.isInterface()){
+        if (!clazz.isInterface()) {
             throw new IllegalArgumentException("Supports only interface classes!!!");
         }
-        
-        final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerHelper.class);
+
+        final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerHelper.class);
 
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating interface without runtime context for '%s' class",
-                    clazz.getName()));
-        }
+        log.debug("Generating interface without runtime context for '{}' class", clazz.getName());
 
         return innerUndecorateInterface(className, clazz, classLoader);
     }
@@ -94,13 +88,13 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
     /**
      * TODO: replace with a configurable implementation
-     * 
-     * 
+     * <p/>
+     * <p/>
      * Check that method should be ignored by enhancer.
-     * 
+     *
      * @param method method to check
      * @return <code>true</code> if method should be ignored; <code>false</code>
-     *         - otherwise
+     * - otherwise
      */
     private static boolean isIgnored(Method method) {
         // Ignore methods what are inherited from Object.class
@@ -110,17 +104,17 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
     /**
      * Decorates methods signatures of given clazz.
-     * 
-     * @param clazz class to decorate
+     *
+     * @param clazz       class to decorate
      * @param classLoader The classloader where generated class should be
-     *            placed.
+     *                    placed.
      * @return new class with decorated methods signatures: added
-     *         {@link IRulesRuntimeContext} as the first parameter for each
-     *         method.
+     * {@link IRulesRuntimeContext} as the first parameter for each
+     * method.
      * @throws Exception
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerHelper.class);
+        final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerHelper.class);
 
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
@@ -128,16 +122,14 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
         String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
-        }
+        log.debug("Generating interface for '{}' class", clazz.getName());
 
         return InterfaceGenerator.generateInterface(className, rulesArray, classLoader);
     }
 
     /**
      * Gets list of rules.
-     * 
+     *
      * @param methods array of methods what represents rule methods
      * @return list of rules meta-info
      */
@@ -156,7 +148,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = method.getReturnType();
-            Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
+            Class<?>[] newParams = new Class<?>[]{IRulesRuntimeContext.class};
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, paramTypes);
 
             RuleInfo ruleInfo = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
@@ -170,7 +162,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     /**
      * {@link ClassWriter} for creation undecorated class: for removing
      * {@link IRulesRuntimeContext} from signature of each method.
-     * 
+     *
      * @author PUdalau
      */
     static class UndecoratingClassWriter extends ClassVisitor {

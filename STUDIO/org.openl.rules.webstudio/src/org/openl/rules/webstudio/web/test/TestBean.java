@@ -1,18 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -21,11 +9,7 @@ import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -37,6 +21,12 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import java.util.*;
 
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
@@ -45,7 +35,7 @@ import org.openl.types.IParameterDeclaration;
 @ViewScoped
 public class TestBean {
 
-    private final Log LOG = LogFactory.getLog(TestBean.class);
+    private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
     public static final Comparator<TestUnitsResults> TEST_COMPARATOR = new Comparator<TestUnitsResults>() {
 
@@ -107,7 +97,7 @@ public class TestBean {
 
         if (ranResults != null && ranResults.length > 0) {
             lastPage = testsPerPage == ALL ? DEFAULT_PAGE
-                                          : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+                    : ((int) Math.ceil((double) ranResults.length / testsPerPage));
         }
 
         int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
@@ -120,14 +110,14 @@ public class TestBean {
         testsFailuresOnly = studio.isTestsFailuresOnly();
         String failuresOnlyParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY);
         boolean failuresOnly = failuresOnlyParameter == null ? testsFailuresOnly
-                                                            : Boolean.valueOf(failuresOnlyParameter);
+                : Boolean.valueOf(failuresOnlyParameter);
         if (failuresOnly != testsFailuresOnly) {
             testsFailuresOnly = failuresOnly;
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
         int failuresPerTest = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
-            testsFailuresPerTest);
+                testsFailuresPerTest);
         if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != testsFailuresPerTest) {
             testsFailuresPerTest = failuresPerTest;
         }
@@ -137,7 +127,7 @@ public class TestBean {
         showComplexResult = studio.isShowComplexResult();
         String isShowComplexResultParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
         boolean isShowComplexResult = isShowComplexResultParameter == null ? showComplexResult
-                                                                          : Boolean.valueOf(isShowComplexResultParameter);
+                : Boolean.valueOf(isShowComplexResultParameter);
         if (isShowComplexResult != showComplexResult) {
             showComplexResult = isShowComplexResult;
         }
@@ -311,8 +301,8 @@ public class TestBean {
     public boolean isComplexResult(Object objTestUnit) {
         Object actualValue = getActualResultInternal(objTestUnit);
         ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual",
-            actualValue,
-            IParameterDeclaration.OUT);
+                actualValue,
+                IParameterDeclaration.OUT);
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
@@ -329,9 +319,7 @@ public class TestBean {
                 return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
         return StringUtils.EMPTY;
     }

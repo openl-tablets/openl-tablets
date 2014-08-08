@@ -1,36 +1,10 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeFile;
-import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
-import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.repository.tree.*;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -39,6 +13,18 @@ import org.openl.util.filter.IFilter;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import java.util.*;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -47,19 +33,21 @@ import org.richfaces.model.SequenceRowKey;
  */
 @ManagedBean
 @SessionScoped
-public class RepositoryTreeState implements DesignTimeRepositoryListener{
+public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
 
-    @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
+    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     public static final String DEFAULT_TAB = "Properties";
-    private final Log log = LogFactory.getLog(RepositoryTreeState.class);
+    private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
-    /** Root node for RichFaces's tree. It is not displayed. */
+    /**
+     * Root node for RichFaces's tree. It is not displayed.
+     */
     private TreeRepository root;
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
@@ -97,9 +85,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         if (root != null) {
             return;
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Starting buildTree()");
-        }
+        log.debug("Starting buildTree()");
 
         root = new TreeRepository("", "", filter, ROOT_TYPE);
 
@@ -133,10 +119,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         } catch (ProjectException e) {
             log.error("Cannot get deployment projects", e);
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Finishing buildTree()");
-        }
+        log.debug("Finishing buildTree()");
 
         if (getSelectedNode() == null || UiConst.TYPE_REPOSITORY.equals(getSelectedNode().getType())) {
             setSelectedNode(rulesRepository);
@@ -146,7 +129,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             updateSelectedNode();
         }
     }
-    
+
     public TreeRepository getDeploymentRepository() {
         buildTree();
         return deploymentRepository;
@@ -210,7 +193,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         } else if (artefact != null) {
             if (artefact.getProject() instanceof UserWorkspaceProject)
                 return (UserWorkspaceProject) artefact.getProject();
-        } 
+        }
 
         return null;
     }
@@ -239,15 +222,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         }
     }
 
-    public void refreshNode(TreeNode node){
+    public void refreshNode(TreeNode node) {
         node.refresh();
     }
 
-    public void deleteNode(TreeNode node){
+    public void deleteNode(TreeNode node) {
         node.getParent().removeChild(node.getId());
     }
 
-    public void deleteSelectedNodeFromTree(){
+    public void deleteSelectedNodeFromTree() {
         deleteNode(getSelectedNode());
         moveSelectionToParentNode();
     }
@@ -293,7 +276,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         invalidateSelection();
         root = null;
     }
-    
+
     /**
      * Moves selection to the parent of the current selected node.
      */
@@ -310,7 +293,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         
         /*If there are no selected nodes*/
         if (selection.isEmpty()) {
-           return;
+            return;
         }
 
         Object currentSelectionKey = selection.get(0);
@@ -384,7 +367,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                     rulesProject.setData(userWorkspace.getProject(projectName));
                     refreshNode(rulesProject);
                 } catch (ProjectException e) {
-                    log.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
+                    log.error("Failed to refresh project \"{}\" in the repository tree.", projectName, e);
                 }
             }
         }
@@ -408,7 +391,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             }
         }
     }
-    
+
     public boolean isHideDeleted() {
         return hideDeleted;
     }
@@ -471,7 +454,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanClose() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        
+
         if (selectedProject != null) {
             return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
         } else {
@@ -507,11 +490,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         if (selectedProject == null) {
             return false;
         }
-        
+
         if (!selectedProject.isLocalOnly()) {
             return isGranted(PRIVILEGE_VIEW_PROJECTS);
         }
-       
+
         return false;
     }
 
@@ -557,15 +540,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public String getDefSelectTab() {
         return DEFAULT_TAB;
     }
-     
+
     public boolean isLocalOnly() {
         return getSelectedProject().isLocalOnly();
     }
-    
+
     public String clearSelectPrj() {
         buildTree();
         invalidateSelection();
-        
+
         return "";
     }
 

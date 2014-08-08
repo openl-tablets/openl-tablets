@@ -1,24 +1,23 @@
 package org.openl.types.impl;
 
-import java.lang.reflect.Array;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Array;
 
 /**
  * Element in array field
- * 
- * @author PTarasevich
  *
+ * @author PTarasevich
  */
 
 public class DatatypeArrayElementField extends AOpenField {
-    private final Log log = LogFactory.getLog(DatatypeOpenField.class);
+    private final Logger log = LoggerFactory.getLogger(DatatypeOpenField.class);
     private int elementIndex;
     private IOpenField field;
 
@@ -27,7 +26,7 @@ public class DatatypeArrayElementField extends AOpenField {
         this.elementIndex = elementIndex;
         this.field = field;
     }
-    
+
     public DatatypeArrayElementField(IOpenField field, int elementIndex) {
         super(getName(field.getName(), elementIndex), field.getType().getComponentClass());
         this.elementIndex = elementIndex;
@@ -71,7 +70,7 @@ public class DatatypeArrayElementField extends AOpenField {
                 Array.set(array, elementIndex, value);
 
                 setArrayIntoTarget(target, array, env);
-            } else  if (Array.getLength(arr) < elementIndex + 1) {
+            } else if (Array.getLength(arr) < elementIndex + 1) {
                 Object newArray = Array.newInstance(this.getType().getInstanceClass(), elementIndex + 1);
 
                 int oldArryLeng = Array.getLength(arr);
@@ -91,8 +90,8 @@ public class DatatypeArrayElementField extends AOpenField {
     }
 
     private void processError(Throwable e1) {
-        log.error(this, e1);
-        OpenLMessagesUtils.addError(e1);  
+        log.error("{}", this, e1);
+        OpenLMessagesUtils.addError(e1);
     }
 
     public boolean isWritable() {
@@ -109,5 +108,5 @@ public class DatatypeArrayElementField extends AOpenField {
     private void setArrayIntoTarget(Object target, Object array, IRuntimeEnv env) {
         field.set(target, array, env);
     }
- 
+
 }

@@ -1,8 +1,8 @@
 package org.openl.rules.testmethod;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.engine.OpenLSystemProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -80,10 +80,8 @@ public final class TestSuiteExecutor {
                     new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
                     new ThreadPoolExecutor.CallerRunsPolicy());
         } catch (Exception e) {
-            Log log = LogFactory.getLog(TestSuiteExecutor.class);
-            if (log.isErrorEnabled()) {
-                log.error("Exception while configuring ThreadPoolExecutor. Default thread count will be used.", e);
-            }
+            Logger log = LoggerFactory.getLogger(TestSuiteExecutor.class);
+            log.error("Exception while configuring ThreadPoolExecutor. Default thread count will be used.", e);
             testRunThreadCount = DEFAULT_THREAD_COUNT;
             threadPoolExecutor = new ThreadPoolExecutor(testRunThreadCount,
                     testRunThreadCount,

@@ -1,7 +1,7 @@
 package org.openl.classloader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -25,7 +25,7 @@ public final class ClassLoaderCloserFactory {
         private static final ClassLoaderCloser instance;
 
         static {
-            Log log = LogFactory.getLog(ClassLoaderCloserFactory.class);
+            Logger log = LoggerFactory.getLogger(ClassLoaderCloserHolder.class);
             ClassLoaderCloser closer;
             try {
                 Method method = URLClassLoader.class.getMethod("close");
@@ -33,44 +33,34 @@ public final class ClassLoaderCloserFactory {
             } catch (NoSuchMethodException e) {
                 closer = getOlderClassLoaderCloser(log);
             } catch (SecurityException t) {
-                if (log.isErrorEnabled()) {
-                    log.error(t.getMessage(), t);
-                }
+                log.error(t.getMessage(), t);
                 closer = new DummyClassLoaderCloser();
             }
-            if (log.isInfoEnabled()) {
-                log.info(String.format("ClassLoaderCloser implementation: %s", closer.getClass().getSimpleName()));
-            }
+            log.info("ClassLoaderCloser implementation: {}", closer.getClass().getSimpleName());
             instance = closer;
         }
 
-        private static ClassLoaderCloser getOlderClassLoaderCloser(Log log) {
+        private static ClassLoaderCloser getOlderClassLoaderCloser(Logger log) {
             ClassLoaderCloser closer;
             String vendor = getVendor(log);
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Your java vendor: %s", vendor));
-            }
+            log.info("Your java vendor: {}", vendor);
 
             boolean isSun = vendor != null && (vendor.startsWith("Sun") || vendor.startsWith("Oracle"));
             if (isSun) {
                 closer = new SunJava6ClassLoaderCloser();
             } else {
-                if (log.isWarnEnabled()) {
-                    log.warn(String.format("Your java vendor '%s' isn't supported. Some jars can be locked.", vendor));
-                }
+                log.warn("Your java vendor '{}' isn't supported. Some jars can be locked.", vendor);
                 closer = new DummyClassLoaderCloser();
             }
             return closer;
         }
 
-        private static String getVendor(Log log) {
+        private static String getVendor(Logger log) {
             String vendor = null;
             try {
                 vendor = System.getProperty("java.vendor");
             } catch (SecurityException se) {
-                if (log.isErrorEnabled()) {
-                    log.error(se.getMessage(), se);
-                }
+                log.error(se.getMessage(), se);
             }
             return vendor;
         }
@@ -92,7 +82,7 @@ public final class ClassLoaderCloserFactory {
     }
 
     private static class Java7ClassLoaderCloser extends BaseClassLoaderCloser {
-        private final Log log = LogFactory.getLog(Java7ClassLoaderCloser.class);
+        private final Logger log = LoggerFactory.getLogger(Java7ClassLoaderCloser.class);
         private final Method close;
 
         private Java7ClassLoaderCloser(Method close) {
@@ -104,9 +94,7 @@ public final class ClassLoaderCloserFactory {
             try {
                 close.invoke(classLoader);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format("Can't close ClassLoader '%s': %s", classLoader, e.getMessage()), e);
-                }
+                log.error("Can't close ClassLoader '{}': {}", classLoader, e.getMessage(), e);
             }
         }
     }
@@ -118,7 +106,7 @@ public final class ClassLoaderCloserFactory {
      * @see <a href="http://snipplr.com/view/24224/class-loader-which-close-opened-jar-files/">http://snipplr.com/view/24224/class-loader-which-close-opened-jar-files/</a>
      */
     private static class SunJava6ClassLoaderCloser extends BaseClassLoaderCloser {
-        private final Log log = LogFactory.getLog(SunJava6ClassLoaderCloser.class);
+        private final Logger log = LoggerFactory.getLogger(SunJava6ClassLoaderCloser.class);
 
         @Override
         protected void closeClassLoader(URLClassLoader classLoader) {
@@ -139,16 +127,12 @@ public final class ClassLoaderCloserFactory {
                     } catch (NoSuchFieldException ignore) {
                         // If we got this far, this is probably not a JAR loader so skip it
                     } catch (Throwable t) {
-                        if (log.isErrorEnabled()) {
-                            log.error(t.getMessage(), t);
-                        }
+                        log.error(t.getMessage(), t);
                     }
                 }
             } catch (Throwable t) {
                 // Probably not a SUN/Oracle VM
-                if (log.isErrorEnabled()) {
-                    log.error(t.getMessage(), t);
-                }
+                log.error(t.getMessage(), t);
             }
         }
     }

@@ -1,13 +1,5 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -23,21 +15,26 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEvent;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.util.MsgHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import java.util.*;
+
 /**
- *
  * @author Aleh Bykhavets
- *
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, DisposableBean, RulesRepositoryFactoryAware {
-    private final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
+    private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private RulesRepositoryFactory rulesRepositoryFactory;
-    /** Rules Repository */
+    /**
+     * Rules Repository
+     */
     private RRepository rulesRepository;
-    /** Project Cache */
+    /**
+     * Project Cache
+     */
     private HashMap<String, AProject> projects;
 
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
@@ -63,18 +60,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         try {
             rulesRepository = rulesRepositoryFactory.getRulesRepositoryInstance();
         } catch (RRepositoryException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Cannot init DTR! " + e.getMessage(), e);
-            }
+            log.error("Cannot init DTR! {}", e.getMessage(), e);
             rulesRepository = new NullRepository();
         }
-        
+
         rulesRepository.addRepositoryListener(this);
 
         projects = new HashMap<String, AProject>();
     }
 
-	public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
+    public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
         createDDProject(name);
         ADeploymentProject newProject = getDDProject(name);
@@ -222,8 +217,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         try {
             return getRepo().hasDeploymentProject(name);
         } catch (RRepositoryException e) {
-            String msg = MsgHelper.format("Failed to check deployment project ''{0}'' in the repository!", name);
-            log.error(msg, e);
+            log.error("Failed to check deployment project ''{}'' in the repository!", name, e);
             return false;
         }
     }
@@ -242,8 +236,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             }
             return inRAL;
         } catch (RRepositoryException e) {
-            String msg = MsgHelper.format("Failed to check project ''{0}'' in the repository!", name);
-            log.error(msg, e);
+            log.error("Failed to check project ''{}'' in the repository!", name, e);
         }
 
         return inCache;
