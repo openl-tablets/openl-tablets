@@ -1,18 +1,17 @@
 package org.openl.rules.repository.jcr;
 
-import java.io.InputStream;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import java.io.InputStream;
 
 public class JcrOldFile extends JcrOldEntity implements RFile {
-    private final Log log = LogFactory.getLog(JcrOldFile.class);
+    private final Logger log = LoggerFactory.getLogger(JcrOldFile.class);
 
     public JcrOldFile(JcrOldEntity parent, String name, Node node) throws RepositoryException {
         super(parent, name, node);

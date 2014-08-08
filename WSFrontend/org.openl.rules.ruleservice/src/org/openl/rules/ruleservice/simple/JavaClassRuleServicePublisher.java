@@ -1,25 +1,24 @@
 package org.openl.rules.ruleservice.simple;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Java class publisher. Publisher that publish service beans as object.
  * Services can be executed via RulesFrontend. Adaptor.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class JavaClassRuleServicePublisher implements RuleServicePublisher {
-    private final Log log = LogFactory.getLog(JavaClassRuleServicePublisher.class);
+    private final Logger log = LoggerFactory.getLogger(JavaClassRuleServicePublisher.class);
 
     private RulesFrontend frontend = new RulesFrontendImpl();
 
@@ -27,12 +26,16 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         return frontend;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<OpenLService> getServices() {
         return Collections.unmodifiableCollection(frontend.getServices());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public OpenLService getServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
@@ -41,7 +44,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         return frontend.findServiceByName(serviceName);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
@@ -59,7 +64,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void redeploy(OpenLService service) throws RuleServiceRedeployException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
@@ -76,14 +83,16 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
         OpenLService service = frontend.unregisterService(serviceName);
-        if (service == null & log.isWarnEnabled()) {
-            log.warn(String.format("Service with name \"%s\" hasn't been deployed.", serviceName));
+        if (service == null) {
+            log.warn("Service with name \"{}\" hasn't been deployed.", serviceName);
         }
     }
 

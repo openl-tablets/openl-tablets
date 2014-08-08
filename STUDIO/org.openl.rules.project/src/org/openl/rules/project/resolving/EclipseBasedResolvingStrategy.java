@@ -1,13 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.Module;
@@ -17,15 +9,23 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTool;
 import org.openl.util.StringTool;
 import org.openl.util.tree.FileTreeIterator;
-import org.openl.util.tree.TreeIterator;
 import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
+import org.openl.util.tree.TreeIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Resolves projects that match default OpenL Eclipse-based convention:
  * 1."openlbuilder" specified in ".project" file 2. Existing java class wrapper
- * 
+ * <p/>
  * Do not use this strategy!!!
- * 
+ *
  * @author PUdalau
  */
 @Deprecated
@@ -34,7 +34,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     private static final String PROJECT_FILE = ".project";
     private static final String TEXT_TO_SEARCH = "openlbuilder";
 
-    private final Log log = LogFactory.getLog(EclipseBasedResolvingStrategy.class);
+    private final Logger log = LoggerFactory.getLogger(EclipseBasedResolvingStrategy.class);
 
     /**
      * {@link FileTreeAdaptor} that have to be used for file search inside the
@@ -56,26 +56,22 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean isRulesProject(File folder) {
         try {
             if (!folder.exists() || !folder.isDirectory()) {
-                log.debug(String.format("Eclipse based project strategy failed to resolve project folder: "
-                        + "folder %s doesn`t exists of is not a directory", folder.getPath()));
+                log.debug("Eclipse based project strategy failed to resolve project folder: folder {} doesn`t exists of is not a directory", folder.getPath());
                 return false;
             }
             if (!FileTool.containsFile(folder, PROJECT_FILE, false)) {
-                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s: "
-                        + "there is no file %s in the folder", folder.getPath(), PROJECT_FILE));
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no file {} in the folder", folder.getPath(), PROJECT_FILE);
                 return false;
             }
             if (!FileTool.containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
-                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s:"
-                        + " %s file doen`t contains %s", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH));
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: {} file doen`t contains {}", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH);
                 return false;
             }
             if (listPotentialOpenLWrappersClassNames(folder).length == 0) {
-                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s:"
-                        + " there is no potential Openl wrappers", folder.getPath()));
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no potential Openl wrappers", folder.getPath());
                 return false; // no modules.
             }
-            log.debug(String.format("Project in %s folder was resolved as Eclipse based project", folder.getPath()));
+            log.debug("Project in {} folder was resolved as Eclipse based project", folder.getPath());
             return true;
         } catch (IOException e) {
             return false;
@@ -118,7 +114,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
 
         File searchDir = new File(project.getCanonicalPath(), srcRoot);
         TreeIterator<File> fti = new FileTreeIterator(searchDir, getTreeAdaptor(), 0);
-        for (; fti.hasNext();) {
+        for (; fti.hasNext(); ) {
             File f = fti.next();
             for (String suffix : suffixes)
                 if (f.getName().endsWith(suffix)) {
@@ -141,7 +137,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         try {
             wrapperClassNames = listPotentialOpenLWrappersClassNames(folder);
         } catch (IOException e) {
-            wrapperClassNames = new String[] {};
+            wrapperClassNames = new String[]{};
         }
         List<Module> projectModules = new ArrayList<Module>();
         for (String className : wrapperClassNames) {
@@ -211,7 +207,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean removeInitializingModuleListener(InitializingModuleListener initializingModuleListener) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void addInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
         throw new UnsupportedOperationException();
@@ -231,12 +227,12 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners) {
         throw new UnsupportedOperationException();

@@ -1,21 +1,17 @@
 package org.openl.rules.project.abstraction;
 
-import javax.transaction.UserTransaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.ValueType;
+import org.openl.rules.common.*;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.transaction.UserTransaction;
 
 public class AProject extends AProjectFolder {
-    private final Log log = LogFactory.getLog(AProject.class);
-    
+    private final Logger log = LoggerFactory.getLogger(AProject.class);
+
     public AProject(FolderAPI api) {
         super(api, null);
     }
@@ -46,7 +42,7 @@ public class AProject extends AProjectFolder {
             throw new ProjectException("Failed to mark project as deleted.", e);
         }
     }
-    
+
     public void save(CommonUser user) throws ProjectException {
         commit(user);
         unlock(user);
@@ -122,7 +118,7 @@ public class AProject extends AProjectFolder {
         }
         finalizeTransaction(transaction);
     }
-    
+
     @Override
     public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
         UserTransaction transaction = beginTransaction();
@@ -148,11 +144,11 @@ public class AProject extends AProjectFolder {
             finalizeTransaction(transaction);
         }
     }
-    
-    public AProject getProjectVersion(CommonVersion version) throws ProjectException{
+
+    public AProject getProjectVersion(CommonVersion version) throws ProjectException {
         return new AProject(getAPI().getVersion(version));
     }
-    
+
     public boolean getOpenedForEditing() {
         return false;
     }

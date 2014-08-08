@@ -1,11 +1,6 @@
 package org.openl.rules.ruleservice.conf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
@@ -24,10 +19,15 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
-    private final Log log = LogFactory.getLog(RulesBasedServiceConfigurer.class);
+    private final Logger log = LoggerFactory.getLogger(RulesBasedServiceConfigurer.class);
 
     private static final String SERVICE_NAME_FIELD = "name";
     private static final String SERVICE_URL_FIELD = "url";
@@ -57,7 +57,7 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     /**
      * Utility method that helps to get RulesLoader instance from rules.
-     * 
+     *
      * @return Rules loader instance.
      */
     public static RuleServiceLoader getLoader() {
@@ -70,7 +70,7 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     /**
      * Utility method that helps to get deployments from rules.
-     * 
+     *
      * @return Deployments from data source.
      */
     public static Deployment[] getDeployments() {
@@ -84,9 +84,7 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
         try {
             init(loader);
         } catch (RuleServiceInstantiationException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to Instantiation rule service.", e);
-            }
+            log.error("Failed to Instantiation rule service.", e);
         }
         try {
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
@@ -95,15 +93,11 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
                 try {
                     serviceDescriptions.add(createServiceDescription(service));
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Failed to load service description.", e);
-                    }
+                    log.error("Failed to load service description.", e);
                 }
             }
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to get services from rules.", e);
-            }
+            log.error("Failed to get services from rules.", e);
         }
         return serviceDescriptions;
     }
@@ -116,15 +110,15 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
         String modulesGetterName = getFieldValue(service, MODULES_GETTER_FIELD, String.class);
         IOpenMethod modulesGetter = rulesOpenClass.getMethod(modulesGetterName,
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
-                    JavaOpenClass.getOpenClass(AProject.class),
-                    JavaOpenClass.getOpenClass(Module.class) });
+                new IOpenClass[]{JavaOpenClass.getOpenClass(Deployment.class),
+                        JavaOpenClass.getOpenClass(AProject.class),
+                        JavaOpenClass.getOpenClass(Module.class)});
         checkModulesGetter(serviceName, modulesGetter);
 
         ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder().setName(serviceName)
-            .setUrl(serviceUrl)
-            .setServiceClassName(serviceClassName)
-            .setProvideRuntimeContext(provideRuntimeContext);
+                .setUrl(serviceUrl)
+                .setServiceClassName(serviceClassName)
+                .setProvideRuntimeContext(provideRuntimeContext);
         gatherModules(modulesGetter, serviceDescriptionBuilder);
         return serviceDescriptionBuilder.build();
     }
@@ -134,13 +128,13 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
         for (Deployment deployment : getDeployments()) {
             for (AProject project : deployment.getProjects()) {
                 for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),
-                    deployment.getCommonVersion(),
-                    project.getName())) {
+                        deployment.getCommonVersion(),
+                        project.getName())) {
                     Object isSuitable = modulesGetter.invoke(rulesInstance,
-                        new Object[] { deployment, project, module },
-                        runtimeEnv);
+                            new Object[]{deployment, project, module},
+                            runtimeEnv);
                     ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName(project.getName()).setModuleName(module.getName())
-                        .build();
+                            .build();
                     if (isSuitable != null && (Boolean) isSuitable) {
                         deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(), deployment.getCommonVersion());
                         serviceDescriptionBuilder.addModule(moduleDescription);
@@ -157,16 +151,16 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
     private void checkModulesGetter(String serviceName, IOpenMethod modulesGetter) {
         if (modulesGetter == null) {
             throw new RuntimeException(String.format("Modules getter for service \"%s\" was not found. Make sure that your getter name specified and there are exists rule with params [%s,%s,%s]",
-                serviceName,
-                Deployment.class.getSimpleName(),
-                AProject.class.getSimpleName(),
-                Module.class.getSimpleName()));
+                    serviceName,
+                    Deployment.class.getSimpleName(),
+                    AProject.class.getSimpleName(),
+                    Module.class.getSimpleName()));
         } else if (modulesGetter.getType() != JavaOpenClass.BOOLEAN && modulesGetter.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
             throw new RuntimeException(String.format("Modules getter for service \"%s\" has a wrong return type. Return type should be \"boolean\"",
-                serviceName,
-                Deployment.class.getSimpleName(),
-                AProject.class.getSimpleName(),
-                Module.class.getSimpleName()));
+                    serviceName,
+                    Deployment.class.getSimpleName(),
+                    AProject.class.getSimpleName(),
+                    Module.class.getSimpleName()));
 
         }
     }
@@ -176,12 +170,7 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
         try {
             return (T) PropertyUtils.getProperty(target, fieldName);
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("Failed to get value of field \"%s\" with type \"%s\"",
-                    fieldName,
-                    fieldType.getName()),
-                    e);
-            }
+            log.warn("Failed to get value of field \"{}\" with type \"{}\"", fieldName, fieldType.getName(), e);
             return null;
         }
     }

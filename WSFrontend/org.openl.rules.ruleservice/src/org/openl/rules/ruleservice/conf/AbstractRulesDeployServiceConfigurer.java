@@ -1,14 +1,6 @@
 package org.openl.rules.ruleservice.conf;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -22,11 +14,19 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractRulesDeployServiceConfigurer implements ServiceConfigurer {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Log log = LogFactory.getLog(AbstractRulesDeployServiceConfigurer.class);
+    private final Logger log = LoggerFactory.getLogger(AbstractRulesDeployServiceConfigurer.class);
 
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
@@ -47,15 +47,15 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
 
     protected abstract Collection<Deployment> getDeploymentsFromRuleServiceLoader(RuleServiceLoader loader);
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public final Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader) {
         if (ruleServiceLoader == null) {
             throw new IllegalArgumentException("ruleServiceLoader argument can't be null!");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Calculate services to be deployed...");
-        }
+        log.debug("Calculate services to be deployed...");
 
         Collection<Deployment> deployments = getDeploymentsFromRuleServiceLoader(ruleServiceLoader);
 
@@ -63,26 +63,26 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
     }
 
     private Collection<ServiceDescription> createServiceDescriptions(Collection<Deployment> deployments,
-            RuleServiceLoader loader) {
+                                                                     RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
         Set<String> serviceURLs = new HashSet<String>();
         for (Deployment deployment : deployments) {
             DeploymentDescription deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
-                deployment.getCommonVersion());
+                    deployment.getCommonVersion());
             for (AProject project : deployment.getProjects()) {
                 try {
                     Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
-                        deployment.getCommonVersion(),
-                        project.getName());
+                            deployment.getCommonVersion(),
+                            project.getName());
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder().setProvideRuntimeContext(provideRuntimeContext)
-                        .setProvideVariations(supportVariations)
-                        .setDeployment(deploymentDescription)
-                        .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
+                            .setProvideVariations(supportVariations)
+                            .setDeployment(deploymentDescription)
+                            .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
 
                     for (Module module : modulesOfProject) {
                         ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setModuleName(module.getName())
-                            .setProjectName(project.getName())
-                            .build();
+                                .setProjectName(project.getName())
+                                .build();
                         serviceDescriptionBuilder.addModule(moduleDescription);
                     }
 
@@ -120,9 +120,7 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                                 try {
                                     content.close();
                                 } catch (IOException e) {
-                                    if (log.isErrorEnabled()) {
-                                        log.error(e.getMessage(), e);
-                                    }
+                                    log.error(e.getMessage(), e);
                                 }
                             }
                         }
@@ -134,23 +132,15 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             serviceDescriptions.add(serviceDescription);
                         } else {
                             if (serviceDescriptions.contains(serviceDescription)) {
-                                if (log.isWarnEnabled()) {
-                                    log.warn(String.format("Service \"%s\" has already exists in a deployment list. The second service will be skipped. Please, use unique name for services.",
-                                        serviceDescription.getName()));
-                                }
+                                log.warn("Service \"{}\" has already exists in a deployment list. The second service will be skipped. Please, use unique name for services.", serviceDescription.getName());
                             }
                             if (serviceURLs.contains(serviceDescription.getUrl())) {
-                                if (log.isWarnEnabled()) {
-                                    log.warn(String.format("URL \"%s\" has already registered. The second service will be skipped. Please, use unique URLs for services.",
-                                        serviceDescription.getUrl()));
-                                }
+                                log.warn("URL \"{}\" has already registered. The second service will be skipped. Please, use unique URLs for services.", serviceDescription.getUrl());
                             }
                         }
                     }
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Project loading from repository was failed! Project with name \"" + project.getName() + "\" in deployemtn \"" + deployment.getDeploymentName() + "\" was skipped!", e);
-                    }
+                    log.error("Project loading from repository was failed! Project with name \"{}\" in deployemtn \"{}\" was skipped!", project.getName(), deployment.getDeploymentName(), e);
                 }
             }
         }

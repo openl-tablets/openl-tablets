@@ -1,8 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -11,6 +9,8 @@ import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 import static org.apache.commons.io.FilenameUtils.concat;
 
 public class TemporaryRevisionsStorage implements DisposableBean {
-    private final Log log = LogFactory.getLog(TemporaryRevisionsStorage.class);
+    private final Logger log = LoggerFactory.getLogger(TemporaryRevisionsStorage.class);
     private static final String DEFAULT_STORAGE_PATH = concat(getTempDirectoryPath() + "/", "openl_repo/");
 
     private final Object lock = new Object();
@@ -59,10 +59,8 @@ public class TemporaryRevisionsStorage implements DisposableBean {
         synchronized (lock) {
             File folder = getStorageFolder();
             if (!FolderHelper.clearFolder(folder)) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to clear a folder \"%s\"!", folder.getAbsolutePath()));
-                }
-            } else if (log.isInfoEnabled()) {
+                log.error("Failed to clear a folder \"{}\"!", folder.getAbsolutePath());
+            } else {
                 log.info("Temprorary folder for revisions was cleared.");
             }
         }
@@ -72,9 +70,7 @@ public class TemporaryRevisionsStorage implements DisposableBean {
         synchronized (lock) {
             FolderHelper.deleteFolder(getStorageFolder());
             storageFolder = null;
-            if (log.isInfoEnabled()) {
-                log.info("Temprorary folder for revisions was deleted.");
-            }
+            log.info("Temprorary folder for revisions was deleted.");
         }
     }
 
@@ -112,9 +108,7 @@ public class TemporaryRevisionsStorage implements DisposableBean {
                         if (storageFolder.exists()) {
                             clear();
                         } else {
-                            if (log.isErrorEnabled()) {
-                                log.error(String.format("Failed to create a folder '%s'", storagePath));
-                            }
+                            log.error("Failed to create a folder '{}'", storagePath);
                         }
                     }
                 }

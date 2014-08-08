@@ -1,21 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RProductionRepository;
@@ -23,49 +10,58 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.util.filter.AllFilter;
 import org.openl.util.filter.IFilter;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @ManagedBean
 @SessionScoped
 public class ProductionRepositoriesTreeState {
-    @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
+    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
-    @ManagedProperty(value="#{deploymentManager}")
+    @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
-    
-    @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
+
+    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    private final Log log = LogFactory.getLog(ProductionRepositoriesTreeState.class);
-    /** Root node for RichFaces's tree. It is not displayed. */
+    private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
+    /**
+     * Root node for RichFaces's tree. It is not displayed.
+     */
     private TreeRepository root;
 
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
-    
+
     private void buildTree() {
         if (root != null) {
             return;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Starting buildTree()");
-        }
+        log.debug("Starting buildTree()");
 
         root = new TreeRepository("", "", filter, "root");
 
         /*get list of production repos*/
-        for(RepositoryConfiguration repoConfig : getRepositories()) {
+        for (RepositoryConfiguration repoConfig : getRepositories()) {
             String prName = repoConfig.getName();
             TreeRepository productionRepository = new TreeRepository(prName, prName, filter, UiConst.TYPE_PRODUCTION_REPOSITORY);
             productionRepository.setData(null);
@@ -78,7 +74,7 @@ public class ProductionRepositoriesTreeState {
             Collections.sort(repoList, RepositoryUtils.ARTEFACT_COMPARATOR);
 
             for (ADeploymentProject project : repoList) {
-                TreeProductionDProject tpdp = new TreeProductionDProject(""+project.getName().hashCode(), project.getName(),filter);
+                TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(), project.getName(), filter);
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
                 productionRepository.add(tpdp);
@@ -86,9 +82,7 @@ public class ProductionRepositoriesTreeState {
 
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Finishing buildTree()");
-        }
+        log.debug("Finishing buildTree()");
     }
 
     private List<ADeploymentProject> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
@@ -96,7 +90,7 @@ public class ProductionRepositoriesTreeState {
             RProductionRepository productRepos = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
             List<ADeploymentProject> prjList = new ArrayList<ADeploymentProject>();
 
-            for(FolderAPI prj : productRepos.getLastDeploymentProjects()) {
+            for (FolderAPI prj : productRepos.getLastDeploymentProjects()) {
                 prjList.add(new ADeploymentProject(prj, null));
             }
 
@@ -125,19 +119,19 @@ public class ProductionRepositoriesTreeState {
         //buildTree();
         return root;
     }
-    
+
     public String initTree() {
         buildTree();
 
         return null;
     }
-    
+
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
 
         /*If there are no selected nodes*/
         if (selection.isEmpty()) {
-           return;
+            return;
         }
 
         Object currentSelectionKey = selection.get(0);
@@ -158,6 +152,7 @@ public class ProductionRepositoriesTreeState {
             return null;
         }
     }
+
     /**
      * Forces tree rebuild during next access.
      */
@@ -180,7 +175,7 @@ public class ProductionRepositoriesTreeState {
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
-    
+
     public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
         return productionRepositoryFactoryProxy;
     }
@@ -188,7 +183,7 @@ public class ProductionRepositoriesTreeState {
     public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
-    
+
     public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
         return repositorySelectNodeStateHolder;
     }

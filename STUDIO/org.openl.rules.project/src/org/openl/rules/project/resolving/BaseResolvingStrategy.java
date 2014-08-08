@@ -1,65 +1,74 @@
 package org.openl.rules.project.resolving;
 
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
-
 /**
  * Base resolving strategy class with listener support logic
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 
 public abstract class BaseResolvingStrategy implements ResolvingStrategy {
-    private final Log log = LogFactory.getLog(BaseResolvingStrategy.class);
+    private final Logger log = LoggerFactory.getLogger(BaseResolvingStrategy.class);
 
     private List<InitializingModuleListener> initializingModuleListeners = new ArrayList<InitializingModuleListener>();
 
     private List<InitializingProjectListener> initializingProjectListeners = new ArrayList<InitializingProjectListener>();
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners) {
         this.initializingModuleListeners = initializingModuleListeners;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners) {
         this.initializingProjectListeners = initializingProjectListeners;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<InitializingModuleListener> getInitializingModuleListeners() {
         return Collections.unmodifiableList(initializingModuleListeners);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addInitializingModuleListener(InitializingModuleListener initializingModuleListener) {
         if (initializingModuleListener == null) {
             throw new IllegalArgumentException("initializingModuleListeners argument can't be null");
         }
         initializingModuleListeners.add(initializingModuleListener);
-        if (log.isInfoEnabled()) {
-            log.info(initializingModuleListener.getClass().toString() + " listener is registered");
-        }
+        log.info("{} listener is registered", initializingModuleListener.getClass());
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeAllInitializingModuleListeners() {
         initializingModuleListeners.clear();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean removeInitializingModuleListener(InitializingModuleListener initializingModuleListener) {
         if (initializingModuleListener == null) {
@@ -67,43 +76,45 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
         }
         boolean result = initializingModuleListeners.remove(initializingModuleListener);
         if (result) {
-            if (log.isInfoEnabled()) {
-                log.info(initializingModuleListener.getClass().toString() + " listener is unregistered");
-            }
+            log.info("{} listener is unregistered", initializingModuleListener.getClass());
         } else {
-            if (log.isWarnEnabled()) {
-                log.warn(initializingModuleListener.getClass().toString() + " listener wasn't unregistered!!! The listener wasn't registered");
-            }
+            log.warn("{} listener wasn't unregistered!!! The listener wasn't registered", initializingModuleListener.getClass());
         }
         return result;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<InitializingProjectListener> getInitializingProjectListeners() {
         return Collections.unmodifiableList(initializingProjectListeners);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
         if (initializingProjectListener == null) {
             throw new IllegalArgumentException("initializingProjectListeners argument can't be null");
         }
         initializingProjectListeners.add(initializingProjectListener);
-        if (log.isInfoEnabled()) {
-            log.info(initializingProjectListener.getClass().toString() + " listener is registered");
-        }
+        log.info("{} listener is registered", initializingProjectListener.getClass());
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeAllInitializingProjectListeners() {
         initializingProjectListeners.clear();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
         if (initializingProjectListener == null) {
@@ -111,13 +122,9 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
         }
         boolean result = initializingProjectListeners.remove(initializingProjectListener);
         if (result) {
-            if (log.isInfoEnabled()) {
-                log.info(initializingProjectListener.getClass().toString() + " listener is unregistered");
-            }
+            log.info("{} listener is unregistered", initializingProjectListener.getClass());
         } else {
-            if (log.isWarnEnabled()) {
-                log.warn(initializingProjectListener.getClass().toString() + " listener wasn't unregistered!!! The listener wasn't registered");
-            }
+            log.warn("{} listener wasn't unregistered!!! The listener wasn't registered", initializingProjectListener.getClass());
         }
         return result;
     }
@@ -132,9 +139,7 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
             try {
                 listener.afterProjectLoad(projectDescriptor);
             } catch (Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Listener invocation error!", e);
-                }
+                log.warn("Listener invocation error!", e);
             }
         }
 
@@ -144,9 +149,7 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
                 try {
                     listener.afterModuleLoad(module);
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Listener invocation failed!", e);
-                    }
+                    log.error("Listener invocation failed!", e);
                 }
             }
         }

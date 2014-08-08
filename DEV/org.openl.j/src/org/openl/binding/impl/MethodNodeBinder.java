@@ -5,8 +5,6 @@
 package org.openl.binding.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
@@ -17,20 +15,22 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  */
 
-public class MethodNodeBinder extends ANodeBinder {  
-    
+public class MethodNodeBinder extends ANodeBinder {
+
     private static final String FIELD_ACCESS_METHOD = "field access method";
     private static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
     private static final String ARRAY_ARGUMENT_METHOD = "array argument method";
     private static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
     private static final String NO_PARAMETERS = "no parameters";
-    
-    private final Log log = LogFactory.getLog(MethodNodeBinder.class);
+
+    private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
@@ -50,61 +50,60 @@ public class MethodNodeBinder extends ANodeBinder {
         IOpenClass[] parameterTypes = getTypes(children);
 
         IMethodCaller methodCaller = bindingContext
-            .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
-        
+                .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+
         // can`t find directly the method with given name and parameters. so, try to bind it some additional ways
         //
-        if (methodCaller == null) { 
+        if (methodCaller == null) {
             return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
         }
-        
+
         String bindingType = APPROPRIATE_BY_SIGNATURE_METHOD;
         log(methodName, parameterTypes, bindingType);
         return new MethodBoundNode(node, children, methodCaller);
     }
-    
-    
+
+
     protected IBoundNode makeArraParametersMethod(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
-            IOpenClass[] argumentTypes, IBoundNode[] children) throws Exception
-    {
-    	return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
-        .bind(methodNode, bindingContext);
+                                                  IOpenClass[] argumentTypes, IBoundNode[] children) throws Exception {
+        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
+                .bind(methodNode, bindingContext);
     }
-    
+
     private IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
-            IOpenClass[] argumentTypes, IBoundNode[] children, int childrenCount) throws Exception {
-        
+                                                 IOpenClass[] argumentTypes, IBoundNode[] children, int childrenCount) throws Exception {
+
         // Try to bind method, that contains one of the arguments as array type. For this try to find method without 
         // array argument (but the component type of it on the same place). And call it several times on runtime 
         // for collecting results.
         //
         IBoundNode arrayParametersMethod = makeArraParametersMethod(methodNode, bindingContext, methodName, argumentTypes, children);
-        
+
         if (arrayParametersMethod != null) {
             String bindingType = ARRAY_ARGUMENT_METHOD;
             log(methodName, argumentTypes, bindingType);
             return arrayParametersMethod;
-        }   
-        
+        }
+
         // Try to bind method call Name(driver) as driver.name;
         //
         if (childrenCount == 2) {
             IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children)
-                .bind(methodNode, bindingContext);
+                    .bind(methodNode, bindingContext);
             if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
-                String bindingType = FIELD_ACCESS_METHOD;                
+                String bindingType = FIELD_ACCESS_METHOD;
                 log(methodName, argumentTypes, bindingType);
                 return accessorChain;
-            } 
+            }
         }
-        
+
         // Try to bind method call as method with variable length of arguments
         //
         if (argumentTypes.length >= 1) {
             IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, argumentTypes, children)
-                .bind(methodNode, bindingContext);            
+                    .bind(methodNode, bindingContext);
             if (varArgsMethod != null) {
-                String bindingType = VARIABLE_NUMBER_OF_ARGUMENTS_METHOD;               
+                String bindingType = VARIABLE_NUMBER_OF_ARGUMENTS_METHOD;
                 log(methodName, argumentTypes, bindingType);
                 return varArgsMethod;
             }
@@ -115,12 +114,10 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
         if (log.isTraceEnabled()) {
-            String message = String.format("Method '%s' with parameters '%s' was binded as %s", 
-                methodName, getArgumentsAsString(argumentTypes), bindingType);
-            log.trace(message);
+            log.trace("Method '{}' with parameters '{}' was binded as {}", methodName, getArgumentsAsString(argumentTypes), bindingType);
         }
-    }   
-    
+    }
+
     private String getArgumentsAsString(IOpenClass[] argumentTypes) {
         String result = StringTool.arrayToStringThroughSymbol(argumentTypes, ",");
         if (StringUtils.isNotBlank(result)) {
@@ -130,13 +127,12 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
-            IOpenClass[] parameterTypes) {
-    	
-    	if (!NullOpenClass.isAnyNull(parameterTypes))
-    	{	
-    		String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
-    		BindHelper.processError(message, node, bindingContext, false);
-    	}	
+                                           IOpenClass[] parameterTypes) {
+
+        if (!NullOpenClass.isAnyNull(parameterTypes)) {
+            String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
+            BindHelper.processError(message, node, bindingContext, false);
+        }
 
         return new ErrorBoundNode(node);
     }

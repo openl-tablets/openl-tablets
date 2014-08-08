@@ -1,25 +1,19 @@
 package org.openl.rules.webstudio.web;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author Andrei Astrouski
@@ -28,10 +22,10 @@ import org.openl.source.SourceHistoryManager;
 @RequestScoped
 public class RevertProjectChangesBean {
 
-    private final Log log = LogFactory.getLog(RevertProjectChangesBean.class);
+    private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
 
     public String dateModifiedPattern = WebStudioUtils.getWebStudio().getSystemConfigManager()
-        .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
+            .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
     }
@@ -44,7 +38,7 @@ public class RevertProjectChangesBean {
         Map<Long, File> historyMap = model.getHistoryManager().get(sourceNames);
 
         List<String> used = new ArrayList<String>();
-        
+
         for (long modifiedOn : historyMap.keySet()) {
             String sourceName = historyMap.get(modifiedOn).getName();
 
@@ -110,7 +104,7 @@ public class RevertProjectChangesBean {
                 }
 
                 UploadExcelDiffController diffController =
-                    (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
+                        (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
                 diffController.compare(
                         Arrays.asList(file1ToCompare, file2ToCompare));
             }

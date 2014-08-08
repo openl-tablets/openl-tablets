@@ -1,16 +1,5 @@
 package org.openl.rules.workspace.uw.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -22,9 +11,13 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class UserWorkspaceImpl implements UserWorkspace {
-    private final Log log = LogFactory.getLog(UserWorkspaceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
         public int compare(AProject o1, AProject o2) {
@@ -42,7 +35,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
-            DesignTimeRepository designTimeRepository) {
+                             DesignTimeRepository designTimeRepository) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
@@ -234,9 +227,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
             for (ADeploymentProject ddp : dtrProjects) {
                 String name = ddp.getName();
                 dtrProjectsMap.put(name, ddp);
-    
+
                 ADeploymentProject userDProject = userDProjects.get(name);
-    
+
                 if (userDProject == null) {
                     userDProject = new ADeploymentProject(ddp.getAPI(), user);
                     userDProjects.put(name, userDProject);
@@ -244,13 +237,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     userDProject.refresh();
                 }
             }
-    
+
             // remove deleted
             Iterator<ADeploymentProject> i = userDProjects.values().iterator();
             while (i.hasNext()) {
                 ADeploymentProject userDProject = i.next();
                 String name = userDProject.getName();
-    
+
                 if (!dtrProjectsMap.containsKey(name)) {
                     i.remove();
                 }

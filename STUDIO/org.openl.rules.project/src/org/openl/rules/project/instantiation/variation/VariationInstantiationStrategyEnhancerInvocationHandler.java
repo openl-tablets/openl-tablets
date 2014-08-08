@@ -1,5 +1,18 @@
 package org.openl.rules.project.instantiation.variation;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.openl.binding.MethodUtil;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.main.OpenLWrapper;
+import org.openl.rules.variation.*;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.runtime.IEngineWrapper;
+import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,44 +20,25 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.binding.MethodUtil;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.main.OpenLWrapper;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationDescription;
-import org.openl.rules.variation.VariationsFactory;
-import org.openl.rules.variation.VariationsFromRules;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.rules.variation.VariationsResult;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
-import org.openl.runtime.IEngineWrapper;
-import org.openl.vm.IRuntimeEnv;
-
 /**
  * InvocationHandler for proxy that injects variations into service class.
- * 
+ * <p/>
  * Handles both original methods and enhanced with variations.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 class VariationInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
 
     private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
 
-    private final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerInvocationHandler.class);
+    private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Map<Method, Method> variationsFromRules;
     private Object serviceClassInstance;
 
     public VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
-            Object serviceClassInstance) throws OpenLCompilationException {
+                                                                   Object serviceClassInstance) throws OpenLCompilationException {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
         initVariationFromRules(methodsMap, serviceClassInstance);
@@ -79,16 +73,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             return method.invoke(serviceClassInstance, args);
         }
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(method)) {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Invoking service class method with variations: %s -> %s", method.toString(),
-                        member.toString()));
-            }
+            log.debug("Invoking service class method with variations: {} -> {}", method, member);
             return calculateWithVariations(method, args, member);
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Invoking service class method without variations: %s -> %s",
-                        method.toString(), member.toString()));
-            }
+            log.debug("Invoking service class method without variations: {} -> {}", method, member);
             return calculateWithoutVariations(args, member);
         }
     }
@@ -128,9 +116,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 simpleRulesRuntimeEnv.setOriginalCalculation(true);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
             } else {
-                if (log.isErrorEnabled()) {
-                    log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
-                }
+                log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
             }
             calculateSingleVariation(member, variationsResults, arguments, new NoVariation());
             try {
@@ -159,11 +145,8 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 }
             }
         } else {
-            if (log.isErrorEnabled()) {
-                log.error("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
-            }
-            throw new OpenLRuntimeException(
-                    "Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
+            log.error("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
+            throw new OpenLRuntimeException("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
         }
     }
 
@@ -179,11 +162,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 try {
                     variationsPack.addVariation(VariationsFactory.getVariation(description));
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(
-                                "Failed to create variation defined in rules with id: " + description.getVariationID(),
-                                e);
-                    }
+                    log.error("Failed to create variation defined in rules with id: {}", description.getVariationID(), e);
                 }
             }
         }
@@ -199,9 +178,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void calculateSingleVariation(Method member, VariationsResult variationsResults, Object[] arguments,
-            Variation variation) {
+                                          Variation variation) {
         Object[] modifiedArguments = null;
         Object currentValue = null;
         try {
@@ -211,9 +190,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 Object result = member.invoke(serviceClassInstance, modifiedArguments);
                 variationsResults.registerResult(variation.getVariationID(), result);
             } catch (Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Failed to calculate \"" + variation.getVariationID() + "\"", e);
-                }
+                log.warn("Failed to calculate \"{}\"", variation.getVariationID(), e);
                 Throwable e1 = e;
                 if (e instanceof InvocationTargetException && e.getCause() != null) {
                     e1 = e.getCause();
@@ -225,9 +202,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 try {
                     variation.revertModifications(modifiedArguments, currentValue);
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Failed to revert modifications in variation \"" + variation.getVariationID() + "\"");
-                    }
+                    log.error("Failed to revert modifications in variation \"{}\"", variation.getVariationID());
                 }
             }
         }

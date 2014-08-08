@@ -1,28 +1,27 @@
 package org.openl.rules.project.instantiation.variation;
 
+import net.sf.cglib.core.ReflectUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.openl.rules.runtime.InterfaceGenerator;
+import org.openl.rules.runtime.RuleInfo;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
+import org.openl.util.generation.InterfaceTransformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.cglib.core.ReflectUtils;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.openl.rules.runtime.RuleInfo;
-import org.openl.rules.runtime.InterfaceGenerator;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.rules.variation.VariationsResult;
-import org.openl.util.generation.InterfaceTransformer;
-
 /**
  * Utility methods related to the variations injection into interface of rules.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 public final class VariationInstantiationStrategyEnhancerHelper {
@@ -42,11 +41,11 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     /**
      * Checks whether the specified interface was enhanced with variations or
      * not(if there exists at least one enhanced method).
-     * 
+     *
      * @param clazz Interface to check.
      * @return <code>true</code> if at least one method of interface is method
-     *         for calculations with variations and <code>false</code>
-     *         otherwise.
+     * for calculations with variations and <code>false</code>
+     * otherwise.
      */
     public static boolean isDecoratedClass(Class<?> clazz) {
         for (Method method : clazz.getMethods()) {
@@ -59,11 +58,11 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
     /**
      * Checks whether the specified method is enhanced with variations.
-     * 
+     *
      * @param method The method to check.
      * @return <code>true</code> if method has the {@link VariationsPack} as the
-     *         last parameter and returns {@link VariationsResult} and
-     *         <code>false</code> otherwise.
+     * last parameter and returns {@link VariationsResult} and
+     * <code>false</code> otherwise.
      */
     public static boolean isDecoratedMethod(Method method) {
         int paramsLength = method.getParameterTypes().length;
@@ -79,27 +78,23 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * Undecorates methods signatures of given clazz. Undecoration implies that
      * all methods that was enhanced with variations will be removed from servce
      * class.
-     * 
-     * 
-     * @param clazz class to undecorate
+     *
+     * @param clazz       class to undecorate
      * @param classLoader The classloader where generated class should be
-     *            placed.
+     *                    placed.
      * @return new class with undecorated methods signatures
      * @throws Exception
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        if (!clazz.isInterface()){
+        if (!clazz.isInterface()) {
             throw new IllegalArgumentException("Supports only interface classes!!!");
         }
-        
-        final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerHelper.class);
+
+        final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
 
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating interface without variations for '%s' class",
-                    clazz.getName()));
-        }
+        log.debug("Generating interface without variations for '{}' class", clazz.getName());
 
         return innerUndecorateInterface(className, clazz, classLoader);
     }
@@ -124,13 +119,13 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
     /**
      * TODO: replace with a configurable implementation
-     * 
-     * 
+     * <p/>
+     * <p/>
      * Check that method should be ignored by enhancer.
-     * 
+     *
      * @param method method to check
      * @return <code>true</code> if method should be ignored; <code>false</code>
-     *         - otherwise
+     * - otherwise
      */
     private static boolean isIgnored(Method method) {
         // Ignore methods what are inherited from Object.class
@@ -143,15 +138,15 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * have both original methods and decorated methods with
      * {@link VariationsPack} as the last parameter and {@link VariationsResult}
      * as the return type.
-     * 
-     * @param clazz class to decorate
+     *
+     * @param clazz       class to decorate
      * @param classLoader The classloader where generated class should be
-     *            placed.
+     *                    placed.
      * @return new class with decorated methods signatures
      * @throws Exception
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerHelper.class);
+        final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);
 
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
@@ -159,16 +154,14 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
-        }
+        log.debug("Generating interface for '{}' class", clazz.getName());
 
         return InterfaceGenerator.generateInterface(className, rulesArray, classLoader);
     }
 
     /**
      * Gets list of rules.
-     * 
+     *
      * @param methods array of methods what represents rule methods
      * @return list of rules meta-info
      */
@@ -187,7 +180,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = VariationsResult.class;
-            Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
+            Class<?>[] newParams = new Class<?>[]{VariationsPack.class};
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(paramTypes, newParams);
 
             RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
@@ -203,13 +196,13 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     /**
      * Searches for method that will be executed instead of method in enhanced
      * interface.
-     * 
-     * @param simpleClass Class without variations injection.
+     *
+     * @param simpleClass     Class without variations injection.
      * @param decoratedMethod Method enhanced with variations.
      * @return Corresponding method in original interface for method from
-     *         enhanced interface.
+     * enhanced interface.
      * @throws Exception Possible exception from java reflection caused wrong
-     *             method accessing.
+     *                   method accessing.
      */
     public static Method getMethodForDecoration(Class<?> simpleClass, Method decoratedMethod) throws Exception {
         Class<?>[] parameterTypes = decoratedMethod.getParameterTypes();
@@ -222,10 +215,11 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     // FIXME skip decorated methods
+
     /**
      * {@link ClassWriter} for creation undecorated class: all decorated with
      * variations methods will be removed from interface.
-     * 
+     *
      * @author PUdalau
      */
     private static class UndecoratingClassWriter extends ClassVisitor {

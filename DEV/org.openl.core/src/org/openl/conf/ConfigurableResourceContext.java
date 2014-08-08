@@ -6,23 +6,22 @@
 
 package org.openl.conf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * @author snshor
- * 
  */
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
 
-    private final Log log = LogFactory.getLog(ConfigurableResourceContext.class);
+    private final Logger log = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
-    private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
+    private static final String[] DEFAULT_FILESYSTEM_ROOTS = {".", ""};
 
     private IOpenLConfiguration config;
     private ClassLoader classLoader;
@@ -59,7 +58,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         try {
             return getClassLoader().loadClass(className);
         } catch (Throwable t) {
-            log.debug(String.format("Cannot load class '%s'", className), t);
+            log.debug("Cannot load class '{}'", className, t);
             return null;
         }
     }
@@ -95,11 +94,11 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     public String findProperty(String propertyName) {
 
         String property = null;
-        
+
         if (properties != null) {
             property = properties.getProperty(propertyName);
         }
-        
+
         if (property != null) {
             return property;
         }
@@ -108,11 +107,11 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     }
 
     public ClassLoader getClassLoader() {
-        
+
         if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
-        
+
         return classLoader;
     }
 

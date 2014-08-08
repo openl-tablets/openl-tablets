@@ -1,19 +1,7 @@
 package org.openl.rules.repository.factories;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.nodetype.NodeTypeManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -26,17 +14,24 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.utils.UserUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeTypeManager;
+import java.io.*;
+import java.net.URL;
 
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
  * repository.
  *
  * @author Aleh Bykhavets
- *
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
-    private final Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
+    private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
     private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
@@ -46,7 +41,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
             "repository.name", "Local Jackrabbit");
 
-    /** Jackrabbit local repository */
+    /**
+     * Jackrabbit local repository
+     */
     protected TransientRepository repository;
     protected String repHome;
     private String nodeTypeFile;
@@ -65,8 +62,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             Runtime.getRuntime().removeShutdownHook(shutDownHook);
         }
     }
-    
-    private static boolean isFileLocked(File file){
+
+    private static boolean isFileLocked(File file) {
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = new FileInputStream(file);
@@ -126,7 +123,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
@@ -143,7 +142,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             File f = new File(repHome);
             repHome = f.getCanonicalPath();
         } catch (IOException e) {
-            log.error("Failed to get canonical path for repository home (" + repHome + ")", e);
+            log.error("Failed to get canonical path for repository home ({})", repHome, e);
         }
 
         try {
@@ -170,8 +169,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                     + expectedVersion + ") expected.");
         }
     }
-    
-    protected void convert() throws RRepositoryException{
+
+    protected void convert() throws RRepositoryException {
         RRepository repositoryInstance = null;
         String tempRepoHome = "/temp/repo/";
         try {
@@ -188,7 +187,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 repositoryInstance.release();
             }
         }
-        if(isProductionRepository()){
+        if (isProductionRepository()) {
             try {
                 Session session = createSession();
 
@@ -217,7 +216,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             FileUtils.deleteQuietly(tmpRepoHome);
         }
         return;
-        
+
     }
 
     private boolean isProductionRepository() {
@@ -240,7 +239,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     @Override
     public RRepository createRepository() throws RRepositoryException {
-        if(convert){
+        if (convert) {
             convert();
             convert = false;
         }
@@ -248,7 +247,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         return super.createRepository();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
         NodeTypeManagerImpl ntmi = (NodeTypeManagerImpl) ntm;
@@ -291,7 +292,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {
         this.confRepositoryName = confRepositoryName;
     }
-    
+
     public boolean configureJCRForOneUser(String login, String pass) {
         try {
             UserUtil userUtil = new UserUtil(repository);

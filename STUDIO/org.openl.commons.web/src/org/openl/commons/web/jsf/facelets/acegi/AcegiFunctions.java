@@ -1,14 +1,9 @@
 package org.openl.commons.web.jsf.facelets.acegi;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,6 +11,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.ServletContext;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /**
  * As part of the EL Specification, you can incorporate static Java methods into
@@ -27,7 +26,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class AcegiFunctions {
 
     public static String authentication(String operation) {
-    	final Log log = LogFactory.getLog(AcegiFunctions.class);
+        final Logger log = LoggerFactory.getLogger(AcegiFunctions.class);
         if ((operation == null)) {
             log.debug("Operation is not provided. Empty result string will be returned");
             return "";
@@ -45,37 +44,30 @@ public class AcegiFunctions {
         if ((auth.getPrincipal() != null) && auth.getPrincipal() instanceof UserDetails) {
             try {
                 principal = auth.getPrincipal();
-                if (log.isDebugEnabled()) {
-                    log.debug("Principal is " + principal);
-                }
+                log.debug("Principal is {}", principal);
 
                 String property = BeanUtils.getProperty(principal, operation);
 
                 if (property == null) {
-                    log.debug(principal + " property  " + operation + " is null");
+                    log.debug("{} property {} is null", principal, operation);
                     return "";
                 }
 
                 return property;
             } catch (IllegalAccessException e) {
-                log.warn("Error when trying to get property " + operation + " of " + principal
-                        + ". Empty string will be returned");
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned", operation, principal);
                 return "";
             } catch (InvocationTargetException e) {
-                log.warn("Error when trying to get property " + operation + " of " + principal
-                        + ". Empty string will be returned");
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned", operation, principal);
                 return "";
             } catch (NoSuchMethodException e) {
-                log.warn("Error when trying to get property " + operation + " of " + principal
-                        + ". Empty string will be returned");
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned", operation, principal);
                 return "";
             }
         } else if (auth.getPrincipal() != null) {
             return auth.getPrincipal().toString();
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Authentication has no principal. Or its principal is not an instanceof UserDetails");
-        }
+        log.debug("Authentication has no principal. Or its principal is not an instanceof UserDetails");
 
         return "";
     }
@@ -83,7 +75,7 @@ public class AcegiFunctions {
     /**
      * Returns true if current user has access to a given URI
      * (look for FilterSecurityInterceptor configuration)
-     * 
+     *
      * @param uri URI that will be checked
      * @return true if current user has access to a given URI
      */
@@ -107,7 +99,7 @@ public class AcegiFunctions {
                 public boolean isAllowed(String arg0, String arg1, String arg2, Authentication arg3) {
                     return true;
                 }
-                
+
             };
         }
 

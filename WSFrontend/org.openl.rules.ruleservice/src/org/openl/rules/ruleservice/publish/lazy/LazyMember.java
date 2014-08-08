@@ -1,19 +1,14 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -21,16 +16,21 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Lazy IOpenMember that contains info about module where it was declared. When
  * we try to do some operations with lazy member it will compile module and wrap
  * the compiled member.
- * 
+ *
  * @author Marat Kamalov
  */
 public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
-    private final Log log = LogFactory.getLog(LazyMember.class);
+    private final Logger log = LoggerFactory.getLogger(LazyMember.class);
 
     private IDependencyManager dependencyManager;
     private boolean executionMode;
@@ -46,10 +46,10 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private ClassLoader classLoader;
 
     public LazyMember(IDependencyManager dependencyManager,
-            boolean executionMode,
-            ClassLoader classLoader,
-            T original,
-            Map<String, Object> externalParameters) {
+                      boolean executionMode,
+                      ClassLoader classLoader,
+                      T original,
+                      Map<String, Object> externalParameters) {
         this.dependencyManager = dependencyManager;
         this.executionMode = executionMode;
         this.classLoader = classLoader;
@@ -61,57 +61,51 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 
     protected CompiledOpenClass getCompiledOpenClass(final DeploymentDescription deployment, final Module module) throws Exception {
         Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null,
-            null,
-            module.getName(),
-            null));
+                null,
+                module.getName(),
+                null));
         String dependencyName = dependency.getNode().getIdentifier();
         CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
         if (compiledOpenClass != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was returned from cache.");
-            }
+            log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
             return compiledOpenClass;
         }
         synchronized (CompiledOpenClassCache.getInstance()) {
             compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was returned from cache.");
-                }
+                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
                 return compiledOpenClass;
             }
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
             try {
                 LazyBinderInvocationHandler.removePrebindHandler();
                 RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
-                    true,
-                    getDependencyManager(),
-                    getClassLoader());
+                        true,
+                        getDependencyManager(),
+                        getClassLoader());
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
-                                                                                 // generation
-                                                                                 // interface
-                                                                                 // and
-                                                                                 // Virtual
-                                                                                 // module
-                                                                                 // double
-                                                                                 // (instantiate
-                                                                                 // method).
-                                                                                 // Improve
-                                                                                 // performance.
+                // generation
+                // interface
+                // and
+                // Virtual
+                // module
+                // double
+                // (instantiate
+                // method).
+                // Improve
+                // performance.
                 Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                    new ArrayList<Module>() {
-                        private static final long serialVersionUID = 1L;
+                        new ArrayList<Module>() {
+                            private static final long serialVersionUID = 1L;
 
-                        {
-                            add(module);
-                        }
-                    });
+                            {
+                                add(module);
+                            }
+                        });
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                if (log.isDebugEnabled()) {
-                    log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was stored to cache.");
-                }
+                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
                 return compiledOpenClass;
             } catch (Exception ex) {
                 OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
@@ -124,7 +118,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 
     /**
      * Compiles method declaring the member and returns it.
-     * 
+     *
      * @return Real member in compiled module.
      */
     protected final T getMember(IRuntimeEnv env) {

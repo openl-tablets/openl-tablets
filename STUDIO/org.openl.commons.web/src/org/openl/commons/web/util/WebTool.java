@@ -1,17 +1,16 @@
 package org.openl.commons.web.util;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.util.StringTool;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * DOCUMENT ME!
@@ -20,7 +19,7 @@ import org.openl.util.StringTool;
  */
 public class WebTool {
 
-    private static final Log log = LogFactory.getLog(WebTool.class);
+    private static final Logger log = LoggerFactory.getLogger(WebTool.class);
 
     public static String listRequestParams(ServletRequest request) {
         return listRequestParams(request.getParameterMap(), null);
@@ -60,9 +59,8 @@ public class WebTool {
      * Checks if given IP address is a loopback.
      *
      * @param ip address to check
-     *
      * @return <code>true</code> if <code>ip</code> represents loopback
-     *         address, or <code>false</code> otherwise.
+     * address, or <code>false</code> otherwise.
      */
     public static boolean isLoopbackAddress(String ip) {
         if (StringUtils.isEmpty(ip)) {
@@ -72,16 +70,16 @@ public class WebTool {
             InetAddress addr = InetAddress.getByName(ip);
             return (addr != null) && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
-            log.info("Cannot check '" + ip + "'.", e);
+            log.info("Cannot check '{}'.", ip, e);
             return false;
         }
     }
-    
+
     /**
      * Set content disposition HTTP header with a given file name.
      * To support non-ASCII symbols in filenames we must use RFC 2231
      * But old browsers and Safari still doesn't support it, so we mix old and new approach
-     * 
+     *
      * @param response servlet response
      * @param fileName file name that can contain non-ascii symbols
      * @see <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>

@@ -1,38 +1,10 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
-import javax.faces.validator.ValidatorException;
-import javax.validation.constraints.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -51,9 +23,24 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenClassDelegator;
 import org.richfaces.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
+import javax.faces.validator.ValidatorException;
+import javax.validation.constraints.Pattern;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
-    private final Log log = LogFactory.getLog(SimpleRulesCreationWizard.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
     @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
@@ -114,7 +101,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
-        Collection<IOpenClass> classTypes =  DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
+        Collection<IOpenClass> classTypes = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
         this.typesList = new ArrayList<DomainTypeHolder>();
 
         for (IOpenClass oc : classTypes) {
@@ -129,7 +116,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public int getColumnSize() {
         int size = 0;
         size += this.parameters.size();
-        size ++;
+        size++;
 
         return size;
     }
@@ -172,7 +159,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     private DomainTypeHolder getTypedParameterByName(String name) {
         DomainTypeHolder dth = null;
 
-        for (DomainTypeHolder type :  typesList) {
+        for (DomainTypeHolder type : typesList) {
             if (type.name.equals(name)) {
                 dth = type.clone();
                 break;
@@ -232,7 +219,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
         builder.writeProperties(properties, styleManager.getPropertyStyles());
 
-        for(List<Map<String, Object>> row : rows) {
+        for (List<Map<String, Object>> row : rows) {
             builder.writeTableBodyRow(row);
         }
 
@@ -290,22 +277,25 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public void setTypesList(List<DomainTypeHolder> typesList) {
         this.typesList = typesList;
     }
-    
+
     public class DomainTypeHolder {
         private String name;
         private String type;
         private boolean iterable = false;
         private String typeName;
-        
+
         public String getName() {
             return name;
         }
+
         public void setName(String name) {
             this.name = name;
         }
+
         public String getType() {
             return type;
         }
+
         public void setType(String type) {
             this.type = type;
         }
@@ -315,7 +305,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.iterable = iterable;
 
             if (openClass != null) {
-                if(openClass.isArray()) {
+                if (openClass.isArray()) {
                     this.type = "ARRAY";
                 } else if (openClass.toString().equals(Date.class.getCanonicalName())) {
                     this.type = "DATE";
@@ -342,7 +332,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                         openClass.toString().equals(float.class.getCanonicalName())) {
                     this.type = "FLOAT";
                 } else if (openClass.toString().equals(IntRange.class.getCanonicalName()) ||
-                     openClass.toString().equals(DoubleRange.class.getCanonicalName())) {
+                        openClass.toString().equals(DoubleRange.class.getCanonicalName())) {
                     this.type = "RANGE";
                 } else {
                     this.type = "STRING";
@@ -356,7 +346,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.type = type;
         }
 
-        public DomainTypeHolder clone(){
+        public DomainTypeHolder clone() {
             return new DomainTypeHolder(this.name, this.type, this.iterable);
         }
 
@@ -367,12 +357,15 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         public String getTypeName() {
             return typeName;
         }
+
         public void setTypeName(String typeName) {
             this.typeName = typeName;
         }
+
         public boolean isIterable() {
             return iterable;
         }
+
         public void setIterable(boolean iterable) {
             this.iterable = iterable;
         }
@@ -389,14 +382,12 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.table = new JSONHolder(jsonTable);
             this.restoreTable = getTableInitFunction(jsonTable);
         } catch (JSONException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
     }
 
     private String getTableInitFunction(String jsonStr) {
-        return this.restoreTableFunction + "("+jsonStr+")";
+        return this.restoreTableFunction + "(" + jsonStr + ")";
     }
 
     public String getRestoreTable() {
@@ -434,7 +425,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         try {
             int i = 0;
             for (TypeNamePair param : parameters) {
-                if (paramId != i && param.getName() != null && param.getName().equals(name)){
+                if (paramId != i && param.getName() != null && param.getName().equals(name)) {
                     message.setDetail("Parameter with such name already exists");
                     validEx = new ValidatorException(message);
                     throw validEx;
@@ -467,25 +458,25 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public void pNameListener(ValueChangeEvent valueChangeEvent) {
         int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
 
-        this.parameters.get(paramId).setName(valueChangeEvent.getNewValue().toString()); 
+        this.parameters.get(paramId).setName(valueChangeEvent.getNewValue().toString());
     }
 
     public void pTypeListener(ValueChangeEvent valueChangeEvent) {
         int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
 
-        this.parameters.get(paramId).setType(valueChangeEvent.getNewValue().toString()); 
+        this.parameters.get(paramId).setType(valueChangeEvent.getNewValue().toString());
     }
 
     public void pIterableListener(ValueChangeEvent valueChangeEvent) {
         int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
 
-        this.parameters.get(paramId).setIterable(Boolean.getBoolean(valueChangeEvent.getNewValue().toString())); 
+        this.parameters.get(paramId).setIterable(Boolean.getBoolean(valueChangeEvent.getNewValue().toString()));
     }
 
     private int getParamId(String componentId) {
         if (componentId != null) {
             String[] elements = componentId.split(":");
-            
+
             if (elements.length > 3) {
                 return Integer.parseInt(elements[2]);
             }

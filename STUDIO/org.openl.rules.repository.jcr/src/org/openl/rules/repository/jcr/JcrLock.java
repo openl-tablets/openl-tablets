@@ -1,23 +1,22 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import java.util.Calendar;
+import java.util.Date;
 
 public class JcrLock implements RLock {
     private static final String LOCK_NODE_NAME_PREFIX = "lock~";
 
-    private final Log log = LogFactory.getLog(JcrLock.class);
+    private final Logger log = LoggerFactory.getLogger(JcrLock.class);
 
     private Node lockNode;
     private Node forNode;
@@ -33,8 +32,8 @@ public class JcrLock implements RLock {
             lockNode = parent.getNode(lockNodeName);
         }
     }
-    
-    private void createLockNode() throws RepositoryException{
+
+    private void createLockNode() throws RepositoryException {
         String projectName = forNode.getName();
         String lockNodeName = LOCK_NODE_NAME_PREFIX + projectName;
         Node parent = forNode.getParent();

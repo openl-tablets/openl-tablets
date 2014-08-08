@@ -4,31 +4,11 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundNode;
-import org.openl.binding.ICastFactory;
-import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.INameSpacedMethodFactory;
-import org.openl.binding.INameSpacedTypeFactory;
-import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
+import org.openl.binding.*;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.module.ModuleNode;
@@ -75,30 +55,33 @@ import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Implements {@link IOpenBinder} abstraction for Excel files.
- * 
+ *
  * @author snshor
- * 
  */
 public class XlsBinder implements IOpenBinder {
 
-    private final Log log = LogFactory.getLog(XlsBinder.class);
+    private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
     public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
-    
-    private static final String[][] BINDERS = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() }, };
+
+    private static final String[][] BINDERS = {{XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName()},};
 
     public static synchronized Map<String, AXlsTableBinder> getBinderFactory() {
 
@@ -172,7 +155,7 @@ public class XlsBinder implements IOpenBinder {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
             BindHelper.processError(error);
 
-            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error });
+            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[]{error});
         }
 
         IOpenBinder openlBinder = openl.getBinder();
@@ -193,14 +176,14 @@ public class XlsBinder implements IOpenBinder {
 
         return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
-    
-    
+
+
     /**
      * Bind module with processing dependent modules, previously compiled.<br>
      * Creates {@link XlsModuleOpenClass} with dependencies and<br>
      * populates {@link RulesModuleBindingContext} for current module with types<br>
      * from dependent modules.
-     * 
+     *
      * @param moduleNode
      * @param openl
      * @param bindingContext
@@ -208,30 +191,30 @@ public class XlsBinder implements IOpenBinder {
      * @return
      */
     private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext,
-            Set<CompiledOpenClass> moduleDependencies) {
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies, bindingContext);        
-        
-        RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode, 
-            bindingContext, moduleDependencies, moduleOpenClass);
+                                            Set<CompiledOpenClass> moduleDependencies) {
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies, bindingContext);
+
+        RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode,
+                bindingContext, moduleDependencies, moduleOpenClass);
         return processBinding(moduleNode, openl, moduleContext, moduleOpenClass);
     }
-    
-    protected IDataBase getModuleDatabase() {
-		return new DataBase();
-	}
 
-	/**
+    protected IDataBase getModuleDatabase() {
+        return new DataBase();
+    }
+
+    /**
      * Creates {@link RulesModuleBindingContext} and populates it with types from dependent modules.
-     * 
-     * @param moduleNode just for processing error
-     * @param bindingContext 
+     *
+     * @param moduleNode         just for processing error
+     * @param bindingContext
      * @param moduleDependencies
      * @param moduleOpenClass
      * @return {@link RulesModuleBindingContext} created with bindingContext and moduleOpenClass.
      */
-    private RulesModuleBindingContext populateBindingContextWithDependencies(XlsModuleSyntaxNode moduleNode, 
-            IBindingContext bindingContext, Set<CompiledOpenClass> moduleDependencies,
-            XlsModuleOpenClass moduleOpenClass) {
+    private RulesModuleBindingContext populateBindingContextWithDependencies(XlsModuleSyntaxNode moduleNode,
+                                                                             IBindingContext bindingContext, Set<CompiledOpenClass> moduleDependencies,
+                                                                             XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
         for (CompiledOpenClass compiledDependency : moduleDependencies) {
             try {
@@ -244,42 +227,41 @@ public class XlsBinder implements IOpenBinder {
         }
         return moduleContext;
     }
-    
+
     /**
      * Filter the datatypes from dependency, remove those that already presents in datatypes from context and are equal.
      * Handles the case when for example 'main' module includes 'dependency1'(with A, B datatypes) and 'dependency2' (with C datatype, and
      * 'dependency2' includes 'dependency1' itself). So to prevent adding datatypes A, B from 'dependency1' and 'dependency2' we handle this case.
-     * 
+     *
      * @param dependencyDatatypes datatypes from dependency module
-     * @param contextTypes datatypes already presented in the context
+     * @param contextTypes        datatypes already presented in the context
      * @return filtered dependency datatypes
-     * 
      * @author DLiauchuk
      */
     private Map<String, IOpenClass> filterDependencyTypes(Map<String, IOpenClass> dependencyDatatypes, Map<String, IOpenClass> contextTypes) {
-    	Map<String, IOpenClass> filteredDependencyDatatypes = new HashMap<String, IOpenClass>();
-    	for (String key : dependencyDatatypes.keySet()) {
-    		IOpenClass dependencyDatatype = dependencyDatatypes.get(key);
-    		IOpenClass contextDatatype = contextTypes.get(key);
-    		if (!dependencyDatatype.equals(contextDatatype)) {
-    			filteredDependencyDatatypes.put(key, dependencyDatatype);
-    		}
-    	}
-    	return filteredDependencyDatatypes;
+        Map<String, IOpenClass> filteredDependencyDatatypes = new HashMap<String, IOpenClass>();
+        for (String key : dependencyDatatypes.keySet()) {
+            IOpenClass dependencyDatatype = dependencyDatatypes.get(key);
+            IOpenClass contextDatatype = contextTypes.get(key);
+            if (!dependencyDatatype.equals(contextDatatype)) {
+                filteredDependencyDatatypes.put(key, dependencyDatatype);
+            }
+        }
+        return filteredDependencyDatatypes;
     }
 
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(),  null, bindingContext);
-        
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), null, bindingContext);
+
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
 
         return processBinding(moduleNode, openl, moduleContext, moduleOpenClass);
     }
-    
+
     /**
      * Common binding cycle.
-     * 
+     *
      * @param moduleNode
      * @param openl
      * @param moduleContext
@@ -287,11 +269,11 @@ public class XlsBinder implements IOpenBinder {
      * @return
      */
     private IBoundNode processBinding(XlsModuleSyntaxNode moduleNode,
-            OpenL openl,
-            RulesModuleBindingContext moduleContext,
-            XlsModuleOpenClass moduleOpenClass) {
+                                      OpenL openl,
+                                      RulesModuleBindingContext moduleContext,
+                                      XlsModuleOpenClass moduleOpenClass) {
         processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes(), moduleContext);
-        
+
         IVocabulary vocabulary = makeVocabulary(moduleNode);
 
         if (vocabulary != null) {
@@ -322,78 +304,78 @@ public class XlsBinder implements IOpenBinder {
         IBoundNode topNode = null;
         if (OpenLSystemProperties.isCustomSpreadsheetType(moduleContext.getExternalParams())) {
             topNode = bindInternalWithCustomSpreadsheetTypes(moduleNode, openl, moduleContext, moduleOpenClass,
-                notPropertiesAndNotDatatypeSelector);
-        } else {        
-            TableSyntaxNode[] otherNodes = selectAndSortNodes(moduleNode, notPropertiesAndNotDatatypeSelector, 
-                new TestAndMethodTableNodeComparator());        
+                    notPropertiesAndNotDatatypeSelector);
+        } else {
+            TableSyntaxNode[] otherNodes = selectAndSortNodes(moduleNode, notPropertiesAndNotDatatypeSelector,
+                    new TestAndMethodTableNodeComparator());
             topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
         }
         DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder((XlsModuleOpenClass) topNode.getType(),
-            moduleContext);
+                moduleContext);
         dispTableBuilder.build();
 
         return topNode;
     }
-    
+
     /**
      * Bind the tables in next order:
-     *  1) Get tables, excluding Properties, Datatype, Spreadsheet, Test, RunMethod tables
-     *  2) Get Spreadsheets, sort them (see {@link SpreadsheetNodeComparator}) and bind together with 1st point tables 
-     *  3) Bind Test and RunMethod tables
-     * 
-     * @param moduleNode Syntax node for the whole module
-     * @param openl OpenL object
-     * @param moduleContext Context for the module
-     * @param moduleOpenClass Open Class for the Module
+     * 1) Get tables, excluding Properties, Datatype, Spreadsheet, Test, RunMethod tables
+     * 2) Get Spreadsheets, sort them (see {@link SpreadsheetNodeComparator}) and bind together with 1st point tables
+     * 3) Bind Test and RunMethod tables
+     *
+     * @param moduleNode                          Syntax node for the whole module
+     * @param openl                               OpenL object
+     * @param moduleContext                       Context for the module
+     * @param moduleOpenClass                     Open Class for the Module
      * @param notPropertiesAndNotDatatypeSelector selector excluding Properties tables and Datatype tables
      * @return binded top node
      */
     private IBoundNode bindInternalWithCustomSpreadsheetTypes(XlsModuleSyntaxNode moduleNode, OpenL openl,
-            RulesModuleBindingContext moduleContext, XlsModuleOpenClass moduleOpenClass,
-            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector) {        
-        ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);            
+                                                              RulesModuleBindingContext moduleContext, XlsModuleOpenClass moduleOpenClass,
+                                                              ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector) {
+        ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
         ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
         ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
-        
+
         ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeSelector
                 .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not())));
 
         // Select nodes excluding Properties, Datatype, Spreadsheet, Test, RunMethod tables
         TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
-        
+
         // Select and sort Spreadsheet tables
-        TableSyntaxNode[] spreadsheets = selectAndSortNodes(moduleNode, spreadsheetSelector, 
-            new SpreadsheetNodeComparator());
-        
+        TableSyntaxNode[] spreadsheets = selectAndSortNodes(moduleNode, spreadsheetSelector,
+                new SpreadsheetNodeComparator());
+
         TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(commonTables, spreadsheets);
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
-        
+
         // Select Test and RunMethod tables
         TableSyntaxNode[] testsAndRunTables = selectNodes(moduleNode, testMethodSelector.or(runMethodSelector));
-        return bindInternal(moduleNode, moduleOpenClass, testsAndRunTables, openl, moduleContext);        
+        return bindInternal(moduleNode, moduleOpenClass, testsAndRunTables, openl, moduleContext);
     }
-    
+
     private StringValueSelector<ISyntaxNode> getSelector(XlsNodeTypes selectorValue) {
         return getSelector(selectorValue.toString());
     }
-    
+
     private StringValueSelector<ISyntaxNode> getSelector(String selectorValue) {
         return new ASelector.StringValueSelector<ISyntaxNode>(selectorValue, new SyntaxNodeConvertor());
     }
 
     private RulesModuleBindingContext createRulesBindingContext(IBindingContext bindingContext,
-            XlsModuleOpenClass moduleOpenClass) {
-        return new RulesModuleBindingContext(bindingContext, moduleOpenClass);        
+                                                                XlsModuleOpenClass moduleOpenClass) {
+        return new RulesModuleBindingContext(bindingContext, moduleOpenClass);
     }
-    
+
     /**
      * Creates {@link XlsModuleOpenClass}
-     * 
+     *
      * @param moduleDependencies set of dependent modules for creating module.
      */
-    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, 
-        IDataBase dbase,
-        Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
+    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
+                                                       IDataBase dbase,
+                                                       Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
@@ -401,13 +383,13 @@ public class XlsBinder implements IOpenBinder {
         return module;
     }
 
-    private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext){
+    private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext) {
         ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
         ASelector<ISyntaxNode> otherNodesSelector = getSelector(XlsNodeTypes.XLS_OTHER);
         ISelector<ISyntaxNode> notPropertiesAndNotOtherSelector = propertiesSelector.not().and(otherNodesSelector.not());
- 
+
         TableSyntaxNode[] tableSyntaxNodes = selectNodes(moduleNode, notPropertiesAndNotOtherSelector);
-        
+
         PropertiesLoader propLoader = new PropertiesLoader(openl, bindingContext, module);
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             try {
@@ -428,21 +410,21 @@ public class XlsBinder implements IOpenBinder {
     /**
      * Processes datatype table nodes before the bind operation. Checks type
      * declarations and finds invalid using of inheritance feature at this step.
-     * 
-     * @param datatypeNodes array of datatype nodes
+     *
+     * @param datatypeNodes  array of datatype nodes
      * @param bindingContext binding context
      * @return array of datatypes in order of binding
      */
     private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
         Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes);
-        
+
         TableSyntaxNode[] orderedTypes = new DatatypesSorter().sort(typesMap, bindingContext);
-        
+
         return orderedTypes;
     }
 
-    private void processVocabulary(IVocabulary vocabulary,            
-            RulesModuleBindingContext moduleContext) {
+    private void processVocabulary(IVocabulary vocabulary,
+                                   RulesModuleBindingContext moduleContext) {
         IOpenClass[] types = null;
 
         try {
@@ -465,8 +447,8 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private void processExtensions(XlsModuleOpenClass module,
-            XlsModuleSyntaxNode moduleNode,
-            List<IdentifierNode> extensionNodes,RulesModuleBindingContext moduleContext) {
+                                   XlsModuleSyntaxNode moduleNode,
+                                   List<IdentifierNode> extensionNodes, RulesModuleBindingContext moduleContext) {
 
         for (int i = 0; i < extensionNodes.size(); i++) {
 
@@ -534,16 +516,15 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass moduleOpenClass) throws Exception {
+                                            OpenL openl,
+                                            RulesModuleBindingContext bindingContext,
+                                            XlsModuleOpenClass moduleOpenClass) throws Exception {
 
         String tableSyntaxNodeType = syntaxNode.getType();
         AXlsTableBinder binder = findBinder(tableSyntaxNodeType);
 
         if (binder == null) {
-            String message = String.format("Unknown table type '%s'", tableSyntaxNodeType);
-            log.debug(message);
+            log.debug("Unknown table type '{}'", tableSyntaxNodeType);
 
             return null;
         }
@@ -553,26 +534,25 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
-		return getBinderFactory().get(tableSyntaxNodeType);
-	}
+        return getBinderFactory().get(tableSyntaxNodeType);
+    }
 
-	protected String getDefaultOpenLName()
-    {
-    	return DEFAULT_OPENL_NAME;
+    protected String getDefaultOpenLName() {
+        return DEFAULT_OPENL_NAME;
     }
 
     private String getOpenLName(OpenlSyntaxNode osn) {
-        return osn == null ? getDefaultOpenLName()  : osn.getOpenlName();
+        return osn == null ? getDefaultOpenLName() : osn.getOpenlName();
     }
 
-    private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode, 
-            ISelector<ISyntaxNode> childSelector) {
+    private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode,
+                                          ISelector<ISyntaxNode> childSelector) {
         return selectAndSortNodes(moduleSyntaxNode, childSelector, null);
     }
-    
+
     private TableSyntaxNode[] selectAndSortNodes(XlsModuleSyntaxNode moduleSyntaxNode,
-            ISelector<ISyntaxNode> childSelector,
-            Comparator<TableSyntaxNode> nodesComparator) {
+                                                 ISelector<ISyntaxNode> childSelector,
+                                                 Comparator<TableSyntaxNode> nodesComparator) {
 
         ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
 
@@ -584,7 +564,7 @@ public class XlsBinder implements IOpenBinder {
         }
 
         TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
-        
+
         if (nodesComparator != null) {
             try {
                 Arrays.sort(tableSyntaxNodes, nodesComparator);
@@ -596,10 +576,10 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
-            XlsModuleOpenClass module,
-            TableSyntaxNode[] tableSyntaxNodes,
-            OpenL openl,
-            RulesModuleBindingContext moduleContext) {
+                                      XlsModuleOpenClass module,
+                                      TableSyntaxNode[] tableSyntaxNodes,
+                                      OpenL openl,
+                                      RulesModuleBindingContext moduleContext) {
 
         IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length];
 
@@ -632,8 +612,8 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
-            TableSyntaxNode tableSyntaxNode,
-            RulesModuleBindingContext moduleContext) {
+                                TableSyntaxNode tableSyntaxNode,
+                                RulesModuleBindingContext moduleContext) {
 
         try {
             memberBoundNode.finalizeBind(moduleContext);
@@ -642,11 +622,11 @@ public class XlsBinder implements IOpenBinder {
             processError(error, tableSyntaxNode, moduleContext);
 
         } catch (CompositeSyntaxNodeException ex) {
-        	if (ex.getErrors() != null) {
-        		for (SyntaxNodeException error : ex.getErrors()) {
-        			processError(error, tableSyntaxNode, moduleContext);
-        		}
-        	}
+            if (ex.getErrors() != null) {
+                for (SyntaxNodeException error : ex.getErrors()) {
+                    processError(error, tableSyntaxNode, moduleContext);
+                }
+            }
         } catch (Throwable t) {
 
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
@@ -655,7 +635,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected void removeDebugInformation(IMemberBoundNode[] boundNodes, TableSyntaxNode[] tableSyntaxNodes,
-            RulesModuleBindingContext moduleContext) {
+                                          RulesModuleBindingContext moduleContext) {
         for (int i = 0; i < boundNodes.length; i++) {
             if (boundNodes[i] != null) {
                 try {
@@ -680,9 +660,9 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
-            XlsModuleOpenClass module,
-            OpenL openl,
-            RulesModuleBindingContext moduleContext) {
+                                         XlsModuleOpenClass module,
+                                         OpenL openl,
+                                         RulesModuleBindingContext moduleContext) {
 
         try {
             return preBindXlsNode(tableSyntaxNode, openl, moduleContext, module);
@@ -710,8 +690,8 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected void processError(SyntaxNodeException error,
-            TableSyntaxNode tableSyntaxNode,
-            RulesModuleBindingContext moduleContext) {
+                                TableSyntaxNode tableSyntaxNode,
+                                RulesModuleBindingContext moduleContext) {
 
         error.setTopLevelSyntaxNode(tableSyntaxNode);
 
