@@ -115,7 +115,7 @@
                     <div class="list list-modules">
                         <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}" />
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
-                            <div id="#{i.index}currentModule" class="list-item editable-inner">
+                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{projectBean.isModuleWithWildcard(module) or !projectBean.isModuleMatchesSomePathPattern(module)}">
                                 <div>
                                     <h:panelGroup rendered="#{projectBean.isModuleWithWildcard(module)}">
                                         #{empty module.name ? 'Multiple modules' : module.name}
@@ -167,7 +167,7 @@
                                                     src="webresource/images/remove.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                 </h:panelGroup>
-                            </div>
+                            </h:panelGroup>
                         </ui:repeat>
                     </div>
                 </div>

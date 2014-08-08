@@ -515,6 +515,23 @@ public class ProjectBean {
         return projectDescriptorManager.isModuleWithWildcard(module);
     }
 
+    public boolean isModuleMatchesSomePathPattern(Module module) {
+        List<Module> modules = getOriginalProjectDescriptor().getModules();
+
+        for (Module otherModule : modules) {
+            if (isModuleWithWildcard(otherModule)) {
+                List<Module> modulesMatchingPathPattern = getModulesMatchingPathPattern(otherModule);
+                for (Module m : modulesMatchingPathPattern) {
+                    if (module.getName().equals(m.getName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public List<Module> getModulesMatchingPathPattern(Module module) {
         if (module == null || !projectDescriptorManager.isModuleWithWildcard(module)) {
             return Collections.emptyList();
