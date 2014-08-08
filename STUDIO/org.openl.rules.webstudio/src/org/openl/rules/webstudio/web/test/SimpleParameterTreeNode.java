@@ -1,25 +1,25 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.LinkedHashMap;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
 
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
-    private final Log log = LogFactory.getLog(SimpleParameterTreeNode.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
 
     public static final String SIMPLE_TYPE = "simple";
 
     public SimpleParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                   Object value,
+                                   IOpenClass fieldType,
+                                   ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
@@ -32,7 +32,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         Object value = getValue();
         return FormattersManager.getFormatter(value).format(value);
     }
-    
+
     public String getValueForEdit() {
         Object value = getValue();
         if (value != null) {
@@ -41,6 +41,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
             return "";
         }
     }
+
     @Override
     public String getNodeType() {
         return SIMPLE_TYPE;
@@ -55,7 +56,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
                 setValueForced(convertor.parse(value, null));
             } catch (Exception e) {
                 // TODO message on UI
-                log.warn(String.format("Failed to set \"%s\" value to field [%s]", value, getName()), e);
+                log.warn("Failed to set \"{}\" value to field [{}]", value, getName(), e);
             }
         }
     }

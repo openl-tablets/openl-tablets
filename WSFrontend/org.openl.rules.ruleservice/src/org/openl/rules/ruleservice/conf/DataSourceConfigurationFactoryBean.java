@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.conf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.loader.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContextAware;
 
 public class DataSourceConfigurationFactoryBean implements FactoryBean<DataSource>, ApplicationContextAware, InitializingBean {
 
-    private final Log log = LogFactory.getLog(DataSourceConfigurationFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(DataSourceConfigurationFactoryBean.class);
 
     private static final String JCR_DATASOURCE_BEAN_NAME = "jcrdatasource";
     private static final String FILESYSTEM_DATASOURCE_BEAN_NAME = "filesystemdatasource";

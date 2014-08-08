@@ -1,5 +1,11 @@
 package org.openl.util.generation;
 
+import org.objectweb.asm.*;
+import org.openl.rules.runtime.InterfaceGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,43 +13,28 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.openl.rules.runtime.InterfaceGenerator;
-import org.springframework.core.annotation.AnnotationUtils;
-
 /**
- * 
  * This class is similar to {@link ClassReader} from ASM framework. But it can
  * be used only for interface generation.
- * 
+ * <p/>
  * {@link InterfaceTransformer} uses base class that will be transformed,
  * classname for new class and {@link ClassVisitor} that will handle class
  * creation.
- * 
+ * <p/>
  * {@link InterfaceTransformer} reads methods with
  * signatures,constants,annotations and passes them to {@link ClassVisitor}.
- * 
- * 
+ *
  * @author PUdalau
  */
 public class InterfaceTransformer {
-    private final Log log = LogFactory.getLog(InterfaceTransformer.class);
+    private final Logger log = LoggerFactory.getLogger(InterfaceTransformer.class);
     private Class<?> interfaceToTransform;
     private String className;
 
     /**
-     * 
      * @param interfaceToTransform Base class for generations.
-     * @param className Name for new class(java notation: with .(dot) as the
-     *            delimiter).
+     * @param className            Name for new class(java notation: with .(dot) as the
+     *                             delimiter).
      */
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.interfaceToTransform = interfaceToTransform;
@@ -54,16 +45,16 @@ public class InterfaceTransformer {
      * Reads class and passes class generation instructions to
      * <code>classVisitor</code>. Similar to
      * org.objectweb.asm.ClassReader.accept(...)
-     * 
+     *
      * @param classVisitor Visitor to consume writing instructions.
      */
     public void accept(ClassVisitor classVisitor) {
         classVisitor.visit(Opcodes.V1_5,
-            InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
-            className.replace('.', '/'),
-            null,
-            InterfaceGenerator.JAVA_LANG_OBJECT,
-            null);
+                InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
+                className.replace('.', '/'),
+                null,
+                InterfaceGenerator.JAVA_LANG_OBJECT,
+                null);
         for (Annotation annotation : interfaceToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
             processAnnotation(annotation, av);
@@ -73,21 +64,19 @@ public class InterfaceTransformer {
             if (isConstantField(field)) {
                 try {
                     FieldVisitor fieldVisitor = classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
-                        field.getName(),
-                        Type.getDescriptor(field.getType()),
-                        null,
-                        field.get(null));
+                            field.getName(),
+                            Type.getDescriptor(field.getType()),
+                            null,
+                            field.get(null));
                     if (fieldVisitor != null) {
                         for (Annotation annotation : field.getAnnotations()) {
                             AnnotationVisitor av = fieldVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                                true);
+                                    true);
                             processAnnotation(annotation, av);
                         }
                     }
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()){
-                        log.error("Failed to process field '" + field.getName() + "'.",e);
-                    }
+                    log.error("Failed to process field '{}'.", field.getName(), e);
                 }
             }
         }
@@ -95,14 +84,14 @@ public class InterfaceTransformer {
         for (Method method : interfaceToTransform.getMethods()) {
             String ruleName = method.getName();
             MethodVisitor methodVisitor = classVisitor.visitMethod(InterfaceGenerator.PUBLIC_ABSTRACT,
-                ruleName,
-                Type.getMethodDescriptor(method),
-                null,
-                null);
+                    ruleName,
+                    Type.getMethodDescriptor(method),
+                    null,
+                    null);
             if (methodVisitor != null) {
                 for (Annotation annotation : method.getAnnotations()) {
                     AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                        true);
+                            true);
                     processAnnotation(annotation, av);
                 }
             }

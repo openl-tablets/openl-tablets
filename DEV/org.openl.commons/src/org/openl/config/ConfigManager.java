@@ -1,11 +1,13 @@
 package org.openl.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.PriorityQueue;
+import java.util.Properties;
 
 /**
  * @author Aleh Bykhavets
@@ -14,9 +16,11 @@ import java.io.IOException;
 @Deprecated
 public class ConfigManager {
 
-    private final Log log = LogFactory.getLog(ConfigManager.class);
+    private final Logger log = LoggerFactory.getLogger(ConfigManager.class);
 
-    /** PriorityQueue arranges locators according their priority */
+    /**
+     * PriorityQueue arranges locators according their priority
+     */
     private PriorityQueue<ConfigLocator> locators;
 
     public ConfigManager() {
@@ -25,9 +29,9 @@ public class ConfigManager {
 
     /**
      * Adds new locator to the ConfigManager.
-     * <p>
+     * <p/>
      * Adding ConfigLocator will be served according to its priority.
-     * 
+     *
      * @param locator new locator
      */
     public void addLocator(ConfigLocator locator) {
@@ -36,10 +40,10 @@ public class ConfigManager {
 
     /**
      * Creates ConfigSet from input stream.
-     * <p>
+     * <p/>
      * It can return <code>null</code> if cannot fetch config data from input
      * stream.
-     * 
+     *
      * @param is input stream
      * @return ConfigSet or <code>null</code> if failed
      */
@@ -52,16 +56,12 @@ public class ConfigManager {
             result = new ConfigSet();
             result.addProperties(props);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to load properties!", e);
-            }
+            log.error("Failed to load properties!", e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Failed to close InputStream!", e);
-                }
+                log.error("Failed to close InputStream!", e);
             }
         }
 
@@ -70,10 +70,10 @@ public class ConfigManager {
 
     /**
      * Seeks config data.
-     * <p>
+     * <p/>
      * First it tries to find ConfigSet using locator with highest priority. If
      * there no config data was found then <code>null</code> is returned.
-     * 
+     *
      * @param configName name of resource with config data
      * @return config data or <code>null</code>
      */
@@ -85,17 +85,15 @@ public class ConfigManager {
                 return createFromStream(is);
             }
         }
-        if (log.isWarnEnabled()) {
-            log.warn("Failed to locate config '" + configName + "'");
-        }
+        log.warn("Failed to locate config '{}'", configName);
         return null;
     }
 
     /**
      * Finds config and updates all properties if possible.
-     * <p>
+     * <p/>
      * If no config data was found then properties won't be touched.
-     * 
+     *
      * @param configName name of config resource
      * @param properties config properties to be updated
      */

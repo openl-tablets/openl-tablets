@@ -1,7 +1,7 @@
 package org.openl.rules.convertor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -12,7 +12,7 @@ import java.util.Date;
 class String2DateConvertor implements IString2DataConvertor<Date> {
 
     private static final int YEAR_START_COUNT = 1900;
-    private final Log log = LogFactory.getLog(String2DateConvertor.class);
+    private final Logger log = LoggerFactory.getLogger(String2DateConvertor.class);
 
     @Override
     public String format(Date data, String format) {
@@ -45,7 +45,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
                 return cc.getTime();
 
             } catch (NumberFormatException t) {
-                log.debug(t);
+                log.debug(t.getMessage(), t);
             }
             throw new IllegalArgumentException("Cannot convert \"" + data + "\" to date type");
         }

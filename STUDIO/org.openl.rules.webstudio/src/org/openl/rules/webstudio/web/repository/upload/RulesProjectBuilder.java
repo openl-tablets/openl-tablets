@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
@@ -10,11 +7,13 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
 public class RulesProjectBuilder {
-    private final Log log = LogFactory.getLog(RulesProjectBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(RulesProjectBuilder.class);
     private final RulesProject project;
     private final UserWorkspace workspace;
 
@@ -26,7 +25,7 @@ public class RulesProjectBuilder {
         project = workspace.getProject(projectName);
         project.edit();
     }
-    
+
     protected RulesProject getProject() {
         return project;
     }
@@ -53,7 +52,7 @@ public class RulesProjectBuilder {
         return true;
     }
 
-    public boolean addFolder(String folderName) throws ProjectException {        
+    public boolean addFolder(String folderName) throws ProjectException {
         folderName = folderName.substring(0, folderName.length() - 1);
 
         checkPath(project, folderName);
@@ -64,9 +63,7 @@ public class RulesProjectBuilder {
     public void cancel() {
         // it was created it will be perish
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Canceling uploading of new project");
-            }
+            log.debug("Canceling uploading of new project");
 
             synchronized (workspace) {
                 project.close();

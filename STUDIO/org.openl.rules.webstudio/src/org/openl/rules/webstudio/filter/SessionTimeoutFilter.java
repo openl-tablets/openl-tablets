@@ -1,22 +1,16 @@
 package org.openl.rules.webstudio.filter;
 
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
 
 public class SessionTimeoutFilter implements Filter {
-    private final Log log = LogFactory.getLog(SessionTimeoutFilter.class);
+    private final Logger log = LoggerFactory.getLogger(SessionTimeoutFilter.class);
 
     private static final int REDIRECT_ERROR_CODE = 399;
 
@@ -41,16 +35,16 @@ public class SessionTimeoutFilter implements Filter {
                 }
             }
         }
-        
-        if (request.getRequestedSessionId() != null && 
+
+        if (request.getRequestedSessionId() != null &&
                 !(request.isRequestedSessionIdValid() || request.getSession().isNew())) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             String redirectUrl = request.getContextPath() + redirectPage;
-            log.info("Session Expired: redirect to " + redirectPage + " page");
+            log.info("Session Expired: redirect to {} page", redirectPage);
 
             // Handle Ajax requests
             if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
-                   ||  StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
+                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {

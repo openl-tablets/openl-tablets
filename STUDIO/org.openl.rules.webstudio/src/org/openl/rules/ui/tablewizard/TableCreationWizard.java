@@ -1,25 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
@@ -30,22 +12,31 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
+import java.util.*;
 
 /**
  * @author Aliaksandr Antonik.
- * 
- * TODO Rename Workbook and Worksheet to Module and Category correspondently
+ *         <p/>
+ *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
 
-    private final Log log = LogFactory.getLog(TableCreationWizard.class);
+    private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
     private static final String SHEET_EXSISTING = "existing";
     private static final String SHEET_NEW = "new";
@@ -55,10 +46,12 @@ public abstract class TableCreationWizard extends BaseWizard {
     private boolean newWorksheet;
     private boolean wizardFinised;
 
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     private String newWorksheetName;
 
-    /** New table identifier */
+    /**
+     * New table identifier
+     */
     private String newTableId;
 
     private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
@@ -194,7 +187,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected void doSave() throws Exception {
-        for (XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
+        for (XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks) {
             workbook.save();
         }
     }
@@ -256,7 +249,7 @@ public abstract class TableCreationWizard extends BaseWizard {
                     return false;
                 }
 
-            } catch(Exception e){
+            } catch (Exception e) {
             }
         }
 

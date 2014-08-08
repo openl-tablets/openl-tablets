@@ -1,23 +1,23 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.project.model.Module;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Instantiation strategy that is wrapper for another instantiation strategy.
- * 
+ *
  * @author PUdalau
  */
 public abstract class RulesInstantiationStrategyDelegator implements RulesInstantiationStrategy {
 
-    private final Log log = LogFactory.getLog(RulesInstantiationStrategyDelegator.class);
+    private final Logger log = LoggerFactory.getLogger(RulesInstantiationStrategyDelegator.class);
 
     /**
      * Instantiation strategy delegate.
@@ -54,9 +54,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
                 classLoader.addClassLoader(serviceClass.getClassLoader());
             }
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
-            }
+            log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
         }
         return classLoader;
     }

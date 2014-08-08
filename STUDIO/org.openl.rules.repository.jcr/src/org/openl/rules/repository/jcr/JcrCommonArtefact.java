@@ -1,21 +1,20 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class JcrCommonArtefact {
-    private final Log log = LogFactory.getLog(JcrCommonArtefact.class);
+    private final Logger log = LoggerFactory.getLogger(JcrCommonArtefact.class);
 
     private String name;
     private Node node;

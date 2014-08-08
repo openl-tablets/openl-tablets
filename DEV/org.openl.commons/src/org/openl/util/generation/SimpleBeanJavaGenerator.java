@@ -1,22 +1,18 @@
 package org.openl.util.generation;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class SimpleBeanJavaGenerator extends JavaGenerator {
 
-    private final Log log = LogFactory.getLog(SimpleBeanJavaGenerator.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleBeanJavaGenerator.class);
 
     private Map<String, Class<?>> datatypeDeclaredFields;
     private Map<String, Class<?>> datatypeAllFields;
@@ -50,7 +46,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     }
 
     public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> declaredFields,
-            Map<String, Class<?>> allFields) {
+                                   Map<String, Class<?>> allFields) {
         super(datatypeClass);
         this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(declaredFields);
         this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(allFields);
@@ -177,9 +173,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 if (writer == null) {
                     // error message if can`t process value of given type.
                     //
-                    String errorMessage = String.format("Can`t write value for %s field of type %s", fieldValue,
-                            fieldType.getName());
-                    log.error(errorMessage);
+                    log.error("Can`t write value for {} field of type {}", fieldValue, fieldType.getName());
                 } else {
                     // write value initialization to bean class
                     String valueInitialzation = writer.getInitialization(fieldValue);

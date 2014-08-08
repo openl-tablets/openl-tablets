@@ -1,23 +1,21 @@
 package org.openl.rules.ruleservice.databinding;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.FactoryBean;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.FactoryBean;
-
 /**
- * 
  * Factory bean for adding binding types from properties to data binding context.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>> {
 
-    private final Log log = LogFactory.getLog(RootClassNamesBindingFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(RootClassNamesBindingFactoryBean.class);
 
     private String rootClassNames;
 
@@ -40,9 +38,7 @@ public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>
             if (className != null && className.trim().length() > 0) {
                 String trimmedClassName = className.trim();
                 ret.add(trimmedClassName);
-                if (log.isInfoEnabled()) {
-                    log.info(trimmedClassName + " class is added to the root class names list for WS type binding.");
-                }
+                log.info("{} class is added to the root class names list for WS type binding.", trimmedClassName);
             }
         }
 

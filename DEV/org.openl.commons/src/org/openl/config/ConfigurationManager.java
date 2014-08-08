@@ -1,30 +1,26 @@
 package org.openl.config;
 
+import org.apache.commons.configuration.*;
+import org.openl.util.PassCoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.util.PassCoder;
-
 /**
  * Configuration manager.
- * 
+ *
  * @author Andrei Astrouski
- * 
+ *         <p/>
  *         TODO Separate configuration sets from the manager
  */
 public class ConfigurationManager {
 
-    private final Log log = LogFactory.getLog(ConfigurationManager.class);
+    private final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
     private boolean useSystemProperties;
     private String propsLocation;
@@ -45,7 +41,7 @@ public class ConfigurationManager {
     }
 
     public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation,
-            boolean autoSave) {
+                                boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
         this.defaultPropsLocation = defaultPropsLocation;
@@ -98,7 +94,7 @@ public class ConfigurationManager {
                     configuration.load();
                 }
             } catch (Exception e) {
-                log.error("Error when initializing configuration: " + configLocation, e);
+                log.error("Error when initializing configuration: {}", configLocation, e);
             }
         }
         return configuration;
@@ -130,7 +126,7 @@ public class ConfigurationManager {
 
     public Map<String, Object> getProperties(boolean cross) {
         Map<String, Object> properties = new HashMap<String, Object>();
-        for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
+        for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext(); ) {
             String key = (String) iterator.next();
 
             if (!cross || configurationToSave.getProperty(key) != null) {
@@ -217,7 +213,7 @@ public class ConfigurationManager {
                 configurationToSave.save();
                 return true;
             } catch (Exception e) {
-                log.error("Error when saving configuration: " + configurationToSave.getBasePath(), e);
+                log.error("Error when saving configuration: {}", configurationToSave.getBasePath(), e);
             }
         }
         return false;
@@ -247,7 +243,7 @@ public class ConfigurationManager {
         try {
             setProperty(key, PassCoder.encode(pass, getRepoPassKey()));
         } catch (Exception e) {
-            log.error("Error when setting password property: " + key, e);
+            log.error("Error when setting password property: {}", key, e);
         }
     }
 
@@ -255,7 +251,7 @@ public class ConfigurationManager {
         try {
             return PassCoder.decode(this.getStringProperty(key), getRepoPassKey());
         } catch (Exception e) {
-            log.error("Error when getting password property: " + key, e);
+            log.error("Error when getting password property: {}", key, e);
             return "";
         }
     }

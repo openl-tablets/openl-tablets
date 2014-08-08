@@ -4,19 +4,7 @@
 
 package org.openl.rules.lang.xls;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
@@ -25,12 +13,7 @@ import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.extension.load.NameConventionLoaderFactory;
 import org.openl.rules.indexer.HeaderNodeFactory;
-import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
-import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -50,36 +33,40 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.util.*;
 
 /**
  * @author snshor
- * 
  */
 public class XlsLoader {
 
-    private final Log log = LogFactory.getLog(XlsLoader.class);
+    private final Logger log = LoggerFactory.getLogger(XlsLoader.class);
 
-    private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
-            { IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString() },
-            { IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
-            { IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString() },
-            { IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString() },
-            { IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString() },
-            { IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString() },
-            { IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString() },
-            { IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString() },
-            { IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString() },
-            { IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString() },
-            { IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString() },
-            { IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString() },
-            { IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString() },
-            { IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString() },
-            { IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString() },
-            { IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString() },
-            { IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString() },
-            { IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString() },
-            { IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString() },
-            { IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString() } };
+    private static final String[][] headerMapping = {{IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
+            {IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString()},
+            {IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
+            {IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString()},
+            {IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString()},
+            {IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString()},
+            {IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString()},
+            {IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString()},
+            {IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString()},
+            {IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString()},
+            {IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString()},
+            {IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString()},
+            {IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString()},
+            {IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString()},
+            {IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},
+            {IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},
+            {IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString()},
+            {IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString()},
+            {IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString()},
+            {IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString()},
+            {IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString()}};
 
     private static Map<String, String> tableHeaders;
 
@@ -157,18 +144,18 @@ public class XlsLoader {
 
         WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
-            source,
-            openl,
-            vocabulary,
-            Collections.unmodifiableCollection(imports),
-            extensionNodes);
+                source,
+                openl,
+                vocabulary,
+                Collections.unmodifiableCollection(imports),
+                extensionNodes);
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
         return new ParsedCode(syntaxNode,
-            source,
-            parsingErrors,
-            dependencies.toArray(new IDependency[dependencies.size()]));
+                source,
+                parsingErrors,
+                dependencies.toArray(new IDependency[dependencies.size()]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -214,7 +201,7 @@ public class XlsLoader {
                     loader.process(this, tableSyntaxNode, row.getSource(), source);
                 } else {
                     String message = String.format("Error in Environment table: can't find extension loader for '%s' keyword",
-                        name);
+                            name);
                     log.warn(message);
                     OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
                 }
@@ -223,8 +210,8 @@ public class XlsLoader {
     }
 
     private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
-            IGridTable gridTable,
-            IOpenSourceCodeModule moduleSource) {
+                                      IGridTable gridTable,
+                                      IOpenSourceCodeModule moduleSource) {
 
         int height = gridTable.getHeight();
 
@@ -235,7 +222,7 @@ public class XlsLoader {
                 dependency = dependency.trim();
 
                 Dependency moduleDependency = new Dependency(DependencyType.MODULE,
-                    new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency, moduleSource));
+                        new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency, moduleSource));
                 dependencies.add(moduleDependency);
             }
         }
@@ -264,8 +251,8 @@ public class XlsLoader {
     }
 
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-            IGridTable table,
-            XlsSheetSourceCodeModule sheetSource) {
+                                        IGridTable table,
+                                        XlsSheetSourceCodeModule sheetSource) {
 
         int height = table.getHeight();
 
@@ -305,14 +292,14 @@ public class XlsLoader {
     }
 
     private void registerIncludeError(TableSyntaxNode tableSyntaxNode,
-            IGridTable table,
-            int i,
-            String include,
-            Throwable t) {
+                                      IGridTable table,
+                                      int i,
+                                      String include,
+                                      Throwable t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
-            t,
-            null,
-            new GridCellSourceCodeModule(table.getSubtable(1, i, 1, 1)));
+                t,
+                null,
+                new GridCellSourceCodeModule(table.getSubtable(1, i, 1, 1)));
         addError(se);
         tableSyntaxNode.addError(se);
         OpenLMessagesUtils.addError(se.getMessage());
@@ -326,8 +313,8 @@ public class XlsLoader {
     }
 
     private TableSyntaxNode preprocessTable(IGridTable table,
-            XlsSheetSourceCodeModule source,
-            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
+                                            XlsSheetSourceCodeModule source,
+                                            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
 
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
@@ -368,9 +355,9 @@ public class XlsLoader {
         String vocabularyStr = table.getCell(1, 0).getStringValue();
 
         setVocabulary(new IdentifierNode(IXlsTableNames.VOCABULARY_PROPERTY,
-            new GridLocation(table),
-            vocabularyStr,
-            source));
+                new GridLocation(table),
+                vocabularyStr,
+                source));
     }
 
     private WorkbookSyntaxNode preprocessWorkbook(IOpenSourceCodeModule source) {
@@ -415,8 +402,8 @@ public class XlsLoader {
             mergedNodes = new TableSyntaxNode[n];
             for (int i = 0; i < n; i++) {
                 mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
-                    tableParts.get(i).getSource(),
-                    tablePartProcessor);
+                        tableParts.get(i).getSource(),
+                        tablePartProcessor);
             }
         } catch (OpenLCompilationException e) {
             OpenLMessagesUtils.addError(e);
@@ -430,7 +417,7 @@ public class XlsLoader {
 
     /**
      * Gets all grid tables from the sheet.
-     * 
+     *
      * @param sheetSource
      * @return
      */
@@ -449,8 +436,8 @@ public class XlsLoader {
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed",
-                    null,
-                    openl);
+                        null,
+                        openl);
                 OpenLMessagesUtils.addError(error.getMessage());
                 addError(error);
             }
@@ -463,8 +450,8 @@ public class XlsLoader {
             this.vocabulary = vocabulary;
         } else {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed",
-                null,
-                vocabulary);
+                    null,
+                    vocabulary);
             OpenLMessagesUtils.addError(error.getMessage());
             addError(error);
         }

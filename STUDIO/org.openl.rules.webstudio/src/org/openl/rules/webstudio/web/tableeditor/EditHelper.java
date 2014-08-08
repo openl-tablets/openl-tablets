@@ -1,22 +1,23 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public final class EditHelper {
 
-    private EditHelper() {}
+    private EditHelper() {
+    }
 
     public static boolean updateSystemProperties(IOpenLTable table, TableEditorModel tableEditorModel,
-            String userMode) {
+                                                 String userMode) {
         boolean result = true;
         if (table.isCanContainProperties()) {
             List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
@@ -28,8 +29,8 @@ public final class EditHelper {
     }
 
     private static boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition systemProperty,
-            String userMode) {
-        final Log log = LogFactory.getLog(EditHelper.class);
+                                             String userMode) {
+        final Logger log = LoggerFactory.getLogger(EditHelper.class);
         boolean result = false;
         String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
 

@@ -1,26 +1,25 @@
 package org.openl.util.file;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * File storage.
- * 
+ *
  * @author Andrei Astrouski
  */
 public class FileStorage {
 
-    private final Log log = LogFactory.getLog(FileStorage.class);
+    private final Logger log = LoggerFactory.getLogger(FileStorage.class);
 
     private final String storagePath;
     private final boolean versioning;
@@ -63,7 +62,7 @@ public class FileStorage {
             destFile.setLastModified(currentDate);
             added = true;
         } catch (Exception e) {
-            log.error("Can't add file " + srcFile.getName(), e);
+            log.error("Can't add file {}", srcFile.getName(), e);
         }
 
         return added;
@@ -85,7 +84,7 @@ public class FileStorage {
                 try {
                     FileUtils.deleteDirectory(file);
                 } catch (Exception e) {
-                    log.error("Can't delete folder " + file.getName(), e);
+                    log.error("Can't delete folder {}", file.getName(), e);
                 }
             }
         }
@@ -115,7 +114,7 @@ public class FileStorage {
             FileUtils.forceDelete(file);
             deleted = true;
         } catch (Exception e) {
-            log.error("Can't delete file " + file.getName(), e);
+            log.error("Can't delete file {}", file.getName(), e);
         }
         return deleted;
     }
@@ -126,7 +125,7 @@ public class FileStorage {
             try {
                 FileUtils.cleanDirectory(storageDir);
             } catch (Exception e) {
-                log.error("Can't clean folder " + storageDir.getName(), e);
+                log.error("Can't clean folder {}", storageDir.getName(), e);
             }
         }
     }

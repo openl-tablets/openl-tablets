@@ -1,21 +1,5 @@
 package org.openl.rules.ui;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.validation.ValidationException;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
@@ -23,8 +7,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.CommonException;
@@ -37,18 +19,13 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.ui.tree.view.CategoryDetailedView;
-import org.openl.rules.ui.tree.view.CategoryInversedView;
-import org.openl.rules.ui.tree.view.CategoryView;
-import org.openl.rules.ui.tree.view.FileView;
-import org.openl.rules.ui.tree.view.RulesTreeView;
-import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.ui.tree.view.*;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
 import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
-import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -60,7 +37,16 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.validation.ValidationException;
+import java.io.*;
+import java.util.*;
 
 /**
  * TODO Remove JSF dependency
@@ -75,7 +61,7 @@ public class WebStudio {
         void studioReset();
     }
 
-    private final Log log = LogFactory.getLog(WebStudio.class);
+    private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
     public static final String TRACER_NAME = "tracer";
 
@@ -85,8 +71,8 @@ public class WebStudio {
     private final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
     private final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
 
-    private final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW, CATEGORY_DETAILED_VIEW,
-            CATEGORY_INVERSED_VIEW };
+    private final RulesTreeView[] treeViews = {TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW, CATEGORY_DETAILED_VIEW,
+            CATEGORY_INVERSED_VIEW};
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
 
@@ -150,7 +136,7 @@ public class WebStudio {
         String userMode = systemConfigManager.getStringProperty("user.mode");
         String settingsLocation = systemConfigManager.getStringProperty("user.settings.home")
                 + (!userMode.equals("single") ? (File.separator + WebStudioUtils.getRulesUserSession(session)
-                        .getUserName()) : "") + File.separator + USER_SETTINGS_FILENAME;
+                .getUserName()) : "") + File.separator + USER_SETTINGS_FILENAME;
         String defaultSettingsLocation = session.getServletContext().getRealPath(
                 "/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
@@ -327,7 +313,7 @@ public class WebStudio {
      * studio works with.
      *
      * @return path to openL projects workspace, i.e. folder containing openL
-     *         projects.
+     * projects.
      */
     public String getWorkspacePath() {
         return workspacePath;
@@ -337,9 +323,7 @@ public class WebStudio {
         try {
             WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
         } catch (CommonException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
 
         projects = null;
@@ -600,9 +584,7 @@ public class WebStudio {
                 }
             }
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
 
         return false;
@@ -702,9 +684,7 @@ public class WebStudio {
                 }
             } catch (ProjectException e) {
                 // Should not occur
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -725,7 +705,6 @@ public class WebStudio {
      * DOCUMENT ME!
      *
      * @param module The current module to set.
-     *
      * @throws Exception
      */
     public void setCurrentModule(Module module) throws Exception {
@@ -881,10 +860,10 @@ public class WebStudio {
 
     /**
      * Normalizes page urls: inserts project and module names.
-     *
+     * <p/>
      * Example:
-     *   Page Url =       create/
-     *   Normalized Url = #tutorial1/rules/create/
+     * Page Url =       create/
+     * Normalized Url = #tutorial1/rules/create/
      */
     public String url(String pageUrl) {
         if (StringUtils.isBlank(pageUrl)) {

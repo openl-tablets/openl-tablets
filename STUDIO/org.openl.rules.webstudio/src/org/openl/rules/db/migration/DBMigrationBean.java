@@ -1,5 +1,15 @@
 package org.openl.rules.db.migration;
 
+import org.apache.commons.lang3.StringUtils;
+import org.flywaydb.core.Flyway;
+import org.hibernate.dialect.*;
+import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
+import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
+import org.openl.rules.db.utils.DBUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -8,29 +18,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.dialect.Oracle8iDialect;
-import org.hibernate.dialect.SQLServerDialect;
-import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
-import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
-import org.openl.rules.db.utils.DBUtils;
-
-import org.flywaydb.core.Flyway;
-
-public class DBMigrationBean  {
+public class DBMigrationBean {
     private static final String SCHEMA_SEPARATOR = ".";
     private static final String MIGRATE_WITHOUT_FLYWAY_SCRIPT = "/db/without_flyway/Migrate_mysql_first_time.sql";
     private static final String INITIAL_VERSION_OF_MIGRATION = "2";
 
-    private final Log log = LogFactory.getLog(DBMigrationBean.class);
-    
+    private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
+
     private String dbDriver;
     private String dbLogin;
     private String dbPassword;
@@ -39,7 +33,7 @@ public class DBMigrationBean  {
     private String dbSchema;
     private String dbUrlSeparator;
     private DataSource dataSource;
-    
+
     public String init() {
         String prefix = dbUrl.split(dbUrlSeparator)[0] + dbUrlSeparator;
         String url = dbUrl.split(dbUrlSeparator)[1];

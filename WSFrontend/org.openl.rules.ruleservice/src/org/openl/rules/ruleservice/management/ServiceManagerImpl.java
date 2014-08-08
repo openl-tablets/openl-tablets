@@ -1,33 +1,27 @@
 package org.openl.rules.ruleservice.management;
 
+import org.openl.OpenL;
+import org.openl.conf.ClassLoaderFactory;
+import org.openl.conf.OpenLConfiguration;
+import org.openl.rules.ruleservice.conf.ServiceConfigurer;
+import org.openl.rules.ruleservice.core.*;
+import org.openl.rules.ruleservice.loader.DataSourceListener;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.OpenL;
-import org.openl.conf.ClassLoaderFactory;
-import org.openl.conf.OpenLConfiguration;
-import org.openl.rules.ruleservice.conf.ServiceConfigurer;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleService;
-import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
-import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.loader.DataSourceListener;
-import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-
 /**
  * Handles data source modifications and controls all services.
- * 
+ *
  * @author PUdalau
- * 
  */
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
-    private final Log log = LogFactory.getLog(ServiceManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private RuleService ruleService;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
@@ -82,18 +76,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
      * Determine services to be deployed on start.
      */
     public void start() {
-        if (log.isInfoEnabled()) {
-            log.info("Assembling services after service manager start");
-        }
+        log.info("Assembling services after service manager start");
         synchronized (this) {
             processServices();
         }
     }
 
     public void onDeploymentAdded() {
-        if (log.isInfoEnabled()) {
-            log.info("Assembling services after data source modification");
-        }
+        log.info("Assembling services after data source modification");
         synchronized (this) {
             processServices();
         }
@@ -114,18 +104,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("Service with name \"" + serviceDescription.getName() + "\" is dublicated! Only one service with this name will be deployed! Please, check your configuration!");
-                    }
+                    log.warn("Service with name \"{}\" is duplicated! Only one service with this name will be deployed! Please, check your configuration!", serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);
                 }
             }
             return services;
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to gather services to be deployed", e);
-            }
+            log.error("Failed to gather services to be deployed", e);
             return Collections.emptyMap();
         }
     }
@@ -140,9 +126,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                     ruleService.undeploy(runningServiceName);
                     serviceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format("Failed to undeploy \"%s\" service", runningServiceName), e);
-                    }
+                    log.error("Failed to undeploy \"{}\" service", runningServiceName, e);
                 } finally {
                     ServiceDescriptionHolder.getInstance().remove();
                 }
@@ -165,13 +149,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                 }
                 serviceDescriptions.put(serviceDescription.getName(), serviceDescription);
             } catch (RuleServiceDeployException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
-                }
+                log.error("Failed to deploy \"{}\" service", serviceDescription.getName(), e);
             } catch (RuleServiceRedeployException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
-                }
+                log.error("Failed to redeploy \"{}\" service", serviceDescription.getName(), e);
             } finally {
                 ServiceDescriptionHolder.getInstance().remove();
             }

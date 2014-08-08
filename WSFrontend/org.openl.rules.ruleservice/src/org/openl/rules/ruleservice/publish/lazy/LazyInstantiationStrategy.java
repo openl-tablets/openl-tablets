@@ -1,11 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
@@ -15,16 +9,22 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile
  * neccessary modules on demand.
- * 
+ *
  * @author pudalau, Marat Kamalov
  */
 public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy {
 
-    private final Log log = LogFactory.getLog(LazyInstantiationStrategy.class);
+    private final Logger log = LoggerFactory.getLogger(LazyInstantiationStrategy.class);
 
     private LazyEngineFactory<?> engineFactory;
     private DeploymentDescription deployment;
@@ -34,10 +34,11 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            final Module module,
-            IDependencyManager dependencyManager) {
+                                     final Module module,
+                                     IDependencyManager dependencyManager) {
         super(new ArrayList<Module>() {
             private static final long serialVersionUID = 1L;
+
             {
                 add(module);
             }
@@ -49,8 +50,8 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager) {
+                                     Collection<Module> modules,
+                                     IDependencyManager dependencyManager) {
         super(modules, dependencyManager);
         if (deployment == null) {
             throw new IllegalArgumentException("deployment can't be null");
@@ -59,9 +60,9 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader) {
+                                     Collection<Module> modules,
+                                     IDependencyManager dependencyManager,
+                                     ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader);
         if (deployment == null) {
             throw new IllegalArgumentException("deployment can't be null");
@@ -77,10 +78,10 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
 
     private ClassLoader classLoader = null;
 
-    protected ClassLoader initClassLoader() throws RulesInstantiationException{// Required for lazy
+    protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
         if (classLoader == null) {
             SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(Thread.currentThread()
-                .getContextClassLoader());
+                    .getContextClassLoader());
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
@@ -130,23 +131,21 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = null;
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to load service class.", e);
-            }
+            log.debug("Failed to load service class.", e);
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
             engineFactory = new LazyEngineFactory(getDeployment(),
-                getModules(),
-                getDependencyManager(),
-                serviceClass,
-                getExternalParameters());
+                    getModules(),
+                    getDependencyManager(),
+                    serviceClass,
+                    getExternalParameters());
 
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();
@@ -159,8 +158,8 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[] {};
-                String[] excludes = new String[] {};
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

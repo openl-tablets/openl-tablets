@@ -1,16 +1,16 @@
 package org.openl.util.formatters;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.util.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BooleanFormatter implements IFormatter {
 
-    private final Log log = LogFactory.getLog(BooleanFormatter.class);
+    private final Logger log = LoggerFactory.getLogger(BooleanFormatter.class);
 
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            log.debug("Should be Boolean: " + value);
+            log.debug("Should be Boolean: {}", value);
             return null;
         }
 
@@ -21,7 +21,7 @@ public class BooleanFormatter implements IFormatter {
     public Object parse(String value) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue == null) {
-            log.debug("Could not parse Boolean: " + value);
+            log.debug("Could not parse Boolean: {}", value);
         }
         return boolValue;
     }

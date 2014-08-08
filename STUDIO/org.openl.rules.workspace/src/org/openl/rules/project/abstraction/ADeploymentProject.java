@@ -1,5 +1,16 @@
 package org.openl.rules.project.abstraction;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.openl.rules.common.*;
+import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -7,29 +18,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.workspace.WorkspaceUser;
-
 public class ADeploymentProject extends UserWorkspaceProject {
-    private final Log log = LogFactory.getLog(ADeploymentProject.class);
+    private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration)*/
     private boolean modifiedDescriptors = false;
-    
+
     public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
         super(api, user);
     }
@@ -124,12 +120,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 }
                 resource.commit(user);
             } catch (UnsupportedEncodingException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
             }
         }
-        
+
         modifiedDescriptors = false;
         super.save(user);
         open();
@@ -143,7 +137,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 break;
             }
         }
-        
+
         modifiedDescriptors = true;
     }
 
@@ -154,7 +148,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
         getDescriptors().clear();
         getDescriptors().addAll(projectDescriptors);
-        
+
         modifiedDescriptors = true;
     }
 
@@ -175,9 +169,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(e.getMessage(), e);
-                    }
+                    log.error(e.getMessage(), e);
                 } finally {
                     IOUtils.closeQuietly(content);
                 }

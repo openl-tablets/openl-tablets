@@ -1,17 +1,17 @@
 package org.openl.rules.webstudio.dependencies;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WebStudioDependencyManagerFactory {
-    private final Log log = LogFactory.getLog(WebStudioDependencyManagerFactory.class);
+    private final Logger log = LoggerFactory.getLogger(WebStudioDependencyManagerFactory.class);
 
     private final WebStudio studio;
 
@@ -53,9 +53,7 @@ public class WebStudioDependencyManagerFactory {
                     }
                 }
                 if (!found) {
-                    if (log.isWarnEnabled()) {
-                        log.warn(String.format("Dependency '%s' for project '%s' not found", dependencyDescriptor.getName(), project.getName()));
-                    }
+                    log.warn("Dependency '{}' for project '{}' not found", dependencyDescriptor.getName(), project.getName());
                 }
             }
         }

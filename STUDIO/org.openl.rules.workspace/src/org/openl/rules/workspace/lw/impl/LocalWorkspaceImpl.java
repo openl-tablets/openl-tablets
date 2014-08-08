@@ -1,7 +1,5 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -9,22 +7,15 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
-import org.openl.util.MsgHelper;
+import org.openl.rules.workspace.uw.UserWorkspace;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
-    private final Log log = LogFactory.getLog(LocalWorkspaceImpl.class);
 
     private WorkspaceUser user;
     private File location;
@@ -35,7 +26,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private UserWorkspace userWorkspace;
 
     public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter,
-            FileFilter localWorkspaceFileFilter) {
+                              FileFilter localWorkspaceFileFilter) {
         this.user = user;
         this.location = location;
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
@@ -64,7 +55,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     protected AProject downloadProject(AProject project) throws ProjectException {
         String name = project.getName();
 
-        ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
+        ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         File f = new File(location, name);
         f.mkdir();
 
@@ -125,9 +116,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         File[] folders = location.listFiles(localWorkspaceFolderFilter);
         for (File f : folders) {
             String name = f.getName();
-            ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
+            ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this));;
+            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this));
+            ;
             localProjects.put(name, lpi);
         }
     }
@@ -162,8 +154,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             String name = folder.getName();
             if (!localProjects.containsKey(name)) {
                 // new project detected
-                ArtefactPath ap = new ArtefactPathImpl(new String[] { name });
-                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));;
+                ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
+                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));
+                ;
 
                 // add it
                 localProjects.put(name, newlyDetected);
@@ -198,8 +191,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 try {
                     lp.save(user);
                 } catch (ProjectException e) {
-                    String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
-                    log.error(msg, e);
+                    log.error("Error saving local project ''{}''!", lp.getName(), e);
                 }
             }
         }

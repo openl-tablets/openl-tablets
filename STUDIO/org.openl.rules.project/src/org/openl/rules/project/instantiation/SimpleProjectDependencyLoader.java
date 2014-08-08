@@ -1,10 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
@@ -13,10 +8,15 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
-    private final Log log = LogFactory.getLog(SimpleProjectDependencyLoader.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyLoader.class);
 
     private final String dependencyName;
     private final Collection<Module> modules;
@@ -28,12 +28,12 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         Map<String, Object> params = dependencyManager.getExternalParameters();
         if (!singleModuleMode) {
             params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules()
-                );
+            );
             return params;
         }
         return params;
     }
-    
+
     public Collection<Module> getModules() {
         return modules;
     }
@@ -74,9 +74,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
         if (this.dependencyName.equals(dependencyName)) {
             if (compiledDependency != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Dependency for dependencyName = " + dependencyName + " from cache was returned.");
-                }
+                log.debug("Dependency for dependencyName = {} from cache was returned.", dependencyName);
                 return compiledDependency;
             }
 
@@ -89,16 +87,14 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                 ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
                 if (modules.size() == 1) {
                     dependencyManager.getCompilationStack().add(dependencyName);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Creating dependency for dependencyName = " + dependencyName);
-                    }
+                    log.debug("Creating dependency for dependencyName = {}", dependencyName);
                     rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                        .next(), executionMode, dependencyManager, classLoader);
+                            .next(), executionMode, dependencyManager, classLoader);
                 } else {
                     if (modules.size() > 1) {
                         rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                            dependencyManager,
-                            classLoader);
+                                dependencyManager,
+                                classLoader);
                     } else {
                         throw new IllegalStateException("Modules collection can't be empty");
                     }
@@ -108,20 +104,16 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
-                                                                                  // interface
-                                                                                  // generation
+                // interface
+                // generation
                 try {
                     CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
                     CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Dependency for dependencyName = " + dependencyName + " was stored to cache.");
-                    }
+                    log.debug("Dependency for dependencyName = {} was stored to cache.", dependencyName);
                     compiledDependency = cd;
                     return compiledDependency;
                 } catch (Exception ex) {
-                    if (log.isErrorEnabled()) {
-                        log.error(ex.getMessage(), ex);
-                    }
+                    log.error(ex.getMessage(), ex);
                     return onCompilationFailure(ex, dependencyManager);
                 }
             } finally {

@@ -1,31 +1,26 @@
 package org.openl.rules.ui;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
 import org.openl.util.file.FileStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author Andrei Astrouski
  */
 public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
 
-    private final Log log = LogFactory.getLog(FileBasedProjectHistoryManager.class);
+    private final Logger log = LoggerFactory.getLogger(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
     private FileStorage storage;
@@ -121,8 +116,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 projectModel.buildProjectTree();
                 log.info("Project was reverted successfully");
             } catch (Exception e) {
-                log.error("Can't revert project at "
-                        + new SimpleDateFormat().format(new Date(date)));
+                log.error("Can't revert project at {}", new SimpleDateFormat().format(new Date(date)));
                 throw e;
             }
         }

@@ -1,35 +1,36 @@
 package org.openl.rules.repository;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Repository Factory Proxy.
- * <p>
+ * <p/>
  * Takes actual factory description from <i>rules-production.properties</i>
  * file.
- *
  */
 public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryAware {
-    private final Log log = LogFactory.getLog(ProductionRepositoryFactoryProxy.class);
-    
+    private final Logger log = LoggerFactory.getLogger(ProductionRepositoryFactoryProxy.class);
+
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
     public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(false, null, "");
 
     private ConfigurationManagerFactory configManagerFactory = DEFAULT_CONFIGURATION_MANAGER_FACTORY;
-    
-    /** default value is <code>null</code> -- fail first */
+
+    /**
+     * default value is <code>null</code> -- fail first
+     */
     private final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
             "production-repository.factory", null);
-    
+
     private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
 
     private RulesRepositoryFactory rulesRepositoryFactory;
@@ -45,7 +46,7 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
 
         return (RProductionRepository) factories.get(propertiesFileName).getRepositoryInstance();
     }
-    
+
     public void releaseRepository(String propertiesFileName) throws RRepositoryException {
         synchronized (this) {
             RRepositoryFactory factory = factories.get(propertiesFileName);
@@ -91,9 +92,7 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
             return repFactory;
         } catch (Exception e) {
             String msg = "Failed to initialize ProductionRepositoryFactory!";
-            if (log.isErrorEnabled()){
-                log.error(msg, e);
-            }
+            log.error(msg, e);
             throw new RRepositoryException(msg, e);
         }
     }

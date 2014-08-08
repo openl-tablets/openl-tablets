@@ -6,21 +6,21 @@
 
 package org.openl.rules.webstudio.util;
 
-import java.awt.Desktop;
-import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.awt.*;
+import java.io.File;
 
 /**
  * MS Excel launcher.
- * 
+ *
  * @author sam
  */
 public class ExcelLauncher {
     private static final int LOCK_DETECT_TIMEOUT = 10000;
 
-    private final Log log = LogFactory.getLog(ExcelLauncher.class);
+    private final Logger log = LoggerFactory.getLogger(ExcelLauncher.class);
 
     private String scriptPath;
 
@@ -44,7 +44,7 @@ public class ExcelLauncher {
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            String[] cmdarray = { "wscript", scriptPath, workbookPath, workbookName, worksheetName == null ? "1" : worksheetName, range, };
+            String[] cmdarray = {"wscript", scriptPath, workbookPath, workbookName, worksheetName == null ? "1" : worksheetName, range,};
 
             fixEnvironmentForExcel();
             Process process = Runtime.getRuntime().exec(cmdarray);
@@ -101,9 +101,7 @@ public class ExcelLauncher {
                     try {
                         excelLaunchProcess.exitValue();
                     } catch (IllegalThreadStateException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
-                        }
+                        log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
                         excelLaunchProcess.destroy();
                     }
                 } catch (InterruptedException e) {

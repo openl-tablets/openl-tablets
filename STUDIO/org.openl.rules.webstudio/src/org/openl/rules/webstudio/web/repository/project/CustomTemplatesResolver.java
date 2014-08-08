@@ -1,17 +1,17 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author nsamatov.
@@ -19,7 +19,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 public class CustomTemplatesResolver extends TemplatesResolver {
     public static final String PROJECT_TEMPLATES_FOLDER = "project-templates";
 
-    private final Log log = LogFactory.getLog(CustomTemplatesResolver.class);
+    private final Logger log = LoggerFactory.getLogger(CustomTemplatesResolver.class);
     private final String TEMPLATES_PATH = new File(System.getProperty("webstudio.home"), PROJECT_TEMPLATES_FOLDER).getPath();
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(new TemplateResourceLoader());
 
@@ -58,7 +58,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to get project template: " + baseUrl, e);
+            log.error("Failed to get project template: {}", baseUrl, e);
         }
         return templateFiles;
     }
@@ -72,9 +72,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
 
         return folderNames;
