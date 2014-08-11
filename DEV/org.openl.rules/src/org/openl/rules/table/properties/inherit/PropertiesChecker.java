@@ -58,9 +58,7 @@ public class PropertiesChecker {
                         propertyNameToCheck,
                         level.getDisplayName());
 
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-                tableSyntaxNode.addError(error);
-                BindHelper.processError(error);
+                addError(tableSyntaxNode, message);
             }
         }
     }
@@ -81,11 +79,15 @@ public class PropertiesChecker {
                         propertyNameToCheck,
                         tableType);
 
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-                tableSyntaxNode.addError(error);
-                BindHelper.processError(error);
+                addError(tableSyntaxNode, message);
             }
         }
+    }
+
+    private static void addError(TableSyntaxNode tableSyntaxNode, String message) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+        tableSyntaxNode.addError(error);
+        BindHelper.processError(error);
     }
 
     /**
