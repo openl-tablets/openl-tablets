@@ -48,6 +48,9 @@ public class PropertiesChecker {
     public static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
                                             InheritanceLevel level) {
 
+        if (level == null) {
+            return;
+        }
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
 
