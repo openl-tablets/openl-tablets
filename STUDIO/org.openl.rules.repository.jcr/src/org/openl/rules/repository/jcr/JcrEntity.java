@@ -1,42 +1,28 @@
 package org.openl.rules.repository.jcr;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ValueType;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RLock;
-import static org.openl.rules.repository.jcr.NodeUtil.isSame;
-import static org.openl.rules.repository.jcr.NodeUtil.convertDate2Calendar;
-
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.*;
+import java.util.*;
+
+import static org.openl.rules.repository.jcr.NodeUtil.convertDate2Calendar;
+import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 
 /**
  * Implementation of JCR Entity. It is linked with node in JCR implementation,
  * always.
  *
  * @author Aleh Bykhavets
- *
  */
 public class JcrEntity extends JcrCommonArtefact implements REntity {
-    private final Log log = LogFactory.getLog(JcrEntity.class);
+    private final Logger log = LoggerFactory.getLogger(JcrEntity.class);
     private static final String[] ALLOWED_PROPS = {};
 
     private Map<String, org.openl.rules.common.Property> properties;
@@ -368,10 +354,10 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             version.updateRevision(n);
             n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
             n.save();
-            log.info("Checking in... " + n.getPath());
+            log.info("Checking in... {}", n.getPath());
             n.checkin();
         } else if (mustBeSaved) {
-            log.info("Saving... " + n.getPath());
+            log.info("Saving... {}", n.getPath());
             n.save();
         }
     }

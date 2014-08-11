@@ -1,13 +1,10 @@
 package org.openl.rules.security.common.spring.db;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.hsqldb.Server;
-
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerConfiguration;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -15,17 +12,17 @@ import java.util.Properties;
 
 /**
  * Bean that will start an instance of an HSQL database.
- *
+ * <p/>
  * <p>
  * This class is primarily intended to be used in demo applications. It allows
  * for a self contained distribution including a database instance. HSQLDB will
  * be properly "shutdowned".
  * </p>
- *
+ * <p/>
  * <p>
  * This is an example of a bean configuration:
  * </p>
- *
+ * <p/>
  * <pre>
  *     &lt;bean id=&quot;dataBase&quot; class=&quot;com.exigen.example.solution.admin.database.util.HsqlServerBean&quot; singleton=&quot;true&quot; lazy-init=&quot;false&quot;&gt;
  *         &lt;property name=&quot;serverProperties&quot;&gt;
@@ -38,16 +35,17 @@ import java.util.Properties;
  *     &lt;/bean&gt;
  * </pre>
  *
- * @see org.hsqldb.Server
- *
  * @author Andrey Naumenko
+ * @see org.hsqldb.Server
  */
 public class HsqlServerBean implements InitializingBean, DisposableBean {
-    private final Log log = LogFactory.getLog(HsqlServerBean.class);
+    private final Logger log = LoggerFactory.getLogger(HsqlServerBean.class);
     private Properties serverProperties;
     private boolean enabled = true;
 
-    /** The actual server instance. */
+    /**
+     * The actual server instance.
+     */
     private Server server;
 
     public void afterPropertiesSet() throws Exception {
@@ -71,7 +69,7 @@ public class HsqlServerBean implements InitializingBean, DisposableBean {
 
         server.start();
 
-        log.info("HSQL Server started on " + server.getAddress());
+        log.info("HSQL Server started on {}", server.getAddress());
     }
 
     public void destroy() {

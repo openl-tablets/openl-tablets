@@ -5,22 +5,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.ProjectDescriptorManager;
+import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.FileNamePatternValidator;
-import org.openl.rules.project.resolving.InvalidFileNamePatternException;
-import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
+import org.openl.rules.project.resolving.*;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -28,6 +21,8 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -35,13 +30,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +46,7 @@ public class ProjectBean {
 
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
-    private final Log log = LogFactory.getLog(ProjectBean.class);
+    private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
@@ -475,10 +464,8 @@ public class ProjectBean {
             } catch (FileNotFoundException e) {
                 return "Description file " + fileName + " is absent";
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
-                return  "Can't load the file " + fileName;
+                log.error(e.getMessage(), e);
+                return "Can't load the file " + fileName;
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
@@ -513,6 +500,23 @@ public class ProjectBean {
 
     public boolean isModuleWithWildcard(Module module) {
         return projectDescriptorManager.isModuleWithWildcard(module);
+    }
+
+    public boolean isModuleMatchesSomePathPattern(Module module) {
+        List<Module> modules = getOriginalProjectDescriptor().getModules();
+
+        for (Module otherModule : modules) {
+            if (isModuleWithWildcard(otherModule)) {
+                List<Module> modulesMatchingPathPattern = getModulesMatchingPathPattern(otherModule);
+                for (Module m : modulesMatchingPathPattern) {
+                    if (module.getName().equals(m.getName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     public List<Module> getModulesMatchingPathPattern(Module module) {
@@ -555,9 +559,7 @@ public class ProjectBean {
         } catch (FileNotFoundException ignored) {
             return descriptor;
         } catch (ValidationException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             return descriptor;
         }
     }

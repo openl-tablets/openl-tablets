@@ -1,24 +1,24 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXParseException;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public abstract class AProjectCreator {
 
-    private final Log log = LogFactory.getLog(AProjectCreator.class);
+    private final Logger log = LoggerFactory.getLogger(AProjectCreator.class);
 
     private String projectName;
     private UserWorkspace userWorkspace;

@@ -1,10 +1,10 @@
 package org.openl.rules.repository.factories;
 
-import java.lang.ref.WeakReference;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Shut Down Hook to close/release JCR.
@@ -12,7 +12,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  */
 public class ShutDownHook extends Thread {
-    private final Log log = LogFactory.getLog(ShutDownHook.class);
+    private final Logger log = LoggerFactory.getLogger(ShutDownHook.class);
 
     /**
      * Without WeakReference GC will never finalize repository factory.

@@ -1,12 +1,5 @@
 package org.openl.rules.runtime;
 
-import java.io.File;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -19,16 +12,23 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Simple engine factory Requiring only source of rules and generates interface
  * for it if service interface not defined.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 public class RulesEngineFactory<T> extends EngineFactory<T> {
-    
-    private final Log log = LogFactory.getLog(RulesEngineFactory.class);
+
+    private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
@@ -37,18 +37,16 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         if (interfaceClassGenerator == null) {
             throw new IllegalArgumentException("interfaceClassGenerator argument can't be null");
         }
-        if (super.getInterfaceClass() != null){
-            if (log.isWarnEnabled()){
-                log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
-            }
+        if (super.getInterfaceClass() != null) {
+            log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }
-    
+
     public InterfaceClassGenerator getInterfaceClassGenerator() {
         return interfaceClassGenerator;
     }
-    
+
     public RulesEngineFactory(String sourceFile) {
         this(new File(sourceFile));
     }
@@ -96,7 +94,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
-     * 
+     *
      * @param source
      * @param userHome
      * @param openlName
@@ -114,7 +112,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     /**
      * Creates java interface for rules project.
-     * 
+     *
      * @return interface for rules project.
      */
     @Override
@@ -125,10 +123,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
                 if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
-                    if (log.isWarnEnabled()) {
-                        log.warn(String.format("Previously generated  interface '%s' will be used as service class.",
-                                className));
-                    }
+                    log.warn("Previously generated  interface '{}' will be used as service class.", className);
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);
                     setInterfaceClass(interfaceClass);
@@ -150,9 +145,9 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
+        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
-    
+
     private IRuntimeEnvBuilder runtimeEnvBuilder = null;
 
     @Override
@@ -170,7 +165,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected InvocationHandler prepareInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
+                                                         IRuntimeEnv runtimeEnv) {
         return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

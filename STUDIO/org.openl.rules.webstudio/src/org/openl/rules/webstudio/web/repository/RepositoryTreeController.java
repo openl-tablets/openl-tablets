@@ -1,64 +1,18 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletResponse;
-
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -68,11 +22,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
-import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
-import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
-import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
+import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -87,13 +37,26 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStreamException;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.*;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
  * performing repository actions.
- * 
+ *
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
@@ -105,7 +68,7 @@ public class RepositoryTreeController {
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
 
-    private final Log log = LogFactory.getLog(RepositoryTreeController.class);
+    private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -195,7 +158,7 @@ public class RepositoryTreeController {
                             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             resetStudioModel();
                         } catch (ProjectException e) {
-                            log.error("Failed to create folder '" + folderName + "'.", e);
+                            log.error("Failed to create folder '{}'.", folderName, e);
                             errorMessage = e.getMessage();
                         }
                     } else {
@@ -302,12 +265,10 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+                    new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
         } catch (ProjectException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             return false;
         }
     }
@@ -332,14 +293,12 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+                    new CommonVersionImpl(version));
             List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
         } catch (RepositoryException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -360,9 +319,7 @@ public class RepositoryTreeController {
                 return;
             }
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             // Skip this dependency
             return;
         }
@@ -383,9 +340,7 @@ public class RepositoryTreeController {
                     calcDependencies(result, dependentProject, true);
                 }
             } catch (ProjectException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
             }
         }
     }
@@ -406,7 +361,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getDDProject(projectName);
         } catch (ProjectException e) {
-            log.error("Cannot obtain deployment project '" + projectName + "'.", e);
+            log.error("Cannot obtain deployment project '{}'.", projectName, e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
@@ -446,7 +401,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getProject(projectName);
         } catch (ProjectException e) {
-            log.error("Cannot obtain rules project '" + projectName + "'.", e);
+            log.error("Cannot obtain rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
@@ -480,15 +435,11 @@ public class RepositoryTreeController {
                             return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
                         } catch (XStreamException e) {
                             // Can't parse rules.xml. Don't modify it.
-                            if (log.isErrorEnabled()) {
-                                log.error(e.getMessage(), e);
-                            }
+                            log.error(e.getMessage(), e);
                         } catch (UnsupportedEncodingException e) {
                             // Should not occur. Otherwise - don't
                             // continue.
-                            if (log.isErrorEnabled()) {
-                                log.error(e.getMessage(), e);
-                            }
+                            log.error(e.getMessage(), e);
                             throw new ProjectException("UTF-8 charset is not supported", e);
                         } finally {
                             IOUtils.closeQuietly(content);
@@ -566,9 +517,9 @@ public class RepositoryTreeController {
         }
 
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
-            userWorkspace,
-            zipFilter,
-            templateFiles);
+                userWorkspace,
+                zipFilter,
+                templateFiles);
         String creationMessage = projectCreator.createRulesProject();
         if (creationMessage == null) {
             try {
@@ -620,7 +571,7 @@ public class RepositoryTreeController {
             project.delete(userWorkspace.getUser());
             if (repositoryTreeState.isHideDeleted()) {
                 TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
+                        .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             }
 
@@ -693,9 +644,7 @@ public class RepositoryTreeController {
         try {
             unregisterArtifactInProjectDescriptor(projectArtefact.getArtefact(childName));
         } catch (ProjectException ex) {
-            if (log.isErrorEnabled()) {
-                log.error(ex.getMessage(), ex);
-            }
+            log.error(ex.getMessage(), ex);
             FacesUtils.addErrorMessage("Error deleting.", ex.getMessage());
         }
     }
@@ -705,6 +654,7 @@ public class RepositoryTreeController {
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
+            studio.getModel().clearModuleInfo(); // Release resources like jars
             unregisterElementInProjectDescriptor();
             projectArtefact.deleteArtefact(childName);
             repositoryTreeState.refreshSelectedNode();
@@ -722,9 +672,9 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
+            studio.getModel().clearModuleInfo(); // Release resources like jars
             if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel()
-                .getProject())) {
-                studio.getModel().clearModuleInfo();
+                    .getProject())) {
                 studio.setCurrentModule(null);
             }
             unregisterSelectedNodeInProjectDescriptor();
@@ -782,7 +732,7 @@ public class RepositoryTreeController {
             project.unlock(userWorkspace.getUser());
             resetStudioModel();
         } catch (ProjectException e) {
-            log.error("Cannot unlock rules project '" + projectName + "'.", e);
+            log.error("Cannot unlock rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
         }
         return null;
@@ -796,7 +746,7 @@ public class RepositoryTreeController {
             deploymentProject.unlock(userWorkspace.getUser());
             resetStudioModel();
         } catch (ProjectException e) {
-            log.error("Cannot unlock deployment project '" + deploymentProjectName + "'.", e);
+            log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);
             FacesUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
         }
         return null;
@@ -855,7 +805,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+                    new CommonVersionImpl(version));
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (ProjectException e) {
@@ -883,7 +833,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+                    new CommonVersionImpl(version));
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -991,7 +941,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets date type property from a rules repository.
-     * 
+     *
      * @param propName name of property
      * @return value of property
      */
@@ -1013,7 +963,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets all deployments projects from a repository.
-     * 
+     *
      * @return list of deployments projects
      */
     public List<TreeNode> getDeploymentProjects() {
@@ -1043,7 +993,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets number type property from a rules repository.
-     * 
+     *
      * @param propName name of property
      * @return value of property
      */
@@ -1083,7 +1033,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets property from a rules repository.
-     * 
+     *
      * @param propName name of property
      * @return value of property
      */
@@ -1097,7 +1047,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets all properties from a rules repository.
-     * 
+     *
      * @return map of properties
      */
     private Map<String, Object> getProps() {
@@ -1110,7 +1060,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets UI name of property.
-     * 
+     *
      * @param propName name of property
      * @return UI name of property
      */
@@ -1139,7 +1089,7 @@ public class RepositoryTreeController {
 
     /**
      * Gets all rules projects from a rule repository.
-     * 
+     *
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
@@ -1183,9 +1133,7 @@ public class RepositoryTreeController {
             for (String dependency : getDependencies(getSelectedProject(), true)) {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency);
                 if (projectNode == null) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format("Can't find dependency %s", dependency));
-                    }
+                    log.error("Can't find dependency {}", dependency);
                     continue;
                 }
                 String physicalName = projectNode.getName();
@@ -1310,8 +1258,8 @@ public class RepositoryTreeController {
 
     /**
      * Sets date type property to rules repository.
-     * 
-     * @param propName name of property
+     *
+     * @param propName  name of property
      * @param propValue value of property
      */
     public void setDateProperty(String propName, Date propValue) {
@@ -1369,8 +1317,8 @@ public class RepositoryTreeController {
 
     /**
      * Sets number type property to rules repository.
-     * 
-     * @param propName name of property
+     *
+     * @param propName  name of property
      * @param propValue value of property
      */
     public void setNumberProperty(String propName, String propValue) {
@@ -1391,8 +1339,8 @@ public class RepositoryTreeController {
 
     /**
      * Sets property to rules repository.
-     * 
-     * @param propName name of property
+     *
+     * @param propName  name of property
      * @param propValue value of property
      */
     private void setProperty(String propName, Object propValue) {
@@ -1436,7 +1384,7 @@ public class RepositoryTreeController {
         AProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
             FacesUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
-                "Project is not marked for deletion.");
+                    "Project is not marked for deletion.");
             return null;
         }
 
@@ -1514,9 +1462,9 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(projectName)) {
             if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedFiles,
-                    projectName,
-                    userWorkspace,
-                    zipFilter);
+                        projectName,
+                        userWorkspace,
+                        zipFilter);
                 errorMessage = validateProjectName();
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
@@ -1579,7 +1527,7 @@ public class RepositoryTreeController {
 
     private void registerInProjectDescriptor(AProjectResource addedFileResource) {
         if (FileTypeHelper.isExcelFile(fileName)) { // Excel. Add module to
-                                                    // rules.xml.
+            // rules.xml.
             try {
                 UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
                 AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
@@ -1638,9 +1586,9 @@ public class RepositoryTreeController {
             UploadedFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
-                    projectName,
-                    userWorkspace,
-                    zipFilter);
+                        projectName,
+                        userWorkspace,
+                        zipFilter);
                 errorMessage = validateProjectName();
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
@@ -1744,9 +1692,9 @@ public class RepositoryTreeController {
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(projectName));
+                    .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
-            log.error("Cannot delete rules project '" + projectName + "'.", e);
+            log.error("Cannot delete rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
     }

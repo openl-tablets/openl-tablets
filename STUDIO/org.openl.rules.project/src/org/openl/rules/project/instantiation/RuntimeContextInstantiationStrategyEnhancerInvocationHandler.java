@@ -1,24 +1,23 @@
 package org.openl.rules.project.instantiation;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContextConsumer;
+import org.openl.runtime.IEngineWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextConsumer;
-import org.openl.runtime.IEngineWrapper;
-
 /**
  * The implementation of {@link InvocationHandler} which used by
  * {@link RuntimeContextInstantiationStrategyEnhancer} class to construct proxy of service class.
- * 
  */
 class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
 
-    private final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
+    private final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
@@ -30,18 +29,14 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
-        
+
         if (member == null) {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Invoking not service class method: %s -> %s", method.toString(), method.toString()));
-            }
-     
+            log.debug("Invoking not service class method: {} -> {}", method, method);
+
             return method.invoke(serviceClassInstance, args);
         }
-        
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Invoking service class method: %s -> %s", method.toString(), member.toString()));
-        }
+
+        log.debug("Invoking service class method: {} -> {}", method, member);
         IRulesRuntimeContext context = (IRulesRuntimeContext) args[0];
         Object[] methodArgs = ArrayUtils.remove(args, 0);
 
@@ -55,24 +50,17 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
         Class<?> serviceClass = serviceInstance.getClass();
 
         if (IEngineWrapper.class.isAssignableFrom(serviceClass)) {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Applying runtime context: %s through IEngineWrapper instance", context.toString()));
-            }
+            log.debug("Applying runtime context: {} through IEngineWrapper instance", context);
 
             IEngineWrapper wrapper = (IEngineWrapper) serviceInstance;
             wrapper.getRuntimeEnv().setContext(context);
         } else if (IRulesRuntimeContextConsumer.class.isAssignableFrom(serviceClass)) {
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Applying runtime context: %s through IRulesRuntimeContextConsumer instance",
-                        context.toString()));
-            }
+            log.debug("Applying runtime context: {} through IRulesRuntimeContextConsumer instance", context);
 
             IRulesRuntimeContextConsumer wrapper = (IRulesRuntimeContextConsumer) serviceInstance;
             wrapper.setRuntimeContext(context);
         } else {
-            if (log.isErrorEnabled()) {
-                log.error("Cannot define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
-            }
+            log.error("Cannot define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
             // throw new
             // RuntimeException("Cannot define rules runtime context for service instance.");
         }

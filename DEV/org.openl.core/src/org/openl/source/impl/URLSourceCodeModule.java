@@ -5,6 +5,12 @@
  */
 package org.openl.source.impl;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,17 +18,11 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.util.RuntimeExceptionWrapper;
-
 /**
  * @author snshor
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
-    private final Log log = LogFactory.getLog(URLSourceCodeModule.class);
+    private final Logger log = LoggerFactory.getLogger(URLSourceCodeModule.class);
 
     private URL url;
     private long lastModified;
@@ -49,11 +49,11 @@ public class URLSourceCodeModule extends ASourceCodeModule {
 
             return lastModified;
         } catch (IOException e) {
-            log.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
+            log.warn("Failed to open connection for URL \"{}\"", url, e);
             return -1;
         } finally {
             if (is != null) {
-                try { 
+                try {
                     is.close();
                 } catch (IOException e) {
                     // ignore
@@ -82,7 +82,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         return url.toExternalForm().replace(" ", "%20");
     }
 
-    @Override    
+    @Override
     public boolean equals(Object obj) {
 
         if (!(obj instanceof URLSourceCodeModule)) {
@@ -92,16 +92,16 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
 
         return new EqualsBuilder()
-            .append(url, urlSource.url)            
-            .isEquals();
+                .append(url, urlSource.url)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
         int hashCode = new HashCodeBuilder()
-            .append(url)            
-            .toHashCode();
-        
+                .append(url)
+                .toHashCode();
+
         return hashCode;
     }
 

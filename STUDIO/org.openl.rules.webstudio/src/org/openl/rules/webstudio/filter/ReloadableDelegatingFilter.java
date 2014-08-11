@@ -1,31 +1,24 @@
 package org.openl.rules.webstudio.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * This filter is intended to reload a filter when it's configurations is
  * changed. For example DelegatingFilterProxy has a bug:
  * https://jira.springsource.org/browse/SPR-6228 That's why we should recreate
  * it when we are reloading spring context.
- * 
+ * <p/>
  * In web.xml you should configure filter parameter "delegateClass" and add all
  * parameters for delegate filter. For example:
- * 
+ * <p/>
  * <pre>
  * {@code
  *   <filter>
@@ -43,9 +36,8 @@ import org.apache.commons.logging.LogFactory;
  *       </init-param>
  *   </filter>
  * }</pre>
- * 
+ *
  * @author NSamatov
- * 
  */
 public class ReloadableDelegatingFilter implements Filter {
     private static final String DELEGATE_CLASS = "delegateClass";
@@ -53,7 +45,7 @@ public class ReloadableDelegatingFilter implements Filter {
 
     private static ThreadLocal<ConfigurationReloader> reloaderHolder = new ThreadLocal<ConfigurationReloader>();
 
-    private final Log log = LogFactory.getLog(ReloadableDelegatingFilter.class);
+    private final Logger log = LoggerFactory.getLogger(ReloadableDelegatingFilter.class);
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock read = rwl.readLock();
@@ -66,8 +58,8 @@ public class ReloadableDelegatingFilter implements Filter {
     private Filter delegate;
 
     /**
-     * Schedule configuration reloader to perform reload of configuration 
-     * 
+     * Schedule configuration reloader to perform reload of configuration
+     *
      * @param reloader for example spring context reloading task
      */
     public static void reload(ConfigurationReloader reloader) {
@@ -113,15 +105,11 @@ public class ReloadableDelegatingFilter implements Filter {
             if (delegate != null) {
                 delegate.doFilter(request, response, filterChain);
             } else {
-                if (log.isWarnEnabled()) {
-                    log.warn("Delegate proxy is not configured");
-                }
+                log.warn("Delegate proxy is not configured");
                 filterChain.doFilter(request, response);
             }
         } catch (ServletException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             throw e;
         } finally {
             read.unlock();
@@ -192,22 +180,21 @@ public class ReloadableDelegatingFilter implements Filter {
 
     /**
      * Configuration reloader. For example:
-     * 
+     * <p/>
      * <pre>
-     * 
+     *
      * new ConfigurationReloader() {
-     * 
+     *
      *     public void reload() {
      *         XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
      *                 .getWebApplicationContext(servletContext);
      *         context.refresh();
      *     }
      * }
-     * 
+     *
      * </pre>
-     * 
+     *
      * @author NSamatov
-     * 
      */
     public static interface ConfigurationReloader {
         void reload();

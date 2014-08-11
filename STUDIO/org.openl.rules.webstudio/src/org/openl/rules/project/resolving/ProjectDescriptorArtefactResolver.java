@@ -2,8 +2,6 @@ package org.openl.rules.project.resolving;
 
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -12,6 +10,8 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import java.util.WeakHashMap;
  * Resolves specified OpenL project revision's dependencies.
  */
 public class ProjectDescriptorArtefactResolver {
-    private final Log log = LogFactory.getLog(ProjectDescriptorArtefactResolver.class);
+    private final Logger log = LoggerFactory.getLogger(ProjectDescriptorArtefactResolver.class);
     private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
 
     /**
@@ -71,13 +71,8 @@ public class ProjectDescriptorArtefactResolver {
         try {
             pd = getProjectDescriptor(project);
         } catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("Can't get project descriptor for project '%s'. Physical project name will be used. Cause: %s", project.getName(), e.getMessage()));
-            }
-            if (log.isDebugEnabled()) {
-                // Error in user data, not application logic - debug log level will be used
-                log.debug(e.getMessage(), e);
-            }
+            // Error in user data, not application logic - debug log level will be used
+            log.warn("Can't get project descriptor for project '{}'. Physical project name will be used. Cause: {}", project.getName(), e.getMessage(), e);
         }
         return pd != null ? pd.getName() : project.getName();
     }

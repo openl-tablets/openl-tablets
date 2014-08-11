@@ -1,20 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -22,9 +9,18 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class ZipFileProjectCreator extends AProjectCreator {
-    private final Log log = LogFactory.getLog(ZipFileProjectCreator.class);
+    private final Logger log = LoggerFactory.getLogger(ZipFileProjectCreator.class);
     private ZipFile zipFile;
     private PathFilter zipFilter;
     private File uploadedFile;
@@ -33,7 +29,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  InputStream uploadedFileStream,
                                  String projectName,
                                  UserWorkspace userWorkspace,
-                                 PathFilter zipFilter) throws IOException{
+                                 PathFilter zipFilter) throws IOException {
         super(projectName, userWorkspace);
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
@@ -50,7 +46,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 ZipEntry item = items.nextElement();
                 sortedNames.add(item.getName());
@@ -102,7 +98,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 }
             } catch (Exception e) {
                 projectBuilder.cancel();
-                log.warn(String.format("Bad zip entry name [%s].", name));
+                log.warn("Bad zip entry name [{}].", name);
                 throw new ProjectException(e.getMessage(), e);
             }
         }
@@ -114,20 +110,16 @@ public class ZipFileProjectCreator extends AProjectCreator {
         try {
             zipFile.close();
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
         if (!uploadedFile.delete()) {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("Can't delete the file %s", uploadedFile.getName()));
-            }
+            log.warn("Can't delete the file {}", uploadedFile.getName());
         }
     }
 
     private boolean checkFileSize(ZipEntry file) {
-        if(file.getSize() > 100*1024*1024) {
-            FacesUtils.addErrorMessage("Size of the file "+file.getName()+" is more then 100MB.");
+        if (file.getSize() > 100 * 1024 * 1024) {
+            FacesUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
             return false;
         }
 
@@ -136,13 +128,13 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     /**
      * Validate if folders and files into zip archive have incorrect names
-     * 
+     *
      * @return List of incorrect names of folders and files
      */
     public List<String> inccorrectNames() {
         List<String> invalidNames = new LinkedList<String>();
 
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 ZipEntry item = items.nextElement();
 

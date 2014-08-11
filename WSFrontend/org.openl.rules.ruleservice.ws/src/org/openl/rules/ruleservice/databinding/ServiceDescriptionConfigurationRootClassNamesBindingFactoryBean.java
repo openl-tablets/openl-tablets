@@ -1,17 +1,17 @@
 package org.openl.rules.ruleservice.databinding;
 
+import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
-import org.springframework.beans.factory.config.AbstractFactoryBean;
-
 public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean extends AbstractFactoryBean<Set<String>> {
-    private final Log log = LogFactory.getLog(ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean.class);
 
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
 
@@ -56,14 +56,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
                             classes.append(trimmedClassName);
                         }
                     }
-                    if (log.isInfoEnabled()) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Service \"");
-                        sb.append(serviceDescription.getName());
-                        sb.append("\" uses root class names for binding. Classes: ");
-                        sb.append(classes);
-                        log.info(sb.toString());
-                    }
+                    log.info("Service \"{}\" uses root class names for binding. Classes: {}", serviceDescription.getName(), classes);
                     return Collections.unmodifiableSet(ret);
                 }
             }

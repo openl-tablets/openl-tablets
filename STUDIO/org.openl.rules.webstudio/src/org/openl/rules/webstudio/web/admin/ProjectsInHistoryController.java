@@ -1,18 +1,19 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@ManagedBean(name="projectsInHistory")
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@ManagedBean(name = "projectsInHistory")
 @RequestScoped
 public class ProjectsInHistoryController {
 
@@ -45,7 +46,7 @@ public class ProjectsInHistoryController {
         }
     }
 
-    private final Log log = LogFactory.getLog(ProjectsInHistoryController.class);
+    private final Logger log = LoggerFactory.getLogger(ProjectsInHistoryController.class);
 
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
 
@@ -72,7 +73,7 @@ public class ProjectsInHistoryController {
         if (beans != null) {
             String beansNames = "";
             int beansSize = 0;
-            for (ProjectBean bean : beans){
+            for (ProjectBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
                         String projectPath = getProjectHistoryHome() + File.separator + bean.getProjectName();

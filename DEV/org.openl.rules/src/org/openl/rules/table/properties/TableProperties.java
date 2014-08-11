@@ -1,15 +1,6 @@
 package org.openl.rules.table.properties;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -21,8 +12,15 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.EnumUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 public class TableProperties extends DynamicObject implements ITableProperties {
-    
+
     private String currentTableType;
     /**
      * Table section that contains properties in appropriate table in data
@@ -41,24 +39,23 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> moduleProperties = new HashMap<String, Object>();
 
     private Map<String, Object> defaultProperties = new HashMap<String, Object>();
-    
+
     /**
      * The result <code>{@link Map}</code> will contain all pairs from
      * downLevelProperties and pairs from upLevelProperties that are not defined
      * in downLevelProperties. Ignore properties from upper level that can`t be defined for current table type.
-     * 
+     *
      * @param downLevelProperties properties that are on the down level.
-     * @param upLevelProperties properties that are on the up level.
-     * 
+     * @param upLevelProperties   properties that are on the up level.
      * @return
      */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
-            Map<String, Object> upLevelProperties) {
+                                                     Map<String, Object> upLevelProperties) {
         Map<String, Object> resultProperties = downLevelProperties;
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
-            
+
             if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
                     resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
@@ -79,210 +76,277 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     // <<< INSERT >>>
-	public java.lang.String getName() {
-		return (java.lang.String) getPropertyValue("name"); 
-	}
-	public void setName(java.lang.String name) {
-		setFieldValue("name", name);
-	}	
-	public java.lang.String getCategory() {
-		return (java.lang.String) getPropertyValue("category"); 
-	}
-	public void setCategory(java.lang.String category) {
-		setFieldValue("category", category);
-	}	
-	public java.lang.String getDescription() {
-		return (java.lang.String) getPropertyValue("description"); 
-	}
-	public void setDescription(java.lang.String description) {
-		setFieldValue("description", description);
-	}	
-	public java.lang.String[] getTags() {
-		return (java.lang.String[]) getPropertyValue("tags"); 
-	}
-	public void setTags(java.lang.String[] tags) {
-		setFieldValue("tags", tags);
-	}	
-	public java.util.Date getEffectiveDate() {
-		return (java.util.Date) getPropertyValue("effectiveDate"); 
-	}
-	public void setEffectiveDate(java.util.Date effectiveDate) {
-		setFieldValue("effectiveDate", effectiveDate);
-	}	
-	public java.util.Date getExpirationDate() {
-		return (java.util.Date) getPropertyValue("expirationDate"); 
-	}
-	public void setExpirationDate(java.util.Date expirationDate) {
-		setFieldValue("expirationDate", expirationDate);
-	}	
-	public java.util.Date getStartRequestDate() {
-		return (java.util.Date) getPropertyValue("startRequestDate"); 
-	}
-	public void setStartRequestDate(java.util.Date startRequestDate) {
-		setFieldValue("startRequestDate", startRequestDate);
-	}	
-	public java.util.Date getEndRequestDate() {
-		return (java.util.Date) getPropertyValue("endRequestDate"); 
-	}
-	public void setEndRequestDate(java.util.Date endRequestDate) {
-		setFieldValue("endRequestDate", endRequestDate);
-	}	
-	public java.lang.String getCreatedBy() {
-		return (java.lang.String) getPropertyValue("createdBy"); 
-	}
-	public void setCreatedBy(java.lang.String createdBy) {
-		setFieldValue("createdBy", createdBy);
-	}	
-	public java.util.Date getCreatedOn() {
-		return (java.util.Date) getPropertyValue("createdOn"); 
-	}
-	public void setCreatedOn(java.util.Date createdOn) {
-		setFieldValue("createdOn", createdOn);
-	}	
-	public java.lang.String getModifiedBy() {
-		return (java.lang.String) getPropertyValue("modifiedBy"); 
-	}
-	public void setModifiedBy(java.lang.String modifiedBy) {
-		setFieldValue("modifiedBy", modifiedBy);
-	}	
-	public java.util.Date getModifiedOn() {
-		return (java.util.Date) getPropertyValue("modifiedOn"); 
-	}
-	public void setModifiedOn(java.util.Date modifiedOn) {
-		setFieldValue("modifiedOn", modifiedOn);
-	}	
-	public java.lang.String getId() {
-		return (java.lang.String) getPropertyValue("id"); 
-	}
-	public void setId(java.lang.String id) {
-		setFieldValue("id", id);
-	}	
-	public java.lang.String getBuildPhase() {
-		return (java.lang.String) getPropertyValue("buildPhase"); 
-	}
-	public void setBuildPhase(java.lang.String buildPhase) {
-		setFieldValue("buildPhase", buildPhase);
-	}	
-	public java.lang.String getValidateDT() {
-		return (java.lang.String) getPropertyValue("validateDT"); 
-	}
-	public void setValidateDT(java.lang.String validateDT) {
-		setFieldValue("validateDT", validateDT);
-	}	
-	public java.lang.String getLob() {
-		return (java.lang.String) getPropertyValue("lob"); 
-	}
-	public void setLob(java.lang.String lob) {
-		setFieldValue("lob", lob);
-	}	
-	public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
-		return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion"); 
-	}
-	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
-		setFieldValue("usregion", usregion);
-	}	
-	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
-		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
-	}
-	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
-		setFieldValue("country", country);
-	}	
-	public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
-		return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency"); 
-	}
-	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
-		setFieldValue("currency", currency);
-	}	
-	public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
-		return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang"); 
-	}
-	public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
-		setFieldValue("lang", lang);
-	}	
-	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
-		return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state"); 
-	}
-	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
-		setFieldValue("state", state);
-	}	
-	public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
-		return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region"); 
-	}
-	public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
-		setFieldValue("region", region);
-	}	
-	public java.lang.String getVersion() {
-		return (java.lang.String) getPropertyValue("version"); 
-	}
-	public void setVersion(java.lang.String version) {
-		setFieldValue("version", version);
-	}	
-	public java.lang.Boolean getActive() {
-		return (java.lang.Boolean) getPropertyValue("active"); 
-	}
-	public void setActive(java.lang.Boolean active) {
-		setFieldValue("active", active);
-	}	
-	public java.lang.Boolean getFailOnMiss() {
-		return (java.lang.Boolean) getPropertyValue("failOnMiss"); 
-	}
-	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-		setFieldValue("failOnMiss", failOnMiss);
-	}	
-	public java.lang.String getScope() {
-		return (java.lang.String) getPropertyValue("scope"); 
-	}
-	public void setScope(java.lang.String scope) {
-		setFieldValue("scope", scope);
-	}	
-	public java.lang.String getDatatypePackage() {
-		return (java.lang.String) getPropertyValue("datatypePackage"); 
-	}
-	public void setDatatypePackage(java.lang.String datatypePackage) {
-		setFieldValue("datatypePackage", datatypePackage);
-	}	
-	public java.lang.String[] getTransaction() {
-		return (java.lang.String[]) getPropertyValue("transaction"); 
-	}
-	public void setTransaction(java.lang.String[] transaction) {
-		setFieldValue("transaction", transaction);
-	}	
-	public java.lang.String[] getCustom1() {
-		return (java.lang.String[]) getPropertyValue("custom1"); 
-	}
-	public void setCustom1(java.lang.String[] custom1) {
-		setFieldValue("custom1", custom1);
-	}	
-	public java.lang.String[] getCustom2() {
-		return (java.lang.String[]) getPropertyValue("custom2"); 
-	}
-	public void setCustom2(java.lang.String[] custom2) {
-		setFieldValue("custom2", custom2);
-	}	
-	public java.lang.Boolean getCacheable() {
-		return (java.lang.Boolean) getPropertyValue("cacheable"); 
-	}
-	public void setCacheable(java.lang.Boolean cacheable) {
-		setFieldValue("cacheable", cacheable);
-	}	
-	public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
-		return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate"); 
-	}
-	public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
-		setFieldValue("recalculate", recalculate);
-	}	
-	public java.lang.String getPrecision() {
-		return (java.lang.String) getPropertyValue("precision"); 
-	}
-	public void setPrecision(java.lang.String precision) {
-		setFieldValue("precision", precision);
-	}	
-	public java.lang.Boolean getAutoType() {
-		return (java.lang.Boolean) getPropertyValue("autoType"); 
-	}
-	public void setAutoType(java.lang.Boolean autoType) {
-		setFieldValue("autoType", autoType);
-	}	
+    public java.lang.String getName() {
+        return (java.lang.String) getPropertyValue("name");
+    }
+
+    public void setName(java.lang.String name) {
+        setFieldValue("name", name);
+    }
+
+    public java.lang.String getCategory() {
+        return (java.lang.String) getPropertyValue("category");
+    }
+
+    public void setCategory(java.lang.String category) {
+        setFieldValue("category", category);
+    }
+
+    public java.lang.String getDescription() {
+        return (java.lang.String) getPropertyValue("description");
+    }
+
+    public void setDescription(java.lang.String description) {
+        setFieldValue("description", description);
+    }
+
+    public java.lang.String[] getTags() {
+        return (java.lang.String[]) getPropertyValue("tags");
+    }
+
+    public void setTags(java.lang.String[] tags) {
+        setFieldValue("tags", tags);
+    }
+
+    public java.util.Date getEffectiveDate() {
+        return (java.util.Date) getPropertyValue("effectiveDate");
+    }
+
+    public void setEffectiveDate(java.util.Date effectiveDate) {
+        setFieldValue("effectiveDate", effectiveDate);
+    }
+
+    public java.util.Date getExpirationDate() {
+        return (java.util.Date) getPropertyValue("expirationDate");
+    }
+
+    public void setExpirationDate(java.util.Date expirationDate) {
+        setFieldValue("expirationDate", expirationDate);
+    }
+
+    public java.util.Date getStartRequestDate() {
+        return (java.util.Date) getPropertyValue("startRequestDate");
+    }
+
+    public void setStartRequestDate(java.util.Date startRequestDate) {
+        setFieldValue("startRequestDate", startRequestDate);
+    }
+
+    public java.util.Date getEndRequestDate() {
+        return (java.util.Date) getPropertyValue("endRequestDate");
+    }
+
+    public void setEndRequestDate(java.util.Date endRequestDate) {
+        setFieldValue("endRequestDate", endRequestDate);
+    }
+
+    public java.lang.String getCreatedBy() {
+        return (java.lang.String) getPropertyValue("createdBy");
+    }
+
+    public void setCreatedBy(java.lang.String createdBy) {
+        setFieldValue("createdBy", createdBy);
+    }
+
+    public java.util.Date getCreatedOn() {
+        return (java.util.Date) getPropertyValue("createdOn");
+    }
+
+    public void setCreatedOn(java.util.Date createdOn) {
+        setFieldValue("createdOn", createdOn);
+    }
+
+    public java.lang.String getModifiedBy() {
+        return (java.lang.String) getPropertyValue("modifiedBy");
+    }
+
+    public void setModifiedBy(java.lang.String modifiedBy) {
+        setFieldValue("modifiedBy", modifiedBy);
+    }
+
+    public java.util.Date getModifiedOn() {
+        return (java.util.Date) getPropertyValue("modifiedOn");
+    }
+
+    public void setModifiedOn(java.util.Date modifiedOn) {
+        setFieldValue("modifiedOn", modifiedOn);
+    }
+
+    public java.lang.String getId() {
+        return (java.lang.String) getPropertyValue("id");
+    }
+
+    public void setId(java.lang.String id) {
+        setFieldValue("id", id);
+    }
+
+    public java.lang.String getBuildPhase() {
+        return (java.lang.String) getPropertyValue("buildPhase");
+    }
+
+    public void setBuildPhase(java.lang.String buildPhase) {
+        setFieldValue("buildPhase", buildPhase);
+    }
+
+    public java.lang.String getValidateDT() {
+        return (java.lang.String) getPropertyValue("validateDT");
+    }
+
+    public void setValidateDT(java.lang.String validateDT) {
+        setFieldValue("validateDT", validateDT);
+    }
+
+    public java.lang.String getLob() {
+        return (java.lang.String) getPropertyValue("lob");
+    }
+
+    public void setLob(java.lang.String lob) {
+        setFieldValue("lob", lob);
+    }
+
+    public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
+        return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion");
+    }
+
+    public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
+        setFieldValue("usregion", usregion);
+    }
+
+    public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
+        return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
+    }
+
+    public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
+        setFieldValue("country", country);
+    }
+
+    public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
+        return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency");
+    }
+
+    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
+        setFieldValue("currency", currency);
+    }
+
+    public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
+        return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang");
+    }
+
+    public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
+        setFieldValue("lang", lang);
+    }
+
+    public org.openl.rules.enumeration.UsStatesEnum[] getState() {
+        return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state");
+    }
+
+    public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
+        setFieldValue("state", state);
+    }
+
+    public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
+        return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region");
+    }
+
+    public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
+        setFieldValue("region", region);
+    }
+
+    public java.lang.String getVersion() {
+        return (java.lang.String) getPropertyValue("version");
+    }
+
+    public void setVersion(java.lang.String version) {
+        setFieldValue("version", version);
+    }
+
+    public java.lang.Boolean getActive() {
+        return (java.lang.Boolean) getPropertyValue("active");
+    }
+
+    public void setActive(java.lang.Boolean active) {
+        setFieldValue("active", active);
+    }
+
+    public java.lang.Boolean getFailOnMiss() {
+        return (java.lang.Boolean) getPropertyValue("failOnMiss");
+    }
+
+    public void setFailOnMiss(java.lang.Boolean failOnMiss) {
+        setFieldValue("failOnMiss", failOnMiss);
+    }
+
+    public java.lang.String getScope() {
+        return (java.lang.String) getPropertyValue("scope");
+    }
+
+    public void setScope(java.lang.String scope) {
+        setFieldValue("scope", scope);
+    }
+
+    public java.lang.String getDatatypePackage() {
+        return (java.lang.String) getPropertyValue("datatypePackage");
+    }
+
+    public void setDatatypePackage(java.lang.String datatypePackage) {
+        setFieldValue("datatypePackage", datatypePackage);
+    }
+
+    public java.lang.String[] getTransaction() {
+        return (java.lang.String[]) getPropertyValue("transaction");
+    }
+
+    public void setTransaction(java.lang.String[] transaction) {
+        setFieldValue("transaction", transaction);
+    }
+
+    public java.lang.String[] getCustom1() {
+        return (java.lang.String[]) getPropertyValue("custom1");
+    }
+
+    public void setCustom1(java.lang.String[] custom1) {
+        setFieldValue("custom1", custom1);
+    }
+
+    public java.lang.String[] getCustom2() {
+        return (java.lang.String[]) getPropertyValue("custom2");
+    }
+
+    public void setCustom2(java.lang.String[] custom2) {
+        setFieldValue("custom2", custom2);
+    }
+
+    public java.lang.Boolean getCacheable() {
+        return (java.lang.Boolean) getPropertyValue("cacheable");
+    }
+
+    public void setCacheable(java.lang.Boolean cacheable) {
+        setFieldValue("cacheable", cacheable);
+    }
+
+    public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
+        return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate");
+    }
+
+    public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
+        setFieldValue("recalculate", recalculate);
+    }
+
+    public java.lang.String getPrecision() {
+        return (java.lang.String) getPropertyValue("precision");
+    }
+
+    public void setPrecision(java.lang.String precision) {
+        setFieldValue("precision", precision);
+    }
+
+    public java.lang.Boolean getAutoType() {
+        return (java.lang.Boolean) getPropertyValue("autoType");
+    }
+
+    public void setAutoType(java.lang.Boolean autoType) {
+        setFieldValue("autoType", autoType);
+    }
 // <<< END INSERT >>>
 
     /**
@@ -336,7 +400,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
             result = InheritanceLevel.CATEGORY;
         } else if (getPropertiesAppliedForModule().containsKey(propertyName)) {
             result = InheritanceLevel.MODULE;
-        }else if (getExternalPropertiesAppliedForModule().containsKey(propertyName)) {
+        } else if (getExternalPropertiesAppliedForModule().containsKey(propertyName)) {
             result = InheritanceLevel.EXTERNAL;
         }
         return result;
@@ -381,12 +445,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     public ILogicalTable getInheritedPropertiesTable(InheritanceLevel inheritanceLevel) {
-    	if (InheritanceLevel.MODULE.equals(inheritanceLevel)) {
-    		return modulePropertiesTable;
-    	} else if (InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
-    		return categoryPropertiesTable;
-    	}
-    	return null;
+        if (InheritanceLevel.MODULE.equals(inheritanceLevel)) {
+            return modulePropertiesTable;
+        } else if (InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
+            return categoryPropertiesTable;
+        }
+        return null;
     }
 
     /**
@@ -404,9 +468,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
         PropertiesChecker.isPropertySuitableForTableType(name, currentTableType);
         super.setFieldValue(name, value);
-      
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -478,18 +542,18 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
         this.externalModuleProperties = moduleProperties;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isPropertiesEmpty() {
         Set<String> keys = getAllProperties().keySet();
-        for (String key : keys){
-            if (getAllProperties().get(key) != null){
+        for (String key : keys) {
+            if (getAllProperties().get(key) != null) {
                 return false;
             }
         }
         return true;
     }
-    
+
 }

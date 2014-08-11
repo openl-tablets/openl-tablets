@@ -1,5 +1,18 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.beanutils.MethodUtils;
+import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
+import org.openl.runtime.IEngineWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -7,33 +20,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.beanutils.MethodUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.runtime.IEngineWrapper;
-import org.springframework.core.Ordered;
-
 /**
- * Advice for processing method intercepting. 
+ * Advice for processing method intercepting.
  * Exception wrapping.
  * And fix memory leaks.
- * 
+ * <p/>
  * Only for RuleService internal use.
- * 
+ *
  * @author Marat Kamalov
- * 
  */
 public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
 
-    private final Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
-    
+    private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
+
     private static final String MSG_SEPARATOR = "; ";
 
     private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();
@@ -173,19 +172,17 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
                 result = afterInvocation(interfaceMethod, null, e, args);
-            } 
+            }
             return result;
         } catch (Throwable t) {
             throw new RuleServiceWrapperException(getExceptionMessage(calledMethod, t, args), t);
         } finally {
             //Memory leaks fix.
-            if (serviceBean instanceof IEngineWrapper){
+            if (serviceBean instanceof IEngineWrapper) {
                 IEngineWrapper engine = (IEngineWrapper) serviceBean;
                 engine.release();
-            }else{
-                if (log.isWarnEnabled()){
-                    log.warn("Service bean doesn't implement IEngineWrapper interface. Doesn't use depricated static wrapper classes. It clauses memory leaks!!!");
-                }
+            } else {
+                log.warn("Service bean doesn't implement IEngineWrapper interface. Doesn't use depricated static wrapper classes. It clauses memory leaks!!!");
             }
         }
     }
@@ -209,9 +206,9 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             } else {
                 f = true;
             }
-            if (arg == null){
+            if (arg == null) {
                 argsValues.append("null");
-            }else{
+            } else {
                 argsValues.append(arg.toString());
 
             }

@@ -1,26 +1,21 @@
 package org.openl.rules.webstudio.web.trace;
 
-import java.io.IOException;
-import java.io.Writer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.commons.web.util.WebTool;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.vm.trace.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.vm.trace.DefaultTracePrinter;
-import org.openl.vm.trace.TraceFormatter;
-import org.openl.vm.trace.TraceFormatterFactory;
-import org.openl.vm.trace.TracePrinter;
-import org.openl.vm.trace.Tracer;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Request scope managed bean for Trace into File functionality.
@@ -29,7 +24,7 @@ import org.openl.vm.trace.Tracer;
 @RequestScoped
 public class TraceIntoFileBean {
 
-    private final Log log = LogFactory.getLog(TraceIntoFileBean.class);
+    private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
 
     public static final String EXTENSION_SEPARATOR = ".";
 

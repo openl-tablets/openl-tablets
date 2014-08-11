@@ -1,9 +1,9 @@
 package org.openl.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.util.PassCoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class ConfigSet {
     public static String REPO_PASS_KEY = "repository.encode.decode.key";
-    private final Log log = LogFactory.getLog(ConfigSet.class);
+    private final Logger log = LoggerFactory.getLogger(ConfigSet.class);
 
     private Map<String, Object> properties;
 
@@ -66,8 +66,7 @@ public class ConfigSet {
         try {
             prop.setTextValue(objectValue.toString());
         } catch (Exception e) {
-            log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
-                    + "'!", e);
+            log.error("Failed to update ConfigProperty '{}' with value '{}'!", prop.getName(), objectValue, e);
         }
     }
 
@@ -80,14 +79,13 @@ public class ConfigSet {
 
         String pass = objectValue.toString();
         String passKey = this.getPassKey();
-        if (StringUtils.isEmpty(passKey)){
+        if (StringUtils.isEmpty(passKey)) {
             try {
                 prop.setTextValue(PassCoder.decode(pass, passKey));
             } catch (Exception e) {
-                log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
-                        + "'!", e);
+                log.error("Failed to update ConfigProperty '{}' with value '{}'!", prop.getName(), objectValue, e);
             }
-        }else{
+        } else {
             prop.setTextValue(pass);
         }
     }

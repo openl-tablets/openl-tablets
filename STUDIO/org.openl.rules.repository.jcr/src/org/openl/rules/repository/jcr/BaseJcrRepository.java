@@ -1,19 +1,21 @@
 package org.openl.rules.repository.jcr;
 
+import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RTransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.EventListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RTransactionManager;
-
 public abstract class BaseJcrRepository implements RRepository, EventListener {
-    private final Log log = LogFactory.getLog(BaseJcrRepository.class);
+    private final Logger log = LoggerFactory.getLogger(BaseJcrRepository.class);
     private final String name;
-    /** JCR Session */
+    /**
+     * JCR Session
+     */
     private final Session session;
     private final RTransactionManager transactionManager;
 
@@ -68,9 +70,7 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         try {
             session.getWorkspace().getObservationManager().removeEventListener(this);
         } catch (RepositoryException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("release", e);
-            }
+            log.debug("release", e);
         }
 
         if (session != null && session.isLive()) {

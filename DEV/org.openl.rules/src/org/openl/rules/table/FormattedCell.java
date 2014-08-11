@@ -3,10 +3,6 @@
  */
 package org.openl.rules.table;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
@@ -15,14 +11,18 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.IncorrectFormulaException;
 import org.openl.util.formatters.IFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * @author snshor
  */
 public class FormattedCell implements ICell {
-    
-    private final Log log = LogFactory.getLog(FormattedCell.class); 
-    
+
+    private final Logger log = LoggerFactory.getLogger(FormattedCell.class);
+
     private ICell delegate;
 
     private ICellFont font;
@@ -30,7 +30,7 @@ public class FormattedCell implements ICell {
     private ICellStyle style;
 
     private IGridFilter filter;
-    
+
     private Object objectValue;
     private String formattedValue;
 
@@ -38,7 +38,7 @@ public class FormattedCell implements ICell {
         this.delegate = delegate;
         try {
             this.objectValue = this.delegate.getObjectValue();
-        } catch (IncorrectFormulaException e) { 
+        } catch (IncorrectFormulaException e) {
             //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
@@ -90,7 +90,7 @@ public class FormattedCell implements ICell {
     public int getAbsoluteRow() {
         return delegate.getAbsoluteRow();
     }
-    
+
     public IGridRegion getAbsoluteRegion() {
         return delegate.getAbsoluteRegion();
     }
@@ -118,7 +118,7 @@ public class FormattedCell implements ICell {
     public int getWidth() {
         return delegate.getWidth();
     }
-    
+
     public String getFormula() {
         return delegate.getFormula();
     }

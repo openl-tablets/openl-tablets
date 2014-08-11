@@ -1,16 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -19,15 +10,22 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStreamException;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 @ManagedBean
 @ViewScoped
 public class RepositoryProjectRulesDeployConfig {
 
     private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
-    private final Log log = LogFactory.getLog(RepositoryProjectRulesDeployConfig.class);
+    private final Logger log = LoggerFactory.getLogger(RepositoryProjectRulesDeployConfig.class);
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -79,9 +77,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset(ReloadType.FORCED);
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage("Cannot delete " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -119,21 +115,17 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private RulesDeployGuiWrapper loadRulesDeploy(UserWorkspaceProject project) {
-        InputStream content = null; 
+        InputStream content = null;
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             content = artefact.getContent();
             return serializer.deserialize(content);
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         } catch (XStreamException e) {
             FacesUtils.addErrorMessage("Cannot parse " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(content);
         }

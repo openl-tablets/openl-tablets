@@ -1,31 +1,9 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -40,13 +18,30 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import java.io.File;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2 TODO Move
  * methods for production repository to another class
- * 
+ *
  * @author Andrei Astrouski
  */
 @ManagedBean
@@ -60,12 +55,15 @@ public class SystemSettingsBean {
 
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
-    private final Log log = LogFactory.getLog(SystemSettingsBean.class);
+    private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 
     private boolean secureDesignRepo = false;
 
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     private static final BidiMap<String, String> DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
+
     static {
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
@@ -74,16 +72,23 @@ public class SystemSettingsBean {
         DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
     }
-    /** @deprecated */
+
+    /**
+     * @deprecated
+     */
     private static final Map<String, String> DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
+
     static {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "design-repository.local.home");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "design-repository.remote.rmi.url");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
     }
 
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
+
     static {
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
                 "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
@@ -92,8 +97,12 @@ public class SystemSettingsBean {
         PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
                 "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
     }
-    /** @deprecated */
+
+    /**
+     * @deprecated
+     */
     private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
+
     static {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "production-repository.local.home");
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "production-repository.remote.rmi.url");
@@ -332,9 +341,7 @@ public class SystemSettingsBean {
 
             saveSystemConfig();
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());
         }
     }
@@ -408,9 +415,7 @@ public class SystemSettingsBean {
             // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
             // "' is added successfully");
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());
         }
     }
@@ -432,9 +437,7 @@ public class SystemSettingsBean {
             // FacesUtils.addInfoMessage("Repository '" + repositoryName +
             // "' is deleted successfully");
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());
         }
     }
@@ -548,9 +551,7 @@ public class SystemSettingsBean {
             try {
                 deploymentManager.removeRepository(oldConfigName);
             } catch (RRepositoryException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
+                log.error(e.getMessage(), e);
             }
 
             deploymentManager.addRepository(newConfigName);

@@ -1,14 +1,15 @@
 package org.openl.rules.repository.jcr;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.repository.*;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -18,36 +19,23 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RProductionDeployment;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RRepositoryListener;
-import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
-    private final Log log = LogFactory.getLog(JcrProductionRepository.class);
+    private final Logger log = LoggerFactory.getLogger(JcrProductionRepository.class);
 
-    public static class JCR_SQL2QueryBuilder{
+    public static class JCR_SQL2QueryBuilder {
         private boolean firstCondition = true;
 
         private void appendDateCondition(String propertyName, Date date, String condition, StringBuilder sb) {
             if (date != null) {
-                if(firstCondition){
+                if (firstCondition) {
                     firstCondition = false;
                     sb.append(" WHERE ");
-                }else{
+                } else {
                     sb.append(" AND ");
                 }
 
@@ -57,7 +45,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
         private String getDateString(Date date, String condition) {
             DateFormat format = null;
-            
+
             if (condition.indexOf(">") > -1) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
             } else if (condition.indexOf("<") > -1) {
@@ -77,10 +65,10 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         public String buildQuery(SearchParams params) {
             StringBuilder sb = new StringBuilder("SELECT * FROM [nt:base]");
             if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
-                if(firstCondition){
+                if (firstCondition) {
                     firstCondition = false;
                     sb.append(" WHERE ");
-                }else{
+                } else {
                     sb.append(" AND ");
                 }
                 // todo: check for injection
@@ -138,7 +126,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @param name name of new project
      * @return newly created project
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *             failed
+     *                                                                    failed
      */
     @Deprecated
     public RProject createProject(String name) throws RRepositoryException {
@@ -154,7 +142,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             List<ArtefactAPI> result = new ArrayList<ArtefactAPI>();
             while (nodeIterator.hasNext()) {
                 Node node = nodeIterator.nextNode();
-                ArtefactPath path = new ArtefactPathImpl(new String[] { node.getName() });
+                ArtefactPath path = new ArtefactPathImpl(new String[]{node.getName()});
                 String type = node.getPrimaryNodeType().getName();
                 if (type.equals(JcrNT.NT_APROJECT)) {
                     result.add(new JcrFolderAPI(node, getTransactionManager(), path));
@@ -220,7 +208,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @param name
      * @return project
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *             failed or no project with specified name
+     *                                                                    failed or no project with specified name
      */
     @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
@@ -232,7 +220,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      *
      * @return list of projects
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *             failed
+     *                                                                    failed
      */
     @Deprecated
     public List<RProject> getProjects() throws RRepositoryException {
@@ -271,7 +259,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * @param name
      * @return <code>true</code> if project with such name exists
      * @throws org.openl.rules.repository.exceptions.RRepositoryException
-     *
      */
     public boolean hasProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
@@ -287,9 +274,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     break;
                 }
             } catch (RepositoryException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("onEvent-1", e);
-                }
+                log.debug("onEvent-1", e);
             }
         }
 
@@ -298,9 +283,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 try {
                     listener.onEvent();
                 } catch (Exception e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("onEvent-2", e);
-                    }
+                    log.debug("onEvent-2", e);
                 }
             }
 
@@ -316,14 +299,15 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
-            throw new  RRepositoryException("",e);
+            throw new RRepositoryException("", e);
         }
     }
 
     //FIXME
     private static final Object lock = new Object();
+
     public void notifyChanges() throws RRepositoryException {
         synchronized (lock) {
             try {
@@ -338,7 +322,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
-    
+
     public FolderAPI createRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -352,7 +336,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
 
         try {
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { name }));
+            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to wrap JCR node", e);
         }
@@ -365,7 +349,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             while (iterator.hasNext()) {
                 Node node = iterator.nextNode();
                 if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[] { node.getName() })));
+                    result.add(new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{node.getName()})));
                 }
             }
         } catch (RepositoryException e) {
@@ -403,11 +387,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public void addRepositoryListener(RRepositoryListener listener) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public void removeRepositoryListener(RRepositoryListener listener) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public List<RRepositoryListener> getRepositoryListeners() {
@@ -415,27 +399,27 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     @Override
-    public Collection<FolderAPI> getLastDeploymentProjects() 
-        throws RRepositoryException {
+    public Collection<FolderAPI> getLastDeploymentProjects()
+            throws RRepositoryException {
 
-       Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
-       Map<String, Integer> versionsList = new HashMap<String, Integer>();
+        Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
+        Map<String, Integer> versionsList = new HashMap<String, Integer>();
         for (FolderAPI folder : getDeploymentProjects()) {
             String deploymentName = folder.getName();
             Integer versionNum = new Integer(0);
 
-            if(deploymentName.indexOf("#") > -1) {
+            if (deploymentName.indexOf("#") > -1) {
                 String versionStr;
 
-                if(deploymentName.indexOf("#") > deploymentName.lastIndexOf(".")) {
-                    versionStr = deploymentName.substring(deploymentName.indexOf("#") + 1,deploymentName.length());
+                if (deploymentName.indexOf("#") > deploymentName.lastIndexOf(".")) {
+                    versionStr = deploymentName.substring(deploymentName.indexOf("#") + 1, deploymentName.length());
                 } else {
-                    versionStr = deploymentName.substring(deploymentName.lastIndexOf(".") + 1,deploymentName.length());
+                    versionStr = deploymentName.substring(deploymentName.lastIndexOf(".") + 1, deploymentName.length());
                 }
 
-                deploymentName = deploymentName.substring(0,deploymentName.indexOf("#"));
+                deploymentName = deploymentName.substring(0, deploymentName.indexOf("#"));
 
-                if(!StringUtils.isEmpty(versionStr)) {
+                if (!StringUtils.isEmpty(versionStr)) {
                     versionNum = new Integer(versionStr);
                 }
             }
@@ -450,7 +434,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 latestDeployments.put(deploymentName, folder);
             }
         }
-        
+
         return latestDeployments.values();
     }
 }

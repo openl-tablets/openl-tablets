@@ -1,22 +1,22 @@
 package org.openl.util.formatters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Number formatter.
- * 
+ *
  * @author Andrei Astrouski
  */
 public class NumberFormatter implements IFormatter {
 
-    private final Log log = LogFactory.getLog(NumberFormatter.class);
+    private final Logger log = LoggerFactory.getLogger(NumberFormatter.class);
 
     private NumberFormat format;
 
@@ -42,7 +42,7 @@ public class NumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            log.debug("Should be Number: " + value);
+            log.debug("Should be Number: {}", value);
             return null;
         }
 
@@ -56,7 +56,7 @@ public class NumberFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            log.debug("Could not parse Number: " + value);
+            log.debug("Could not parse Number: {}", value);
             return null;
         }
     }

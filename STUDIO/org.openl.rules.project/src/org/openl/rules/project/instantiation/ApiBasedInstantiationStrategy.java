@@ -1,10 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.File;
-
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
@@ -13,15 +9,19 @@ import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  * The simplest {@link RulesInstantiationStrategyFactory} for module that
  * contains only Excel file.
- * 
+ *
  * @author PUdalau
  */
 public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    private final Log log = LogFactory.getLog(ApiBasedInstantiationStrategy.class);
+    private final Logger log = LoggerFactory.getLogger(ApiBasedInstantiationStrategy.class);
 
     /**
      * Rules engine factory for module that contains only Excel file.
@@ -33,9 +33,9 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     }
 
     public ApiBasedInstantiationStrategy(Module module,
-            boolean executionMode,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader) {
+                                         boolean executionMode,
+                                         IDependencyManager dependencyManager,
+                                         ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
     }
 
@@ -91,9 +91,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         try {
             serviceClass = (Class<Object>) getServiceClass();
         } catch (ClassNotFoundException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to get service class.", e);
-            }
+            log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
@@ -107,8 +105,8 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             Module m = getModule();
             MethodFilter methodFilter = m.getMethodFilter();
             if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils.isNotEmpty(methodFilter.getIncludes()))) {
-                String[] includes = new String[] {};
-                String[] excludes = new String[] {};
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
                 includes = methodFilter.getIncludes().toArray(includes);
                 excludes = methodFilter.getExcludes().toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

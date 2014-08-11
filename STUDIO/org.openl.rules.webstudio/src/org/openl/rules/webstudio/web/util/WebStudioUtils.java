@@ -1,9 +1,5 @@
 package org.openl.rules.webstudio.web.util;
 
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -12,7 +8,11 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * Contains utility methods, which can be used from any class.
@@ -85,7 +85,7 @@ public abstract class WebStudioUtils {
     }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
-        final Log log = LogFactory.getLog(WebStudioUtils.class);
+        final Logger log = LoggerFactory.getLogger(WebStudioUtils.class);
         UserWorkspace userWorkspace = null;
         try {
             RulesUserSession rulesUserSession = getRulesUserSession(session, true);

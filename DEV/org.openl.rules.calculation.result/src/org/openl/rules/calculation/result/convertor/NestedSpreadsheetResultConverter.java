@@ -11,13 +11,13 @@ package org.openl.rules.calculation.result.convertor;
  */
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * The example of flat spreadsheet result structure.
@@ -35,17 +35,16 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
 /**
  * SpreadsheetResult convertor that supports nested SpreadsheetResult as column
  * values. Converts the SpreadsheetResult to flat structure.
- * 
- * @author DLiauchuk
- * 
+ *
  * @param <T> class that will be populated with values, when extracting rows
  *            without compound results.
  * @param <Q> class that will be populated with values, when extracting rows wit
  *            compound results.
+ * @author DLiauchuk
  */
 public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends CompoundStep> {
 
-    private final Log log = LogFactory.getLog(NestedSpreadsheetResultConverter.class);
+    private final Logger log = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
 
     private NestedDataRowExtractorsFactory<T, Q> rowExtractorsFactory;
 
@@ -54,11 +53,10 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
     private int currentNestingLevel;
 
     /**
-     * 
      * @param currentNestingLevel the number of the current nesting level
-     * @param configuration configuration that is used for extracting rows on
-     *            this and further levels, connat be null. In that case will
-     *            throw {@link IllegalArgumentException}
+     * @param configuration       configuration that is used for extracting rows on
+     *                            this and further levels, connat be null. In that case will
+     *                            throw {@link IllegalArgumentException}
      */
     public NestedSpreadsheetResultConverter(int currentNestingLevel, NestedSpreadsheetConfiguration<T, Q> configuration) {
         if (configuration == null) {
@@ -71,10 +69,9 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
 
     /**
      * Converts the spreadsheet result to flat structure.
-     * 
+     *
      * @param spreadsheetResult {@link SpreadsheetResult} that is going to be
-     *            converted.
-     * 
+     *                          converted.
      * @return converted result, represented in flat structure.
      */
     public List<CodeStep> process(SpreadsheetResult spreadsheetResult) {
@@ -125,9 +122,9 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
     /**
      * Get the value from the given row and the column that is considered to
      * have nested SpreadsheetResults.
-     * 
+     *
      * @param spreadsheetResult current result
-     * @param row current row
+     * @param row               current row
      * @return
      */
     // private Object getValueConsideredToBeNested(SpreadsheetResult
@@ -153,7 +150,6 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
     //
     // return spreadsheetResult.getValue(row, columnIndex);
     // }
-
     private boolean containsNested(Object value) {
         // TODO: fix me
         if ((value instanceof SpreadsheetResult) || (value instanceof SpreadsheetResult[])) {

@@ -1,30 +1,31 @@
 package org.openl.rules.repository;
 
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.config.SysConfigManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Repository Factory. It is Abstract Factory.
- * <p>
+ * <p/>
  * Takes init values from repository.properties file.
  *
  * @author Aleh Bykhavets
- *
  */
 public class RulesRepositoryFactory {
-    private final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
+    private final Logger log = LoggerFactory.getLogger(RulesRepositoryFactory.class);
 
     public static final String DEFAULT_PROP_FILE = "system.properties";//"rules-repository.properties";
 
     public static final String MSG_FAILED = "Failed to initialize RulesRepositoryFactory!";
 
-    /** default value is <code>null</code> -- fail first */
+    /**
+     * default value is <code>null</code> -- fail first
+     */
     private static final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
             "design-repository.factory", null);
 

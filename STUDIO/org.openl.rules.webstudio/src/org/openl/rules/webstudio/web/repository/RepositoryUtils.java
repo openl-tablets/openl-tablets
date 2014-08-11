@@ -1,25 +1,23 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-
-import java.util.Comparator;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Comparator;
 
 /**
  * Repository Utilities
  *
  * @author Aleh Bykhavets
- *
  */
 public class RepositoryUtils {
     public static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR = new Comparator<ProjectVersion>() {
@@ -55,11 +53,11 @@ public class RepositoryUtils {
     }
 
     /**
-     * @deprecated
      * @return user's workspace or <code>null</code>
+     * @deprecated
      */
     public static UserWorkspace getWorkspace() {
-    	final Log log = LogFactory.getLog(RepositoryUtils.class);
+        final Logger log = LoggerFactory.getLogger(RepositoryUtils.class);
         try {
             return getRulesUserSession().getUserWorkspace();
         } catch (Exception e) {

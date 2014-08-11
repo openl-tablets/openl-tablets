@@ -1,14 +1,14 @@
 package org.openl.rules.jacrkrabbit.transactions;
 
+import org.openl.rules.repository.RTransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.jcr.Session;
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.repository.RTransactionManager;
-
 public class JackrabbitTransactionManager implements RTransactionManager {
-    private final Log log = LogFactory.getLog(JackrabbitTransactionManager.class);
+    private final Logger log = LoggerFactory.getLogger(JackrabbitTransactionManager.class);
     private Session session;
 
     public JackrabbitTransactionManager(Session session) {
