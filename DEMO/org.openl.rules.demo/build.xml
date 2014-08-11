@@ -1,58 +1,60 @@
 <project basedir="." default="install">
 
-	<property file="build.properties" />
+    <property file="build.properties"/>
 
-	<property name="tomcat.dir" value="${work.dir}/${tomcat.dest.dir}" />
-	<property name="tomcat.webapps.dir" value="${tomcat.dir}/webapps" />
+    <property name="tomcat.dir" value="${work.dir}/${tomcat.dest.dir}"/>
+    <property name="tomcat.webapps.dir" value="${tomcat.dir}/webapps"/>
 
-	<target name="help">
-		<echo message="deployment project" />
-		<echo message="use ant -p to list available targets" />
-	</target>
+    <target name="help">
+        <echo message="deployment project"/>
+        <echo message="use ant -p to list available targets"/>
+    </target>
 
-	<target name="clear">
-		<delete dir="${work.dir}" />
-	</target>
+    <target name="clear">
+        <delete dir="${work.dir}"/>
+    </target>
 
-	<target name="init" depends="clear">
-		<mkdir dir="${work.dir}" />
-	</target>
+    <target name="init" depends="clear">
+        <mkdir dir="${work.dir}"/>
+    </target>
 
-	<target name="unzip_tomcat" depends="init">
-		<unzip src="${tomcat.dist.location}" dest="${work.dir}" />
-	</target>
+    <target name="unzip_tomcat" depends="init">
+        <unzip src="${tomcat.dist.location}" dest="${work.dir}"/>
+        <delete dir="${tomcat.webapps.dir}"/>
+        <mkdir dir="${tomcat.webapps.dir}"/>
+    </target>
 
-	<target name="conf_tomcat" depends="unzip_tomcat" >
-		<copy todir="${tomcat.dir}" overwrite="true">
-			<fileset dir="${tomcat.conf.dir}">
-				<include name="**/*.*" />
-			</fileset>
-		</copy>
-	</target>
+    <target name="conf_tomcat" depends="unzip_tomcat">
+        <copy todir="${tomcat.dir}" overwrite="true">
+            <fileset dir="${tomcat.conf.dir}">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+    </target>
 
-	<target name="jackrabbit_configure" depends="unzip_tomcat">
-		<property name="openl.basedir" value="${tomcat.dir}/bin" />
-		<property name="jackrabbit.conf.dir" value="${tomcat.dir}/bin/jackrabbit" />
-		<mkdir dir="${jackrabbit.conf.dir}" />
-		<copy todir="${jackrabbit.conf.dir}">
-			<fileset dir="jackrabbit/conf">
-				<include name="**/*.*" />
-			</fileset>
-		</copy>
-		<unzip src="${data.location}" dest="${openl.basedir}" />
-	</target>
+    <target name="jackrabbit_configure" depends="unzip_tomcat">
+        <property name="openl.basedir" value="${tomcat.dir}/bin"/>
+        <property name="jackrabbit.conf.dir" value="${tomcat.dir}/bin/jackrabbit"/>
+        <mkdir dir="${jackrabbit.conf.dir}"/>
+        <copy todir="${jackrabbit.conf.dir}">
+            <fileset dir="jackrabbit/conf">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+        <unzip src="${data.location}" dest="${openl.basedir}"/>
+    </target>
 
-	<target name="set_rootapp" depends="unzip_tomcat">
-		<property name="root.dir" value="${tomcat.webapps.dir}/ROOT" />
-		<delete dir="${root.dir}" />
-		<mkdir dir="${root.dir}" />
-		<copy todir="${root.dir}">
-			<fileset dir="ROOT">
-				<include name="**/*" />
-			</fileset>
-		</copy>
-		<unzip src="${data.location}" dest="${openl.basedir}" />
-	</target>
+    <target name="set_rootapp" depends="unzip_tomcat">
+        <property name="root.dir" value="${tomcat.webapps.dir}/ROOT"/>
+        <delete dir="${root.dir}"/>
+        <mkdir dir="${root.dir}"/>
+        <copy todir="${root.dir}">
+            <fileset dir="ROOT">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <unzip src="${data.location}" dest="${openl.basedir}"/>
+    </target>
 
-	<target name="install" depends="conf_tomcat, jackrabbit_configure, set_rootapp"/>
+    <target name="install" depends="conf_tomcat, jackrabbit_configure, set_rootapp"/>
 </project>
