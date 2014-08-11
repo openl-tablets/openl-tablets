@@ -1,7 +1,7 @@
 package org.openl.types.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -13,20 +13,22 @@ public class MethodsHelper {
     
     private MethodsHelper() {}
 
-    @Deprecated
-    public static IOpenMethod[] getMethods(String name, Iterator<IOpenMethod> methods) {
-        ArrayList<IOpenMethod> list = new ArrayList<IOpenMethod>();
-        for (; methods.hasNext();) {
-            IOpenMethod m = methods.next();
-            if (m.getName().equals(name)) {
+    public static IOpenMethod[] getMethods(String name, Collection<IOpenMethod> methods) {
+        Collection<IOpenMethod> list = new ArrayList<IOpenMethod>();
+        for (IOpenMethod m : methods) {
+            if (name.equals(m.getName())) {
                 list.add(m);
             }
         }
-    
+
+        if (list.isEmpty()) {
+            throw new MethodNotFoundException(null, name, IOpenClass.EMPTY);
+        }
+        
         return list.toArray(new IOpenMethod[0]);
     }
 
-    public static IOpenMethod getSingleMethod(String name, List<IOpenMethod> methods) {
+    public static IOpenMethod getSingleMethod(String name, Collection<IOpenMethod> methods) {
         List<IOpenMethod> list = new ArrayList<IOpenMethod>();
         for (IOpenMethod m : methods) {
             if (m.getName().equals(name)) {
@@ -34,7 +36,7 @@ public class MethodsHelper {
             }
         }
 
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             throw new MethodNotFoundException(null, name, IOpenClass.EMPTY);
         }
 

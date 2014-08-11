@@ -75,12 +75,13 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
 		}
     }
     
-    
+    public void crearErrors(){
+        errors = null;
+    }
     
     public String getCategory() {
         return IDocumentType.WORKSHEET_TABLE.getCategory();
     }
-
 
     public String getDisplayName() {
         return table.getSource().getCell(0, 0).getStringValue();
