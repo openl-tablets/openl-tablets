@@ -33,12 +33,12 @@ import org.openl.types.IOpenClass;
  */
 public class DataNodeBinder extends AXlsTableBinder {
 
-    private static final int HEADER_NUM_TOKENS = 3;
-    private static final String FORMAT_ERROR_MESSAGE = "Data table format: Data <typename> <tablename>";
+    protected static final int HEADER_NUM_TOKENS = 3;
+    protected static final String FORMAT_ERROR_MESSAGE = "Data table format: Data <typename> <tablename>";
 
     // indexes of names in header
-    private static final int TYPE_INDEX = 1;
-    private static final int TABLE_NAME_INDEX = 2;
+    protected static final int TYPE_INDEX = 1;
+    protected static final int TABLE_NAME_INDEX = 2;
 
     protected String getFormatErrorMessage() {
         return FORMAT_ERROR_MESSAGE;
@@ -189,7 +189,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param bindingContext OpenL context.
      * @param openl OpenL instance.
      */
-    private ITable makeTable(XlsModuleOpenClass xlsOpenClass,
+    protected ITable makeTable(XlsModuleOpenClass xlsOpenClass,
             TableSyntaxNode tableSyntaxNode,
             String tableName,
             IOpenClass tableType,
@@ -211,7 +211,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param source source code
      * @throws error if length of header is less than {@link #HEADER_NUM_TOKENS}
      */
-    private void checkParsedHeader(IdentifierNode[] parsedHeader, IOpenSourceCodeModule source) throws SyntaxNodeException {
+    protected void checkParsedHeader(IdentifierNode[] parsedHeader, IOpenSourceCodeModule source) throws SyntaxNodeException {
 
         try {
             parsedHeader = Tokenizer.tokenize(source, " \n\r");
