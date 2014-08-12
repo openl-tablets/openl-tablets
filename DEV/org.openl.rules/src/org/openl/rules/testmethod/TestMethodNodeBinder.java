@@ -10,6 +10,8 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessages;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -70,8 +72,14 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         TestMethodBoundNode bestCaseTestMethodBoundNode = null;
         IOpenMethod bestCaseOpenMethod = null;
         SyntaxNodeException[] bestCaseErrors = null;
+        List<OpenLMessage> bestCaseMessages = null;
         boolean hasNoErrorBinding = false;
+        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         for (IOpenMethod testedMethod : testedMethods) {
+            OpenLMessages.getCurrentInstance().clear();
+            for (OpenLMessage message : messages){
+                OpenLMessages.getCurrentInstance().addMessage(message);
+            }
             tableSyntaxNode.crearErrors();
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
@@ -97,11 +105,13 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     bestCaseErrors = testMethodBoundNode.getTableSyntaxNode().getErrors();
                     bestCaseTestMethodBoundNode = testMethodBoundNode;
                     bestCaseOpenMethod = testedMethod;
+                    bestCaseMessages = OpenLMessages.getCurrentInstance().getMessages();
                 } else {
                     if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()){
                         if (!hasNoErrorBinding) {
                             bestCaseTestMethodBoundNode = testMethodBoundNode;
                             bestCaseOpenMethod = testedMethod;
+                            bestCaseMessages = OpenLMessages.getCurrentInstance().getMessages();
                             hasNoErrorBinding = true;
                         } else {
                             List<IOpenMethod> list = new ArrayList<IOpenMethod>();
@@ -109,8 +119,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             list.add(bestCaseOpenMethod);
                             throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                         }
+                        bestCaseErrors = new SyntaxNodeException[0];
                     }
-                    bestCaseErrors = new SyntaxNodeException[0];
                 }
             } catch (AmbiguousMethodException e) {
                 throw e;
@@ -126,6 +136,10 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             tableSyntaxNode.crearErrors();
             for (SyntaxNodeException error : bestCaseErrors) {
                 bestCaseTestMethodBoundNode.getTableSyntaxNode().addError(error);
+            }
+            OpenLMessages.getCurrentInstance().clear();
+            for (OpenLMessage message : bestCaseMessages){
+                OpenLMessages.getCurrentInstance().addMessage(message);
             }
             return bestCaseTestMethodBoundNode;
         }
