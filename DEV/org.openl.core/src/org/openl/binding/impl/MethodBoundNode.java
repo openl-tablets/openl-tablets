@@ -49,14 +49,6 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     }
 
-    // /* (non-Javadoc)
-    // * @see org.openl.binding.IBoundNode#invoke(java.lang.Object[])
-    // */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // return boundMethod.invoke(target, pars);
-    // }
-
     public IOpenClass getType() {
         return boundMethod.getMethod().getType();
     }
