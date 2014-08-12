@@ -13,7 +13,7 @@
 
         <f:facet name="controls">
           <h:graphicImage value="/images/close.gif" class="close"
-            onclick="RichFaces.$('updateProject').hide();" alt="Close" />
+            onclick="closeUpdateProjectDialog();" alt="Close" />
         </f:facet>
 
         <h:form id="updateProjectForm">
@@ -30,10 +30,11 @@
             <footer>
                 <a4j:commandButton id="uploadProject" value="Update" action="#{studio.updateProject}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateProject').hide();ws.nav.reload(true);ws.ui.message('Project was updated successfully!', 7000);" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('updateProject').hide();" />
+                <input type="button" value="Cancel" onclick="closeUpdateProjectDialog();" />
             </footer>
 
             <a4j:jsFunction name="initUpdateProjectDialog" action="#{studio.clearUploadedFiles}" render="updateProjectFormData" oncomplete="RichFaces.$('updateProject').show();" />
+            <a4j:jsFunction name="closeUpdateProjectDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateProject').hide();" />
         </h:form>
     </rich:popupPanel>
 
