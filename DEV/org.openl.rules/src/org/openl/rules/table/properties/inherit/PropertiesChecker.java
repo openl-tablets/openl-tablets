@@ -45,9 +45,12 @@ public class PropertiesChecker {
         checkForDeprecation(propertyNamesToCheck, tableSyntaxNode);
     }
 
-    public static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
+    private static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
                                             InheritanceLevel level) {
 
+        if (level == null) {
+            return;
+        }
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
 
@@ -55,9 +58,7 @@ public class PropertiesChecker {
                         propertyNameToCheck,
                         level.getDisplayName());
 
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-                tableSyntaxNode.addError(error);
-                BindHelper.processError(error);
+                addError(tableSyntaxNode, message);
             }
         }
     }
@@ -68,7 +69,7 @@ public class PropertiesChecker {
      * @param propertyNamesToCheck
      * @param tableType
      */
-    public static void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+    private static void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
 
         String tableType = tableSyntaxNode.getType();
 
@@ -78,11 +79,15 @@ public class PropertiesChecker {
                         propertyNameToCheck,
                         tableType);
 
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-                tableSyntaxNode.addError(error);
-                BindHelper.processError(error);
+                addError(tableSyntaxNode, message);
             }
         }
+    }
+
+    private static void addError(TableSyntaxNode tableSyntaxNode, String message) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+        tableSyntaxNode.addError(error);
+        BindHelper.processError(error);
     }
 
     /**
@@ -91,7 +96,7 @@ public class PropertiesChecker {
      * @param propertyNamesToCheck
      * @param tableSyntaxNode
      */
-    public static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+    private static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
             if (propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
