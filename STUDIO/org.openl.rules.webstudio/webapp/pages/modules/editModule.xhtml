@@ -5,6 +5,12 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
+    <style>
+        #included-in-wildcard-message {
+            color: red;
+        }
+    </style>
+
     <rich:popupPanel id="editModulePopup" width="470" autosized="true">
         <f:facet name="header">
             <h:outputText id="moduleHeader" value="Edit Module" />
@@ -19,13 +25,17 @@
             <input type="hidden" id="moduleIndex" name="moduleIndex" />
             <input type="hidden" id="moduleNameOld" name="moduleNameOld" />
 
+            <span id="included-in-wildcard-message" class="hidden">
+                The module can't be edited. Multimodule definition at the project page should be edited instead.
+            </span>
+
             <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
             <a4j:outputPanel ajaxRendered="true"/>
 
             <table class="properties properties-form wide">
                 <tr>
                     <td>Name</td>
-                    <td><h:inputText id="moduleName"
+                    <td><h:inputText id="moduleName" styleClass="editable-item"
                         validator="#{projectBean.validateModuleName}" /></td>
                 </tr>
                 <tr>
@@ -36,7 +46,7 @@
                 </tr>
                 <tr>
                     <td class="required">Path</td>
-                    <td><h:inputText id="modulePath"
+                    <td><h:inputText id="modulePath" styleClass="editable-item"
                         validator="#{projectBean.validateModulePath}" /></td>
                 </tr>
                 <tr>
@@ -48,11 +58,11 @@
                 <tr><td class="delimeter"></td></tr>
                 <tr>
                     <td>Included Methods (RegExp)</td>
-                    <td><h:inputTextarea id="moduleIncludes" /></td>
+                    <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item" /></td>
                 </tr>
                 <tr>
                     <td>Excluded Methods (RegExp)</td>
-                    <td><h:inputTextarea id="moduleExcludes" /></td>
+                    <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item" /></td>
                 </tr>
             </table>
 
@@ -113,7 +123,21 @@
                      || module.excludes != $j("#moduleExcludes").val();
 
                 btn.prop("disabled", !changed);
-            })
+            });
+
+            if (module.includedInWildcard) {
+                $j("#included-in-wildcard-message").removeClass("hidden");
+                $j("#editModuleBtn").addClass("hidden");
+                $j("#editModuleForm").find(".editable-item").each(function() {
+                    $j(this).attr('disabled', 'disabled');
+                });
+            } else {
+                $j("#included-in-wildcard-message").addClass("hidden");
+                $j("#editModuleBtn").removeClass("hidden");
+                $j("#editModuleForm").find(".editable-item").each(function() {
+                    $j(this).removeAttr('disabled');
+                });
+            }
 
             ws.ui.show("editModulePopup");
         }
