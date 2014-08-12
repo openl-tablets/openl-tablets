@@ -66,9 +66,9 @@ public class Condition extends FunctionalRow implements ICondition {
      * 1) Compile CE as <code>void</code> expression with all the Condition
      * Parameters(CP). Report errors and return, if any
      * <p>
-     * 2) Check if the expression depends on any of the condition parameters, if it does,
-     * it is not intended to be optimized (at least not in this version). In
-     * this case it has to have <code>boolean</code> type.
+     * 2) Check if the expression depends on any of the condition parameters, if
+     * it does, it is not intended to be optimized (at least not in this
+     * version). In this case it has to have <code>boolean</code> type.
      * <p>
      * 3) Try to find possible expression/optimization for the combination of CE
      * and CP types. See DTOptimizedAlgorithm for the full set of available
@@ -90,32 +90,32 @@ public class Condition extends FunctionalRow implements ICondition {
         IBoundMethodNode methodNode = ((CompositeMethod) getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
-        if (StringUtils.isEmpty(source.getCode())){
+        if (StringUtils.isEmpty(source.getCode())) {
             throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression", source);
         }
-        
+
         // tested in TypeInExpressionTest
         //
         if (methodNode.getChildren().length == 1 && methodNode.getChildren()[0].getChildren()[0] instanceof TypeBoundNode) {
-        	String message = String.format("Cannot execute expression with only type definition %s", source.getCode());
-        	throw SyntaxNodeExceptionUtils.createError(message, source);
+            String message = String.format("Cannot execute expression with only type definition %s", source.getCode());
+            throw SyntaxNodeExceptionUtils.createError(message, source);
         }
-        
+
         IOpenClass methodType = ((CompositeMethod) getMethod()).getBodyType();
 
-        if (isDependentOnAnyParams()) {
+        if (isDependentOnAnyParams()) { 
             if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
-                throw SyntaxNodeExceptionUtils.createError("Condition must have boolean type if it depends on it's parameters", source);
+                throw SyntaxNodeExceptionUtils.createError("Condition must have boolean type if it depends on it's parameters",
+                    source);
             }
-            
+
             conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this, signature);
-            
-            
-            if (conditionEvaluator != null)
-            {
-            	evaluator = makeOptimizedConditionMethodEvaluator(signature, conditionEvaluator.getOptimizedSourceCode());
-            	return conditionEvaluator;
-            }	
+
+            if (conditionEvaluator != null) {
+                evaluator = makeOptimizedConditionMethodEvaluator(signature,
+                    conditionEvaluator.getOptimizedSourceCode());
+                return conditionEvaluator;
+            }
 
             return conditionEvaluator = new DefaultConditionEvaluator();
         }
@@ -125,15 +125,15 @@ public class Condition extends FunctionalRow implements ICondition {
 
         return conditionEvaluator = dtcev;
     }
-    
+
     public DecisionValue calculateCondition(int rule, Object target, Object[] dtParams, IRuntimeEnv env) {
-        
+
         Object value = getParamValues()[rule];
-        
+
         if (value == null) {
             return DecisionValue.NxA_VALUE;
         }
-        
+
         if (value instanceof DecisionValue) {
             return (DecisionValue) value;
         }
@@ -144,16 +144,16 @@ public class Condition extends FunctionalRow implements ICondition {
         // Check that condition expression has returned the not null value.
         //
         if (res == null) {
-            throw new OpenLRuntimeException("Condition expression must be boolean type", ((CompositeMethod)getMethod()).getMethodBodyBoundNode());
+            throw new OpenLRuntimeException("Condition expression must be boolean type",
+                ((CompositeMethod) getMethod()).getMethodBodyBoundNode());
         }
-        
+
         if (res.booleanValue()) {
             return DecisionValue.TRUE_VALUE;
         } else {
             return DecisionValue.FALSE_VALUE;
         }
     }
-
 
     private IOpenField getLocalField(IOpenField f) {
 
@@ -197,24 +197,18 @@ public class Condition extends FunctionalRow implements ICondition {
         return false;
     }
 
- 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature) {
-    
-    	String code = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
-    	return makeOptimizedConditionMethodEvaluator(signature, code);
+        String code = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+        return makeOptimizedConditionMethodEvaluator(signature, code);
     }
 
-    
     private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
-
- 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
                 return new ParameterMethodCaller(getMethod(), i);
             }
         }
-
         return null;
     }
 
