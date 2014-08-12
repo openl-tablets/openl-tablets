@@ -1,14 +1,5 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
@@ -20,10 +11,17 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager {
 
-    private final Log log = LogFactoryImpl.getLog(RuleServiceDeploymentRelatedDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
     private RuleServiceLoader ruleServiceLoader;
 
@@ -50,14 +48,14 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         try {
             boolean requiredSemophore = SemaphoreHolder.threadsMarker.get() == null;
-            try{
-                if (requiredSemophore){
+            try {
+                if (requiredSemophore) {
                     SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
                 }
                 return super.loadDependency(dependency);
-            }finally{
+            } finally {
                 SemaphoreHolder.threadsMarker.remove();
-                if (requiredSemophore){
+                if (requiredSemophore) {
                     SemaphoreHolder.limitCompilationThreadsSemaphore.release();
                 }
             }
@@ -67,13 +65,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader) {
+                                                         RuleServiceLoader ruleServiceLoader) {
         this(deploymentDescription, ruleServiceLoader, false);
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader,
-            boolean lazy) {
+                                                         RuleServiceLoader ruleServiceLoader,
+                                                         boolean lazy) {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
         }
@@ -113,12 +111,12 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
         for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
             if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
-                .equals(deployment.getCommonVersion())) {
+                    .equals(deployment.getCommonVersion())) {
                 for (AProject project : deployment.getProjects()) {
                     try {
                         Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(deployment.getDeploymentName(),
-                            deployment.getCommonVersion(),
-                            project.getName());
+                                deployment.getCommonVersion(),
+                                project.getName());
                         ProjectDescriptor projectDescriptor = null;
                         if (!modulesOfProject.isEmpty()) {
                             Module module = modulesOfProject.iterator().next();
@@ -127,21 +125,23 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                 IDependencyLoader moduleLoader;
                                 if (isLazy()) {
                                     moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                        m.getName(),
-                                        new ArrayList<Module>() {
-                                            private static final long serialVersionUID = 9044645178042342374L;
-                                            {
-                                                add(m);
-                                            }
-                                        });
+                                            m.getName(),
+                                            new ArrayList<Module>() {
+                                                private static final long serialVersionUID = 9044645178042342374L;
+
+                                                {
+                                                    add(m);
+                                                }
+                                            });
                                 } else {
                                     moduleLoader = new RuleServiceDependencyLoader(m.getName(),
-                                        new ArrayList<Module>() {
-                                            private static final long serialVersionUID = 9044645178042342374L;
-                                            {
-                                                add(m);
-                                            }
-                                        });
+                                            new ArrayList<Module>() {
+                                                private static final long serialVersionUID = 9044645178042342374L;
+
+                                                {
+                                                    add(m);
+                                                }
+                                            });
                                 }
                                 dependencyLoaders.add(moduleLoader);
                             }
@@ -150,20 +150,17 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                             IDependencyLoader projectLoader;
                             if (isLazy()) {
                                 projectLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                    ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                    projectDescriptor.getModules());
+                                        ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
+                                        projectDescriptor.getModules());
                             } else {
                                 projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                    projectDescriptor.getModules());
+                                        projectDescriptor.getModules());
                             }
                             projectDescriptors.add(projectDescriptor);
                             dependencyLoaders.add(projectLoader);
                         }
                     } catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Build dependency manager loaders for project \"" + project.getName() + "\" from deployment \"" + deploymentName + "\" was failed!",
-                                e);
-                        }
+                        log.error("Build dependency manager loaders for project \"{}\" from deployment \"{}\" was failed!", project.getName(), deploymentName, e);
                     }
                 }
             }
