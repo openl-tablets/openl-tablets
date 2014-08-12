@@ -157,7 +157,7 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid));
             actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid));
             actions.addAll(resizeMergedRegions(grid, beforeRow, nRows, INSERT, ROWS, region));
-            actions.addAll(emptyCells(left, firstToMove, w, nRows, grid));
+            actions.addAll(emptyCells(left, rowTo, w, nRows, grid));
 
             return new UndoableCompositeAction(actions);
         }
