@@ -1,32 +1,32 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 public class SimpleProjectDependencyManager extends AbstractProjectDependencyManager {
 
-    private final Log log = LogFactoryImpl.getLog(SimpleProjectDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyManager.class);
 
     private Collection<ProjectDescriptor> projects;
-    
+
     private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
 
     private boolean singleModuleMode = false;
     private boolean executionMode = true;
 
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects,
-            boolean singleModuleMode,
-            boolean executionMode) {
+                                          boolean singleModuleMode,
+                                          boolean executionMode) {
         super();
         if (projects == null) {
             throw new IllegalArgumentException("projects can't be null!");
@@ -40,7 +40,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects, boolean singleModuleMode) {
         this(projects, singleModuleMode, true);
     }
-    
+
     @Override
     protected Collection<ProjectDescriptor> getProjectDescriptors() {
         return projectDescriptors;
@@ -58,25 +58,21 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
                         dependencyLoaders.add(new SimpleProjectDependencyLoader(m.getName(),
-                            Arrays.asList(m),
-                            singleModuleMode,
-                            executionMode));
+                                Arrays.asList(m),
+                                singleModuleMode,
+                                executionMode));
                     }
                 }
 
                 String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
                 IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
-                    project.getModules(),
-                    singleModuleMode,
-                    executionMode);
+                        project.getModules(),
+                        singleModuleMode,
+                        executionMode);
                 projectDescriptors.add(project);
                 dependencyLoaders.add(projectLoader);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    String message = String.format("Build dependency manager loaders for project %s was failed!",
-                        project.getName());
-                    log.error(message, e);
-                }
+                log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
             }
         }
 
@@ -93,7 +89,8 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
         ProjectDescriptor projectToReset = null;
 
-        searchProject: for (ProjectDescriptor project : projects) {
+        searchProject:
+        for (ProjectDescriptor project : projects) {
             if (dependencyName.equals(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()))) {
                 projectToReset = project;
                 break;

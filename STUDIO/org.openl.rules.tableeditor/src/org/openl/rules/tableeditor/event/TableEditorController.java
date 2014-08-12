@@ -8,6 +8,7 @@ import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -509,24 +510,48 @@ public class TableEditorController extends BaseTableEditorController {
 
     public String saveTable() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
-        if (editorModel != null) {
-            TableModificationResponse response = new TableModificationResponse(null, editorModel);
-            try {
-                if (beforeSave()) {
-                    String newId = editorModel.save();
-                    afterSave(newId);
-                    response.setId(newId);
-                }
-            } catch (IOException e) {
-                log.warn(ERROR_SAVE_TABLE, e);
-                response.setMessage(ERROR_OPENED_EXCEL);
-            } catch (Exception e) {
-                log.error(ERROR_SAVE_TABLE, e);
-                response.setMessage(ERROR_SAVE_TABLE);
-            }
-            return pojo2json(response);
+        if (editorModel == null) {
+            return null;
         }
-        return null;
+        TableModificationResponse response = new TableModificationResponse(null, editorModel);
+        if (hasEmptyRow(editorModel)) {
+            response.setMessage("Sorry! Can't save the table with empty row inside.");
+        } else try {
+            if (beforeSave()) {
+                String newId = editorModel.save();
+                afterSave(newId);
+                response.setId(newId);
+            }
+        } catch (IOException e) {
+            log.warn(ERROR_SAVE_TABLE, e);
+            response.setMessage(ERROR_OPENED_EXCEL);
+        } catch (Exception e) {
+            log.error(ERROR_SAVE_TABLE, e);
+            response.setMessage(ERROR_SAVE_TABLE);
+        }
+        return pojo2json(response);
+    }
+
+    private boolean hasEmptyRow(TableEditorModel editorModel) {
+        IGridTable gridTable = editorModel.getGridTable();
+        int height = gridTable.getHeight();
+        for (int i = 0; i < height; i++) {
+            IGridTable row = gridTable.getRow(i);
+            if (isEmptyRow(row)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEmptyRow(IGridTable row) {
+        int width = row.getWidth();
+        for (int i = 0; i < width; i++) {
+            if (row.getCell(i, 0).getStringValue() != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void rollbackTable() {
