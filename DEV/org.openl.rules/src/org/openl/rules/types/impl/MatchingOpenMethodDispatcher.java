@@ -21,7 +21,6 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
