@@ -37,13 +37,6 @@ public interface IWritableGrid extends IGrid {
         private static final String PROPERTIES_SECTION_NAME = "properties";
         static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
 
-        public static IWritableGrid getWritableGrid(IGrid grid) {
-            if (grid instanceof IWritableGrid) {
-                return (IWritableGrid) grid;
-            }
-            return null;
-        }
-
         public static IWritableGrid getWritableGrid(IGridTable table) {
             IGrid grid = table.getGrid();
             if (grid instanceof IWritableGrid) {
