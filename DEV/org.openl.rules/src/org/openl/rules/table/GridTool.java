@@ -16,14 +16,6 @@ public class GridTool {
     private static final String PROPERTIES_SECTION_NAME = "properties";
     static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
-    public static IWritableGrid getWritableGrid(IGridTable table) {
-        IGrid grid = table.getGrid();
-        if (grid instanceof IWritableGrid) {
-            return (IWritableGrid) grid;
-        }
-        return null;
-    }
-
     /**
      * Searches all merged regions inside the specified region of table for
      * regions that have to be resized.

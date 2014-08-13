@@ -61,7 +61,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = GridTool.getWritableGrid(tableBodyGrid);
+        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
 
         // Bind cell data type based on parsed data
         for (int i = 0; i < subValues.length; i++) {
@@ -87,7 +87,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
 
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = GridTool.getWritableGrid(tableBodyGrid);
+        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
 
         List<TableRow> rows = columnMatch.getRows();
         for (int i = getSpecialRowCount(); i < rows.size(); i++) {
