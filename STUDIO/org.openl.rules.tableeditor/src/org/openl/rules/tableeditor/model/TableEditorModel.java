@@ -8,33 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.table.CellKey;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTableUtils;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.actions.GridRegionAction;
-import org.openl.rules.table.actions.IUndoableAction;
-import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.rules.table.actions.UndoableActions;
-import org.openl.rules.table.actions.UndoableCompositeAction;
-import org.openl.rules.table.actions.UndoableEditTableAction;
-import org.openl.rules.table.actions.UndoableInsertColumnsAction;
-import org.openl.rules.table.actions.UndoableInsertRowsAction;
-import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
-import org.openl.rules.table.actions.UndoableRemoveRowsAction;
+import org.openl.rules.table.*;
+import org.openl.rules.table.actions.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
 import org.openl.rules.table.actions.style.SetIndentAction;
 import org.openl.rules.table.actions.style.font.SetBoldAction;
+import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
-import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -50,7 +35,9 @@ import java.util.List;
  */
 public class TableEditorModel {
 
-    /** Number of columns in Properties section */
+    /**
+     * Number of columns in Properties section
+     */
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     private IOpenLTable table;
@@ -112,7 +99,7 @@ public class TableEditorModel {
         return GridTableUtils.getOriginalTable(gridTable);
     }
 
-    public IGridRegion getOriginalTableRegion() {
+    private IGridRegion getOriginalTableRegion() {
         return getOriginalGridTable().getRegion();
     }
 
@@ -146,7 +133,7 @@ public class TableEditorModel {
         actions.addNewAction(removeColumnsAction);
     }
 
-    /**     
+    /**
      * @return New table id on the sheet where it was saved. It is needed for tables that were moved
      * to new place during adding new rows and columns on editing. We need to know new destination of the table.
      * @throws IOException
@@ -162,7 +149,7 @@ public class TableEditorModel {
     /**
      * @return Sheet source of editable table
      */
-    public XlsSheetSourceCodeModule getSheetSource(){
+    public XlsSheetSourceCodeModule getSheetSource() {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         return xlsgrid.getSheetSource();
     }
@@ -173,15 +160,26 @@ public class TableEditorModel {
 
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
-        IFormatter dataFormatter = null;
+        int gcol = originalRegion.getLeft() + col;
+        int grow = originalRegion.getTop() + row;
+
+        IFormatter dataFormatter;
         if (formatter != null) {
             dataFormatter = formatter;
         } else {
-            ICell cell = gridTable.getGrid().getCell(originalRegion.getLeft() + col, originalRegion.getTop() + row);
+            ICell cell = gridTable.getGrid().getCell(gcol, grow);
             dataFormatter = cell.getDataFormatter();
         }
-        IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
-                col, row, originalRegion, value, dataFormatter);
+
+        Object result;
+        if (dataFormatter != null) {
+            result = dataFormatter.parse(value);
+        } else {
+            result = value;
+        }
+
+        IUndoableGridTableAction action = new UndoableSetValueAction(gcol, grow, result);
+
         action.doAction(gridTable);
         actions.addNewAction(action);
     }
@@ -192,47 +190,44 @@ public class TableEditorModel {
 
     public synchronized void setProperty(String name, Object value) throws Exception {
         List<IUndoableGridTableAction> createdActions = new ArrayList<IUndoableGridTableAction>();
-        int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
         IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
 
-        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
+        CellKey propertyCoordinates = getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
 
-        if (!propIsBlank) {
-            if (!propExists) {
-                int tableWidth = fullTable.getWidth();
-                if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
-                    nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
-                }
-                nRowsToInsert = 1;
-                if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
-                        || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                    createdActions.add(UndoableEditTableAction.moveTable(fullTable));
-                }
-                GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
-                        UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
-                allTable.doAction(gridTable);
-                createdActions.add(allTable);
-                if (isBusinessView()) {
-                    GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
-                            UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, nRowsToInsert);
-                    displayedTable.doAction(gridTable);
-                    createdActions.add(displayedTable);
-                }
-            }
-        } else {
+        if (propIsBlank) {
             if (propExists) {
                 removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             }
             return;
         }
+        if (!propExists) {
+            int tableWidth = fullTable.getWidth();
+            if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
+                nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
+            }
+            if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1)
+                    || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
+                createdActions.add(UndoableEditTableAction.moveTable(fullTable));
+            }
+            GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
+                    UndoableEditTableAction.INSERT, ActionType.EXPAND, 1);
+            allTable.doAction(gridTable);
+            createdActions.add(allTable);
+            if (isBusinessView()) {
+                GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
+                        UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
+                displayedTable.doAction(gridTable);
+                createdActions.add(displayedTable);
+            }
+        }
 
-        IUndoableGridTableAction action = IWritableGrid.Tool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
+        IUndoableGridTableAction action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);
@@ -242,30 +237,50 @@ public class TableEditorModel {
         }
     }
 
+    /**
+     * Checks if the table specified by its region contains property.
+     */
+    private CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
+        int left = region.getLeft();
+        int top = region.getTop();
+
+        ICell propsHeaderCell = grid.getCell(left, top + 1);
+        String propsHeader = propsHeaderCell.getStringValue();
+        if (propsHeader == null || !propsHeader.equals(PropertiesHelper.PROPERTIES_HEADER)) {
+            // There is no properties
+            return null;
+        }
+        int propsCount = propsHeaderCell.getHeight();
+
+        for (int i = 0; i < propsCount; i++) {
+            ICell propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
+            String pName = propNameCell.getStringValue();
+
+            if (pName != null && pName.equals(propName)) {
+                return new CellKey(1, 1 + i);
+            }
+        }
+
+        return null;
+    }
+
     public synchronized void setProperty(String name, String value) throws Exception {
         Object objectValue = null;
         if (StringUtils.isNotBlank(value)) {
-            IFormatter formatter = getPropertyFormatter(name);
-            objectValue = IWritableGrid.Tool.parseStringValue(formatter, value);
+            TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
+            if (tablePropeprtyDefinition != null) {
+                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
+                IFormatter formatter = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                objectValue = formatter.parse(value);
+            } else {
+                objectValue = value;
+            }
         }
         setProperty(name, objectValue);
     }
 
     public synchronized void removeProperty(String name) throws Exception {
         setProperty(name, (Object) null);
-    }
-
-    private IFormatter getPropertyFormatter(String propertyName) {
-        IFormatter result = null;
-        TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
-                .getPropertyByName(propertyName);
-
-        if (tablePropeprtyDefinition != null) {
-            Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-            result = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
-        }
-
-        return result;
     }
 
     public synchronized void setAlignment(int row, int col, int alignment) {

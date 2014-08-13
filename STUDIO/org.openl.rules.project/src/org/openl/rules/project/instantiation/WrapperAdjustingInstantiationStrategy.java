@@ -112,7 +112,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        log.warn("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '{}'", serviceClass.getName());
+        log.warn("Service class changing is not allowed for static wrapper. Default static wrapper class will be used instead of '{}'", serviceClass.getName());
     }
 
     private Class<?> getWrapperClass() throws ClassNotFoundException {

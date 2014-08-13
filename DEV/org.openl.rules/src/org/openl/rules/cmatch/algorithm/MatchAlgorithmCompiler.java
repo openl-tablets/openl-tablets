@@ -15,6 +15,7 @@ import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -60,7 +61,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
+        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
 
         // Bind cell data type based on parsed data
         for (int i = 0; i < subValues.length; i++) {
@@ -86,7 +87,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
 
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
+        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
 
         List<TableRow> rows = columnMatch.getRows();
         for (int i = getSpecialRowCount(); i < rows.size(); i++) {
