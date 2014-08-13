@@ -18,6 +18,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
+import org.openl.dependency.CompiledDependency;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -26,8 +27,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
-import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.code.IDependency;
 
 /**
  * Caches instantiation strategies for Modules.
@@ -231,13 +230,13 @@ public class InstantiationStrategyFactory {
         }
 
         @Override
-        public void onLoadDependency(IDependency dependency) {
-            if (dependency.getType() == DependencyType.MODULE && !mainModule.getName().equals(dependency.getNode()
-                .getIdentifier())) {
-                Set<Module> modules = dependencyUsages.get(dependency.getNode().getIdentifier());
+        public void onLoadDependency(CompiledDependency loadedDependency) {
+            String dependencyName = loadedDependency.getDependencyName();
+            if (!mainModule.getName().equals(dependencyName)) {
+                Set<Module> modules = dependencyUsages.get(dependencyName);
                 if (modules == null) {
                     modules = Collections.newSetFromMap(new WeakHashMap<Module, Boolean>());
-                    dependencyUsages.put(dependency.getNode().getIdentifier(), modules);
+                    dependencyUsages.put(dependencyName, modules);
                 }
                 modules.add(mainModule);
             }
