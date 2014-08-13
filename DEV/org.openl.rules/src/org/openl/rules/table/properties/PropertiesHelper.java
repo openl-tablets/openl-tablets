@@ -68,7 +68,7 @@ public class PropertiesHelper {
         } else if (method.getInfo() != null) {
             return method.getInfo().getProperties();
         } else if (method instanceof MethodDelegator) {
-            return getMethodProperties(((MethodDelegator) method).getMethod());
+            return getMethodProperties(method.getMethod());
         } else {
             return null;
         }
