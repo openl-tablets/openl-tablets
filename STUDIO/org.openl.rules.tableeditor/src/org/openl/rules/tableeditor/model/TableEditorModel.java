@@ -99,7 +99,7 @@ public class TableEditorModel {
         return GridTableUtils.getOriginalTable(gridTable);
     }
 
-    public IGridRegion getOriginalTableRegion() {
+    private IGridRegion getOriginalTableRegion() {
         return getOriginalGridTable().getRegion();
     }
 
