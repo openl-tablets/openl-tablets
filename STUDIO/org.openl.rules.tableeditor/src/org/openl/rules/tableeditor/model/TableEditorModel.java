@@ -19,6 +19,7 @@ import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -192,7 +193,7 @@ public class TableEditorModel {
         IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
 
-        CellKey propertyCoordinates = GridTool.getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
+        CellKey propertyCoordinates = getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
@@ -234,6 +235,33 @@ public class TableEditorModel {
         if (!createdActions.isEmpty()) {
             actions.addNewAction(new UndoableCompositeAction(createdActions));
         }
+    }
+
+    /**
+     * Checks if the table specified by its region contains property.
+     */
+    private CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
+        int left = region.getLeft();
+        int top = region.getTop();
+
+        ICell propsHeaderCell = grid.getCell(left, top + 1);
+        String propsHeader = propsHeaderCell.getStringValue();
+        if (propsHeader == null || !propsHeader.equals(PropertiesHelper.PROPERTIES_HEADER)) {
+            // There is no properties
+            return null;
+        }
+        int propsCount = propsHeaderCell.getHeight();
+
+        for (int i = 0; i < propsCount; i++) {
+            ICell propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
+            String pName = propNameCell.getStringValue();
+
+            if (pName != null && pName.equals(propName)) {
+                return new CellKey(1, 1 + i);
+            }
+        }
+
+        return null;
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {

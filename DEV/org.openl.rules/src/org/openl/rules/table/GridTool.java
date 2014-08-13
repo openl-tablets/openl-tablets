@@ -165,33 +165,6 @@ public class GridTool {
     }
 
     /**
-     * Checks if the table specified by its region contains property.
-     */
-    public static CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
-        int left = region.getLeft();
-        int top = region.getTop();
-
-        ICell propsHeaderCell = grid.getCell(left, top + 1);
-        String propsHeader = propsHeaderCell.getStringValue();
-        if (propsHeader == null || !propsHeader.equals(PROPERTIES_SECTION_NAME)) {
-            // There is no properties
-            return null;
-        }
-        int propsCount = propsHeaderCell.getHeight();
-
-        for (int i = 0; i < propsCount; i++) {
-            ICell propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
-            String pName = propNameCell.getStringValue();
-
-            if (pName != null && pName.equals(propName)) {
-                return new CellKey(1, 1 + i);
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * @return null if set new property with empty or same value
      */
     public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGrid grid,
