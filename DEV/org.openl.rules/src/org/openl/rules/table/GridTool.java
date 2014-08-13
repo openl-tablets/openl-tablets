@@ -106,22 +106,27 @@ public class GridTool {
         return new UndoableCompositeAction(actions);
     }
 
-    public static IUndoableGridTableAction insertRows(int nRows, int beforeRow,
-            IGridRegion region, IGrid grid) {
+    public static IUndoableGridTableAction insertRows(int nRows, int afterRow, IGridRegion region, IGrid grid) {
+        return insertRows(nRows, afterRow, region, grid, false);
+    }
+
+    private static IUndoableGridTableAction insertRows(int nRows, int row, IGridRegion region, IGrid grid, boolean before) {
         int h = IGridRegion.Tool.height(region);
         int w = IGridRegion.Tool.width(region);
-        int rowsToMove = h - beforeRow;
+        int rowsToMove = h - row;
 
         ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>(w * rowsToMove);
 
-        int firstToMove = region.getTop() + beforeRow;
+        int firstToMove = region.getTop() + row;
         int rowTo = firstToMove + nRows;
         int left = region.getLeft();
         // Shift cells by row, copy cells of inserted row and resize merged regions after
         actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid));
         actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid));
-        actions.addAll(resizeMergedRegions(grid, beforeRow, nRows, INSERT, ROWS, region));
-        actions.addAll(emptyCells(left, rowTo, w, nRows, grid));
+        actions.addAll(resizeMergedRegions(grid, row, nRows, INSERT, ROWS, region));
+
+        int rowFrom = before ? firstToMove : rowTo;
+        actions.addAll(emptyCells(left, rowFrom, w, nRows, grid));
 
         return new UndoableCompositeAction(actions);
     }
@@ -238,7 +243,7 @@ public class GridTool {
             propNameCellOffset = 1;
             propValueCellOffset = 2;
         } else {
-            actions.add(insertRows(1, firstPropertyRow, tableRegion, grid));
+            actions.add(insertRows(1, firstPropertyRow, tableRegion, grid, true));
             actions.add(resizePropertiesHeader(tableRegion, grid));
             propNameCellOffset = grid.getCell(leftCell, topCell + firstPropertyRow).getWidth();
             propValueCellOffset = propNameCellOffset
