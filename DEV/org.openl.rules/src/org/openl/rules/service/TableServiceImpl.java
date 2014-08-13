@@ -14,14 +14,16 @@ public class TableServiceImpl {
             IGridRegion tableRegion = table.getRegion();
             int left = tableRegion.getLeft();
             int top = tableRegion.getTop();
+            int right = tableRegion.getRight();
+            int bottom = tableRegion.getBottom();
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) table.getGrid();
-            for (int i = 0; i < table.getWidth(); i++) {
-                for (int j = 0; j < table.getHeight(); j++) {
-                    ICell cell = table.getCell(i, j);
+            for (int row = top; row <= bottom; row++) {
+                for (int col = left; col <= right; col++) {
+                    ICell cell = sheetModel.getCell(col, row);
                     if (cell.getWidth() != 1 || cell.getHeight() != 1) {
-                        sheetModel.removeMergedRegion(left + i, top + j);
+                        sheetModel.removeMergedRegion(col, row);
                     }
-                    sheetModel.clearCell(left + i, top + j);
+                    sheetModel.clearCell(col, row);
                 }
             }
         } catch (Exception e) {
