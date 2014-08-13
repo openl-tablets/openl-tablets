@@ -250,8 +250,7 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    static IRangeAdaptor<?, ?> getRangeAdaptor(IOpenClass methodType,
-            IOpenClass paramType) {
+    static IRangeAdaptor<?, ?> getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {
                 return IntRangeAdaptor.getInstance();
@@ -277,8 +276,7 @@ public class DecisionTableOptimizedAlgorithm {
     // TODO to do - fix _NO_PARAM_ issue
 
     @SuppressWarnings("unchecked")
-    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType)
-            throws SyntaxNodeException {
+    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType) throws SyntaxNodeException {
 
         IParameterDeclaration[] params = condition.getParams();
 
@@ -297,23 +295,22 @@ public class DecisionTableOptimizedAlgorithm {
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
-                if (aggregateInfo.isAggregate(paramType)
-                        && aggregateInfo.getComponentType(paramType).isAssignableFrom(methodType)) {
+                if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
+                    .isAssignableFrom(methodType)) {
 
                     return new ContainsInArrayIndexedEvaluator();
                 }
 
-                IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) getRangeAdaptor(
-                        methodType, paramType);
+                IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) getRangeAdaptor(methodType,
+                    paramType);
 
                 if (rangeAdaptor != null) {
                     return new RangeIndexedEvaluator(rangeAdaptor, 1);
                 }
 
-                if (JavaOpenClass.BOOLEAN.equals(methodType)
-                        || JavaOpenClass.getOpenClass(Boolean.class).equals(methodType)) {
+                if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
+                    .equals(methodType)) {
                     return new DefaultConditionEvaluator();
-
                 }
 
                 break;
@@ -327,13 +324,11 @@ public class DecisionTableOptimizedAlgorithm {
 
                     Class<?> clazz = methodType.getInstanceClass();
 
-                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class
-                            && !Comparable.class.isAssignableFrom(clazz)) {
+                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class && !Comparable.class.isAssignableFrom(clazz)) {
 
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
 
-                        throw SyntaxNodeExceptionUtils
-                                .createError(message, null, null, condition.getSourceCodeModule());
+                        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
                     }
 
                     return new RangeIndexedEvaluator(null, 2);
@@ -364,7 +359,8 @@ public class DecisionTableOptimizedAlgorithm {
         String parametersString = StringUtils.join(names, ",");
 
         String message = String.format("Can not make a Condition Evaluator for parameter %s and [%s]",
-                methodType.getName(), parametersString);
+            methodType.getName(),
+            parametersString);
 
         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
     }
@@ -372,27 +368,23 @@ public class DecisionTableOptimizedAlgorithm {
     public void buildIndex() throws SyntaxNodeException {
         buildIndexInternal(false);
     }
-    
+
     protected void buildIndexInternal(boolean saveRulesMetaInfo) throws SyntaxNodeException {
 
-    	
-    	if (indexRoot != null && indexRoot.isHasMetaInfo() == saveRulesMetaInfo)
-    		return; //nothing to rebuild
-    	
+        if (indexRoot != null && indexRoot.isHasMetaInfo() == saveRulesMetaInfo)
+            return; // nothing to rebuild
+
         ArrayList<Object[][]> params = new ArrayList<Object[][]>();
 
         for (int i = 0; i < evaluators.length; i++) {
 
             if (evaluators[i].isIndexed()) {
-                try
-                {
-                	Object[][] values = table.getConditionRows()[i].getParamValues();
-                	Object[][] precalculatedParams = prepareIndexedParams(values);
-                params.add(precalculatedParams);
-                }
-                catch(CanNotIndexConditionsException ex)
-                {
-                	break;
+                try {
+                    Object[][] values = table.getConditionRows()[i].getParamValues();
+                    Object[][] precalculatedParams = prepareIndexedParams(values);
+                    params.add(precalculatedParams);
+                } catch (CanNotIndexConditionsException ex) {
+                    break;
                 }
             } else {
                 break;
@@ -432,8 +424,7 @@ public class DecisionTableOptimizedAlgorithm {
 
     private boolean isDependecyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
-            if (field instanceof ConditionOrActionParameterField
-                    && ((ConditionOrActionParameterField) field).getConditionOrAction() == condition) {
+            if (field instanceof ConditionOrActionParameterField && ((ConditionOrActionParameterField) field).getConditionOrAction() == condition) {
                 return true;
             }
         }
@@ -466,17 +457,22 @@ public class DecisionTableOptimizedAlgorithm {
     }
 
     /**
-     * This method is used to pass an algorithm decorator factory that is used for tracing (for example).
-     * See {@link #checkedRules(Object, Object[], IRuntimeEnv)} for full documentation
+     * This method is used to pass an algorithm decorator factory that is used
+     * for tracing (for example). See
+     * {@link #checkedRules(Object, Object[], IRuntimeEnv)} for full
+     * documentation
      * 
      * @param target target object
      * @param params parameters of a test
      * @param env environment
-     * @param decoratorFactory a decorator factory that will decorate an objects that are used to calculate a rule 
+     * @param decoratorFactory a decorator factory that will decorate an objects
+     *            that are used to calculate a rule
      * @return iterator over <b>rule indexes</b> - integer iterator.
      * @see #checkedRules(Object, Object[], IRuntimeEnv)
      */
-    protected final IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env,
+    protected final IIntIterator checkedRules(Object target,
+            Object[] params,
+            IRuntimeEnv env,
             AlgorithmDecoratorFactory decoratorFactory) {
 
         // Select rules set using indexed mode
@@ -523,7 +519,10 @@ public class DecisionTableOptimizedAlgorithm {
         return iterator;
     }
 
-    private void indexNode(DecisionTableRuleNode node, ArrayList<Object[][]> params, int level, boolean saveRulesMetaInfo) {
+    private void indexNode(DecisionTableRuleNode node,
+            ArrayList<Object[][]> params,
+            int level,
+            boolean saveRulesMetaInfo) {
 
         ARuleIndex nodeIndex = evaluators[level].makeIndex(params.get(level), node.getRulesIterator());
         node.setSaveRulesMetaInfo(saveRulesMetaInfo);
@@ -571,7 +570,7 @@ public class DecisionTableOptimizedAlgorithm {
                     Object value = params[i][j];
 
                     if (value instanceof IOpenMethod) {
-                    	throw new CanNotIndexConditionsException(table.getSyntaxNode());
+                        throw new CanNotIndexConditionsException(table.getSyntaxNode());
                     }
                     values[j] = value;
                 }

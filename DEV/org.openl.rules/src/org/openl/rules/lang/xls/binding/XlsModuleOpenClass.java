@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +18,7 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBoundMethodNode;
@@ -39,6 +41,8 @@ import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -481,13 +485,25 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Just wrap original method with dispatcher functionality.
             //
             IOpenMethod m = decorateForMultimoduleDispatching(method);
-            ITableProperties props = PropertiesHelper.getTableProperties(m);
-            if (props.isPropertiesEmpty() || m instanceof TestSuiteMethod){
+            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod){
                 methodMap().put(key, m);
             }else{
                 createDispatcherMethod(m, key);
             }
         }
+    }
+    
+    private boolean dimensionalPropertyPresented(IOpenMethod m){
+            List<TablePropertyDefinition> dimensionalPropertiesDef =
+                    TablePropertyDefinitionUtils.getDimensionalTableProperties();
+            ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
+            for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+                String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
+                if (StringUtils.isNotEmpty(propertyValue)) {
+                    return true;
+                }
+            }
+            return false;
     }
 
     /**

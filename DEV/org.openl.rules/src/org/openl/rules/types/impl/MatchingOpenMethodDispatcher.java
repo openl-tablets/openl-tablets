@@ -10,6 +10,7 @@ import java.util.Set;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.DefaultInvokerWithTrace;
@@ -18,7 +19,9 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -40,7 +43,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private List<IOpenMethod> candidatesSorted;
 
     private ATableTracerNode traceObject;
-    
+
     private IOpenMethod dispatchingOpenMethod;
 
     public IOpenMethod getDispatchingOpenMethod() {
@@ -51,9 +54,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         this.dispatchingOpenMethod = dispatchingOpenMethod;
     }
 
-    public MatchingOpenMethodDispatcher() { //For CGLIB proxing
+    public MatchingOpenMethodDispatcher() { // For CGLIB proxing
     }
-    
+
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
         decorate(method);
@@ -82,21 +85,21 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
          */
         List<IOpenMethod> methods = getCandidates();
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
-        if (selected.size() > 1){
+        if (selected.size() > 1) {
             traceObject = getTracedObject(selected, params);
             tracer.push(traceObject);
         }
         try {
             returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
-            if (traceObject == null){
+            if (traceObject == null) {
                 traceObject = getTracedObject(selected, params);
                 tracer.push(traceObject);
             }
             traceObject.setError(e);
             throw e;
         } finally {
-            if (traceObject != null){
+            if (traceObject != null) {
                 tracer.pop();
             }
         }
@@ -176,15 +179,31 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     }
 
+    private TableSyntaxNode[] getTableSyntaxNodes() {
+        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
+        return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+    }
+
     public TableSyntaxNode getDispatcherTable() {
-        if (dispatchingOpenMethod == null){
-            throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
+        if (dispatchingOpenMethod != null) {
+            return (TableSyntaxNode) dispatchingOpenMethod.getInfo().getSyntaxNode();
         }
-        return (TableSyntaxNode) dispatchingOpenMethod.getInfo().getSyntaxNode();
+
+        TableSyntaxNode[] tables = getTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tables) {
+            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
+                return tsn;
+            }
+        }
+
+        throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
     @Override
     public IMemberMetaInfo getInfo() {
+        if (getCandidates().size() == 1){
+            return getCandidates().get(0).getInfo();
+        }
         return getDispatcherTable().getMember().getInfo();
     }
 
@@ -350,5 +369,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }

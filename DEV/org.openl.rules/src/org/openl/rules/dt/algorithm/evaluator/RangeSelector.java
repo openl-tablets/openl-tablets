@@ -55,7 +55,11 @@ public class RangeSelector implements IIntSelector {
             vTo = (Comparable<Object>) realParams[1];
         } else {
             vFrom = adaptor.getMin(realParams[0]);
-            vTo = adaptor.getMax(realParams[0]);
+            if (realParams.length == 2){
+                vTo = adaptor.getMax(realParams[1]);
+            }else{
+                vTo = adaptor.getMax(realParams[0]);
+            }
         }
         
         return vFrom.compareTo(value) <= 0 && ((Comparable<Object>) value).compareTo(vTo) < 0;

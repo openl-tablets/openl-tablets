@@ -8,6 +8,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
@@ -34,14 +35,14 @@ public class MethodUsagesSearcher {
         }
 
         /**
-         * @return the start position of the method in code. 
+         * @return the start position of the method in code.
          */
         public int getStart() {
             return startPos;
         }
 
         /**
-         * @return the end position of the method in code. 
+         * @return the end position of the method in code.
          */
         public int getEnd() {
             return endPos;
@@ -51,18 +52,18 @@ public class MethodUsagesSearcher {
             return method;
         }
 
-        /**
-         * 
-         * @return uri of the table representing used method or
-         *         <code>null</code> if this method is not represented by some
-         *         OpenL component.
-         */
-        public String getTableUri() {
+        private static String getTableUri(IOpenMethod method){
             try {
                 if (method instanceof ExecutableRulesMethod) {
                     return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
+                } else if (method instanceof OverloadedMethodsDispatcherTable) {
+                    return ((OverloadedMethodsDispatcherTable) method).getDispatcherTable().getUri();
                 } else if (method instanceof MatchingOpenMethodDispatcher) {
-                    return ((MatchingOpenMethodDispatcher) method).getDispatcherTable().getUri();
+                    MatchingOpenMethodDispatcher matchingOpenMethodDispatcher = (MatchingOpenMethodDispatcher) method;
+                    if (matchingOpenMethodDispatcher.getCandidates().size() == 1){
+                        return getTableUri(matchingOpenMethodDispatcher.getCandidates().get(0));
+                    }
+                    return null;
                 } else if (method.getInfo() != null) {
                     return method.getInfo().getSourceUrl();
                 } else {
@@ -70,7 +71,17 @@ public class MethodUsagesSearcher {
                 }
             } catch (Exception e) {
                 return null;
-            }
+            }            
+        }
+        
+        /**
+         * 
+         * @return uri of the table representing used method or
+         *         <code>null</code> if this method is not represented by some
+         *         OpenL component.
+         */
+        public String getTableUri() {
+            return getTableUri(method);
         }
 
         /**
@@ -98,7 +109,9 @@ public class MethodUsagesSearcher {
         return methods;
     }
 
-    private static void findAllMethods(IBoundNode boundNode, List<MethodUsage> methods, String sourceString,
+    private static void findAllMethods(IBoundNode boundNode,
+            List<MethodUsage> methods,
+            String sourceString,
             int startIndex) {
         if (boundNode instanceof MethodBoundNode) {
             MethodBoundNode methodBoundNode = (MethodBoundNode) boundNode;
@@ -106,15 +119,14 @@ public class MethodUsagesSearcher {
             IMethodCaller methodCaller = methodBoundNode.getMethodCaller();
             if (methodCaller != null) {
                 IOpenMethod method;
-                if(methodCaller instanceof IOpenMethod){
-                    method= (IOpenMethod)methodCaller;
-                }else{
-                    method= methodCaller.getMethod();
+                if (methodCaller instanceof IOpenMethod) {
+                    method = (IOpenMethod) methodCaller;
+                } else {
+                    method = methodCaller.getMethod();
                 }
                 int pstart = 0;
                 int pend = 0;
-                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator)
-                        && location != null && location.isTextLocation()) {
+                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location.isTextLocation()) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;
                     pend = pstart + method.getName().length() - 1;
@@ -127,8 +139,8 @@ public class MethodUsagesSearcher {
                 findAllMethods(child, methods, sourceString, startIndex);
             }
         }
-        if(boundNode instanceof ATargetBoundNode){
-            IBoundNode targetNode = ((ATargetBoundNode)boundNode).getTargetNode();
+        if (boundNode instanceof ATargetBoundNode) {
+            IBoundNode targetNode = ((ATargetBoundNode) boundNode).getTargetNode();
             if (targetNode != null) {
                 findAllMethods(targetNode, methods, sourceString, startIndex);
             }

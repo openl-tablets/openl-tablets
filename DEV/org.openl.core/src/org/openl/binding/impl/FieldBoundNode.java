@@ -36,15 +36,9 @@ public class FieldBoundNode extends ATargetBoundNode {
         boundField.set(target, value, env);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#invoke(java.lang.Object[])
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // return boundField.get(target);
-    // }
-    //
+    public String getFieldName() {
+        return boundField.getName();
+    }
     
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
