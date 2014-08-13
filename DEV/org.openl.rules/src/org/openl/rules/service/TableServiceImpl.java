@@ -7,7 +7,7 @@ import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
-public class TableServiceImpl implements TableService {
+public class TableServiceImpl {
 
     public synchronized void removeTable(IGridTable table) throws TableServiceException {
         try {
