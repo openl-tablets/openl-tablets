@@ -24,6 +24,7 @@ import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
+import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
@@ -80,6 +81,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.webstudio.dependencies.DefaultDependencyManagerListener;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
@@ -830,19 +832,15 @@ public class ProjectModel {
             XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
             return xmi.getXlsModuleNode();
         } else {
-            return loadXlsModuleSyntaxNode(dependencyManager, moduleInfo.getName());
-        }
-    }
+            try {
+                Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null));
 
-    private XlsModuleSyntaxNode loadXlsModuleSyntaxNode(IDependencyManager dependencyManager, String moduleName) {
-        try {
-            Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null));
-
-            XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                    .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-            return xmi == null ? null : xmi.getXlsModuleNode();
-        } catch (OpenLCompilationException e) {
-            throw new OpenLRuntimeException(e);
+                XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
+                        .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+                return xmi == null ? null : xmi.getXlsModuleNode();
+            } catch (OpenLCompilationException e) {
+                throw new OpenLRuntimeException(e);
+            }
         }
     }
 
@@ -1307,17 +1305,31 @@ public class ProjectModel {
             WorkbookLoaders.setCurrentFactory(factory);
             factory.disallowUnload();
 
-            compiledOpenClass = instantiationStrategy.compile();
-
+            // Find all dependent XlsModuleSyntaxNode-s
+            final String moduleName = moduleInfo.getName();
             WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
+            DefaultDependencyManagerListener listener = new DefaultDependencyManagerListener() {
+                @Override
+                public void onLoadDependency(CompiledDependency loadedDependency) {
+                    if (!loadedDependency.getDependencyName().equals(moduleName)) {
+                        XlsMetaInfo metaInfo = (XlsMetaInfo) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+                        if (metaInfo != null) {
+                            allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+                        }
+                    }
+                }
+            };
+
+            try {
+                dependencyManager.addListener(listener);
+                compiledOpenClass = instantiationStrategy.compile();
+            } finally {
+                dependencyManager.removeListener(listener);
+            }
+
+
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-
-            for (String moduleName : dependencyManager.getModuleNames()) {
-                if (!moduleName.equals(moduleInfo.getName())) {
-                    allXlsModuleSyntaxNodes.add(loadXlsModuleSyntaxNode(dependencyManager, moduleName));
-                }
-            }
 
             factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();

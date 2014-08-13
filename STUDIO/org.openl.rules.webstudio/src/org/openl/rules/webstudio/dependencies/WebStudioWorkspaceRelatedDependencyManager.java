@@ -44,10 +44,11 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+        CompiledDependency loadedDependency = super.loadDependency(dependency);
         for (DependencyManagerListener listener : listeners) {
-            listener.onLoadDependency(dependency);
+            listener.onLoadDependency(loadedDependency);
         }
-        return super.loadDependency(dependency);
+        return loadedDependency;
     }
 
     @Override
