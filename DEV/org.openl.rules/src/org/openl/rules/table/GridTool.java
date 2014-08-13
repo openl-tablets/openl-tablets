@@ -29,7 +29,7 @@ public class GridTool {
      * @param regionOfTable Region of current table.
      * @return All actions to resize merged regions.
      */
-    public static List<IUndoableGridTableAction> resizeMergedRegions(IGrid grid, int firstRowOrColumn,
+    private static List<IUndoableGridTableAction> resizeMergedRegions(IGrid grid, int firstRowOrColumn,
             int numberOfRowsOrColumns, boolean isInsert, boolean isColumns, IGridRegion regionOfTable) {
         ArrayList<IUndoableGridTableAction> resizeActions = new ArrayList<IUndoableGridTableAction>();
         for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
