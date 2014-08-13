@@ -9,16 +9,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.*;
-import org.openl.rules.table.actions.GridRegionAction;
-import org.openl.rules.table.actions.IUndoableAction;
-import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.rules.table.actions.UndoableActions;
-import org.openl.rules.table.actions.UndoableCompositeAction;
-import org.openl.rules.table.actions.UndoableEditTableAction;
-import org.openl.rules.table.actions.UndoableInsertColumnsAction;
-import org.openl.rules.table.actions.UndoableInsertRowsAction;
-import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
-import org.openl.rules.table.actions.UndoableRemoveRowsAction;
+import org.openl.rules.table.actions.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
@@ -166,15 +157,25 @@ public class TableEditorModel {
 
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
-        IFormatter dataFormatter = null;
+        IFormatter dataFormatter;
         if (formatter != null) {
             dataFormatter = formatter;
         } else {
             ICell cell = gridTable.getGrid().getCell(originalRegion.getLeft() + col, originalRegion.getTop() + row);
             dataFormatter = cell.getDataFormatter();
         }
-        IUndoableGridTableAction action = GridTool.setStringValue(
-                col, row, originalRegion, value, dataFormatter);
+
+        Object result;
+        if (dataFormatter != null) {
+            result = dataFormatter.parse(value);
+        } else {
+            result = value;
+        }
+
+        int gcol = originalRegion.getLeft() + col;
+        int grow = originalRegion.getTop() + row;
+        IUndoableGridTableAction action = new UndoableSetValueAction(gcol, grow, result);
+
         action.doAction(gridTable);
         actions.addNewAction(action);
     }
@@ -238,27 +239,20 @@ public class TableEditorModel {
     public synchronized void setProperty(String name, String value) throws Exception {
         Object objectValue = null;
         if (StringUtils.isNotBlank(value)) {
-            IFormatter formatter = getPropertyFormatter(name);
-            objectValue = GridTool.parseStringValue(formatter, value);
+            TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
+            if (tablePropeprtyDefinition != null) {
+                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
+                IFormatter formatter = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                objectValue = formatter.parse(value);
+            } else {
+                objectValue = value;
+            }
         }
         setProperty(name, objectValue);
     }
 
     public synchronized void removeProperty(String name) throws Exception {
         setProperty(name, (Object) null);
-    }
-
-    private IFormatter getPropertyFormatter(String propertyName) {
-        IFormatter result = null;
-        TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
-                .getPropertyByName(propertyName);
-
-        if (tablePropeprtyDefinition != null) {
-            Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-            result = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
-        }
-
-        return result;
     }
 
     public synchronized void setAlignment(int row, int col, int alignment) {

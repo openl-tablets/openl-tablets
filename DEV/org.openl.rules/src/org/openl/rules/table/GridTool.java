@@ -288,16 +288,6 @@ public class GridTool {
         return new UndoableCompositeAction(actions);
     }
 
-    public static Object parseStringValue(IFormatter formatter, String value) {
-        Object result = null;
-        if (formatter != null) {
-            result = formatter.parse(value);
-        } else {
-            result = value;
-        }
-        return result;
-    }
-
     private static IUndoableGridTableAction createPropertiesSection(IGridRegion tableRegion, IGrid grid) {
         int regionWidth = IGridRegion.Tool.width(tableRegion);
         int leftCell = tableRegion.getLeft();
@@ -586,26 +576,4 @@ public class GridTool {
 
         return new UndoableCompositeAction(actions);
     }
-
-    public static IUndoableGridTableAction setStringValue(int col, int row, IGridRegion region, String value,
-            IFormatter formatter) {
-        int gcol = region.getLeft() + col;
-        int grow = region.getTop() + row;
-
-        Object objectValue = parseStringValue(formatter, value);
-
-        return new UndoableSetValueAction(gcol, grow, objectValue);
-    }
-
-    public static IUndoableGridTableAction setStringValue(int col, int row, IGridTable table, String value,
-            IFormatter formatter) {
-        // IWritableGrid wgrid = getWritableGrid(table);
-        int gcol = table.getGridColumn(col, row);
-        int grow = table.getGridRow(col, row);
-
-        Object objectValue = parseStringValue(formatter, value);
-
-        return new UndoableSetValueAction(gcol, grow, objectValue);
-    }
-
 }

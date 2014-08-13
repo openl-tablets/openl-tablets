@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
+import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
 
@@ -121,7 +122,9 @@ public class TestUndoable extends TestCase {
         IUndoableGridTableAction[] uaa3 = new IUndoableGridTableAction[tables.length];
 
         for (int j = 0; j < tables.length; j++) {
-            uaa3[j] = GridTool.setStringValue(1, 1, tables[j], "12345", null);
+            int gcol = tables[j].getGridColumn(1, 1);
+            int grow = tables[j].getGridRow(1, 1);
+            uaa3[j] = new UndoableSetValueAction(gcol, grow, "12345");
             uaa3[j].doAction(tables[j]);
         }
 
