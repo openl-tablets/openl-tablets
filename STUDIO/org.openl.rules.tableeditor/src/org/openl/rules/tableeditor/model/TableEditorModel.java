@@ -15,9 +15,9 @@ import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
 import org.openl.rules.table.actions.style.SetIndentAction;
 import org.openl.rules.table.actions.style.font.SetBoldAction;
+import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
-import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -35,7 +35,9 @@ import java.util.List;
  */
 public class TableEditorModel {
 
-    /** Number of columns in Properties section */
+    /**
+     * Number of columns in Properties section
+     */
     public static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     private IOpenLTable table;
@@ -131,7 +133,7 @@ public class TableEditorModel {
         actions.addNewAction(removeColumnsAction);
     }
 
-    /**     
+    /**
      * @return New table id on the sheet where it was saved. It is needed for tables that were moved
      * to new place during adding new rows and columns on editing. We need to know new destination of the table.
      * @throws IOException
@@ -147,7 +149,7 @@ public class TableEditorModel {
     /**
      * @return Sheet source of editable table
      */
-    public XlsSheetSourceCodeModule getSheetSource(){
+    public XlsSheetSourceCodeModule getSheetSource() {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         return xlsgrid.getSheetSource();
     }
@@ -187,7 +189,6 @@ public class TableEditorModel {
 
     public synchronized void setProperty(String name, Object value) throws Exception {
         List<IUndoableGridTableAction> createdActions = new ArrayList<IUndoableGridTableAction>();
-        int nRowsToInsert = 0;
         int nColsToInsert = 0;
 
         IGridTable fullTable = getOriginalGridTable();
@@ -198,33 +199,31 @@ public class TableEditorModel {
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
 
-        if (!propIsBlank) {
-            if (!propExists) {
-                int tableWidth = fullTable.getWidth();
-                if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
-                    nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
-                }
-                nRowsToInsert = 1;
-                if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
-                        || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                    createdActions.add(UndoableEditTableAction.moveTable(fullTable));
-                }
-                GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
-                        UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
-                allTable.doAction(gridTable);
-                createdActions.add(allTable);
-                if (isBusinessView()) {
-                    GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
-                            UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, nRowsToInsert);
-                    displayedTable.doAction(gridTable);
-                    createdActions.add(displayedTable);
-                }
-            }
-        } else {
+        if (propIsBlank) {
             if (propExists) {
                 removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             }
             return;
+        }
+        if (!propExists) {
+            int tableWidth = fullTable.getWidth();
+            if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
+                nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
+            }
+            if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1)
+                    || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
+                createdActions.add(UndoableEditTableAction.moveTable(fullTable));
+            }
+            GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
+                    UndoableEditTableAction.INSERT, ActionType.EXPAND, 1);
+            allTable.doAction(gridTable);
+            createdActions.add(allTable);
+            if (isBusinessView()) {
+                GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
+                        UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
+                displayedTable.doAction(gridTable);
+                createdActions.add(displayedTable);
+            }
         }
 
         IUndoableGridTableAction action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
