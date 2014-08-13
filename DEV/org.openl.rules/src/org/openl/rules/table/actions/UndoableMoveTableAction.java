@@ -30,7 +30,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
-        TableService tableService = new TableServiceImpl(false);
+        TableService tableService = new TableServiceImpl();
         try {
             if (newRegion == null) {
                 newRegion = tableService.moveTable(fullTable, null);
@@ -45,8 +45,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void undoAction(IGridTable table) {
         if (newRegion != null) {
             try {
-                new TableServiceImpl(false)
-                        .moveTableTo(new GridTable(newRegion, table.getGrid()), null, prevRegion);
+                new TableServiceImpl().moveTableTo(new GridTable(newRegion, table.getGrid()), null, prevRegion);
             } catch (TableServiceException e) {
                 throw new RuntimeException(e);
             }

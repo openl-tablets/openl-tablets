@@ -9,12 +9,6 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 
 public class TableServiceImpl implements TableService {
 
-    private boolean save;
-
-    public TableServiceImpl(boolean save) {
-        this.save = save;
-    }
-
     public synchronized void removeTable(IGridTable table) throws TableServiceException {
         try {
             IGridRegion tableRegion = table.getRegion();
@@ -30,16 +24,13 @@ public class TableServiceImpl implements TableService {
                     sheetModel.clearCell(left + i, top + j);
                 }
             }
-            if (save) {
-                sheetModel.getSheetSource().getWorkbookSource().save();
-            }
         } catch (Exception e) {
             throw new TableServiceException("Could not remove the table", e);
         }
     }
 
     /**
-     * 
+     *
      * @param table Table to copy
      * @param destSheetModel Sheet to copy the table
      * @return Region in the sheet, where table has been copied
@@ -57,9 +48,6 @@ public class TableServiceImpl implements TableService {
             newRegion = tableBuilder.getTableRegion();
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
-            if (save) {
-                tableBuilder.save();
-            }
         } catch (Exception e) {
             throw new TableServiceException("Could not copy the table", e);
         }
@@ -79,16 +67,13 @@ public class TableServiceImpl implements TableService {
             tableBuilder.beginTable(destRegion);
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
-            if (save) {
-                tableBuilder.save();
-            }
         } catch (Exception e) {
             throw new TableServiceException("Could not copy the table", e);
         }
     }
 
     /**
-     * 
+     *
      * @param table Table to move
      * @param destSheetModel Sheet to move the table
      * @return Region in the sheet, where table has been moved
