@@ -65,7 +65,7 @@ public class AlgorithmBuilder {
     private void bindMetaInfo(IGridTable grid, int c, int r) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
                 JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations), null), false);
-        IWritableGrid wgrid = GridTool.getWritableGrid(grid);
+        IWritableGrid wgrid = (IWritableGrid) grid.getGrid();
         wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
                 grid.getRegion(), r), meta);
     }
