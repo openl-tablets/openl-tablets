@@ -36,6 +36,8 @@ public class RunBean {
     public RunBean() {
         id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
+        RunTestHelper.addTestSuitesForRun();
+
         ProjectModel model = WebStudioUtils.getProjectModel();
         if (model.hasTestSuitesToRun()) {
             testSuite = model.popLastTest();
