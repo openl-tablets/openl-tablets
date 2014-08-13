@@ -30,12 +30,11 @@ public class TableServiceImpl {
     }
 
     /**
-     * @param table Table to copy
-     * @return Region in the sheet, where table has been copied
+     * @param table Table to move
+     * @return Region in the sheet, where table has been moved
      * @throws TableServiceException
      */
-    private IGridRegion copyTable(IGridTable table)
-            throws TableServiceException {
+    public synchronized IGridRegion moveTable(IGridTable table) throws TableServiceException {
         IGridRegion newRegion;
         try {
             TableBuilder tableBuilder = new TableBuilder((XlsSheetGridModel) table.getGrid());
@@ -44,13 +43,13 @@ public class TableServiceImpl {
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
         } catch (Exception e) {
-            throw new TableServiceException("Could not copy the table", e);
+            throw new TableServiceException("Could not move the table", e);
         }
+        removeTable(table);
         return newRegion;
     }
 
-    private void copyTableTo(IGridTable table, IGridRegion destRegion)
-            throws TableServiceException {
+    public synchronized void moveTableTo(IGridTable table, IGridRegion destRegion) throws TableServiceException {
         if (Tool.height(destRegion) != table.getHeight() || Tool.width(destRegion) != table.getWidth()) {
             throw new TableServiceException("Bad destination region size.");
         }
@@ -60,34 +59,8 @@ public class TableServiceImpl {
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
         } catch (Exception e) {
-            throw new TableServiceException("Could not copy the table", e);
-        }
-    }
-
-    /**
-     * @param table Table to move
-     * @return Region in the sheet, where table has been moved
-     * @throws TableServiceException
-     */
-    public synchronized IGridRegion moveTable(IGridTable table)
-            throws TableServiceException {
-        IGridRegion newRegion;
-        try {
-            newRegion = copyTable(table);
-            removeTable(table);
-        } catch (Exception e) {
             throw new TableServiceException("Could not move the table", e);
         }
-        return newRegion;
-    }
-
-    public synchronized void moveTableTo(IGridTable table, IGridRegion destRegion)
-            throws TableServiceException {
-        try {
-            copyTableTo(table, destRegion);
-            removeTable(table);
-        } catch (Exception e) {
-            throw new TableServiceException("Could not move the table", e);
-        }
+        removeTable(table);
     }
 }
