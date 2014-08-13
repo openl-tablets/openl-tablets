@@ -1,6 +1,5 @@
 package org.openl.rules.table.actions;
 
-import org.openl.rules.service.TableService;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.GridTable;
@@ -30,7 +29,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
-        TableService tableService = new TableServiceImpl();
+        TableServiceImpl tableService = new TableServiceImpl();
         try {
             if (newRegion == null) {
                 newRegion = tableService.moveTable(fullTable, null);
