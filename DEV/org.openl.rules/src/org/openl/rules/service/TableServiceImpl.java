@@ -36,7 +36,7 @@ public class TableServiceImpl {
      * @return Region in the sheet, where table has been copied
      * @throws TableServiceException
      */
-    public synchronized IGridRegion copyTable(IGridTable table, XlsSheetGridModel destSheetModel)
+    private IGridRegion copyTable(IGridTable table, XlsSheetGridModel destSheetModel)
             throws TableServiceException {
         IGridRegion newRegion = null;
         try {
@@ -54,7 +54,7 @@ public class TableServiceImpl {
         return newRegion;
     }
 
-    public synchronized void copyTableTo(IGridTable table, XlsSheetGridModel destSheetModel, IGridRegion destRegion)
+    private void copyTableTo(IGridTable table, XlsSheetGridModel destSheetModel, IGridRegion destRegion)
             throws TableServiceException {
         if (Tool.height(destRegion) != table.getHeight() || Tool.width(destRegion) != table.getWidth()) {
             throw new TableServiceException("Bad destination region size.");
