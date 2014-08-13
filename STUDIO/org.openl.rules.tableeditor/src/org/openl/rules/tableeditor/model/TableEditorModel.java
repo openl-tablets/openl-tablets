@@ -160,11 +160,14 @@ public class TableEditorModel {
 
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
+        int gcol = originalRegion.getLeft() + col;
+        int grow = originalRegion.getTop() + row;
+
         IFormatter dataFormatter;
         if (formatter != null) {
             dataFormatter = formatter;
         } else {
-            ICell cell = gridTable.getGrid().getCell(originalRegion.getLeft() + col, originalRegion.getTop() + row);
+            ICell cell = gridTable.getGrid().getCell(gcol, grow);
             dataFormatter = cell.getDataFormatter();
         }
 
@@ -175,8 +178,6 @@ public class TableEditorModel {
             result = value;
         }
 
-        int gcol = originalRegion.getLeft() + col;
-        int grow = originalRegion.getTop() + row;
         IUndoableGridTableAction action = new UndoableSetValueAction(gcol, grow, result);
 
         action.doAction(gridTable);
