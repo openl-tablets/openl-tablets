@@ -23,6 +23,7 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
+import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -172,7 +173,7 @@ public class InstantiationStrategyFactory {
 
         }
         strategy.setExternalParameters(externalParameters);
-        strategy.setServiceClass(WebStudioDependencyLoader.EmptyInterface.class);
+        strategy.setServiceClass(SimpleProjectDependencyLoader.EmptyInterface.class);
 
         return new ModuleInstantiator(strategy, dependencyManager);
     }
