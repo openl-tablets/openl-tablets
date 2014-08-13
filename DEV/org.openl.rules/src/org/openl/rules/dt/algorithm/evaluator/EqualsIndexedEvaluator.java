@@ -27,7 +27,6 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class EqualsIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
-
   
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();

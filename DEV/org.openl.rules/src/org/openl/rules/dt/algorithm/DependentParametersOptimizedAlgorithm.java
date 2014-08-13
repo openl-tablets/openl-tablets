@@ -1,5 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
+import java.nio.channels.IllegalSelectorException;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -7,7 +8,10 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
 import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
+import org.openl.binding.impl.IndexNode;
+import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.OneParameterEqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -38,16 +42,22 @@ public class DependentParametersOptimizedAlgorithm {
 
             case 1:
                 IOpenClass paramType = params[0].getType();
-
                 if (expressionType.equals(paramType) || expressionType.getInstanceClass()
                     .equals(paramType.getInstanceClass())) {
-                    return getOneParamRangeEvaluator(evaluatorFactory, paramType);
+                    if (evaluatorFactory instanceof OneParameterEqualsFactory) {
+                        return getOneParamEqualsEvaluator(evaluatorFactory, paramType);
+                    } else {
+                        return getOneParamRangeEvaluator(evaluatorFactory, paramType);
+                    }
                 }
 
                 if (expressionType instanceof JavaOpenClass && ((JavaOpenClass) expressionType).equalsAsPrimitive(paramType)) {
-                    return getOneParamRangeEvaluator(evaluatorFactory, paramType);
+                    if (evaluatorFactory instanceof OneParameterEqualsFactory) {
+                        return getOneParamEqualsEvaluator(evaluatorFactory, paramType);
+                    } else {
+                        return getOneParamRangeEvaluator(evaluatorFactory, paramType);
+                    }
                 }
-
                 break;
 
             case 2:
@@ -79,6 +89,14 @@ public class DependentParametersOptimizedAlgorithm {
         return rix;
     }
 
+    private static IConditionEvaluator getOneParamEqualsEvaluator(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
+
+        OneParameterEqualsFactory oneParameterEqualsFactory = (OneParameterEqualsFactory) evaluatorFactory;
+        OneParameterEqualsIndexedEvaluator oneParameterEqualsIndexedEvaluator = new OneParameterEqualsIndexedEvaluator(oneParameterEqualsFactory.signatureParam);
+        return oneParameterEqualsIndexedEvaluator;
+
+    }
+    
     private static IConditionEvaluator getOneParamRangeEvaluator(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
 
         IRangeAdaptor adaptor = getRangeAdaptor(evaluatorFactory, paramType);
@@ -95,8 +113,21 @@ public class DependentParametersOptimizedAlgorithm {
 
     private static IRangeAdaptor getRangeAdaptor(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
 
+        if (paramType.getInstanceClass().equals(byte.class) || paramType.getInstanceClass().equals(Byte.class)) {
+            return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.BYTE);
+        }
+
+        if (paramType.getInstanceClass().equals(short.class) || paramType.getInstanceClass().equals(Short.class)) {
+            return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.SHORT);
+        }
+
         if (paramType.getInstanceClass().equals(int.class) || paramType.getInstanceClass().equals(Integer.class)) {
             return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.INT);
+        }
+
+        
+        if (paramType.getInstanceClass().equals(long.class) || paramType.getInstanceClass().equals(Long.class)) {
+            return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.LONG);
         }
 
         if (paramType.getInstanceClass().equals(Date.class)) {
@@ -153,6 +184,41 @@ public class DependentParametersOptimizedAlgorithm {
 
     }
 
+    private static String buildFieldName(IndexNode indexNode){
+        String value = "[";
+        if (indexNode.getChildren().length == 1 && indexNode.getChildren()[0] instanceof LiteralBoundNode){
+            LiteralBoundNode literalBoundNode = (LiteralBoundNode) indexNode.getChildren()[0];
+            value = value + literalBoundNode.getValue().toString() + "]";
+        }else{
+            throw new IllegalSelectorException();
+        }
+        
+        if (indexNode.getTargetNode() != null){
+            if (indexNode.getTargetNode() instanceof FieldBoundNode){
+                return buildFieldName((FieldBoundNode)indexNode.getTargetNode()) + value;
+            }
+            if (indexNode.getTargetNode() instanceof IndexNode){
+                return value + buildFieldName((IndexNode)indexNode.getTargetNode());
+            }
+            throw new IllegalStateException();
+        }
+        return value;
+    }
+
+    private static String buildFieldName(FieldBoundNode field){
+        String value = field.getFieldName();
+        if (field.getTargetNode() != null){
+            if (field.getTargetNode() instanceof FieldBoundNode){
+                return buildFieldName((FieldBoundNode)field.getTargetNode()) + "." + value;
+            }
+            if (field.getTargetNode() instanceof IndexNode){
+                return buildFieldName((IndexNode)field.getTargetNode()) + "." + value;
+            }
+            throw new IllegalStateException();
+        }
+        return value;
+    }
+    
     private static String[] parseBinaryOpExpression(BinaryOpNode binaryOpNode) {
         if (binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof FieldBoundNode && binaryOpNode.getChildren()[1] instanceof FieldBoundNode) {
             String[] ret = new String[3];
@@ -168,14 +234,17 @@ public class DependentParametersOptimizedAlgorithm {
             if (binaryOpNode.getSyntaxNode().getType().endsWith("lt")) {
                 ret[1] = "<";
             }
+            if (binaryOpNode.getSyntaxNode().getType().endsWith("eq")) {
+                ret[1] = "==";
+            }
             if (ret[1] == null) {
                 return null;
             }
             FieldBoundNode fieldBoundNode0 = (FieldBoundNode) binaryOpNode.getChildren()[0];
             FieldBoundNode fieldBoundNode1 = (FieldBoundNode) binaryOpNode.getChildren()[1];
 
-            ret[0] = fieldBoundNode0.getFieldName();
-            ret[2] = fieldBoundNode1.getFieldName();
+            ret[0] = buildFieldName(fieldBoundNode0);
+            ret[2] = buildFieldName(fieldBoundNode1);
             return ret;
         }
         return null;
@@ -227,7 +296,7 @@ public class DependentParametersOptimizedAlgorithm {
         }
         throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
     }
-
+    
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition, IMethodSignature signature) {
         IParameterDeclaration[] params = condition.getParams();
 
@@ -240,13 +309,20 @@ public class DependentParametersOptimizedAlgorithm {
                 String[] parsedValues = oneParameterExpressionParse(condition);
                 if (parsedValues == null)
                     return null;
-
-                OneParameterRangeFactory oneParameterRangefactory = makeOneParameterRangeFactory(parsedValues[0],
-                    parsedValues[1],
-                    parsedValues[2],
-                    condition,
-                    signature);
-                return oneParameterRangefactory;
+                if (parsedValues[1] == "==") {
+                    return makeOneParameterEqualsFactory(parsedValues[0],
+                        parsedValues[1],
+                        parsedValues[2],
+                        condition,
+                        signature);
+                } else {
+                    OneParameterRangeFactory oneParameterRangefactory = makeOneParameterRangeFactory(parsedValues[0],
+                        parsedValues[1],
+                        parsedValues[2],
+                        condition,
+                        signature);
+                    return oneParameterRangefactory;
+                }
             case 2:
                 String[][] parsedValuesTwoParameters = twoParameterExpressionParse(condition);
                 if (parsedValuesTwoParameters == null)
@@ -263,6 +339,32 @@ public class DependentParametersOptimizedAlgorithm {
                 return null;
         }
 
+    }
+
+    private static OneParameterEqualsFactory makeOneParameterEqualsFactory(String p1,
+            String op,
+            String p2,
+            ICondition condition,
+            IMethodSignature signature) {
+
+        IParameterDeclaration signatureParam = getParameter(p1, signature);
+        IParameterDeclaration conditionParam = condition.getParams()[0];
+
+        if (signatureParam == null) {
+            signatureParam = getParameter(p2, signature);
+            if (signatureParam == null){
+                return null;
+            }
+            if (!p1.equals(conditionParam.getName()))
+                return null;
+
+            return new OneParameterEqualsFactory(signatureParam);
+        }
+
+        if (!p2.equals(conditionParam.getName()))
+            return null;
+
+        return new OneParameterEqualsFactory(signatureParam);
     }
 
     private static OneParameterRangeFactory makeOneParameterRangeFactory(String p1,
@@ -436,6 +538,28 @@ public class DependentParametersOptimizedAlgorithm {
 
         public IOpenClass getExpressionType() {
             return signatureParam.getType();
+        }
+
+    }
+
+    static class OneParameterEqualsFactory extends EvaluatorFactory {
+        public OneParameterEqualsFactory(IParameterDeclaration signatureParam) {
+            super(signatureParam);
+        }
+
+        @Override
+        public boolean hasMin() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasMax() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean needsIncrement(Bound bound) {
+            throw new UnsupportedOperationException();
         }
 
     }
