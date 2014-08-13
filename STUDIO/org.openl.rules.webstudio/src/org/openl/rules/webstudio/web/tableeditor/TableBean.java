@@ -27,6 +27,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -443,7 +444,9 @@ public class TableBean {
             final WebStudio studio = WebStudioUtils.getWebStudio();
             IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
-            new TableServiceImpl(true).removeTable(gridTable);
+            new TableServiceImpl().removeTable(gridTable);
+            XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
+            sheetModel.getSheetSource().getWorkbookSource().save();
             studio.rebuildModel();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);

@@ -38,7 +38,7 @@ public class TestCopy extends TestCase {
             IGridTable[] tables = xsGrid.getTables();
 
             for (int j = 0; j < tables.length; j++) {
-                IWritableGrid.Tool.insertColumns(1, 1, tables[j].getRegion(), tables[j].getGrid());
+                GridTool.insertColumns(1, 1, tables[j].getRegion(), tables[j].getGrid());
             }
         }
 

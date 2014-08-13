@@ -1,8 +1,8 @@
 package org.openl.rules.table.actions;
 
+import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 
 /**
@@ -37,7 +37,7 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {
-        return IWritableGrid.Tool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid());
+        return GridTool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid());
     }
 
     @Override
