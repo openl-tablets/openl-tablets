@@ -1,9 +1,6 @@
 package org.openl.rules.table.actions;
 
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 
 /**
@@ -57,6 +54,6 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {        
-        return IWritableGrid.Tool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid());
+        return GridTool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid());
     }
 }

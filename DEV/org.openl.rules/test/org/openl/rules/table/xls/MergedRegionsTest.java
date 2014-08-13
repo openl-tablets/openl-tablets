@@ -13,10 +13,7 @@ import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.FileSourceCodeModule;
 
@@ -261,7 +258,7 @@ public class MergedRegionsTest {
         assertEquals(8, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction removeRowsAction = IWritableGrid.Tool.removeRows(test.getCount(), test.getFrom(),
+            IUndoableGridTableAction removeRowsAction = GridTool.removeRows(test.getCount(), test.getFrom(),
                     test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, removeRowsAction);
         }
@@ -277,7 +274,7 @@ public class MergedRegionsTest {
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction insertRowsAction = IWritableGrid.Tool.insertRows(test.getCount(), test.getFrom(),
+            IUndoableGridTableAction insertRowsAction = GridTool.insertRows(test.getCount(), test.getFrom(),
                     test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, insertRowsAction);
         }
@@ -293,7 +290,7 @@ public class MergedRegionsTest {
         assertEquals(6, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction removeColumnsAction = IWritableGrid.Tool.removeColumns(test.getCount(), test
+            IUndoableGridTableAction removeColumnsAction = GridTool.removeColumns(test.getCount(), test
                     .getFrom(), test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, removeColumnsAction);
         }
@@ -309,7 +306,7 @@ public class MergedRegionsTest {
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction insertColumnsAction = IWritableGrid.Tool.insertColumns(test.getCount(), test
+            IUndoableGridTableAction insertColumnsAction = GridTool.insertColumns(test.getCount(), test
                     .getFrom(), test.getTestRegion(), table.getGrid());
             testActions(workbook, grid, table, test, insertColumnsAction);
         }
