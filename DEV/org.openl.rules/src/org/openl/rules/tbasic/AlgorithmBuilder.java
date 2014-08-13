@@ -10,10 +10,7 @@ import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
@@ -68,7 +65,7 @@ public class AlgorithmBuilder {
     private void bindMetaInfo(IGridTable grid, int c, int r) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
                 JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations), null), false);
-        IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(grid);
+        IWritableGrid wgrid = GridTool.getWritableGrid(grid);
         wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
                 grid.getRegion(), r), meta);
     }

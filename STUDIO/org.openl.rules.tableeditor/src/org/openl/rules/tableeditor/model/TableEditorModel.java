@@ -8,14 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.table.CellKey;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTableUtils;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.*;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -180,7 +173,7 @@ public class TableEditorModel {
             ICell cell = gridTable.getGrid().getCell(originalRegion.getLeft() + col, originalRegion.getTop() + row);
             dataFormatter = cell.getDataFormatter();
         }
-        IUndoableGridTableAction action = IWritableGrid.Tool.setStringValue(
+        IUndoableGridTableAction action = GridTool.setStringValue(
                 col, row, originalRegion, value, dataFormatter);
         action.doAction(gridTable);
         actions.addNewAction(action);
@@ -198,7 +191,7 @@ public class TableEditorModel {
         IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
 
-        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
+        CellKey propertyCoordinates = GridTool.getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
 
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
@@ -232,7 +225,7 @@ public class TableEditorModel {
             return;
         }
 
-        IUndoableGridTableAction action = IWritableGrid.Tool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
+        IUndoableGridTableAction action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);
@@ -246,7 +239,7 @@ public class TableEditorModel {
         Object objectValue = null;
         if (StringUtils.isNotBlank(value)) {
             IFormatter formatter = getPropertyFormatter(name);
-            objectValue = IWritableGrid.Tool.parseStringValue(formatter, value);
+            objectValue = GridTool.parseStringValue(formatter, value);
         }
         setProperty(name, objectValue);
     }
