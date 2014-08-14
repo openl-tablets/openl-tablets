@@ -17,8 +17,9 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  */
 
 public abstract class AbstractProductionRepoController {
+    private static final String LOCAL = "local";
     private String name;
-    private String type = "local";
+    private String type = LOCAL;
     private String path;
     private boolean secure = false;
     private String login;
@@ -103,7 +104,7 @@ public abstract class AbstractProductionRepoController {
 
     public void clearForm() {
         name = "";
-        type = "local";
+        type = LOCAL;
         path = "";
         secure = false;
         login = "";
@@ -243,5 +244,8 @@ public abstract class AbstractProductionRepoController {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
-    
+
+    public boolean isLocal() {
+        return LOCAL.equals(getType());
+    }
 }

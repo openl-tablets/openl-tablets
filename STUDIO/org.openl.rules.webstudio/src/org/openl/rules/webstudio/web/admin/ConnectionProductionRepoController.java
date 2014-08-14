@@ -42,6 +42,14 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
        super.clearForm();
     }
 
+    @Override
+    public void setType(String type) {
+        super.setType(type);
+        if (isLocal()) {
+            setSecure(false);
+        }
+    }
+
     private boolean checkConnection(RepositoryConfiguration repoConfig) {
         setErrorMessage("");
 
