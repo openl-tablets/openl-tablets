@@ -533,7 +533,7 @@ public class TableEditorController extends BaseTableEditorController {
     }
 
     private boolean hasEmptyRow(TableEditorModel editorModel) {
-        IGridTable gridTable = editorModel.getGridTable();
+        IGridTable gridTable = editorModel.getOriginalGridTable();
         int height = gridTable.getHeight();
         for (int i = 0; i < height; i++) {
             IGridTable row = gridTable.getRow(i);
