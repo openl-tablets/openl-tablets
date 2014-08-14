@@ -1,5 +1,6 @@
 package org.openl.rules.ui;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +25,7 @@ import org.openl.rules.ui.tree.view.*;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
 import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
@@ -592,7 +594,12 @@ public class WebStudio {
     }
 
     private String validateUploadedFiles(UploadedFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
-        ProjectDescriptor newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptor(zipFile, zipFilter);
+        ProjectDescriptor newProjectDescriptor;
+        try {
+            newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(zipFile, zipFilter);
+        } catch (XStreamException e) {
+            return ProjectDescriptorUtils.getErrorMessage(e);
+        }
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());
         }
