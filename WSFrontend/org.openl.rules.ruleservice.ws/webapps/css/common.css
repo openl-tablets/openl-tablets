@@ -17,11 +17,9 @@ a:visited   { color: #0090FF; }
 }
 #main {
     padding: 0 20px 0;
-    text-align: center;
 }
 #main > div {
     display: inline-block;
-    text-align: left;
     width: 100%;
 }
 #footer {
