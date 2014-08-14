@@ -6,6 +6,11 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jsp/jstl/core">
 
+  <style>
+      #modalAddRepoConnectionForm .titleColumn {
+          min-width: 100px;
+      }
+  </style>
   <rich:popupPanel id="modalAddRepoConnection" width="400" autosized="true">
     <f:facet name="header">
         <h:outputText value="Connect Production Repository" />
@@ -25,22 +30,24 @@
                     rendered="#{!empty connectionProductionRepoController.errorMessage}"/>
             </h:panelGroup>
             <h:outputText value="Name:"/>
-            <h:inputText value="#{connectionProductionRepoController.name}" styleClass="repoFieldWidth"/>
+            <h:inputText id="productionRepositoryName" value="#{connectionProductionRepoController.name}" styleClass="repoFieldWidth"/>
             <h:outputText value="Type:"/>
             <h:selectOneMenu value="#{connectionProductionRepoController.type}">
-                <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
+                <f:ajax event="change" execute="@this productionRepositoryName" render="modalAddRepoConnectionPanel" />
                 <f:selectItem itemValue="local" itemLabel="Local" />
                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
             </h:selectOneMenu>
             <h:outputText id="productionRepositoryPathTitle"
-                value="#{connectionProductionRepoController.type == 'local' ? 'Directory' : 'URL'}:" />
+                value="#{connectionProductionRepoController.local ? 'Directory' : 'URL'}:" />
             <h:inputText id="productionRepositoryPath"
                 value="#{connectionProductionRepoController.path}" styleClass="pathInput"
                 disabled="#{repository.productionRepositoryPathSystem}"/>
         
-            <h:outputLabel value="Secure connection" for="secureConnection" />
-            <h:selectBooleanCheckbox id="secureConnection" value="#{connectionProductionRepoController.secure}">
+            <h:outputLabel id="secureConnectionTitle" value="Secure connection" for="secureConnection"
+                           rendered="#{!connectionProductionRepoController.local}"/>
+            <h:selectBooleanCheckbox id="secureConnection" value="#{connectionProductionRepoController.secure}"
+                                     rendered="#{!connectionProductionRepoController.local}">
                 <f:ajax event="change" execute="@form" render="modalAddRepoConnectionPanel" />
             </h:selectBooleanCheckbox>
             <h:outputText value="Login:" rendered="#{connectionProductionRepoController.secure}"/>
