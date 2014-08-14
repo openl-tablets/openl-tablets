@@ -11,6 +11,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -293,11 +294,11 @@ public class WebStudio {
     }
 
     public boolean isShowHeader() {
-        return tableView.equals("developer");
+        return tableView.equals(IXlsTableNames.VIEW_DEVELOPER);
     }
 
     public void setShowHeader(boolean showHeader) {
-        setTableView(showHeader ? "developer" : "business");
+        setTableView(showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
     }
 
     public ProjectModel getModel() {
