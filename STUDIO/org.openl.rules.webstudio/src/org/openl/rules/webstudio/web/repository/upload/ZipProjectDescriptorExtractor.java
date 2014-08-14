@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.IOException;
+
+import com.thoughtworks.xstream.XStreamException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptorFinder;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
@@ -12,17 +15,21 @@ public final class ZipProjectDescriptorExtractor {
     private ZipProjectDescriptorExtractor() {
     }
 
-    public static ProjectDescriptor getProjectDescriptor(UploadedFile uploadedFile, PathFilter zipFilter) {
+    public static ProjectDescriptor getProjectDescriptorOrNull(UploadedFile uploadedFile, PathFilter zipFilter) {
         try {
-            ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter);
-            ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
-            zipWalker.iterateEntries(finder);
-            return finder.getProjectDescriptor();
+            return getProjectDescriptorOrThrow(uploadedFile, zipFilter);
         } catch (Exception e) {
             final Logger log = LoggerFactory.getLogger(ZipProjectDescriptorExtractor.class);
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public static ProjectDescriptor getProjectDescriptorOrThrow(UploadedFile uploadedFile, PathFilter zipFilter) throws IOException, XStreamException {
+        ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter);
+        ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
+        zipWalker.iterateEntries(finder);
+        return finder.getProjectDescriptor();
     }
 
 }
