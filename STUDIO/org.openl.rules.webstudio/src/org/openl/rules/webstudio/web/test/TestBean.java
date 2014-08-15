@@ -346,20 +346,4 @@ public class TestBean {
     public boolean isShowComplexResult() {
         return showComplexResult;
     }
-
-    public void setTestsPerPage(int testsPerPage) {
-        this.testsPerPage = testsPerPage;
-    }
-
-    public void setTestsFailuresOnly(boolean testsFailuresOnly) {
-        this.testsFailuresOnly = testsFailuresOnly;
-    }
-
-    public void setTestsFailuresPerTest(int testsFailuresPerTest) {
-        this.testsFailuresPerTest = testsFailuresPerTest;
-    }
-
-    public void setShowComplexResult(boolean showComplexResult) {
-        this.showComplexResult = showComplexResult;
-    }
 }
