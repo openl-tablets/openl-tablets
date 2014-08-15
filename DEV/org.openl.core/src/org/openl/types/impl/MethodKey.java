@@ -97,7 +97,7 @@ public final class MethodKey {
 	
 		boolean first = true;
 		
-		for (IOpenClass c : pars) {
+		for (IOpenClass c : internalParameters) {
 			if (!first) {
 				sb.append(",");
 			}
