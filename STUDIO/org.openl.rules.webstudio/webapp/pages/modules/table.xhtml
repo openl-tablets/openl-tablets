@@ -655,15 +655,17 @@
               query += '&' + this.name + '=false';
           });
 
+          query += '&testRanges=';
           if ($j("#useTestRanges").is(":checked")) {
-              query += '&testRanges=' + $j("#testRanges").val();
+              var ids = $j("#testRanges").val();
           } else {
-              $j("#testTable").find("tr").filter(function() {
+              var ids = $j("#testTable tr").filter(function() {
                   return $j(this).find(":checked").length > 0;
-              }).find(".test-id").each(function() {
-                  query += '&testId=' + $j(this).text();
-              });
+              }).find(".test-id").map(function() {
+                  return $j(this).text();
+              }).get().join();
           }
+          query += encodeURIComponent(ids);
           return query;
       }
 
