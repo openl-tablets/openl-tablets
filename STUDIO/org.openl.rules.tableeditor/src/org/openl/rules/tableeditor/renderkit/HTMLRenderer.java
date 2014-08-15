@@ -345,7 +345,7 @@ public class HTMLRenderer {
             for (int row = 0; row < tableModel.getCells().length; row++) {
                 s.append("<tr>\n");
                 if (rowIndex != null) {
-                    s.append("<td style='padding-left:5px; padding-right:5px; border: none;'>");
+                    s.append("<td style='padding-left:5px; padding-right:5px; border: none; width: 1px; vertical-align: middle; text-align: right;'>");
                     long rowToPrint = row - rowIndex + 2;
                     if (rowToPrint > 0) {
                         s.append(rowToPrint);
