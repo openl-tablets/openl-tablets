@@ -53,7 +53,6 @@ public class TestBean {
 
     private WebStudio studio;
     private TestUnitsResults[] ranResults;
-    private boolean runResultsInitialized = false;
 
     private final static int ALL = -1;
 
@@ -80,7 +79,7 @@ public class TestBean {
         }
 
         TestResultsHelper.initExplanator();
-        // testAll();
+        testAll();
 
         initPagination();
         initFailures();
@@ -169,10 +168,6 @@ public class TestBean {
     private boolean ranTestsSorted = false;
 
     public TestUnitsResults[] getRanTests() {
-        if (!runResultsInitialized) {
-            testAll();
-            runResultsInitialized = true;
-        }
         if (!ranTestsSorted) {
             Arrays.sort(ranResults, TEST_COMPARATOR);
             ranTestsSorted = true;
@@ -198,20 +193,12 @@ public class TestBean {
     }
 
     public int getNumberOfTests() {
-        if (!runResultsInitialized) {
-            testAll();
-            runResultsInitialized = true;
-        }
         return ranResults != null ? ranResults.length : 0;
     }
 
     private Integer numberOfFailedTests = null;
 
     public int getNumberOfFailedTests() {
-        if (!runResultsInitialized) {
-            testAll();
-            runResultsInitialized = true;
-        }
         if (numberOfFailedTests == null) {
             int cnt = 0;
             for (TestUnitsResults result : ranResults) {
@@ -227,10 +214,6 @@ public class TestBean {
     Integer numberOfFailedTestCases = null;
 
     public int getNumberOfFailedTestCases() {
-        if (!runResultsInitialized) {
-            testAll();
-            runResultsInitialized = true;
-        }
         if (numberOfFailedTestCases == null) {
             int sum = 0;
             for (TestUnitsResults result : ranResults) {
@@ -347,7 +330,7 @@ public class TestBean {
     }
 
     public boolean isExpired() {
-        return StringUtils.isNotBlank(uri) && runResultsInitialized && (ranResults == null || ranResults.length == 0);
+        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
     }
 
     public int getTestsPerPage() {
