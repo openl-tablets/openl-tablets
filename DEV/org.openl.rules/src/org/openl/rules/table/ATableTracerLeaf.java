@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.util.formatters.IFormatter;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
@@ -32,5 +34,14 @@ public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITa
     
     public void setResult(Object result) {
         this.result = result;
+    }
+    
+    protected String getFormattedValue(Object value) {
+        IFormatter formatter = FormattersManager.getFormatter(value);        
+        if (formatter != null) {
+            return formatter.format(value);
+        } else {
+            return value.toString();
+        }
     }
 }

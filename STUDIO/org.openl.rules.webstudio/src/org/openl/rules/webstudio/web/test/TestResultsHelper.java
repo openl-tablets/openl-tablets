@@ -1,11 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.formatters.FormattersManager;

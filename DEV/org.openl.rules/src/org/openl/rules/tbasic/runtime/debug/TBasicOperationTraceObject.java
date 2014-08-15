@@ -11,10 +11,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
-/**
- * @author User
- *
- */
 public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     private HashMap<String, Object> fieldValues;
@@ -45,21 +41,17 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
                 displayFieldFormatedValues);
     }
 
-    /**
-     * @return the fieldValues
-     */
     public HashMap<String, Object> getFieldValues() {
         return fieldValues;
     }
 
-    /**
-     * @return
-     */
     private String getFieldValuesAsString() {
         StringBuilder fields = new StringBuilder();
 
         for (String fieldName : fieldValues.keySet()) {
-            fields.append(fieldName).append(" = ").append(fieldValues.get(fieldName)).append(", ");
+            Object value = fieldValues.get(fieldName);
+            String formattedValue = getFormattedValue(value);
+            fields.append(fieldName).append(" = ").append(formattedValue).append(", ");
         }
 
         // remove last ", "

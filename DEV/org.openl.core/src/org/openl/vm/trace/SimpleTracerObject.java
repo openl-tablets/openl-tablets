@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.openl.base.INamedThing;
-import org.openl.util.AOpenIterator;
 
 public abstract class SimpleTracerObject implements ITracerObject {
     
@@ -42,7 +41,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
 
     public Iterable<? extends org.openl.util.tree.ITreeElement<ITracerObject>> getChildren() {
         if (children == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return children;
     }
