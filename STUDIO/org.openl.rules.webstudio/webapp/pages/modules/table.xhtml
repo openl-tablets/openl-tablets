@@ -6,7 +6,8 @@
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
@@ -117,22 +118,28 @@
                     <span>Failures Only</span>
                     <input name="failuresOnly" type="checkbox"
                            onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                           value="true" checked="#{testBean.testsFailuresOnly ? 'checked' : ''}"
+                           value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
                            style="vertical-align:-2px;margin:-4px" />
                 </div>
-                <div id="caseFailuresSetting" class="#{!testBean.testsFailuresOnly ? 'hidden' : ''}">
+                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
                     <span>Failures per test</span>
-                    <h:selectOneMenu id="failures" value="#{testBean.testsFailuresPerTest}">
-                        <f:selectItem itemLabel="1" itemValue="1" />
-                        <f:selectItem itemLabel="5" itemValue="5" />
-                        <f:selectItem itemLabel="20" itemValue="20" />
-                        <f:selectItem itemLabel="All" itemValue="-1" />
-                    </h:selectOneMenu>
+                    <select id="failures" name="failures">
+                        <c:set var="items" value="#{fn:split('1,1;5,5;20,20;-1,All', ';')}"/>
+                        <ui:repeat value="#{items}" var="item">
+                            <c:set var="failures" value="#{fn:split(item, ',')}"/>
+                            <ui:fragment rendered="#{studio.testsFailuresPerTest == jsffn:toNumber(failures[0])}">
+                                <option value="#{failures[0]}" selected="selected">#{failures[1]}</option>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{studio.testsFailuresPerTest != jsffn:toNumber(failures[0])}">
+                                <option value="#{failures[0]}">#{failures[1]}</option>
+                            </ui:fragment>
+                        </ui:repeat>
+                    </select>
                 </div>
                 <div title="Display the full result of running test cases, not only values which are being tested">
                     <span>Compound Result</span>
                     <input name="complexResult" type="checkbox"
-                           value="true" checked="#{testBean.showComplexResult ? 'checked' : ''}"
+                           value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
                            style="vertical-align:-2px;margin:-4px" />
                 </div>
             </h:panelGroup>
