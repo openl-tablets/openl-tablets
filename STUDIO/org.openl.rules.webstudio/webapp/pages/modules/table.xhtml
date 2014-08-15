@@ -124,14 +124,14 @@
                 <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
                     <span>Failures per test</span>
                     <select id="failures" name="failures">
-                        <c:set var="items" value="#{fn:split('1,1;5,5;20,20;-1,All', ';')}"/>
-                        <ui:repeat value="#{items}" var="item">
-                            <c:set var="failures" value="#{fn:split(item, ',')}"/>
-                            <ui:fragment rendered="#{studio.testsFailuresPerTest == jsffn:toNumber(failures[0])}">
-                                <option value="#{failures[0]}" selected="selected">#{failures[1]}</option>
+                        <c:set var="values" value="#{fn:split('1;5;20;-1', ';')}"/>
+                        <c:set var="titles" value="#{fn:split('1;5;20;All', ';')}"/>
+                        <ui:repeat value="#{values}" var="value" varStatus="i">
+                            <ui:fragment rendered="#{studio.testsFailuresPerTest == jsffn:toNumber(value)}">
+                                <option value="#{value}" selected="selected">#{titles[i.index]}</option>
                             </ui:fragment>
-                            <ui:fragment rendered="#{studio.testsFailuresPerTest != jsffn:toNumber(failures[0])}">
-                                <option value="#{failures[0]}">#{failures[1]}</option>
+                            <ui:fragment rendered="#{studio.testsFailuresPerTest != jsffn:toNumber(value)}">
+                                <option value="#{value}">#{titles[i.index]}</option>
                             </ui:fragment>
                         </ui:repeat>
                     </select>
