@@ -111,16 +111,14 @@ public class TestBean {
     private void initFailures() {
         testsFailuresOnly = studio.isTestsFailuresOnly();
         String failuresOnlyParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY);
-        boolean failuresOnly = failuresOnlyParameter == null ? testsFailuresOnly
-                : Boolean.valueOf(failuresOnlyParameter);
-        if (failuresOnly != testsFailuresOnly) {
-            testsFailuresOnly = failuresOnly;
+        if (failuresOnlyParameter != null) {
+            testsFailuresOnly = Boolean.parseBoolean(failuresOnlyParameter);
         }
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
         int failuresPerTest = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
                 testsFailuresPerTest);
-        if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != testsFailuresPerTest) {
+        if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
         }
     }
@@ -128,10 +126,8 @@ public class TestBean {
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
         String isShowComplexResultParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
-        boolean isShowComplexResult = isShowComplexResultParameter == null ? showComplexResult
-                : Boolean.valueOf(isShowComplexResultParameter);
-        if (isShowComplexResult != showComplexResult) {
-            showComplexResult = isShowComplexResult;
+        if (isShowComplexResultParameter != null) {
+            showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
     }
 
