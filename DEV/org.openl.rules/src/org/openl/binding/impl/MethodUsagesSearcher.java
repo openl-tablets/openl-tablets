@@ -52,7 +52,7 @@ public class MethodUsagesSearcher {
             return method;
         }
 
-        private static String getTableUri(IOpenMethod method){
+        private static String getTableUri(IOpenMethod method) {
             try {
                 if (method instanceof ExecutableRulesMethod) {
                     return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
@@ -60,10 +60,11 @@ public class MethodUsagesSearcher {
                     return ((OverloadedMethodsDispatcherTable) method).getDispatcherTable().getUri();
                 } else if (method instanceof MatchingOpenMethodDispatcher) {
                     MatchingOpenMethodDispatcher matchingOpenMethodDispatcher = (MatchingOpenMethodDispatcher) method;
-                    if (matchingOpenMethodDispatcher.getCandidates().size() == 1){
+                    if (matchingOpenMethodDispatcher.getCandidates().size() == 1) {
                         return getTableUri(matchingOpenMethodDispatcher.getCandidates().get(0));
+                    } else {
+                        return matchingOpenMethodDispatcher.getDispatcherTable().getUri();
                     }
-                    return null;
                 } else if (method.getInfo() != null) {
                     return method.getInfo().getSourceUrl();
                 } else {
@@ -71,9 +72,9 @@ public class MethodUsagesSearcher {
                 }
             } catch (Exception e) {
                 return null;
-            }            
+            }
         }
-        
+
         /**
          * 
          * @return uri of the table representing used method or

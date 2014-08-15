@@ -1,11 +1,12 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodKey;
 
 /**
  * Builds tree node for table instance.
@@ -100,10 +101,10 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
 
-            TableSyntaxNodeKey key = new TableSyntaxNodeKey(tableSyntaxNode);
-
-            String keyString = key.toString();
-
+            MethodKey methodKey = new MethodKey((IOpenMethod) tableSyntaxNode.getMember());
+            
+            String keyString = methodKey.toString();
+            
             Object nodeObject = makeObject(tableSyntaxNode);
 
             String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
