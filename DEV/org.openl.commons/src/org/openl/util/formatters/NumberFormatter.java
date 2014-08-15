@@ -1,13 +1,13 @@
 package org.openl.util.formatters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Number formatter.
@@ -45,7 +45,6 @@ public class NumberFormatter implements IFormatter {
             log.debug("Should be Number: {}", value);
             return null;
         }
-
         return format.format(value);
     }
 
