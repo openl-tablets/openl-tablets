@@ -12,7 +12,6 @@ public final class Constants {
     public static final String REQUEST_PARAM_FAILURES_NUMBER = "failures";
     public static final String REQUEST_PARAM_COMPLEX_RESULT = "complexResult";
 
-    public static final String REQUEST_PARAM_TEST_ID = "testId";
     public static final String REQUEST_PARAM_TEST_RANGES = "testRanges";
     public static final String REQUEST_PARAM_TEST_DESCRIPTION = "testDescr";
 

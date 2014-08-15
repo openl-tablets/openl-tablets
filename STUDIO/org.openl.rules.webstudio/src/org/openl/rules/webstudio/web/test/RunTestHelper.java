@@ -27,21 +27,12 @@ public final class RunTestHelper {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
 
                 String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
-                String[] testIds = FacesUtils.getRequest().getParameterValues(Constants.REQUEST_PARAM_TEST_ID);
-                if (testRanges == null && testIds == null) {
+                if (testRanges == null) {
                     // Run all test cases of selected test suite
                     model.addTestSuiteToRun(new TestSuiteWithPreview(testSuiteMethod));
                 } else {
                     // Run only selected test cases of selected test suite
-                    int[] indices;
-                    if (testRanges != null) {
-                        indices = testSuiteMethod.getIndices(testRanges);
-                    } else {
-                        indices = new int[testIds.length];
-                        for (int i = 0; i < testIds.length; i++) {
-                            indices[i] = Integer.parseInt(testIds[i]) - 1;
-                        }
-                    }
+                    int[] indices = testSuiteMethod.getIndices(testRanges);
                     model.addTestSuiteToRun(new TestSuiteWithPreview(testSuiteMethod, indices));
                 }
             }
