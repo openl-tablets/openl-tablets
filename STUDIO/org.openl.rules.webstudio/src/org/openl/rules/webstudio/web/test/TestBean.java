@@ -65,6 +65,10 @@ public class TestBean {
     private int testsFailuresPerTest;
     private boolean showComplexResult;
 
+    private boolean ranTestsSorted = false;
+    private Integer numberOfFailedTests = null;
+    private Integer numberOfFailedTestCases = null;
+
     /**
      * URI of tested table
      */
@@ -165,8 +169,6 @@ public class TestBean {
         }
     }
 
-    private boolean ranTestsSorted = false;
-
     public TestUnitsResults[] getRanTests() {
         if (!ranTestsSorted) {
             Arrays.sort(ranResults, TEST_COMPARATOR);
@@ -196,8 +198,6 @@ public class TestBean {
         return ranResults != null ? ranResults.length : 0;
     }
 
-    private Integer numberOfFailedTests = null;
-
     public int getNumberOfFailedTests() {
         if (numberOfFailedTests == null) {
             int cnt = 0;
@@ -210,8 +210,6 @@ public class TestBean {
         }
         return numberOfFailedTests;
     }
-
-    Integer numberOfFailedTestCases = null;
 
     public int getNumberOfFailedTestCases() {
         if (numberOfFailedTestCases == null) {
