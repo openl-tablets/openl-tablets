@@ -49,6 +49,7 @@
                             <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}"/>
+                                    <ui:param name="lazy" value="false" />
                                 </ui:include>
                             </h:panelGroup>
                         </td>

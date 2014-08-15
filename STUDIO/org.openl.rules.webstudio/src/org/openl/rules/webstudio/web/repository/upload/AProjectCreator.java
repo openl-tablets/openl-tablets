@@ -10,7 +10,6 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -84,14 +83,7 @@ public abstract class AProjectCreator {
                 projectDescriptor.setName(getProjectName());
                 inputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
             } catch (XStreamException e) {
-                StringBuilder message = new StringBuilder("Can't parse rules.xml.");
-                if (e.getCause() instanceof SAXParseException) {
-                    SAXParseException parseException = (SAXParseException) e.getCause();
-                    message.append(" Line number: ").append(parseException.getLineNumber())
-                            .append(", column number: ").append(parseException.getColumnNumber())
-                            .append(".");
-                }
-                throw new ProjectException(message.toString(), e);
+                throw new ProjectException(ProjectDescriptorUtils.getErrorMessage(e), e);
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }

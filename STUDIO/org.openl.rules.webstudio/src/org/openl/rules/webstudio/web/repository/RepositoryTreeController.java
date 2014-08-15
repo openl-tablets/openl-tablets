@@ -610,7 +610,7 @@ public class RepositoryTreeController {
 
     private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-        AProjectArtefact projectDescriptorArtifact = null;
+        AProjectArtefact projectDescriptorArtifact;
         try {
             projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         } catch (ProjectException ex) {
@@ -827,7 +827,7 @@ public class RepositoryTreeController {
 
     public String exportFileVersion() {
         File file = null;
-        String fileName = null;
+        String fileName;
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -1280,7 +1280,7 @@ public class RepositoryTreeController {
             this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
 
             if (FileTypeHelper.isZipFile(fileName)) {
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptor(file, zipFilter);
+                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
                 }

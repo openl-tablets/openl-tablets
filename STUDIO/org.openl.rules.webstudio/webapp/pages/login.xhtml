@@ -6,6 +6,10 @@
     template="/pages/layout/simpleLayout.xhtml">
 
     <ui:define name="content">
+        <div id="loadingPanel" style="display: none">
+            <img src="#{contextPath}/images/ajax-loader.gif" />
+        </div>
+
         <input type="hidden" id="OPENL_LOGIN_PAGE" />
 
         <table style="width: 100%">
@@ -27,7 +31,7 @@
                         </c:if>
                         <div>
                             <!-- form itself -->
-                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="setSubmitUrl(this);">
+                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="$j('#loadingPanel').show(); setSubmitUrl(this);">
                                 <table id="loginForm" style="text-align: left;" cellpadding="4" cellspacing="0">
                                     <tr>
                                         <td align="right">
