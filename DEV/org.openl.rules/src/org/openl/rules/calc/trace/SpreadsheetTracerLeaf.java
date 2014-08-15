@@ -73,6 +73,7 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         if (result != null && result.getClass().isArray()) {
             return ArrayUtils.toString(result);
         }
-        return String.valueOf(result);
+        
+        return getFormattedValue(result);
     }
 }

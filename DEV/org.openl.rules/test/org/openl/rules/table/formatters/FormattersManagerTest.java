@@ -1,18 +1,16 @@
 package org.openl.rules.table.formatters;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 
 import org.junit.Test;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DateFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.FormatterAdapter;
 import org.openl.util.formatters.IFormatter;
-import org.openl.util.formatters.NumberFormatter;
 
 public class FormattersManagerTest {
     
@@ -25,7 +23,7 @@ public class FormattersManagerTest {
     public void testDouble() {
         Double dd = Double.valueOf(12.345);
         IFormatter formatter = FormattersManager.getFormatter(dd);
-        assertTrue(formatter instanceof NumberFormatter);
+        assertTrue(formatter instanceof SmartNumberFormatter);
     }
     
     @Test

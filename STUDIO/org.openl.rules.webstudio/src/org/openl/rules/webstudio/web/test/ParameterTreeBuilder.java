@@ -10,12 +10,14 @@ import org.openl.base.INamedThing;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.SubGridTable;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.webstudio.web.trace.TracerObjectDecorator;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.OpenClassHelper;
+import org.openl.util.formatters.IFormatter;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -142,6 +144,15 @@ public class ParameterTreeBuilder {
 
     public String formattedResult(Object value) {
     	return TracerObjectDecorator.format(value);
+    }
+    
+    public String formattedSimple(Object value) {
+        if (value == null){
+            return "null";
+        }else{
+            IFormatter formatter = FormattersManager.getFormatter(value);
+            return formatter.format(value);
+        }
     }
 
     public boolean isHtmlTable(Object value) {
