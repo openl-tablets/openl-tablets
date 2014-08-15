@@ -129,10 +129,8 @@ public class MethodNodeBinder extends ANodeBinder {
     private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
                                            IOpenClass[] parameterTypes) {
 
-        if (!NullOpenClass.isAnyNull(parameterTypes)) {
-            String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
-            BindHelper.processError(message, node, bindingContext, false);
-        }
+        String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
+        BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
     }
