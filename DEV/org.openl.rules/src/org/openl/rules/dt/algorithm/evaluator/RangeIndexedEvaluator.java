@@ -42,17 +42,19 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
-    	if (adaptor2 != null && adaptor2.useOriginalSource())
-    		return condition.getSourceCodeModule();
-    		
-    	
+        if (adaptor2 != null && adaptor2.useOriginalSource())
+            return condition.getSourceCodeModule();
+
         IParameterDeclaration[] cparams = condition.getParams();
 
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
 
-        String code = cparams.length == 2 ? String.format("%1$s<=(%2$s) && (%2$s) < %3$s", cparams[0].getName(),
-                conditionSource.getCode(), cparams[1].getName()) : String.format("%1$s.contains(%2$s)",
-                cparams[0].getName(), conditionSource.getCode());
+        String code = cparams.length == 2 ? String.format("%1$s<=(%2$s) && (%2$s) < %3$s",
+            cparams[0].getName(),
+            conditionSource.getCode(),
+            cparams[1].getName()) : String.format("%1$s.contains(%2$s)",
+            cparams[0].getName(),
+            conditionSource.getCode());
 
         return new StringSourceCodeModule(code, conditionSource.getUri(0));
     }
@@ -60,16 +62,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
 
-      return new RangeSelector(condition,  value, target, dtparams, adaptor2, env);
-        
-        
-//        if (value instanceof Number) {
-//            return new RangeSelector(condition, (Number) value, target, dtparams, adaptor, env);
-//        }
-//        String errorMessage = String.format("Evaluation result for condition %s in method %s must be a numeric value",
-//                condition.getName(), condition.getMethod().getName());
-//        throw new OpenLRuntimeException(errorMessage);
-
+        return new RangeSelector(condition, value, target, dtparams, adaptor2, env);
     }
 
     public boolean isIndexed() {
@@ -100,20 +93,17 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 continue;
             }
 
-            
             Comparable<Object> vFrom = null;
             Comparable<Object> vTo = null;
 
             if (nparams == 2) {
-            	if (adaptor2 == null)
-            	{	
-            		vFrom = (Comparable<Object>) indexedparams[i][0];
-            		vTo = (Comparable<Object>) indexedparams[i][1];
-            	}
-            	else {
-            		vFrom = adaptor2.getMin(indexedparams[i][0]);
-            		vTo = adaptor2.getMax(indexedparams[i][1]);
-            	}
+                if (adaptor2 == null) {
+                    vFrom = (Comparable<Object>) indexedparams[i][0];
+                    vTo = (Comparable<Object>) indexedparams[i][1];
+                } else {
+                    vFrom = adaptor2.getMin(indexedparams[i][0]);
+                    vTo = adaptor2.getMax(indexedparams[i][1]);
+                }
             } else {
                 // adapt border values for usage in IntervalMap
                 // see IntervalMap description
@@ -169,8 +159,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             }
         }
 
-        return new RangeIndex(emptyNode, index.toArray(new Comparable[index.size()]),
-                rules.toArray(new DecisionTableRuleNode[rules.size()]), adaptor2);
+        return new RangeIndex(emptyNode,
+            index.toArray(new Comparable[index.size()]),
+            rules.toArray(new DecisionTableRuleNode[rules.size()]),
+            adaptor2);
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
@@ -204,7 +196,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             }
             if (idx == rules.length) {
                 result[i] = current;
-                if (itr.hasNext()){
+                if (itr.hasNext()) {
                     current = itr.next();
                 }
                 continue;
@@ -227,8 +219,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return result;
     }
 
-    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition)
-            throws DomainCanNotBeDefined {
+    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
@@ -246,17 +237,14 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             Comparable<?> vTo = null;
 
             if (nparams == 2) {
-            	if (adaptor2 == null)
-            	{	
-            		vFrom = (Comparable<?>) pi[0];
-            		vTo = (Comparable<?>) pi[1];
-            	}
-            	else
-            	{
-            		vFrom = adaptor2.getMin(pi[0]);
-            		vTo = adaptor2.getMax(pi[1]);
-            	}
-            		
+                if (adaptor2 == null) {
+                    vFrom = (Comparable<?>) pi[0];
+                    vTo = (Comparable<?>) pi[1];
+                } else {
+                    vFrom = adaptor2.getMin(pi[0]);
+                    vTo = adaptor2.getMax(pi[1]);
+                }
+
             } else {
                 vFrom = adaptor2.getMin(pi[0]);
                 vTo = adaptor2.getMax(pi[0]);
