@@ -91,9 +91,11 @@ public class DependentParametersOptimizedAlgorithm {
 
     private static IConditionEvaluator getOneParamEqualsEvaluator(EvaluatorFactory evaluatorFactory,
             IOpenClass paramType) {
+
         OneParameterEqualsFactory oneParameterEqualsFactory = (OneParameterEqualsFactory) evaluatorFactory;
         OneParameterEqualsIndexedEvaluator oneParameterEqualsIndexedEvaluator = new OneParameterEqualsIndexedEvaluator(oneParameterEqualsFactory.signatureParam);
         return oneParameterEqualsIndexedEvaluator;
+
     }
 
     private static IConditionEvaluator getOneParamRangeEvaluator(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
