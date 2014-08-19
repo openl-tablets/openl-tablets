@@ -2,8 +2,10 @@ package org.openl.rules.dt.index;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.trace.DTConditionTraceObject;
@@ -76,7 +78,7 @@ public class TraceableRangeIndex extends RangeIndex {
 
     private static class CachingTraceStack implements TraceStack {
         private final TraceStack delegate;
-        private List<ITracerObject> stack = new ArrayList<ITracerObject>();
+        private LinkedList<ITracerObject> stack = new LinkedList<ITracerObject>();
 
         public CachingTraceStack(TraceStack delegate) {
             this.delegate = delegate;

@@ -47,14 +47,11 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
 
 	@Override
 	public String getOptimizedSourceCode() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setOptimizedSourceCode(String code) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
