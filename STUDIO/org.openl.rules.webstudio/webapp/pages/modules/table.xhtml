@@ -149,11 +149,11 @@
                                              onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
                                              style="vertical-align:-2px;margin:-4px"/>
                 </div>
-                <div id="testRangeSetting" class="#{!tableBean.useTestRanges ? 'hidden' : ''}" title="Define ranges like: 2-4,7,10-12 or id3-id7">
+                <div id="testRangeSetting" style="#{!tableBean.useTestRanges ? 'display:none;' : ''}" title="Define ranges like: 2-4,7,10-12 or id3-id7">
                     <span>Range of IDs</span>
                     <h:inputText id="testRanges" value="#{tableBean.testRanges}"/>
                 </div>
-            <table id="testTable" class="table #{tableBean.useTestRanges ? 'hidden' : ''}" style="margin: 2px 2px 1px 2px; width: 98%">
+            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;#{tableBean.useTestRanges ? ' display:none;' : ''}">
                 <tr>
                     <th>
                         <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
