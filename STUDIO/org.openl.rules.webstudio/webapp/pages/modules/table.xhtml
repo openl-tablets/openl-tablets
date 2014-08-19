@@ -283,7 +283,7 @@
                                                     <img src="webresource/images/run.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-run').show();return false;"
+                                                    onclick="showUnitsMenu(event, 'b-run');return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -309,7 +309,7 @@
                                                     <img src="webresource/images/trace.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-trace').show();return false;"
+                                                    onclick="showUnitsMenu(event, 'b-trace');return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -336,7 +336,7 @@
                                                     <img src="webresource/images/clock-icon.png" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-benchmark').show();return false;"
+                                                    onclick="showUnitsMenu(event, 'b-benchmark');return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -428,7 +428,7 @@
                                         <img src="webresource/images/test_ok.gif" />
                                     </td>
                                     <td rowspan="2" class="arrow"
-                                        onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#unitsMenu .hidden').hide();$j('#unitsMenu .b-test').show();;return false;"
+                                        onclick="showUnitsMenu(event, 'b-test');return false;"
                                         style="visibility: hidden;">
                                         <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                     </td>
@@ -604,7 +604,7 @@
     </rich:popupPanel>
 
     <script>
-      //<![CDATA[
+        //<![CDATA[
         function open_win(url, name) {
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700, top=20, left=100")
         }
@@ -654,6 +654,12 @@
 
             ws.ui.message("No tests selected", 3000);
             return false;
+        }
+
+        function showUnitsMenu(event, block) {
+            showButtonMenu(event, 'unitsMenu', 'a');
+            $j('#unitsMenu .hidden').hide();
+            $j('#unitsMenu .' + block).show();
         }
 
       function getTestQuery() {
@@ -715,7 +721,7 @@
             ws.changes.configure(hasChanges, setTableHasChanges, showConfirmDialog, beforeUnload);
         });
 
-      //]]>
+        //]]>
     </script>
 
 </ui:composition>
