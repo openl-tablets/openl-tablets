@@ -110,7 +110,6 @@
 
     <div id="unitsMenu" style="display: none; min-width: 175px">
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
-        <c:set var="runLink" value="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}?id=#{tableBean.id}" />
         <h:form prependId="false">
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
@@ -184,11 +183,11 @@
             <div style="padding: 6px 5px">
                 <a4j:commandButton id="testButton" value="Test"
                                    rendered="#{tableBean.canRun}"
-                                   title="Test" onclick="ws.nav.go('#{studio.url('test/test')}?id=#{tableBean.id}&amp;' + getTestQuery());"
+                                   title="Test" onclick="ws.nav.go('#{studio.url('test/test')}' + getTestQuery());"
                                    styleClass="hidden b-test"/>
                 <a4j:commandButton id="runButton" value="Run"
                                    rendered="#{tableBean.canRun}"
-                                   title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
+                                   title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases();"
                                    styleClass="hidden b-run"/>
                 <a4j:commandButton id="traceButtonHidden" action="#{tableBean.makeTraceTree}"
                                    rendered="#{tableBean.canTrace}"
@@ -273,7 +272,7 @@
                                 <td>
                                     <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canRun}"
-                                        onclick=" return isAnyTestSelected();" oncomplete="ws.nav.go('#{runLink}')"
+                                        onclick=" return isAnyTestSelected();" oncomplete="runTestCases();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
@@ -358,8 +357,7 @@
                 <c:if test="#{tableBean.table.executable}">
                     <td>
                         <h:form id="inputArgsForm">
-                            <c:set var="runLink"
-                                value="#{studio.url('test/run')}?id=#{tableBean.id}" />
+                            <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
                             <c:set var="traceUrl"
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
@@ -663,12 +661,13 @@
         }
 
         function getTestQuery() {
-            if ($j('#unitsMenu').is(":hidden")) {
+            var query="?id=#{tableBean.id}";
+            if ($j("#unitsMenu").is(":hidden")) {
                 // No query for the hidden menu
-                return "";
+                return query;
             }
 
-            var query = $j("#runCasesSettings").find("select,input").serialize();
+            query += '&' + $j("#runCasesSettings").find("select,input").serialize();
             jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
                 query += '&' + this.name + '=false';
             });
@@ -692,7 +691,8 @@
         }
 
         function runTestCases() {
-            ws.nav.go("#{runLink}&" + getTestQuery());
+            var link="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}";
+            ws.nav.go(link + getTestQuery());
         }
 
       function getCurrentTable() {
