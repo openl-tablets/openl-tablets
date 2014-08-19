@@ -51,7 +51,7 @@ public class TableDetailsBean {
 
         id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
-        IOpenLTable table = null;
+        IOpenLTable table;
 
         if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
@@ -111,13 +111,17 @@ public class TableDetailsBean {
         List<TableProperty> groupList = groups.get(group);
         if (groupList != null) {
             groupList.remove(prop);
-        }
-        if (groupList.isEmpty()) {
-            groups.remove(group);
+
+            if (groupList.isEmpty()) {
+                groups.remove(group);
+            }
         }
     }
 
     public List<PropertyRow> getPropertyRows() {
+        if (groups == null) {
+            return null;
+        }
         propertyRows = new ArrayList<PropertyRow>();
 
         for (String group : groups.keySet()) {
@@ -184,7 +188,7 @@ public class TableDetailsBean {
 
             if (!items.isEmpty()) {
                 SelectItemGroup itemGroup = new SelectItemGroup(groupName);
-                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
+                itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
                 propertiesToAdd.add(itemGroup);
             }
         }
