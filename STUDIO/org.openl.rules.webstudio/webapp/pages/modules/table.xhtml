@@ -639,7 +639,7 @@
         function isAnyTestSelected() {
 
             if($j("#useTestRanges").is(":checked")) {
-                if ($j("#testRanges").val().length > 0) {
+                if ($j("#testRanges").val().trim().length > 0) {
                     return true
                 } else {
                     ws.ui.message("No tests ranges entered", 3000);
@@ -662,25 +662,34 @@
             $j('#unitsMenu .' + block).show();
         }
 
-      function getTestQuery() {
-          var query = $j("#runCasesSettings").find("select,input").serialize();
-          jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
-              query += '&' + this.name + '=false';
-          });
+        function getTestQuery() {
+            if ($j('#unitsMenu').is(":hidden")) {
+                // No query for the hidden menu
+                return "";
+            }
 
-          query += '&testRanges=';
-          if ($j("#useTestRanges").is(":checked")) {
-              var ids = $j("#testRanges").val();
-          } else {
-              var ids = $j("#testTable tr").filter(function() {
-                  return $j(this).find(":checked").length > 0;
-              }).find(".test-id").map(function() {
-                  return $j(this).text();
-              }).get().join();
-          }
-          query += encodeURIComponent(ids);
-          return query;
-      }
+            var query = $j("#runCasesSettings").find("select,input").serialize();
+            jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
+                query += '&' + this.name + '=false';
+            });
+
+            if ($j("#useTestRanges").is(":checked")) {
+                // If a range is selected
+                var ids = $j("#testRanges").val().trim();
+            } else if (!$j("#allTestCheck").is(":checked")) {
+                // If not all checkboxes are selected
+                var ids = $j("#testTable tr").filter(function() {
+                    return $j(this).find(":checked").length > 0;
+                }).find(".test-id").map(function() {
+                    return $j(this).text();
+                }).get().join();
+            }
+            if (ids) {
+                // Query only selected IDs
+                query += '&testRanges=' + encodeURIComponent(ids);
+            }
+            return query;
+        }
 
         function runTestCases() {
             ws.nav.go("#{runLink}&" + getTestQuery());
