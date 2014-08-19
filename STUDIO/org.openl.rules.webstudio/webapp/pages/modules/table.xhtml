@@ -198,10 +198,11 @@
                                    value="Trace" title="Trace"
                                    styleClass="hidden b-trace changes-listener"
                                    onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"/>
-                <a4j:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
-                                   rendered="#{tableBean.canTrace}"
-                                   value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
-                                   styleClass="hidden b-trace"/>
+                <!-- Don't use a4j:commandButton for file download -->
+                <h:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
+                                 rendered="#{tableBean.canTrace}"
+                                 value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
+                                 styleClass="hidden b-trace"/>
                 <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
