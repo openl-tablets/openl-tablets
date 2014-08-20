@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.BindingDependencies;
+import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
@@ -19,6 +20,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
@@ -30,6 +32,7 @@ import org.openl.rules.dt.type.BooleanTypeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IAggregateInfo;
@@ -377,7 +380,6 @@ public class DecisionTableOptimizedAlgorithm {
         ArrayList<Object[][]> params = new ArrayList<Object[][]>();
 
         for (int i = 0; i < evaluators.length; i++) {
-
             if (evaluators[i].isIndexed()) {
                 try {
                     Object[][] values = table.getConditionRows()[i].getParamValues();
@@ -402,6 +404,58 @@ public class DecisionTableOptimizedAlgorithm {
         indexNodes(indexRoot, params, 1, saveRulesMetaInfo);
     }
 
+    private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
+        
+        IConditionEvaluator decorate;
+        
+        public ConditionEvaluatorDecoratorAsNotIndexed(IConditionEvaluator decorate) {
+            if (decorate == null){
+                throw new IllegalArgumentException("decorate arg can't be null!");
+            }
+            this.decorate = decorate;
+        }
+        
+        @Override
+        public void setOptimizedSourceCode(String code) {
+            decorate.setOptimizedSourceCode(code);
+        }
+        
+        @Override
+        public ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator it) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public boolean isIndexed() {
+            return false;
+        }
+        
+        @Override
+        public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
+            return decorate.getSelector(condition, target, dtparams, env);
+        }
+        
+        @Override
+        public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+            return decorate.getRuleParameterDomain(condition);
+        }
+        
+        @Override
+        public String getOptimizedSourceCode() {
+            return decorate.getOptimizedSourceCode();
+        }
+        
+        @Override
+        public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+            return decorate.getFormalSourceCode(condition);
+        }
+        
+        @Override
+        public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+            return decorate.getConditionParameterDomain(paramIdx, condition);
+        }
+    };
+    
     /**
      * Clears condition's param values.
      * 
@@ -415,6 +469,8 @@ public class DecisionTableOptimizedAlgorithm {
                     table.getConditionRows()[i].clearParamValues();
                 }
             } else {
+                final IConditionEvaluator evaluator = evaluators[i]; 
+                evaluators[i] = new ConditionEvaluatorDecoratorAsNotIndexed(evaluator);
                 break;
             }
         }
@@ -532,43 +588,30 @@ public class DecisionTableOptimizedAlgorithm {
     }
 
     private void indexNodes(ARuleIndex index, ArrayList<Object[][]> params, int level, boolean saveRulesMetaInfo) {
-
         if (index == null) {
             return;
         }
-
         if (params.size() <= level) {
             return;
         }
-
         Iterator<DecisionTableRuleNode> iter = index.nodes();
-
         while (iter.hasNext()) {
-
             DecisionTableRuleNode node = iter.next();
             indexNode(node, params, level, saveRulesMetaInfo);
         }
-
         indexNode(index.getEmptyOrFormulaNodes(), params, level, saveRulesMetaInfo);
     }
 
     private Object[][] prepareIndexedParams(Object[][] params) throws CanNotIndexConditionsException {
-
         Object[][] indexedParams = new Object[params.length][];
-
         for (int i = 0; i < params.length; i++) {
-
             if (params[i] == null) {
                 indexedParams[i] = null;
             } else {
-
                 Object[] values = new Object[params[i].length];
                 indexedParams[i] = values;
-
                 for (int j = 0; j < values.length; j++) {
-
                     Object value = params[i][j];
-
                     if (value instanceof IOpenMethod) {
                         throw new CanNotIndexConditionsException(table.getSyntaxNode());
                     }
@@ -576,7 +619,6 @@ public class DecisionTableOptimizedAlgorithm {
                 }
             }
         }
-
         return indexedParams;
     }
 

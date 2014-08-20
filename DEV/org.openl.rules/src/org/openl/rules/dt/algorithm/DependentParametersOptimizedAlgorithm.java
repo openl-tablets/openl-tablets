@@ -89,14 +89,15 @@ public class DependentParametersOptimizedAlgorithm {
         return rix;
     }
 
-    private static IConditionEvaluator getOneParamEqualsEvaluator(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
+    private static IConditionEvaluator getOneParamEqualsEvaluator(EvaluatorFactory evaluatorFactory,
+            IOpenClass paramType) {
 
         OneParameterEqualsFactory oneParameterEqualsFactory = (OneParameterEqualsFactory) evaluatorFactory;
         OneParameterEqualsIndexedEvaluator oneParameterEqualsIndexedEvaluator = new OneParameterEqualsIndexedEvaluator(oneParameterEqualsFactory.signatureParam);
         return oneParameterEqualsIndexedEvaluator;
 
     }
-    
+
     private static IConditionEvaluator getOneParamRangeEvaluator(EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
 
         IRangeAdaptor adaptor = getRangeAdaptor(evaluatorFactory, paramType);
@@ -125,7 +126,6 @@ public class DependentParametersOptimizedAlgorithm {
             return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.INT);
         }
 
-        
         if (paramType.getInstanceClass().equals(long.class) || paramType.getInstanceClass().equals(Long.class)) {
             return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.LONG);
         }
@@ -184,41 +184,41 @@ public class DependentParametersOptimizedAlgorithm {
 
     }
 
-    private static String buildFieldName(IndexNode indexNode){
+    private static String buildFieldName(IndexNode indexNode) {
         String value = "[";
-        if (indexNode.getChildren().length == 1 && indexNode.getChildren()[0] instanceof LiteralBoundNode){
+        if (indexNode.getChildren().length == 1 && indexNode.getChildren()[0] instanceof LiteralBoundNode) {
             LiteralBoundNode literalBoundNode = (LiteralBoundNode) indexNode.getChildren()[0];
             value = value + literalBoundNode.getValue().toString() + "]";
-        }else{
+        } else {
             throw new IllegalSelectorException();
         }
-        
-        if (indexNode.getTargetNode() != null){
-            if (indexNode.getTargetNode() instanceof FieldBoundNode){
-                return buildFieldName((FieldBoundNode)indexNode.getTargetNode()) + value;
+
+        if (indexNode.getTargetNode() != null) {
+            if (indexNode.getTargetNode() instanceof FieldBoundNode) {
+                return buildFieldName((FieldBoundNode) indexNode.getTargetNode()) + value;
             }
-            if (indexNode.getTargetNode() instanceof IndexNode){
-                return value + buildFieldName((IndexNode)indexNode.getTargetNode());
+            if (indexNode.getTargetNode() instanceof IndexNode) {
+                return value + buildFieldName((IndexNode) indexNode.getTargetNode());
             }
             throw new IllegalStateException();
         }
         return value;
     }
 
-    private static String buildFieldName(FieldBoundNode field){
+    private static String buildFieldName(FieldBoundNode field) {
         String value = field.getFieldName();
-        if (field.getTargetNode() != null){
-            if (field.getTargetNode() instanceof FieldBoundNode){
-                return buildFieldName((FieldBoundNode)field.getTargetNode()) + "." + value;
+        if (field.getTargetNode() != null) {
+            if (field.getTargetNode() instanceof FieldBoundNode) {
+                return buildFieldName((FieldBoundNode) field.getTargetNode()) + "." + value;
             }
-            if (field.getTargetNode() instanceof IndexNode){
-                return buildFieldName((IndexNode)field.getTargetNode()) + "." + value;
+            if (field.getTargetNode() instanceof IndexNode) {
+                return buildFieldName((IndexNode) field.getTargetNode()) + "." + value;
             }
             throw new IllegalStateException();
         }
         return value;
     }
-    
+
     private static String[] parseBinaryOpExpression(BinaryOpNode binaryOpNode) {
         if (binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof FieldBoundNode && binaryOpNode.getChildren()[1] instanceof FieldBoundNode) {
             String[] ret = new String[3];
@@ -296,7 +296,7 @@ public class DependentParametersOptimizedAlgorithm {
         }
         throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
     }
-    
+
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition, IMethodSignature signature) {
         IParameterDeclaration[] params = condition.getParams();
 
@@ -352,7 +352,7 @@ public class DependentParametersOptimizedAlgorithm {
 
         if (signatureParam == null) {
             signatureParam = getParameter(p2, signature);
-            if (signatureParam == null){
+            if (signatureParam == null) {
                 return null;
             }
             if (!p1.equals(conditionParam.getName()))
