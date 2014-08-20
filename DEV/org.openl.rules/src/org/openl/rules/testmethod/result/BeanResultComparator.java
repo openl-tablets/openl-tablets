@@ -72,20 +72,21 @@ public class BeanResultComparator implements TestResultComparator {
                         }
                     }
                 }
-
-                // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on compilation state.
-                if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
-                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
-                    expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
+                boolean compare = false;
+                try{
+                    // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on compilation state.
+                    if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
+                        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
+                        expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
+                        TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
+                            expectedFieldValue);
+                        compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
+                    }
+                }catch(Exception e){
                 }
-
+                
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
-
-                TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                    expectedFieldValue);
-
-                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
 
                 if (!compare) {
                     fieldComparisonResults.setStatus(TestStatus.TR_NEQ);
