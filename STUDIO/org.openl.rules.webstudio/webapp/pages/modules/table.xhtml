@@ -156,7 +156,7 @@
             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;">
                 <tr>
                     <th>
-                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
+                        <input type="checkbox" id="allTestCheck" onclick="changeAllItemStatus(this, 'testTable')" checked="checked" title="Check/Uncheck All"/>
                     </th>
                     <th>ID</th>
                     <th colspan="100">
@@ -166,9 +166,9 @@
                 <ui:repeat var="test" value="#{tableBean.tests}"> 
                     <tr>
                         <td>
-                            <h:selectBooleanCheckbox value="#{tableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" />
+                            <input type="checkbox" class="test-id" value="#{test.id}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" checked="checked"/>
                         </td>
-                        <td class="test-id">#{test.id}</td>
+                        <td>#{test.id}</td>
                         <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -681,11 +681,10 @@
                 var ids = $j("#testRanges").val().trim();
             } else if (!$j("#allTestCheck").is(":checked")) {
                 // If not all checkboxes are selected
-                var ids = $j("#testTable tr").filter(function() {
-                    return $j(this).find(":checked").length > 0;
-                }).find(".test-id").map(function() {
-                    return $j(this).text();
-                }).get().join();
+                var ids = $j(".test-id:checked")
+                        .map(function() { return $j(this).val(); })
+                        .get()
+                        .join();
             }
             return ids;
         }

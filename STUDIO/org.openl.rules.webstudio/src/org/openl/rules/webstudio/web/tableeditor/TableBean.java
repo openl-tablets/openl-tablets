@@ -4,7 +4,6 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +62,6 @@ public class TableBean {
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
-    private Map<TestDescription, Boolean> selectedTests;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
@@ -154,10 +152,6 @@ public class TableBean {
     private void initRunnableTestMethods() {
         if (method instanceof TestSuiteMethod) {
             runnableTestMethods = ((TestSuiteMethod) method).getTests();
-            selectedTests = new HashMap<TestDescription, Boolean>();
-            for (TestDescription test : runnableTestMethods) {
-                selectedTests.put(test, true);
-            }
         }
     }
 
@@ -280,10 +274,6 @@ public class TableBean {
         return params;
     }
 
-    public Map<TestDescription, Boolean> getSelectedTests() {
-        return selectedTests;
-    }
-
     @Deprecated
     public String makeTestSuite() {
         RunTestHelper.addTestSuitesForRun();
@@ -315,17 +305,6 @@ public class TableBean {
 
     public String traceIntoFile() {
         return traceIntoFile(false);
-    }
-
-    public int[] getSelectedIndices() {
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < runnableTestMethods.length; i++) {
-            if (selectedTests.get(runnableTestMethods[i])) {
-                list.add(i);
-            }
-        }
-        Integer[] indices = new Integer[list.size()];
-        return ArrayUtils.toPrimitive(list.toArray(indices));
     }
 
     public String getUri() {
