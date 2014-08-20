@@ -281,7 +281,7 @@ public class TableBean {
     }
 
     public void makeTraceTree() {
-        makeTestSuite();
+        RunTestHelper.addTestSuitesForRun();
         ((TraceTreeBean) FacesUtils.getBackingBean("traceTreeBean")).getTree();
     }
     
@@ -298,7 +298,7 @@ public class TableBean {
         if (withArgs) {
             ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).makeTestSuite();
         } else {
-            makeTestSuite();
+            RunTestHelper.addTestSuitesForRun();
         }
         return ((TraceIntoFileBean) FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
     }
