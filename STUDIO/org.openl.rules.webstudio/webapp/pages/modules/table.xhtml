@@ -145,15 +145,15 @@
             <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace">
                 <div title="Define a range of IDs instead of checkboxes">
                     <span>Use the Range</span>
-                    <h:selectBooleanCheckbox value="#{tableBean.useTestRanges}" id="useTestRanges"
+                    <input type="checkbox" id="useTestRanges"
                                              onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
                                              style="vertical-align:-2px;margin:-4px"/>
                 </div>
-                <div id="testRangeSetting" style="#{!tableBean.useTestRanges ? 'display:none;' : ''}" title="Define ranges like: 2-4,7,10-12 or id3-id7">
+                <div id="testRangeSetting" style="display:none;" title="Define ranges like: 2-4,7,10-12 or id3-id7">
                     <span>Range of IDs</span>
-                    <h:inputText id="testRanges" value="#{tableBean.testRanges}"/>
+                    <input type="text" id="testRanges"/>
                 </div>
-            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;#{tableBean.useTestRanges ? ' display:none;' : ''}">
+            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;">
                 <tr>
                     <th>
                         <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'testTable')" title="Check/Uncheck All" />
@@ -209,6 +209,8 @@
                                    oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
                                    styleClass="hidden b-benchmark"/>
             </div>
+            <input type="hidden" name="testRanges" value="" id="testRangesHiddenInput"/>
+            <input type="hidden" name="id" value="#{tableBean.id}" />
         </h:form>
     </div>
 
@@ -636,23 +638,15 @@
         }
 
         function isAnyTestSelected() {
-
-            if($j("#useTestRanges").is(":checked")) {
-                if ($j("#testRanges").val().trim().length > 0) {
-                    return true
-                } else {
-                    ws.ui.message("No tests ranges entered", 3000);
-                    return false;
-                }
+            var testRangesParam = getTestRangesParam();
+            if (testRangesParam === "") {
+                ws.ui.message("No tests selected", 3000);
+                return false;
             }
-
-            var numChecked = $j("#testTable :checked").length;
-            if (numChecked > 0) {
-                return true;
-            }
-
-            ws.ui.message("No tests selected", 3000);
-            return false;
+            $j("#testRangesHiddenInput")
+                    .val(testRangesParam)
+                    .prop('disabled', testRangesParam === undefined);
+            return true;
         }
 
         function showUnitsMenu(event, block) {
@@ -673,6 +667,15 @@
                 query += '&' + this.name + '=false';
             });
 
+            var ids = getTestRangesParam();
+            if (ids) {
+                // Query only selected IDs
+                query += '&testRanges=' + encodeURIComponent(ids);
+            }
+            return query;
+        }
+
+        function getTestRangesParam() {
             if ($j("#useTestRanges").is(":checked")) {
                 // If a range is selected
                 var ids = $j("#testRanges").val().trim();
@@ -684,11 +687,7 @@
                     return $j(this).text();
                 }).get().join();
             }
-            if (ids) {
-                // Query only selected IDs
-                query += '&testRanges=' + encodeURIComponent(ids);
-            }
-            return query;
+            return ids;
         }
 
         function runTestCases() {

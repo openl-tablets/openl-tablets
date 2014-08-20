@@ -41,6 +41,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.TraceTreeBean;
 import org.openl.rules.webstudio.web.test.InputArgsBean;
+import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
@@ -63,8 +64,6 @@ public class TableBean {
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
     private Map<TestDescription, Boolean> selectedTests;
-    private String testRanges;
-    private boolean useTestRanges;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
@@ -285,39 +284,9 @@ public class TableBean {
         return selectedTests;
     }
 
-    public String getTestRanges() {
-        return testRanges;
-    }
-
-    public void setTestRanges(String testRanges) {
-        this.testRanges = testRanges;
-    }
-
-    public boolean isUseTestRanges() {
-        return useTestRanges;
-    }
-
-    public void setUseTestRanges(boolean useTestRanges) {
-        this.useTestRanges = useTestRanges;
-    }
-
     @Deprecated
     public String makeTestSuite() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TestSuite testSuite;
-        if (method instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) method;
-            int[] selectedIndices;
-            if (useTestRanges) {
-                selectedIndices = testSuiteMethodSelected.getIndices(testRanges);
-            } else {
-                selectedIndices = getSelectedIndices();
-            }
-            testSuite = new TestSuiteWithPreview(testSuiteMethodSelected, selectedIndices);
-        } else { // method without parameters
-            testSuite = new TestSuiteWithPreview(new TestDescription(method, new Object[] {}));
-        }
-        studio.getModel().addTestSuiteToRun(testSuite);
+        RunTestHelper.addTestSuitesForRun();
         return null;
     }
 
