@@ -639,13 +639,36 @@
 
         function isAnyTestSelected() {
             var testRangesParam = getTestRangesParam();
+
+            // undefined value means that the range is not used (default)
+            if (testRangesParam === undefined) {
+                $j("#testRangesHiddenInput")
+                        .val(null)
+                        .prop('disabled', true);
+                return true;
+            }
+            // Validate on empty value of a range of IDs
             if (testRangesParam === "") {
                 ws.ui.message("No tests selected", 3000);
                 return false;
             }
+
+            // Validate the range of entered IDs
+            var ids = testRangesParam.trim().split(/\s*[,-]\s*/);
+            var allowed = $j(".test-id")
+                    .map(function() { return $j(this).val(); })
+                    .get();
+            for (var i = 0; i < ids.length; i++) {
+                if ($j.inArray( ids[i], allowed ) === -1) {
+                    ws.ui.message("Wrong [" + ids[i] + "] ID in the Range of IDs", 3000);
+                    return false;
+                }
+            }
+
+            // Set the range of IDs to the hidden input for sending to a server
             $j("#testRangesHiddenInput")
                     .val(testRangesParam)
-                    .prop('disabled', testRangesParam === undefined);
+                    .prop('disabled', false);
             return true;
         }
 
