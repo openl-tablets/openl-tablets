@@ -305,6 +305,7 @@
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
+                                        <a4j:param name="id" value="#{tableBean.id}"/>
                                         <table>
                                             <tr>
                                                 <td>
@@ -332,6 +333,7 @@
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
                                         style="padding-right: 1px">
+                                        <a4j:param name="id" value="#{tableBean.id}"/>
                                         <table>
                                             <tr>
                                                 <td>
@@ -353,7 +355,6 @@
                                 </td>
                             </tr>
                         </table>
-                        <input type="hidden" name="id" value="#{tableBean.id}" />
                     </h:form>
                 </td>
                 </c:if>
@@ -405,12 +406,14 @@
                                     oncomplete="ws.nav.go('#{runLink}')">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
+                                    <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{tableBean.makeTestSuite}" styleClass="toolbarButton changes-listener"
                                     rendered="#{tableBean.canTrace}"
                                     oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
+                                    <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                             </c:if>
                         </h:form>
