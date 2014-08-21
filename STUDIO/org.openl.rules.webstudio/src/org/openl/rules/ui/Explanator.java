@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.rules.webstudio.web.util.Constants;
 
 public class Explanator {
-
-    private static ThreadLocal<Explanator> current = new ThreadLocal<Explanator>();
 
     private static int uniqueId = 0;
 
@@ -19,11 +19,12 @@ public class Explanator {
     private Map<String, Explanation> explanators = new HashMap<String, Explanation>();
 
     public static Explanator getCurrent() {
-        return current.get();
-    }
-
-    public static void setCurrent(Explanator expl) {
-        current.set(expl);
+        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
+        if (explanator == null) {
+            explanator = new Explanator();
+            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
+        }
+        return explanator;
     }
 
     public ExplanationNumberValue<?> find(String expandID) {
@@ -55,7 +56,7 @@ public class Explanator {
         id2value.put(id, value);
         return id;
     }
-    
+
     public void reset() {
         id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
         value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
