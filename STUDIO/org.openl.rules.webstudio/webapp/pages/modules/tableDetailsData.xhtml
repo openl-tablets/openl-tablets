@@ -18,7 +18,7 @@
             </tr>
             </h:panelGroup>
 
-            <c:if test="#{tableDetailsBean.table.canContainProperties}">
+            <ui:fragment rendered="#{tableDetailsBean.table.canContainProperties}">
             <a4j:repeat value="#{tableDetailsBean.propertyRows}" var="row">
             <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
             <tr>
@@ -83,7 +83,7 @@
             </h:panelGroup>
 
             </a4j:repeat>
-            </c:if>
+            </ui:fragment>
         </table>
 
         <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}" style="margin: 8px 0" layout="block">

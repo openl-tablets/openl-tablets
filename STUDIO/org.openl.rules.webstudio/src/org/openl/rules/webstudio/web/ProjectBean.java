@@ -19,6 +19,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
@@ -365,7 +366,11 @@ public class ProjectBean {
                 //repositoryTreeState.refreshSelectedNode();
             }
             studio.reset(ReloadType.FORCED);
-            repositoryTreeState.getProjectNodeByPhysicalName(project.getName()).refresh();
+            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(project.getName());
+            if (projectNode != null) {
+                // For example, repository wasn't refreshed yet
+                projectNode.refresh();
+            }
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
         } catch (Exception e) {

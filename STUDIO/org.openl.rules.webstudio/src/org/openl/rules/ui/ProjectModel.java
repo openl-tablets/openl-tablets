@@ -721,6 +721,9 @@ public class ProjectModel {
     }
 
     public IOpenLTable getTableById(String id) {
+        if (projectRoot == null) {
+            buildProjectTree();
+        }
         TableSyntaxNode tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);

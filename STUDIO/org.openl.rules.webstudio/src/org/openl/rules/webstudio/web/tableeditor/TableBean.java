@@ -4,7 +4,6 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +40,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.TraceTreeBean;
 import org.openl.rules.webstudio.web.test.InputArgsBean;
+import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
@@ -62,9 +62,6 @@ public class TableBean {
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
-    private Map<TestDescription, Boolean> selectedTests;
-    private String testRanges;
-    private boolean useTestRanges;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
@@ -155,10 +152,6 @@ public class TableBean {
     private void initRunnableTestMethods() {
         if (method instanceof TestSuiteMethod) {
             runnableTestMethods = ((TestSuiteMethod) method).getTests();
-            selectedTests = new HashMap<TestDescription, Boolean>();
-            for (TestDescription test : runnableTestMethods) {
-                selectedTests.put(test, true);
-            }
         }
     }
 
@@ -281,48 +274,14 @@ public class TableBean {
         return params;
     }
 
-    public Map<TestDescription, Boolean> getSelectedTests() {
-        return selectedTests;
-    }
-
-    public String getTestRanges() {
-        return testRanges;
-    }
-
-    public void setTestRanges(String testRanges) {
-        this.testRanges = testRanges;
-    }
-
-    public boolean isUseTestRanges() {
-        return useTestRanges;
-    }
-
-    public void setUseTestRanges(boolean useTestRanges) {
-        this.useTestRanges = useTestRanges;
-    }
-
     @Deprecated
     public String makeTestSuite() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TestSuite testSuite;
-        if (method instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) method;
-            int[] selectedIndices;
-            if (useTestRanges) {
-                selectedIndices = testSuiteMethodSelected.getIndices(testRanges);
-            } else {
-                selectedIndices = getSelectedIndices();
-            }
-            testSuite = new TestSuiteWithPreview(testSuiteMethodSelected, selectedIndices);
-        } else { // method without parameters
-            testSuite = new TestSuiteWithPreview(new TestDescription(method, new Object[] {}));
-        }
-        studio.getModel().addTestSuiteToRun(testSuite);
+        RunTestHelper.addTestSuitesForRun();
         return null;
     }
 
     public void makeTraceTree() {
-        makeTestSuite();
+        RunTestHelper.addTestSuitesForRun();
         ((TraceTreeBean) FacesUtils.getBackingBean("traceTreeBean")).getTree();
     }
     
@@ -339,24 +298,13 @@ public class TableBean {
         if (withArgs) {
             ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).makeTestSuite();
         } else {
-            makeTestSuite();
+            RunTestHelper.addTestSuitesForRun();
         }
         return ((TraceIntoFileBean) FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
     }
 
     public String traceIntoFile() {
         return traceIntoFile(false);
-    }
-
-    public int[] getSelectedIndices() {
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < runnableTestMethods.length; i++) {
-            if (selectedTests.get(runnableTestMethods[i])) {
-                list.add(i);
-            }
-        }
-        Integer[] indices = new Integer[list.size()];
-        return ArrayUtils.toPrimitive(list.toArray(indices));
     }
 
     public String getUri() {

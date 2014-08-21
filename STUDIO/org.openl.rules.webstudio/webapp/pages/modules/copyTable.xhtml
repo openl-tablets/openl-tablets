@@ -15,18 +15,14 @@
     <div class="page">
         <h1 class="page-header">#{msg['ws.copy.header']} #{wizard.tableTechnicalName}</h1>
 
-        <h:form id="copy-table-form">
+        <h:form id="copy-table-form" rendered="#{tableCopierWizardManager.table.versionable}">
             <h:outputText value="#{msg['ws.copy.as']} " />
             <h:selectOneMenu value="#{tableCopierWizardManager.copyType}" id="copy-table-type">
                 <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable :copyTableForm:copyButtonPanel "
                     immediate="true" />
                 <f:selectItem itemLabel="#{msg['ws.copy.table']}" itemValue="CHANGE_NAMES" />
-                <c:if test="#{tableCopierWizardManager.table.versionable}">
-                    <f:selectItem itemLabel="#{msg['ws.copy.version']}" itemValue="CHANGE_VERSION" />
-                </c:if>
-                <c:if test="#{tableCopierWizardManager.table.versionable}">
-                    <f:selectItem itemLabel="#{msg['ws.copy.dimension']}" itemValue="CHANGE_DIMENSION" />
-                </c:if>
+                <f:selectItem itemLabel="#{msg['ws.copy.version']}" itemValue="CHANGE_VERSION" />
+                <f:selectItem itemLabel="#{msg['ws.copy.dimension']}" itemValue="CHANGE_DIMENSION" />
             </h:selectOneMenu>
         </h:form>
 
