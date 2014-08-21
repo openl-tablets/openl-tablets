@@ -40,13 +40,19 @@ public class AlgorithmFunctionCompiler {
 
     private void analyzeReturnCorrectness() throws SyntaxNodeException {
         if (functionBody.size() > 0) {
-            SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler).analyze(functionBody.get(0)
-                    .getChildren());
-            if (status == SuitablityAsReturn.NONE) {
-                IOpenSourceCodeModule errorSource = functionBody.get(functionBody.size() - 1).getAlgorithmRow()
-                        .getOperation().asSourceCodeModule();
-                throw SyntaxNodeExceptionUtils.createError("The method must return value of type '"
-                        + getReturnType().getDisplayName(INamedThing.REGULAR) + "'", errorSource);
+            int i = 0;
+            for (AlgorithmTreeNode algorithmTreeNode : functionBody){
+                if (algorithmTreeNode.getAlgorithmRow().getOperation() != null && "RETURN".equals(algorithmTreeNode.getAlgorithmRow().getOperation().toString())){
+                    SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler).analyze(functionBody.get(i)
+                        .getChildren());
+                    if (status == SuitablityAsReturn.NONE) {
+                        IOpenSourceCodeModule errorSource = functionBody.get(i).getAlgorithmRow()
+                                .getOperation().asSourceCodeModule();
+                        throw SyntaxNodeExceptionUtils.createError("The method must return value of type '"
+                                + getReturnType().getDisplayName(INamedThing.REGULAR) + "'", errorSource);
+                    }
+                }
+                i++;
             }
         }
     }
