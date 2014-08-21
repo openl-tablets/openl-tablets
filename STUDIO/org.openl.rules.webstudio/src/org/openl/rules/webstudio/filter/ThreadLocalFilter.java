@@ -10,7 +10,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.openl.message.OpenLMessages;
-import org.openl.rules.ui.Explanator;
 
 /**
  * This filter is intended to prevent a memory leak.
@@ -33,7 +32,6 @@ public class ThreadLocalFilter implements Filter {
         } finally {
             // clear thread local variables
             OpenLMessages.removeCurrentInstance();
-            Explanator.setCurrent(null);
         }
     }
 
