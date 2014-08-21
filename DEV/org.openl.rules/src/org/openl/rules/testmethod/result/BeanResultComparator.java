@@ -78,10 +78,10 @@ public class BeanResultComparator implements TestResultComparator {
                     if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue.getClass() != actualFieldValue.getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
                         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
                         expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
-                        TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                            expectedFieldValue);
-                        compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
                     }
+                    TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
+                        expectedFieldValue);
+                    compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
                 }catch(Exception e){
                 }
                 
