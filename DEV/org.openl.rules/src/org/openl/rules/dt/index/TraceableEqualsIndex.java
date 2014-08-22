@@ -44,28 +44,6 @@ public class TraceableEqualsIndex extends EqualsIndex {
         return result;
     }
 
-    @Override
-    protected boolean isFloatPointNumber(Object value) {
-        value = unwrap(value);
-        return super.isFloatPointNumber(value);
-    }
-
-    @Override
-    protected Double convertToDouble(Object value) {
-        value = unwrap(value);
-        return super.convertToDouble(value);
-    }
-
-    @Override
-    protected boolean equalDoubleValues(Double inputParamValue, Object indexValue) {
-        ComparableIndexTraceDecorator<?> comparableIndexTraceDecorator = (ComparableIndexTraceDecorator<?>) indexValue;
-
-        boolean result = super.equalDoubleValues(inputParamValue, comparableIndexTraceDecorator.delegate);
-        comparableIndexTraceDecorator.traceComparisonResult(result);
-
-        return result;
-    }
-
     @SuppressWarnings("unchecked")
     protected Object unwrap(Object value) {
         if (value instanceof ComparableValueTraceDecorator) {
