@@ -16,7 +16,7 @@ import javax.faces.bean.RequestScoped;
 @RequestScoped
 public final class Helper {
 
-    Helper() {
+    public Helper() {
         // THIS CONSTRUCTOR MUST BE EMPTY!!!
     }
 
