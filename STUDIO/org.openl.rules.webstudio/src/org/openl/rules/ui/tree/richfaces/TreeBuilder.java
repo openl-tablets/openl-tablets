@@ -101,7 +101,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
 
     protected String getDisplayName(Object obj, int mode) {
         if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
-            return FormattersManager.getFormatter(obj).format(obj);
+            return FormattersManager.format(obj);
         }
         if (obj instanceof INamedThing) {
             INamedThing nt = (INamedThing) obj;

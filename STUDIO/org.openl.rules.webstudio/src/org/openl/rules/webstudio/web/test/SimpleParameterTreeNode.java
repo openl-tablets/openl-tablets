@@ -30,13 +30,13 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     public String getDisplayedValue() {
         Object value = getValue();
-        return FormattersManager.getFormatter(value).format(value);
+        return FormattersManager.format(value);
     }
 
     public String getValueForEdit() {
         Object value = getValue();
         if (value != null) {
-            return FormattersManager.getFormatter(value).format(value);
+            return FormattersManager.format(value);
         } else {
             return "";
         }

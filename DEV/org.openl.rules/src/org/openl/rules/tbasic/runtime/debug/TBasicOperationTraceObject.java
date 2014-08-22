@@ -3,13 +3,14 @@
  */
 package org.openl.rules.tbasic.runtime.debug;
 
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.tbasic.runtime.Result;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
@@ -50,7 +51,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
         for (String fieldName : fieldValues.keySet()) {
             Object value = fieldValues.get(fieldName);
-            String formattedValue = getFormattedValue(value);
+            String formattedValue = FormattersManager.format(value);
             fields.append(fieldName).append(" = ").append(formattedValue).append(", ");
         }
 
@@ -69,7 +70,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         return regions;
     }
 
-    
+
     public Object getResult() {
         /**
          * Extract the value from the result of the TBasic operation.
