@@ -44,12 +44,11 @@ public class ReturnAnalyzer {
      *             return type.
      */
     public SuitablityAsReturn analyze(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
-        SuitablityAsReturn result = analyzeSequence(nodesToAnalyze);
-        if (returnType == JavaOpenClass.VOID) {
-            // not requires result
-            result = SuitablityAsReturn.RETURN;
+        if (returnType != JavaOpenClass.VOID) {
+            return analyzeSequence(nodesToAnalyze);
         }
-        return result;
+        // not requires result
+        return SuitablityAsReturn.RETURN;
     }
 
     private SuitablityAsReturn analyzeGroup(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
