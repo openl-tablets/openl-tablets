@@ -147,12 +147,7 @@ public class ParameterTreeBuilder {
     }
     
     public String formattedSimple(Object value) {
-        if (value == null){
-            return "null";
-        }else{
-            IFormatter formatter = FormattersManager.getFormatter(value);
-            return formatter.format(value);
-        }
+        return FormattersManager.format(value);
     }
 
     public boolean isHtmlTable(Object value) {

@@ -1,20 +1,19 @@
 package org.openl.rules.table.ui.filters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.IParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.util.formatters.IFormatter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExpectedResultFilter extends AGridFilter {
-    
+
     private Map<Point, ComparedResult> spreadsheetCellsForTest;
-    
+
     public ExpectedResultFilter(Map<Point, ComparedResult> spreadsheetCellsForTest) {
         this.spreadsheetCellsForTest = new HashMap<Point, ComparedResult>(spreadsheetCellsForTest);
     }
@@ -32,16 +31,15 @@ public class ExpectedResultFilter extends AGridFilter {
                     IParameterWithValueDeclaration declaration = (IParameterWithValueDeclaration) expectedValue;
                     expectedValue = declaration.getValue();
                 }
-                IFormatter formatter = FormattersManager.getFormatter(expectedValue);
-                formattedExpectedValue = formatter.format(expectedValue);
+                formattedExpectedValue = FormattersManager.format(expectedValue);
             }
             String image = getImage(result);
             String formattedResult = String.format(equals ? "%s %s" : "%s %s %s", image,
                     cell.getFormattedValue(), formattedExpectedValue);
             cell.setFormattedValue(formattedResult);
         }
-        
-        return cell;       
+
+        return cell;
     }
 
     private String getImage(ComparedResult result) {
