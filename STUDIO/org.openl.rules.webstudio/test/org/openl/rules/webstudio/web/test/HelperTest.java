@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.calc.StubSpreadSheetResult;
 import org.richfaces.model.TreeNode;
 
 import static org.junit.Assert.*;
@@ -34,6 +35,14 @@ public class HelperTest {
         assertTrue(helper.isExplanationValue(DoubleValue.ONE));
         assertFalse(helper.isExplanationValue(null));
         assertFalse(helper.isExplanationValue("Str"));
+    }
+
+    @Test
+    public void testIsSpreadsheetResult() {
+        Helper helper = new Helper();
+        assertTrue(helper.isSpreadsheetResult(new StubSpreadSheetResult()));
+        assertFalse(helper.isSpreadsheetResult(null));
+        assertFalse(helper.isSpreadsheetResult("Str"));
     }
 }
 

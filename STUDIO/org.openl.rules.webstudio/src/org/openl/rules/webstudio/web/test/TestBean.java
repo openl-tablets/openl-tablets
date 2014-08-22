@@ -9,7 +9,6 @@ import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -234,10 +233,6 @@ public class TestBean {
 
     public boolean isResultThrowable(Object testUnit) {
         return getActualResultInternal(testUnit) instanceof Throwable;
-    }
-
-    public boolean isSpreadsheetResult(Object objTestUnit) {
-        return getSpreadsheetResult(objTestUnit) != null;
     }
 
     public boolean isComplexResult(Object objTestUnit) {
