@@ -220,10 +220,6 @@ public class TestBean {
         return numberOfFailedTestCases;
     }
 
-    public String formatExplanationValue(Object value) {
-        return FormattersManager.format(TestResultsHelper.getExplanationValueResult(value));
-    }
-
     public int getExplanatorId(Object value) {
         return TestResultsHelper.getExplanatorId((ExplanationNumberValue<?>) value);
     }
