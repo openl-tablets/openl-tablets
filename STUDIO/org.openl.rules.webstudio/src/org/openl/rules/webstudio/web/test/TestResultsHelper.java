@@ -21,10 +21,4 @@ public class TestResultsHelper {
         return "null";
     }
 
-    public static SpreadsheetResult getSpreadsheetResult(Object result) {
-        if (result instanceof SpreadsheetResult) {
-            return (SpreadsheetResult) result;
-        }
-        return null;
-    }
 }
