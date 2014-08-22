@@ -1,72 +1,84 @@
 package org.openl.rules.table.formatters;
 
+import org.junit.Test;
+import org.openl.util.formatters.*;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Calendar;
-
-import org.junit.Test;
-import org.openl.util.formatters.BooleanFormatter;
-import org.openl.util.formatters.DateFormatter;
-import org.openl.util.formatters.EnumFormatter;
-import org.openl.util.formatters.FormatterAdapter;
-import org.openl.util.formatters.IFormatter;
-
 public class FormattersManagerTest {
-    
+
     private enum TestValues {
         FIRST_VALUE,
         SECOND_VALUE;
     }
-    
+
     @Test
     public void testDouble() {
         Double dd = Double.valueOf(12.345);
         IFormatter formatter = FormattersManager.getFormatter(dd);
         assertTrue(formatter instanceof SmartNumberFormatter);
     }
-    
+
     @Test
-    public void testNull() {        
+    public void testNull() {
         IFormatter formatter = FormattersManager.getFormatter((Object) null);
         assertTrue(formatter instanceof FormatterAdapter);
     }
-    
+
     @Test
     public void testNaN() {
         assertEquals("NaN", FormattersManager.getFormatter(Double.NaN).format(Double.NaN));
         assertEquals("NaN", FormattersManager.getFormatter(Float.NaN).format(Float.NaN));
     }
-    
+
     @Test
-    public void testString() {        
+    public void testString() {
         IFormatter formatter = FormattersManager.getFormatter("text");
         assertTrue(formatter instanceof FormatterAdapter);
     }
-    
+
     @Test
-    public void testDate() {        
+    public void testDate() {
         Calendar date = Calendar.getInstance();
         IFormatter formatter = FormattersManager.getFormatter(date.getTime());
         assertTrue(formatter instanceof DateFormatter);
     }
-    
+
     @Test
     public void testBoolean() {
         IFormatter formatter = FormattersManager.getFormatter(Boolean.TRUE);
         assertTrue(formatter instanceof BooleanFormatter);
     }
-    
+
     @Test
     public void testArray() {
         Integer[] intArray = new Integer[]{12, 34};
         IFormatter formatter = FormattersManager.getFormatter(intArray);
         assertTrue(formatter instanceof ArrayFormatter);
     }
-    
+
     @Test
-    public void testEnums() {        
+    public void testEnums() {
         IFormatter formatter = FormattersManager.getFormatter(TestValues.FIRST_VALUE);
         assertTrue(formatter instanceof EnumFormatter);
+    }
+
+    @Test
+    public void testFormat() {
+        assertEquals("null", FormattersManager.format(null));
+        assertEquals("Str", FormattersManager.format("Str"));
+        assertEquals("1", FormattersManager.format(1));
+        assertEquals("0.1", FormattersManager.format(0.1));
+        assertEquals("true", FormattersManager.format(true));
+        assertEquals("1.2105263157894737", FormattersManager.format(23d / 19d));
+        assertEquals("07/12/1980", FormattersManager.format(new Date(332222444400L)));
+        assertEquals("foo,bar", FormattersManager.format(new String[]{"foo", "bar"}));
+        assertEquals("Object(id=0)[]", FormattersManager.format(new Object()));
+        assertEquals("Arrays$ArrayList<String>{BAR, FOO}", FormattersManager.format(Arrays.asList("BAR", "FOO")));
     }
 }
