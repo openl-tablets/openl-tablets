@@ -6144,10 +6144,14 @@ public class RulesUtils {
         }
         IOpenClass clazz = (IOpenClass) obj;
         IDomain<?> domain = clazz.getDomain();
-        List<Object> result = new ArrayList<Object>();
+        List<Object> values = new ArrayList<Object>();
         for (Object item: domain) {
-            result.add(item);
+            values.add(item);
         }
-        return result.toArray();
+
+        Class<?> type = clazz.getInstanceClass();
+        Object[] result = (Object[]) Array.newInstance(type, 0);
+        result = values.toArray(result);
+        return result;
     };
 }

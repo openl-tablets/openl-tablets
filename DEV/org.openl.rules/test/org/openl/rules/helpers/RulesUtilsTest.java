@@ -836,6 +836,8 @@ public class RulesUtilsTest {
 
         Object[] testGetValuesAlias();
 
+        Object[] testGetValuesPrimesAlias();
+
         Object[] testGetValuesData();
 
         Object[] testGetValuesWrongType();
@@ -5041,8 +5043,17 @@ public class RulesUtilsTest {
 
     @Test
     public void getValuesTest() {
-        assertArrayEquals(new String[]{"Alias1", "Alias2", "Alias0", "Alias4"}, instance.testGetValuesAlias());
-        assertArrayEquals(new String[]{"Data1", "Data2", "Data0", "Data4"}, instance.testGetValuesData());
+        Object[] agency = instance.testGetValuesAlias();
+        assertArrayEquals(new String[]{"Alias1", "Alias2", "Alias0", "Alias4"}, agency);
+        assertEquals(String.class, agency.getClass().getComponentType());
+
+        Object[] primes = instance.testGetValuesPrimesAlias();
+        assertArrayEquals(new Integer[]{5, 7, 13, 17}, primes);
+        assertEquals(Integer.class, primes.getClass().getComponentType());
+
+        Object[] data = instance.testGetValuesData();
+        assertArrayEquals(new String[]{"Data1", "Data2", "Data0", "Data4"}, data);
+        assertEquals(String.class, data.getClass().getComponentType());
     }
 
     @Test(expected = RuntimeException.class)
