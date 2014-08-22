@@ -29,7 +29,7 @@ public class FormattersManager {
      * <code>null</code>). If value is <code>null</code> or there is no
      * formatter for it`s class, returns {@link FormatterAdapter}
      */
-    public static IFormatter getFormatter(Object value) {
+    static IFormatter getFormatter(Object value) {
         IFormatter formatter;
         if (value != null) {
             Class<?> clazz = value.getClass();
