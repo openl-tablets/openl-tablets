@@ -1,24 +1,18 @@
 package org.openl.rules.table.formatters;
 
-import java.util.Date;
-import java.util.Locale;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.helpers.NumberUtils;
-import org.openl.util.formatters.BooleanFormatter;
-import org.openl.util.formatters.DateFormatter;
-import org.openl.util.formatters.DefaultFormatter;
-import org.openl.util.formatters.EnumFormatter;
-import org.openl.util.formatters.FormatterAdapter;
-import org.openl.util.formatters.IFormatter;
-import org.openl.util.formatters.NumberFormatter;
+import org.openl.util.formatters.*;
 import org.openl.util.print.DefaultFormat;
+
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Manager to get the formatters for convertions from <code>Object</code> values
  * to <code>String</code> and vice versa.
- * 
+ *
  * @author DLiauchuk
  */
 public class FormattersManager {
@@ -29,23 +23,23 @@ public class FormattersManager {
     /**
      * Gets the formatter for appropriate value. Formatters supports formatting
      * of <code>null</code> objects, see {@link DefaultFormat}.
-     * 
+     *
      * @param value
      * @return xls formatter for appropriate value class (if the value isn`t
-     *         <code>null</code>). If value is <code>null</code> or there is no
-     *         formatter for it`s class, returns {@link FormatterAdapter}
+     * <code>null</code>). If value is <code>null</code> or there is no
+     * formatter for it`s class, returns {@link FormatterAdapter}
      */
     public static IFormatter getFormatter(Object value) {
-        IFormatter formatter = null;
+        IFormatter formatter;
         if (value != null) {
             Class<?> clazz = value.getClass();
             formatter = getFormatter(clazz, value);
             if (formatter instanceof DefaultFormatter) { // this is formatter
-                                                         // used by default, we
-                                                         // don`t like it,
-                                                         // so we try to format
-                                                         // the value by other
-                                                         // way.
+                // used by default, we
+                // don`t like it,
+                // so we try to format
+                // the value by other
+                // way.
                 formatter = new FormatterAdapter();
             }
         } else {
@@ -53,6 +47,18 @@ public class FormattersManager {
         }
 
         return formatter;
+    }
+
+    /**
+     * Returns String presentation of the given object. This method do a little bit more than Java's toString().
+     * It returns a human readable string for Enums, Arrays, Booleans, Dates...
+     *
+     * @param value an object to format
+     * @return String presentation of the object
+     * @see #getFormatter(Object)
+     */
+    public static String format(Object value) {
+        return getFormatter(value).format(value);
     }
 
     /**
@@ -69,11 +75,11 @@ public class FormattersManager {
      * arrays.</li>
      * <li>{@link DefaultFormatter} for {@link String} type.</li>
      * </ul>
-     * 
-     * @param clazz formatter will be returned for this {@link Class}.
+     *
+     * @param clazz  formatter will be returned for this {@link Class}.
      * @param format format for number, date formatters. If <code>null</code>
-     *            default format will be used {@link DEFAULT_NUMBER_FORMAT} and
-     *            {@link DEFAULT_DATE_FORMAT} accordingly.
+     *               default format will be used {@link DEFAULT_NUMBER_FORMAT} and
+     *               {@link DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
     public static IFormatter getFormatter(Class<?> clazz, Object value, String format) {
@@ -116,10 +122,10 @@ public class FormattersManager {
 
     /**
      * Returns format pattern for appropriate value scale
-     * 
+     *
      * @param value float point value which is gonna be formatted
      * @return format pattern for appropriate value scale, <code>null</code> if
-     *         value is <code>null</code>
+     * value is <code>null</code>
      */
     private static String getFormatForScale(Object value) {
         if (value != null) {
