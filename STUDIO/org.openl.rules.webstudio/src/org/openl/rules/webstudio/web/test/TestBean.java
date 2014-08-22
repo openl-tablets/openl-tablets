@@ -243,12 +243,9 @@ public class TestBean {
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
-    public SpreadsheetResult getSpreadsheetResult(Object objTestUnit) {
-        return TestResultsHelper.getSpreadsheetResult(getActualResultInternal(objTestUnit));
-    }
-
     public String getFormattedSpreadsheetResult(Object objTestUnit) {
-        SpreadsheetResult spreadsheetResult = getSpreadsheetResult(objTestUnit);
+        Object actualResultInternal = ((TestUnit) objTestUnit).getActualResult();
+        SpreadsheetResult spreadsheetResult = TestResultsHelper.getSpreadsheetResult(actualResultInternal);
 
         try {
             if (spreadsheetResult != null) {
