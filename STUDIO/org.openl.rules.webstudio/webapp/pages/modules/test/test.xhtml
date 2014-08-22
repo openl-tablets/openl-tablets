@@ -224,12 +224,12 @@
                                     </td>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{complexResult and testBean.isComplexResult(testCase)}">
-                                    <h:panelGroup rendered="#{testBean.isSpreadsheetResult(testCase)}">
+                                    <h:panelGroup rendered="#{helper.isSpreadsheetResult(testCase.actualResult)}">
                                         <td><h:outputText value="#{testBean.getFormattedSpreadsheetResult(testCase)}"
                                             escape="false" />
                                         </td>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!testBean.isSpreadsheetResult(testCase)}">
+                                    <h:panelGroup rendered="#{!helper.isSpreadsheetResult(testCase.actualResult)}">
                                         <td>
                                             <ui:include src="/pages/modules/test/parameter.xhtml">
                                                 <ui:param name="parameter" value="#{testCase.actualParam}" />
