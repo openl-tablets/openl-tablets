@@ -242,8 +242,8 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{tableBean.copyable}"
-                                        oncomplete="ws.nav.go('#{studio.url('copyTable')}')" title="Create a new table based on the existing one"
+                                    <a4j:commandLink rendered="#{tableBean.copyable}"
+                                        oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
