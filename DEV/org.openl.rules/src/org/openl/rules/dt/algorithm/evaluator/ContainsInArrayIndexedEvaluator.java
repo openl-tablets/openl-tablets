@@ -4,11 +4,13 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -19,6 +21,7 @@ import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IParameterDeclaration;
@@ -31,14 +34,12 @@ import org.openl.vm.IRuntimeEnv;
 public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
-        IParameterDeclaration[] cparams  = condition.getParams();
-        
+        IParameterDeclaration[] cparams = condition.getParams();
+
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
-        
-        
-        
-         String code =  String.format("containsCtr(%1$s, %2$s)", cparams[0].getName(), conditionSource.getCode());
-                                                
+
+        String code = String.format("containsCtr(%1$s, %2$s)", cparams[0].getName(), conditionSource.getCode());
+
         return new StringSourceCodeModule(code, conditionSource.getUri(0));
     }
 
@@ -59,8 +60,10 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             return null;
         }
 
-        HashMap<Object, DecisionTableRuleNodeBuilder> map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
+        Map<Object, DecisionTableRuleNodeBuilder> map = null;
+        Map<Object, DecisionTableRuleNode> nodeMap = null;
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+        boolean comparatorBasedMap = false;
 
         while (iterator.hasNext()) {
 
@@ -69,10 +72,11 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             if (indexedParams[i] == null || indexedParams[i][0] == null) {
 
                 emptyBuilder.addRule(i);
-
-                for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
-                    DecisionTableRuleNodeBuilder builder = iter.next();
-                    builder.addRule(i);
+                if (map != null) {
+                    for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
+                        DecisionTableRuleNodeBuilder builder = iter.next();
+                        builder.addRule(i);
+                    }
                 }
 
                 continue;
@@ -85,6 +89,26 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             for (int j = 0; j < length; j++) {
 
                 Object value = Array.get(values, j);
+                if (comparatorBasedMap) {
+                    if (!(value instanceof Comparable<?>)) {
+                        throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
+                    }
+                }
+                if (map == null) {
+                    if (NumberUtils.isFloatPointNumber(value)) {
+                        if (value instanceof BigDecimal) {
+                            map = new TreeMap<Object, DecisionTableRuleNodeBuilder>();
+                            nodeMap = new TreeMap<Object, DecisionTableRuleNode>();
+                        } else {
+                            map = new TreeMap<Object, DecisionTableRuleNodeBuilder>(FloatTypeComparator.getInstance());
+                            nodeMap = new TreeMap<Object, DecisionTableRuleNode>(FloatTypeComparator.getInstance());
+                        }
+                        comparatorBasedMap = true;
+                    } else {
+                        map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
+                        nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+                    }
+                }
 
                 DecisionTableRuleNodeBuilder builder = (DecisionTableRuleNodeBuilder) map.get(value);
 
@@ -96,25 +120,24 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 builder.addRule(i);
             }
         }
-
-        HashMap<Object, DecisionTableRuleNode> nodeMap = new HashMap<Object, DecisionTableRuleNode>();
-
-        for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
-
-            Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
-            nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode());
+        if (map != null) {
+            for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
+                nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode());
+            }
+        } else {
+            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
         }
 
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
-
 
     protected IDomain<Object> indexedDomain(ICondition condition) {
         Object[][] params = condition.getParamValues();
         int len = params.length;
         ArrayList<Object> list = new ArrayList<Object>(len);
         HashSet<Object> set = new HashSet<Object>(len);
-        
+
         for (int i = 0; i < len; i++) {
             Object[] pp = params[i];
             if (pp == null)
@@ -122,10 +145,9 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             Object ary = pp[0];
             if (ary == null)
                 continue;
-            
+
             int plen = Array.getLength(ary);
-            
-            
+
             for (int j = 0; j < plen; j++) {
                 Object key = Array.get(ary, j);
                 if (key == null)
@@ -133,15 +155,14 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 if (!set.add(key))
                     continue;
                 list.add(key);
-                
+
             }
-            
+
         }
-        
-        EnumDomain<Object> ed = new EnumDomain<Object>(list.toArray()); 
-        
+
+        EnumDomain<Object> ed = new EnumDomain<Object>(list.toArray());
+
         return ed;
     }
-    
-    
+
 }
