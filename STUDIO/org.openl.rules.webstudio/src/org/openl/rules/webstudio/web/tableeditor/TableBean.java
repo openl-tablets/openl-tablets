@@ -99,16 +99,6 @@ public class TableBean {
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
 
-            /*try {
-                String infoLink =
-                    String.format("message.xhtml?summary=%s",
-                        INFO_MESSAGE);
-
-                FacesUtils.redirect(infoLink);
-            } catch (IOException e) {
-                LOG.error("Can`t redirect to info message page", e);
-            }
-        } else {*/
             method = model.getMethod(uri);
 
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
