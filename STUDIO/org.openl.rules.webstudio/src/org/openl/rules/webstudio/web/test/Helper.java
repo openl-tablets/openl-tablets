@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.openl.rules.table.formatters.FormattersManager;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
@@ -21,5 +22,9 @@ public final class Helper {
         TreeNodeImpl root = new TreeNodeImpl();
         root.addChild(parameter.getName(), parameter);
         return root;
+    }
+
+    public String format(Object value) {
+        return FormattersManager.format(value);
     }
 }
