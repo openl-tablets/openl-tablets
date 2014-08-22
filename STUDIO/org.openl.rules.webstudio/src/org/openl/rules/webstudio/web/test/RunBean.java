@@ -5,10 +5,10 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -80,12 +80,9 @@ public class RunBean {
         return StringUtils.EMPTY;
     }
 
-    public ExplanationNumberValue<?> getExplanationValueResult(TestUnit unit) {
-        return TestResultsHelper.getExplanationValueResult(unit.getActualResult());
-    }
-
-    public int getExplanatorId(TestUnit unit) {
-        return TestResultsHelper.getExplanatorId(getExplanationValueResult(unit));
+    public int getExplanatorId(Object actualResult) {
+        // We expect there ExplanationNumberValue.
+        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) actualResult);
     }
 
 }

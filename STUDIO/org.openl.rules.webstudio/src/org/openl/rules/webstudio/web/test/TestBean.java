@@ -13,10 +13,7 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectHelper;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.*;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
@@ -220,7 +217,7 @@ public class TestBean {
     }
 
     public int getExplanatorId(Object value) {
-        return TestResultsHelper.getExplanatorId((ExplanationNumberValue<?>) value);
+        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) value);
     }
 
     /**
