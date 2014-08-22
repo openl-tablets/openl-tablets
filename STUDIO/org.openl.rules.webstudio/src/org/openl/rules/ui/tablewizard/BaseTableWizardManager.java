@@ -1,8 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
+import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.BaseWizard;
+import org.openl.rules.ui.Message;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class BaseTableWizardManager {
@@ -39,7 +44,21 @@ public abstract class BaseTableWizardManager {
     }
 
     protected void init() {
-        tableUri = WebStudioUtils.getWebStudio().getTableUri();
+        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        final ProjectModel model = studio.getModel();
+
+        if (!StringUtils.isBlank(id)) {
+            IOpenLTable table = model.getTableById(id);
+            if (table != null) {
+                tableUri = table.getUri();
+            } else {
+                throw new Message("Table with id " + id + " doesn't exists");
+            }
+        } else {
+            tableUri = WebStudioUtils.getWebStudio().getTableUri();
+        }
     }
 
 }
