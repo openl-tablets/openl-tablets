@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.test;
 
 import org.junit.Test;
+import org.openl.meta.DoubleValue;
 import org.richfaces.model.TreeNode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class HelperTest {
 
@@ -26,6 +26,14 @@ public class HelperTest {
         assertEquals("0.1", helper.format(0.1));
         assertEquals("true", helper.format(true));
         assertEquals("foo,bar", helper.format(new String[]{"foo", "bar"}));
+    }
+
+    @Test
+    public void testIsExplanationValue() {
+        Helper helper = new Helper();
+        assertTrue(helper.isExplanationValue(DoubleValue.ONE));
+        assertFalse(helper.isExplanationValue(null));
+        assertFalse(helper.isExplanationValue("Str"));
     }
 }
 

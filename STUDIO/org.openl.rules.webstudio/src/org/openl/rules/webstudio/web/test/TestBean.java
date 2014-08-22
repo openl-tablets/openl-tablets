@@ -224,10 +224,6 @@ public class TestBean {
         return FormattersManager.format(TestResultsHelper.getExplanationValueResult(value));
     }
 
-    public boolean isExplanationValue(Object value) {
-        return TestResultsHelper.getExplanationValueResult(value) != null;
-    }
-
     public int getExplanatorId(Object value) {
         return TestResultsHelper.getExplanatorId((ExplanationNumberValue<?>) value);
     }
