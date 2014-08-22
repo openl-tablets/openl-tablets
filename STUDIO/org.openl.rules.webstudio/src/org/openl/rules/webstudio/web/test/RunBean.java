@@ -84,10 +84,6 @@ public class RunBean {
         return TestResultsHelper.getExplanationValueResult(unit.getActualResult());
     }
 
-    public String getFormattedExplanationValueResult(TestUnit unit) {
-        return FormattersManager.format(getExplanationValueResult(unit));
-    }
-
     public int getExplanatorId(TestUnit unit) {
         return TestResultsHelper.getExplanatorId(getExplanationValueResult(unit));
     }
