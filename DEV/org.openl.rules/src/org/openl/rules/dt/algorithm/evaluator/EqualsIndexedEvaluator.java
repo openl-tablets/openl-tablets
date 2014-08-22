@@ -3,11 +3,13 @@
  */
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -18,6 +20,7 @@ import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
@@ -27,11 +30,11 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class EqualsIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
-  
+
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
-                condSource.getUri(0));
+            condSource.getUri(0));
     }
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
@@ -48,24 +51,45 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
             return null;
         }
 
-        HashMap<Object, DecisionTableRuleNodeBuilder> map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
+        Map<Object, DecisionTableRuleNodeBuilder> map = null;
+        Map<Object, DecisionTableRuleNode> nodeMap = null;
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
-
+        boolean comparatorBasedMap = false;
         for (; it.hasNext();) {
             int i = it.nextInt();
 
             if (indexedparams[i] == null || indexedparams[i][0] == null) {
                 emptyBuilder.addRule(i);
-
-                for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
-                    DecisionTableRuleNodeBuilder dtrnb = iter.next();
-                    dtrnb.addRule(i);
+                if (map != null) {
+                    for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
+                        DecisionTableRuleNodeBuilder dtrnb = iter.next();
+                        dtrnb.addRule(i);
+                    }
                 }
-
                 continue;
             }
 
             Object value = indexedparams[i][0];
+            if (comparatorBasedMap) {
+                if (!(value instanceof Comparable<?>)) {
+                    throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
+                }
+            }
+            if (map == null) {
+                if (NumberUtils.isFloatPointNumber(value)) {
+                    if (value instanceof BigDecimal) {
+                        map = new TreeMap<Object, DecisionTableRuleNodeBuilder>();
+                        nodeMap = new TreeMap<Object, DecisionTableRuleNode>();
+                    } else {
+                        map = new TreeMap<Object, DecisionTableRuleNodeBuilder>(FloatTypeComparator.getInstance());
+                        nodeMap = new TreeMap<Object, DecisionTableRuleNode>(FloatTypeComparator.getInstance());
+                    }
+                    comparatorBasedMap = true;
+                } else {
+                    map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
+                    nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+                }
+            }
             DecisionTableRuleNodeBuilder dtrb = map.get(value);
             if (dtrb == null) {
                 dtrb = new DecisionTableRuleNodeBuilder(emptyBuilder);
@@ -74,13 +98,13 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
             dtrb.addRule(i);
 
         }
-
-        HashMap<Object, DecisionTableRuleNode> nodeMap = new HashMap<Object, DecisionTableRuleNode>();
-
-        for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
-
-            nodeMap.put(element.getKey(), element.getValue().makeNode());
+        if (map != null) {
+            for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
+                nodeMap.put(element.getKey(), element.getValue().makeNode());
+            }
+        } else {
+            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
         }
 
         EqualsIndex index = new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
@@ -89,14 +113,12 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
 
     }
 
-
-
     protected IDomain<Object> indexedDomain(ICondition condition) {
         Object[][] params = condition.getParamValues();
         int len = params.length;
         ArrayList<Object> list = new ArrayList<Object>(len);
         HashSet<Object> set = new HashSet<Object>(len);
-        
+
         for (int i = 0; i < params.length; i++) {
             Object[] pp = params[i];
             if (pp == null)
@@ -108,11 +130,10 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
                 continue;
             list.add(key);
         }
-        
-        EnumDomain<Object> ed = new EnumDomain<Object>(list.toArray()); 
-        
+
+        EnumDomain<Object> ed = new EnumDomain<Object>(list.toArray());
+
         return ed;
     }
-    
-    
+
 }
