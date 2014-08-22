@@ -68,14 +68,10 @@ public class RunBean {
         return StringUtils.isNotBlank(id) && testSuite == null;
     }
 
-    public SpreadsheetResult getSpreadsheetResult(TestUnit unit) {
-        return TestResultsHelper.getSpreadsheetResult(unit.getActualResult());
-    }
-
     public String getFormattedSpreadsheetResult(TestUnit unit) {
-        SpreadsheetResult spreadsheetResult = getSpreadsheetResult(unit);
-        if (spreadsheetResult != null) {
-            return ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
+        Object result = unit.getActualResult();
+        if (result instanceof SpreadsheetResult) {
+            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result);
         }
         return StringUtils.EMPTY;
     }

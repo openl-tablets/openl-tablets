@@ -242,10 +242,9 @@ public class TestBean {
 
     public String getFormattedSpreadsheetResult(Object objTestUnit) {
         Object actualResultInternal = ((TestUnit) objTestUnit).getActualResult();
-        SpreadsheetResult spreadsheetResult = TestResultsHelper.getSpreadsheetResult(actualResultInternal);
-
         try {
-            if (spreadsheetResult != null) {
+            if (actualResultInternal instanceof SpreadsheetResult) {
+                SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
