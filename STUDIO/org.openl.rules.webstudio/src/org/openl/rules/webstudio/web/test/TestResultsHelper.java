@@ -16,10 +16,6 @@ public class TestResultsHelper {
         return null;
     }
 
-    public static int getExplanatorId(ExplanationNumberValue<?> explanationValue) {
-        return Explanator.getCurrent().getUniqueId(explanationValue);
-    }
-
     @Deprecated
     public static String getNullResult() {
         return "null";
