@@ -182,12 +182,12 @@
                                             <td>
                                                 <div class="case-result #{!test.runmethod ? (resultParam.status.status == 0 ? 'case-success' : 'case-error') : ''}">
                                                     <h:panelGroup rendered="#{!testBean.isResultThrowable(testCase)}">
-                                                        <h:panelGroup rendered="#{!testBean.isExplanationValue(resultParam.actualValue.value)}">
+                                                        <h:panelGroup rendered="#{!helper.isExplanationValue(resultParam.actualValue.value)}">
                                                             <ui:include src="/pages/modules/test/parameter.xhtml">
                                                                 <ui:param name="parameter" value="#{resultParam.actualValue}" />
                                                             </ui:include>
                                                         </h:panelGroup>
-                                                        <h:panelGroup rendered="#{testBean.isExplanationValue(resultParam.actualValue.value)}">
+                                                        <h:panelGroup rendered="#{helper.isExplanationValue(resultParam.actualValue.value)}">
                                                             <h:outputLink
                                                                 value="javascript:explain('?rootID=#{testBean.getExplanatorId(resultParam.actualValue.value)}')">
                                                                 <h:outputText value="#{testBean.formatExplanationValue(resultParam.actualValue.value)}" />
