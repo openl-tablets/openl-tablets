@@ -52,7 +52,7 @@
                             <td>
                                 <c:set var="errors" value="#{result.errors}" />
                                 <h:panelGroup rendered="#{empty errors}">
-                                    <h:panelGroup rendered="#{!helper.isExplanationValue(result.actualResult) and empty runBean.getSpreadsheetResult(result)}">
+                                    <h:panelGroup rendered="#{!helper.isExplanationValue(result.actualResult) and !helper.isSpreadsheetResult(result.actualResult)}">
                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                             <ui:param name="parameter" value="#{result.actualParam}" />
                                         </ui:include>
@@ -62,7 +62,7 @@
                                         rendered="#{helper.isExplanationValue(result.actualResult)}">
                                         <h:outputText value="#{helper.format(result.actualResult)}" />
                                     </h:outputLink>
-                                    <h:outputText rendered="#{!empty runBean.getSpreadsheetResult(result)}"
+                                    <h:outputText rendered="#{helper.isSpreadsheetResult(result.actualResult)}"
                                         value="#{runBean.getFormattedSpreadsheetResult(result)}" escape="false" />
                                     <br />
                                 </h:panelGroup>
