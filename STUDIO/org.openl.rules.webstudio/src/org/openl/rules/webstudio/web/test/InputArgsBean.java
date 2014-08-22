@@ -202,13 +202,4 @@ public class InputArgsBean {
         }
         return argumentTreeNodes;
     }
-
-    public TreeNode getRoot(Object objParameter) {
-        ParameterDeclarationTreeNode parameter = (ParameterDeclarationTreeNode) objParameter;
-        TreeNodeImpl root = new TreeNodeImpl();
-
-        root.addChild(parameter.getName(), parameter);
-
-        return root;
-    }
 }

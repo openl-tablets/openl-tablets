@@ -1,8 +1,5 @@
 package org.openl.rules.ui;
 
-import java.util.*;
-
-import org.apache.poi.util.IntegerField;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -17,8 +14,9 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
-import org.openl.util.formatters.IFormatter;
 import org.openl.util.tree.TreeIterator;
+
+import java.util.*;
 
 public class Explanation {
     static class ExplanationValueIterator implements TreeIterator.TreeAdaptor {
@@ -89,7 +87,7 @@ public class Explanation {
     }
 
     protected String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl,
-            int level) {
+                                    int level) {
 
         if (value == null) {
             return null;
@@ -172,14 +170,7 @@ public class Explanation {
     }
 
     private String getFormattedValue(ExplanationNumberValue<?> explanationValue) {
-        IFormatter formatter = FormattersManager.getFormatter(explanationValue);
-        String value = null;
-        if (formatter != null) {
-            value = formatter.format(explanationValue);
-        } else {
-            value = String.valueOf(explanationValue.toString());
-        }
-        return value;
+        return FormattersManager.format(explanationValue);
     }
 
     public String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
@@ -193,8 +184,8 @@ public class Explanation {
                 IGridTable table = ((GridCellSourceCodeModule) source).getTable();
                 url = GridTableUtils.getOriginalTable(table).getId();
             } else {*/
-                // Get cell uri
-                url = mi.getSourceUrl();
+            // Get cell uri
+            url = mi.getSourceUrl();
             /*}*/
         }
 
@@ -249,7 +240,7 @@ public class Explanation {
             level = 0;
         }
 
-        return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
+        return new String[]{String.valueOf(id), level.toString(), value, htmlString(explanationValue)};
     }
 
     protected boolean isExpandable(ExplanationNumberValue<?> value) {

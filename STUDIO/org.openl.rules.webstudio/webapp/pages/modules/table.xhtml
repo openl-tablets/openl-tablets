@@ -401,7 +401,7 @@
                                 </div>
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink action="#{tableBean.makeTestSuite}" styleClass="toolbarButton" title="Run"
+                                <a4j:commandLink styleClass="toolbarButton" title="Run"
                                     rendered="#{tableBean.canRun}"
                                     oncomplete="ws.nav.go('#{runLink}')">
                                     <img src="webresource/images/run.gif" />

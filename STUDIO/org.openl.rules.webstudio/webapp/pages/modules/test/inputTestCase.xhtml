@@ -25,7 +25,7 @@
             <a4j:repeat var="argumentTreeNode" value="#{inputArgsBean.argumentTreeNodes}">
                 <td width="100 px"><rich:panel id="dynamicTreePanel">
                         <rich:tree toggleType="client" selectionType="client"
-                            value="#{inputArgsBean.getRoot(argumentTreeNode)}" var="item"
+                            value="#{helper.getRoot(argumentTreeNode)}" var="item"
                             nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
                             styleClass="dynamicTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
                             <!-- rowKeyConverter is a temporary solution.
