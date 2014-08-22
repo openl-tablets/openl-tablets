@@ -106,7 +106,7 @@
 
     </style>
 
-    <c:if test="#{!tableBean.dispatcherValidationNode}">
+    <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
 
     <div id="unitsMenu" style="display: none; min-width: 175px">
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
@@ -540,6 +540,7 @@
     </div>
     </c:if>
 
+    <c:if test="#{!empty tableBean.table}">
     <div id="tablePanel">
         <div>
             <c:set var="editableTablePart" value="#{tableBean.tablePart and studio.model.editable}" />
@@ -580,6 +581,7 @@
             </rules:tableEditor>
         </div>
     </div>
+    </c:if>
 
     <ui:remove>
     <div style="position: absolute; right: 10px">
@@ -607,6 +609,12 @@
             </footer>
         </h:form>
     </rich:popupPanel>
+
+    <c:if test="#{empty tableBean.table}">
+        <script>
+            ws.nav.go("##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}/#{jsffn:encodeURL(studio.currentModule.name)}", true);
+        </script>
+    </c:if>
 
     <script>
         //<![CDATA[
