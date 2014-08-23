@@ -25,14 +25,18 @@ public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public int compareTo(T o) {
+        boolean tracableCompare = false;
         if (o instanceof ComparableValueTraceDecorator) {
             o = (T) ((ComparableValueTraceDecorator) o).delegate;
+            tracableCompare = true;
         }
         if (o instanceof ComparableIndexTraceDecorator) {
             o = (T) ((ComparableIndexTraceDecorator) o).delegate;
         }
         int result = delegate.compareTo(o);
-        traceComparisonResult(result == 0);
+        if (tracableCompare){
+            traceComparisonResult(result == 0);
+        }
         return result;
     }
 
@@ -41,13 +45,21 @@ public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
         return delegate.hashCode();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public boolean equals(Object obj) {
+        boolean tracableEquals = false;
         if (obj instanceof ComparableValueTraceDecorator) {
             obj = ((ComparableValueTraceDecorator) obj).delegate;
+            tracableEquals = true;
+        }
+        if (obj instanceof ComparableIndexTraceDecorator) {
+            obj = (T) ((ComparableIndexTraceDecorator) obj).delegate;
         }
         boolean result = delegate.equals(obj);
-        traceComparisonResult(result);
+        if (tracableEquals){
+            traceComparisonResult(result);
+        }
         return result;
     }
 

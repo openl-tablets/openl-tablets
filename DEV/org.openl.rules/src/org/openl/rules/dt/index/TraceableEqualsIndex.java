@@ -1,6 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.util.HashMap;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -23,12 +24,12 @@ public class TraceableEqualsIndex extends EqualsIndex {
         this.baseTraceObject = baseTraceObject;
         this.traceStack = traceStack;
 
-        if (delegate.valueNodes instanceof TreeMap) {
-            TreeMap<?, ?> treeMap = (TreeMap<?, ?>) delegate.valueNodes;
-            if (treeMap.comparator() == null) {
+        if (delegate.valueNodes instanceof SortedMap) {
+            SortedMap<?, ?> sortedMap = (SortedMap<?, ?>) delegate.valueNodes;
+            if (sortedMap.comparator() == null) {
                 valueNodes = new TreeMap<Object, DecisionTableRuleNode>();
             } else {
-                valueNodes = new TreeMap<Object, DecisionTableRuleNode>(new ComparatorTraceDecorator(treeMap.comparator()));
+                valueNodes = new TreeMap<Object, DecisionTableRuleNode>(new ComparatorTraceDecorator(sortedMap.comparator()));
             }
         } else {
             valueNodes = new HashMap<Object, DecisionTableRuleNode>(delegate.valueNodes.size());
