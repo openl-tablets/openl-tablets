@@ -4,11 +4,11 @@ import java.util.Comparator;
 
 import org.openl.rules.dt.trace.DTIndexedTraceObject;
 
-public class ComparatorTraceDecorator implements Comparator<Object> {
+class ComparatorTraceDecorator implements Comparator<Object> {
     private Comparator<Object> delegate;
 
     @SuppressWarnings("unchecked")
-    public ComparatorTraceDecorator(Comparator<?> delegate) {
+    ComparatorTraceDecorator(Comparator<?> delegate) {
         if (delegate == null) {
             throw new IllegalArgumentException("delegate arg can't be null!");
         }
