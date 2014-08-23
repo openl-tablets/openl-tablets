@@ -13,7 +13,7 @@ public class EqualsIndex extends ARuleIndex {
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes, Map<Object, DecisionTableRuleNode> valueNodes) {
         super(emptyOrFormulaNodes);
         if (valueNodes == null){
-            valueNodes = new HashMap<Object, DecisionTableRuleNode>();
+            this.valueNodes = new HashMap<Object, DecisionTableRuleNode>();
         }else{
             this.valueNodes = valueNodes;
         }

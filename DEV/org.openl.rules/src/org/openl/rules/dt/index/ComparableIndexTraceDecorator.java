@@ -8,10 +8,10 @@ import org.openl.vm.trace.TraceStack;
 
 public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
     protected final Comparable<T> delegate;
-    private final DecisionTableRuleNode linkedRule;
-    private final ICondition condition;
-    private final DecisionTableTraceObject baseTraceObject;
-    private final TraceStack traceStack;
+    protected final DecisionTableRuleNode linkedRule;
+    protected final ICondition condition;
+    protected final DecisionTableTraceObject baseTraceObject;
+    protected final TraceStack traceStack;
 
     public ComparableIndexTraceDecorator(Comparable<T> delegate, DecisionTableRuleNode linkedRule,
             ICondition condition, DecisionTableTraceObject baseTraceObject, TraceStack traceStack) {
@@ -22,11 +22,14 @@ public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
         this.traceStack = traceStack;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public int compareTo(T o) {
         if (o instanceof ComparableValueTraceDecorator) {
             o = (T) ((ComparableValueTraceDecorator) o).delegate;
+        }
+        if (o instanceof ComparableIndexTraceDecorator) {
+            o = (T) ((ComparableIndexTraceDecorator) o).delegate;
         }
         int result = delegate.compareTo(o);
         traceComparisonResult(result == 0);
