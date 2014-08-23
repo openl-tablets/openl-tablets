@@ -1,11 +1,9 @@
 package org.openl.rules.dt.index;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.trace.DTConditionTraceObject;
