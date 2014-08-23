@@ -5,40 +5,33 @@
  */
 package org.openl.rules.helpers;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.domain.IDomain;
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.meta.*;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
+import org.openl.types.IOpenClass;
+import org.openl.util.ArrayTool;
+import org.openl.util.DateTool;
+import org.openl.util.math.MathUtils;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.*;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.openl.domain.IDomain;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ObjectValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DomainOpenClass;
-import org.openl.util.ArrayTool;
-import org.openl.util.DateTool;
-import org.openl.util.math.MathUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This class is connected to rules and all these methods can be used from
  * rules. The biggest part of methods is being generated. See
  * org.openl.rules.gen module.
- * 
+ *
  * @author snshor
  */
 public class RulesUtils {
@@ -50,9 +43,10 @@ public class RulesUtils {
 
     // <<< INSERT Functions >>>
     // MAX
+
     /**
      * REturns max Byte value
-     * 
+     *
      * @param values Byte array
      * @return max Byte
      */
@@ -62,7 +56,7 @@ public class RulesUtils {
 
     /**
      * Returns max short value
-     * 
+     *
      * @param values Short array
      * @return max short
      */
@@ -74,7 +68,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -86,7 +80,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -98,7 +92,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -110,7 +104,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -122,7 +116,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -134,7 +128,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -146,7 +140,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -158,7 +152,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -170,7 +164,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -182,7 +176,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -194,7 +188,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -206,7 +200,7 @@ public class RulesUtils {
      * <p>
      * Returns the maximum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -215,11 +209,12 @@ public class RulesUtils {
     }
 
     // MIN
+
     /**
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -231,7 +226,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -243,7 +238,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -255,7 +250,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -267,7 +262,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -279,7 +274,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -291,7 +286,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -303,7 +298,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -315,7 +310,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -327,7 +322,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -339,7 +334,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -351,7 +346,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -363,7 +358,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -375,7 +370,7 @@ public class RulesUtils {
      * <p>
      * Returns the minimum value in an array.
      * </p>
-     * 
+     *
      * @param array an array, must not be null or empty
      * @return the minimum value in the array
      */
@@ -384,11 +379,12 @@ public class RulesUtils {
     }
 
     // SUM
+
     /**
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -400,7 +396,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -412,7 +408,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -424,7 +420,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -436,7 +432,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -448,7 +444,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -460,7 +456,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -472,7 +468,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -484,7 +480,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -496,7 +492,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -508,7 +504,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -520,7 +516,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -532,7 +528,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -544,7 +540,7 @@ public class RulesUtils {
      * <p>
      * Returns the sum of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -553,11 +549,12 @@ public class RulesUtils {
     }
 
     // AVERAGE
+
     /**
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -569,7 +566,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -581,7 +578,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -593,7 +590,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -605,7 +602,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -617,7 +614,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -629,7 +626,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -641,7 +638,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -653,7 +650,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -665,7 +662,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -677,7 +674,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -689,7 +686,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -701,7 +698,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -713,7 +710,7 @@ public class RulesUtils {
      * <p>
      * Returns the average value of the elements in the array.
      * </p>
-     * 
+     *
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
@@ -722,13 +719,14 @@ public class RulesUtils {
     }
 
     // SMALL
+
     /**
      * <p>
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -741,8 +739,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -755,8 +753,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -769,8 +767,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -783,8 +781,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -797,8 +795,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -811,8 +809,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -825,8 +823,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -839,8 +837,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -853,8 +851,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -867,8 +865,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -881,8 +879,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -895,8 +893,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -909,8 +907,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in ascending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -919,13 +917,14 @@ public class RulesUtils {
     }
 
     // BIG
+
     /**
      * <p>
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -938,8 +937,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -952,8 +951,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -966,8 +965,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -980,8 +979,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -994,8 +993,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1008,8 +1007,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1022,8 +1021,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1036,8 +1035,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1050,8 +1049,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1064,8 +1063,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1078,8 +1077,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1092,8 +1091,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1106,8 +1105,8 @@ public class RulesUtils {
      * Removes null values from array, sorts an array in descending order and
      * returns the value at position <i>'position'</i>
      * </p>
-     * 
-     * @param values an array, must not be null or empty
+     *
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -1116,9 +1115,10 @@ public class RulesUtils {
     }
 
     // MEDIAN
+
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1128,7 +1128,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1138,7 +1138,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1148,7 +1148,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1158,7 +1158,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1168,7 +1168,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1178,7 +1178,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1188,7 +1188,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1198,7 +1198,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1208,7 +1208,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1218,7 +1218,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1228,7 +1228,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1238,7 +1238,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1248,7 +1248,7 @@ public class RulesUtils {
 
     /**
      * "Method median is not implemented yet"
-     * 
+     *
      * @param values
      * @return
      */
@@ -1257,8 +1257,10 @@ public class RulesUtils {
     }
 
     // QUAOTIENT
+
     /**
-     * Returns the 
+     * Returns the
+     *
      * @param number
      * @param divisor
      * @return
@@ -1430,8 +1432,8 @@ public class RulesUtils {
     }
 
     public static java.math.BigInteger[] slice(java.math.BigInteger[] values,
-            int startIndexInclusive,
-            int endIndexExclusive) {
+                                               int startIndexInclusive,
+                                               int endIndexExclusive) {
         return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }
 
@@ -1440,8 +1442,8 @@ public class RulesUtils {
     }
 
     public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values,
-            int startIndexInclusive,
-            int endIndexExclusive) {
+                                               int startIndexInclusive,
+                                               int endIndexExclusive) {
         return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }
 
@@ -1530,12 +1532,12 @@ public class RulesUtils {
      * (that is, {@code e1.compareTo(e2)} must not throw a
      * {@code ClassCastException} for any elements {@code e1} and {@code e2} in
      * the array).
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * This sort is guaranteed to be <i>stable</i>: equal elements will not be
      * reordered as a result of the sort.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: This implementation is a stable, adaptive, iterative
      * mergesort that requires far fewer than n lg(n) comparisons when the input
      * array is partially sorted, while offering the performance of a
@@ -1544,22 +1546,22 @@ public class RulesUtils {
      * comparisons. Temporary storage requirements vary from a small constant
      * for nearly sorted input arrays to n/2 object references for randomly
      * ordered input arrays.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The implementation takes equal advantage of ascending and descending
      * order in its input array, and can take advantage of ascending and
      * descending order in different parts of the the same input array. It is
      * well-suited to merging two or more sorted arrays: simply concatenate the
      * arrays and sort the resulting array.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The implementation was adapted from Tim Peters's list sort for Python (<a
      * href="http://svn.python.org/projects/python/trunk/Objects/listsort.txt">
      * TimSort</a>). It uses techiques from Peter McIlroy's "Optimistic Sorting
      * and Information Theoretic Complexity", in Proceedings of the Fourth
      * Annual ACM-SIAM Symposium on Discrete Algorithms, pp 467-474, January
      * 1993.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of BigDecimals
      */
@@ -1569,14 +1571,14 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of bytes
      */
@@ -1586,14 +1588,14 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of shorts
      */
@@ -1603,14 +1605,14 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of ints
      */
@@ -1620,14 +1622,14 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of longs
      */
@@ -1637,8 +1639,8 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The {@code <} relation does not provide a total order on all double
      * values: {@code -0.0d == 0.0d} is {@code true} and a {@code Double.NaN}
      * value compares neither less than, greater than, nor equal to any value,
@@ -1646,14 +1648,14 @@ public class RulesUtils {
      * {@link Double#compareTo}: {@code -0.0d} is treated as less than value
      * {@code 0.0d} and {@code Double.NaN} is considered greater than any other
      * value and all {@code Double.NaN} values are considered equal.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param values the array to be sorted
      * @return a sorted array of floats
      */
@@ -1663,8 +1665,8 @@ public class RulesUtils {
 
     /**
      * Sorts the specified array into ascending numerical order.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The {@code <} relation does not provide a total order on all double
      * values: {@code -0.0d == 0.0d} is {@code true} and a {@code Double.NaN}
      * value compares neither less than, greater than, nor equal to any value,
@@ -1672,14 +1674,14 @@ public class RulesUtils {
      * {@link Double#compareTo}: {@code -0.0d} is treated as less than value
      * {@code 0.0d} and {@code Double.NaN} is considered greater than any other
      * value and all {@code Double.NaN} values are considered equal.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Implementation note: The sorting algorithm is a Dual-Pivot Quicksort by
      * Vladimir Yaroslavskiy, Jon Bentley, and Joshua Bloch. This algorithm
      * offers O(n log(n)) performance on many data sets that cause other
      * quicksorts to degrade to quadratic performance, and is typically faster
      * than traditional (one-pivot) Quicksort implementations.
-     * 
+     *
      * @param - values the array to be sorted
      * @return a sorted array of doubles
      */
@@ -1743,13 +1745,13 @@ public class RulesUtils {
      * <p>
      * Checks if the object is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array        the array to search through
      * @param objectToFind the object to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1761,13 +1763,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1779,13 +1781,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1797,13 +1799,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1815,13 +1817,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1833,13 +1835,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      * @since 2.1
@@ -1852,13 +1854,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1870,13 +1872,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1888,13 +1890,13 @@ public class RulesUtils {
      * <p>
      * Checks if the value is in the given array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The method returns <code>false</code> if a <code>null</code> array is
      * passed in.
      * </p>
-     * 
-     * @param array the array to search through
+     *
+     * @param array       the array to search through
      * @param valueToFind the value to find
      * @return <code>true</code> if the array contains the object
      */
@@ -1947,11 +1949,11 @@ public class RulesUtils {
      * Checks if String contains a search String, handling <code>null</code>.
      * This method uses {@link String#indexOf(String)}.
      * </p>
-     * 
+     * <p/>
      * <p>
      * A <code>null</code> String will return <code>false</code>.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * StringUtils.contains(null, *)     = false
      * StringUtils.contains(*, null)     = false
@@ -1960,11 +1962,11 @@ public class RulesUtils {
      * StringUtils.contains("abc", "a")  = true
      * StringUtils.contains("abc", "z")  = false
      * </pre>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str       the String to check, may be null
      * @param searchStr the String to find, may be null
      * @return true if the String contains the search String, false if not or
-     *         <code>null</code> string input
+     * <code>null</code> string input
      */
     public static boolean contains(String str, String searchStr) {
         return StringUtils.contains(str, searchStr);
@@ -1975,22 +1977,22 @@ public class RulesUtils {
      * Checks if String contains a search character, handling <code>null</code>.
      * This method uses {@link String#indexOf(int)}.
      * </p>
-     * 
+     * <p/>
      * <p>
      * A <code>null</code> or empty ("") String will return <code>false</code>.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * StringUtils.contains(null, *)    = false
      * StringUtils.contains("", *)      = false
      * StringUtils.contains("abc", 'a') = true
      * StringUtils.contains("abc", 'z') = false
      * </pre>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str        the String to check, may be null
      * @param searchChar the character to find
      * @return true if the String contains the search character, false if not or
-     *         <code>null</code> string input
+     * <code>null</code> string input
      */
     public static boolean contains(String str, char searchChar) {
         return StringUtils.contains(str, searchChar);
@@ -2001,13 +2003,13 @@ public class RulesUtils {
      * Checks if the String contains any character in the given set of
      * characters.
      * </p>
-     * 
+     * <p/>
      * <p>
      * A <code>null</code> String will return <code>false</code>. A
      * <code>null</code> or zero length search array will return
      * <code>false</code>.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * StringUtils.containsAny(null, *)                = false
      * StringUtils.containsAny("", *)                  = false
@@ -2017,11 +2019,11 @@ public class RulesUtils {
      * StringUtils.containsAny("zzabyycdxx",['b','y']) = true
      * StringUtils.containsAny("aba", ['z'])           = false
      * </pre>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str         the String to check, may be null
      * @param searchChars the chars to search for, may be null
      * @return the <code>true</code> if any of the chars are found,
-     *         <code>false</code> if no match or null input
+     * <code>false</code> if no match or null input
      */
     public static boolean containsAny(String str, char[] chars) {
         return StringUtils.containsAny(str, chars);
@@ -2032,12 +2034,12 @@ public class RulesUtils {
      * Checks if the String contains any character in the given set of
      * characters.
      * </p>
-     * 
+     * <p/>
      * <p>
      * A <code>null</code> String will return <code>false</code>. A
      * <code>null</code> search string will return <code>false</code>.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * StringUtils.containsAny(null, *)            = false
      * StringUtils.containsAny("", *)              = false
@@ -2047,11 +2049,11 @@ public class RulesUtils {
      * StringUtils.containsAny("zzabyycdxx", "by") = true
      * StringUtils.containsAny("aba","z")          = false
      * </pre>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str         the String to check, may be null
      * @param searchChars the chars to search for, may be null
      * @return the <code>true</code> if any of the chars are found,
-     *         <code>false</code> if no match or null input
+     * <code>false</code> if no match or null input
      */
     public static boolean containsAny(String str, String searchChars) {
         return StringUtils.containsAny(str, searchChars);
@@ -2061,18 +2063,18 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given object in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array        the array to search through for the object, may be
+     *                     <code>null</code>
      * @param objectToFind the object to find, may be <code>null</code>
      * @return the index of the object within the array,
-     *         {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found or
-     *         <code>null</code> array input
+     * {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found or
+     * <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object obj) {
         return ArrayUtils.indexOf(array, obj);
@@ -2082,17 +2084,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(int[] array, int elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2102,17 +2104,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(long[] array, long elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2122,17 +2124,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(byte[] array, byte elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2142,17 +2144,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(short[] array, short elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2162,17 +2164,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      * @since 2.1
      */
     public static int indexOf(char[] array, char elem) {
@@ -2183,17 +2185,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(float[] array, float elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2203,17 +2205,17 @@ public class RulesUtils {
      * <p>
      * Finds the index of the given value in the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
-     * 
-     * @param array the array to search through for the object, may be
-     *            <code>null</code>
+     *
+     * @param array       the array to search through for the object, may be
+     *                    <code>null</code>
      * @param valueToFind the value to find
      * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(double[] array, double elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2237,7 +2239,7 @@ public class RulesUtils {
 
     /**
      * method dateToString(Date date) should be used
-     * 
+     *
      * @param date
      * @return formated date value
      */
@@ -2248,7 +2250,7 @@ public class RulesUtils {
 
     /**
      * method dateToString (Date date, String format) should be used
-     * 
+     *
      * @param date
      * @param format
      * @return String formated date value
@@ -2260,7 +2262,7 @@ public class RulesUtils {
 
     /**
      * converts a date to the String according dateFormat
-     * 
+     *
      * @param date
      * @param dateFormat
      * @return String formated date value
@@ -2277,10 +2279,10 @@ public class RulesUtils {
 
     /**
      * converts a date to the String according dateFormat
-     * 
-     * @see DateTool.dateToString();
+     *
      * @param date
      * @return String formated date value
+     * @see DateTool.dateToString();
      */
     public static String dateToString(Date date) {
         String stringDate = "Incorrect date format";
@@ -2348,7 +2350,7 @@ public class RulesUtils {
     /**
      * Parse the represented string value to the double. Uses default Locale for
      * it.
-     * 
+     * <p/>
      * Shouldn`t be used.
      */
     @Deprecated
@@ -2359,7 +2361,7 @@ public class RulesUtils {
     /**
      * Parse the represented string value to the double. Uses default Locale for
      * it. See {@link DecimalFormat#DecimalFormat(String)}
-     * 
+     * <p/>
      * Shouldn`t be used.
      */
     @Deprecated
@@ -2462,7 +2464,7 @@ public class RulesUtils {
 
     /**
      * Returns AM or PM
-     * 
+     *
      * @param d Date
      * @return AM or PM
      */
@@ -2558,8 +2560,8 @@ public class RulesUtils {
 
     /**
      * Returns the closest {@code long} to the argument, with ties rounding up.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If the argument is NaN, the result is 0.
@@ -2570,10 +2572,10 @@ public class RulesUtils {
      * equal to the value of {@code Long.MAX_VALUE}, the result is equal to the
      * value of {@code Long.MAX_VALUE}.
      * </ul>
-     * 
+     *
      * @param a a floating-point value to be rounded to a {@code long}.
      * @return the value of the argument rounded to the nearest {@code long}
-     *         value.
+     * value.
      */
     public static long round(double value) {
         return Math.round(value);
@@ -2581,8 +2583,8 @@ public class RulesUtils {
 
     /**
      * Returns the closest {@code int} to the argument, with ties rounding up.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If the argument is NaN, the result is 0.
@@ -2593,10 +2595,10 @@ public class RulesUtils {
      * equal to the value of {@code Integer.MAX_VALUE}, the result is equal to
      * the value of {@code Integer.MAX_VALUE}.
      * </ul>
-     * 
+     *
      * @param a a floating-point value to be rounded to an integer.
      * @return the value of the argument rounded to the nearest {@code int}
-     *         value.
+     * value.
      */
     public static int round(float value) {
         return Math.round(value);
@@ -2605,8 +2607,8 @@ public class RulesUtils {
     /**
      * Round the given value to the specified number of decimal places. The
      * value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
-     * 
-     * @param x the value to round.
+     *
+     * @param x     the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @return the rounded value.
      */
@@ -2617,8 +2619,8 @@ public class RulesUtils {
     /**
      * Round the given value to the specified number of decimal places. The
      * value is rounding using the {@link BigDecimal#ROUND_HALF_UP} method.
-     * 
-     * @param x the value to round.
+     *
+     * @param x     the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @return the rounded value.
      */
@@ -2630,11 +2632,11 @@ public class RulesUtils {
      * Round the given value to the specified number of decimal places. The
      * value is rounded using the given method which is any method defined in
      * {@link BigDecimal}.
-     * 
-     * @param x the value to round.
-     * @param scale the number of digits to the right of the decimal point.
+     *
+     * @param x              the value to round.
+     * @param scale          the number of digits to the right of the decimal point.
      * @param roundingMethod the rounding method as defined in
-     *            {@link BigDecimal}.
+     *                       {@link BigDecimal}.
      * @return the rounded value.
      */
     public static double round(double value, int scale, int roundingMethod) {
@@ -2645,11 +2647,11 @@ public class RulesUtils {
      * Round the given value to the specified number of decimal places. The
      * value is rounded using the given method which is any method defined in
      * {@link BigDecimal}.
-     * 
-     * @param x the value to round.
-     * @param scale the number of digits to the right of the decimal point.
+     *
+     * @param x              the value to round.
+     * @param scale          the number of digits to the right of the decimal point.
      * @param roundingMethod the rounding method as defined in
-     *            {@link BigDecimal}.
+     *                       {@link BigDecimal}.
      * @return the rounded value.
      */
     public static float round(float value, int scale, int roundingMethod) {
@@ -2676,24 +2678,24 @@ public class RulesUtils {
      * unscaled value must be divided (rather than multiplied), and the value
      * may be changed; in this case, the specified rounding mode is applied to
      * the division.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Note that since BigDecimal objects are immutable, calls of this method do
      * <i>not</i> result in the original object being modified, contrary to the
      * usual convention of having methods named <tt>set<i>X</i></tt> mutate
      * field <i>{@code X}</i>. Instead, {@code setScale} returns an object with
      * the proper scale; the returned object may or may not be newly allocated.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The new {@link #setScale(int, RoundingMode)} method should be used in
      * preference to this legacy method.
-     * 
-     * @param newScale scale of the {@code BigDecimal} value to be returned.
+     *
+     * @param newScale     scale of the {@code BigDecimal} value to be returned.
      * @param roundingMode The rounding mode to apply.
      * @return a {@code BigDecimal} whose scale is the specified value, and
-     *         whose unscaled value is determined by multiplying or dividing
-     *         this {@code BigDecimal}'s unscaled value by the appropriate power
-     *         of ten to maintain its overall value.
+     * whose unscaled value is determined by multiplying or dividing
+     * this {@code BigDecimal}'s unscaled value by the appropriate power
+     * of ten to maintain its overall value.
      */
     // added for BA`s, who don`t know about the possibilities of
     // BigDecimal
@@ -2703,7 +2705,7 @@ public class RulesUtils {
 
     /**
      * Return a new array without null elements
-     * 
+     *
      * @param array whose null elements should be removed
      * @return new array without null elements
      */
@@ -2722,9 +2724,9 @@ public class RulesUtils {
      * <li>If the argument is NaN, the result is NaN.
      * </ul>
      * In other words, the result is the same as the value of the expression:
-     * <p>
+     * <p/>
      * {@code Double.longBitsToDouble((Double.doubleToLongBits(a)<<1)>>>1)}
-     * 
+     *
      * @param a the argument whose absolute value is to be determined
      * @return the absolute value of the argument.
      */
@@ -2744,9 +2746,9 @@ public class RulesUtils {
      * <li>If the argument is NaN, the result is NaN.
      * </ul>
      * In other words, the result is the same as the value of the expression:
-     * <p>
+     * <p/>
      * {@code Float.intBitsToFloat(0x7fffffff & Float.floatToIntBits(a))}
-     * 
+     *
      * @param a the argument whose absolute value is to be determined
      * @return the absolute value of the argument.
      */
@@ -2758,12 +2760,12 @@ public class RulesUtils {
      * Returns the absolute value of an {@code int} value. If the argument is
      * not negative, the argument is returned. If the argument is negative, the
      * negation of the argument is returned.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Note that if the argument is equal to the value of
      * {@link Integer#MIN_VALUE}, the most negative representable {@code int}
      * value, the result is that same value, which is negative.
-     * 
+     *
      * @param a the argument whose absolute value is to be determined
      * @return the absolute value of the argument.
      */
@@ -2775,12 +2777,12 @@ public class RulesUtils {
      * Returns the absolute value of a {@code long} value. If the argument is
      * not negative, the argument is returned. If the argument is negative, the
      * negation of the argument is returned.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Note that if the argument is equal to the value of {@link Long#MIN_VALUE}
      * , the most negative representable {@code long} value, the result is that
      * same value, which is negative.
-     * 
+     *
      * @param a the argument whose absolute value is to be determined
      * @return the absolute value of the argument.
      */
@@ -2795,11 +2797,11 @@ public class RulesUtils {
      * <li>If the argument is NaN or its absolute value is greater than 1, then
      * the result is NaN.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a the value whose arc cosine is to be returned.
      * @return the arc cosine of the argument.
      */
@@ -2816,11 +2818,11 @@ public class RulesUtils {
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a the value whose arc sine is to be returned.
      * @return the arc sine of the argument.
      */
@@ -2836,11 +2838,11 @@ public class RulesUtils {
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a the value whose arc tangent is to be returned.
      * @return the arc tangent of the argument.
      */
@@ -2889,17 +2891,17 @@ public class RulesUtils {
      * <li>If both arguments are negative infinity, then the result is the
      * {@code double} value closest to -3*<i>pi</i>/4.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 2 ulps of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param y the ordinate coordinate
      * @param x the abscissa coordinate
      * @return the <i>theta</i> component of the point
-     *         (<i>r</i>,&nbsp;<i>theta</i>) in polar coordinates that
-     *         corresponds to the point (<i>x</i>,&nbsp;<i>y</i>) in Cartesian
-     *         coordinates.
+     * (<i>r</i>,&nbsp;<i>theta</i>) in polar coordinates that
+     * corresponds to the point (<i>x</i>,&nbsp;<i>y</i>) in Cartesian
+     * coordinates.
      */
     public static double atan2(double y, double x) {
         return Math.atan2(y, x);
@@ -2910,24 +2912,24 @@ public class RulesUtils {
      * {@code x}, {@code cbrt(-x) ==
      * -cbrt(x)}; that is, the cube root of a negative value is the negative of
      * the cube root of that value's magnitude.
-     * 
+     * <p/>
      * Special cases:
-     * 
+     * <p/>
      * <ul>
-     * 
+     * <p/>
      * <li>If the argument is NaN, then the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is infinite, then the result is an infinity with the
      * same sign as the argument.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result.
-     * 
+     *
      * @param a a value.
      * @return the cube root of {@code a}.
      */
@@ -2949,12 +2951,11 @@ public class RulesUtils {
      * </ul>
      * Note that the value of {@code Math.ceil(x)} is exactly the value of
      * {@code -Math.floor(-x)}.
-     * 
-     * 
+     *
      * @param a a value.
      * @return the smallest (closest to negative infinity) floating-point value
-     *         that is greater than or equal to the argument and is equal to a
-     *         mathematical integer.
+     * that is greater than or equal to the argument and is equal to a
+     * mathematical integer.
      */
     public static double ceil(double a) {
         return Math.ceil(a);
@@ -2968,11 +2969,11 @@ public class RulesUtils {
      * positive values; implementations are permitted to treat some NaN
      * arguments as positive and other NaN arguments as negative to allow
      * greater performance.
-     * 
+     *
      * @param magnitude the parameter providing the magnitude of the result
-     * @param sign the parameter providing the sign of the result
+     * @param sign      the parameter providing the sign of the result
      * @return a value with the magnitude of {@code magnitude} and the sign of
-     *         {@code sign}.
+     * {@code sign}.
      */
     public static double copySign(double magnitude, double sign) {
         return Math.copySign(magnitude, sign);
@@ -2986,11 +2987,11 @@ public class RulesUtils {
      * positive values; implementations are permitted to treat some NaN
      * arguments as positive and other NaN arguments as negative to allow
      * greater performance.
-     * 
+     *
      * @param magnitude the parameter providing the magnitude of the result
-     * @param sign the parameter providing the sign of the result
+     * @param sign      the parameter providing the sign of the result
      * @return a value with the magnitude of {@code magnitude} and the sign of
-     *         {@code sign}.
+     * {@code sign}.
      */
     public static float copySign(float magnitude, float sign) {
         return Math.copySign(magnitude, sign);
@@ -3001,11 +3002,11 @@ public class RulesUtils {
      * <ul>
      * <li>If the argument is NaN or an infinity, then the result is NaN.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a an angle, in radians.
      * @return the cosine of the argument.
      */
@@ -3018,22 +3019,22 @@ public class RulesUtils {
      * cosine of <i>x</i> is defined to be
      * (<i>e<sup>x</sup>&nbsp;+&nbsp;e<sup>-x</sup></i>)/2 where <i>e</i> is
      * {@linkplain Math#E Euler's number}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
-     * 
+     * <p/>
      * <li>If the argument is NaN, then the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is infinite, then the result is positive infinity.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is {@code 1.0}.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 2.5 ulps of the exact result.
-     * 
+     *
      * @param x The number whose hyperbolic cosine is to be returned.
      * @return The hyperbolic cosine of {@code x}.
      * @since 1.5
@@ -3052,14 +3053,14 @@ public class RulesUtils {
      * <li>If the argument is negative infinity, then the result is positive
      * zero.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a the exponent to raise <i>e</i> to.
      * @return the value <i>e</i><sup>{@code a}</sup>, where <i>e</i> is the
-     *         base of the natural logarithms.
+     * base of the natural logarithms.
      */
     public static double exp(double a) {
         return Math.exp(a);
@@ -3069,31 +3070,31 @@ public class RulesUtils {
      * Returns <i>e</i><sup>x</sup>&nbsp;-1. Note that for values of <i>x</i>
      * near 0, the exact sum of {@code expm1(x)}&nbsp;+&nbsp;1 is much closer to
      * the true result of <i>e</i><sup>x</sup> than {@code exp(x)}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If the argument is NaN, the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is positive infinity, then the result is positive
      * infinity.
-     * 
+     * <p/>
      * <li>If the argument is negative infinity, then the result is -1.0.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic. The result of {@code expm1} for any finite input
      * must be greater than or equal to {@code -1.0}. Note that once the exact
      * result of <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1 is within 1/2 ulp of
      * the limit value -1, {@code -1.0} should be returned.
-     * 
+     *
      * @param x the exponent to raise <i>e</i> to in the computation of
-     *            <i>e</i><sup>{@code x}</sup>&nbsp;-1.
+     *          <i>e</i><sup>{@code x}</sup>&nbsp;-1.
      * @return the value <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1.
      */
     public static double expm1(double x) {
@@ -3110,11 +3111,11 @@ public class RulesUtils {
      * <li>If the argument is NaN or an infinity or positive zero or negative
      * zero, then the result is the same as the argument.
      * </ul>
-     * 
+     *
      * @param a a value.
      * @return the largest (closest to positive infinity) floating-point value
-     *         that less than or equal to the argument and is equal to a
-     *         mathematical integer.
+     * that less than or equal to the argument and is equal to a
+     * mathematical integer.
      */
     public static double floor(double a) {
         return Math.floor(a);
@@ -3123,14 +3124,14 @@ public class RulesUtils {
     /**
      * Returns the unbiased exponent used in the representation of a
      * {@code double}. Special cases:
-     * 
+     * <p/>
      * <ul>
      * <li>If the argument is NaN or infinite, then the result is
      * {@link Double#MAX_EXPONENT} + 1.
      * <li>If the argument is zero or subnormal, then the result is
      * {@link Double#MIN_EXPONENT} -1.
      * </ul>
-     * 
+     *
      * @param d a {@code double} value
      * @return the unbiased exponent of the argument
      */
@@ -3141,14 +3142,14 @@ public class RulesUtils {
     /**
      * Returns the unbiased exponent used in the representation of a
      * {@code float}. Special cases:
-     * 
+     * <p/>
      * <ul>
      * <li>If the argument is NaN or infinite, then the result is
      * {@link Float#MAX_EXPONENT} + 1.
      * <li>If the argument is zero or subnormal, then the result is
      * {@link Float#MIN_EXPONENT} -1.
      * </ul>
-     * 
+     *
      * @param f a {@code float} value
      * @return the unbiased exponent of the argument
      */
@@ -3159,27 +3160,27 @@ public class RulesUtils {
     /**
      * Returns sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>) without
      * intermediate overflow or underflow.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
-     * 
+     * <p/>
      * <li>If either argument is infinite, then the result is positive infinity.
-     * 
+     * <p/>
      * <li>If either argument is NaN and neither argument is infinite, then the
      * result is NaN.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. If one
      * parameter is held constant, the results must be semi-monotonic in the
      * other parameter.
-     * 
+     *
      * @param x a value
      * @param y a value
      * @return sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>) without
-     *         intermediate overflow or underflow
+     * intermediate overflow or underflow
      */
     public static double getExponent(double x, double y) {
         return Math.hypot(x, y);
@@ -3201,7 +3202,7 @@ public class RulesUtils {
      * <li>If the first argument is finite and the second argument is infinite,
      * then the result is the same as the first argument.
      * </ul>
-     * 
+     *
      * @param f1 the dividend.
      * @param f2 the divisor.
      * @return the remainder when {@code f1} is divided by {@code f2}.
@@ -3220,11 +3221,11 @@ public class RulesUtils {
      * <li>If the argument is positive zero or negative zero, then the result is
      * negative infinity.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a a value
      * @return the value ln&nbsp;{@code a}, the natural logarithm of {@code a}.
      */
@@ -3234,7 +3235,7 @@ public class RulesUtils {
 
     /**
      * Returns the base 10 logarithm of a {@code double} value. Special cases:
-     * 
+     * <p/>
      * <ul>
      * <li>If the argument is NaN or less than zero, then the result is NaN.
      * <li>If the argument is positive infinity, then the result is positive
@@ -3244,11 +3245,11 @@ public class RulesUtils {
      * <li>If the argument is equal to 10<sup><i>n</i></sup> for integer
      * <i>n</i>, then the result is <i>n</i>.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a a value
      * @return the base 10 logarithm of {@code a}.
      */
@@ -3261,32 +3262,32 @@ public class RulesUtils {
      * for small values {@code x}, the result of {@code log1p(x)} is much closer
      * to the true result of ln(1 + {@code x}) than the floating-point
      * evaluation of {@code log(1.0+x)}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
-     * 
+     * <p/>
      * <ul>
-     * 
+     * <p/>
      * <li>If the argument is NaN or less than -1, then the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is positive infinity, then the result is positive
      * infinity.
-     * 
+     * <p/>
      * <li>If the argument is negative one, then the result is negative
      * infinity.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param x a value
      * @return the value ln({@code x}&nbsp;+&nbsp;1), the natural log of
-     *         {@code x}&nbsp;+&nbsp;1
+     * {@code x}&nbsp;+&nbsp;1
      */
     public static double log1p(double x) {
         return Math.log1p(x);
@@ -3296,7 +3297,7 @@ public class RulesUtils {
      * Returns the greater of two {@code int} values. That is, the result is the
      * argument closer to the value of {@link Integer#MAX_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3313,7 +3314,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other negative zero, the result is
      * positive zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3330,7 +3331,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other negative zero, the result is
      * positive zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3343,7 +3344,7 @@ public class RulesUtils {
      * Returns the greater of two {@code long} values. That is, the result is
      * the argument closer to the value of {@link Long#MAX_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3356,7 +3357,7 @@ public class RulesUtils {
      * Returns the greater of two {@code int} values. That is, the result is the
      * argument closer to the value of {@link Integer#MAX_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3373,7 +3374,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other negative zero, the result is
      * positive zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3390,7 +3391,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other negative zero, the result is
      * positive zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3403,7 +3404,7 @@ public class RulesUtils {
      * Returns the greater of two {@code long} values. That is, the result is
      * the argument closer to the value of {@link Long#MAX_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the larger of {@code a} and {@code b}.
@@ -3414,10 +3415,10 @@ public class RulesUtils {
 
     /**
      * Returns the maximum of this BigInteger and {@code val}.
-     * 
+     *
      * @param val value with which the maximum is to be computed.
      * @return the BigInteger whose value is the greater of this and {@code val}
-     *         . If they are equal, either may be returned.
+     * . If they are equal, either may be returned.
      */
     public static java.math.BigInteger max(java.math.BigInteger a, java.math.BigInteger b) {
         return a == null ? b : (b == null ? a : a.max(b));
@@ -3425,12 +3426,12 @@ public class RulesUtils {
 
     /**
      * Returns the maximum of this {@code BigDecimal} and {@code val}.
-     * 
+     *
      * @param val value with which the maximum is to be computed.
      * @return the {@code BigDecimal} whose value is the greater of this
-     *         {@code BigDecimal} and {@code val}. If they are equal, as defined
-     *         by the {@link #compareTo(BigDecimal) compareTo} method,
-     *         {@code this} is returned.
+     * {@code BigDecimal} and {@code val}. If they are equal, as defined
+     * by the {@link #compareTo(BigDecimal) compareTo} method,
+     * {@code this} is returned.
      * @see #compareTo(java.math.BigDecimal)
      */
     public static java.math.BigDecimal max(java.math.BigDecimal a, java.math.BigDecimal b) {
@@ -3441,7 +3442,7 @@ public class RulesUtils {
      * Returns the smaller of two {@code int} values. That is, the result the
      * argument closer to the value of {@link Integer#MIN_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3458,7 +3459,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other is negative zero, the result is
      * negative zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3475,7 +3476,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other is negative zero, the result is
      * negative zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3488,7 +3489,7 @@ public class RulesUtils {
      * Returns the smaller of two {@code long} values. That is, the result is
      * the argument closer to the value of {@link Long#MIN_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3501,7 +3502,7 @@ public class RulesUtils {
      * Returns the smaller of two {@code int} values. That is, the result the
      * argument closer to the value of {@link Integer#MIN_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3518,7 +3519,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other is negative zero, the result is
      * negative zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3535,7 +3536,7 @@ public class RulesUtils {
      * considers negative zero to be strictly smaller than positive zero. If one
      * argument is positive zero and the other is negative zero, the result is
      * negative zero.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3548,7 +3549,7 @@ public class RulesUtils {
      * Returns the smaller of two {@code long} values. That is, the result is
      * the argument closer to the value of {@link Long#MIN_VALUE}. If the
      * arguments have the same value, the result is that same value.
-     * 
+     *
      * @param a an argument.
      * @param b another argument.
      * @return the smaller of {@code a} and {@code b}.
@@ -3559,7 +3560,7 @@ public class RulesUtils {
 
     /**
      * Returns the minimum of this BigInteger and {@code val}.
-     * 
+     *
      * @param val value with which the minimum is to be computed.
      * @return the BigInteger whose value is the lesser of this BigInteger and
      */
@@ -3569,12 +3570,12 @@ public class RulesUtils {
 
     /**
      * Returns the minimum of this {@code BigDecimal} and {@code val}.
-     * 
+     *
      * @param val value with which the minimum is to be computed.
      * @return the {@code BigDecimal} whose value is the lesser of this
-     *         {@code BigDecimal} and {@code val}. If they are equal, as defined
-     *         by the {@link #compareTo(BigDecimal) compareTo} method,
-     *         {@code this} is returned.
+     * {@code BigDecimal} and {@code val}. If they are equal, as defined
+     * by the {@link #compareTo(BigDecimal) compareTo} method,
+     * {@code this} is returned.
      * @see #compareTo(java.math.BigDecimal)
      */
     public static java.math.BigDecimal min(java.math.BigDecimal a, java.math.BigDecimal b) {
@@ -3585,34 +3586,34 @@ public class RulesUtils {
      * Returns the floating-point number adjacent to the first argument in the
      * direction of the second argument. If both arguments compare as equal the
      * second argument is returned.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If either argument is a NaN, then NaN is returned.
-     * 
+     * <p/>
      * <li>If both arguments are signed zeros, {@code direction} is returned
      * unchanged (as implied by the requirement of returning the second argument
      * if the arguments compare as equal).
-     * 
+     * <p/>
      * <li>If {@code start} is &plusmn;{@link Double#MIN_VALUE} and
      * {@code direction} has a value such that the result should have a smaller
      * magnitude, then a zero with the same sign as {@code start} is returned.
-     * 
+     * <p/>
      * <li>If {@code start} is infinite and {@code direction} has a value such
      * that the result should have a smaller magnitude, {@link Double#MAX_VALUE}
      * with the same sign as {@code start} is returned.
-     * 
+     * <p/>
      * <li>If {@code start} is equal to &plusmn; {@link Double#MAX_VALUE} and
      * {@code direction} has a value such that the result should have a larger
      * magnitude, an infinity with same sign as {@code start} is returned.
      * </ul>
-     * 
-     * @param start starting floating-point value
+     *
+     * @param start     starting floating-point value
      * @param direction value indicating which of {@code start}'s neighbors or
-     *            {@code start} should be returned
+     *                  {@code start} should be returned
      * @return The floating-point number adjacent to {@code start} in the
-     *         direction of {@code direction}.
+     * direction of {@code direction}.
      */
     public static double nextAfter(double start, double direction) {
         return Math.nextAfter(start, direction);
@@ -3622,33 +3623,33 @@ public class RulesUtils {
      * Returns the floating-point number adjacent to the first argument in the
      * direction of the second argument. If both arguments compare as equal a
      * value equivalent to the second argument is returned.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If either argument is a NaN, then NaN is returned.
-     * 
+     * <p/>
      * <li>If both arguments are signed zeros, a value equivalent to
      * {@code direction} is returned.
-     * 
+     * <p/>
      * <li>If {@code start} is &plusmn;{@link Float#MIN_VALUE} and
      * {@code direction} has a value such that the result should have a smaller
      * magnitude, then a zero with the same sign as {@code start} is returned.
-     * 
+     * <p/>
      * <li>If {@code start} is infinite and {@code direction} has a value such
      * that the result should have a smaller magnitude, {@link Float#MAX_VALUE}
      * with the same sign as {@code start} is returned.
-     * 
+     * <p/>
      * <li>If {@code start} is equal to &plusmn; {@link Float#MAX_VALUE} and
      * {@code direction} has a value such that the result should have a larger
      * magnitude, an infinity with same sign as {@code start} is returned.
      * </ul>
-     * 
-     * @param start starting floating-point value
+     *
+     * @param start     starting floating-point value
      * @param direction value indicating which of {@code start}'s neighbors or
-     *            {@code start} should be returned
+     *                  {@code start} should be returned
      * @return The floating-point number adjacent to {@code start} in the
-     *         direction of {@code direction}.
+     * direction of {@code direction}.
      */
     public static float nextAfter(float start, float direction) {
         return Math.nextAfter(start, direction);
@@ -3658,21 +3659,21 @@ public class RulesUtils {
      * Returns the floating-point value adjacent to {@code f} in the direction
      * of positive infinity. This method is semantically equivalent to
      * {@code nextAfter(f,
-     * Float.POSITIVE_INFINITY)}; however, a {@code nextUp} implementation may
+     *Float.POSITIVE_INFINITY)}; however, a {@code nextUp} implementation may
      * run faster than its equivalent {@code nextAfter} call.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is positive infinity, the result is positive
      * infinity.
-     * 
+     * <p/>
      * <li>If the argument is zero, the result is {@link Float#MIN_VALUE}
-     * 
+     * <p/>
      * </ul>
-     * 
+     *
      * @param f starting floating-point value
      * @return The adjacent floating-point value closer to positive infinity.
      */
@@ -3684,21 +3685,21 @@ public class RulesUtils {
      * Returns the floating-point value adjacent to {@code d} in the direction
      * of positive infinity. This method is semantically equivalent to
      * {@code nextAfter(d,
-     * Double.POSITIVE_INFINITY)}; however, a {@code nextUp} implementation may
+     *Double.POSITIVE_INFINITY)}; however, a {@code nextUp} implementation may
      * run faster than its equivalent {@code nextAfter} call.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is positive infinity, the result is positive
      * infinity.
-     * 
+     * <p/>
      * <li>If the argument is zero, the result is {@link Double#MIN_VALUE}
-     * 
+     * <p/>
      * </ul>
-     * 
+     *
      * @param d starting floating-point value
      * @return The adjacent floating-point value closer to positive infinity.
      */
@@ -3709,7 +3710,7 @@ public class RulesUtils {
     /**
      * Returns the value of the first argument raised to the power of the second
      * argument. Special cases:
-     * 
+     * <p/>
      * <ul>
      * <li>If the second argument is positive or negative zero, then the result
      * is 1.0.
@@ -3718,7 +3719,7 @@ public class RulesUtils {
      * <li>If the second argument is NaN, then the result is NaN.
      * <li>If the first argument is NaN and the second argument is nonzero, then
      * the result is NaN.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the absolute value of the first argument is greater than 1 and the
@@ -3727,7 +3728,7 @@ public class RulesUtils {
      * second argument is negative infinity,
      * </ul>
      * then the result is positive infinity.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the absolute value of the first argument is greater than 1 and the
@@ -3736,10 +3737,10 @@ public class RulesUtils {
      * second argument is positive infinity,
      * </ul>
      * then the result is positive zero.
-     * 
+     * <p/>
      * <li>If the absolute value of the first argument equals 1 and the second
      * argument is infinite, then the result is NaN.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is positive zero and the second argument is
@@ -3748,7 +3749,7 @@ public class RulesUtils {
      * less than zero,
      * </ul>
      * then the result is positive zero.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is positive zero and the second argument is less
@@ -3757,7 +3758,7 @@ public class RulesUtils {
      * greater than zero,
      * </ul>
      * then the result is positive infinity.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is negative zero and the second argument is
@@ -3766,7 +3767,7 @@ public class RulesUtils {
      * less than zero but not a finite odd integer,
      * </ul>
      * then the result is positive zero.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is negative zero and the second argument is a
@@ -3775,7 +3776,7 @@ public class RulesUtils {
      * negative finite odd integer,
      * </ul>
      * then the result is negative zero.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is negative zero and the second argument is less
@@ -3784,7 +3785,7 @@ public class RulesUtils {
      * greater than zero but not a finite odd integer,
      * </ul>
      * then the result is positive infinity.
-     * 
+     * <p/>
      * <li>If
      * <ul>
      * <li>the first argument is negative zero and the second argument is a
@@ -3793,39 +3794,39 @@ public class RulesUtils {
      * positive finite odd integer,
      * </ul>
      * then the result is negative infinity.
-     * 
+     * <p/>
      * <li>If the first argument is finite and less than zero
      * <ul>
      * <li>if the second argument is a finite even integer, the result is equal
      * to the result of raising the absolute value of the first argument to the
      * power of the second argument
-     * 
+     * <p/>
      * <li>if the second argument is a finite odd integer, the result is equal
      * to the negative of the result of raising the absolute value of the first
      * argument to the power of the second argument
-     * 
+     * <p/>
      * <li>if the second argument is finite and not an integer, then the result
      * is NaN.
      * </ul>
-     * 
+     * <p/>
      * <li>If both arguments are integers, then the result is exactly equal to
      * the mathematical result of raising the first argument to the power of the
      * second argument if that result can in fact be represented exactly as a
      * {@code double} value.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * (In the foregoing descriptions, a floating-point value is considered to
      * be an integer if and only if it is finite and a fixed point of the method
      * {@link #ceil ceil} or, equivalently, a fixed point of the method
      * {@link #floor floor}. A value is a fixed point of a one-argument method
      * if and only if the result of applying the method to the value is equal to
      * the value.)
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a the base.
      * @param b the exponent.
      * @return the value {@code a}<sup>{@code b}</sup>.
@@ -3839,24 +3840,24 @@ public class RulesUtils {
      * equal to {@code 0.0} and less than {@code 1.0}. Returned values are
      * chosen pseudorandomly with (approximately) uniform distribution from that
      * range.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * When this method is first called, it creates a single new
      * pseudorandom-number generator, exactly as if by the expression
-     * 
+     * <p/>
      * <blockquote>{@code new java.util.Random()}</blockquote>
-     * 
+     * <p/>
      * This new pseudorandom-number generator is used thereafter for all calls
      * to this method and is used nowhere else.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * This method is properly synchronized to allow correct use by more than
      * one thread. However, if many threads need to generate pseudorandom
      * numbers at a great rate, it may reduce contention for each thread to have
      * its own pseudorandom-number generator.
-     * 
+     *
      * @return a pseudorandom {@code double} greater than or equal to
-     *         {@code 0.0} and less than {@code 1.0}.
+     * {@code 0.0} and less than {@code 1.0}.
      */
     public static double random() {
         return Math.random();
@@ -3873,10 +3874,10 @@ public class RulesUtils {
      * <li>If the argument is NaN or an infinity or positive zero or negative
      * zero, then the result is the same as the argument.
      * </ul>
-     * 
+     *
      * @param a a {@code double} value.
      * @return the closest floating-point value to {@code a} that is equal to a
-     *         mathematical integer.
+     * mathematical integer.
      */
     public static double rint(double a) {
         return Math.rint(a);
@@ -3894,8 +3895,8 @@ public class RulesUtils {
      * {@code scalb(x, n)} is subnormal, {@code scalb(scalb(x, n), -n)} may not
      * equal <i>x</i>. When the result is non-NaN, the result has the same sign
      * as {@code d}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If the first argument is NaN, NaN is returned.
@@ -3904,8 +3905,8 @@ public class RulesUtils {
      * <li>If the first argument is zero, then a zero of the same sign is
      * returned.
      * </ul>
-     * 
-     * @param d number to be scaled by a power of two.
+     *
+     * @param d           number to be scaled by a power of two.
      * @param scaleFactor power of 2 used to scale {@code d}
      * @return {@code d} &times; 2<sup>{@code scaleFactor}</sup>
      */
@@ -3925,8 +3926,8 @@ public class RulesUtils {
      * {@code scalb(x, n)} is subnormal, {@code scalb(scalb(x, n), -n)} may not
      * equal <i>x</i>. When the result is non-NaN, the result has the same sign
      * as {@code f}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
      * <li>If the first argument is NaN, NaN is returned.
@@ -3935,8 +3936,8 @@ public class RulesUtils {
      * <li>If the first argument is zero, then a zero of the same sign is
      * returned.
      * </ul>
-     * 
-     * @param f number to be scaled by a power of two.
+     *
+     * @param f           number to be scaled by a power of two.
      * @param scaleFactor power of 2 used to scale {@code f}
      * @return {@code f} &times; 2<sup>{@code scaleFactor}</sup>
      */
@@ -3948,15 +3949,15 @@ public class RulesUtils {
      * Returns the signum function of the argument; zero if the argument is
      * zero, 1.0 if the argument is greater than zero, -1.0 if the argument is
      * less than zero.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, then the result is NaN.
      * <li>If the argument is positive zero or negative zero, then the result is
      * the same as the argument.
      * </ul>
-     * 
+     *
      * @param d the floating-point value whose signum is to be returned
      * @return the signum function of the argument
      * @author Joseph D. Darcy
@@ -3969,15 +3970,15 @@ public class RulesUtils {
      * Returns the signum function of the argument; zero if the argument is
      * zero, 1.0f if the argument is greater than zero, -1.0f if the argument is
      * less than zero.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, then the result is NaN.
      * <li>If the argument is positive zero or negative zero, then the result is
      * the same as the argument.
      * </ul>
-     * 
+     *
      * @param f the floating-point value whose signum is to be returned
      * @return the signum function of the argument
      * @author Joseph D. Darcy
@@ -3993,11 +3994,11 @@ public class RulesUtils {
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a an angle, in radians.
      * @return the sine of the argument.
      */
@@ -4010,24 +4011,24 @@ public class RulesUtils {
      * sine of <i>x</i> is defined to be
      * (<i>e<sup>x</sup>&nbsp;-&nbsp;e<sup>-x</sup></i>)/2 where <i>e</i> is
      * {@linkplain Math#E Euler's number}.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
-     * 
+     * <p/>
      * <li>If the argument is NaN, then the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is infinite, then the result is an infinity with the
      * same sign as the argument.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 2.5 ulps of the exact result.
-     * 
+     *
      * @param x The number whose hyperbolic sine is to be returned.
      * @return The hyperbolic sine of {@code x}.
      */
@@ -4047,10 +4048,10 @@ public class RulesUtils {
      * </ul>
      * Otherwise, the result is the {@code double} value closest to the true
      * mathematical square root of the argument value.
-     * 
+     *
      * @param a a value.
      * @return the positive square root of {@code a}. If the argument is NaN or
-     *         less than zero, the result is NaN.
+     * less than zero, the result is NaN.
      */
     public static double sqrt(double a) {
         return Math.sqrt(a);
@@ -4063,11 +4064,11 @@ public class RulesUtils {
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 1 ulp of the exact result. Results
      * must be semi-monotonic.
-     * 
+     *
      * @param a an angle, in radians.
      * @return the tangent of the argument.
      */
@@ -4083,29 +4084,29 @@ public class RulesUtils {
      * words, {@linkplain Math#sinh sinh(<i>x</i>)}/{@linkplain Math#cosh
      * cosh(<i>x</i>)}. Note that the absolute value of the exact tanh is always
      * less than 1.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special cases:
      * <ul>
-     * 
+     * <p/>
      * <li>If the argument is NaN, then the result is NaN.
-     * 
+     * <p/>
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
-     * 
+     * <p/>
      * <li>If the argument is positive infinity, then the result is {@code +1.0}.
-     * 
+     * <p/>
      * <li>If the argument is negative infinity, then the result is {@code -1.0}.
-     * 
+     * <p/>
      * </ul>
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * The computed result must be within 2.5 ulps of the exact result. The
      * result of {@code tanh} for any finite input must have an absolute value
      * less than or equal to 1. Note that once the exact result of tanh is
      * within 1/2 of an ulp of the limit value of &plusmn;1, correctly signed
      * &plusmn;{@code 1.0} should be returned.
-     * 
+     *
      * @param x The number whose hyperbolic tangent is to be returned.
      * @return The hyperbolic tangent of {@code x}.
      */
@@ -4118,7 +4119,7 @@ public class RulesUtils {
      * angle measured in degrees. The conversion from radians to degrees is
      * generally inexact; users should <i>not</i> expect
      * {@code cos(toRadians(90.0))} to exactly equal {@code 0.0}.
-     * 
+     *
      * @param angrad an angle, in radians
      * @return the measurement of the angle {@code angrad} in degrees.
      */
@@ -4130,7 +4131,7 @@ public class RulesUtils {
      * Converts an angle measured in degrees to an approximately equivalent
      * angle measured in radians. The conversion from degrees to radians is
      * generally inexact.
-     * 
+     *
      * @param angdeg an angle, in degrees
      * @return the measurement of the angle {@code angdeg} in radians.
      */
@@ -4143,8 +4144,8 @@ public class RulesUtils {
      * value is the positive distance between this floating-point value and the
      * {@code double} value next larger in magnitude. Note that for non-NaN
      * <i>x</i>, <code>ulp(-<i>x</i>) == ulp(<i>x</i>)</code>.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, then the result is NaN.
@@ -4155,7 +4156,7 @@ public class RulesUtils {
      * <li>If the argument is &plusmn;{@code Double.MAX_VALUE}, then the result
      * is equal to 2<sup>971</sup>.
      * </ul>
-     * 
+     *
      * @param d the floating-point value whose ulp is to be returned
      * @return the size of an ulp of the argument
      */
@@ -4168,8 +4169,8 @@ public class RulesUtils {
      * value is the positive distance between this floating-point value and the
      * {@code float} value next larger in magnitude. Note that for non-NaN
      * <i>x</i>, <code>ulp(-<i>x</i>) == ulp(<i>x</i>)</code>.
-     * 
-     * <p>
+     * <p/>
+     * <p/>
      * Special Cases:
      * <ul>
      * <li>If the argument is NaN, then the result is NaN.
@@ -4180,7 +4181,7 @@ public class RulesUtils {
      * <li>If the argument is &plusmn;{@code Float.MAX_VALUE}, then the result
      * is equal to 2<sup>104</sup>.
      * </ul>
-     * 
+     *
      * @param f the floating-point value whose ulp is to be returned
      * @return the size of an ulp of the argument
      */
@@ -4193,26 +4194,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, true)          = [true]
      * ArrayUtils.add([true], false)       = [true, false]
      * ArrayUtils.add([true, false], true) = [true, false, true]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4226,31 +4227,31 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0, true)          = [true]
      * ArrayUtils.add([true], 0, false)       = [false, true]
      * ArrayUtils.add([false], 1, true)       = [false, true]
      * ArrayUtils.add([true, false], 1, true) = [true, true, false]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static boolean[] add(boolean[] array, int index, boolean element) {
         return ArrayUtils.add(array, index, element);
@@ -4261,26 +4262,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4293,26 +4294,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      * @since 2.1
@@ -4326,26 +4327,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, '0')       = ['0']
      * ArrayUtils.add(['1'], '0')      = ['1', '0']
      * ArrayUtils.add(['1', '0'], '1') = ['1', '0', '1']
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4359,18 +4360,18 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0, 'a')            = ['a']
      * ArrayUtils.add(['a'], 0, 'b')           = ['b', 'a']
@@ -4378,13 +4379,13 @@ public class RulesUtils {
      * ArrayUtils.add(['a', 'b'], 1, 'k')      = ['a', 'k', 'b']
      * ArrayUtils.add(['a', 'b', 'c'], 1, 't') = ['a', 't', 'b', 'c']
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static char[] add(char[] array, int index, char element) {
         return ArrayUtils.add(array, index, element);
@@ -4395,26 +4396,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4428,31 +4429,31 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add([1.1], 0, 2.2)              = [2.2, 1.1]
      * ArrayUtils.add([2.3, 6.4], 2, 10.5)        = [2.3, 6.4, 10.5]
      * ArrayUtils.add([2.6, 6.7], 0, -4.8)        = [-4.8, 2.6, 6.7]
      * ArrayUtils.add([2.9, 6.0, 0.3], 2, 1.0)    = [2.9, 6.0, 1.0, 0.3]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static double[] add(double[] array, int index, double element) {
         return ArrayUtils.add(array, index, element);
@@ -4463,26 +4464,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4495,26 +4496,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4527,26 +4528,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4560,31 +4561,31 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add([1], 0, 2)         = [2, 1]
      * ArrayUtils.add([2, 6], 2, 10)     = [2, 6, 10]
      * ArrayUtils.add([2, 6], 0, -4)     = [-4, 2, 6]
      * ArrayUtils.add([2, 6, 3], 2, 1)   = [2, 6, 1, 3]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static int[] add(int[] array, int index, int element) {
         return ArrayUtils.add(array, index, element);
@@ -4596,31 +4597,31 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add([1L], 0, 2L)           = [2L, 1L]
      * ArrayUtils.add([2L, 6L], 2, 10L)      = [2L, 6L, 10L]
      * ArrayUtils.add([2L, 6L], 0, -4L)      = [-4L, 2L, 6L]
      * ArrayUtils.add([2L, 6L, 3L], 2, 1L)   = [2L, 6L, 1L, 3L]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static long[] add(long[] array, int index, long element) {
         return ArrayUtils.add(array, index, element);
@@ -4631,26 +4632,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4664,18 +4665,18 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4683,13 +4684,13 @@ public class RulesUtils {
      * ArrayUtils.add(["a"], 1, "b")      = ["a", "b"]
      * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static Object[] add(Object[] array, int index, Object element) {
         return ArrayUtils.add(array, index, element);
@@ -4700,19 +4701,19 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element, unless the
      * element itself is null, in which case the return type is Object[]
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, null)      = [null]
      * ArrayUtils.add(null, "a")       = ["a"]
@@ -4720,12 +4721,12 @@ public class RulesUtils {
      * ArrayUtils.add(["a"], "b")      = ["a", "b"]
      * ArrayUtils.add(["a", "b"], "c") = ["a", "b", "c"]
      * </pre>
-     * 
-     * @param array the array to "add" the element to, may be <code>null</code>
+     *
+     * @param array   the array to "add" the element to, may be <code>null</code>
      * @param element the object to add, may be <code>null</code>
      * @return A new array containing the existing elements plus the new element
-     *         The returned array type will be that of the input array (unless
-     *         null), in which case it will have the same type as the element.
+     * The returned array type will be that of the input array (unless
+     * null), in which case it will have the same type as the element.
      */
     public static Object[] add(Object[] array, Object element) {
         return ArrayUtils.add(array, element);
@@ -4737,31 +4738,31 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add([1], 0, 2)         = [2, 1]
      * ArrayUtils.add([2, 6], 2, 10)     = [2, 6, 10]
      * ArrayUtils.add([2, 6], 0, -4)     = [-4, 2, 6]
      * ArrayUtils.add([2, 6, 3], 2, 1)   = [2, 6, 1, 3]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static short[] add(short[] array, int index, short element) {
         return ArrayUtils.add(array, index, element);
@@ -4772,26 +4773,26 @@ public class RulesUtils {
      * Copies the given array and adds the given element at the end of the new
      * array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * The new array contains the same elements of the input array plus the
      * given element in the last position. The component type of the new array
      * is the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
      * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
      * </pre>
-     * 
-     * @param array the array to copy and add the element to, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to copy and add the element to, may be
+     *                <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
@@ -4805,18 +4806,18 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4824,13 +4825,13 @@ public class RulesUtils {
      * ArrayUtils.add(["a"], 1, "b")      = ["a", "b"]
      * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static Object[] addIgnoreNull(Object[] array, int index, Object element) {
         if (element != null) {
@@ -4845,18 +4846,18 @@ public class RulesUtils {
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * plus the given element on the specified position. The component type of
      * the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, a new one element array is
      * returned whose component type is the same as the element.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4864,12 +4865,12 @@ public class RulesUtils {
      * ArrayUtils.add(["a"], 1, "b")      = ["a", "b"]
      * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
-     * 
-     * @param array the array to add the element to, may be <code>null</code>
+     *
+     * @param array   the array to add the element to, may be <code>null</code>
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index > array.length).
+     *                                   || index > array.length).
      */
     public static Object[] addIgnoreNull(Object[] array, Object element) {
         if (element != null) {
@@ -4903,13 +4904,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new boolean[] array.
@@ -4927,13 +4928,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new byte[] array.
@@ -4951,13 +4952,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new char[] array.
@@ -4975,13 +4976,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new double[] array.
@@ -4999,13 +5000,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new float[] array.
@@ -5023,13 +5024,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new int[] array.
@@ -5047,13 +5048,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new long[] array.
@@ -5071,7 +5072,7 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(null, null)     = null
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
@@ -5080,15 +5081,15 @@ public class RulesUtils {
      * ArrayUtils.addAll([null], [null]) = [null, null]
      * ArrayUtils.addAll(["a", "b", "c"], ["1", "2", "3"]) = ["a", "b", "c", "1", "2", "3"]
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array,
-     *            may be <code>null</code>
+     *               may be <code>null</code>
      * @param array2 the second array whose elements are added to the new array,
-     *            may be <code>null</code>
+     *               may be <code>null</code>
      * @return The new array, <code>null</code> if both arrays are
-     *         <code>null</code>. The type of the new array is the type of the
-     *         first array, unless the first array is null, in which case the
-     *         type is the same as the second array.
+     * <code>null</code>. The type of the new array is the type of the
+     * first array, unless the first array is null, in which case the
+     * type is the same as the second array.
      * @throws IllegalArgumentException if the array types are incompatible
      */
     public static Object[] addAll(Object[] array1, Object[] array2) {
@@ -5104,13 +5105,13 @@ public class RulesUtils {
      * by all of the elements <code>array2</code>. When an array is returned, it
      * is always a new array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
      * </pre>
-     * 
+     *
      * @param array1 the first array whose elements are added to the new array.
      * @param array2 the second array whose elements are added to the new array.
      * @return The new short[] array.
@@ -5125,33 +5126,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([true], 0)              = []
      * ArrayUtils.remove([true, false], 0)       = [false]
      * ArrayUtils.remove([true, false], 1)       = [true]
      * ArrayUtils.remove([true, true, false], 1) = [true, false]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static boolean[] remove(boolean[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5163,33 +5164,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([true], 0)              = []
      * ArrayUtils.remove([true, false], 0)       = [false]
      * ArrayUtils.remove([true, false], 1)       = [true]
      * ArrayUtils.remove([true, true, false], 1) = [true, false]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static byte[] remove(byte[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5201,33 +5202,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove(['a'], 0)           = []
      * ArrayUtils.remove(['a', 'b'], 0)      = ['b']
      * ArrayUtils.remove(['a', 'b'], 1)      = ['a']
      * ArrayUtils.remove(['a', 'b', 'c'], 1) = ['a', 'c']
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static char[] remove(char[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5239,33 +5240,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([1.1], 0)           = []
      * ArrayUtils.remove([2.5, 6.0], 0)      = [6.0]
      * ArrayUtils.remove([2.5, 6.0], 1)      = [2.5]
      * ArrayUtils.remove([2.5, 6.0, 3.8], 1) = [2.5, 3.8]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static double[] remove(double[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5277,33 +5278,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([1.1], 0)           = []
      * ArrayUtils.remove([2.5, 6.0], 0)      = [6.0]
      * ArrayUtils.remove([2.5, 6.0], 1)      = [2.5]
      * ArrayUtils.remove([2.5, 6.0, 3.8], 1) = [2.5, 3.8]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static float[] remove(float[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5315,33 +5316,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
      * ArrayUtils.remove([2, 6], 1)      = [2]
      * ArrayUtils.remove([2, 6, 3], 1)   = [2, 3]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static int[] remove(int[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5353,33 +5354,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
      * ArrayUtils.remove([2, 6], 1)      = [2]
      * ArrayUtils.remove([2, 6, 3], 1)   = [2, 3]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static long[] remove(long[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5391,33 +5392,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove(["a"], 0)           = []
      * ArrayUtils.remove(["a", "b"], 0)      = ["b"]
      * ArrayUtils.remove(["a", "b"], 1)      = ["a"]
      * ArrayUtils.remove(["a", "b", "c"], 1) = ["a", "c"]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static Object[] remove(Object[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5429,33 +5430,33 @@ public class RulesUtils {
      * All subsequent elements are shifted to the left (substracts one from
      * their indices).
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the element on the specified position. The component type of the
      * returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * If the input array is <code>null</code>, an IndexOutOfBoundsException
      * will be thrown, because in that case no valid index can be specified.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
      * ArrayUtils.remove([2, 6], 1)      = [2]
      * ArrayUtils.remove([2, 6, 3], 1)   = [2, 3]
      * </pre>
-     * 
+     *
      * @param array the array to remove the element from, may not be
-     *            <code>null</code>
+     *              <code>null</code>
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element
-     *         at the specified position.
+     * at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
-     *             || index >= array.length), or if the array is
-     *             <code>null</code>.
+     *                                   || index >= array.length), or if the array is
+     *                                   <code>null</code>.
      */
     public static short[] remove(short[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -5468,13 +5469,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, true)                = null
      * ArrayUtils.removeElement([], true)                  = []
@@ -5482,12 +5483,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([true, false], false)      = [true]
      * ArrayUtils.removeElement([true, false, true], true) = [false, true]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static boolean[] removeElement(boolean[] array, boolean element) {
         return ArrayUtils.removeElement(array, element);
@@ -5500,13 +5501,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 1)        = null
      * ArrayUtils.removeElement([], 1)          = []
@@ -5514,12 +5515,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([1, 0], 0)      = [1]
      * ArrayUtils.removeElement([1, 0, 1], 1)   = [0, 1]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static byte[] removeElement(byte[] array, byte element) {
         return ArrayUtils.removeElement(array, element);
@@ -5532,13 +5533,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 'a')            = null
      * ArrayUtils.removeElement([], 'a')              = []
@@ -5546,12 +5547,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement(['a', 'b'], 'a')      = ['b']
      * ArrayUtils.removeElement(['a', 'b', 'a'], 'a') = ['b', 'a']
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static char[] removeElement(char[] array, char element) {
         return ArrayUtils.removeElement(array, element);
@@ -5564,13 +5565,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 1.1)            = null
      * ArrayUtils.removeElement([], 1.1)              = []
@@ -5578,12 +5579,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([1.1, 2.3], 1.1)      = [2.3]
      * ArrayUtils.removeElement([1.1, 2.3, 1.1], 1.1) = [2.3, 1.1]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static double[] removeElement(double[] array, double element) {
         return ArrayUtils.removeElement(array, element);
@@ -5596,13 +5597,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 1.1)            = null
      * ArrayUtils.removeElement([], 1.1)              = []
@@ -5610,12 +5611,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([1.1, 2.3], 1.1)      = [2.3]
      * ArrayUtils.removeElement([1.1, 2.3, 1.1], 1.1) = [2.3, 1.1]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static float[] removeElement(float[] array, float element) {
         return ArrayUtils.removeElement(array, element);
@@ -5628,13 +5629,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 1)      = null
      * ArrayUtils.removeElement([], 1)        = []
@@ -5642,12 +5643,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([1, 3], 1)    = [3]
      * ArrayUtils.removeElement([1, 3, 1], 1) = [3, 1]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static int[] removeElement(int[] array, int element) {
         return ArrayUtils.removeElement(array, element);
@@ -5660,13 +5661,13 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array.
      * </p>
-     * 
+     * <p/>
      * <p>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array.
      * </p>
-     * 
+     * <p/>
      * <pre>
      * ArrayUtils.removeElement(null, 1)      = null
      * ArrayUtils.removeElement([], 1)        = []
@@ -5674,12 +5675,12 @@ public class RulesUtils {
      * ArrayUtils.removeElement([1, 3], 1)    = [3]
      * ArrayUtils.removeElement([1, 3, 1], 1) = [3, 1]
      * </pre>
-     * 
-     * @param array the array to remove the element from, may be
-     *            <code>null</code>
+     *
+     * @param array   the array to remove the element from, may be
+     *                <code>null</code>
      * @param element the element to be removed
      * @return A new array containing the existing elements except the first
-     *         occurrence of the specified element.
+     * occurrence of the specified element.
      */
     public static long[] removeElement(long[] array, long element) {
         return ArrayUtils.removeElement(array, element);
@@ -5691,12 +5692,12 @@ public class RulesUtils {
      * from their indices). If the array doesn't contains such an element, no
      * elements are removed from the array. <br />
      * <br />
-     * 
+     * <p/>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
      * of the returned array is always the same as that of the input array. <br />
      * <br />
-     * 
+     * <p/>
      * <code>
      * ArrayUtils.removeElement(null, "a")            = null        <br />
      * ArrayUtils.removeElement([], "a")              = []          <br />
@@ -5704,8 +5705,8 @@ public class RulesUtils {
      * ArrayUtils.removeElement(["a", "b"], "a")      = ["b"]       <br />
      * ArrayUtils.removeElement(["a", "b", "a"], "a") = ["b", "a"]  <br />
      * </code>
-     * 
-     * @param array the array to remove the element from, may be null
+     *
+     * @param array   the array to remove the element from, may be null
      * @param element
      * @return the element to be removed
      */
@@ -5718,9 +5719,10 @@ public class RulesUtils {
     }
 
     // <<< isEmpty section for arrays and Strings >>>
+
     /**
      * Checks if an array of Objects is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5730,7 +5732,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive bytes is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5740,7 +5742,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive chars is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5750,7 +5752,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive shorts is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5760,7 +5762,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive ints is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5770,7 +5772,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive longs is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5780,7 +5782,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive floats is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5790,7 +5792,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of primitive doubles is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5800,7 +5802,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of Dates is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5810,7 +5812,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of BigDecimals is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5820,7 +5822,7 @@ public class RulesUtils {
 
     /**
      * Checks if an array of BigIntegers is empty or null.
-     * 
+     *
      * @param array the array to test
      * @return true if the array is empty or null
      */
@@ -5838,7 +5840,7 @@ public class RulesUtils {
      * StringUtils.isEmpty("bob")     = false <br />
      * StringUtils.isEmpty("  bob  ") = false <br />
      * </code>
-     * 
+     *
      * @param str the String to check, may be null
      * @return true if the String is empty or null
      */
@@ -5847,6 +5849,7 @@ public class RulesUtils {
     }
 
     // <<< startsWith and endsWith for Strings >>>
+
     /**
      * Check if a String starts with a specified prefix.<br />
      * <br />
@@ -5854,17 +5857,17 @@ public class RulesUtils {
      * sensitive.<br />
      * <br />
      * <code>
-     *  StringUtils.startsWith(null, null)      = true <br />
+     * StringUtils.startsWith(null, null)      = true <br />
      * StringUtils.startsWith(null, "abc")     = false <br />
      * StringUtils.startsWith("abcdef", null)  = false <br />
      * StringUtils.startsWith("abcdef", "abc") = true <br />
      * StringUtils.startsWith("ABCDEF", "abc") = false <br />
      * </code>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str    the String to check, may be null
      * @param prefix the prefix to find, may be null
      * @return true if the String starts with the prefix, case sensitive, or
-     *         both null
+     * both null
      */
     public static boolean startsWith(String str, String prefix) {
         return StringUtils.startsWith(str, prefix);
@@ -5884,17 +5887,18 @@ public class RulesUtils {
      * StringUtils.endsWith("ABCDEF", "def") = false <br />
      * StringUtils.endsWith("ABCDEF", "cde") = false <br />
      * </code>
-     * 
-     * @param str the String to check, may be null
+     *
+     * @param str    the String to check, may be null
      * @param suffix the suffix to find, may be null
      * @return true if the String ends with the suffix, case sensitive, or both
-     *         null
+     * null
      */
     public static boolean endsWith(String str, String suffix) {
         return StringUtils.endsWith(str, suffix);
     }
 
     // <<< subString >>>
+
     /**
      * Gets a substring from the specified String<br />
      * <br />
@@ -5910,10 +5914,10 @@ public class RulesUtils {
      * StringUtils.substring("abc", 4) = "" <br />
      * StringUtils.substring("abc", -2) = "bc" <br />
      * StringUtils.substring("abc", -4) = "abc" <br />
-     * 
-     * @param str the String to get the substring from, may be null
+     *
+     * @param str        the String to get the substring from, may be null
      * @param beginIndex the position to start from, negative means count back
-     *            from the end of the String by this many characters
+     *                   from the end of the String by this many characters
      * @return substring from start position, null if null String input
      */
     public static String substring(String str, int beginIndex) {
@@ -5945,14 +5949,14 @@ public class RulesUtils {
      * StringUtils.substring("abc", -2, -1) = "b" <br />
      * StringUtils.substring("abc", -4, 2)  = "ab" <br />
      * </code>
-     * 
-     * @param str the String to get the substring from, may be null
+     *
+     * @param str        the String to get the substring from, may be null
      * @param beginIndex the position to start from, negative means count back
-     *            from the end of the String by this many characters
-     * @param endIndex the position to end at (exclusive), negative means count
-     *            back from the end of the String by this many characters
+     *                   from the end of the String by this many characters
+     * @param endIndex   the position to end at (exclusive), negative means count
+     *                   back from the end of the String by this many characters
      * @return substring from start position to end positon, null if null String
-     *         input
+     * input
      */
     public static String substring(String str, int beginIndex, int endIndex) {
         return StringUtils.substring(str, beginIndex, endIndex);
@@ -5965,11 +5969,12 @@ public class RulesUtils {
      * if we write StringUtils.removeStart(str, remove); WebStudio won't work
      * correctly;
      */
+
     /**
      * Removes a substring only if it is at the begining of a source string,
      * otherwise returns the source string. <br />
      * <br />
-     * 
+     * <p/>
      * A null source string will return null. An empty ("") source string will
      * return the empty string. A null search string will return the source
      * string. <br />
@@ -5983,11 +5988,11 @@ public class RulesUtils {
      * StringUtils.removeStart("www.domain.com", "domain") = "www.domain.com" <br />
      * StringUtils.removeStart("abc", "")    = "abc" <br />
      * </code>
-     * 
-     * @param str the source String to search, may be null
+     *
+     * @param str    the source String to search, may be null
      * @param remove the String to search for and remove, may be null
      * @return the substring with the string removed if found, null if null
-     *         String input
+     * String input
      */
     public static String removeStart(String str, String remove) {
         return org.apache.commons.lang3.StringUtils.removeStart(str, remove);
@@ -5997,7 +6002,7 @@ public class RulesUtils {
      * Removes a substring only if it is at the end of a source string,
      * otherwise returns the source string. <br />
      * <br />
-     * 
+     * <p/>
      * A null source string will return null. An empty ("") source string will
      * return the empty string. A null search string will return the source
      * string. <br />
@@ -6011,8 +6016,8 @@ public class RulesUtils {
      * StringUtils.removeEnd("www.domain.com", "domain") = "www.domain.com" <br />
      * StringUtils.removeEnd("abc", "")    = "abc" <br />
      * </code>
-     * 
-     * @param str the source String to search, may be null
+     *
+     * @param str    the source String to search, may be null
      * @param remove the String to search for and remove, may be null
      * @return the String to search for and remove, may be null
      */
@@ -6021,18 +6026,19 @@ public class RulesUtils {
     }
 
     // <<< lowerCase and upperCase functions >>>
+
     /**
      * Converts a String to lower case <br />
      * <br />
      * A null input String returns null. <br />
      * <br />
-     * 
+     * <p/>
      * <code>
      * StringUtils.lowerCase(null)  = null <br />
      * StringUtils.lowerCase("")    = "" <br />
      * StringUtils.lowerCase("aBc") = "abc" <br />
      * </code>
-     * 
+     *
      * @param str the String to lower case, may be null
      * @return the lower cased String, null if null String input
      */
@@ -6045,13 +6051,13 @@ public class RulesUtils {
      * <br />
      * A null input String returns null.<br />
      * <br />
-     * 
+     * <p/>
      * <code>
      * StringUtils.upperCase(null)  = null <br />
      * StringUtils.upperCase("")    = "" <br />
      * StringUtils.upperCase("aBc") = "ABC" <br />
      * </code>
-     * 
+     *
      * @param str the String to upper case, may be null
      * @return the upper cased String, null if null String input
      */
@@ -6060,29 +6066,30 @@ public class RulesUtils {
     }
 
     // <<< replace functions for Strings >>>
+
     /**
      * Replaces all occurrences of a String within another String <br />
      * <br />
-     * 
+     * <p/>
      * A null reference passed to this method is a no-op. <br />
      * <br />
-     * 
+     * <p/>
      * <code>
      * StringUtils.replace(null, *, *)        = null <br />
-     *  StringUtils.replace("", *, *)          = "" <br />
-     *  StringUtils.replace("any", null, *)    = "any" <br />
-     *  StringUtils.replace("any", *, null)    = "any" <br />
+     * StringUtils.replace("", *, *)          = "" <br />
+     * StringUtils.replace("any", null, *)    = "any" <br />
+     * StringUtils.replace("any", *, null)    = "any" <br />
      * StringUtils.replace("any", "", *)      = "any" <br />
      * StringUtils.replace("aba", "a", null)  = "aba" <br />
-     *  StringUtils.replace("aba", "a", "")    = "b" <br />
-     *  StringUtils.replace("aba", "a", "z")   = "zbz" <br />
+     * StringUtils.replace("aba", "a", "")    = "b" <br />
+     * StringUtils.replace("aba", "a", "z")   = "zbz" <br />
      * </code>
-     * 
-     * @param str text to search and replace in, may be null
+     *
+     * @param str          text to search and replace in, may be null
      * @param searchString the String to search for, may be null
-     * @param replacement the String to replace it with, may be null
+     * @param replacement  the String to replace it with, may be null
      * @return the text with any replacements processed, null if null String
-     *         input
+     * input
      */
     public static String replace(String str, String searchString, String replacement) {
         return StringUtils.replace(str, searchString, replacement);
@@ -6094,60 +6101,91 @@ public class RulesUtils {
      * <br />
      * A null reference passed to this method is a no-op. <br />
      * <br />
-     * 
+     * <p/>
      * <code>
-     *  StringUtils.replace(null, *, *, *)         = null <br />
-     *  StringUtils.replace("", *, *, *)           = "" <br />
-     *  StringUtils.replace("any", null, *, *)     = "any" <br />
-     *  StringUtils.replace("any", *, null, *)     = "any"    <br />
-     *  StringUtils.replace("any", "", *, *)       = "any"    <br />
-     *  StringUtils.replace("any", *, *, 0)        = "any"    <br />
-     *  StringUtils.replace("abaa", "a", null, -1) = "abaa" <br />
-     *  StringUtils.replace("abaa", "a", "", -1)   = "b" <br />
-     *  StringUtils.replace("abaa", "a", "z", 0)   = "abaa" <br />
-     *  StringUtils.replace("abaa", "a", "z", 1)   = "zbaa" <br />
-     *  StringUtils.replace("abaa", "a", "z", 2)   = "zbza" <br />
-     *  StringUtils.replace("abaa", "a", "z", -1)  = "zbzz" <br />
+     * StringUtils.replace(null, *, *, *)         = null <br />
+     * StringUtils.replace("", *, *, *)           = "" <br />
+     * StringUtils.replace("any", null, *, *)     = "any" <br />
+     * StringUtils.replace("any", *, null, *)     = "any"    <br />
+     * StringUtils.replace("any", "", *, *)       = "any"    <br />
+     * StringUtils.replace("any", *, *, 0)        = "any"    <br />
+     * StringUtils.replace("abaa", "a", null, -1) = "abaa" <br />
+     * StringUtils.replace("abaa", "a", "", -1)   = "b" <br />
+     * StringUtils.replace("abaa", "a", "z", 0)   = "abaa" <br />
+     * StringUtils.replace("abaa", "a", "z", 1)   = "zbaa" <br />
+     * StringUtils.replace("abaa", "a", "z", 2)   = "zbza" <br />
+     * StringUtils.replace("abaa", "a", "z", -1)  = "zbzz" <br />
      * </code>
-     * 
-     * @param str text to search and replace in, may be null
+     *
+     * @param str          text to search and replace in, may be null
      * @param searchString the String to search for, may be null
-     * @param replacement the String to replace it with, may be null
-     * @param max maximum number of values to replace, or -1 if no maximum
+     * @param replacement  the String to replace it with, may be null
+     * @param max          maximum number of values to replace, or -1 if no maximum
      * @return the text with any replacements processed, null if null String
-     *         input
+     * input
      */
     public static String replace(String str, String searchString, String replacement, int max) {
         return StringUtils.replace(str, searchString, replacement, max);
     }
 
     public static Object[] flatten(Object... data) {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> values = new ArrayList<Object>();
+        Class<?> type = Void.class;
         for (Object obj : data) {
-            if (obj.getClass().isArray()) {
+            if (obj == null) {
+                values.add(null);
+            } else if (obj.getClass().isArray()) {
                 for (int i = 0; i < Array.getLength(obj); i++) {
                     Object o = Array.get(obj, i);
-                    result.addAll(Arrays.asList(flatten(o)));
+                    Object[] flatten = flatten(o);
+                    values.addAll(Arrays.asList(flatten));
+                    type = getCommonSuperClass(type, flatten.getClass().getComponentType());
                 }
             } else {
-                result.add(obj);
+                values.add(obj);
+                type = getCommonSuperClass(type, obj.getClass());
             }
         }
-        return result.toArray();
+
+        Object[] result = (Object[]) Array.newInstance(type, 0);
+        result = values.toArray(result);
+        return result;
     }
 
-    public static Object[] getValues(Object obj){
+    private static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
+        if (classA == Void.class) {
+            return classB;
+        } else if (classB == Void.class) {
+            return classA;
+        } else if (classA.isAssignableFrom(classB)) { // The most expected branch
+            return classA;
+        } else {
+            Class<?> commonClass = classB;
+            while (!commonClass.isAssignableFrom(classA)) {
+                commonClass = commonClass.getSuperclass();
+            }
+            return commonClass;
+        }
+    }
+
+    public static Object[] getValues(Object obj) {
         if (obj.getClass().isArray() && obj.getClass().getComponentType() instanceof Object) {
-            return (Object[])obj;
+            return (Object[]) obj;
         } else if (!(obj instanceof IOpenClass)) {
             throw new IllegalArgumentException("Not valid argument is in the getValues() function.");
         }
         IOpenClass clazz = (IOpenClass) obj;
         IDomain<?> domain = clazz.getDomain();
-        List<Object> result = new ArrayList<Object>();
-        for (Object item: domain) {
-            result.add(item);
+        List<Object> values = new ArrayList<Object>();
+        for (Object item : domain) {
+            values.add(item);
         }
-        return result.toArray();
-    };
+
+        Class<?> type = clazz.getInstanceClass();
+        Object[] result = (Object[]) Array.newInstance(type, 0);
+        result = values.toArray(result);
+        return result;
+    }
+
+    ;
 }

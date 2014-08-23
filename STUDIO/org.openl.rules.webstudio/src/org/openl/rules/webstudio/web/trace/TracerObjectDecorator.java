@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.trace;
 
-import java.util.List;
-
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -11,14 +9,15 @@ import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IParameterDeclaration;
-import org.openl.util.formatters.IFormatter;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
+import java.util.List;
+
 public class TracerObjectDecorator implements ITableTracerObject {
-    
+
     private ITableTracerObject tracerObject;
-    
+
     public TracerObjectDecorator(ITableTracerObject tracerObject) {
         this.tracerObject = tracerObject;
     }
@@ -48,7 +47,7 @@ public class TracerObjectDecorator implements ITableTracerObject {
         if (tracerObject != null) {
             return tracerObject.isLeaf();
         }
-        return false;        
+        return false;
     }
 
     public List<IGridRegion> getGridRegions() {
@@ -62,7 +61,7 @@ public class TracerObjectDecorator implements ITableTracerObject {
         if (tracerObject != null) {
             return tracerObject.getParent();
         }
-        return null;        
+        return null;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -102,37 +101,37 @@ public class TracerObjectDecorator implements ITableTracerObject {
         if (tracerObject != null) {
             return tracerObject.getTraceObject();
         }
-        return null;        
+        return null;
     }
 
     public String getUri() {
         if (tracerObject != null) {
             return tracerObject.getUri();
         }
-        return null;        
+        return null;
     }
 
     public String getDisplayName(int mode) {
         if (tracerObject != null) {
             return tracerObject.getDisplayName(mode);
         }
-        return null;        
+        return null;
     }
 
     public String getName() {
         if (tracerObject != null) {
             return tracerObject.getName();
         }
-        return null;        
+        return null;
     }
-    
+
     public Object getResult() {
         if (tracerObject != null) {
             return tracerObject.getResult();
         }
         return null;
     }
-    
+
     public ParameterWithValueDeclaration[] getInputParameters() {
         if (tracerObject != null) {
             if (tracerObject instanceof ATableTracerNode) {
@@ -145,14 +144,14 @@ public class TracerObjectDecorator implements ITableTracerObject {
         return null;
     }
 
-    private ParameterWithValueDeclaration[] getInputParameters(ATableTracerNode tracerNode){
+    private ParameterWithValueDeclaration[] getInputParameters(ATableTracerNode tracerNode) {
         Object[] parameters = tracerNode.getParameters();
         if (tracerNode.getTraceObject() instanceof ExecutableRulesMethod) {
             ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
             ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
             for (int i = 0; i < paramDescriptions.length; i++) {
                 paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                    parameters[i], IParameterDeclaration.IN);
+                        parameters[i], IParameterDeclaration.IN);
             }
             return paramDescriptions;
         } else {
@@ -163,34 +162,29 @@ public class TracerObjectDecorator implements ITableTracerObject {
     public boolean isSpreadsheetResult() {
         return getResult() != null && SpreadsheetResultHelper.isSpreadsheetResult(getResult().getClass());
     }
-    
-    public String getFormattedResult() {     
+
+    public String getFormattedResult() {
         Object result = getResult();
-        
+
         return format(result);
     }
-    
+
     public static String format(Object value) {
-    	String str = "NOW I CANNOT FIND RESULT";
-    	if (value != null) {
-            //if (SpreadsheetResultHelper.isSpreadsheetResult(value.getClass())) {
-            //    str = ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult)value);
-            //} else {
-                IFormatter f = FormattersManager.getFormatter(value);
-                str = f.format(value);
-            //}
+        String str = "NOW I CANNOT FIND RESULT";
+        if (value != null) {
+            str = FormattersManager.format(value);
         }
-    	return str;
+        return str;
     }
 
     public ParameterWithValueDeclaration getReturnResult() {
         ParameterWithValueDeclaration returnResult = null;
         Object result = getResult();
         if (result != null) {
-            returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT); 
+            returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT);
         }
         return returnResult;
     }
-    
-    
+
+
 }
