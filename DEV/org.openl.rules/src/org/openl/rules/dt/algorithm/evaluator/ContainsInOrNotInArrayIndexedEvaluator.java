@@ -51,7 +51,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
         Object value = condition.getEvaluator().invoke(target, params, env);
 
-        return new ContainsInOrNotInArraySelector(condition, value, target, params, this.adaptor,env);
+        return new ContainsInOrNotInArraySelector(condition, value, target, params, this.adaptor, env);
     }
 
     public boolean isIndexed() {
@@ -65,13 +65,13 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         }
 
         Set<Object> allValues = null;
-        
+
         DecisionTableRuleNodeBuilder copyRules = new DecisionTableRuleNodeBuilder();
         List<Set<?>> valueSets = new ArrayList<Set<?>>();
 
         boolean globalComparatorBasedSet = false;
         boolean globalSmartFloatComparatorIsUsed = false;
-        
+
         while (iterator.hasNext()) {
 
             int i = iterator.nextInt();
@@ -88,7 +88,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             int length = Array.getLength(valuesArray);
             boolean comparatorBasedSet = false;
             boolean smartFloatComparatorIsUsed = false;
-            
+
             for (int j = 0; j < length; j++) {
                 Object value = Array.get(valuesArray, j);
                 if (comparatorBasedSet) {
@@ -109,10 +109,10 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                         allValues = new HashSet<Object>();
                     }
                 }
-                if (comparatorBasedSet){
-                    if (smartFloatComparatorIsUsed){
+                if (comparatorBasedSet) {
+                    if (smartFloatComparatorIsUsed) {
                         values = new TreeSet<Object>(FloatTypeComparator.getInstance());
-                    }else{
+                    } else {
                         values = new TreeSet<Object>();
                     }
                 }
@@ -129,21 +129,21 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
         Map<Object, DecisionTableRuleNodeBuilder> map = null;
         Map<Object, DecisionTableRuleNode> nodeMap = null;
-        
-        if (globalComparatorBasedSet){
-            if (globalSmartFloatComparatorIsUsed){
+
+        if (globalComparatorBasedSet) {
+            if (globalSmartFloatComparatorIsUsed) {
                 map = new TreeMap<Object, DecisionTableRuleNodeBuilder>(FloatTypeComparator.getInstance());
                 nodeMap = new TreeMap<Object, DecisionTableRuleNode>(FloatTypeComparator.getInstance());
-            }else{
+            } else {
                 nodeMap = new TreeMap<Object, DecisionTableRuleNode>();
                 map = new TreeMap<Object, DecisionTableRuleNodeBuilder>();
             }
-            
-        }else{
+
+        } else {
             map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
             nodeMap = new HashMap<Object, DecisionTableRuleNode>();
         }
-        
+
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
         while (iterator.hasNext()) {
@@ -153,7 +153,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             if (indexedParams[i] == null || indexedParams[i].length < 2 || indexedParams[i][1] == null) {
 
                 emptyBuilder.addRule(i);
-                if (map != null){
+                if (map != null) {
                     for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
                         DecisionTableRuleNodeBuilder dtrnb = iter.next();
                         dtrnb.addRule(i);
@@ -221,16 +221,13 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return null;
     }
 
-	@Override
-	public String getOptimizedSourceCode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getOptimizedSourceCode() {
+        return null;
+    }
 
-	@Override
-	public void setOptimizedSourceCode(String code) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setOptimizedSourceCode(String code) {
+    }
 
 }
