@@ -1,8 +1,5 @@
 package org.openl.rules.calc.trace;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -10,11 +7,15 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Leaf trace object that represented by one calculation of spreadsheet cell
- * 
+ *
  * @author PUdalau
  */
 public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
@@ -60,7 +61,7 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
-        
+
         if (!JavaOpenClass.isVoid(spreadsheetCell.getType())) {
             /** write result for all cells, excluding void type*/
             buf.append(" = ").append(getStringResult());
@@ -73,7 +74,7 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         if (result != null && result.getClass().isArray()) {
             return ArrayUtils.toString(result);
         }
-        
-        return getFormattedValue(result);
+
+        return FormattersManager.format(result);
     }
 }

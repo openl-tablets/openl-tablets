@@ -1,7 +1,5 @@
 package org.openl.rules.testmethod;
 
-import java.util.Map;
-
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.RowIdField;
@@ -13,8 +11,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DynamicObject;
 import org.openl.util.Log;
-import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
+
+import java.util.Map;
 
 public class TestDescription {
     private final static String PRECISION_PARAM = "precision";
@@ -47,33 +46,33 @@ public class TestDescription {
     }
 
     public TestDescription(IOpenMethod testedMethod,
-            Object[] arguments,
-            Object expectedResult,
-            String expectedError,
-            IRulesRuntimeContext context) {
+                           Object[] arguments,
+                           Object expectedResult,
+                           String expectedError,
+                           IRulesRuntimeContext context) {
         this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, context, null));
     }
 
     public TestDescription(IOpenMethod testedMethod,
-            Object[] arguments,
-            Object expectedResult,
-            String expectedError,
-            IRulesRuntimeContext context,
-            String description) {
+                           Object[] arguments,
+                           Object expectedResult,
+                           String expectedError,
+                           IRulesRuntimeContext context,
+                           String description) {
         this(testedMethod, createTestObject(testedMethod,
-            arguments,
-            expectedResult,
-            expectedError,
-            context,
-            description));
+                arguments,
+                expectedResult,
+                expectedError,
+                context,
+                description));
     }
 
     public static DynamicObject createTestObject(IOpenMethod testedMethod,
-            Object[] arguments,
-            Object expectedResult,
-            String expectedError,
-            IRulesRuntimeContext context,
-            String description) {
+                                                 Object[] arguments,
+                                                 Object expectedResult,
+                                                 String expectedError,
+                                                 IRulesRuntimeContext context,
+                                                 String description) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
         for (int i = 0; i < testedMethod.getSignature().getNumberOfParameters(); i++) {
@@ -130,7 +129,7 @@ public class TestDescription {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
                     Log.error("Failed to clone an argument \"{0}\". Original argument will be used.",
-                        executionParams[i].getName());
+                            executionParams[i].getName());
                     args[i] = value;
                 }
             } finally {
@@ -142,15 +141,15 @@ public class TestDescription {
 
     protected ParameterWithValueDeclaration[] initExecutionParams() {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
-            .getNumberOfParameters()];
+                .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
             executionParams[i] = new ParameterWithValueDeclaration(paramName,
-                paramValue,
-                paramType,
-                IParameterDeclaration.IN);
+                    paramValue,
+                    paramType,
+                    IParameterDeclaration.IN);
         }
         return executionParams;
     }
@@ -173,7 +172,7 @@ public class TestDescription {
             } catch (Throwable t) {
                 Log.error("Testing " + this, t);
                 exception = t;
-            }finally{
+            } finally {
                 env.setContext(oldContext);
             }
             return exception == null ? new TestUnit(this, res, null) : new TestUnit(this, null, exception);
@@ -194,8 +193,8 @@ public class TestDescription {
 
     public boolean isExpectedResultDefined() {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
-        // When all test cases contain empty (null) expected value
-        || testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+                // When all test cases contain empty (null) expected value
+                || testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {
@@ -216,9 +215,9 @@ public class TestDescription {
 
     public IRulesRuntimeContext getRuntimeContext() {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
-        try{
+        try {
             return cloner.deepClone(context);
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.error("Failed to clone context. Original context will be used.");
             return context;
         }
@@ -232,8 +231,7 @@ public class TestDescription {
             if (testedMethod.getSignature().getNumberOfParameters() > 0) {
                 String name = testedMethod.getSignature().getParameterName(0);
                 Object value = testObject.getFieldValue(name);
-                IFormatter formatter = FormattersManager.getFormatter(value);
-                description = formatter.format(value);
+                description = FormattersManager.format(value);
             } else {
                 description = "Run with no parameters";
             }
@@ -244,8 +242,8 @@ public class TestDescription {
     public Integer getTestTablePrecision() {
         if (this.testTableProps != null) {
             return this.testTableProps.containsKey(PRECISION_PARAM) ? Integer.parseInt(this.testTableProps.get(PRECISION_PARAM)
-                                                                       .toString())
-                                                                   : null;
+                    .toString())
+                    : null;
         }
 
         return null;

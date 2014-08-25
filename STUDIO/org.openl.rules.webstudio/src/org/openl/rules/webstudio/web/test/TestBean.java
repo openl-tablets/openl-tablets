@@ -1,15 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.engine.OpenLSystemProperties;
@@ -19,23 +9,20 @@ import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectHelper;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.*;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import java.util.*;
 
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
@@ -229,16 +216,8 @@ public class TestBean {
         return numberOfFailedTestCases;
     }
 
-    public String formatExplanationValue(Object value) {
-        return TestResultsHelper.format(TestResultsHelper.getExplanationValueResult(value));
-    }
-
-    public boolean isExplanationValue(Object value) {
-        return TestResultsHelper.getExplanationValueResult(value) != null;
-    }
-
     public int getExplanatorId(Object value) {
-        return TestResultsHelper.getExplanatorId((ExplanationNumberValue<?>) value);
+        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) value);
     }
 
     /**
@@ -253,10 +232,6 @@ public class TestBean {
         return getActualResultInternal(testUnit) instanceof Throwable;
     }
 
-    public boolean isSpreadsheetResult(Object objTestUnit) {
-        return getSpreadsheetResult(objTestUnit) != null;
-    }
-
     public boolean isComplexResult(Object objTestUnit) {
         Object actualValue = getActualResultInternal(objTestUnit);
         ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual",
@@ -265,15 +240,11 @@ public class TestBean {
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
-    public SpreadsheetResult getSpreadsheetResult(Object objTestUnit) {
-        return TestResultsHelper.getSpreadsheetResult(getActualResultInternal(objTestUnit));
-    }
-
     public String getFormattedSpreadsheetResult(Object objTestUnit) {
-        SpreadsheetResult spreadsheetResult = getSpreadsheetResult(objTestUnit);
-
+        Object actualResultInternal = ((TestUnit) objTestUnit).getActualResult();
         try {
-            if (spreadsheetResult != null) {
+            if (actualResultInternal instanceof SpreadsheetResult) {
+                SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }

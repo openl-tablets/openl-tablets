@@ -1,11 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.Date;
-import java.util.Iterator;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.table.GridTable;
@@ -17,10 +11,14 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.webstudio.web.trace.TracerObjectDecorator;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.OpenClassHelper;
-import org.openl.util.formatters.IFormatter;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  * @author DLiauchuk
@@ -30,12 +28,12 @@ import org.richfaces.model.TreeNodeImpl;
 public class ParameterTreeBuilder {
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
-            String fieldName, ParameterDeclarationTreeNode parent) {
+                                                          String fieldName, ParameterDeclarationTreeNode parent) {
         return createNode(fieldType, value, null, fieldName, parent);
     }
 
     private static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, Object parameterPreview,
-            String fieldName, ParameterDeclarationTreeNode parent) {
+                                                           String fieldName, ParameterDeclarationTreeNode parent) {
         if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
         } else if (isSpreadsheetResult(value)) {
@@ -48,25 +46,25 @@ public class ParameterTreeBuilder {
     }
 
     private static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
-            Object value,
-            Object parameterPreview,
-            String fieldName,
-            ParameterDeclarationTreeNode parent) {
+                                                                      Object value,
+                                                                      Object parameterPreview,
+                                                                      String fieldName,
+                                                                      ParameterDeclarationTreeNode parent) {
         if (canConstruct(fieldType)) {
             String valuePreview = parameterPreview == null ? null : createSimpleNode(fieldType, parameterPreview, null, null).getDisplayedValue();
             return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
             node.setWarnMessage(String.format("Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
-                fieldType.getDisplayName(INamedThing.SHORT)));
+                    fieldType.getDisplayName(INamedThing.SHORT)));
             return node;
         }
     }
 
     public static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
-            Object value,
-            String fieldName,
-            ParameterDeclarationTreeNode parent) {
+                                                                               Object value,
+                                                                               String fieldName,
+                                                                               ParameterDeclarationTreeNode parent) {
         return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent);
     }
 
@@ -84,9 +82,9 @@ public class ParameterTreeBuilder {
     }
 
     public static ParameterDeclarationTreeNode createSimpleNode(IOpenClass fieldType,
-            Object value,
-            String fieldName,
-            ParameterDeclarationTreeNode parent) {
+                                                                Object value,
+                                                                String fieldName,
+                                                                ParameterDeclarationTreeNode parent) {
         if (parent == null || OpenClassHelper.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
@@ -143,24 +141,15 @@ public class ParameterTreeBuilder {
     }
 
     public String formattedResult(Object value) {
-    	return TracerObjectDecorator.format(value);
-    }
-    
-    public String formattedSimple(Object value) {
-        if (value == null){
-            return "null";
-        }else{
-            IFormatter formatter = FormattersManager.getFormatter(value);
-            return formatter.format(value);
-        }
+        return TracerObjectDecorator.format(value);
     }
 
     public boolean isHtmlTable(Object value) {
         if (value instanceof ParameterWithValueDeclaration) {
             Object singlValue = value;
-            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration)value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration)value).getType().getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration)value).getValue());
+            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration) value).getType())) {
+                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
+                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
 
                 if (iterator.hasNext()) {
                     singlValue = iterator.next();
@@ -180,16 +169,16 @@ public class ParameterTreeBuilder {
     public String tableToHtml(Object value) {
         if (value != null && value instanceof ParameterWithValueDeclaration) {
             String returnString = "";
-            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration)value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration)value).getType().getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration)value).getValue());
+            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration) value).getType())) {
+                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
+                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
                 while (iterator.hasNext()) {
                     Object singleValue = iterator.next();
 
                     if (singleValue instanceof GridTable) {
-                        int numRows = HTMLRenderer.getMaxNumRowsToDisplay((GridTable)singleValue);
+                        int numRows = HTMLRenderer.getMaxNumRowsToDisplay((GridTable) singleValue);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
-                                TableRenderer(TableModel.initializeTableModel((GridTable)singleValue, numRows));
+                                TableRenderer(TableModel.initializeTableModel((GridTable) singleValue, numRows));
 
                         returnString = returnString + tableRenderer.render(false, null, "testId", null) + "<br/>";
                     } else if (singleValue instanceof SubGridTable) {

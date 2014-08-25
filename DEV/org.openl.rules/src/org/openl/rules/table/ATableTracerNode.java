@@ -1,6 +1,5 @@
 package org.openl.rules.table;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
@@ -8,14 +7,13 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.formatters.IFormatter;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
 
     public static final String ERROR_RESULT = "ERROR";
-    
+
     private Object params[];
     private Object result;
     private Throwable error;
@@ -25,7 +23,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
-    	/**
+        /**
          * Why traceObject is instanceof IMemberMetaInfo? don`t need it!
          * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
          * @author DLiauchuk
@@ -33,34 +31,34 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         super(traceObject);
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
-        	Object[] clonedParams = null;
+            Object[] clonedParams = null;
             try {
-            	clonedParams = cloner.deepClone(params);
+                clonedParams = cloner.deepClone(params);
             } catch (Exception ex) {
-            	// ignore cloning exception if any, use params itself
-            	//
-            	clonedParams = params;
+                // ignore cloning exception if any, use params itself
+                //
+                clonedParams = params;
             }
             this.params = clonedParams;
         } else {
-        	this.params = new Object[0];
-        }        
+            this.params = new Object[0];
+        }
     }
-    
+
     protected String asString(IOpenMethod method, int mode) {
         StringBuilder buf = new StringBuilder(64);
         buf.append(method.getType().getDisplayName(mode)).append(' ');
-       
+
         buf.append(resultAsString(method));
-        
+
         buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
-        
+
         return buf.toString();
     }
 
     protected String resultAsString(IOpenMethod method) {
         StringBuilder buf = new StringBuilder(64);
-        if (!isVoid(method)) {                        
+        if (!isVoid(method)) {
             if (hasError()) {
                 // append error of any
                 //
@@ -87,15 +85,14 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             }
             buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
             buf.append(method.getSignature().getParameterName(i)).append(" = ");
-            IFormatter formatter = FormattersManager.getFormatter(params[i]);
-            buf.append(formatter.format(params[i]));
+            buf.append(FormattersManager.format(params[i]));
         }
         buf.append(')');
         return buf.toString();
     }
 
     protected boolean isVoid(IOpenMethod method) {
-        return (JavaOpenClass.isVoid(method.getType()));        
+        return (JavaOpenClass.isVoid(method.getType()));
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -141,31 +138,18 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     public boolean hasError() {
         return error != null;
     }
-    
+
     public Object[] getParameters() {
         return params.clone();
     }
-    
+
     public String getFormattedResult() {
-        IFormatter formatter = FormattersManager.getFormatter(result);
-        if (formatter != null) {
-            return formatter.format(result);
-        }
-        return StringUtils.EMPTY;        
+        return FormattersManager.format(result);
     }
-    
+
     protected String getFormattedValue(Object value, IOpenMethod method) {
-        StringBuilder buf = new StringBuilder(28);
         // add '=' symbol if not void
-        //
-        buf.append("= ");
-        IFormatter formatter = FormattersManager.getFormatter(value);        
-        if (formatter != null) {
-            buf.append(formatter.format(value));
-        } else {
-            buf.append(String.valueOf(value));
-        }
-        return buf.toString();
+        return "= " + FormattersManager.format(value);
     }
 
 }
