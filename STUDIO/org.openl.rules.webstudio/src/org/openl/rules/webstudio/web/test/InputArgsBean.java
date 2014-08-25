@@ -19,8 +19,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
-import org.richfaces.model.TreeNode;
-import org.richfaces.model.TreeNodeImpl;
 
 @ManagedBean
 @ViewScoped
@@ -71,12 +69,11 @@ public class InputArgsBean {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
 
-            TestDescription testDescription;
             if (method instanceof OpenMethodDispatcher) {
-                testDescription = new TestDescription(getCurrentMethodFromDispatcher(method), arguments);
-            } else {
-                testDescription = new TestDescription(method, arguments);
+                ProjectModel projectModel = WebStudioUtils.getProjectModel();
+                method = projectModel.getCurrentDispatcherMethod(method, uri);
             }
+            TestDescription testDescription = new TestDescription(method, arguments);
 
             TestSuite testSuite = new TestSuiteWithPreview(testDescription);
             WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
@@ -88,11 +85,6 @@ public class InputArgsBean {
                 throw e;
             }
         }
-    }
-
-    private IOpenMethod getCurrentMethodFromDispatcher(IOpenMethod method) {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.getCurrentDispatcherMethod(method, uri);
     }
 
     public void initObject() {
