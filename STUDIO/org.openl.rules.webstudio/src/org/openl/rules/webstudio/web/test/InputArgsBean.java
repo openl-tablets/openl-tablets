@@ -62,29 +62,29 @@ public class InputArgsBean {
     }
 
     public void makeTestSuite() {
+        IOpenMethod method = getTestedMethod();
+        Object[] arguments;
         try {
-            IOpenMethod method = getTestedMethod();
-            Object[] arguments = new Object[method.getSignature().getNumberOfParameters()];
+            arguments = new Object[method.getSignature().getNumberOfParameters()];
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
 
-            if (method instanceof OpenMethodDispatcher) {
-                ProjectModel projectModel = WebStudioUtils.getProjectModel();
-                method = projectModel.getCurrentDispatcherMethod(method, uri);
-            }
-            TestDescription testDescription = new TestDescription(method, arguments);
-
-            TestSuite testSuite = new TestSuiteWithPreview(testDescription);
-            WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
                 throw new Message("Input parameters are wrong.");
-                //FacesUtils.addInfoMessage("Input parameters are illegal.");
             } else {
                 throw e;
             }
         }
+        if (method instanceof OpenMethodDispatcher) {
+            ProjectModel projectModel = WebStudioUtils.getProjectModel();
+            method = projectModel.getCurrentDispatcherMethod(method, uri);
+        }
+        TestDescription testDescription = new TestDescription(method, arguments);
+
+        TestSuite testSuite = new TestSuiteWithPreview(testDescription);
+        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
     }
 
     public void initObject() {
