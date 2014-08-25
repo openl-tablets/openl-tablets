@@ -216,10 +216,6 @@ public class TestBean {
         return numberOfFailedTestCases;
     }
 
-    public int getExplanatorId(Object value) {
-        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) value);
-    }
-
     /**
      * @return Actual calculated result as Object
      */
