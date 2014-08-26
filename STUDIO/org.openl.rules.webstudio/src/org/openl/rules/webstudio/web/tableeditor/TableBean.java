@@ -275,15 +275,6 @@ public class TableBean {
         RunTestHelper.addTestSuitesForRun();
         ((TraceTreeBean) FacesUtils.getBackingBean("traceTreeBean")).getTree();
     }
-    
-    public void runAllTestsForTable(){
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        List<TestSuite> testSuites = new ArrayList<TestSuite>();
-        for(IOpenMethod testSuiteMethod :  tests){
-            testSuites.add(new TestSuiteWithPreview((TestSuiteMethod)testSuiteMethod));
-        }
-        model.addTestSuitesToRun(testSuites);
-    }
 
     public String traceIntoFile(boolean withArgs) {
         if (withArgs) {

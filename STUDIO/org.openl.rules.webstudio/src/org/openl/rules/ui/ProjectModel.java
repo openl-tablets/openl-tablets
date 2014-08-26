@@ -159,10 +159,6 @@ public class ProjectModel {
         this.testSuitesToRun.push(singleTestSuite);
     }
 
-    public void addTestSuitesToRun(Collection<TestSuite> testSuites) {
-        testSuitesToRun.addAll(testSuites);
-    }
-
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
         this.instantiationStrategyFactory = new InstantiationStrategyFactory(studio);
