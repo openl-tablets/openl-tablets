@@ -151,13 +151,8 @@ public class TestBean {
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);
         } else {
-            if (uri != null) {
-                // All tests for table or concrete test
-                ranResults = model.runAllTests(uri);
-            } else {
-                // All module tests
-                ranResults = model.runAllTests();
-            }
+            // All tests for table or concrete test
+            ranResults = model.runAllTests(uri);
         }
     }
 
