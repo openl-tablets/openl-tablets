@@ -189,7 +189,7 @@
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{helper.isExplanationValue(resultParam.actualValue.value)}">
                                                             <h:outputLink
-                                                                value="javascript:explain('?rootID=#{testBean.getExplanatorId(resultParam.actualValue.value)}')">
+                                                                value="javascript:explain('?rootID=#{helper.getExplanatorId(resultParam.actualValue.value)}')">
                                                                 <h:outputText value="#{helper.format(resultParam.actualValue.value)}" />
                                                             </h:outputLink>
                                                         </h:panelGroup>

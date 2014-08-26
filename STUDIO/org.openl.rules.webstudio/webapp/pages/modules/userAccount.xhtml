@@ -174,7 +174,7 @@
 
     function hideAndReload() {
         hideUserProfile();
-        window.ws && ws.nav.reload(true);
+        window.ws && ws.nav && ws.nav.reload(true);
     }
 
     function hideUserProfile() {
