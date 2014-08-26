@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Representation of the single test unit in the test.
- * 
+ *
  */
 public class TestUnit {
     private TestDescription test;
@@ -40,19 +40,19 @@ public class TestUnit {
     }
 
     private void initExpectedResult() {
-        if (containsException()) {          
+        if (containsException()) {
             Object expectedError = test.getExpectedError();
             if (expectedError != null) { // check that it was expected to get an exception
                 expectedResult = expectedError;
                 return;
             }
         }
-        expectedResult = test.getExpectedResult();      
+        expectedResult = test.getExpectedResult();
     }
 
     /**
-     * Check if the exception occured during the execution. 
-     * 
+     * Check if the exception occured during the execution.
+     *
      * @return true if an exception occured during the execution
      */
     private boolean containsException() {
@@ -137,7 +137,7 @@ public class TestUnit {
 
     /**
      * Gets the expected result.
-     * 
+     *
      * @return the value of expected result.
      */
     public Object getExpectedResult() {
@@ -149,7 +149,7 @@ public class TestUnit {
 
     /**
      * Return the result of running current test case.
-     * 
+     *
      * @return exception that occurred during running, if it was. If no, returns
      *         the calculated result.
      */
@@ -175,23 +175,26 @@ public class TestUnit {
         Object actual = getActualResult();
         Object expected = getExpectedResult();
 
-        if (!(actual instanceof Throwable)) {
-            TestResultComparator testComparator = getTestUnitResultComparator().getComparator();
-            if (testComparator instanceof BeanResultComparator) {
-                List<ComparedResult> results = ((BeanResultComparator) testComparator).getComparisonResults();
-                for (ComparedResult comparedResult : results) {
-                    comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
-                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
-                    params.add(comparedResult);
-                }
-                return params;
+        TestResultComparator testComparator = getTestUnitResultComparator().getComparator();
+        if (expected != test.getExpectedError() && testComparator instanceof BeanResultComparator) {
+            List<ComparedResult> results;
+            if (actual instanceof Throwable) {
+                results = ((BeanResultComparator) testComparator).getExceptionResults((Throwable) actual, expected);
+            } else {
+                results = ((BeanResultComparator) testComparator).getComparisonResults();
             }
+            for (ComparedResult comparedResult : results) {
+                comparedResult.setActualValue(new ParameterWithValueDeclaration(
+                        comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
+                comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
+                        comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
+                params.add(comparedResult);
+            }
+            return params;
         }
 
         ComparedResult result = new ComparedResult();
-        result.setStatus(TestUnitResultComparator.TestStatus.TR_OK.getConstant(compareResult()));
+        result.setStatus(TestUnitResultComparator.TestStatus.getConstant(compareResult()));
         result.setActualValue(new ParameterWithValueDeclaration("actual", actual, IParameterDeclaration.OUT));
         result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected, IParameterDeclaration.OUT));
         params.add(result);
@@ -201,7 +204,7 @@ public class TestUnit {
 
     /**
      * Gets the description field value.
-     * 
+     *
      * @return if the description field value presents, return it`s value. In
      *         other case return {@link TestUnit#DEFAULT_DESCRIPTION}
      */
@@ -223,7 +226,7 @@ public class TestUnit {
 
     /**
      * Return the comparasion of the expected result and actual.
-     * 
+     *
      * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit, Double)}
      */
     public int compareResult() {
@@ -232,7 +235,7 @@ public class TestUnit {
 
     /**
      * Gets the value from the field by it`s fieldName.
-     * 
+     *
      * @param fieldName
      * @return the value from the field.
      * @deprecated It would be better to retrieve test description and use it to get arguments.
