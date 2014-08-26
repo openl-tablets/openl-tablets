@@ -58,7 +58,7 @@
                                         </ui:include>
                                     </h:panelGroup>
                                     <h:outputLink
-                                        value="javascript: explain('?rootID=#{runBean.getExplanatorId(result.actualResult)}')"
+                                        value="javascript: explain('?rootID=#{helper.getExplanatorId(result.actualResult)}')"
                                         rendered="#{helper.isExplanationValue(result.actualResult)}">
                                         <h:outputText value="#{helper.format(result.actualResult)}" />
                                     </h:outputLink>

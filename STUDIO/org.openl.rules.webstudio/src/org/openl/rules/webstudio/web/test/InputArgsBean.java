@@ -19,8 +19,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
-import org.richfaces.model.TreeNode;
-import org.richfaces.model.TreeNodeImpl;
 
 @ManagedBean
 @ViewScoped
@@ -64,35 +62,29 @@ public class InputArgsBean {
     }
 
     public void makeTestSuite() {
+        IOpenMethod method = getTestedMethod();
+        Object[] arguments;
         try {
-            IOpenMethod method = getTestedMethod();
-            Object[] arguments = new Object[method.getSignature().getNumberOfParameters()];
+            arguments = new Object[method.getSignature().getNumberOfParameters()];
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
 
-            TestDescription testDescription;
-            if (method instanceof OpenMethodDispatcher) {
-                testDescription = new TestDescription(getCurrentMethodFromDispatcher(method), arguments);
-            } else {
-                testDescription = new TestDescription(method, arguments);
-            }
-
-            TestSuite testSuite = new TestSuiteWithPreview(testDescription);
-            WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
                 throw new Message("Input parameters are wrong.");
-                //FacesUtils.addInfoMessage("Input parameters are illegal.");
             } else {
                 throw e;
             }
         }
-    }
+        if (method instanceof OpenMethodDispatcher) {
+            ProjectModel projectModel = WebStudioUtils.getProjectModel();
+            method = projectModel.getCurrentDispatcherMethod(method, uri);
+        }
+        TestDescription testDescription = new TestDescription(method, arguments);
 
-    private IOpenMethod getCurrentMethodFromDispatcher(IOpenMethod method) {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.getCurrentDispatcherMethod(method, uri);
+        TestSuite testSuite = new TestSuiteWithPreview(testDescription);
+        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
     }
 
     public void initObject() {
