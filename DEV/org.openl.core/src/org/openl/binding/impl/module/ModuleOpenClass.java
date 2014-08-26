@@ -18,8 +18,10 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.types.IMethodDependencyInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -55,7 +57,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Check if there are errors: {@link CompiledOpenClass#hasErrors()} 
      * 
      */
-    private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
+    private Set<CompiledDependency> usingModules = new HashSet<CompiledDependency>();
 
     private List<Throwable> errors = new ArrayList<Throwable>();
 
@@ -67,10 +69,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Constructor for module with dependent modules
      *
      */
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl, Set<CompiledOpenClass> usingModules) {
+    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl, Set<CompiledDependency> usingModules) {
         super(schema, name, openl);
         if (usingModules != null) {
-            this.usingModules = new HashSet<CompiledOpenClass>(usingModules);
+            this.usingModules = new HashSet<CompiledDependency>(usingModules);
             initDependencies();
         }
     }
@@ -79,7 +81,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Populate current module fields with data from dependent modules. 
      */
     private void initDependencies() {
-        for (CompiledOpenClass dependency : usingModules) {
+        for (CompiledDependency dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.
             //
@@ -107,12 +109,20 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * 
      * @param dependency compiled dependency module
      */
-    private void addMethods(CompiledOpenClass dependency) {
-        for (IOpenMethod depMethod : dependency.getOpenClassWithErrors().getMethods()) {
+    private void addMethods(CompiledDependency dependency) {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
             if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
                 try {
+                    //Workaround for set dependency names in method while compile
+                    if (depMethod instanceof IMethodDependencyInfo){
+                        IMethodDependencyInfo methodDependencyInfo = (IMethodDependencyInfo) depMethod;
+                        if (methodDependencyInfo.getDependencyName() == null){
+                            methodDependencyInfo.setDependencyName(dependency.getDependencyName());
+                        }
+                    }
                     addMethod(depMethod);
                 } catch (OpenlNotCheckedException e) {
                     if (Log.isDebugEnabled()) {
@@ -138,9 +148,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
         } else {
             // if can`t find, search in dependencies.
             //
-            for (CompiledOpenClass dependency : usingModules) {
-                if (!dependency.hasErrors()) {
-                    field = dependency.getOpenClass().getField(fname, strictMatch);
+            for (CompiledDependency dependency : usingModules) {
+                CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+                if (!compiledOpenClass.hasErrors()) {
+                    field = compiledOpenClass.getOpenClass().getField(fname, strictMatch);
                     if (field != null) {
                         return field;
                     }
@@ -156,9 +167,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
         // get fields from dependencies
         //
-        for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                fields.putAll(dependency.getOpenClass().getFields());
+        for (CompiledDependency dependency : usingModules) {
+            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass(); 
+            if (!compiledOpenClass.hasErrors()) {
+                fields.putAll(compiledOpenClass.getOpenClass().getFields());
             }            
         }
 
@@ -211,9 +223,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Set compiled module dependencies for current module.
      */
-    public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
+    public void setDependencies(Set<CompiledDependency> moduleDependencies){
         if (moduleDependencies != null) {
-            this.usingModules = new HashSet<CompiledOpenClass>(moduleDependencies);
+            this.usingModules = new HashSet<CompiledDependency>(moduleDependencies);
         }
     }
     
@@ -221,7 +233,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Gets compiled module dependencies for current module.
      * @return compiled module dependencies for current module.
      */
-    public Set<CompiledOpenClass> getDependencies() {
+    public Set<CompiledDependency> getDependencies() {
         if (usingModules == null){
             return Collections.emptySet();
         }
@@ -237,8 +249,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     @Override
     public Map<String, IOpenClass> getTypes() {
         Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
-        for (CompiledOpenClass dependency : usingModules) {
-            currentModuleDatatypes.putAll(dependency.getTypes());
+        for (CompiledDependency dependency : usingModules) {
+            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+            currentModuleDatatypes.putAll(compiledOpenClass.getTypes());
         }
         
         return currentModuleDatatypes;
@@ -264,9 +277,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
         
         // try to find type which is declared in dependency module
         //
-        for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                IOpenClass type = dependency.getOpenClass().findType(namespace, typeName);
+        for (CompiledDependency dependency : usingModules) {
+            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+            if (!compiledOpenClass.hasErrors()) {
+                IOpenClass type = compiledOpenClass.getOpenClass().findType(namespace, typeName);
                 if (type != null) {
                     return type;
                 }

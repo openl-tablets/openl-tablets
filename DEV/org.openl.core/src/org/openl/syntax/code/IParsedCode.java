@@ -9,7 +9,7 @@ package org.openl.syntax.code;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.CompiledOpenClass;
+import org.openl.dependency.CompiledDependency;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -50,22 +50,12 @@ public interface IParsedCode {
     void setExternalParams(Map<String, Object> params);
     Map<String, Object> getExternalParams();
     
-    void setCompiledDependencies(Set<CompiledOpenClass> compliedDependencies);
+    void setCompiledDependencies(Set<CompiledDependency> compliedDependencies);
     
     /**
      * Returns set of compiled dependency modules.
      * 
      * @return empty set or a set of compiled dependency modules. 
      */
-    Set<CompiledOpenClass> getCompiledDependencies();
-    
-    void setDependentSources(Set<IOpenSourceCodeModule> dependentSources);
-    
-    /**
-     * Returns set of sources for dependency modules.
-     * 
-     * @return empty set or a set of sources for dependency modules.
-     */
-    Set<IOpenSourceCodeModule> getDependentSources();
-       
+    Set<CompiledDependency> getCompiledDependencies();
 }

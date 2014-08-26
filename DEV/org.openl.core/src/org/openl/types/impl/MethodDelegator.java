@@ -50,5 +50,4 @@ public class MethodDelegator implements IOpenMethod {
 	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
 		return methodCaller.invoke(target, params, env);
 	}
-
 }

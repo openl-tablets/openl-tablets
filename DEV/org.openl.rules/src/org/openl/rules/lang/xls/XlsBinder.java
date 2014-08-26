@@ -4,11 +4,29 @@
 
 package org.openl.rules.lang.xls;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.*;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedTypeFactory;
+import org.openl.binding.INameSpacedVarFactory;
+import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.module.ModuleNode;
@@ -16,6 +34,7 @@ import org.openl.conf.IExecutable;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
+import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IVocabulary;
@@ -57,8 +76,6 @@ import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Implements {@link IOpenBinder} abstraction for Excel files.
@@ -191,7 +208,7 @@ public class XlsBinder implements IOpenBinder {
      * @return
      */
     private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext,
-                                            Set<CompiledOpenClass> moduleDependencies) {
+                                            Set<CompiledDependency> moduleDependencies) {
         XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies, bindingContext);
 
         RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode,
@@ -213,12 +230,13 @@ public class XlsBinder implements IOpenBinder {
      * @return {@link RulesModuleBindingContext} created with bindingContext and moduleOpenClass.
      */
     private RulesModuleBindingContext populateBindingContextWithDependencies(XlsModuleSyntaxNode moduleNode,
-                                                                             IBindingContext bindingContext, Set<CompiledOpenClass> moduleDependencies,
+                                                                             IBindingContext bindingContext, Set<CompiledDependency> moduleDependencies,
                                                                              XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
-        for (CompiledOpenClass compiledDependency : moduleDependencies) {
+        for (CompiledDependency compiledDependency : moduleDependencies) {
+            CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
             try {
-                moduleContext.addTypes(filterDependencyTypes(compiledDependency.getTypes(), moduleContext.getInternalTypes()));
+                moduleContext.addTypes(filterDependencyTypes(compiledOpenClass.getTypes(), moduleContext.getInternalTypes()));
             } catch (Exception ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                         "Can`t add datatype from dependency", ex, moduleNode);
@@ -375,7 +393,7 @@ public class XlsBinder implements IOpenBinder {
      */
     protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
                                                        IDataBase dbase,
-                                                       Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
+                                                       Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
