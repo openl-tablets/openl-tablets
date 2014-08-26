@@ -119,7 +119,8 @@ public class TestUnitResultComparator {
                 expectedMessage = StringUtils.EMPTY;
             }
 
-            if (compareResult(actualMessage, expectedMessage, delta)) {
+//            if (compareResult(actualMessage, expectedMessage, delta)) {
+            if (expectedMessage.equals(actualMessage)) {
                 return TestStatus.TR_OK.getStatus();
             } else {
                 return TestStatus.TR_NEQ.getStatus();
