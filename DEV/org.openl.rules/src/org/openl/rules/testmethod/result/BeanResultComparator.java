@@ -4,12 +4,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
@@ -31,6 +33,45 @@ public class BeanResultComparator implements TestResultComparator {
     }
 
     public List<ComparedResult> getComparisonResults() {
+        return comparisonResults;
+    }
+
+    public List<ComparedResult> getExceptionResults(Throwable actualResult, Object expectedResult) {
+        if (comparisonResults.isEmpty()) {
+            List<ComparedResult> results = new ArrayList<ComparedResult>();
+            Throwable rootCause = ExceptionUtils.getRootCause(actualResult);
+            String actualFieldValue;
+            if (rootCause instanceof OpenLUserRuntimeException) {
+                actualFieldValue = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
+            } else {
+                actualFieldValue = rootCause.getMessage();
+            }
+
+            for (String fieldToCompare : fieldsToCompare) {
+                ComparedResult fieldComparisonResults = new ComparedResult();
+                fieldComparisonResults.setFieldName(fieldToCompare);
+
+                Object expectedFieldValue;
+                try {
+                    expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
+                } catch (OpenLRuntimeException e) {
+                    expectedFieldValue = null;
+                } catch (NullPointerException e) {
+                    expectedFieldValue = null;
+                }
+
+                fieldComparisonResults.setActualValue(actualFieldValue);
+                fieldComparisonResults.setExpectedValue(expectedFieldValue);
+
+                // For BeanResultComparator expectedResult is complex object - that's why expectedResult
+                // always doesn't equal to exception
+                fieldComparisonResults.setStatus(TestStatus.TR_NEQ);
+
+                results.add(fieldComparisonResults);
+            }
+
+            comparisonResults = results;
+        }
         return comparisonResults;
     }
 
@@ -84,7 +125,7 @@ public class BeanResultComparator implements TestResultComparator {
                     compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
                 }catch(Exception e){
                 }
-                
+
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
 
