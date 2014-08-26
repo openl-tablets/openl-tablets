@@ -140,21 +140,36 @@ public class TestBean {
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        RunTestHelper.addTestSuitesForRun();
+        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
-        if (model.hasTestSuitesToRun()) {
-            // Concrete test with cases
-            List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
-            while (model.hasTestSuitesToRun()) {
-                TestSuite test = model.popLastTest();
-                results.add(model.runTest(test));
+        IOpenLTable table = model.getTableById(id);
+        if (table != null) {
+            String uri = table.getUri();
+            IOpenMethod method = model.getMethod(uri);
+
+            if (method instanceof TestSuiteMethod) {
+                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+
+                TestSuite testSuite;
+                String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
+                if (testRanges == null) {
+                    // Run all test cases of selected test suite
+                    testSuite = new TestSuiteWithPreview(testSuiteMethod);
+                } else {
+                    // Run only selected test cases of selected test suite
+                    int[] indices = testSuiteMethod.getIndices(testRanges);
+                    testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
+                }
+                // Concrete test with cases
+                ranResults = new TestUnitsResults[1];
+                ranResults[0] = model.runTest(testSuite);
+            } else {
+                // All tests for table
+                ranResults = runAllTests(uri);
             }
-            ranResults = new TestUnitsResults[results.size()];
-            ranResults = results.toArray(ranResults);
         } else {
-            // All tests for table or concrete test
-
-            ranResults = runAllTests(uri);
+            // All tests for project
+            ranResults = runAllTests(null);
         }
     }
 
