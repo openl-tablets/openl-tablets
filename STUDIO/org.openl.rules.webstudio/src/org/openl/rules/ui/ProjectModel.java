@@ -1114,10 +1114,9 @@ public class ProjectModel {
             tests = getTestMethods(forTable);
         }
         if (tests != null) {
-            boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                results[i] = runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]), isParallel);
+                results[i] = runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]));
             }
             return results;
         }
@@ -1126,8 +1125,7 @@ public class ProjectModel {
 
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
-        return runTest(new TestSuiteWithPreview(testMethod), isParallel);
+        return runTest(new TestSuiteWithPreview(testMethod));
     }
 
     public TestUnitsResults runTest(String testUri, int... caseNumbers) {
@@ -1143,11 +1141,15 @@ public class ProjectModel {
         } else { // Method without cases
             test = new TestSuiteWithPreview(new TestDescription(testMethod, new Object[]{}));
         }
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
+        return runTest(test);
+    }
+
+    public TestUnitsResults runTest(TestSuite test) {
+        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
     }
 
-    public TestUnitsResults runTest(TestSuite test, boolean isParallel) {
+    private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
         if (!isParallel) {
