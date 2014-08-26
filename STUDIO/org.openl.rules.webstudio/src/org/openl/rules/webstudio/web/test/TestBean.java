@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.engine.OpenLSystemProperties;
-import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -13,9 +11,13 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.*;
+import org.openl.rules.ui.ObjectViewer;
+import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,9 +153,29 @@ public class TestBean {
             ranResults = results.toArray(ranResults);
         } else {
             // All tests for table or concrete test
-            ranResults = model.runAllTests(uri);
+
+            ranResults = runAllTests(uri);
         }
     }
+
+    private TestUnitsResults[] runAllTests(String forTable) {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        IOpenMethod[] tests;
+        if (forTable == null) {
+            tests = model.getAllTestMethods();
+        } else {
+            tests = model.getTestMethods(forTable);
+        }
+        if (tests != null) {
+            TestUnitsResults[] results = new TestUnitsResults[tests.length];
+            for (int i = 0; i < tests.length; i++) {
+                results[i] = model.runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]));
+            }
+            return results;
+        }
+        return new TestUnitsResults[0];
+    }
+
 
     public TestUnitsResults[] getRanTests() {
         if (!ranTestsSorted) {

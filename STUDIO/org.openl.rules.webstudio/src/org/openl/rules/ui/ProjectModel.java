@@ -1106,23 +1106,6 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public TestUnitsResults[] runAllTests(String forTable) {
-        IOpenMethod[] tests;
-        if (forTable == null) {
-            tests = getAllTestMethods();
-        } else {
-            tests = getTestMethods(forTable);
-        }
-        if (tests != null) {
-            TestUnitsResults[] results = new TestUnitsResults[tests.length];
-            for (int i = 0; i < tests.length; i++) {
-                results[i] = runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]));
-            }
-            return results;
-        }
-        return new TestUnitsResults[0];
-    }
-
     public TestUnitsResults runTest(String testUri) {
         TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
         return runTest(new TestSuiteWithPreview(testMethod));
