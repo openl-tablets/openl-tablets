@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.CompiledOpenClass;
 import org.openl.binding.IBoundCode;
+import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.SyntaxNodeException;
 
@@ -89,8 +90,9 @@ public class ProcessedCode {
 
     public List<OpenLMessage> getMessagesFromDependencies() {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-        for(CompiledOpenClass dependency : parsedCode.getCompiledDependencies()){
-            for (OpenLMessage message : dependency.getMessages()) {
+        for(CompiledDependency dependency : parsedCode.getCompiledDependencies()){
+            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+            for (OpenLMessage message : compiledOpenClass.getMessages()) {
                 if (!messages.contains(message)) {
                     messages.add(message);
                 }

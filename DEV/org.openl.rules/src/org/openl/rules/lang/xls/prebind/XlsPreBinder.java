@@ -2,11 +2,11 @@ package org.openl.rules.lang.xls.prebind;
 
 import java.util.Set;
 
-import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
+import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.IDataBase;
@@ -64,7 +64,7 @@ public class XlsPreBinder extends XlsBinder {
     protected XlsLazyModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             IDataBase dbase,
-            Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
+            Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
         XlsLazyModuleOpenClass module = new XlsLazyModuleOpenClass(null,
                 XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),

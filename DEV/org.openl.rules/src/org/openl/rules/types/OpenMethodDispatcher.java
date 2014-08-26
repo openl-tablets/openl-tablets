@@ -13,6 +13,7 @@ import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodDependencyInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -189,9 +190,27 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 String newMethodHashUrl = m1.getTableUri();
                 String existedMethodHashUrl = m2.getTableUri();
                 if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
-                    throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
-                        existedMethod.getName()),
-                        existedMethod);
+                    List<String> modules = new ArrayList<String>();
+                    if (newMethod instanceof IMethodDependencyInfo) {
+                        modules.add(((IMethodDependencyInfo) newMethod).getDependencyName());
+                    }
+                    if (newMethod instanceof IMethodDependencyInfo) {
+                        modules.add(((IMethodDependencyInfo) existedMethod).getDependencyName());
+                    }
+                    if (modules.isEmpty()) {
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                            existedMethod.getName()),
+                            existedMethod);
+                    } else {
+                        String modulesString = modules.get(0);
+                        if (modules.size() > 1) {
+                            modulesString = modulesString + ", " + modules.get(1);
+                        }
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, properties set and different method body!",
+                            existedMethod.getName(),
+                            modulesString),
+                            existedMethod);
+                    }
                 }
             } else {
                 throw new IllegalStateException("Implementation supports only TableUriMethod!");

@@ -123,7 +123,6 @@ public class ComponentOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return false;
         }
-
     }
 
     public class GetOpenClass implements IOpenMethod {
@@ -163,7 +162,6 @@ public class ComponentOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return false;
         }
-
     }
 
     public class ThisField extends AOpenField {

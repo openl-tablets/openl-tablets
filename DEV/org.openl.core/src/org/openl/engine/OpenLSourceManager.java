@@ -106,7 +106,7 @@ public class OpenLSourceManager extends OpenLHolder {
         // compile source dependencies
         if (SourceType.MODULE.equals(sourceType)) {
 
-            Set<CompiledOpenClass> compiledDependencies = new LinkedHashSet<CompiledOpenClass>();
+            Set<CompiledDependency> compiledDependencies = new LinkedHashSet<CompiledDependency>();
             List<IDependency> externalDependencies = getExternalDependencies(source);
             Collection<IDependency> dependencies = CollectionUtils.union(externalDependencies,
                 Arrays.asList(parsedCode.getDependencies()));
@@ -124,7 +124,7 @@ public class OpenLSourceManager extends OpenLHolder {
                             if (loadedDependency.getClassLoader() != currentClassLoader) {
                                 currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             }
-                            compiledDependencies.add(loadedDependency.getCompiledOpenClass());
+                            compiledDependencies.add(loadedDependency);
                             
                             if (loadedDependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof ExtendableModuleOpenClass){
                                 ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors();
