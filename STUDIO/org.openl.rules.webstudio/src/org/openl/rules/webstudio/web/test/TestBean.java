@@ -140,13 +140,12 @@ public class TestBean {
 
         RunTestHelper.addTestSuitesForRun();
 
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         if (model.hasTestSuitesToRun()) {
             // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while (model.hasTestSuitesToRun()) {
                 TestSuite test = model.popLastTest();
-                results.add(model.runTest(test, isParallel));
+                results.add(model.runTest(test));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);

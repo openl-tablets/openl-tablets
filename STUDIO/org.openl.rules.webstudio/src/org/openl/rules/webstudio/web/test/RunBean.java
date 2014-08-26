@@ -50,9 +50,8 @@ public class RunBean {
 
     private void runTestMethod(TestSuite testSuite) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         if (testSuite != null) {
-            results = studio.getModel().runTest(testSuite, isParallel);
+            results = studio.getModel().runTest(testSuite);
         }
     }
 
