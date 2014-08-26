@@ -75,10 +75,4 @@ public class RunBean {
         }
         return StringUtils.EMPTY;
     }
-
-    public int getExplanatorId(Object actualResult) {
-        // We expect there ExplanationNumberValue.
-        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) actualResult);
-    }
-
 }
