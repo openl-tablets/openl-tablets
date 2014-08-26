@@ -1106,29 +1106,13 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public TestUnitsResults[] runAllTests() {
-        TestSuiteMethod[] tests = getAllTestMethods();
-        TestUnitsResults[] results = new TestUnitsResults[tests.length];
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
-        for (int i = 0; i < tests.length; i++) {
-            if (!isParallel) {
-                results[i] = new TestSuiteWithPreview(tests[i]).invoke(target, env, 1);
-            } else {
-                results[i] = new TestSuiteWithPreview(tests[i]).invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
-                    @Override
-                    public IRuntimeEnv buildIRuntimeEnv() {
-                        return new SimpleVM().getRuntimeEnv();
-                    }
-                }, 1);
-            }
-        }
-        return results;
-    }
-
     public TestUnitsResults[] runAllTests(String forTable) {
-        IOpenMethod[] tests = getTestMethods(forTable);
+        IOpenMethod[] tests;
+        if (forTable == null) {
+            tests = getAllTestMethods();
+        } else {
+            tests = getTestMethods(forTable);
+        }
         if (tests != null) {
             boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(getStudio().getSystemConfigManager().getProperties());
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
