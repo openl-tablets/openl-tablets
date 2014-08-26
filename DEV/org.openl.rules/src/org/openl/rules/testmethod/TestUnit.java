@@ -194,7 +194,7 @@ public class TestUnit {
         }
 
         ComparedResult result = new ComparedResult();
-        result.setStatus(TestUnitResultComparator.TestStatus.TR_OK.getConstant(compareResult()));
+        result.setStatus(TestUnitResultComparator.TestStatus.getConstant(compareResult()));
         result.setActualValue(new ParameterWithValueDeclaration("actual", actual, IParameterDeclaration.OUT));
         result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected, IParameterDeclaration.OUT));
         params.add(result);
