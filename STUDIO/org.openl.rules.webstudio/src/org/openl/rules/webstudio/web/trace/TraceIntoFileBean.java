@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
@@ -20,8 +18,6 @@ import java.io.Writer;
 /**
  * Request scope managed bean for Trace into File functionality.
  */
-@ManagedBean
-@RequestScoped
 public class TraceIntoFileBean {
 
     private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
@@ -84,23 +80,7 @@ public class TraceIntoFileBean {
         response.setContentType(contentType);
     }
 
-    public String getFileBaseName() {
-        return fileBaseName;
-    }
-
-    public void setFileBaseName(String fileBaseName) {
-        this.fileBaseName = fileBaseName;
-    }
-
-    public String getFileFormat() {
-        return fileFormat;
-    }
-
-    public void setFileFormat(String fileFormat) {
-        this.fileFormat = fileFormat;
-    }
-
-    public String getFileName() {
+    private String getFileName() {
         StringBuilder result = new StringBuilder();
 
         result.append(fileBaseName);
@@ -111,5 +91,4 @@ public class TraceIntoFileBean {
 
         return result.toString();
     }
-
 }
