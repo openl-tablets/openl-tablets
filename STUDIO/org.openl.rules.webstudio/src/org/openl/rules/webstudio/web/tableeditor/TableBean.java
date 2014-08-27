@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,6 +56,9 @@ import org.openl.types.IOpenMethod;
 @ManagedBean
 @ViewScoped
 public class TableBean {
+
+    @ManagedProperty("#{InputArgsBean}")
+    private InputArgsBean inputArgsBean;
 
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
@@ -125,6 +129,10 @@ public class TableBean {
                 storeTable();
             }
         }
+    }
+
+    public void setInputArgsBean(InputArgsBean inputArgsBean) {
+        this.inputArgsBean = inputArgsBean;
     }
 
     private void storeTable() {
@@ -278,7 +286,7 @@ public class TableBean {
 
     public String traceIntoFile(boolean withArgs) {
         if (withArgs) {
-            ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).makeTestSuite();
+            inputArgsBean.makeTestSuite();
         } else {
             RunTestHelper.addTestSuitesForRun();
         }
