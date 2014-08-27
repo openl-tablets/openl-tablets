@@ -63,7 +63,7 @@ public class InputArgsBean {
 
     public void makeTestSuite() {
         IOpenMethod method = getTestedMethod();
-        Object[] arguments = getArguments(method);
+        Object[] arguments = getParams();
         if (method instanceof OpenMethodDispatcher) {
             ProjectModel projectModel = WebStudioUtils.getProjectModel();
             method = projectModel.getCurrentDispatcherMethod(method, uri);
@@ -73,11 +73,10 @@ public class InputArgsBean {
         WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
     }
 
-    private Object[] getArguments(IOpenMethod method) {
-        int numberOfParameters = method.getSignature().getNumberOfParameters();
-        Object[] arguments = new Object[numberOfParameters];
+    private Object[] getParams() {
+        Object[] arguments = new Object[argumentTreeNodes.length];
         try {
-            for (int i = 0; i < arguments.length; i++) {
+            for (int i = 0; i < argumentTreeNodes.length; i++) {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
         } catch (RuntimeException e) {
