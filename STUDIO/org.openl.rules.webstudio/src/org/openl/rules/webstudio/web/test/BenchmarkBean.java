@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -20,10 +21,17 @@ import org.openl.util.benchmark.BenchmarkOrder;
 @ManagedBean
 @SessionScoped
 public class BenchmarkBean {
-    private WebStudio studio;
+
+    @ManagedProperty("#{runTestHelper}")
+    private RunTestHelper runTestHelper;
+
     private ArrayList<BenchmarkInfoView> benchmarkResults = new ArrayList<BenchmarkInfoView>();
     private BenchmarkInfo[] comparedBenchmarks = new BenchmarkInfo[0];
     private BenchmarkOrder[] benchmarkOrders;
+
+    public void setRunTestHelper(RunTestHelper runTestHelper) {
+        this.runTestHelper = runTestHelper;
+    }
 
     private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
@@ -31,9 +39,9 @@ public class BenchmarkBean {
     }
 
     public void addLastBenchmark() {
-        studio = WebStudioUtils.getWebStudio();
-        TestSuite testSuite = studio.getModel().popLastTest();
+        TestSuite testSuite = runTestHelper.getTestSuite();
         String testSuiteUri = testSuite.getUri();
+        WebStudio studio = WebStudioUtils.getWebStudio();
         IOpenMethod table = studio.getModel().getMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = ProjectHelper.getTestName(table);
@@ -70,7 +78,7 @@ public class BenchmarkBean {
     }
 
     private void compareBenchmarks() {
-        BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
+        BenchmarkInfoView[] benchmarks = WebStudioUtils.getWebStudio().getBenchmarks();
         comparedBenchmarks = new BenchmarkInfo[benchmarks.length];
         for (int i = 0; i < benchmarks.length; ++i) {
             if (benchmarks[i].isSelected()) {
@@ -86,6 +94,7 @@ public class BenchmarkBean {
     }
 
     private void deleteBenchmark() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
         BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
         for (int i = benchmarks.length - 1; i >= 0; i--) {
             if (benchmarks[i].isSelected()) {
@@ -101,11 +110,7 @@ public class BenchmarkBean {
     }
 
     public List<BenchmarkInfoView> getBenchmarks() {
-        studio = WebStudioUtils.getWebStudio();
-        if (studio.getModel().hasTestSuitesToRun()) {
-            addLastBenchmark();
-        }
-        BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
+        BenchmarkInfoView[] benchmarks = WebStudioUtils.getWebStudio().getBenchmarks();
         benchmarkResults.clear();
         Collections.addAll(benchmarkResults, benchmarks);
         return benchmarkResults;

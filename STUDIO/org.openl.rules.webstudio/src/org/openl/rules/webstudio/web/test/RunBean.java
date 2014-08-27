@@ -8,11 +8,12 @@ import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import java.util.List;
 
@@ -23,6 +24,9 @@ import java.util.List;
 @ViewScoped
 public class RunBean {
 
+    @ManagedProperty("#{runTestHelper}")
+    private RunTestHelper runTestHelper;
+
     private TestSuite testSuite;
 
     private TestUnitsResults results;
@@ -32,19 +36,16 @@ public class RunBean {
      */
     private String id;
 
-    public RunBean() {
-        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-
-        RunTestHelper.addTestSuitesForRun();
-
+    @PostConstruct
+    public void init() {
+        testSuite = runTestHelper.getTestSuite();
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (model.hasTestSuitesToRun()) {
-            testSuite = model.popLastTest();
+        results = model.runTest(testSuite);
+        id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+    }
 
-            if (testSuite != null) {
-                results = model.runTest(testSuite);
-            }
-        }
+    public void setRunTestHelper(RunTestHelper runTestHelper) {
+        this.runTestHelper = runTestHelper;
     }
 
     public String getTableName() {
