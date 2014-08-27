@@ -165,26 +165,23 @@ public class TestBean {
                 ranResults[0] = model.runTest(testSuite);
             } else {
                 // All tests for table
-                ranResults = runAllTests(uri);
+                IOpenMethod[] tests = model.getTestMethods(uri);
+                ranResults = runAllTests(tests);
             }
         } else {
             // All tests for project
-            ranResults = runAllTests(null);
+            IOpenMethod[] tests = model.getAllTestMethods();
+            ranResults = runAllTests(tests);
         }
     }
 
-    private TestUnitsResults[] runAllTests(String forTable) {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        IOpenMethod[] tests;
-        if (forTable == null) {
-            tests = model.getAllTestMethods();
-        } else {
-            tests = model.getTestMethods(forTable);
-        }
+    private TestUnitsResults[] runAllTests(IOpenMethod[] tests) {
         if (tests != null) {
+            ProjectModel model = WebStudioUtils.getProjectModel();
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                results[i] = model.runTest(new TestSuiteWithPreview((TestSuiteMethod) tests[i]));
+                TestSuiteWithPreview testSuite = new TestSuiteWithPreview((TestSuiteMethod) tests[i]);
+                results[i] = model.runTest(testSuite);
             }
             return results;
         }
