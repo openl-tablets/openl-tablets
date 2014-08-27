@@ -203,7 +203,7 @@
                                  rendered="#{tableBean.canTrace}"
                                  value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
                                  styleClass="hidden b-trace"/>
-                <a4j:commandButton id="benchmarkButton" action="#{tableBean.makeTestSuite}"
+                <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
                                    oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
@@ -326,7 +326,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="benchmarkLink" action="#{tableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton menuButton"
+                                    <a4j:commandLink id="benchmarkLink" action="#{benchmarkBean.addLastBenchmark}" title="Benchmark" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canBenchmark}"
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
