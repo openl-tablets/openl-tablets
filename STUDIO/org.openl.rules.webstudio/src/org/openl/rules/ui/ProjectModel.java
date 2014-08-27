@@ -1106,27 +1106,6 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public TestUnitsResults runTest(String testUri) {
-        TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        return runTest(new TestSuiteWithPreview(testMethod));
-    }
-
-    public TestUnitsResults runTest(String testUri, int... caseNumbers) {
-        IOpenMethod testMethod = getMethod(testUri);
-        TestSuite test;
-
-        if (testMethod instanceof TestSuiteMethod) {
-            if (caseNumbers == null) {
-                test = new TestSuiteWithPreview((TestSuiteMethod) testMethod);
-            } else {
-                test = new TestSuiteWithPreview((TestSuiteMethod) testMethod, caseNumbers);
-            }
-        } else { // Method without cases
-            test = new TestSuiteWithPreview(new TestDescription(testMethod, new Object[]{}));
-        }
-        return runTest(test);
-    }
-
     public TestUnitsResults runTest(TestSuite test) {
         boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
@@ -1145,21 +1124,6 @@ public class ProjectModel {
                 }
             }, 1);
         }
-    }
-
-    public TestUnit runTestCase(String testUri, String caseNumber) {
-        return runTestCase(testUri, Integer.valueOf(caseNumber));
-    }
-
-    public TestUnit runTestCase(String testUri, int caseNumber) {
-        TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
-        return runTestCase(testMethod.getTest(caseNumber));
-    }
-
-    public TestUnit runTestCase(TestDescription testCase) {
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        return testCase.runTest(target, env, 1);
     }
 
     @Deprecated
