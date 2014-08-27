@@ -2,13 +2,10 @@ package org.openl.rules.webstudio.web.test;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.engine.OpenLSystemProperties;
-import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -44,14 +41,9 @@ public class RunBean {
         if (model.hasTestSuitesToRun()) {
             testSuite = model.popLastTest();
 
-            runTestMethod(testSuite);
-        }
-    }
-
-    private void runTestMethod(TestSuite testSuite) {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        if (testSuite != null) {
-            results = studio.getModel().runTest(testSuite);
+            if (testSuite != null) {
+                results = model.runTest(testSuite);
+            }
         }
     }
 
