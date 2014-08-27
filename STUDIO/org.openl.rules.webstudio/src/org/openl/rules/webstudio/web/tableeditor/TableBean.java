@@ -282,7 +282,7 @@ public class TableBean {
         } else {
             RunTestHelper.addTestSuitesForRun();
         }
-        return ((TraceIntoFileBean) FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
+        return new TraceIntoFileBean().traceIntoFile();
     }
 
     public String traceIntoFile() {
