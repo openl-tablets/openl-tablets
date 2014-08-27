@@ -104,15 +104,11 @@ public class SpreadsheetCell {
     public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
 
         if (isValueCell()) {
-            return getValue();
+
+            Object value = getValue();
+            return value;
         } else if (isMethodCell()) {
-            IOpenMethod cellMethod = getMethod();
-
-            if (cellMethod == null) {
-                throw new IllegalStateException("Cell isn't initialized properly");
-            }
-
-            return cellMethod.invoke(spreadsheetResult, params, env);
+            return getMethod().invoke(spreadsheetResult, params, env);
         } else {
             return null;
         }
