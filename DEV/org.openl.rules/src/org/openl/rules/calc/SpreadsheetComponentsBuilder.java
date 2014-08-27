@@ -16,8 +16,10 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -28,6 +30,8 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.generation.JavaClassGeneratorHelper;
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.TextInterval;
 
 /**
  * 
@@ -118,6 +122,12 @@ public class SpreadsheetComponentsBuilder {
             StringValue rowName = cellsHeaderExtractor.getRowNameForHeader(rowNames[i], i, bindingContext);
             if (rowName != null) {                
                 addRowHeader(i, rowName);
+            } else {
+                IGridTable cell = cellsHeaderExtractor.getRowNamesTable().getRow(i).getColumn(0).getSource();
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Empty row name", source);
+                getTableSyntaxNode().addError(error);
+                BindHelper.processError(error, getBindingContext());
             }
         }
     }
@@ -128,6 +138,12 @@ public class SpreadsheetComponentsBuilder {
             StringValue columnName = cellsHeaderExtractor.getColumnNameForHeader(columnNames[i], i, bindingContext);
             if (columnName != null) {                
                 addColumnHeader(i, columnName);
+            } else {
+                IGridTable cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(i).getRow(0).getSource();
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Empty column name", source);
+                getTableSyntaxNode().addError(error);
+                BindHelper.processError(error, getBindingContext());
             }
         }
     }
@@ -165,9 +181,16 @@ public class SpreadsheetComponentsBuilder {
                 headerDefinitions.put(headerName, header);
             }
             header.addVarHeader(parsed);
+        } catch (SyntaxNodeException error) {
+            tableSyntaxNode.addError(error);
+            BindHelper.processError(error, bindingContext);
         } catch (Throwable t) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                    "Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
+            SyntaxNodeException error;
+            try {
+                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, parseHeaderElement(value).getName());
+            } catch (SyntaxNodeException e) {
+                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
+            }
 
             tableSyntaxNode.addError(error);
             BindHelper.processError(error, bindingContext);
@@ -191,7 +214,12 @@ public class SpreadsheetComponentsBuilder {
                 return new SymbolicTypeDefinition(nodes[0], nodes[1]);
             default:
                 String message = String.format("Valid header format: name [%s type]", SpreadsheetSymbols.TYPE_DELIMETER.toString());
-                throw SyntaxNodeExceptionUtils.createError(message, source);
+                if (nodes.length > 2) {
+                    throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
+                } else {
+                    TextInterval location = new TextInterval(new AbsolutePosition(0), new AbsolutePosition(value.length()));
+                    throw SyntaxNodeExceptionUtils.createError(message, null, location, source);
+                }
         }
     }
     
@@ -334,7 +362,7 @@ public class SpreadsheetComponentsBuilder {
      *         or column
      * 
      * Right now we allow only to return types = scalars or arrays.
-     * @throws BoundError
+     * @throws SyntaxNodeException
      */
     private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
             throws SyntaxNodeException {
@@ -363,7 +391,7 @@ public class SpreadsheetComponentsBuilder {
     }
     
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
-        IResultBuilder resultBuilder = null;
+        IResultBuilder resultBuilder;
         
         SymbolicTypeDefinition symbolicTypeDefinition = null;
         
