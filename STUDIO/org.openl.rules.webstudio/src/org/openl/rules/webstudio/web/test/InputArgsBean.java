@@ -63,13 +63,23 @@ public class InputArgsBean {
 
     public void makeTestSuite() {
         IOpenMethod method = getTestedMethod();
-        Object[] arguments;
+        Object[] arguments = getArguments(method);
+        if (method instanceof OpenMethodDispatcher) {
+            ProjectModel projectModel = WebStudioUtils.getProjectModel();
+            method = projectModel.getCurrentDispatcherMethod(method, uri);
+        }
+        TestDescription testDescription = new TestDescription(method, arguments);
+        TestSuite testSuite = new TestSuiteWithPreview(testDescription);
+        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
+    }
+
+    private Object[] getArguments(IOpenMethod method) {
+        int numberOfParameters = method.getSignature().getNumberOfParameters();
+        Object[] arguments = new Object[numberOfParameters];
         try {
-            arguments = new Object[method.getSignature().getNumberOfParameters()];
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
-
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
                 throw new Message("Input parameters are wrong.");
@@ -77,14 +87,7 @@ public class InputArgsBean {
                 throw e;
             }
         }
-        if (method instanceof OpenMethodDispatcher) {
-            ProjectModel projectModel = WebStudioUtils.getProjectModel();
-            method = projectModel.getCurrentDispatcherMethod(method, uri);
-        }
-        TestDescription testDescription = new TestDescription(method, arguments);
-
-        TestSuite testSuite = new TestSuiteWithPreview(testDescription);
-        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
+        return arguments;
     }
 
     public void initObject() {

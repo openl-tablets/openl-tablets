@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.engine.OpenLSystemProperties;
-import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -13,9 +11,13 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.*;
+import org.openl.rules.ui.ObjectViewer;
+import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,28 +140,54 @@ public class TestBean {
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        RunTestHelper.addTestSuitesForRun();
+        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
-        if (model.hasTestSuitesToRun()) {
-            // Concrete test with cases
-            List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
-            while (model.hasTestSuitesToRun()) {
-                TestSuite test = model.popLastTest();
-                results.add(model.runTest(test, isParallel));
-            }
-            ranResults = new TestUnitsResults[results.size()];
-            ranResults = results.toArray(ranResults);
-        } else {
-            if (uri != null) {
-                // All tests for table or concrete test
-                ranResults = model.runAllTests(uri);
+        IOpenLTable table = model.getTableById(id);
+        if (table != null) {
+            String uri = table.getUri();
+            IOpenMethod method = model.getMethod(uri);
+
+            if (method instanceof TestSuiteMethod) {
+                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+
+                TestSuite testSuite;
+                String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
+                if (testRanges == null) {
+                    // Run all test cases of selected test suite
+                    testSuite = new TestSuiteWithPreview(testSuiteMethod);
+                } else {
+                    // Run only selected test cases of selected test suite
+                    int[] indices = testSuiteMethod.getIndices(testRanges);
+                    testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
+                }
+                // Concrete test with cases
+                ranResults = new TestUnitsResults[1];
+                ranResults[0] = model.runTest(testSuite);
             } else {
-                // All module tests
-                ranResults = model.runAllTests();
+                // All tests for table
+                IOpenMethod[] tests = model.getTestMethods(uri);
+                ranResults = runAllTests(tests);
             }
+        } else {
+            // All tests for project
+            IOpenMethod[] tests = model.getAllTestMethods();
+            ranResults = runAllTests(tests);
         }
     }
+
+    private TestUnitsResults[] runAllTests(IOpenMethod[] tests) {
+        if (tests != null) {
+            ProjectModel model = WebStudioUtils.getProjectModel();
+            TestUnitsResults[] results = new TestUnitsResults[tests.length];
+            for (int i = 0; i < tests.length; i++) {
+                TestSuiteWithPreview testSuite = new TestSuiteWithPreview((TestSuiteMethod) tests[i]);
+                results[i] = model.runTest(testSuite);
+            }
+            return results;
+        }
+        return new TestUnitsResults[0];
+    }
+
 
     public TestUnitsResults[] getRanTests() {
         if (!ranTestsSorted) {
