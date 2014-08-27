@@ -2,8 +2,8 @@ package org.openl.rules.lang.xls.prebind;
 
 import java.util.Set;
 
-import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.dependency.CompiledDependency;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -37,7 +37,7 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             OpenL openl,
             IDataBase dbase,
             IPrebindHandler prebindHandler,
-            Set<CompiledOpenClass> usingModules,
+            Set<CompiledDependency> usingModules,
             boolean useDescisionTableDispatcher) {
         super(schema, name, metaInfo, openl, dbase, usingModules, useDescisionTableDispatcher);
         this.prebindHandler = prebindHandler;

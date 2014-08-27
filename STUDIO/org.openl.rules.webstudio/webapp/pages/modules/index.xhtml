@@ -65,6 +65,8 @@
                 content: { target: "#content",       url: urlRewrite.prefix +  "home.xhtml" }
             };
 
+            var WS_PANEL_STATE_VAR = "WS_PANEL_STATE";
+
             var current  = {
                 project: 0,
                 module: 0
@@ -203,6 +205,16 @@
                             }
                             done && done();
                         });
+                    }
+                },
+
+                storage: {
+                    get: function(name) {
+                        var strValue = localStorage.getItem(name);
+                        return strValue ? JSON.parse(strValue) : null;
+                    },
+                    set: function(name, value) {
+                        localStorage.setItem(name, JSON.stringify(value));
                     }
                 },
 
@@ -363,8 +375,17 @@
                 changes: new ChangesListener()
             };
 
-            (function initUI(){
+            (function initUI() {
                 $(function () {
+
+                    function changePanelState(panel, obj, state) {
+                        var panelState = ws.storage.get(WS_PANEL_STATE_VAR);
+                        panel === "west"  && (panelState.left   = !state.isClosed);
+                        panel === "east"  && (panelState.right  = !state.isClosed);
+                        panel === "south" && (panelState.bottom = !state.isClosed);
+                        ws.storage.set(WS_PANEL_STATE_VAR, panelState);
+                    }
+
                     mainLayout = $("#center").layout({
                         spacing_open: 1,
                         spacing_closed: 17,
@@ -373,7 +394,9 @@
                         east__size: 235,
                         east__initHidden: true,
                         slidable: false,
-                        enableCursorHotkey: false
+                        enableCursorHotkey: false,
+                        onopen: changePanelState,
+                        onclose: changePanelState
                     });
                     mainLayout.addCloseBtn("#west-closer", "west");
                     mainLayout.addCloseBtn("#east-closer", "east");
@@ -385,11 +408,26 @@
                         south__size: 110,
                         south__initHidden: true,
                         slidable: false,
-                        enableCursorHotkey: false
+                        enableCursorHotkey: false,
+                        onopen: changePanelState,
+                        onclose: changePanelState
                     });
                     centerLayout.addCloseBtn("#south-closer", "south");
 
                     loadingPanel = $("#loadingPanel");
+
+                    var panelState = ws.storage.get(WS_PANEL_STATE_VAR);
+                    if (!panelState) {
+                        ws.storage.set(WS_PANEL_STATE_VAR, {
+                            left: true,
+                            right: true,
+                            bottom: true
+                        });
+                    } else {
+                        panelState.left === false && mainLayout.close("west");
+                        panelState.right === false && mainLayout.close("east");
+                        panelState.bottom === false && centerLayout.close("south");
+                    }
 
                     loadContent();
 
@@ -635,13 +673,17 @@
 
                 callbacks.push(open.bottom ?
                         function() {
+                            var opened = ws.storage.get(WS_PANEL_STATE_VAR).bottom;
                             centerLayout.show("south");
+                            !opened && centerLayout.close("south");
                         } : function() {
                     centerLayout.hide("south");
                 });
                 callbacks.push(open.right ?
                         function() {
+                            var opened = ws.storage.get(WS_PANEL_STATE_VAR).right;
                             mainLayout.show("east");
+                            !opened && mainLayout.close("east");
                         } : function() {
                     mainLayout.hide("east");
                 });

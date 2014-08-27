@@ -7,6 +7,7 @@ package org.openl.types.impl;
 
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodDependencyInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -15,9 +16,20 @@ import org.openl.types.IOpenMethodHeader;
 /**
  * @author snshor
  */
-public abstract class AMethod implements IOpenMethod {
+public abstract class AMethod implements IOpenMethod, IMethodDependencyInfo {
 
     private IOpenMethodHeader header;
+    
+    private String dependencyName;
+    
+    public String getDependencyName() {
+        return dependencyName;
+    }
+    
+    @Override
+    public void setDependencyName(String dependencyName) {
+        this.dependencyName = dependencyName;
+    }
 
     public AMethod(IOpenMethodHeader header) {
         this.header = header;

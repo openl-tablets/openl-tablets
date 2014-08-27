@@ -25,6 +25,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.Spreadsheet;
@@ -103,7 +104,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
-            Set<CompiledOpenClass> usingModules,
+            Set<CompiledDependency> usingModules,
             boolean useDescisionTableDispatcher) {
         super(schema, name, openl, usingModules);
         this.dataBase = dbase;
@@ -127,8 +128,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * for data tables inheriting from dependend modules.
      */
     private void additionalInitDependencies() {
-        for (CompiledOpenClass dependency : this.getDependencies()) {
-            addDataTables(dependency);
+        for (CompiledDependency dependency : this.getDependencies()) {
+            addDataTables(dependency.getCompiledOpenClass());
         }
     }
 

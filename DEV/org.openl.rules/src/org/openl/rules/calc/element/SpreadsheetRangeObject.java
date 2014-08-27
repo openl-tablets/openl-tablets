@@ -20,8 +20,6 @@ public class SpreadsheetRangeObject {
                 this.fend = fend;
     }
     
-    
-    
     public static DoubleValue[] autocast(SpreadsheetRangeObject from, DoubleValue[] to)
     {
         int sx = from.fstart.getCell().getColumnIndex();

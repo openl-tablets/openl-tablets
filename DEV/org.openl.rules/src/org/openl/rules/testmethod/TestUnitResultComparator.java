@@ -21,11 +21,11 @@ public class TestUnitResultComparator {
             this.status = status;
         }
 
-       public int getStatus() {
-           return status;
-       }
+        public int getStatus() {
+            return status;
+        }
 
-        public TestStatus getConstant(int status) {
+        public static TestStatus getConstant(int status) {
             switch (status) {
                 case 0:
                     return TR_OK;
@@ -51,9 +51,9 @@ public class TestUnitResultComparator {
     }
 
     /**
-     * Return the comparasion of the expected result and actual one for the test unit. 
-     * 
-     * @param testUnit 
+     * Return the comparasion of the expected result and actual one for the test unit.
+     *
+     * @param testUnit
      * @return <b>0</b> if the expected result is equal to the actual one.<br>
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
@@ -71,7 +71,7 @@ public class TestUnitResultComparator {
     }
 
     private Boolean comapreResult = null;
-    
+
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
 
         if (actualResult == expectedResult) {
@@ -91,12 +91,12 @@ public class TestUnitResultComparator {
         if (actualResult == null) {
             return false;
         }
-        
+
         if (comapreResult == null) {
             comapreResult = resultComparator.compareResult(actualResult, expectedResult, delta);
         }
 
-        return comapreResult.booleanValue();
+        return comapreResult;
     }
 
     private int compareExceptionResult(TestUnit testUnit, Double delta) {
@@ -119,7 +119,8 @@ public class TestUnitResultComparator {
                 expectedMessage = StringUtils.EMPTY;
             }
 
-            if (compareResult(actualMessage, expectedMessage, delta)) {
+//            if (compareResult(actualMessage, expectedMessage, delta)) {
+            if (expectedMessage.equals(actualMessage)) {
                 return TestStatus.TR_OK.getStatus();
             } else {
                 return TestStatus.TR_NEQ.getStatus();

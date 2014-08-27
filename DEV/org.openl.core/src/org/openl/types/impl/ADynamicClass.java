@@ -182,7 +182,7 @@ public abstract class ADynamicClass extends AOpenClass {
         public boolean isStatic() {
             return true;
         }
-
+        
         @Override
         public String toString() {
             return openClass.getName();
