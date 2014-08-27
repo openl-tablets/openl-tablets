@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.vm.trace.*;
@@ -34,8 +35,9 @@ public class TraceIntoFileBean {
      */
     private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
 
-    public String traceIntoFile() {
-        Tracer tracer = trace();
+    public String traceIntoFile(TestSuite testSuite) {
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        Tracer tracer = model.traceElement(testSuite);
 
         TracePrinter tracePrinter = getTracePrinter(fileFormat);
 
@@ -57,11 +59,6 @@ public class TraceIntoFileBean {
         FacesUtils.getFacesContext().responseComplete();
 
         return null;
-    }
-
-    private Tracer trace() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.traceElement(model.popLastTest());
     }
 
     private TracePrinter getTracePrinter(String fileFormat) {

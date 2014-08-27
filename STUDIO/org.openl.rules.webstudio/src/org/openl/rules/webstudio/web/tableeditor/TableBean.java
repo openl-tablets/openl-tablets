@@ -282,7 +282,9 @@ public class TableBean {
         } else {
             RunTestHelper.addTestSuitesForRun();
         }
-        return new TraceIntoFileBean().traceIntoFile();
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        TestSuite testSuite = model.popLastTest();
+        return new TraceIntoFileBean().traceIntoFile(testSuite);
     }
 
     public String traceIntoFile() {
