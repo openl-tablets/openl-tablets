@@ -16,8 +16,10 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -118,6 +120,12 @@ public class SpreadsheetComponentsBuilder {
             StringValue rowName = cellsHeaderExtractor.getRowNameForHeader(rowNames[i], i, bindingContext);
             if (rowName != null) {                
                 addRowHeader(i, rowName);
+            } else {
+                IGridTable cell = cellsHeaderExtractor.getRowNamesTable().getRow(i).getColumn(0).getSource();
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Empty row name", source);
+                getTableSyntaxNode().addError(error);
+                BindHelper.processError(error, getBindingContext());
             }
         }
     }
@@ -128,6 +136,12 @@ public class SpreadsheetComponentsBuilder {
             StringValue columnName = cellsHeaderExtractor.getColumnNameForHeader(columnNames[i], i, bindingContext);
             if (columnName != null) {                
                 addColumnHeader(i, columnName);
+            } else {
+                IGridTable cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(i).getRow(0).getSource();
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Empty column name", source);
+                getTableSyntaxNode().addError(error);
+                BindHelper.processError(error, getBindingContext());
             }
         }
     }
@@ -334,7 +348,7 @@ public class SpreadsheetComponentsBuilder {
      *         or column
      * 
      * Right now we allow only to return types = scalars or arrays.
-     * @throws BoundError
+     * @throws SyntaxNodeException
      */
     private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
             throws SyntaxNodeException {
@@ -363,7 +377,7 @@ public class SpreadsheetComponentsBuilder {
     }
     
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
-        IResultBuilder resultBuilder = null;
+        IResultBuilder resultBuilder;
         
         SymbolicTypeDefinition symbolicTypeDefinition = null;
         
