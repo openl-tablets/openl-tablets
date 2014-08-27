@@ -385,10 +385,10 @@
                                     <ui:include src="/pages/modules/test/inputTestCase.xhtml" />
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Launch the table"
+                                            action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
                                             oncomplete="ws.nav.go('#{runLink}')"/>
                                         <a4j:commandButton id="traceButtonHidden" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}"
+                                            action="#{runTestHelper.catchParams}"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" />
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             styleClass="changes-listener"
@@ -416,6 +416,7 @@
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                             </c:if>
+                            <input type="hidden" name="id" value="#{tableBean.id}" />
                         </h:form>
                     </td>
                 </c:if>

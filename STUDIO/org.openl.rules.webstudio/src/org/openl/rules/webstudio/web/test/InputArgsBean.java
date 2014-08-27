@@ -1,24 +1,17 @@
 package org.openl.rules.webstudio.web.test;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IAggregateInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenIndex;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
+import org.openl.types.*;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 
 @ManagedBean
 @ViewScoped
@@ -61,19 +54,7 @@ public class InputArgsBean {
         return (ParameterDeclarationTreeNode) currentTreeNode.getRowData();
     }
 
-    public void makeTestSuite() {
-        IOpenMethod method = getTestedMethod();
-        Object[] arguments = getParams();
-        if (method instanceof OpenMethodDispatcher) {
-            ProjectModel projectModel = WebStudioUtils.getProjectModel();
-            method = projectModel.getCurrentDispatcherMethod(method, uri);
-        }
-        TestDescription testDescription = new TestDescription(method, arguments);
-        TestSuite testSuite = new TestSuiteWithPreview(testDescription);
-        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
-    }
-
-    private Object[] getParams() {
+    public Object[] getParams() {
         Object[] arguments = new Object[argumentTreeNodes.length];
         try {
             for (int i = 0; i < argumentTreeNodes.length; i++) {
@@ -94,14 +75,14 @@ public class InputArgsBean {
         IOpenClass fieldType = currentnode.getType();
         currentnode.setValueForced(fieldType.newInstance(new SimpleVM().getRuntimeEnv()));
     }
-    
+
     public void initCollection() {
         ParameterDeclarationTreeNode currentnode = getCurrentNode();
         IOpenClass fieldType = currentnode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
 
-        Object ary = info.makeIndexedAggregate(info.getComponentType(fieldType), new int[] { 0 });
+        Object ary = info.makeIndexedAggregate(info.getComponentType(fieldType), new int[]{0});
 
         currentnode.setValueForced(ary);
     }
@@ -120,7 +101,7 @@ public class InputArgsBean {
         int elementsCount = parentNode.getChildren().size();
 
         IOpenClass componentType = currentNode.getType();
-        Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount - 1 });
+        Object ary = info.makeIndexedAggregate(componentType, new int[]{elementsCount - 1});
 
         IOpenIndex index = info.getIndex(arrayType, JavaOpenClass.INT);
 
@@ -142,7 +123,7 @@ public class InputArgsBean {
         int elementsCount = currentnode.getChildren().size();
 
         IOpenClass componentType = info.getComponentType(fieldType);
-        Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount + 1 });
+        Object ary = info.makeIndexedAggregate(componentType, new int[]{elementsCount + 1});
 
         IOpenIndex index = info.getIndex(fieldType, JavaOpenClass.INT);
 
@@ -183,9 +164,9 @@ public class InputArgsBean {
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             argTreeNodes[i] = ParameterTreeBuilder.createNode(args[i].getType(),
-                args[i].getValue(),
-                args[i].getName(),
-                null);
+                    args[i].getValue(),
+                    args[i].getName(),
+                    null);
         }
         return argTreeNodes;
     }

@@ -40,10 +40,8 @@ import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.TraceTreeBean;
-import org.openl.rules.webstudio.web.test.InputArgsBean;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
-import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -57,8 +55,8 @@ import org.openl.types.IOpenMethod;
 @ViewScoped
 public class TableBean {
 
-    @ManagedProperty("#{InputArgsBean}")
-    private InputArgsBean inputArgsBean;
+    @ManagedProperty("#{runTestHelper}")
+    private RunTestHelper runTestHelper;
 
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
@@ -131,8 +129,8 @@ public class TableBean {
         }
     }
 
-    public void setInputArgsBean(InputArgsBean inputArgsBean) {
-        this.inputArgsBean = inputArgsBean;
+    public void setRunTestHelper(RunTestHelper runTestHelper) {
+        this.runTestHelper = runTestHelper;
     }
 
     private void storeTable() {
@@ -286,7 +284,7 @@ public class TableBean {
 
     public String traceIntoFile(boolean withArgs) {
         if (withArgs) {
-            inputArgsBean.makeTestSuite();
+            runTestHelper.catchParams();
         } else {
             RunTestHelper.addTestSuitesForRun();
         }
