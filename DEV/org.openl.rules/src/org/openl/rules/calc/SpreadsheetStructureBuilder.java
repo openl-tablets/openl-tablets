@@ -190,6 +190,7 @@ public class SpreadsheetStructureBuilder {
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
         if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
+            cells[rowIndex][columnIndex].setKind(SpreadsheetCellType.EMPTY);
             return;
         }
 
@@ -233,7 +234,7 @@ public class SpreadsheetStructureBuilder {
             OpenL openl = columnBindingContext.getOpenL();
             // columnBindingContext - is never null
             try {
-            	IOpenMethod method = null;
+            	IOpenMethod method;
             	if (header.getType() == null)
             	{	
             		method = OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl, srcCode, name, signature , declaringClass, columnBindingContext);

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Test;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 
 public class Test2 {
@@ -20,7 +21,7 @@ public class Test2 {
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc2();
 
-        assertEquals(3, result.getHeight());
+        assertEquals(5, result.getHeight());
         assertEquals(3, result.getWidth());
 
         assertEquals("Col1", result.getColumnName(0));
@@ -30,6 +31,8 @@ public class Test2 {
         assertEquals("Row1", result.getRowName(0));
         assertEquals(null, result.getRowName(1));
         assertEquals("Row2", result.getRowName(2));
+        assertEquals(null, result.getRowName(3));
+        assertEquals("Row3", result.getRowName(4));
 
         assertEquals("A", result.getValue(0, 0).toString());
         assertEquals(null, result.getValue(0, 1));
@@ -41,5 +44,7 @@ public class Test2 {
         assertEquals(null, result.getValue(1, 0));
         assertEquals(null, result.getValue(1, 1));
         assertEquals(null, result.getValue(1, 2));
+        assertEquals(null, result.getValue(3, 0));
+        assertEquals(DoubleValue.ZERO, result.getValue(4, 0));
     }
 }
