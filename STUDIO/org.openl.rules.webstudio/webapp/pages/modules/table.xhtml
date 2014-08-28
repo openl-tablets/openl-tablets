@@ -469,7 +469,7 @@
                     <div>
                         <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table')}">
+                            <h:outputLink value="#{studio.url('table', studio.getModuleName(targetTable.uri))}">
                                 <f:param name="id" value="#{targetTable.id}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
