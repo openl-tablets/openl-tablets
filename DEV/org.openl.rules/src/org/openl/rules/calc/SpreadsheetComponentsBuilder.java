@@ -28,6 +28,8 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.generation.JavaClassGeneratorHelper;
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.TextInterval;
 
 /**
  * 
@@ -165,9 +167,16 @@ public class SpreadsheetComponentsBuilder {
                 headerDefinitions.put(headerName, header);
             }
             header.addVarHeader(parsed);
+        } catch (SyntaxNodeException error) {
+            tableSyntaxNode.addError(error);
+            BindHelper.processError(error, bindingContext);
         } catch (Throwable t) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                    "Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
+            SyntaxNodeException error;
+            try {
+                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, parseHeaderElement(value).getName());
+            } catch (SyntaxNodeException e) {
+                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
+            }
 
             tableSyntaxNode.addError(error);
             BindHelper.processError(error, bindingContext);
@@ -191,7 +200,12 @@ public class SpreadsheetComponentsBuilder {
                 return new SymbolicTypeDefinition(nodes[0], nodes[1]);
             default:
                 String message = String.format("Valid header format: name [%s type]", SpreadsheetSymbols.TYPE_DELIMETER.toString());
-                throw SyntaxNodeExceptionUtils.createError(message, source);
+                if (nodes.length > 2) {
+                    throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
+                } else {
+                    TextInterval location = new TextInterval(new AbsolutePosition(0), new AbsolutePosition(value.length()));
+                    throw SyntaxNodeExceptionUtils.createError(message, null, location, source);
+                }
         }
     }
     

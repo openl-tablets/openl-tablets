@@ -120,7 +120,7 @@
                             <c:redirect url="/"/>
                         </c:if>
                         <c:if test="${!empty requestScope.servicesGroup}">
-                            <c:forEach items="${requestScope.servicesGroup}" var="servicesGroup">
+                            <c:forEach items="${requestScope.servicesGroup}" var="servicesGroup" varStatus="sg">
 
                                 <h2>Available ${servicesGroup.groupName} services:</h2>
 
@@ -137,11 +137,11 @@
 
                                                     <div class="service-description">
                                                         <c:if test="${!empty service.methodNames}">
-                                                            <span class="expand-button" onclick="pressButton(this, document.getElementById('methods${i.index}'));"></span>
+                                                            <span class="expand-button" onclick="pressButton(this, document.getElementById('methods${sg.index}_${i.index}'));"></span>
                                                         </c:if>
                                                         <span class="service-name"><c:out value="${service.name}"/></span>
 
-                                                        <div id="methods${i.index}" class="methods hidden">
+                                                        <div id="methods${sg.index}_${i.index}" class="methods hidden">
                                                             <c:forEach items="${service.methodNames}" var="methodName">
                                                                 <div><c:out value="${methodName}"/></div>
                                                             </c:forEach>
