@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,10 +38,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.rules.webstudio.web.TraceTreeBean;
-import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
-import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
@@ -54,11 +50,6 @@ import org.openl.types.IOpenMethod;
 @ManagedBean
 @ViewScoped
 public class TableBean {
-
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
-
-//    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
     private IOpenMethod method;
 
@@ -127,10 +118,6 @@ public class TableBean {
                 storeTable();
             }
         }
-    }
-
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
-        this.runTestHelper = runTestHelper;
     }
 
     private void storeTable() {
@@ -429,30 +416,5 @@ public class TableBean {
             return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
         }
         return null;
-    }
-
-    public static class TestRunsResultBean {
-
-        private TestSuite[] tests;
-
-        public TestRunsResultBean(TestSuite[] tests) {
-            this.tests = tests;
-        }
-
-        public TestSuite[] getTests() {
-            return tests;
-        }
-
-        public boolean isNotEmpty() {
-            if (ArrayUtils.isNotEmpty(tests)) {
-                for (TestSuite test : getTests()) {
-                    if (ArrayUtils.isNotEmpty(test.getTests())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        
     }
 }
