@@ -54,21 +54,9 @@ public class TraceTreeBean {
 
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
         TraceHelper traceHelper = studio.getTraceHelper();
-
-        if (model.hasTestSuitesToRun()) {
-
-            Tracer tracer = model.traceElement(model.popLastTest());
-
-            ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
-            if (tree != null) {
-                return buildTreeNode(traceHelper, tree);
-            }
-        } else {
-            if (traceHelper.getTreeRoot() != null) {
-                return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
-            }
+        if (traceHelper.getTreeRoot() != null) {
+            return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
         }
         return null;
     }
@@ -83,20 +71,12 @@ public class TraceTreeBean {
 
     public boolean hasDecisionTables() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
         TraceHelper traceHelper = studio.getTraceHelper();
 
-        if (model.hasTestSuitesToRun()) {
-            Tracer tracer = model.traceElement(model.popLastTest());
-
-            ITreeElement<ITracerObject> tree = traceHelper.getTraceTree(tracer);
-            return tree != null && hasDecisionTables(tree);
+        if (traceHelper.getTreeRoot() != null) {
+            return hasDecisionTables(traceHelper.getTreeRoot());
         } else {
-            if (traceHelper.getTreeRoot() != null) {
-                return hasDecisionTables(traceHelper.getTreeRoot());
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 

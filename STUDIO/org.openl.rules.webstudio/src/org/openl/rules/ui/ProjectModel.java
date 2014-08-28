@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,10 +70,8 @@ import org.openl.rules.table.search.TableSearcher;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
@@ -84,7 +81,6 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.DefaultDependencyManagerListener;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
-import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -141,23 +137,6 @@ public class ProjectModel {
     private SourceHistoryManager<File> historyManager;
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
-
-    // FIXME last test suite should have temporary location(such as Flash scope)
-    // but now it placed to session bean due to WebStudio navigation specific
-    // TODO move this object to the correct place
-    private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
-
-    public boolean hasTestSuitesToRun() {
-        return !testSuitesToRun.isEmpty();
-    }
-    
-    public TestSuite popLastTest() {
-        return testSuitesToRun.pop();
-    }
-
-    public void addTestSuiteToRun(TestSuite singleTestSuite) {
-        this.testSuitesToRun.push(singleTestSuite);
-    }
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;

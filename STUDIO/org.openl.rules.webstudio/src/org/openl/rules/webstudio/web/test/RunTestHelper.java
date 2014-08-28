@@ -19,6 +19,9 @@ import javax.faces.bean.SessionScoped;
 @SessionScoped
 public final class RunTestHelper {
 
+    // FIXME last parameters of the test suite should have temporary location(such as Flash scope)
+    // but now it placed to session bean due to WebStudio navigation specific
+    // TODO move this object to the correct place
     private Object[] params = new Object[0];
 
     public void catchParams() {
@@ -57,31 +60,4 @@ public final class RunTestHelper {
         params = new Object[0]; // Reset caught params
         return testSuite;
     }
-
-    public static void addTestSuitesForRun() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
-        String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-
-        IOpenLTable table = model.getTableById(id);
-        if (table != null) {
-            String uri = table.getUri();
-            IOpenMethod method = model.getMethod(uri);
-
-            if (method instanceof TestSuiteMethod) {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
-
-                String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
-                if (testRanges == null) {
-                    // Run all test cases of selected test suite
-                    model.addTestSuiteToRun(new TestSuiteWithPreview(testSuiteMethod));
-                } else {
-                    // Run only selected test cases of selected test suite
-                    int[] indices = testSuiteMethod.getIndices(testRanges);
-                    model.addTestSuiteToRun(new TestSuiteWithPreview(testSuiteMethod, indices));
-                }
-            }
-        }
-    }
-
 }
