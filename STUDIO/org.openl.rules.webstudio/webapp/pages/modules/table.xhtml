@@ -189,7 +189,7 @@
                                    rendered="#{tableBean.canRun}"
                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases();"
                                    styleClass="hidden b-run"/>
-                <a4j:commandButton id="traceButtonHidden" action="#{tableBean.makeTraceTree}"
+                <a4j:commandButton id="traceButtonHidden" action="#{traceTreeBean.init}"
                                    rendered="#{tableBean.canTrace}"
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                    style="display:none" />
@@ -199,7 +199,7 @@
                                    styleClass="hidden b-trace changes-listener"
                                    onclick="if (isAnyTestSelected()) {$j('#traceButtonHidden').click();} else {ws.changes.restoreChangedState();} return false;"/>
                 <!-- Don't use a4j:commandButton for file download -->
-                <h:commandButton id="traceIntoFileButton" action="#{tableBean.traceIntoFile}"
+                <h:commandButton id="traceIntoFileButton" action="#{traceTreeBean.traceIntoFile}"
                                  rendered="#{tableBean.canTrace}"
                                  value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
                                  styleClass="hidden b-trace"/>
@@ -299,7 +299,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" action="#{tableBean.makeTraceTree}" title="Trace" styleClass="toolbarButton menuButton changes-listener"
+                                    <a4j:commandLink id="traceLink" action="#{traceTreeBean.init}" title="Trace" styleClass="toolbarButton menuButton changes-listener"
                                         rendered="#{tableBean.canTrace}"
                                         onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -388,14 +388,14 @@
                                             action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
                                             oncomplete="ws.nav.go('#{runLink}')"/>
                                         <a4j:commandButton id="traceButtonHidden" style="display: none"
-                                            action="#{runTestHelper.catchParams}"
+                                            action="#{traceTreeBean.init}"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" />
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             styleClass="changes-listener"
                                             onclick="$j('#inputArgsForm\\:traceButtonHidden').click(); return false;"
                                             value="Trace" title="Launch the table and trace steps"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none"
-                                            action="#{tableBean.traceIntoFile(true)}" value="Trace into File"
+                                            action="#{traceTreeBean.traceIntoFile}" value="Trace into File"
                                             title="Trace into File" />
                                     </div>
                                 </div>
@@ -408,7 +408,7 @@
                                     <span>Run</span>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{tableBean.makeTestSuite}" styleClass="toolbarButton changes-listener"
+                                <a4j:commandLink action="#{traceTreeBean.init}" styleClass="toolbarButton changes-listener"
                                     rendered="#{tableBean.canTrace}"
                                     oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="webresource/images/trace.gif" />

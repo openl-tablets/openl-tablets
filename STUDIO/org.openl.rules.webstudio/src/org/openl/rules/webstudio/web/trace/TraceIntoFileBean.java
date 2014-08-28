@@ -35,7 +35,7 @@ public class TraceIntoFileBean {
      */
     private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
 
-    public String traceIntoFile(TestSuite testSuite) {
+    public void traceIntoFile(TestSuite testSuite) {
         ProjectModel model = WebStudioUtils.getProjectModel();
         Tracer tracer = model.traceElement(testSuite);
 
@@ -57,8 +57,6 @@ public class TraceIntoFileBean {
         }
 
         FacesUtils.getFacesContext().responseComplete();
-
-        return null;
     }
 
     private TracePrinter getTracePrinter(String fileFormat) {
