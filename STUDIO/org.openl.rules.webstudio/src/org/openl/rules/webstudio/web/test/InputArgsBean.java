@@ -55,6 +55,9 @@ public class InputArgsBean {
     }
 
     public Object[] getParams() {
+        if (argumentTreeNodes == null) {
+            return new Object[0];
+        }
         Object[] arguments = new Object[argumentTreeNodes.length];
         try {
             for (int i = 0; i < argumentTreeNodes.length; i++) {

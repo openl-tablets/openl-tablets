@@ -271,32 +271,6 @@ public class TableBean {
         return params;
     }
 
-    @Deprecated
-    public String makeTestSuite() {
-        RunTestHelper.addTestSuitesForRun();
-        return null;
-    }
-
-    public void makeTraceTree() {
-        RunTestHelper.addTestSuitesForRun();
-        ((TraceTreeBean) FacesUtils.getBackingBean("traceTreeBean")).getTree();
-    }
-
-    public String traceIntoFile(boolean withArgs) {
-        if (withArgs) {
-            runTestHelper.catchParams();
-        } else {
-            RunTestHelper.addTestSuitesForRun();
-        }
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        TestSuite testSuite = model.popLastTest();
-        return new TraceIntoFileBean().traceIntoFile(testSuite);
-    }
-
-    public String traceIntoFile() {
-        return traceIntoFile(false);
-    }
-
     public String getUri() {
         return uri;
     }

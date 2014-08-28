@@ -3,17 +3,21 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
+import org.openl.rules.webstudio.web.test.RunTestHelper;
+import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 /**
@@ -23,7 +27,29 @@ import javax.faces.bean.RequestScoped;
 @RequestScoped
 public class TraceTreeBean {
 
-    public TraceTreeBean() {
+    @ManagedProperty("#{runTestHelper}")
+    private RunTestHelper runTestHelper;
+
+    public void setRunTestHelper(RunTestHelper runTestHelper) {
+        this.runTestHelper = runTestHelper;
+    }
+
+    public void init() {
+        runTestHelper.catchParams();
+        TestSuite testSuite = runTestHelper.getTestSuite();
+
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        TraceHelper traceHelper = studio.getTraceHelper();
+        Tracer tracer = model.traceElement(testSuite);
+
+        traceHelper.getTraceTree(tracer);// Register
+    }
+
+    public void traceIntoFile() {
+        runTestHelper.catchParams();
+        TestSuite testSuite = runTestHelper.getTestSuite();
+        new TraceIntoFileBean().traceIntoFile(testSuite);
     }
 
     public TreeNode getTree() {
