@@ -736,7 +736,15 @@ public class ProjectModel {
     public IOpenMethod[] getTestAndRunMethods(String tableUri) {
         IOpenMethod method = getMethod(tableUri);
         if (method != null) {
-            return ProjectHelper.allTesters(method);
+            List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+            List<IOpenMethod> methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+
+            for (IOpenMethod tester : methods) {
+                if (ProjectHelper.isTestForMethod(tester, method)) {
+                    res.add(tester);
+                }
+            }
+            return res.toArray(new IOpenMethod[0]);
         }
         return null;
     }
