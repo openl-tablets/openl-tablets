@@ -85,7 +85,6 @@ public class TestUnitResultComparator {
                     || (actualResult instanceof String && ((String) actualResult).isEmpty())) {
                 return true;
             }
-            return false;
         }
 
         if (actualResult == null) {
