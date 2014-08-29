@@ -7,6 +7,7 @@ import org.openl.rules.testmethod.TestDescription;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.OpenClassHelper;
 
 public class TestDescriptionWithPreview extends TestDescription {
     private ParameterWithValueAndPreviewDeclaration[] paramsWithPreview;
@@ -32,14 +33,14 @@ public class TestDescriptionWithPreview extends TestDescription {
         paramsWithPreview = new ParameterWithValueAndPreviewDeclaration[executionParams.length];
         for (int i = 0; i < executionParams.length; i++) {
             ParameterWithValueDeclaration param = executionParams[i];
-            Object previewValue = getPreviewValue(param.getName(), param.getType(), param.getValue());
-            paramsWithPreview[i] = new ParameterWithValueAndPreviewDeclaration(param, previewValue);
+            IOpenField previewField = getPreviewField(param.getName(), param.getType(), param.getValue());
+            paramsWithPreview[i] = new ParameterWithValueAndPreviewDeclaration(param, previewField);
         }
 
         return paramsWithPreview;
     }
 
-    private Object getPreviewValue(String paramName, IOpenClass type, Object value) {
+    private IOpenField getPreviewField(String paramName, IOpenClass type, Object value) {
         if (value == null) {
             return null;
         }
@@ -56,7 +57,11 @@ public class TestDescriptionWithPreview extends TestDescription {
                         String[] foreignKeyColumnChain = descriptor.getForeignKeyColumnChainTokens();
                         if (foreignKeyColumnChain.length > 0) {
                             String fieldName = foreignKeyColumnChain[foreignKeyColumnChain.length - 1];
-                            foreignKeyField = type.getField(fieldName);
+                            if (OpenClassHelper.isCollection(type)) {
+                                foreignKeyField = type.getComponentClass().getField(fieldName);
+                            } else {
+                                foreignKeyField = type.getField(fieldName);
+                            }
                         }
                     } else {
                         // Test data is described in the current Test Table
@@ -75,10 +80,6 @@ public class TestDescriptionWithPreview extends TestDescription {
             foreignKeyField = type.getIndexField();
         }
 
-        if (foreignKeyField != null) {
-            return foreignKeyField.get(value, null);
-        }
-
-        return null;
+        return foreignKeyField;
     }
 }
