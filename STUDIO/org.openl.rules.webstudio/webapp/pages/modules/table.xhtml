@@ -469,7 +469,7 @@
                     <div>
                         <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table')}">
+                            <h:outputLink value="#{studio.url('table', studio.getModuleName(targetTable.uri))}">
                                 <f:param name="id" value="#{targetTable.id}" />
                                 <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
@@ -504,7 +504,7 @@
                     <div>
                         <ui:repeat value="#{tableBean.allTests}" var="test2" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table')}" >
+                            <h:outputLink value="#{studio.url('table', studio.getModuleName(test2.tableUri))}" >
                                 <f:param name="id" value="#{test2.info.syntaxNode.id}" />
                                 <h:outputText value="#{tableBean.getTestName(test2)}" />
                             </h:outputLink>
@@ -521,7 +521,7 @@
                         <ui:repeat value="#{tableBean.allTests}" var="test3" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#{studio.url('table')}">
+                            <h:outputLink value="#{studio.url('table', studio.getModuleName(test3.tableUri))}">
                                 <f:param name="id" value="#{test3.info.syntaxNode.id}" />
                                 <h:outputText value="#{tableBean.getTestName(test3)}" />
                             </h:outputLink>
