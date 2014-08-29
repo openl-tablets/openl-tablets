@@ -4,12 +4,12 @@ import org.openl.base.INamedThing;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.SubGridTable;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.webstudio.web.trace.TracerObjectDecorator;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
@@ -32,14 +32,14 @@ public class ParameterTreeBuilder {
         return createNode(fieldType, value, null, fieldName, parent);
     }
 
-    private static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, Object parameterPreview,
+    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, IOpenField previewField,
                                                            String fieldName, ParameterDeclarationTreeNode parent) {
         if (OpenClassHelper.isCollection(fieldType)) {
-            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
+            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField);
         } else if (isSpreadsheetResult(value)) {
             return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent);
         } else if (!fieldType.isSimple()) {
-            return createComplexBeanNode(fieldType, value, parameterPreview, fieldName, parent);
+            return createComplexBeanNode(fieldType, value, previewField, fieldName, parent);
         } else {
             return createSimpleNode(fieldType, value, fieldName, parent);
         }
@@ -47,11 +47,20 @@ public class ParameterTreeBuilder {
 
     private static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
                                                                       Object value,
-                                                                      Object parameterPreview,
+                                                                      IOpenField previewField,
                                                                       String fieldName,
                                                                       ParameterDeclarationTreeNode parent) {
         if (canConstruct(fieldType)) {
-            String valuePreview = parameterPreview == null ? null : createSimpleNode(fieldType, parameterPreview, null, null).getDisplayedValue();
+            Object preview = null;
+            if (value != null) {
+                if (previewField == null) {
+                    previewField = fieldType.getIndexField();
+                }
+                if (previewField != null) {
+                    preview = previewField.get(value, null);
+                }
+            }
+            String valuePreview = preview == null ? null : createSimpleNode(fieldType, preview, null, null).getDisplayedValue();
             return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
@@ -107,11 +116,11 @@ public class ParameterTreeBuilder {
                 boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
                 return OpenClassHelper.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
-                Object parameterPreview = null;
+                IOpenField previewField = null;
                 if (param instanceof ParameterWithValueAndPreviewDeclaration) {
-                    parameterPreview = ((ParameterWithValueAndPreviewDeclaration) param).getPreview();
+                    previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
                 }
-                return createComplexBeanNode(fieldType, value, parameterPreview, null, null).getDisplayedValue();
+                return createComplexBeanNode(fieldType, value, previewField, null, null).getDisplayedValue();
             }
         }
 
@@ -122,11 +131,11 @@ public class ParameterTreeBuilder {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
-            Object parameterPreview = null;
+            IOpenField previewField = null;
             if (param instanceof ParameterWithValueAndPreviewDeclaration) {
-                parameterPreview = ((ParameterWithValueAndPreviewDeclaration) param).getPreview();
+                previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
             }
-            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), parameterPreview, null, null);
+            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), previewField, null, null);
             root.addChild(param.getName(), treeNode);
         }
         return root;
