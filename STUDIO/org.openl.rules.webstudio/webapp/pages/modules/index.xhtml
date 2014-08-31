@@ -684,8 +684,15 @@
                             var opened = ws.storage.get(WS_PANEL_STATE_VAR).right;
                             mainLayout.show("east");
                             !opened && mainLayout.close("east");
-                        } : function() {
-                    mainLayout.hide("east");
+                        }
+                        : function() {
+                            var state = ws.storage.get(WS_PANEL_STATE_VAR);
+                            var opened = state.right;
+                            mainLayout.hide("east");
+                            if (opened) {
+                                state.right = true;
+                                ws.storage.set(WS_PANEL_STATE_VAR, state);
+                            }
                 });
 
                 done && callbacks.push(done);
