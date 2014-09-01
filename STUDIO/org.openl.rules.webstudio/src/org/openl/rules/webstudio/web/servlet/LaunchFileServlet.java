@@ -52,24 +52,6 @@ public class LaunchFileServlet extends HttpServlet {
 
         ProjectModel model = ws.getModel();
 
-        String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
-        String wordScriptPath = getServletContext().getRealPath("/scripts/LaunchWord.vbs");
-
-        boolean local = WebTool.isLocalRequest(request);
-
-        String wbPath = null;
-        String wbName = null;
-        String wsName = null;
-        String range = null;
-
-        String wdPath = null;
-        String wdName = null;
-        String wdParStart = null;
-        String wdParEnd = null;
-
-        boolean isExcel = false;
-        boolean isWord = false;
-
         String id = request.getParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = model.getTableById(id);
         if (table == null) return;
@@ -89,7 +71,22 @@ public class LaunchFileServlet extends HttpServlet {
             log.error(e.getMessage(), e);
             return;
         }
+
         decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
+
+        String wbPath = null;
+        String wbName = null;
+        String wsName = null;
+        String range = null;
+
+        String wdPath = null;
+        String wdName = null;
+        String wdParStart = null;
+        String wdParEnd = null;
+
+        boolean isExcel = false;
+        boolean isWord = false;
+
         try {
             if (FileTypeHelper.isExcelFile(file)) { // Excel
                 XlsUrlParser parser = new XlsUrlParser();
@@ -114,16 +111,19 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
+        boolean local = WebTool.isLocalRequest(request);
         if (local) { // local mode
             try {
                 if (isExcel) {
                     model.openWorkbookForEdit(wbName);
 
+                    String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
                     ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
 
                     model.afterOpenWorkbookForEdit(wbName);
 
                 } else if (isWord) {
+                    String wordScriptPath = getServletContext().getRealPath("/scripts/LaunchWord.vbs");
                     WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
                 }
             } catch (Exception e) {
