@@ -51,17 +51,8 @@ public class BeanResultComparator implements TestResultComparator {
                 ComparedResult fieldComparisonResults = new ComparedResult();
                 fieldComparisonResults.setFieldName(fieldToCompare);
 
-                Object expectedFieldValue;
-                try {
-                    expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
-                } catch (OpenLRuntimeException e) {
-                    expectedFieldValue = null;
-                } catch (NullPointerException e) {
-                    expectedFieldValue = null;
-                }
-
                 fieldComparisonResults.setActualValue(actualFieldValue);
-                fieldComparisonResults.setExpectedValue(expectedFieldValue);
+                fieldComparisonResults.setExpectedValue(getFieldValueOrNull(expectedResult, fieldToCompare));
 
                 // For BeanResultComparator expectedResult is complex object - that's why expectedResult
                 // always doesn't equal to exception
@@ -77,7 +68,24 @@ public class BeanResultComparator implements TestResultComparator {
 
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
         if (actualResult == null || expectedResult == null) {
-            return actualResult == expectedResult;
+            boolean success = true;
+
+            for (String fieldToCompare : fieldsToCompare) {
+                Object actualFieldValue = getFieldValueOrNull(actualResult, fieldToCompare);
+                Object expectedFieldValue = getFieldValueOrNull(expectedResult, fieldToCompare);
+                boolean equal = actualFieldValue == null && expectedFieldValue == null;
+                if (!equal) {
+                    success = false;
+                }
+
+                ComparedResult fieldComparisonResults = new ComparedResult();
+                fieldComparisonResults.setFieldName(fieldToCompare);
+                fieldComparisonResults.setActualValue(actualFieldValue);
+                fieldComparisonResults.setExpectedValue(expectedFieldValue);
+                fieldComparisonResults.setStatus(equal ? TestStatus.TR_OK : TestStatus.TR_NEQ);
+                comparisonResults.add(fieldComparisonResults);
+            }
+            return success;
         } else {
             comparisonResults = new ArrayList<ComparedResult>();
             boolean success = true;
@@ -140,6 +148,18 @@ public class BeanResultComparator implements TestResultComparator {
             return success;
         }
 
+    }
+
+    private Object getFieldValueOrNull(Object result, String fieldToCompare) {
+        Object fieldValue = null;
+        if (result != null) {
+            try {
+                fieldValue = getFieldValue(result, fieldToCompare);
+            } catch (OpenLRuntimeException ignored) {
+            } catch (NullPointerException ignored) {
+            }
+        }
+        return fieldValue;
     }
 
     protected Object getFieldValue(Object target, String fieldName) {

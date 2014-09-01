@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaListAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
@@ -13,13 +14,16 @@ import org.openl.types.java.OpenClassHelper;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
+    private final IOpenField previewField;
 
-    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
+    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, IOpenField previewField) {
         super(fieldName, value, fieldType, parent);
+        this.previewField = previewField;
     }
 
     public CollectionParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         super(paramDescription, parent);
+        previewField = null;
     }
 
     @Override
@@ -43,7 +47,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             while (iterator.hasNext()) {
                 Object element = iterator.next();
-                elements.put(index, ParameterTreeBuilder.createNode(collectionElementType, element, null, this));
+                elements.put(index, ParameterTreeBuilder.createNode(collectionElementType, element, previewField, null, this));
                 index++;
             }
             return elements;
@@ -60,7 +64,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         IOpenIndex index = info.getIndex(getType(), JavaOpenClass.INT);
 
         for (int i = 0; i < elementsCount; i++) {
-            index.setValue(ary, new Integer(i), getChildernMap().get(i).getValueForced());
+            index.setValue(ary, i, getChildernMap().get(i).getValueForced());
         }
         return ary;
     }

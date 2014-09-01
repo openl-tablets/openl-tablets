@@ -104,7 +104,7 @@ public class ProjectHelper {
     /**
      * Get tests for tested method that have filled rules rows data for testing its functionality. Run methods and tests 
      * with empty test cases are not being processed. 
-     * If you need to get all test methods, including run methods and empty ones, use {@link #allTesters(IOpenMethod)}. 
+     * If you need to get all test methods, including run methods and empty ones, use {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
      */
     public static IOpenMethod[] testers(IOpenMethod tested) {
 
@@ -118,28 +118,12 @@ public class ProjectHelper {
 
         return res.toArray(new IOpenMethod[res.size()]);
     }
-    
-    /**
-     * gets all the tests for tested method.
-     * 
-     * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
-     * runs without any parameters and tests without cases and runs.
-     */
-    public static IOpenMethod[] allTesters(IOpenMethod tested) {
-        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
-            if (isTestForMethod(tester,tested)) {
-                res.add(tester);
-            }
-        }
-        return res.toArray(new IOpenMethod[res.size()]);
-    }
 
     /**
      * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we 
      * consider tester is test for tested method.
      */
-    private static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
+    public static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
         if (!(tester instanceof TestSuiteMethod)) {
             return false;
         }

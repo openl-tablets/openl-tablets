@@ -3,6 +3,7 @@ package org.openl.rules.project.model;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,5 +188,19 @@ public class ProjectDescriptor {
         } finally {
             super.finalize();
         }
+    }
+
+    public String getModuleByUri(String uri) {
+        String encodedPath = uri.substring(0, uri.lastIndexOf('?'));
+        String encodedName = encodedPath.substring(encodedPath.lastIndexOf('/') + 1);
+        String searchedName = StringTool.decodeURL(encodedName);
+        for (Module module : modules) {
+            String modulePath = module.getRulesRootPath().getPath();
+            String moduleFileName = modulePath.substring(modulePath.lastIndexOf(File.separatorChar) + 1);
+            if (searchedName.equals(moduleFileName)) {
+                return module.getName();
+            }
+        }
+        return null;
     }
 }
