@@ -45,6 +45,7 @@ public class ProductionRepositoriesTreeController {
             for (TreeNode node : repositorySelectNodeStateHolder.getSelectedNode().getChildNodes()) {
                 if (node.getName().equals(projectName)) {
                     repositorySelectNodeStateHolder.setSelectedNode(node);
+                    break;
                 }
             }
         } 
@@ -54,6 +55,7 @@ public class ProductionRepositoriesTreeController {
 
     public void tabChange(String repo) {
         if (repo.equals("production")) {
+            repositorySelectNodeStateHolder.setTab(1);
             productionRepositoriesTreeState.initTree();
         }
 
