@@ -29,7 +29,8 @@
         <div class="panel-body container">
             <rich:tree id="prodTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{productionRepositoriesTreeState.processSelection}"
              value="#{productionRepositoriesTreeState.root}" var="item" nodeType="#{item.type}"
-             render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData">
+             render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalExportFileData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
+             rendered="#{repositorySelectNodeStateHolder.tab == 1}">
                 <rich:treeNode type="prodrepository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}"
                     ontoggle="prodFilterProjects($j('#prodNameFilter').val())">
                     <h:outputText value="#{item.name}" />
