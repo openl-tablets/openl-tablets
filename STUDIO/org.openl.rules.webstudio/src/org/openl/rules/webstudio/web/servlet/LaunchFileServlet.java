@@ -52,8 +52,8 @@ public class LaunchFileServlet extends HttpServlet {
 
         ProjectModel model = ws.getModel();
 
-        String excelScriptPath = getServletContext().getRealPath("scripts/LaunchExcel.vbs");
-        String wordScriptPath = getServletContext().getRealPath("scripts/LaunchWord.vbs");
+        String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
+        String wordScriptPath = getServletContext().getRealPath("/scripts/LaunchWord.vbs");
 
         boolean local = WebTool.isLocalRequest(request);
 
