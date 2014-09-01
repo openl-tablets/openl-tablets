@@ -823,7 +823,10 @@ form .formfields {
 .param-tree .rf-trn-ico-lf {
     display: none;
 }
-
+/* Hide empty nodes in a tree */
+.rf-tr-nd-exp-nc {
+    display: none;
+}
 .param-tree .rf-trn-sel {
     font-weight: normal;
 }
