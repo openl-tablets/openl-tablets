@@ -176,21 +176,23 @@ public class TestUnit {
         Object expected = getExpectedResult();
 
         TestResultComparator testComparator = getTestUnitResultComparator().getComparator();
-        if (expected != test.getExpectedError() && testComparator instanceof BeanResultComparator) {
-            List<ComparedResult> results;
-            if (actual instanceof Throwable) {
-                results = ((BeanResultComparator) testComparator).getExceptionResults((Throwable) actual, expected);
-            } else {
-                results = ((BeanResultComparator) testComparator).getComparisonResults();
+        if (testComparator instanceof BeanResultComparator) {
+            if (expected != test.getExpectedError() || test.getExpectedError() == null) {
+                List<ComparedResult> results;
+                if (actual instanceof Throwable) {
+                    results = ((BeanResultComparator) testComparator).getExceptionResults((Throwable) actual, expected);
+                } else {
+                    results = ((BeanResultComparator) testComparator).getComparisonResults();
+                }
+                for (ComparedResult comparedResult : results) {
+                    comparedResult.setActualValue(new ParameterWithValueDeclaration(
+                            comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
+                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
+                            comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
+                    params.add(comparedResult);
+                }
+                return params;
             }
-            for (ComparedResult comparedResult : results) {
-                comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                        comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
-                comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                        comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
-                params.add(comparedResult);
-            }
-            return params;
         }
 
         ComparedResult result = new ComparedResult();

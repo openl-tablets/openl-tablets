@@ -874,12 +874,17 @@ public class WebStudio {
      * Normalized Url = #tutorial1/rules/create/
      */
     public String url(String pageUrl) {
+        return url(pageUrl, null);
+    }
+
+    public String url(String pageUrl, String moduleName) {
+        String projectName = getCurrentProjectDescriptor().getName();
+        if (moduleName == null) {
+            moduleName = getCurrentModule().getName();
+        }
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;
         }
-
-        String projectName = getCurrentProjectDescriptor().getName();
-        String moduleName = getCurrentModule().getName();
 
         if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName))
                 && StringUtils.isNotBlank(pageUrl)) {
@@ -889,4 +894,7 @@ public class WebStudio {
         return "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName) + "/" + pageUrl;
     }
 
+    public String getModuleName(String uri) {
+        return getCurrentProjectDescriptor().getModuleByUri(uri);
+    }
 }

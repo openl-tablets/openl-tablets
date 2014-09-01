@@ -1,16 +1,17 @@
 package org.openl.rules.webstudio.web.test;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.types.IOpenField;
 
 public class ParameterWithValueAndPreviewDeclaration extends ParameterWithValueDeclaration {
-    private final Object preview;
+    private final IOpenField previewField;
 
-    public ParameterWithValueAndPreviewDeclaration(ParameterWithValueDeclaration delegate, Object preview) {
+    public ParameterWithValueAndPreviewDeclaration(ParameterWithValueDeclaration delegate, IOpenField previewField) {
         super(delegate.getName(), delegate.getValue(), delegate.getType(), delegate.getDirection());
-        this.preview = preview;
+        this.previewField = previewField;
     }
 
-    public Object getPreview() {
-        return preview;
+    public IOpenField getPreviewField() {
+        return previewField;
     }
 }
