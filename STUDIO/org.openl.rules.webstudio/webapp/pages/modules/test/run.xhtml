@@ -31,6 +31,7 @@
                 <table class="table">
                     <tr>
                         <h:panelGroup rendered="#{!empty runBean.results.get(0).test.executionParams}">
+                            <th>ID</th>
                             <ui:repeat value="#{runBean.results.get(0).test.parametersNames}" var="parameterHeader">
                                 <th>#{parameterHeader}</th>
                             </ui:repeat>
@@ -41,6 +42,7 @@
                         <tr style="vertical-align: top">
                             <h:panelGroup rendered="#{!empty result.test.executionParams}">
                             <ui:repeat value="#{result.test.executionParams}" var="parameter">
+                            <td>#{result.test.id}</td>
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
