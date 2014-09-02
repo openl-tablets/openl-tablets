@@ -33,10 +33,6 @@ public class RepositorySelectNodeStateHolder {
     }
 
     public boolean isProductionNode() {
-        if (selectedNode.getType().indexOf("prod") > -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return selectedNode.getType().contains("prod");
     }
 }
