@@ -878,12 +878,16 @@ public class WebStudio {
     }
 
     public String url(String pageUrl, String tableUri) {
-        String projectName = getCurrentProjectDescriptor().getName();
+        String projectName;
         String moduleName;
         if (tableUri == null) {
             moduleName = getCurrentModule().getName();
+            projectName = getCurrentProjectDescriptor().getName();
         } else {
-            moduleName = getCurrentProjectDescriptor().getModuleByUri(tableUri);
+            String encodedPath = tableUri.substring(0, tableUri.lastIndexOf('/'));
+            String encodedName = encodedPath.substring(encodedPath.lastIndexOf('/') + 1);
+            projectName = StringTool.decodeURL(encodedName);
+            moduleName = getProjectByName(projectName).getModuleByUri(tableUri);
         }
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;
