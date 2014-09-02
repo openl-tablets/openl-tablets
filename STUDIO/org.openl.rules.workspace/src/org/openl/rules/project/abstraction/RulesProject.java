@@ -1,7 +1,6 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
@@ -128,15 +127,15 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
-    public List<ProjectVersion> getVersionsForArtefact(ArtefactPath artefactPath) {
+    public ArtefactAPI findArtefact(ArtefactPath artefactPath) {
         ArtefactAPI artefact = repository;
         try {
             for (String pathElement : artefactPath.getSegments()) {
                 artefact = ((FolderAPI) artefact).getArtefact(pathElement);
             }
-            return artefact.getVersions();
+            return artefact;
         } catch (Exception e) {
-            return new LinkedList<ProjectVersion>();
+            return null;
         }
     }
 

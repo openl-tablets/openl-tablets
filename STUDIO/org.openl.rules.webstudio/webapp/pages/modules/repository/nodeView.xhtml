@@ -46,7 +46,7 @@
       <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="openUpdateFileDialog();return false;">
           <rich:tooltip showDelay="500">Upload the updated file</rich:tooltip>
       </h:commandButton>
-      <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport}" value="Export file" onclick="openExportFileDialog();return false;">
+      <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}" value="Export file" onclick="openExportFileDialog();return false;">
           <rich:tooltip showDelay="500">Export file</rich:tooltip>
       </h:commandButton>
       <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;">

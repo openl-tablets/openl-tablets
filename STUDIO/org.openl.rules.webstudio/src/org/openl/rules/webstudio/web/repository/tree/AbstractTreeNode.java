@@ -13,6 +13,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
@@ -293,7 +294,8 @@ public abstract class AbstractTreeNode implements TreeNode {
             
             List<ProjectVersion> result;
             if (project != null) {
-                result = project.getVersionsForArtefact((getData()).getArtefactPath().withoutFirstSegment());
+                ArtefactAPI artefact = project.findArtefact((getData()).getArtefactPath().withoutFirstSegment());
+                result = artefact == null ? Collections.<ProjectVersion>emptyList() : artefact.getVersions();
             } else {
                 result = getData().getVersions();
             }
@@ -302,6 +304,24 @@ public abstract class AbstractTreeNode implements TreeNode {
             return result;
         } else {
             return new LinkedList<ProjectVersion>();
+        }
+    }
+
+    @Override
+    public boolean hasVersions() {
+        // getVersions().isEmpty() shouldn't be used, because it will be much slower
+
+        if (data != null) {
+            RulesProject project = findProjectContainingCurrentArtefact();
+
+            if (project != null) {
+                ArtefactAPI artefact = project.findArtefact((getData()).getArtefactPath().withoutFirstSegment());
+                return artefact != null && artefact.getVersionsCount() > 0;
+            } else {
+                return getData().getVersionsCount() > 0;
+            }
+        } else {
+            return false;
         }
     }
 

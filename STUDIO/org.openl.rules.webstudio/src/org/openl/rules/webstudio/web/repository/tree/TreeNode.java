@@ -57,6 +57,7 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
 
     String getVersionName();
     Collection<ProjectVersion> getVersions();
+    boolean hasVersions();
 
     boolean isLeafOnly();
 
