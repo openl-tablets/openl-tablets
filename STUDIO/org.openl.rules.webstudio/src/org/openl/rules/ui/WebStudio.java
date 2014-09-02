@@ -877,10 +877,13 @@ public class WebStudio {
         return url(pageUrl, null);
     }
 
-    public String url(String pageUrl, String moduleName) {
+    public String url(String pageUrl, String tableUri) {
         String projectName = getCurrentProjectDescriptor().getName();
-        if (moduleName == null) {
+        String moduleName;
+        if (tableUri == null) {
             moduleName = getCurrentModule().getName();
+        } else {
+            moduleName = getCurrentProjectDescriptor().getModuleByUri(tableUri);
         }
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;
@@ -892,9 +895,5 @@ public class WebStudio {
         }
 
         return "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName) + "/" + pageUrl;
-    }
-
-    public String getModuleName(String uri) {
-        return getCurrentProjectDescriptor().getModuleByUri(uri);
     }
 }
