@@ -877,17 +877,32 @@ public class WebStudio {
         return url(pageUrl, null);
     }
 
-    public String url(String pageUrl, String tableUri) {
+    public String url(String pageUrl, final String tableURI) {
         String projectName;
         String moduleName;
-        if (tableUri == null) {
+        if (tableURI == null) {
             moduleName = getCurrentModule().getName();
             projectName = getCurrentProjectDescriptor().getName();
         } else {
-            String encodedPath = tableUri.substring(0, tableUri.lastIndexOf('/'));
-            String encodedName = encodedPath.substring(encodedPath.lastIndexOf('/') + 1);
-            projectName = StringTool.decodeURL(encodedName);
-            moduleName = getProjectByName(projectName).getModuleByUri(tableUri);
+            // Get a project
+            ProjectDescriptor project = CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+                @Override
+                public boolean evaluate(ProjectDescriptor projectDescriptor) {
+                    String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
+                    return tableURI.startsWith(projectURI);
+                }
+            });
+            // Get a module
+            Module module = CollectionUtils.find(project.getModules(), new Predicate<Module>() {
+                @Override
+                public boolean evaluate(Module module) {
+                    String moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
+                    return tableURI.startsWith(moduleURI);
+                }
+            });
+
+            projectName = project.getName();
+            moduleName = module.getName();
         }
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;
