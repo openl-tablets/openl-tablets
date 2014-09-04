@@ -4,13 +4,13 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
-    <version>5.13.0.RC1</version>
+    <version>5.13.1.RC1-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-simple-project-archetype</artifactId>
-  <version>5.13.0.RC1</version>
+  <version>5.13.1.RC1-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
 
   <name>OpenL Simple Project</name>
