@@ -264,8 +264,13 @@ public class TestBean {
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
-    public String getFormattedSpreadsheetResult(Object objTestUnit) {
-        Object actualResultInternal = ((TestUnit) objTestUnit).getActualResult();
+    public String getFormattedSpreadsheetResult(SpreadsheetResult spreadsheetResult) {
+        return spreadsheetResult == null ? "" : ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
+    }
+
+    public String getFormattedSpreadsheetResultFromTestUnit(TestUnit objTestUnit) {
+        Object actualResultInternal = objTestUnit.getActualResult();
+
         try {
             if (actualResultInternal instanceof SpreadsheetResult) {
                 SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
@@ -278,9 +283,8 @@ public class TestBean {
         return StringUtils.EMPTY;
     }
 
-    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit, SpreadsheetResult spreadsheetResult) {
+    private Map<Point, ComparedResult> getFieldsCoordinates(TestUnit testUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
-        TestUnit testUnit = (TestUnit) objTestUnit;
         TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
         if (!(testUnitResultComparator instanceof BeanResultComparator)) {
             return fieldsCoordinates;
