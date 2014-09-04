@@ -40,6 +40,9 @@ public class BeanResultComparator implements TestResultComparator {
         if (comparisonResults.isEmpty()) {
             List<ComparedResult> results = new ArrayList<ComparedResult>();
             Throwable rootCause = ExceptionUtils.getRootCause(actualResult);
+            if (rootCause == null) {
+                rootCause = actualResult;
+            }
             String actualFieldValue;
             if (rootCause instanceof OpenLUserRuntimeException) {
                 actualFieldValue = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
