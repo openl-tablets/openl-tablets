@@ -93,12 +93,13 @@
 
             <h:panelGroup class="pagination pagination-mini pagination-centered" rendered="#{maxPage > 1}" layout="block">
                 <ul>
-                    <li><a href="#{pageUri}?p=1#{pageUriPagerExtra}">«</a></li>
                     <c:if test="#{curPage == 1}">
-                    <li class="disabled"><span>Prev</span></li>
+                        <li class="disabled"><span>«</span></li>
+                        <li class="disabled"><span>Prev</span></li>
                     </c:if>
                     <c:if test="#{curPage > 1}">
-                    <li><a href="#{pageUri}?p=#{curPage - 1}#{pageUriPagerExtra}">Prev</a></li>
+                        <li><a href="#{pageUri}?p=1#{pageUriPagerExtra}">«</a></li>
+                        <li><a href="#{pageUri}?p=#{curPage - 1}#{pageUriPagerExtra}">Prev</a></li>
                     </c:if>
                     <c:forEach begin="#{firstPage}" end="#{lastPage}" var="page">
                     <li class="#{curPage == page ? 'active': ''}"><a href="#{pageUri}?p=#{page}#{pageUriPagerExtra}">#{page}</a></li>
@@ -107,12 +108,13 @@
                     <li><a href="#{pageUri}?p=#{lastPage + 1}#{pageUriPagerExtra}">...</a></li>
                     </c:if>
                     <c:if test="#{curPage == maxPage}">
-                    <li class="disabled"><span>Next</span></li>
+                        <li class="disabled"><span>Next</span></li>
+                        <li class="disabled"><span>»</span></li>
                     </c:if>
                     <c:if test="#{curPage != maxPage}">
-                    <li><a href="#{pageUri}?p=#{curPage + 1}#{pageUriPagerExtra}">Next</a></li>
+                        <li><a href="#{pageUri}?p=#{curPage + 1}#{pageUriPagerExtra}">Next</a></li>
+                        <li><a href="#{pageUri}?p=#{maxPage}#{pageUriPagerExtra}">»</a></li>
                     </c:if>
-                    <li><a href="#{pageUri}?p=#{maxPage}#{pageUriPagerExtra}">»</a></li>
                 </ul>
             </h:panelGroup>
 
