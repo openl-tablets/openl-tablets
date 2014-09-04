@@ -101,7 +101,7 @@
                          title="Compare tables in Excel file between two project versions"/>
         <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder" onclick="openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
         <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File" onclick="openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
-        <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export" onclick="openExportVersionDialog();return false;" title="Download project as zip archive"/>
+        <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export" onclick="openExportVersionDialog();return false;" title="Download the project as a zip archive"/>
       </h:panelGroup>
 
     </h:panelGroup>
