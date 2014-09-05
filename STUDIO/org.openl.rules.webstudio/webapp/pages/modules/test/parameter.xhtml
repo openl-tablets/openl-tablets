@@ -39,7 +39,7 @@
                 </div>
             </h:panelGroup>
 
-            <rich:tree value="#{parameterTreeBuilder.getTree(parameter)}" var="node"
+            <rich:tree value="#{parameterTreeBuilder.getTree(parameter, empty hasExplainLinks or hasExplainLinks == 'true')}" var="node"
                 rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
                 rendered="#{!empty param.loaded or lazy == 'false'}" toggleType="client" selectionType="client"
                 styleClass="param-tree">
