@@ -40,7 +40,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     @Override
-    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap() {
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         if (isValueNull()) {
             return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
         } else {
