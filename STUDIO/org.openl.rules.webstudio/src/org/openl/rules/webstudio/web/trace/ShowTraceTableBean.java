@@ -94,6 +94,6 @@ public class ShowTraceTableBean {
     }
 
     public String getFormattedSpreadsheetResult(Object value) {
-        return ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult) value);
+        return ObjectViewer.displaySpreadsheetResultNoFilters((SpreadsheetResult) value);
     }
 }

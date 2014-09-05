@@ -21,7 +21,7 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
         // TODO Refactor code and don't use deprecated class ObjectViewer.
         // TODO Instead render a table using jsf components.
         SpreadsheetResult value = (SpreadsheetResult) getValue();
-        return hasExplainLinks ? ObjectViewer.displaySpreadsheetResult(value) : ObjectViewer.displaySpreadheetResultNoFilters(value);
+        return hasExplainLinks ? ObjectViewer.displaySpreadsheetResult(value) : ObjectViewer.displaySpreadsheetResultNoFilters(value);
     }
 
     @Override
