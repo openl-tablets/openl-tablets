@@ -40,28 +40,24 @@
                     </table>
                 </h:column>
                 <h:column>
-                    <f:facet name="header">Runs(ms)</f:facet>
-                    #{item.msrun()}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Runs/sec</f:facet>
-                    #{item.runssec()}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Test Case Type</f:facet>
-                    #{item.unitName()}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Test Cases</f:facet>
-                    #{item.unit.nUnitRuns()}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Test Case(ms)</f:facet>
+                    <f:facet name="header"><span title="The execution time of a rule (in milliseconds)">Test Case(ms)</span></f:facet>
                     #{item.msrununit()}
                 </h:column>
                 <h:column>
-                    <f:facet name="header">Test Cases/sec</f:facet>
+                    <f:facet name="header"><span title="Quantity of rules performed per a second">Test Cases/sec</span></f:facet>
                     #{item.runsunitsec()}
+                </h:column>
+                <h:column>
+                    <f:facet name="header"><span title="Quantity of test cases in a test">Test Cases</span></f:facet>
+                    #{item.unit.nUnitRuns()}
+                </h:column>
+                <h:column>
+                    <f:facet name="header"><span title="The execution time of a test (in milliseconds)">Runs(ms)</span></f:facet>
+                    #{item.msrun()}
+                </h:column>
+                <h:column>
+                    <f:facet name="header"><span title="Quantity of tests performed per a second">Runs/sec</span></f:facet>
+                    #{item.runssec()}
                 </h:column>
                 <h:column>
                     <f:facet name="header">
