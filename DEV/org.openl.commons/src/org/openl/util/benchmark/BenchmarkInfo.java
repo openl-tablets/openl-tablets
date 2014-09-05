@@ -64,7 +64,7 @@ public class BenchmarkInfo {
     }
 
     static public String printLargeDouble(double d) {
-        DecimalFormat fmt = new DecimalFormat("#,##0.00");
+        DecimalFormat fmt = new DecimalFormat("#,##0");
         return fmt.format(d);
     }
 
