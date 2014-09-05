@@ -15,15 +15,18 @@ import org.openl.types.java.OpenClassHelper;
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
     private final IOpenField previewField;
+    private final boolean hasExplainLinks;
 
-    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, IOpenField previewField) {
+    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, IOpenField previewField, boolean hasExplainLinks) {
         super(fieldName, value, fieldType, parent);
         this.previewField = previewField;
+        this.hasExplainLinks = hasExplainLinks;
     }
 
     public CollectionParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         super(paramDescription, parent);
         previewField = null;
+        hasExplainLinks = true;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             while (iterator.hasNext()) {
                 Object element = iterator.next();
-                elements.put(index, ParameterTreeBuilder.createNode(collectionElementType, element, previewField, null, this));
+                elements.put(index, ParameterTreeBuilder.createNode(collectionElementType, element, previewField, null, this, hasExplainLinks));
                 index++;
             }
             return elements;

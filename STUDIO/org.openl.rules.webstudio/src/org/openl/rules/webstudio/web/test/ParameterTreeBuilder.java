@@ -29,15 +29,15 @@ public class ParameterTreeBuilder {
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
                                                           String fieldName, ParameterDeclarationTreeNode parent) {
-        return createNode(fieldType, value, null, fieldName, parent);
+        return createNode(fieldType, value, null, fieldName, parent, true);
     }
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, IOpenField previewField,
-                                                           String fieldName, ParameterDeclarationTreeNode parent) {
+                                                          String fieldName, ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
         if (OpenClassHelper.isCollection(fieldType)) {
-            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField);
+            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
         } else if (isSpreadsheetResult(value)) {
-            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent);
+            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks);
         } else if (!fieldType.isSimple()) {
             return createComplexBeanNode(fieldType, value, previewField, fieldName, parent);
         } else {
@@ -73,8 +73,8 @@ public class ParameterTreeBuilder {
     public static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
                                                                                Object value,
                                                                                String fieldName,
-                                                                               ParameterDeclarationTreeNode parent) {
-        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent);
+                                                                               ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
+        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent, hasExplainLinks);
     }
 
     /**
@@ -127,7 +127,7 @@ public class ParameterTreeBuilder {
         return "null";
     }
 
-    public TreeNode getTree(ParameterWithValueDeclaration param) {
+    public TreeNode getTree(ParameterWithValueDeclaration param, boolean hasExplainLinks) {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
@@ -135,7 +135,7 @@ public class ParameterTreeBuilder {
             if (param instanceof ParameterWithValueAndPreviewDeclaration) {
                 previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
             }
-            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), previewField, null, null);
+            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), previewField, null, null, hasExplainLinks);
             root.addChild(param.getName(), treeNode);
         }
         return root;
