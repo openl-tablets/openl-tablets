@@ -170,13 +170,13 @@
 
             <script>
                 function changeNode(event, url) {
-                    event = event || window.event
-                    var target = event.target || event.srcElement
+                    event = event || window.event;
+                    var target = event.target || event.srcElement;
 
                     // ensure that we didn't click on "a href" element
                     if ( (target.nodeName != 'A') &amp;&amp; (target.nodeName !='SPAN') ){
                         ws.nav.go(url);
-                    };
+                    }
                 }
             </script>
 
