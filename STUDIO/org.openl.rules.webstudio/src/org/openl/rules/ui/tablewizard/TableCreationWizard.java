@@ -39,13 +39,13 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
-    private static final String SHEET_EXSISTING = "existing";
+    private static final String SHEET_EXISTING = "existing";
     private static final String SHEET_NEW = "new";
     private String workbook;
     private Integer worksheetIndex;
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
     private boolean newWorksheet;
-    private boolean wizardFinised;
+    private boolean wizardFinished;
 
     @NotBlank(message = "Can not be empty")
     private String newWorksheetName;
@@ -71,7 +71,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     public String getNewWorksheet() {
-        return newWorksheet ? SHEET_NEW : SHEET_EXSISTING;
+        return newWorksheet ? SHEET_NEW : SHEET_EXISTING;
     }
 
     public void setNewWorksheet(String value) {
@@ -182,7 +182,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         worksheetIndex = 0;
         workbooks = null;
         newWorksheet = false;
-        wizardFinised = false;
+        wizardFinished = false;
         newWorksheetName = StringUtils.EMPTY;
         getModifiedWorkbooks().clear();
     }
@@ -197,9 +197,9 @@ public abstract class TableCreationWizard extends BaseWizard {
     public String finish() throws Exception {
         boolean success = false;
         try {
-            if (!wizardFinised) {
+            if (!wizardFinished) {
                 onFinish();
-                wizardFinised = true;
+                wizardFinished = true;
             }
             doSave();
             success = true;
