@@ -97,8 +97,12 @@
 
     <script>
         function saveComplete(data) {
-		    ws.changes.revertChanges();
-            ws.nav.go("#{studio.url('table')}?id=" + data, true);
+            ws.changes.revertChanges();
+            if (data) {
+                ws.nav.go("#{studio.url('table')}?id=" + data, true);
+            } else {
+                ws.nav.reload(true);
+            }
         }
     </script>
 
