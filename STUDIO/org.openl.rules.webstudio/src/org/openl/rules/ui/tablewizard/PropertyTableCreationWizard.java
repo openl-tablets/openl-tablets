@@ -35,7 +35,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     private String scopeType;
     @NotBlank(message="Can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private String categoryName;
 

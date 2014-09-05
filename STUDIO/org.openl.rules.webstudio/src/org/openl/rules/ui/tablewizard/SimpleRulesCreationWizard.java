@@ -43,7 +43,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
     @NotBlank(message = "Can not be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private SelectItem[] domainTypes;
     private String jsonTable;
@@ -499,7 +499,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private void checkParameterName(String name) {
-        String regex = "([a-zA-Z_][a-zA-Z_0-9]*)?";
         FacesMessage message = new FacesMessage();
         ValidatorException validEx;
 
@@ -509,8 +508,8 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             throw validEx;
         }
 
-        if (!name.matches(regex)) {
-            message.setDetail("Invalid name");
+        if (!name.matches("([a-zA-Z_][a-zA-Z_0-9]*)?")) {
+            message.setDetail(INVALID_NAME_MESSAGE);
             validEx = new ValidatorException(message);
             throw validEx;
         }

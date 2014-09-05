@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message="Can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String technicalName;
 
     private String aliasType;

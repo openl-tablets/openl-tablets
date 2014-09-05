@@ -54,7 +54,7 @@ public class TableCopier extends TableCreationWizard {
      * Table technical name
      */
     @NotBlank(message = "Can not be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableTechnicalName;
 
     /**

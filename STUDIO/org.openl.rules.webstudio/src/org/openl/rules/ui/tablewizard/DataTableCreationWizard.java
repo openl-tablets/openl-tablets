@@ -38,7 +38,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     private String tableType;
 
     @NotBlank(message = "Can not be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private IOpenClass tableOpenClass;
     private DataTableTree tree = new DataTableTree();

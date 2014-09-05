@@ -35,6 +35,7 @@ import java.util.*;
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
+    protected static final String INVALID_NAME_MESSAGE = "Invalid name: only latin letters, numbers and _ are allowed, name can't begin with a number";
 
     private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
