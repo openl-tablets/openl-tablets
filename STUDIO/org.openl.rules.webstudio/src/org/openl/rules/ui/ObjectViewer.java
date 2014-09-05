@@ -43,7 +43,7 @@ public final class ObjectViewer {
     }
 
     /** Display SpreadsheetResult without any filters in the table**/
-    public static String displaySpreadheetResultNoFilters(final SpreadsheetResult res) {
+    public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res) {
         return display(res, null, false);
     }
 
