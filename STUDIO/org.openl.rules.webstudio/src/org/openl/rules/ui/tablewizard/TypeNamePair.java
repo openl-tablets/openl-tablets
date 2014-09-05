@@ -15,7 +15,7 @@ public class TypeNamePair {
     private boolean iterable;
 
     @NotBlank(message="Can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name for parameter")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = WizardUtils.INVALID_NAME_OF_PARAMETER_MESSAGE)
     private String name;
 
     public String getType() {

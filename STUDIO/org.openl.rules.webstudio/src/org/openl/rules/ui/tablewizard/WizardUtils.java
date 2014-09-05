@@ -24,6 +24,8 @@ import org.openl.types.java.JavaOpenClass;
  * @author Aliaksandr Antonik.
  */
 public class WizardUtils {
+    protected static final String INVALID_NAME_OF_PARAMETER_MESSAGE = "Invalid name for parameter: only latin letters, numbers and _ are allowed, name can't begin with a number";
+
     private static final Pattern REGEXP_PARAMETER = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
 
     public static void autoRename(Collection<? extends TableArtifact> conditions, String prefix) {
@@ -39,7 +41,7 @@ public class WizardUtils {
         }
 
         if (!isValidParameter(name)) {
-            return "Invalid name for parameter";
+            return INVALID_NAME_OF_PARAMETER_MESSAGE;
         }
 
         return null;
