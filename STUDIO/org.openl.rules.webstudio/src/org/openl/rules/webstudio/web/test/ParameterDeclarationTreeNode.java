@@ -82,12 +82,12 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
 
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildernMap(){
         if(children == null){
-            children = initChildernMap();
+            children = initChildrenMap();
         }
         return children;
     }
 
-    protected abstract LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap();
+    protected abstract LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap();
     
     @Override
     public void addChild(Object key, TreeNode node) {

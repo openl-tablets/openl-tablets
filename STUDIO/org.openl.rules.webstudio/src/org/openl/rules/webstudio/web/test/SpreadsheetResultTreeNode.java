@@ -35,7 +35,7 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
     }
 
     @Override
-    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap() {
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
     }
 }
