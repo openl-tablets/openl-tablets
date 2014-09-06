@@ -2,7 +2,6 @@ package org.openl.rules.ui.tree;
 
 /**
  * Class that represent key of node.
- * 
  */
 public class NodeKey implements Comparable<Object> {
 
@@ -18,9 +17,9 @@ public class NodeKey implements Comparable<Object> {
 
     /**
      * Creates new node key.
-     * 
+     *
      * @param weight node weight
-     * @param value triple of names
+     * @param value  triple of names
      */
     public NodeKey(int weight, String[] value) {
         this.weight = weight;
@@ -43,7 +42,7 @@ public class NodeKey implements Comparable<Object> {
 
     /**
      * Gets the node names.
-     * 
+     *
      * @return triple of names
      */
     public String[] getValue() {
@@ -52,10 +51,29 @@ public class NodeKey implements Comparable<Object> {
 
     /**
      * Gets weight value of node.
-     * 
+     *
      * @return weight value of node
      */
     public int getWeight() {
         return weight;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NodeKey nodeKey = (NodeKey) o;
+
+        // Make this method consistent with compareTo()
+        return compareTo(nodeKey) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        // Make this method consistent with compareTo() and equals()
+        int result = value[0].hashCode();
+        result = 31 * result + weight;
+        return result;
     }
 }

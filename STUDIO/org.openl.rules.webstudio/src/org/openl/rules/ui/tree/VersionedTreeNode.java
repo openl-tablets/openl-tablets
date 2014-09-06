@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
@@ -55,8 +56,8 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
-    public TreeMap<Object, ITreeNode<Object>> getElements() {
-        TreeMap<Object, ITreeNode<Object>> elements = super.getElements();
+    public Map<Object, ITreeNode<Object>> getElements() {
+        Map<Object, ITreeNode<Object>> elements = super.getElements();
         if (elements.size() < 2) {
             return new TreeMap<Object, ITreeNode<Object>>();
         }
