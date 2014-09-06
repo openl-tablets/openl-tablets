@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tree;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -12,7 +13,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * Children of current node.
      */
-    private TreeMap<Object, ITreeNode<T>> elements = new TreeMap<Object, ITreeNode<T>>();
+    private Map<Object, ITreeNode<T>> elements = new TreeMap<Object, ITreeNode<T>>();
 
     /**
      * String that represent the node type.
@@ -50,8 +51,12 @@ public class TreeNode<T> implements ITreeNode<T> {
      * 
      * @return map of elements
      */
-    public TreeMap<Object, ITreeNode<T>> getElements() {
+    public Map<Object, ITreeNode<T>> getElements() {
         return elements;
+    }
+
+    public void setElements(Map<Object, ITreeNode<T>> elements) {
+        this.elements = elements;
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tree;
 
+import java.util.LinkedHashMap;
+
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
@@ -71,5 +73,13 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public Object getProblems(Object nodeObject) {
         return null;
+    }
+
+    @Override
+    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        TreeNode<Object> treeNode = (TreeNode<Object>) super.makeNode(tableSyntaxNode, i);
+        // Put spreadsheets in order as they defined in xls, not sort them alphabetically
+        treeNode.setElements(new LinkedHashMap<Object, ITreeNode<Object>>(treeNode.getElements()));
+        return treeNode;
     }
 }
