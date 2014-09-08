@@ -764,6 +764,7 @@ body.fd-drag-active
     background: #CBE5FF;
     color: #333333;
     box-shadow: 0 0 1px rgb(230,230,230);
+    margin: 0;
 }
 
 .multiselect_container_outer .multiselect_buttons input:hover {
