@@ -20,7 +20,7 @@
             <h:outputText value="#{msg['ws.copy.as']} " />
             <h:selectOneMenu value="#{tableCopierWizardManager.copyType}" id="copy-table-type">
                 <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable :copyTableForm:copyButtonPanel "
-                    immediate="true" />
+                    immediate="true" onevent="onCopyTableTypeChange" />
                 <f:selectItem itemLabel="#{msg['ws.copy.table']}" itemValue="CHANGE_NAMES" />
                 <f:selectItem itemLabel="#{msg['ws.copy.version']}" itemValue="CHANGE_VERSION" />
                 <f:selectItem itemLabel="#{msg['ws.copy.dimension']}" itemValue="CHANGE_DIMENSION" />
@@ -62,7 +62,7 @@
                                         <h:outputText value="#{prop.displayName}" />
                                     </td>
                                     <td style="width: 156px">
-                                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" onchange="updateCopyButtonState();"
                                             rendered="#{prop.dateType}" id="calendar"/>
 
                                         <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" id="bool-type"/>
@@ -85,6 +85,7 @@
                                             rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
                                     </td>
                                     <td>
+                                        <ui:remove><!--
                                         <a4j:commandLink action="#{propertiesManager.removeProperty}" id="remove-prop-btn"
                                             render="copyPropertiesTable newPropertySelect"
                                             rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
@@ -93,6 +94,7 @@
                                             <f:setPropertyActionListener value="#{prop}"
                                                 target="#{propertiesManager.propToRemove}" />
                                         </a4j:commandLink>
+                                        --></ui:remove>
                                     </td>
                                 </tr>
                             </a4j:repeat>
@@ -149,6 +151,7 @@
     </div>
 
     <script>
+        //<![CDATA[
         function copyComplete(data) {
             if (data) {
                 ws.nav.go("#{studio.url('table')}" + "?id=" + data, true);
@@ -162,8 +165,41 @@
             $j("#newSheetName").attr("disabled", !newSheet).toggle(newSheet);
         }
 
-        updateControls();
+        var copyPropertiesTableDefaults = [];
 
+        function initDefaults() {
+            copyPropertiesTableDefaults = $j("#copyPropertiesTable").find("select,input").serializeArray();
+            $j("#copyPropertiesTable").find("select,input").on("keyup click change", updateCopyButtonState);
+            updateCopyButtonState();
+        }
+
+        function onCopyTableTypeChange(data) {
+            if (data.status === 'success') {
+                initDefaults();
+            }
+        }
+
+        function updateCopyButtonState() {
+            var isDimensional = $j("#copy-table-form\\:copy-table-type").val() == "CHANGE_DIMENSION";
+            var values = $j("#copyPropertiesTable").find("select,input").serializeArray();
+            $j("#copyTableBtn").prop("disabled", isDimensional && formArraysEqual(values, copyPropertiesTableDefaults));
+        }
+
+        function formArraysEqual(a, b) {
+            if (a == null || b == null) return false;
+            if (a.length != b.length) return false;
+
+            for (var i = 0; i < a.length; ++i) {
+                if (a[i].name != b[i].name || a[i].value != b[i].value) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        updateControls();
+        initDefaults();
+        //]]>
     </script>
 
 </ui:composition>

@@ -180,7 +180,8 @@
           <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
       </h:commandButton>
 
-      <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}" title="Close Deploy Configuration and make it unavailable for editing"/>
+      <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}" title="Close Deploy Configuration and make it unavailable for editing"
+                       onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}" />
       <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Edit" action="#{deploymentController.edit}" title="Make project available for editing and lock it from editing by other users"/>
       <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}" title="#{saveMessage}"/>
       <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
