@@ -175,6 +175,7 @@
     function hideAndReload() {
         hideUserProfile();
         window.ws && ws.nav && ws.nav.reload(true);
+        window.ws && ws.ui && ws.ui.message("User profile has been saved successfully!", 7000);
     }
 
     function hideUserProfile() {
