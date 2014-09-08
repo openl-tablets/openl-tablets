@@ -78,7 +78,7 @@
                         result.push(v);
                     }
                 }
-                newSelect.val(result.join(options.separator));
+                newSelect.val(result.join(options.separator)).change();
             }
             
             function changeSelectAllStatus() {
