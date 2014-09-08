@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,28 +36,35 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
                 return true;
             }
         }
-        log.debug("Simple xls strategy failed to resolve project folder: there is no excel files in given folder {}", folder.getPath());
+        log.debug("Simple xls strategy failed to resolve project folder: there is no excel files in given folder {}",
+            folder.getPath());
         return false;
     }
 
-    protected ProjectDescriptor internalResolveProject(File folder) {
-        ProjectDescriptor project = createDescriptor(folder);
+    protected ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException {
         Map<String, Module> modules = new TreeMap<String, Module>();
-        for (File f : folder.listFiles()) {
-            if (!f.isHidden() && f.isFile() && FileTypeHelper.isExcelFile(f.getName())) {
+        try {
+            ProjectDescriptor project = createDescriptor(folder);
+            for (File f : folder.listFiles()) {
+                if (!f.isHidden() && f.isFile() && FileTypeHelper.isExcelFile(f.getName())) {
 
-                String name = FilenameUtils.removeExtension(f.getName());
-                if (!modules.containsKey(name)) {
-                    PathEntry rootPath = new PathEntry(f.getAbsolutePath());
-                    Module module = createModule(project, rootPath, name);
-                    modules.put(name, module);
-                } else {
-                    log.error("A module with this name already exists: {}", name);
+                    String name = FilenameUtils.removeExtension(f.getName());
+                    if (!modules.containsKey(name)) {
+                        PathEntry rootPath = new PathEntry(f.getCanonicalFile().getAbsolutePath());
+                        Module module = createModule(project, rootPath, name);
+                        modules.put(name, module);
+                    } else {
+                        if (log.isErrorEnabled()){
+                            log.error("A module with this name already exists: {}", name);
+                        }
+                    }
                 }
             }
+            project.setModules(new ArrayList<Module>(modules.values()));
+            return project;
+        } catch (IOException e) {
+            throw new ProjectResolvingException(e);
         }
-        project.setModules(new ArrayList<Module>(modules.values()));
-        return project;
     }
 
     private Module createModule(ProjectDescriptor project, PathEntry rootPath, String name) {
@@ -70,9 +78,9 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         return module;
     }
 
-    private ProjectDescriptor createDescriptor(File folder) {
+    private ProjectDescriptor createDescriptor(File folder) throws IOException{
         ProjectDescriptor project = new ProjectDescriptor();
-        project.setProjectFolder(folder);
+        project.setProjectFolder(folder.getCanonicalFile());
         project.setName(folder.getName());
         return project;
     }

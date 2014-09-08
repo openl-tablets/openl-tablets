@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,7 +24,7 @@ import org.openl.rules.project.model.validation.ValidationException;
 public class ProjectDescriptorManagerTest {
 
     @Test
-    public void testReadDescriptor1() throws FileNotFoundException, ValidationException {
+    public void testReadDescriptor1() throws IOException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test/resources/descriptor/rules1.xml");
@@ -77,14 +76,14 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test(expected = ValidationException.class)
-    public void testReadDescriptor2() throws FileNotFoundException, ValidationException {
+    public void testReadDescriptor2() throws IOException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         manager.readDescriptor("test/resources/descriptor/rules2.xml");
     }
 
     @Test(expected = ValidationException.class)
-    public void testReadDescriptor3() throws FileNotFoundException, ValidationException {
+    public void testReadDescriptor3() throws IOException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         manager.readDescriptor("test/resources/descriptor/rules3.xml");

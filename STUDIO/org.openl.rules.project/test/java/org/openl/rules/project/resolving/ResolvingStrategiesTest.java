@@ -21,7 +21,7 @@ public class ResolvingStrategiesTest {
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));
         ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
         assertEquals(projectFolder.getName(), descriptor.getName());
-        assertEquals(projectFolder, descriptor.getProjectFolder());
+        assertEquals(projectFolder.getCanonicalPath(), descriptor.getProjectFolder().getCanonicalPath());
         assertEquals(22, descriptor.getClasspath().size());
         assertEquals(1, descriptor.getModules().size());
         Module module = descriptor.getModules().get(0);
@@ -54,7 +54,7 @@ public class ResolvingStrategiesTest {
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));
         ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
         assertEquals(projectFolder.getName(), descriptor.getName());
-        assertEquals(projectFolder, descriptor.getProjectFolder());
+        assertEquals(projectFolder.getCanonicalPath(), descriptor.getProjectFolder().getCanonicalPath());
         assertEquals(2, descriptor.getModules().size());
         Module moduleFirst = descriptor.getModules().get(0);
         assertEquals("Rules", moduleFirst.getName());

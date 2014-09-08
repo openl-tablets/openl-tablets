@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -87,8 +86,7 @@ public class ProjectBean {
                 ProjectDependencyDescriptor projectDependency = studio.getProjectDependency(name);
                 dependency.setName(name);
                 dependency.setAutoIncluded(projectDependency == null || projectDependency.isAutoIncluded());
-                dependencies.add(
-                        new ListItem<ProjectDependencyDescriptor>(projectDependency != null, dependency));
+                dependencies.add(new ListItem<ProjectDependencyDescriptor>(projectDependency != null, dependency));
             }
         }
         return dependencies;
@@ -183,7 +181,7 @@ public class ProjectBean {
             FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
         }
 
-        if (StringUtils.isBlank(oldName)       // Add new Module
+        if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
             if (!withWildcard || !StringUtils.isBlank(newName)) {
                 FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
@@ -344,26 +342,25 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
-
     private static final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
         try {
-            //validator.validate(descriptor);
+            // validator.validate(descriptor);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                AProjectResource artefact = (AProjectResource) project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 artefact.setContent(inputStream);
             } else {
-                //new ProjectDescriptorManager().writeDescriptor(projectDescriptor,
-                //        new FileOutputStream(projectDescriptor.getProjectFolder()));
+                // new
+                // ProjectDescriptorManager().writeDescriptor(projectDescriptor,
+                // new FileOutputStream(projectDescriptor.getProjectFolder()));
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
-                //repositoryTreeState.refreshSelectedNode();
+                // repositoryTreeState.refreshSelectedNode();
             }
             studio.reset(ReloadType.FORCED);
             TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(project.getName());
@@ -377,7 +374,7 @@ public class ProjectBean {
             log.error(e.getMessage(), e);
             throw new Message("Error while saving the project");
         }
-        //postProcess(descriptor);
+        // postProcess(descriptor);
     }
 
     private void clean(ProjectDescriptor descriptor) {
@@ -411,8 +408,7 @@ public class ProjectBean {
 
             MethodFilter methodFilter = module.getMethodFilter();
             if (methodFilter != null) {
-                if (CollectionUtils.isEmpty(methodFilter.getIncludes())
-                        && CollectionUtils.isEmpty(methodFilter.getExcludes())) {
+                if (CollectionUtils.isEmpty(methodFilter.getIncludes()) && CollectionUtils.isEmpty(methodFilter.getExcludes())) {
                     module.setMethodFilter(null);
                 } else if (CollectionUtils.isEmpty(methodFilter.getIncludes())) {
                     methodFilter.setIncludes(null);
@@ -528,8 +524,16 @@ public class ProjectBean {
         if (module == null || !projectDescriptorManager.isModuleWithWildcard(module)) {
             return Collections.emptyList();
         }
-
-        return projectDescriptorManager.getAllModulesMatchingPathPattern(studio.getCurrentProjectDescriptor(), module, module.getRulesRootPath().getPath());
+        try {
+            return projectDescriptorManager.getAllModulesMatchingPathPattern(studio.getCurrentProjectDescriptor(),
+                module,
+                module.getRulesRootPath().getPath());
+        } catch (IOException e) {
+            if (log.isErrorEnabled()){
+                log.error(e.getMessage(), e);
+            }
+            return Collections.emptyList();
+        }
     }
 
     public boolean isEmptyMethodFilter(Module module) {

@@ -58,7 +58,7 @@ public class ProjectDescriptorManager {
         return serializer.deserialize(source);
     }
 
-    public ProjectDescriptor readDescriptor(File file) throws FileNotFoundException, ValidationException {
+    public ProjectDescriptor readDescriptor(File file) throws IOException, ValidationException {
         FileInputStream inputStream = new FileInputStream(file);
 
         ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
@@ -70,7 +70,7 @@ public class ProjectDescriptorManager {
         return descriptor;
     }
 
-    public ProjectDescriptor readDescriptor(String filename) throws FileNotFoundException, ValidationException {
+    public ProjectDescriptor readDescriptor(String filename) throws IOException, ValidationException {
         File source = new File(filename);
         return readDescriptor(source);
     }
@@ -132,7 +132,7 @@ public class ProjectDescriptorManager {
 
     public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
             Module module,
-            String pathPattern) {
+            String pathPattern) throws IOException{
         List<Module> modules = new ArrayList<Module>();
 
         List<File> files = new ArrayList<File>();
@@ -141,7 +141,7 @@ public class ProjectDescriptorManager {
         for (File file : files) {
             Module m = new Module();
             m.setProject(descriptor);
-            m.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
+            m.setRulesRootPath(new PathEntry(file.getCanonicalPath()));
             m.setName(FilenameUtils.getBaseName(file.getName()));
             m.setType(ModuleType.API);
             m.setMethodFilter(module.getMethodFilter());
@@ -170,7 +170,7 @@ public class ProjectDescriptorManager {
         return false;
     }
 
-    private void processModulePathPatterns(ProjectDescriptor descriptor, File projectRoot) {
+    private void processModulePathPatterns(ProjectDescriptor descriptor, File projectRoot) throws IOException{
         List<Module> modulesWasRead = descriptor.getModules();
         List<Module> processedModules = new ArrayList<Module>(modulesWasRead.size());
         // Process modules without wildcard path
@@ -197,9 +197,8 @@ public class ProjectDescriptorManager {
         descriptor.setModules(processedModules);
     }
 
-    private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) {
-
-        File projectRoot = projectDescriptorFile.getParentFile();
+    private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) throws IOException{
+        File projectRoot = projectDescriptorFile.getParentFile().getCanonicalFile();
         descriptor.setProjectFolder(projectRoot);
         processModulePathPatterns(descriptor, projectRoot);
 
@@ -224,7 +223,7 @@ public class ProjectDescriptorManager {
             }
 
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                PathEntry absolutePath = new PathEntry(new File(projectRoot, module.getRulesRootPath().getPath()).getAbsolutePath());
+                PathEntry absolutePath = new PathEntry(new File(projectRoot, module.getRulesRootPath().getPath()).getCanonicalFile().getAbsolutePath());
                 module.setRulesRootPath(absolutePath);
             }
         }
