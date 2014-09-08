@@ -56,19 +56,26 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean isRulesProject(File folder) {
         try {
             if (!folder.exists() || !folder.isDirectory()) {
-                log.debug("Eclipse based project strategy failed to resolve project folder: folder {} doesn`t exists of is not a directory", folder.getPath());
+                log.debug("Eclipse based project strategy failed to resolve project folder: folder {} doesn`t exists of is not a directory",
+                    folder.getPath());
                 return false;
             }
             if (!FileTool.containsFile(folder, PROJECT_FILE, false)) {
-                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no file {} in the folder", folder.getPath(), PROJECT_FILE);
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no file {} in the folder",
+                    folder.getPath(),
+                    PROJECT_FILE);
                 return false;
             }
             if (!FileTool.containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
-                log.debug("Eclipse based project strategy failed to resolve project folder {}: {} file doen`t contains {}", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH);
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: {} file doen`t contains {}",
+                    folder.getPath(),
+                    PROJECT_FILE,
+                    TEXT_TO_SEARCH);
                 return false;
             }
             if (listPotentialOpenLWrappersClassNames(folder).length == 0) {
-                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no potential Openl wrappers", folder.getPath());
+                log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no potential Openl wrappers",
+                    folder.getPath());
                 return false; // no modules.
             }
             log.debug("Project in {} folder was resolved as Eclipse based project", folder.getPath());
@@ -83,9 +90,9 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         List<String> list = new ArrayList<String>();
 
         String startDirs = System.getProperty(IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_PROPERTY,
-                IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_DEFAULT);
+            IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_DEFAULT);
         String wrapperSuffixes = System.getProperty(IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_PROPERTY,
-                IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_DEFAULT);
+            IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_DEFAULT);
 
         String[] srcRoots = StringTool.tokenize(startDirs, ", ");
         String[] suffixes = StringTool.tokenize(wrapperSuffixes, ", ");
@@ -109,12 +116,11 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
 
     }
 
-    public void listPotentialOpenLWrappersClassNames(File project, String srcRoot, String[] suffixes, List<String> list)
-            throws IOException {
+    public void listPotentialOpenLWrappersClassNames(File project, String srcRoot, String[] suffixes, List<String> list) throws IOException {
 
         File searchDir = new File(project.getCanonicalPath(), srcRoot);
         TreeIterator<File> fti = new FileTreeIterator(searchDir, getTreeAdaptor(), 0);
-        for (; fti.hasNext(); ) {
+        for (; fti.hasNext();) {
             File f = fti.next();
             for (String suffix : suffixes)
                 if (f.getName().endsWith(suffix)) {
@@ -129,15 +135,19 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     // isRulesProject, then if yes,
     // call current method. Dont need to scan the file system twice.
     // authod DLiauchuk
-    public ProjectDescriptor resolveProject(File folder) {
+    public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName(folder.getName());
-        descriptor.setProjectFolder(folder);
+        try {
+            descriptor.setProjectFolder(folder.getCanonicalFile());
+        } catch (IOException e) {
+            throw new ProjectResolvingException(e);
+        }
         String[] wrapperClassNames;
         try {
             wrapperClassNames = listPotentialOpenLWrappersClassNames(folder);
         } catch (IOException e) {
-            wrapperClassNames = new String[]{};
+            wrapperClassNames = new String[] {};
         }
         List<Module> projectModules = new ArrayList<Module>();
         for (String className : wrapperClassNames) {

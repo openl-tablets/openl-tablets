@@ -12,7 +12,7 @@
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
-			<rules-root path="file://MyModule1.xls"/>
+			<rules-root path="MyModule1.xls"/>
 
 		</module>	
 		
@@ -21,7 +21,7 @@
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
-			<rules-root path="file://MyModule2.xls"/>
+			<rules-root path="MyModule2.xls"/>
 			
 		</module>	
 
