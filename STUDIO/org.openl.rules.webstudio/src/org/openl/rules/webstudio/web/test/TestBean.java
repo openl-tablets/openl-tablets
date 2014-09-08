@@ -320,7 +320,7 @@ public class TestBean {
     }
 
     public String getTestTableInfo(Object testResults) {
-        return ProjectHelper.getTestInfo(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
+        return ProjectHelper.getTestInfo(((TestUnitsResults) testResults).getTestSuite());
     }
 
     public String getTestedTableName() {

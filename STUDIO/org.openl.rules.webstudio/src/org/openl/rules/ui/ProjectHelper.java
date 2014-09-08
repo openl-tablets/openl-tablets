@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
@@ -20,16 +21,16 @@ import org.openl.types.impl.MethodDelegator;
  *
  */
 public class ProjectHelper {
-    
+
     private static final String TEST_CASES = "test cases";
     private static final String NO = "No";
-    private static final String RUNS = "runs";    
-    
+    private static final String RUNS = "runs";
+
     public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
         List<TestSuiteMethod> res = new ArrayList<TestSuiteMethod>();
         for (IOpenMethod tester : openClass.getMethods()) {
             if (isTester(tester)) {
-                res.add((TestSuiteMethod)tester);
+                res.add((TestSuiteMethod) tester);
             }
             if (tester instanceof OpenMethodDispatcher && isTester(((OpenMethodDispatcher) tester).getTargetMethod())) {
                 res.add((TestSuiteMethod) ((OpenMethodDispatcher) tester).getTargetMethod());
@@ -65,23 +66,22 @@ public class ProjectHelper {
     }
 
     /**
-     * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see 
-     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
+     * Checks if the tester is instance of {@link TestSuiteMethod}, if it has
+     * any parameters for testing(see
+     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors
+     * in it.
      * 
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
     public static boolean isTester(IOpenMethod tester) {
-        return (tester instanceof TestSuiteMethod)
-            && !((TestSuiteMethod) tester).isRunmethod()
-            && ((TestSuiteMethod) tester).isRunmethodTestable()
-            && noErrors((TestSuiteMethod)tester);
+        return (tester instanceof TestSuiteMethod) && !((TestSuiteMethod) tester).isRunmethod() && ((TestSuiteMethod) tester).isRunmethodTestable() && noErrors((TestSuiteMethod) tester);
     }
-    
+
     /**
      * Checks if test method doesn`t contain any error.
      * 
-     * @param testMethod test method 
+     * @param testMethod test method
      * @return true if there is no errors in the test method.
      */
     public static boolean noErrors(TestSuiteMethod testMethod) {
@@ -100,11 +100,13 @@ public class ProjectHelper {
 
         return res.toArray(new IOpenMethod[res.size()]);
     }
-    
+
     /**
-     * Get tests for tested method that have filled rules rows data for testing its functionality. Run methods and tests 
-     * with empty test cases are not being processed. 
-     * If you need to get all test methods, including run methods and empty ones, use {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
+     * Get tests for tested method that have filled rules rows data for testing
+     * its functionality. Run methods and tests with empty test cases are not
+     * being processed. If you need to get all test methods, including run
+     * methods and empty ones, use
+     * {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
      */
     public static IOpenMethod[] testers(IOpenMethod tested) {
 
@@ -120,23 +122,24 @@ public class ProjectHelper {
     }
 
     /**
-     * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we 
-     * consider tester is test for tested method.
+     * If tester is an instance of {@link TestSuiteMethod} and tested method
+     * object in tester is equal to tested we consider tester is test for tested
+     * method.
      */
     public static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
         if (!(tester instanceof TestSuiteMethod)) {
             return false;
         }
         IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
-        if(toTest == tested){
+        if (toTest == tested) {
             return true;
         }
-        if(toTest instanceof OpenMethodDispatcher){
-            if(((OpenMethodDispatcher)toTest).getCandidates().contains(tested)){
+        if (toTest instanceof OpenMethodDispatcher) {
+            if (((OpenMethodDispatcher) toTest).getCandidates().contains(tested)) {
                 return true;
             }
         }
-        if(tested instanceof MethodDelegator){
+        if (tested instanceof MethodDelegator) {
             return isTestForMethod(tester, tested.getMethod());
         }
         if (tested instanceof OpenMethodDispatcher) {
@@ -161,7 +164,7 @@ public class ProjectHelper {
         String info = null;
 
         if (testMethod instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuite = (TestSuiteMethod)testMethod;
+            TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
             if (testSuite.isRunmethod()) {
                 if (testSuite.nUnitRuns() < 1) {
                     info = formatTestInfo(NO, RUNS);
@@ -175,9 +178,32 @@ public class ProjectHelper {
                     info = formatTestInfo(testSuite.getNumberOfTests(), TEST_CASES);
                 }
             }
-         }
+        }
 
-         return info;
+        return info;
+    }
+
+    public static String getTestInfo(TestSuite testSuite) {
+        String info = null;
+        IOpenMethod testMethod = testSuite.getTestSuiteMethod();
+        if (testMethod instanceof TestSuiteMethod) {
+            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) testMethod;
+            if (testSuiteMethod.isRunmethod()) {
+                if (testSuite.getNumberOfTests() < 1) {
+                    info = formatTestInfo(NO, RUNS);
+                } else {
+                    info = formatTestInfo(testSuite.getNumberOfTests(), RUNS);
+                }
+            } else {
+                if (testSuite.getNumberOfTests() < 1) {
+                    info = formatTestInfo(NO, TEST_CASES);
+                } else {
+                    info = formatTestInfo(testSuite.getNumberOfTests(), TEST_CASES);
+                }
+            }
+        }
+
+        return info;
     }
 
     private static String formatTestInfo(Object param1, Object param2) {
