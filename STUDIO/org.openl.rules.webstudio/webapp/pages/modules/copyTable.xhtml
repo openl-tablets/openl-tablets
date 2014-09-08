@@ -85,6 +85,7 @@
                                             rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
                                     </td>
                                     <td>
+                                        <ui:remove><!--
                                         <a4j:commandLink action="#{propertiesManager.removeProperty}" id="remove-prop-btn"
                                             render="copyPropertiesTable newPropertySelect"
                                             rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
@@ -93,6 +94,7 @@
                                             <f:setPropertyActionListener value="#{prop}"
                                                 target="#{propertiesManager.propToRemove}" />
                                         </a4j:commandLink>
+                                        --></ui:remove>
                                     </td>
                                 </tr>
                             </a4j:repeat>
