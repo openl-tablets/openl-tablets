@@ -1,14 +1,15 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.List;
-
 import org.openl.base.INamedThing;
+import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
+
+import java.util.List;
 
 /**
  * The <code>AlgorithmFunctionCompiler</code> class describes some function
@@ -42,7 +43,8 @@ public class AlgorithmFunctionCompiler {
         if (functionBody.size() > 0) {
             int i = 0;
             for (AlgorithmTreeNode algorithmTreeNode : functionBody){
-                if (algorithmTreeNode.getAlgorithmRow().getOperation() != null && "RETURN".equals(algorithmTreeNode.getAlgorithmRow().getOperation().toString())){
+                StringValue operation = algorithmTreeNode.getAlgorithmRow().getOperation();
+                if (operation != null && "RETURN".equals(operation.toString())){
                     SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler).analyze(functionBody.get(i)
                         .getChildren());
                     if (status == SuitablityAsReturn.NONE) {
@@ -63,7 +65,7 @@ public class AlgorithmFunctionCompiler {
      * @throws Exception If code of function has errors.
      */
     public void compile() throws Exception {
-        compileContext.getOperations().addAll(
+        compileContext.addOperations(
                 new AlgoritmNodesCompiler(getReturnType(), compileContext, compiler)
                         .compileNodes(functionBody));
         analyzeReturnCorrectness();
