@@ -77,4 +77,10 @@ public class CompileContext {
             throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : \"" + labelName + "\".", errorSource);
         }
     }
+
+    public void addOperations(List<RuntimeOperation> operations) {
+        if (operations != null) {
+            this.operations.addAll(operations);
+        }
+    }
 }
