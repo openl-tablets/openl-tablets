@@ -37,6 +37,8 @@ public class ConversionRulesController {
             groupedOperationNames.add(node.getSpecification().getKeyword().toUpperCase());
         }
 
+        // Resolve the name of the group defined in the Algorithm Specification
+        //
         String operationGroupName = AlgorithmTableParserManager.instance().whatIsOperationsGroupName(
                 groupedOperationNames);
 
