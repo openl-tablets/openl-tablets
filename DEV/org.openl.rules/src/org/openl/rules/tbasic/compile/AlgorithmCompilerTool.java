@@ -75,9 +75,9 @@ public class AlgorithmCompilerTool {
      */
     public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String instruction)
             throws SyntaxNodeException {
+        // Field of the AlgorithmRow.class, that also is the column in the TBasic table
+        //
         String fieldName = extractFieldName(instruction);
-
-        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
 
         IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
@@ -87,9 +87,11 @@ public class AlgorithmCompilerTool {
             throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s field", fieldName), errorSource);
         }
 
-        StringValue openLCode = (StringValue) codeField.get(executionNode.getAlgorithmRow(), null);
+        // Get the operation node from the candidate nodes, that suits to the given instruction
+        //
+        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
 
-        return openLCode;
+        return (StringValue) codeField.get(executionNode.getAlgorithmRow(), null);
     }
 
     /**
