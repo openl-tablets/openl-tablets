@@ -1,10 +1,10 @@
 package org.openl.rules.tbasic;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AlgorithmRow {
     private StringValue label;
@@ -140,5 +140,17 @@ public class AlgorithmRow {
 
     public void setValueGridRegion(String valueName, IGridRegion region) {
         valueGridRegions.put(valueName, region);
+    }
+
+    @Override
+    public String toString() {
+        String delimeter = " | ";
+        StringBuilder buf = new StringBuilder();
+        buf.append(label).append(delimeter);
+        buf.append(description).append(delimeter);
+        buf.append(operation).append(delimeter);
+        buf.append(condition).append(delimeter);
+        buf.append(action).append(delimeter);
+        return buf.toString();
     }
 }
