@@ -3,12 +3,12 @@
 	<property name="outDir" value="e:/temp/buildCEwar"></property>
 	<property name="m2" value="c:/.m2"></property>
 	<property name="repo" value="repository/org/openl/rules"/>
-	<property name="openl-version" value="5.13.0-SNAPSHOT"/>
+	<property name="openl-version" value="5.14.0-SNAPSHOT"/>
 	<property name="jar-location" value="WEB-INF/lib"/>
 	<property name="outWar" value="e:/temp/org.openl.rules.ce.webstudio-${openl-version}.war"></property>
 	
 	<!--
-	         C:\.m2\repository\org\openl\rules\org.openl.rules.webstudio\5.13.0-SNAPSHOT	
+	         C:\.m2\repository\org\openl\rules\org.openl.rules.webstudio\5.14.0-SNAPSHOT	
 	-->
 	
 	<target name="build-all" depends="clean-out-dir, extract-war, combine-jars, remove-jars, build-war" >
