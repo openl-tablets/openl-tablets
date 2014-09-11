@@ -1,6 +1,6 @@
 package org.openl.rules.convertor;
 
-import sun.misc.FloatingDecimal;
+import sun.misc.FloatingDecimal; 
 
 import java.text.DecimalFormat;
 
