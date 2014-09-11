@@ -1,156 +1,137 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>org.openl.rules</groupId>
-		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.14.0-SNAPSHOT</version>
-	</parent>
-
-	<artifactId>org.openl.rules.ruleservice</artifactId>
-	<packaging>jar</packaging>
-	<name>OpenL - RuleService - RuleService</name>
-	<description>Common OpenL Rules service</description>
-	<url>http://openl-tablets.sf.net/</url>
-
-	<build>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-					<include>RulesBasedConfigurerTemplate.xlsx</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>conf</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>test</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-			<testResource>
-				<directory>conf_test</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-		</testResources>
-
-		<testSourceDirectory>test</testSourceDirectory>
-
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<forkCount>1</forkCount>
-					<reuseForks>false</reuseForks>
-					<forkMode>always</forkMode>
-
-					<additionalClasspathElements>
-						<additionalClasspathElement>${basedir}/test-resources/UnpackClasspathJarToDirectoryBeanTest/jarpackedproject.jar</additionalClasspathElement>
-					</additionalClasspathElements>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>process-test-resources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<unzip src="test-resources/production-repository.zip" dest="target/production-repository" overwrite="true" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- DEV -->
-		<dependency>
-			<groupId>org.openl</groupId>
-			<artifactId>org.openl.core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.ruleservice.context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.calculation.result</artifactId>
-		</dependency>
-
-		<!-- STUDIO -->
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.repository</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.workspace</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.project</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>compile</scope>
-		</dependency>
-	</dependencies>
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+        <version>5.14.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>org.openl.rules.ruleservice</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL - RuleService - RuleService</name>
+    <description>Common OpenL Rules service</description>
+    <url>http://openl-tablets.sf.net/</url>
+    <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>RulesBasedConfigurerTemplate.xlsx</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>conf</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>conf_test</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </testResource>
+        </testResources>
+        <testSourceDirectory>test</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <forkMode>always</forkMode>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${basedir}/test-resources/UnpackClasspathJarToDirectoryBeanTest/jarpackedproject.jar</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!-- DEV -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.calculation.result</artifactId>
+        </dependency>
+        <!-- STUDIO -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.workspace</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>
