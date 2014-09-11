@@ -93,7 +93,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         List<String> invalidNames = incorrectNames();
 
         if (invalidNames.size() > 0) {
-            FacesUtils.addErrorMessage("Project was not created. Zip file containts " + invalidNames.size() + " files/folders with incorrect names:");
+            FacesUtils.addErrorMessage("Project was not created. Zip file contains " + invalidNames.size() + " files/folders with incorrect names:");
 
             /*
              * Display first 20 files/folders with incorrect names
@@ -110,6 +110,10 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
             try {
                 ZipEntry item = zipFile.getEntry(name);
+
+                if (item == null) {
+                    throw new ProjectException(String.format("Can't read zip entry '%s'. Possible broken zip.", name));
+                }
 
                 if (item.isDirectory()) {
                     projectBuilder.addFolder(item.getName());
@@ -128,7 +132,11 @@ public class ZipFileProjectCreator extends AProjectCreator {
             } catch (Exception e) {
                 projectBuilder.cancel();
                 log.warn("Bad zip entry name [{}].", name);
-                throw new ProjectException(e.getMessage(), e);
+                String message = e.getMessage();
+                if (message == null) {
+                    message = String.format("Bad zip entry '%s'", name);
+                }
+                throw new ProjectException(message, e);
             }
         }
         return projectBuilder;
