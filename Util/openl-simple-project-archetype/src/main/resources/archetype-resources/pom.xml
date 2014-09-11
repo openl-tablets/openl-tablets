@@ -1,28 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <packaging>jar</packaging>
     <version>${version}</version>
     <name>OpenL Simple Project</name>
-
     <properties>
         <openl.rules.version>5.14.0-SNAPSHOT</openl.rules.version>
     </properties>
-
     <dependencies>
-
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
             <version>${openl.rules.version}</version>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -33,7 +25,6 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
@@ -43,8 +34,8 @@
                     <projectName>OpenL Rules Simple Project</projectName>
                     <!-- Project's classpath. -->
                     <classpaths>
-                      <param>.</param>
-                      <param>lib/${project.build.finalName}.jar</param>
+                        <param>.</param>
+                        <param>lib/${project.build.finalName}.jar</param>
                     </classpaths>
                     <!-- OpenL project includes one or more modules. -->
                     <generateInterfaces>
@@ -66,28 +57,25 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
-                        <execution>
-                            <id>zip</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>assembly/runnable-zip.xml</descriptor>
-                                    <descriptor>assembly/deployable-zip.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </execution>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly/runnable-zip.xml</descriptor>
+                                <descriptor>assembly/deployable-zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
-
     </build>
-
 </project>
