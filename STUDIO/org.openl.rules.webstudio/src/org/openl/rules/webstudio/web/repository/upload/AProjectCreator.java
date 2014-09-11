@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.IOUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -45,10 +44,10 @@ public abstract class AProjectCreator {
             projectBuilder = getProjectBuilder();
             projectBuilder.save();
 
-            if (projectBuilder.getProject().getArtefacts().size() == 0) {
-                projectBuilder.getProject().delete();
-                FacesUtils.addErrorMessage("");
-            }
+//            if (projectBuilder.getProject().getArtefacts().size() == 0) {
+//                projectBuilder.getProject().delete();
+//                FacesUtils.addErrorMessage("");
+//            }
 
             projectBuilder.getProject().edit();
         } catch (Exception e) {
