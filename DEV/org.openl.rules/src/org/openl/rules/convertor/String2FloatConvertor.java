@@ -1,7 +1,5 @@
 package org.openl.rules.convertor;
 
-import sun.misc.FloatingDecimal;
-
 import java.text.DecimalFormat;
 
 class String2FloatConvertor extends String2NumberConverter<Float> {
@@ -10,7 +8,7 @@ class String2FloatConvertor extends String2NumberConverter<Float> {
     public String format(Float data, String format) {
         if (data == null) return null;
         // Restore decimal precision
-        Double number = new FloatingDecimal(data).doubleValue();
+        double number = Double.parseDouble(Float.toString(data));
         return getFormatter(format).format(number);
     }
 
