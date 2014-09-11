@@ -66,9 +66,13 @@ public abstract class AProjectCreator {
                     cause = cause.getCause();
                 }
 
-                if (cause.getMessage() != null) {
+                if (cause.getMessage() != null && !cause.getMessage().equals(errorMessage)) {
                     errorMessage += " Cause: " + cause.getMessage();
                 }
+            }
+
+            if (errorMessage == null) {
+                errorMessage = "Error creating project";
             }
         }
         return errorMessage;
