@@ -20,10 +20,6 @@ public class RunInfo {
         this.ms = ms;
     }
 
-    public double avgRunms() {
-        return ms / (double) times;
-    }
-
     public double avgTimesSec() {
         return (double) times * 1000 / ms;
     }

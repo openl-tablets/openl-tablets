@@ -123,7 +123,7 @@ public class BenchmarkInfo {
             n += run.times;
             sum += run.ms;
 
-            sum2 += run.avgRunms() * run.ms;
+            sum2 += run.ms / (double) run.times * run.ms;
         }
 
         return Math.sqrt((sum2 - sum / n * sum) / n);
