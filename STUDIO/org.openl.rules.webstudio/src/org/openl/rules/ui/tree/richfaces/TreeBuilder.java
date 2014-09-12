@@ -5,11 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.ui.tree.AbstractTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.tree.ITreeElement;
 
-public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
+abstract class TreeBuilder {
 
     private ITreeElement<?> root;
     private boolean hideDispatcherTables;
@@ -19,7 +18,6 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         this.hideDispatcherTables = hideDispatcherTables;
     }
 
-    @Override
     public TreeNode build() {
         return build(false);
     }
