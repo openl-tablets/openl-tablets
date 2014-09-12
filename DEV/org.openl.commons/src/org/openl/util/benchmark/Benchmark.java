@@ -54,12 +54,12 @@ public class Benchmark {
                 time = bu.millisecondsToRun(runs);
                 long memoryDirtyAfter = getUsedMemorySize();
                 long memoryCleanAfter = getCleanMemorySize();
-                if (time > minMillis) {
+                if (time > minMillis || runs > Integer.MAX_VALUE) {
                     return new RunInfo(runs, time, memoryBefore, memoryDirtyAfter, memoryCleanAfter);
                 }
             } else {
                 time = bu.millisecondsToRun(runs);
-                if (time > minMillis) {
+                if (time > minMillis || runs > Integer.MAX_VALUE) {
                     return new RunInfo(runs, time);
                 }
             }
