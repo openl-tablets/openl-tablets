@@ -25,28 +25,6 @@ public class Benchmark {
         throw new RuntimeException("Unit " + name + " not found");
     }
 
-    RunInfo makeRun(BenchmarkUnit bu, int minRuns, int ms) throws Exception {
-
-        int minMillis = ms == -1 ? bu.getMinms() : ms;
-        long runs = minRuns;
-        while (true) {
-            long time = bu.millisecondsToRun(runs);
-            if (time > minMillis || runs > Integer.MAX_VALUE) {
-                return new RunInfo(runs, time);
-            }
-
-            if (time <= 0) {
-                time = 1;
-            }
-
-            double mult = Math.min(200, (minMillis) * 1.1 / time);
-
-            long newRuns = (long) Math.ceil(runs * mult);
-            runs = Math.max(runs + 1, newRuns);
-
-        }
-    }
-
     public List<BenchmarkInfo> measureAllInList(int ms) throws Exception {
         _measurements = new HashMap<String, BenchmarkInfo>();
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
@@ -88,9 +66,23 @@ public class Benchmark {
             return bi;
         }
 
-        RunInfo info = makeRun(bu, bu.getMinRuns(), ms);
-        bi.collect(info.times, info.ms);
-        return bi;
+        int minMillis = ms == -1 ? bu.getMinms() : ms;
+        long runs = bu.getMinRuns();
+        while (true) {
+            long time = bu.millisecondsToRun(runs);
+            if (time > minMillis || runs >= Integer.MAX_VALUE) {
+                bi.collect(runs, ms);
+                return bi;
+            }
+
+            // Calculate a growth rate for runs
+            // division by zero is Double.POSITIVE_INFINITY
+            double mult = Math.min(200.0, 1.1 * minMillis / time);
+            // Calculate new quantity of runs
+            runs = Math.max(runs + 1, (long) (runs * mult));
+            // To avoid overflowing of Integer bits
+            runs = Math.min(runs, Integer.MAX_VALUE);
+        }
     }
 
     public void satisfyPreconditions(BenchmarkUnit bu) throws Exception {
