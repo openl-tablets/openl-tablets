@@ -8,34 +8,20 @@ import java.util.List;
 
 public class Benchmark {
 
-    HashMap<String, BenchmarkInfo> _measurements = null;
-
     public List<BenchmarkInfo> measureAllInList(BenchmarkUnit[] units, int ms) throws Exception {
-        _measurements = new HashMap<String, BenchmarkInfo>();
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
         for (BenchmarkUnit bu: units) {
             Log.info("Benchmarking Unit " + bu.getName());
             BenchmarkInfo bi = runUnit(bu, ms);
             list.add(bi);
         }
-
         return list;
     }
 
     public BenchmarkInfo runUnit(BenchmarkUnit bu, int ms) throws Exception {
 
-        if (_measurements == null) {
-            _measurements = new HashMap<String, BenchmarkInfo>();
-        }
-
-        BenchmarkInfo bi = _measurements.get(bu.getName());
-
-        if (bi == null) {
-            bi = new BenchmarkInfo(null, bu, bu.getName());
-
-            bi.firstRunms = bu.millisecondsToRun();
-            _measurements.put(bu.getName(), bi);
-        }
+        BenchmarkInfo bi = new BenchmarkInfo(null, bu, bu.getName());
+        bi.firstRunms = bu.millisecondsToRun();
 
         int minMillis = ms == -1 ? bu.getMinms() : ms;
         long runs = bu.getMinRuns();
