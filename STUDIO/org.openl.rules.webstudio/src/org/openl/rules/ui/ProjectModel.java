@@ -189,7 +189,7 @@ public class ProjectModel {
                     }
 
                 };
-                return new Benchmark(null).runUnit(bu, ms, false);
+                return new Benchmark(null).runUnit(bu, ms);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
@@ -236,7 +236,7 @@ public class ProjectModel {
 
         };
 
-        return new Benchmark(null).runUnit(bu, ms, false);
+        return new Benchmark(null).runUnit(bu, ms);
 
     }
 
@@ -301,7 +301,7 @@ public class ProjectModel {
 
                 }
 
-                return new Benchmark(null).runUnit(bu, ms, false);
+                return new Benchmark(null).runUnit(bu, ms);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);

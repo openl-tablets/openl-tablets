@@ -20,14 +20,14 @@ public class Benchmark {
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
         for (BenchmarkUnit bu: units) {
             Log.info("Benchmarking Unit " + bu.getName());
-            BenchmarkInfo bi = runUnit(bu, ms, false);
+            BenchmarkInfo bi = runUnit(bu, ms);
             list.add(bi);
         }
 
         return list;
     }
 
-    public BenchmarkInfo runUnit(BenchmarkUnit bu, int ms, boolean once) throws Exception {
+    public BenchmarkInfo runUnit(BenchmarkUnit bu, int ms) throws Exception {
 
         if (_measurements == null) {
             _measurements = new HashMap<String, BenchmarkInfo>();
