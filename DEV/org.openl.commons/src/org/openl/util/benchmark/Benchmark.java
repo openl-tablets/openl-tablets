@@ -37,10 +37,6 @@ public class Benchmark {
             _measurements.put(bu.getName(), bi);
         }
 
-        if (once) {
-            return bi;
-        }
-
         int minMillis = ms == -1 ? bu.getMinms() : ms;
         long runs = bu.getMinRuns();
         while (true) {
