@@ -19,21 +19,12 @@ public class Benchmark {
         _measurements = new HashMap<String, BenchmarkInfo>();
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
         for (BenchmarkUnit bu: units) {
-            list.add(measureUnit(bu, ms));
+            Log.info("Benchmarking Unit " + bu.getName());
+            BenchmarkInfo bi = runUnit(bu, ms, false);
+            list.add(bi);
         }
 
         return list;
-    }
-
-    public BenchmarkInfo measureUnit(BenchmarkUnit bu, int ms) throws Exception {
-
-        Log.info("Benchmarking Unit " + bu.getName());
-
-        if (_measurements == null) {
-            _measurements = new HashMap<String, BenchmarkInfo>();
-        }
-
-        return runUnit(bu, ms, false);
     }
 
     public BenchmarkInfo runUnit(BenchmarkUnit bu, int ms, boolean once) throws Exception {
