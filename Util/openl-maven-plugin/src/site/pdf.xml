@@ -18,8 +18,8 @@
         </item>
         <item name="Usage" ref="usage.apt"/>
         <item name="Examples" ref="examples" collapse="false">
-            <item name="Configuration with all goals" ref="examples/configuration-with-all-goals.apt"/>
-            <item name="Generate a project with working example" ref="examples/generate-project-with-working-example.apt"/>
+            <item name="Configuration with all Goals" ref="examples/configuration-with-all-goals.apt"/>
+            <item name="Generate a Project with a Working Example" ref="examples/generate-project-with-working-example.apt"/>
         </item>
     </toc>
 
