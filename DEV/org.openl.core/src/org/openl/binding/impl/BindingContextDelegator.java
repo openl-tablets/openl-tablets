@@ -43,7 +43,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                             FieldNotFoundException {
+                                                                                             FieldNotFoundException,
+                                                                                             OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
@@ -181,13 +182,4 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
     }
-
-    // NOTE: A temporary implementation of multi-module feature.
-    // public void addImport(IOpenClass type) {
-    // delegate.addImport(type);
-    // }
-    //
-    // public Collection<IOpenClass> getImports() {
-    // return delegate.getImports();
-    // }
 }

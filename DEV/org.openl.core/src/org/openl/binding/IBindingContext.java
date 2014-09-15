@@ -15,6 +15,7 @@ import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -113,8 +114,7 @@ public interface IBindingContext extends ICastFactory {
 	 */
 	
     IOpenField findRange(String namespace, String rangeStartName, String rangeEndName)
-        throws AmbiguousVarException, FieldNotFoundException;
-	
+        throws AmbiguousVarException, FieldNotFoundException, OpenLCompilationException;
 	
 	String getAlias(String name);
 

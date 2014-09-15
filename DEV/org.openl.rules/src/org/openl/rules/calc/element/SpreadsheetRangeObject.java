@@ -1,50 +1,68 @@
 package org.openl.rules.calc.element;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.meta.DoubleValue;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 
 public class SpreadsheetRangeObject {
 
-    private final SpreadsheetResultCalculator calc;
-    private final SpreadsheetCellField fstart;
-    private final SpreadsheetCellField fend;
-
-    public SpreadsheetRangeObject(SpreadsheetResultCalculator target,
-            SpreadsheetCellField fstart,
-            SpreadsheetCellField fend) {
-                this.calc = target;
-                this.fstart = fstart;
-                this.fend = fend;
-    }
+    protected SpreadsheetResultCalculator calc;
+    protected SpreadsheetCellField fstart;
+    protected SpreadsheetCellField fend;
+    protected IOpenCast[][] casts;
     
-    public static DoubleValue[] autocast(SpreadsheetRangeObject from, DoubleValue[] to)
-    {
+    public SpreadsheetRangeObject(SpreadsheetResultCalculator target,
+            SpreadsheetCellField start,
+            SpreadsheetCellField end, IOpenCast[][] casts) {
+        this.calc = target;
+        this.fstart = start;
+        this.fend = end;
+        this.casts = casts;
+    }
+
+    
+    public Object test(){
+        return this.casts;
+    }
+    // Do not change signature of this method. This method is used from
+    // generated in runtime classes.
+    public static Object cast(SpreadsheetRangeObject from, String componentType, IOpenCast[][] cast) {
         int sx = from.fstart.getCell().getColumnIndex();
         int sy = from.fstart.getCell().getRowIndex();
         int ex = from.fend.getCell().getColumnIndex();
         int ey = from.fend.getCell().getRowIndex();
-        
+
         int w = ex - sx + 1;
         int h = ey - sy + 1;
-        
-        int size = w * h;
-        
-        List<DoubleValue> list = new ArrayList<DoubleValue>(size);
-        
-        for(int x = 0; x < w; ++x)
-            for(int y = 0; y < h; ++y)
-            {
-                Object v = from.calc.getValue(sy + y, sx + x);
-                if (v == null || !(v instanceof DoubleValue))
-                    continue;
-                list.add((DoubleValue)v);
-            }        
-            
-        return list.toArray(new DoubleValue[list.size()]);
-        
-    }
 
+        int size = w * h;
+
+        List<Object> list = new ArrayList<Object>(size);
+        try {
+            Class<?> to = Thread.currentThread().getContextClassLoader().loadClass(componentType);
+            for (int x = 0; x < w; ++x) {
+                for (int y = 0; y < h; ++y) {
+                    Object v = from.calc.getValue(sy + y, sx + x);
+                    IOpenCast openCast = cast[x][y];
+                    if (openCast != null && openCast.isImplicit()) {
+                        v = openCast.convert(v);
+                    }
+                    list.add(v);
+                }
+            }
+
+            Object array = Array.newInstance(to, list.size());
+            int i = 0;
+            for (Object v : list) {
+                Array.set(array, i, v);
+                i++;
+            }
+            return array;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }
