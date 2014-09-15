@@ -15,11 +15,11 @@ public class Benchmark {
         _units = units;
     }
 
-    public List<BenchmarkInfo> measureAllInList(int ms) throws Exception {
+    public List<BenchmarkInfo> measureAllInList(BenchmarkUnit[] units, int ms) throws Exception {
         _measurements = new HashMap<String, BenchmarkInfo>();
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
-        for (int i = 0; i < _units.length; ++i) {
-            list.add(measureUnit(_units[i], ms));
+        for (BenchmarkUnit bu: units) {
+            list.add(measureUnit(bu, ms));
         }
 
         return list;
