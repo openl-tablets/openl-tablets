@@ -43,10 +43,7 @@ public abstract class BenchmarkUnit {
     }
 
     public long millisecondsToRun() throws Exception {
-        long start = System.nanoTime();
-        runNtimes(1);
-        long end = System.nanoTime();
-        return ((end - start) + 500L * 1000) / 1000000;
+        return millisecondsToRun(1);
     }
 
     public long millisecondsToRun(long times) throws Exception {
