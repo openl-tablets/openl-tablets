@@ -64,20 +64,6 @@ public abstract class BenchmarkUnit {
         return (end - start + 500000) / 1000000;
     }
 
-    public long millisecondsToRun1() throws Exception {
-        long start = System.currentTimeMillis();
-        runNtimes(1);
-        long end = System.currentTimeMillis();
-        return end - start;
-    }
-
-    public long millisecondsToRun1(int times) throws Exception {
-        long start = System.currentTimeMillis();
-        runNtimes(times);
-        long end = System.currentTimeMillis();
-        return end - start;
-    }
-
     public int nUnitRuns() {
         return 1;
     }
