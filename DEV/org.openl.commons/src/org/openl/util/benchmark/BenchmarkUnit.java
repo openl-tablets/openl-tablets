@@ -25,10 +25,6 @@ public abstract class BenchmarkUnit {
     }
 
     public String getName() {
-        String name = getNameSpecial();
-        if (name != null) {
-            return name;
-        }
 
         String className = getClass().getName();
 
@@ -44,10 +40,6 @@ public abstract class BenchmarkUnit {
 
         return className;
 
-    }
-
-    protected String getNameSpecial() {
-        return null;
     }
 
     public long millisecondsToRun() throws Exception {
