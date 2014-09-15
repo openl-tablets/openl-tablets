@@ -1,7 +1,8 @@
 package org.openl.rules.webstudio.dependencies;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -18,7 +19,7 @@ import java.util.*;
 
 public class WebStudioWorkspaceRelatedDependencyManager extends DependencyManager {
 
-    private final Log log = LogFactoryImpl.getLog(WebStudioWorkspaceRelatedDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
     private List<IDependencyLoader> dependencyLoaders;
 
