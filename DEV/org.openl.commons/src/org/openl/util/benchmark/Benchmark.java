@@ -15,16 +15,6 @@ public class Benchmark {
         _units = units;
     }
 
-    BenchmarkUnit findUnit(String name) {
-        for (int i = 0; i < _units.length; ++i) {
-            if (_units[i].getName().equals(name)) {
-                return _units[i];
-            }
-        }
-
-        throw new RuntimeException("Unit " + name + " not found");
-    }
-
     public List<BenchmarkInfo> measureAllInList(int ms) throws Exception {
         _measurements = new HashMap<String, BenchmarkInfo>();
         List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
@@ -43,7 +33,6 @@ public class Benchmark {
             _measurements = new HashMap<String, BenchmarkInfo>();
         }
 
-        satisfyPreconditions(bu);
         return runUnit(bu, ms, false);
     }
 
@@ -83,19 +72,5 @@ public class Benchmark {
             // To avoid overflowing of Integer bits
             runs = Math.min(runs, Integer.MAX_VALUE);
         }
-    }
-
-    public void satisfyPreconditions(BenchmarkUnit bu) throws Exception {
-        String[] names = bu.performAfter();
-        for (int i = 0; i < names.length; ++i) {
-            BenchmarkUnit prev = findUnit(names[i]);
-            BenchmarkInfo bi = _measurements.get(bu.getName());
-            if (bi == null) {
-                satisfyPreconditions(prev);
-                runUnit(prev, 1, true);
-            }
-
-        }
-
     }
 }
