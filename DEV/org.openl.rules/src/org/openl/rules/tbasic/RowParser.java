@@ -1,15 +1,15 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RowParser implements IRowParser {
     private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";
@@ -52,16 +52,28 @@ public class RowParser implements IRowParser {
         }
 
         if (foundButNotMatch) {
-            String errMsg = String.format("Operation %s can not be multiline! Nested operations are not allowed here.",
-                    operationName);
-            throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
+            String errorMessage;
+            if (multiline) {
+                // If operation is used as multiline and it doesn't match the specification the error should be next
+                //
+                errorMessage = "Operation %s can not be multiline! Nested operations are not allowed here.";
+            } else {
+                // If the operation is used as single line and it doesn't match the specification, the error should be next
+                //
+                errorMessage = "Operation %s can not be singleline!";
+            }
+            throw SyntaxNodeExceptionUtils.createError(String.format(errorMessage,operationName), operation.asSourceCodeModule());
         }
 
-        String errMsg = "No such operation: " + operation.getValue();
+        String errMsg = "No such operation: " + operationName;
         throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
     }
 
-    private boolean[] guessMuliline(List<AlgorithmTreeNode> nodes) {
+    /**
+     * Guess by the number of the modes in the list and the operation level of each node (aka indent)
+     * if the operation is multiline or not
+     */
+    private boolean[] guessMultiline(List<AlgorithmTreeNode> nodes) {
         int size = nodes.size();
         boolean[] multilines = new boolean[size];
         for (int i = 0; i < size - 1; i++) {
@@ -81,7 +93,11 @@ public class RowParser implements IRowParser {
 
     public List<AlgorithmTreeNode> parse() throws SyntaxNodeException {
         List<AlgorithmTreeNode> nodes = prepareNodes();
-        boolean[] guessedMultilines = guessMuliline(nodes);
+
+        // TODO: refactor. Create AlgorithmNodeWithGuess decorator over the AlgorithmTreeNode
+        // and work with this entity
+        //
+        boolean[] guessedMultilines = guessMultiline(nodes);
 
         List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
         Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
@@ -91,7 +107,7 @@ public class RowParser implements IRowParser {
             AlgorithmTreeNode node = nodes.get(i);
             AlgorithmRow row = node.getAlgorithmRow();
 
-            TableParserSpecificationBean specification = validateNode(node, guessedMultilines[i]);
+            TableParserSpecificationBean specification = validateRow(row, guessedMultilines[i]);
             node.setSpecification(specification);
 
             int indent = row.getOperationLevel();
@@ -163,9 +179,8 @@ public class RowParser implements IRowParser {
         return nodes;
     }
 
-    private TableParserSpecificationBean validateNode(AlgorithmTreeNode node, boolean guessedMultiline)
+    private TableParserSpecificationBean validateRow(AlgorithmRow row, boolean guessedMultiline)
             throws SyntaxNodeException {
-        AlgorithmRow row = node.getAlgorithmRow();
         StringValue operation = row.getOperation();
         TableParserSpecificationBean spec = getSpecification(operation, guessedMultiline);
 
