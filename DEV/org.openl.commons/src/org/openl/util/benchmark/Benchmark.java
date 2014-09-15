@@ -89,7 +89,7 @@ public class Benchmark {
         }
 
         RunInfo info = makeRun(bu, bu.getMinRuns(), ms);
-        bi.runs.add(info);
+        bi.collect(info.times, info.ms);
         return bi;
     }
 

@@ -10,9 +10,18 @@ public class BenchmarkInfo {
 
     BenchmarkUnit unit;
     long firstRunms;
-    List<RunInfo> runs = new ArrayList<RunInfo>();
     Throwable error;
     String name;
+    long timesSum;
+    long msSum;
+    double ms2Sum;
+
+
+    public void collect(long times, long ms) {
+        timesSum += times;
+        msSum += ms;
+        ms2Sum += (double) ms / times * ms;
+    }
 
     public static BenchmarkOrder[] order(BenchmarkInfo[] bi) {
         ArrayList<BenchmarkOrder> list = new ArrayList<BenchmarkOrder>();
@@ -79,31 +88,11 @@ public class BenchmarkInfo {
     }
 
     public double avg() {
-        long n = 0;
-        double sum = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.ms;
-        }
-
-        return sum / n;
+        return (double) msSum / timesSum;
     }
 
     public double deviation() {
-        int n = 0;
-        double sum = 0;
-        double sum2 = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.ms;
-
-            sum2 += run.ms / (double) run.times * run.ms;
-        }
-
-        return Math.sqrt((sum2 - sum / n * sum) / n);
-
+        return Math.sqrt((ms2Sum - (double) msSum / timesSum * msSum) / timesSum);
     }
 
     public double drunsunitsec() {
@@ -146,5 +135,4 @@ public class BenchmarkInfo {
     public String unitName() {
         return unit.nUnitRuns() == 1 ? unit.unitName()[0] : unit.unitName()[1];
     }
-
 }
