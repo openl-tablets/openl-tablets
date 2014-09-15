@@ -83,14 +83,6 @@ public abstract class BenchmarkUnit {
     }
 
     /**
-     * Returns a list of units that must be executed before this unit or null
-     */
-
-    public String[] performAfter() {
-        return new String[0];
-    }
-
-    /**
      * This is the method you usually want to redefine. There can be cases
      * though when you want to redefine runNtimes.
      * 
