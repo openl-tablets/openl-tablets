@@ -82,8 +82,7 @@ public class BenchmarkPerformanceTest extends TestCase {
         IBenchmarkableMethod.BMBenchmarkUnit bu = new IBenchmarkableMethod.BMBenchmarkUnit(bm, instance, null,
                 iw.getRuntimeEnv());
 
-        BenchmarkUnit[] buu = { bu };
-        BenchmarkInfo bi = new Benchmark(buu).measureUnit(bu, 3000);
+        BenchmarkInfo bi = new Benchmark(null).runUnit(bu, 3000, false);
 
         return bi;
 
