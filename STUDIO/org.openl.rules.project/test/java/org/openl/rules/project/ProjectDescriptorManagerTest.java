@@ -32,7 +32,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
-        assertEquals("{lob}", descriptor.getPropertiesFileNamePattern());
+        assertEquals("%lob%", descriptor.getPropertiesFileNamePattern());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
