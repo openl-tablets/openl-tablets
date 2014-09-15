@@ -96,15 +96,15 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>userClassPath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>Reference to the folder with additional compiled classes that will be
-     * imported by the module when the interface is generated. Default value is:
+     * <td>Reference to the folder with additional compiled classes imported
+     * by the module when the interface is generated. Default value is:
      * null.</td>
      * </tr>
      * <tr>
      * <td>ignoreTestMethods</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>If true - test methods will not be added to interface class. Used
+     * <td>If true, test methods will not be added to interface class. Used
      * only in JavaInterfaceAntTask. Default value is: true.</td>
      * </tr>
      * <tr>
@@ -132,7 +132,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     private JavaAntTask[] generateInterfaces;
 
     /**
-     * If true - rules.xml will be generated if it doesn't exist. If
+     * If true, rules.xml will be generated if it doesn't exist. If
      * false, rules.xml will not be generated. Default value is "true".
      * @see #overwriteProjectDescriptor
      */
@@ -140,7 +140,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     private boolean createProjectDescriptor;
 
     /**
-     * If true - rules.xml will be overwritten on each run. If
+     * If true, rules.xml will be overwritten on each run. If
      * false, rules.xml generation will be skipped if it exists.
      * Makes sense only if {@link #createProjectDescriptor} == true.
      * Default value is "true".
@@ -150,7 +150,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     private boolean overwriteProjectDescriptor;
 
     /**
-     * Default project name in rules.xml. If omitted - the name of a first
+     * Default project name in rules.xml. If omitted, the name of the first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
      */
@@ -165,7 +165,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     private String[] classpaths = { "." };
 
     /**
-     * If true - JUnit tests for OpenL Tablets Test tables will be generated.
+     * If true, JUnit tests for OpenL Tablets Test tables will be generated.
      * Default value is "false"
      */
     @Parameter(defaultValue = "false")
@@ -173,7 +173,7 @@ public class GenerateMojo extends BaseOpenLMojo {
 
     /**
      * Path to Velocity template for generated unit tests.
-     * If omitted - default template will be used.
+     * If omitted, default template will be used.
      * Available in template variables:
      * <table border="1">
      * <tr>
@@ -211,7 +211,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     private String unitTestTemplatePath;
 
     /**
-     * If true - existing JUnit tests will be overwritten. If false - only absent tests will be generated, others will be skipped.
+     * If true, existing JUnit tests will be overwritten. If false, only absent tests will be generated, others will be skipped.
      */
     @Parameter(defaultValue = "false")
     private Boolean overwriteUnitTests;
