@@ -46,6 +46,6 @@
 			<autoIncluded>false</autoIncluded>
 		</dependency>
 	</dependencies>
-	<properties-file-name-pattern>{lob}</properties-file-name-pattern>
+	<properties-file-name-pattern>%lob%</properties-file-name-pattern>
 	<properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
 </project>
