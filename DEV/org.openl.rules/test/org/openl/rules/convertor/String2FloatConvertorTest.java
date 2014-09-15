@@ -54,6 +54,13 @@ public class String2FloatConvertorTest {
     }
 
     @Test
+    public void testFormatNegative() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(-98765.43f, null);
+        assertEquals("-98765.43", result);
+    }
+
+    @Test
     public void testFormatZero() {
         String2FloatConvertor converter = new String2FloatConvertor();
         String result = converter.format(0f, null);
@@ -65,5 +72,54 @@ public class String2FloatConvertorTest {
         String2FloatConvertor converter = new String2FloatConvertor();
         String result = converter.format(0.000000000012345678f, null);
         assertEquals("0.000000000012345678", result);
+    }
+
+    @Test
+    public void testFormatNegativePrecision() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(-0.000000000012345678f, null);
+        assertEquals("-0.000000000012345678", result);
+    }
+
+    @Test
+    public void testFormatMin() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(Float.MIN_VALUE, null);
+        assertEquals("0.0000000000000000000000000000000000000000000014", result);
+    }
+
+    @Test
+    public void testFormatNegativeMin() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(-Float.MIN_VALUE, null);
+        assertEquals("-0.0000000000000000000000000000000000000000000014", result);
+    }
+
+    @Test
+    public void testFormatMax() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(Float.MAX_VALUE, null);
+        assertEquals("340282350000000000000000000000000000000.0", result);
+    }
+
+    @Test
+    public void testFormatNegativeMax() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(-Float.MAX_VALUE, null);
+        assertEquals("-340282350000000000000000000000000000000.0", result);
+    }
+
+    @Test
+    public void testFormatInfinity() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(Float.POSITIVE_INFINITY, null);
+        assertEquals("Infinity", result);
+    }
+
+    @Test
+    public void testFormatNegativeInfinity() {
+        String2FloatConvertor converter = new String2FloatConvertor();
+        String result = converter.format(Float.NEGATIVE_INFINITY, null);
+        assertEquals("-Infinity", result);
     }
 }

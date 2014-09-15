@@ -107,9 +107,4 @@ public abstract class BenchmarkUnit {
     public String[] unitName() {
         return new String[] { "Run", "Runs" };
     }
-
-    public boolean isTestMemory() {
-        return false;
-    }
-
 }

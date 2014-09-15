@@ -10,9 +10,18 @@ public class BenchmarkInfo {
 
     BenchmarkUnit unit;
     long firstRunms;
-    List<RunInfo> runs = new ArrayList<RunInfo>();
     Throwable error;
     String name;
+    long timesSum;
+    long msSum;
+    double ms2Sum;
+
+
+    public void collect(long times, long ms) {
+        timesSum += times;
+        msSum += ms;
+        ms2Sum += (double) ms / times * ms;
+    }
 
     public static BenchmarkOrder[] order(BenchmarkInfo[] bi) {
         ArrayList<BenchmarkOrder> list = new ArrayList<BenchmarkOrder>();
@@ -79,55 +88,11 @@ public class BenchmarkInfo {
     }
 
     public double avg() {
-        long n = 0;
-        double sum = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.ms;
-        }
-
-        return sum / n;
-    }
-
-    public double avgMemory() {
-        long n = 0;
-        double sum = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.usedBytes();
-        }
-
-        return sum / n;
-    }
-
-    public double avgLeaked() {
-        long n = 0;
-        double sum = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.leakedBytes();
-        }
-
-        return sum / n;
+        return (double) msSum / timesSum;
     }
 
     public double deviation() {
-        int n = 0;
-        double sum = 0;
-        double sum2 = 0;
-        for (int i = 0; i < runs.size(); ++i) {
-            RunInfo run = runs.get(i);
-            n += run.times;
-            sum += run.ms;
-
-            sum2 += run.avgRunms() * run.ms;
-        }
-
-        return Math.sqrt((sum2 - sum / n * sum) / n);
-
+        return Math.sqrt((ms2Sum - (double) msSum / timesSum * msSum) / timesSum);
     }
 
     public double drunsunitsec() {
@@ -164,28 +129,10 @@ public class BenchmarkInfo {
 
     @Override
     public String toString() {
-
-        // return printDouble(avg()) + " ms/run" + '\t' +
-        // printLargeDouble(1000/avg()) + "runs/sec" + " \t" + runs + " \t" +
-        // unitDescription() + " 1: " + printDouble(firstRunms) ;
-        return getName() + " = " + '\t' + msrun() + " ms/run" + '\t' + runssec() + " runs/sec" + '\t' + " First Run: "
-                + printDouble(firstRunms) + "ms" + '\t' + "Memory: " + printLargeDouble(avgMemory() / unit.nUnitRuns())
-                + "b/unit" + '\t' + "Leaked: " + printLargeDouble(avgLeaked() / unit.nUnitRuns()) + "b/unit";
-    }
-
-    public String printUnits() {
-        return msrununit() + "ms/" + unit.unitName()[0] + "  " + drunsunitsec() + " units/sec";
-    }
-
-    String unitDescription() {
-        if (unit.getDescription() == null) {
-            return unit.getName();
-        }
-        return unit.getDescription();
+        return getName() + " = \t" + msrun() + " ms/run\t" + runssec() + " runs/sec\t First Run: " + firstRunms + "ms";
     }
 
     public String unitName() {
         return unit.nUnitRuns() == 1 ? unit.unitName()[0] : unit.unitName()[1];
     }
-
 }
