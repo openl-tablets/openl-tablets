@@ -7,13 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Benchmark {
-    BenchmarkUnit[] _units;
 
     HashMap<String, BenchmarkInfo> _measurements = null;
-
-    public Benchmark(BenchmarkUnit[] units) {
-        _units = units;
-    }
 
     public List<BenchmarkInfo> measureAllInList(BenchmarkUnit[] units, int ms) throws Exception {
         _measurements = new HashMap<String, BenchmarkInfo>();

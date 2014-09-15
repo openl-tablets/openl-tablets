@@ -78,7 +78,7 @@ public class BenchmarkOpenLBasics {
     	};
     	
 
-        List<BenchmarkInfo> res = new Benchmark(null).measureAllInList(bu, 1000);
+        List<BenchmarkInfo> res = new Benchmark().measureAllInList(bu, 1000);
 
         for (BenchmarkInfo bi : res) {
 
