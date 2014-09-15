@@ -10,7 +10,7 @@ OpenL Maven Plugin
   Access to rules and data in Excel tables is realized through OpenL Tablets API. OpenL Tablets provides wrappers
   to developers to facilitate easier usage.
 
-  This plugin can generate interface that can be used to access the rules. Also with this plugin you can validate 
+  This plugin can generate interface that can be used to access the rules. This plugin also allows to validate
   rules during compilation phase and run OpenL Tablets tests.
 
 * Goals Overview
@@ -27,10 +27,10 @@ OpenL Maven Plugin
 
 * Usage
 
-  General instructions on how to use the Plugin Name can be found on the {{{./usage.html}usage page}}. Some more
-  specific use cases are described in the examples given below.
+  General instructions on how to use the Plugin Name can be found on the {{{./usage.html}usage page}}. Some of the more
+  specific cases are described in the examples provided below.
 
-  You should specify the version in your project's plugin configuration:
+  Specify the version in the project plugin configuration:
 
 +--------------------------------------
   <project>
@@ -63,9 +63,8 @@ OpenL Maven Plugin
 
 * Examples
 
-  To provide you with better understanding of some usages of the Plugin Name,
-  you can take a look into the following examples:
+  To acquire a better understanding of Plugin Name usage, refer to the following examples:
 
-  * {{{./examples/configuration-with-all-goals.html}Configuration with all goals}}
+  * {{{./examples/configuration-with-all-goals.html}Configuration with all Goals}}
 
-  * {{{./examples/generate-project-with-working-example.html}Generate a project with working example}}
+  * {{{./examples/generate-project-with-working-example.html}Generate a Project with a Working Example}}
