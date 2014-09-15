@@ -60,7 +60,7 @@ public class Benchmark {
         while (true) {
             long time = bu.millisecondsToRun(runs);
             if (time > minMillis || runs >= Integer.MAX_VALUE) {
-                bi.collect(runs, ms);
+                bi.collect(runs, time);
                 return bi;
             }
 
