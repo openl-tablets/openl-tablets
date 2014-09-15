@@ -12,8 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -31,7 +32,7 @@ import org.openl.syntax.code.IDependency;
 
 public class RuleServiceDeploymentRelatedDependencyManager extends DependencyManager {
 
-    private final Log log = LogFactoryImpl.getLog(RuleServiceDeploymentRelatedDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
     private List<IDependencyLoader> dependencyLoaders = null;
 
