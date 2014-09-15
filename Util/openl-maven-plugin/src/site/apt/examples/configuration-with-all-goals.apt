@@ -1,12 +1,12 @@
  ------
- Configuration with all OpenL Maven Plugin goals
+ Configuration with all OpenL Maven Plugin Goals
  ------
  YYYY-MM-DD
  ------
 
-Configuration with all OpenL Maven Plugin goals
+Configuration with all OpenL Maven Plugin Goals
 
-  You can fully configure rules.xml generation: set it's project id, project name, add classpaths. For example:
+  To configure rules.xml generation, set its project ID and project name, and classpaths. For example:
 
 +--------------------------------------
 <build>
@@ -50,4 +50,4 @@ Configuration with all OpenL Maven Plugin goals
 </build>
 +--------------------------------------
 
-  More configuration options you can find on {{{../generate-mojo.html}openl:generate}} goal page.
+  More configuration options can be found on the {{{../generate-mojo.html}openl:generate}} goal page.

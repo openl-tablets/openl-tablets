@@ -422,17 +422,17 @@
                 <artifactId>commons-collections4</artifactId>
                 <version>4.0</version>
             </dependency>
-            <!-- Commons Logging is a thin adapter allowing configurable bridging to other, well known logging systems. -->
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.3</version>
-            </dependency>
             <!-- Apache Commons BeanUtils provides an easy-to-use but flexible wrapper around reflection and introspection. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- contains simple encoder and decoders for various formats such as Base64 and Hexadecimal. -->
             <dependency>
@@ -459,6 +459,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-digester3</artifactId>
                 <version>3.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- The Apache Commons Discovery component is about discovering, or finding, implementations for pluggable interfaces. -->
             <dependency>
@@ -489,6 +495,10 @@
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils-core</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <!-- Configuration library for JVM languages. -->
@@ -504,6 +514,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Expression Language (depends on spring-core) Define this if you use
                 Spring Expression APIs (org.springframework.expression.*) -->
