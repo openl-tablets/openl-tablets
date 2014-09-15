@@ -16,7 +16,6 @@ import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
-import org.openl.util.benchmark.BenchmarkUnit;
 
 @Ignore
 public class BenchmarkPerformanceTest extends TestCase {
@@ -82,8 +81,7 @@ public class BenchmarkPerformanceTest extends TestCase {
         IBenchmarkableMethod.BMBenchmarkUnit bu = new IBenchmarkableMethod.BMBenchmarkUnit(bm, instance, null,
                 iw.getRuntimeEnv());
 
-        BenchmarkUnit[] buu = { bu };
-        BenchmarkInfo bi = new Benchmark(buu).measureUnit(bu, 3000);
+        BenchmarkInfo bi = new Benchmark().runUnit(bu, 3000);
 
         return bi;
 
