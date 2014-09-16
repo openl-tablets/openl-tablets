@@ -3,7 +3,6 @@ package org.openl.rules.ui.tree.richfaces;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -11,11 +10,8 @@ import org.openl.util.tree.ITreeElement;
 
 public class ProjectTreeBuilder extends TreeBuilder {
 
-    private ProjectModel projectModel;
-
-    public ProjectTreeBuilder(ProjectModel projectModel, boolean hideDispatcherTables) {
+    public ProjectTreeBuilder(boolean hideDispatcherTables) {
         super(hideDispatcherTables);
-        this.projectModel = projectModel;
     }
 
     @Override
@@ -23,7 +19,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
     int getState(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
         if (pte.getTableSyntaxNode() != null
-                && projectModel.isTestable(pte.getTableSyntaxNode())) {
+                && WebStudioUtils.getProjectModel().isTestable(pte.getTableSyntaxNode())) {
             return 2; // has tests
         }
         return super.getState(element);
