@@ -47,7 +47,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     protected TransientRepository repository;
     protected String repHome;
     private String nodeTypeFile;
-    private ShutDownHook shutDownHook;
     protected boolean convert = false;
 
     @Override
@@ -56,10 +55,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             release();
         } catch (RRepositoryException e) {
             log.error("finalize", e);
-        }
-
-        if (shutDownHook != null) {
-            Runtime.getRuntime().removeShutdownHook(shutDownHook);
         }
     }
 
@@ -215,7 +210,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } finally {
             FileUtils.deleteQuietly(tmpRepoHome);
         }
-        return;
 
     }
 
@@ -225,7 +219,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             systemSession = createSession();
             NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
-            boolean initNodeTypes = false;
             // Does JCR know anything about OpenL?
             return ntm.hasNodeType(JcrNT.NT_PROD_PROJECT);
         } catch (RepositoryException e) {
