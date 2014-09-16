@@ -23,15 +23,15 @@ abstract class TreeBuilder {
     }
 
     public TreeNode build(boolean hasRoot) {
-        TreeNode rfTree = new TreeNode();
-        addNodes(rfTree, root);
+        TreeNode rfRoot = new TreeNode();
         if (hasRoot) {
-            setNodeData(root, rfTree);
-            TreeNode rfRoot = new TreeNode();
+            TreeNode rfTree = toRFNode(root);
             rfRoot.addChild(0, rfTree);
-            return rfRoot;
+            addNodes(rfTree, root);
+        } else {
+            addNodes(rfRoot, root);
         }
-        return rfTree;
+        return rfRoot;
     }
 
     private void addNodes(TreeNode dest, ITreeElement<?> source) {
@@ -58,27 +58,35 @@ abstract class TreeBuilder {
         if (node == null) {
             return createNullNode();
         }
-        TreeNode rfNode = new TreeNode(node.isLeaf());
-        setNodeData(node, rfNode);
-        return rfNode;
+        return createNode(node);
     }
 
-    private void setNodeData(ITreeElement<?> source, TreeNode dest) {
-        String name = getDisplayName(source, INamedThing.SHORT);
-        String title = getDisplayName(source, INamedThing.REGULAR);
-        String url = getUrl(source);
-        int state = getState(source);
-        int numErrors = getNumErrors(source);
-        String type = getType(source);
-        boolean active = isActive(source);
+    private TreeNode createNode(ITreeElement<?> element) {
+        boolean leaf = element.isLeaf();
+        TreeNode node = new TreeNode(leaf);
 
-        dest.setName(name);
-        dest.setTitle(title);
-        dest.setUrl(url);
-        dest.setState(state);
-        dest.setNumErrors(numErrors);
-        dest.setType(type);
-        dest.setActive(active);
+        String name = getDisplayName(element, INamedThing.SHORT);
+        node.setName(name);
+
+        String title = getDisplayName(element, INamedThing.REGULAR);
+        node.setTitle(title);
+
+        String url = getUrl(element);
+        node.setUrl(url);
+
+        int state = getState(element);
+        node.setState(state);
+
+        int numErrors = getNumErrors(element);
+        node.setNumErrors(numErrors);
+
+        String type = getType(element);
+        node.setType(type);
+
+        boolean active = isActive(element);
+        node.setActive(active);
+
+        return node;
     }
 
     boolean isActive(ITreeElement<?> element) {
