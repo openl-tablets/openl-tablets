@@ -13,10 +13,6 @@ public class ExplainTreeBuilder extends TreeBuilder {
 
     private static final String showTablePage = "/faces/pages/modules/explain/showExplainTable.xhtml?";
 
-    public ExplainTreeBuilder(ITreeElement<?> root) {
-        super(root, false);
-    }
-
     @Override
     String getDisplayName(Object obj, int mode) {
         String result = super.getDisplayName(obj, mode + 1);

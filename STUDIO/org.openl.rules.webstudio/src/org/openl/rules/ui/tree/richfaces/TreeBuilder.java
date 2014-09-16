@@ -10,20 +10,22 @@ import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private ITreeElement<?> root;
     private boolean hideDispatcherTables;
 
-    TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
-        this.root = root;
+
+    TreeBuilder() {
+    }
+
+    TreeBuilder(boolean hideDispatcherTables) {
         this.hideDispatcherTables = hideDispatcherTables;
     }
 
-    public TreeNode build() {
+    public TreeNode build(ITreeElement<?> root) {
         return buildNode(root);
     }
 
-    public TreeNode buildWithRoot() {
-        TreeNode subNode = build();
+    public TreeNode buildWithRoot(ITreeElement<?> root) {
+        TreeNode subNode = build(root);
         // Wrap to root node
         TreeNode node = new TreeNode();
         node.addChild(0, subNode);

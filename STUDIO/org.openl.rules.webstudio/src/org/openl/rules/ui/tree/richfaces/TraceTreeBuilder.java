@@ -14,8 +14,7 @@ public class TraceTreeBuilder extends TreeBuilder {
 
     private TraceHelper traceHelper;
 
-    public TraceTreeBuilder(ITreeElement<?> root, TraceHelper traceHelper) {
-        super(root, false);
+    public TraceTreeBuilder(TraceHelper traceHelper) {
         this.traceHelper = traceHelper;
     }
 
