@@ -16,7 +16,7 @@ public class TestForEach extends Test0 {
     @Test
     public void test1() {
         Exception ex = catchEx(new File("test/rules/tbasic1/FOR_EACH_F1.xls"));
-        TestUtils.assertEx(ex, "Compilation failure. The cell should be of the iterable type");
+        TestUtils.assertEx(ex, "Compilation failure. The cell should be of the array type");
     }
 
     @Test
@@ -51,11 +51,26 @@ public class TestForEach extends Test0 {
 
     @Test
     public void test7() {
-        okRows(new File("test/rules/tbasic1/FOR_EACH_P2.xls"), 1);
+        Exception ex = catchEx(new File("test/rules/tbasic1/FOR_EACH_F7.xls"));
+        TestUtils.assertEx(ex, "Variable el has already been defined");
     }
 
     @Test
     public void test8() {
+        TestHelper<TestAlgorithm> testHelper = new TestHelper<TestAlgorithm>(new File("test/rules/tbasic1/FOR_EACH_P1.xls"), TestAlgorithm.class);
+        TestAlgorithm a = testHelper.getInstance();
+
+        Integer result = a.calc();
+        assertEquals(0, result.intValue());
+    }
+
+    @Test
+    public void test8_1() {
+        okRows(new File("test/rules/tbasic1/FOR_EACH_P2.xls"), 1);
+    }
+
+    @Test
+    public void test9() {
         TestHelper<TestAlgorithm> testHelper = new TestHelper<TestAlgorithm>(new File("test/rules/tbasic1/FOR_EACH_P3.xls"), TestAlgorithm.class);
         TestAlgorithm a = testHelper.getInstance();
 
@@ -64,7 +79,7 @@ public class TestForEach extends Test0 {
     }
 
     @Test
-    public void test9() {
+    public void test10() {
         TestHelper<TestAlgorithm> testHelper = new TestHelper<TestAlgorithm>(new File("test/rules/tbasic1/FOR_EACH_P4.xls"), TestAlgorithm.class);
         TestAlgorithm a = testHelper.getInstance();
 
@@ -73,7 +88,7 @@ public class TestForEach extends Test0 {
     }
 
     @Test
-    public void test10() {
+    public void test11() {
         TestHelper<TestAlgorithm> testHelper = new TestHelper<TestAlgorithm>(new File("test/rules/tbasic1/FOR_EACH_P5.xls"), TestAlgorithm.class);
         TestAlgorithm a = testHelper.getInstance();
 
