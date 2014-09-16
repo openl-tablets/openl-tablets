@@ -18,7 +18,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected String getDisplayName(Object obj, int mode) {
+    String getDisplayName(Object obj, int mode) {
         String result = super.getDisplayName(obj, mode + 1);
         ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) obj;
         if (NumberValue.ValueType.FUNCTION.equals(explanationValue.getValueType())
@@ -30,7 +30,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected String getUrl(ITreeElement<?> element) {
+    String getUrl(ITreeElement<?> element) {
         ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) element;
         String url = explanationValue == null || explanationValue.getMetaInfo() == null ? null : explanationValue.getMetaInfo().getSourceUrl();
         if (StringUtils.isNotBlank(url)) {
@@ -41,8 +41,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
 
     private String getUrlToElement(ITreeElement<?> element, String url) {
         return FacesUtils.getContextPath() + showTablePage
-        + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
-        + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
+                + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
+                + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }
-
 }
