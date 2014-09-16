@@ -27,7 +27,7 @@ public class ExplainTreeBean {
         Explanation explanation = explanator.getExplanation(rootID);
         ITreeElement<?> tree = explanation.getExplainTree();
         if (tree != null) {
-            TreeNode rfTree = new ExplainTreeBuilder(tree).build(true);
+            TreeNode rfTree = new ExplainTreeBuilder(tree).buildWithRoot();
             return rfTree;
         }
         return null;
