@@ -10,6 +10,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -109,7 +110,7 @@ public class AlgorithmCompilerTool {
      */
     public static AlgorithmTreeNode getLastExecutableOperation(List<AlgorithmTreeNode> nodes) {
         AlgorithmTreeNode lastOperation = nodes.get(nodes.size() - 1);
-        if (lastOperation.getSpecification().getKeyword().startsWith("END")) {
+        if (lastOperation.getSpecificationKeyword().startsWith(TBasicSpecificationKey.END.toString())) {
             lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
         } else if (lastOperation.getChildren().size() > 0) {
             lastOperation = getLastExecutableOperation(lastOperation.getChildren());
@@ -126,7 +127,7 @@ public class AlgorithmCompilerTool {
         int linkedNodesGroupSize = 1; // just one operation by default
 
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
-        String currentNodeKeyword = currentNodeToProcess.getSpecification().getKeyword();
+        String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
         String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(
                 currentNodeKeyword);
@@ -136,7 +137,7 @@ public class AlgorithmCompilerTool {
 
             for (; linkedNodesGroupSize < nodesToProcess.size() - firstNodeIndex; linkedNodesGroupSize++) {
                 AlgorithmTreeNode groupCandidateNode = nodesToProcess.get(firstNodeIndex + linkedNodesGroupSize);
-                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())) {
+                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecificationKeyword())) {
                     break;
                 }
             }
