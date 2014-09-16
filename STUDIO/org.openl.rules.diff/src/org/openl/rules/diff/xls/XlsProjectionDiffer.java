@@ -10,11 +10,9 @@ public class XlsProjectionDiffer extends ProjectionDifferImpl {
         // Sometimes there is no reason to create Big Tree with Projections
         // Just take and compare it here
         // Then store result (Table and Filter) and stop "suffering" )
-        XlsProjection p1 = (XlsProjection) original;
-        XlsProjection p2 = (XlsProjection) other;
 
         boolean selfEqual = true;
-        if (p2 != null && p2.getDiffCells() != null) {
+        if (((XlsProjection) other).getDiffCells() != null) {
             // have different cells -- cannot be equal
             selfEqual = false;
         }
