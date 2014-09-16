@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic.compile;
 
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -9,8 +8,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.impl.DynamicObjectField;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
