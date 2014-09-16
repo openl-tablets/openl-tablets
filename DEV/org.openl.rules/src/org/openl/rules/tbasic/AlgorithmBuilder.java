@@ -1,16 +1,14 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.*;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
@@ -18,6 +16,8 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.*;
 
 public class AlgorithmBuilder {
 
@@ -33,13 +33,19 @@ public class AlgorithmBuilder {
     }
 
     private static final String OPERATION = "Operation";
-    // FIXME: eliminate static string array and replace it with rules based data
-    // type
-    // (if possible...)
-    public static String[] algorithmOperations = new String[] { "SET", "VAR", "IF", "ELSE", "WHILE",
-    /* "FOR EACH", "END FOR EACH",*/
-    "SUB", "FUNCTION", "END IF", "END WHILE", "END SUB", "END FUNCTION", "GOTO", "BREAK", "CONTINUE",
-            "RETURN" };
+
+    public static Set<String> algorithmOperations = new LinkedHashSet<String>();
+
+    static {
+        AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
+        TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
+
+        for (TableParserSpecificationBean specification : algSpecifications) {
+            algorithmOperations.add(specification.getKeyword());
+        }
+    }
+
+
     private final IBindingContext bindingContext;
 
     private final Algorithm algorithm;
@@ -64,7 +70,7 @@ public class AlgorithmBuilder {
      */
     private void bindMetaInfo(IGridTable grid, int c, int r) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
-                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations), null), false);
+                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations.toArray(new String[algorithmOperations.size()])), null), false);
         IWritableGrid wgrid = (IWritableGrid) grid.getGrid();
         wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
                 grid.getRegion(), r), meta);
