@@ -85,13 +85,13 @@ public class BussinessSearchResultBean {
     
     private Map<String, Object> initPropListForUI(TableSyntaxNode tableSearch) {
         Map<String, Object> prop = new HashMap<String, Object>();
-        for(TableProperty propForSearch : propsForSearch) {
+        for (TableProperty propForSearch : propsForSearch) {
             String propName = propForSearch.getName();
             String propDisplName = TablePropertyDefinitionUtils.getPropertyDisplayName(propName);
             Object propValue = tableSearch.getTableProperties().getPropertyValue(propName);
-            if(propValue==null) {
-                propValue = new String(EMPTY_VALUE);
-            }            
+            if (propValue == null) {
+                propValue = EMPTY_VALUE;
+            }
             prop.put(propDisplName, propValue);
         }
         return prop;
