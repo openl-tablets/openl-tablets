@@ -307,7 +307,6 @@ var tableModel = {
     },
 
     setDataTypeTo : function(elemId, value, id, valuesType) {
-    //this.renderer.setDataTypeTo(elemId, value);
         if (id > -1) {
           this.header.inParam[id].type = value;
           this.header.inParam[id].valuesType = valuesType;
