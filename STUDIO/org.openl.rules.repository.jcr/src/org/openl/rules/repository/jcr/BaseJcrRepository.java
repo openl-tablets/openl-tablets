@@ -73,7 +73,7 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
             log.debug("release", e);
         }
 
-        if (session != null && session.isLive()) {
+        if (session.isLive()) {
             session.logout();
         }
     }
