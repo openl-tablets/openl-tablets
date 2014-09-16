@@ -44,6 +44,13 @@ public class AlgorithmTreeNode {
         return specification;
     }
 
+    public String getSpecificationKeyword() {
+        if (specification != null) {
+            return specification.getKeyword();
+        }
+        return null;
+    }
+
     public void setAlgorithmRow(AlgorithmRow algorithmRow) {
         this.algorithmRow = algorithmRow;
     }

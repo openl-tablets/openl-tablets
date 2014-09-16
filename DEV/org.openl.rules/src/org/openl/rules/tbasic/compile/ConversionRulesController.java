@@ -34,7 +34,7 @@ public class ConversionRulesController {
         List<String> groupedOperationNames = new ArrayList<String>(nodesToCompile.size());
 
         for (AlgorithmTreeNode node : nodesToCompile) {
-            groupedOperationNames.add(node.getSpecification().getKeyword().toUpperCase());
+            groupedOperationNames.add(node.getSpecificationKeyword().toUpperCase());
         }
 
         // Resolve the name of the group defined in the Algorithm Specification
