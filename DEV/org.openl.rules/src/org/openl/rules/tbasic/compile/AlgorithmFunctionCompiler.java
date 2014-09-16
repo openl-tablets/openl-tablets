@@ -4,6 +4,7 @@ import org.openl.base.INamedThing;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -44,7 +45,7 @@ public class AlgorithmFunctionCompiler {
             int i = 0;
             for (AlgorithmTreeNode algorithmTreeNode : functionBody){
                 StringValue operation = algorithmTreeNode.getAlgorithmRow().getOperation();
-                if (operation != null && "RETURN".equals(operation.toString())){
+                if (operation != null && TBasicSpecificationKey.RETURN.toString().equals(operation.toString())){
                     SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler).analyze(functionBody.get(i)
                         .getChildren());
                     if (status == SuitablityAsReturn.NONE) {
