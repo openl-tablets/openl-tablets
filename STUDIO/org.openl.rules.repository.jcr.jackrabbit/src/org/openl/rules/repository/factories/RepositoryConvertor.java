@@ -58,7 +58,7 @@ public class RepositoryConvertor {
     private String rulesProjectsLocation = "/DESIGN/rules";
     private String deploymentProjectsLocation = "/DESIGN/deployments";
 
-    private String repHome = "/temp/repo/";
+    private final String repHome;
 
     private TransientRepository repo;
     private Session target;
@@ -145,8 +145,7 @@ public class RepositoryConvertor {
     protected Session createSession(String user, String pass) throws RepositoryException {
         char[] password = pass.toCharArray();
         SimpleCredentials sc = new SimpleCredentials(user, password);
-        Session session = repo.login(sc);
-        return session;
+        return repo.login(sc);
     }
 
     private void copyRulesProjects(RRepository repository) {

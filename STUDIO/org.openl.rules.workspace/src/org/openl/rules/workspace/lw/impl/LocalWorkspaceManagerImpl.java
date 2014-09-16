@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
+import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -22,7 +24,7 @@ import java.util.Map;
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(LocalWorkspaceManagerImpl.class);
 
-    private String workspaceHome = "/tmp/rules-workspaces/";
+    private String workspaceHome;
     private boolean singleUserMode = false;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
@@ -31,6 +33,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
 
     public void afterPropertiesSet() throws Exception {
+        if (workspaceHome == null) {
+            log.warn("workspaceHome isn't initialized. Default value is used.");
+            workspaceHome = getTempDirectoryPath() + "/rules-workspaces/";
+        }
         if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
         }
