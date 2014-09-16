@@ -50,11 +50,17 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     protected boolean convert = false;
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
         try {
             release();
         } catch (RRepositoryException e) {
-            log.error("finalize", e);
+            try {
+                log.error("finalize", e);
+            } catch (Throwable ignored) {
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            super.finalize();
         }
     }
 
