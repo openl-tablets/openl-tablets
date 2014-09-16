@@ -46,9 +46,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         private String getDateString(Date date, String condition) {
             DateFormat format;
 
-            if (condition.indexOf(">") > -1) {
+            if (condition.contains(">")) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
-            } else if (condition.indexOf("<") > -1) {
+            } else if (condition.contains("<")) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59.999'Z'");
             } else {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -403,7 +403,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             String deploymentName = folder.getName();
             Integer versionNum = 0;
 
-            if (deploymentName.indexOf("#") > -1) {
+            if (deploymentName.contains("#")) {
                 String versionStr;
 
                 if (deploymentName.indexOf("#") > deploymentName.lastIndexOf(".")) {
