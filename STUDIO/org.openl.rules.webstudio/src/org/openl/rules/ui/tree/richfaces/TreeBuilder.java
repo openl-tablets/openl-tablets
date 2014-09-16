@@ -10,55 +10,46 @@ import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private ITreeElement<?> root;
     private boolean hideDispatcherTables;
 
-    TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
-        this.root = root;
+
+    TreeBuilder() {
+    }
+
+    TreeBuilder(boolean hideDispatcherTables) {
         this.hideDispatcherTables = hideDispatcherTables;
     }
 
-    public TreeNode build() {
-        return build(false);
+    public TreeNode build(ITreeElement<?> root) {
+        return buildNode(root);
     }
 
-    public TreeNode build(boolean hasRoot) {
-        TreeNode rfRoot = new TreeNode();
-        if (hasRoot) {
-            TreeNode rfTree = toRFNode(root);
-            rfRoot.addChild(0, rfTree);
-            addNodes(rfTree, root);
-        } else {
-            addNodes(rfRoot, root);
+    public TreeNode buildWithRoot(ITreeElement<?> root) {
+        TreeNode subNode = build(root);
+        // Wrap to root node
+        TreeNode node = new TreeNode();
+        node.addChild(0, subNode);
+        return node;
+    }
+
+    private TreeNode buildNode(ITreeElement<?> element) {
+        if (element == null) {
+            return createNullNode();
         }
-        return rfRoot;
-    }
-
-    private void addNodes(TreeNode dest, ITreeElement<?> source) {
-        int index = 1;
-        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(source);
+        TreeNode node = createNode(element);
+        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(element);
         for (ITreeElement<?> child : children) {
-            TreeNode rfChild = toRFNode(child);
+            TreeNode rfChild = buildNode(child);
             if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
                 continue;
             }
-            dest.addChild(index, rfChild);
-            if (child != null) {
-                addNodes(rfChild, child);
-            }
-            index++;
+            node.addChild(rfChild, rfChild);
         }
+        return node;
     }
 
     Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
-    }
-
-    private TreeNode toRFNode(ITreeElement<?> node) {
-        if (node == null) {
-            return createNullNode();
-        }
-        return createNode(node);
     }
 
     private TreeNode createNode(ITreeElement<?> element) {

@@ -14,14 +14,14 @@ public class TraceTreeBuilder extends TreeBuilder {
 
     private TraceHelper traceHelper;
 
-    public TraceTreeBuilder(ITreeElement<?> root, TraceHelper traceHelper) {
-        super(root, false);
+    public TraceTreeBuilder(TraceHelper traceHelper) {
         this.traceHelper = traceHelper;
     }
 
     @Override
     String getUrl(ITreeElement<?> element) {
-        String params = element != null ? Constants.REQUEST_PARAM_ID + "=" + traceHelper.getNodeKey(element) : "";
+        Integer nodeKey = traceHelper.getNodeKey(element);
+        String params = nodeKey != null ? Constants.REQUEST_PARAM_ID + "=" + nodeKey : "";
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;
     }
 

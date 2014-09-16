@@ -484,7 +484,7 @@ var tableModel = {
             }
 
         }
-    },
+    }
 };
 
 function Cell(value, valueType, iterable, isReturn) {
