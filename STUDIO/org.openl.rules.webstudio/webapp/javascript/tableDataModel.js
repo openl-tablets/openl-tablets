@@ -433,7 +433,7 @@ var tableModel = {
     checkNames : function(checkingRes) {
         re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
         onlyChar = /^([a-zA-Z]+)/;
-        var repittedNames = [];
+        var repeatedNames = [];
 
         if (!re.test(this.header.name)) {
             checkingRes.push("Table name '"+this.header.name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'.");
@@ -458,9 +458,9 @@ var tableModel = {
 
             for (var paramId = 0; paramId < this.header.inParam.length; paramId++) {
                 if (paramId != i && this.header.inParam[paramId].name == this.header.inParam[i].name) {
-                    if (repittedNames.indexOf(this.header.inParam[i].name) == -1) {
+                    if (repeatedNames.indexOf(this.header.inParam[i].name) == -1) {
                         checkingRes.push("Parameter '"+this.header.inParam[i].name+"' already exists. Rename this parameter.");
-                        repittedNames.push(this.header.inParam[i].name);
+                        repeatedNames.push(this.header.inParam[i].name);
                     }
                 }
             }
