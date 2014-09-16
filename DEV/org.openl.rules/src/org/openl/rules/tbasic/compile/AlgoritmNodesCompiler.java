@@ -1,5 +1,6 @@
 package org.openl.rules.tbasic.compile;
 
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -8,6 +9,8 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.impl.DynamicObjectField;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -47,13 +50,11 @@ public class AlgoritmNodesCompiler {
         this.parameterConverters.put(String.class, new StringConverter());
         this.parameterConverters.put(boolean.class, new BooleanConverter());
         this.parameterConverters.put(IMethodCaller.class, new MethodCallerConverter());
-
     }
 
     /**
      * after is allowed only for the first operation in group
      *
-     * @throws BoundError
      */
     private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         final String afterFieldName = "after";
@@ -63,7 +64,6 @@ public class AlgoritmNodesCompiler {
     /**
      * before is allowed only for the first operation in group
      *
-     * @throws BoundError
      */
     private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         final String beforeFieldName = "before";
@@ -171,11 +171,15 @@ public class AlgoritmNodesCompiler {
 
             Object[] params = new Object[constructor.getParameterTypes().length];
 
+            // Init the first parameter for the Operation constructor
+            //
             if (constructor.getParameterTypes().length > 0) {
                 params[0] = convertParam(nodesToCompile, constructor.getParameterTypes()[0], conversionStep
                         .getOperationParam1());
             }
 
+            //Init the second parameter for the Operation constructor
+            //
             if (constructor.getParameterTypes().length > 1) {
                 params[1] = convertParam(nodesToCompile, constructor.getParameterTypes()[1], conversionStep
                         .getOperationParam2());
@@ -319,12 +323,14 @@ public class AlgoritmNodesCompiler {
                 return null;
             }
 
+            StringValue cellContent = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
+
             AlgorithmTreeNode executionNode = AlgorithmCompilerTool.extractOperationNode(nodesToCompile,
                     operationParam);
             String methodName = String.format("%s_row_%s", operationParam.replace('.', '_'),
                     executionNode.getAlgorithmRow().getRowNumber());
 
-            StringValue cellContent = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
+
             IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
             // return statements for the whole Algorithm(TBasic) should be casted to the return type of
             // whole Algorithm rule
@@ -336,5 +342,4 @@ public class AlgoritmNodesCompiler {
             }
         }
     }
-    
 }

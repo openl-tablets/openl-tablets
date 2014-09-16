@@ -33,27 +33,35 @@ public class AlgorithmCompilerTool {
     /**
      * @param candidateNodes
      * @param instruction
-     * @return
-     * @throws BoundError
+     * @return The {@link org.openl.rules.tbasic.AlgorithmTreeNode} that suits the given instruction name
+     *
+     * @throws SyntaxNodeException
      */
     public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes, String instruction)
             throws SyntaxNodeException {
-        AlgorithmTreeNode executionNode = null;
+        AlgorithmTreeNode operationNode = null;
+
+        // Get the name of the operation: e.g. VAR, IF, WHILE, etc
+        //
         String operationName = extractOperationName(instruction);
 
         for (AlgorithmTreeNode node : candidateNodes) {
-            if (operationName.equalsIgnoreCase(node.getAlgorithmRow().getOperation().getValue())) {
-                executionNode = node;
+            if (isOperationNode(operationName, node)) {
+                operationNode = node;
             }
         }
 
-        if (executionNode == null) {
+        if (operationNode == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
             throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s in operations sequence %s",
                     operationName, candidateNodes), errorSource);
         }
-        return executionNode;
+        return operationNode;
+    }
+
+    private static boolean isOperationNode(String operationName, AlgorithmTreeNode node) {
+        return operationName.equalsIgnoreCase(node.getAlgorithmRow().getOperation().getValue());
     }
 
     public static Map<String, AlgorithmTreeNode> getAllDeclaredLables(List<AlgorithmTreeNode> nodesToSearch) {
@@ -71,7 +79,7 @@ public class AlgorithmCompilerTool {
      * @param candidateNodes
      * @param instruction
      * @return
-     * @throws BoundError
+     * @throws SyntaxNodeException
      */
     public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String instruction)
             throws SyntaxNodeException {
@@ -141,7 +149,6 @@ public class AlgorithmCompilerTool {
      * @param candidateNodes
      * @param conversionStep
      * @return
-     * @throws BoundError
      */
     public static List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
             String instruction) throws SyntaxNodeException {
@@ -155,7 +162,6 @@ public class AlgorithmCompilerTool {
      * @param nodesToCompile
      * @param instruction
      * @return
-     * @throws BoundError
      */
     public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile, String instruction)
             throws SyntaxNodeException {
