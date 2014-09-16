@@ -5,6 +5,7 @@ import org.openl.rules.dt.trace.DTConditionTraceObject;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class TraceTreeBuilder extends TreeBuilder {
@@ -12,14 +13,9 @@ public class TraceTreeBuilder extends TreeBuilder {
     private static final int SUCCESSFUL_WITHOUT_RESULT = 1;
     private static final int SUCCESSFUL_WITH_RESULT = 2;
 
-    private TraceHelper traceHelper;
-
-    public TraceTreeBuilder(TraceHelper traceHelper) {
-        this.traceHelper = traceHelper;
-    }
-
     @Override
     String getUrl(ITreeElement<?> element) {
+        TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
         Integer nodeKey = traceHelper.getNodeKey(element);
         String params = nodeKey != null ? Constants.REQUEST_PARAM_ID + "=" + nodeKey : "";
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;
@@ -39,6 +35,7 @@ public class TraceTreeBuilder extends TreeBuilder {
     Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         if (source instanceof DecisionTableTraceObject) {
             DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
+            TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
             return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();
         }
 

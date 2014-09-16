@@ -56,7 +56,7 @@ public class TraceTreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TraceHelper traceHelper = studio.getTraceHelper();
         if (traceHelper.getTreeRoot() != null) {
-            return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
+            return new TraceTreeBuilder().build(traceHelper.getTreeRoot());
         }
         return null;
     }
@@ -92,9 +92,4 @@ public class TraceTreeBean {
         }
         return false;
     }
-
-    private TreeNode buildTreeNode(TraceHelper traceHelper, ITreeElement<?> tree) {
-        return new TraceTreeBuilder(traceHelper).build(tree);
-    }
-
 }
