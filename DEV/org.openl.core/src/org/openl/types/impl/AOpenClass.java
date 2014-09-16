@@ -167,6 +167,15 @@ public abstract class AOpenClass implements IOpenClass {
         return metaInfo;
     }
 
+    private ICastFactory castFactory;
+    
+    private ICastFactory getCastFactory(){
+        if (castFactory == null){
+            castFactory = new CastFactory(); 
+        }
+        return castFactory;
+    }
+    
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
         Map<MethodKey, IOpenMethod> m = methodMap();
@@ -188,7 +197,7 @@ public abstract class AOpenClass implements IOpenClass {
             IOpenClass[] methodParams = method.getSignature().getParameterTypes();
             IOpenCast[] typeCasts = new IOpenCast[methodParams.length];
 
-            ICastFactory castFactory = new CastFactory();
+            ICastFactory castFactory = getCastFactory();
 
             for (int i = 0; i < methodParams.length; i++) {
                 IOpenClass methodParam = methodParams[i];

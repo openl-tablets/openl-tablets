@@ -41,7 +41,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
         this.componentOpenClass = componentOpenClass;
     }
     
-    protected ComponentOpenClass getComponentOpenClass() {
+    public ComponentOpenClass getComponentOpenClass() {
         return componentOpenClass;
     }
     

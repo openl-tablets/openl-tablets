@@ -20,13 +20,13 @@ public class TraceTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected String getUrl(ITreeElement<?> element) {
+    String getUrl(ITreeElement<?> element) {
         String params = element != null ? Constants.REQUEST_PARAM_ID + "=" + traceHelper.getNodeKey(element) : "";
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;
     }
 
     @Override
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         if (element instanceof DTConditionTraceObject) {
             DTConditionTraceObject condition = (DTConditionTraceObject) element;
             return condition.isSuccessful() ? (condition.hasRuleResult() ? SUCCESSFUL_WITH_RESULT : SUCCESSFUL_WITHOUT_RESULT) : UNSUCCESSFUL;
@@ -36,7 +36,7 @@ public class TraceTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
+    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         if (source instanceof DecisionTableTraceObject) {
             DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
             return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();
@@ -44,5 +44,4 @@ public class TraceTreeBuilder extends TreeBuilder {
 
         return super.getChildrenIterator(source);
     }
-
 }

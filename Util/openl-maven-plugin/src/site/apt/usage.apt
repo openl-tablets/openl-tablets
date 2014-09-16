@@ -6,7 +6,7 @@
 
 Usage
 
-* Directory structure
+* Directory Structure
 
   Take into account that OpenL Maven Plugin expects the following directory structure:
 
@@ -30,15 +30,15 @@ Usage
 | | | | | |- TemplateRules.xls     File with rules
 +--------------------------------------
 
-  Note that all OpenL-related resources are located in <<<src/main/openl>>> directory.
-  But you can change it to fit your needs (you should change <<<openlResourcesDirectory>>> parameter in maven plugin configuration).
+  Note that OpenL-related resources are located in the <<<src/main/openl>>> directory.
+  But it can be changed to fit user's needs by changing the <<<openlResourcesDirectory>>> parameter in maven plugin configuration.
 
-  <<Note:>> It's not recommended to put OpenL-related resources to the <<<src/main/resources>>> folder: in this case your OpenL resources
-  will be inside jar file alongside with compiled java classes - most probably it's not what you wanted to do in production.
+  <<Note:>> It is not recommended to put OpenL-related resources to the <<<src/main/resources>>> folder. In this case, OpenL resources
+  will be inside the JAR file alongside with the compiled Java classes - most probably not what was expected to do in production.
 
-* Configure interface, domain classes and project descriptor generation
+* Configure Interface, Domain Classes and Project Descriptor Generation
 
-  The simplest way to generate interface for rules defined in the file TemplateRules.xls:
+  The simplest way to generate interface for rules defined in the TemplateRules.xls file:
 
 +--------------------------------------
 <build>
@@ -71,18 +71,17 @@ Usage
 </build>
 +--------------------------------------
 
-  In this case classes and rules.xml will be generated on each maven run on generate-sources phase.
+  In this case, classes and rules.xml are generated on each Maven run during the generate-sources phase.
 
-  If you want to invoke class generation manually, you should remove <<<executions>>> node and then run
-  in console when you need:
+  To invoke class generation manually, remove the <<<executions>>> node and run in the console when needed:
 
 ---
   mvn openl:generate
 --- 
 
-  More configuration options you can find on {{{./generate-mojo.html}openl:generate}} goal page.
+  More configuration options can be found on the {{{./generate-mojo.html}openl:generate}} goal page.
 
-* Configure OpenL project compilation and validation
+* Configure OpenL Project Compilation and Validation
 
 +--------------------------------------
 <build>
@@ -107,9 +106,9 @@ Usage
 </build>
 +--------------------------------------
 
-  More configuration options you can find on {{{./compile-mojo.html}openl:compile}} goal page.
+  More configuration options can be found on the {{{./compile-mojo.html}openl:compile}} goal page.
 
-* Configure OpenL project testing
+* Configure OpenL Project Testing
 
   The simplest way to invoke OpenL Tablets Test:
 
@@ -136,10 +135,10 @@ Usage
 </build>
 +--------------------------------------
 
-  More configuration options you can find on {{{./test-mojo.html}openl:test}} goal page.
+  More configuration options can be found on the {{{./test-mojo.html}openl:test}} goal page.
 
-  But if you want to have more control on tests and want to invoke and debug them from java code, you can instead generate
-  JUnit tests for them (in this case don't use the <<<test>>> goal). Configure the <<<generate>>> goal:
+  To have more control over tests, to invoke and debug them from the Java code, generate JUnit tests.
+  In this case do not use the <<<test>>> goal. Configure the <<<generate>>> goal:
 
 +--------------------------------------
 <build>
@@ -170,8 +169,8 @@ Usage
 </build>
 +--------------------------------------
 
-  If you want to define your own template for JUnit tests, you should set <<<unitTestTemplatePath>>> parameter with a path
-  to your Velocity template (for example: <<<\<unitTestTemplatePath\>src/test/resources/MyTemplate.vm\</unitTestTemplatePath\>>>>).
+  To define a user's custom template for JUnits tests, set the <<<unitTestTemplatePath>>> parameter with a path
+  to the user's custom Velocity template. For example, <<<\<unitTestTemplatePath\>src/test/resources/MyTemplate.vm\</unitTestTemplatePath\>>>>.
   Here is an example of such template:
 
 +--------------------------------------
