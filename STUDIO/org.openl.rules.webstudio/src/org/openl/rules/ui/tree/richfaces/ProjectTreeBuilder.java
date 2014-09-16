@@ -4,9 +4,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class ProjectTreeBuilder extends TreeBuilder {
@@ -53,11 +53,10 @@ public class ProjectTreeBuilder extends TreeBuilder {
 
     @Override
     String getUrl(ITreeElement<?> element) {
-        WebStudio studio = projectModel.getStudio();
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = ((ProjectTreeNode) element).getTableSyntaxNode();
-            return studio.url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
+            return WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
         }
         return null;
     }
