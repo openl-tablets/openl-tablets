@@ -71,7 +71,7 @@ public class ProjectsInHistoryController {
         projectBeans = null;
         String msg;
         if (beans != null) {
-            String beansNames = "";
+            StringBuilder beansNamesBuilder = new StringBuilder();
             int beansSize = 0;
             for (ProjectBean bean : beans) {
                 if (bean.isSelected()) {
@@ -83,10 +83,11 @@ public class ProjectsInHistoryController {
                         log.error(msg, e);
                         FacesUtils.addErrorMessage(msg, e.getMessage());
                     }
-                    beansNames = beansNames + bean.getProjectName() + ", ";
+                    beansNamesBuilder.append(bean.getProjectName()).append(", ");
                     beansSize = beansSize + 1;
                 }
             }
+            String beansNames = beansNamesBuilder.toString();
             if (beansSize != 0) {
                 beansNames = beansNames.substring(0, beansNames.length() - 2);
                 if (beansSize == 1) {

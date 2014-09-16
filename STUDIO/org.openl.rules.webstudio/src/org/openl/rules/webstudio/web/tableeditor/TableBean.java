@@ -186,19 +186,19 @@ public class TableBean {
     public String getTableName (IOpenLTable table) {
         String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         ITableProperties tableProps = table.getProperties();
-        String dimension = "";
+        StringBuilder dimensionBuilder = new StringBuilder();
         String tableName = table.getDisplayName();
         if (tableProps != null) {
-            for (int i=0; i < dimensionProps.length; i++) {
-                String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
-                
+            for (String dimensionProp : dimensionProps) {
+                String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+
                 if (propValue != null && !propValue.isEmpty()) {
-                    dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
                 }
             }
         }
-        if (!dimension.isEmpty()) {
-            return tableName +" ["+ dimension +"]";
+        if (dimensionBuilder.length() > 0) {
+            return tableName +" ["+ dimensionBuilder.toString() +"]";
         } else {
             return tableName;
         }
@@ -246,11 +246,11 @@ public class TableBean {
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
             int n = 0;
-            for (int i = 0; i < contextParams.length; i++) {
-                params[n++] = contextParams[i];
+            for (ParameterWithValueDeclaration contextParam : contextParams) {
+                params[n++] = contextParam;
             }
-            for (int i = 0; i < inputParams.length; i++) {
-                params[n++] = inputParams[i];
+            for (ParameterWithValueDeclaration inputParam : inputParams) {
+                params[n++] = inputParam;
             }
         } else {
             params = new ParameterWithValueDeclaration[0];

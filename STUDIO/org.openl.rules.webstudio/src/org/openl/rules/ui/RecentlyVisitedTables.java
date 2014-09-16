@@ -145,20 +145,20 @@ public class RecentlyVisitedTables {
 
             String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
             ITableProperties tableProps = table.getProperties();
-            String dimension = "";
+            StringBuilder dimensionBuilder = new StringBuilder();
 
             if (tableProps != null) {
                 for (String dimensionProp : dimensionProps) {
                     String propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                     if (propValue != null && !propValue.isEmpty()) {
-                        dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProp + " = " + propValue;
+                        dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
                     }
                 }
             }
 
-            if (!dimension.isEmpty()) {
-                return tableName +"["+ dimension +"]";
+            if (dimensionBuilder.length() > 0) {
+                return tableName +"["+ dimensionBuilder.toString() +"]";
             } else {
                 return tableName;
             }

@@ -24,14 +24,14 @@ public class JSONHolder {
             JSONArray inParam = new JSONArray(table.getJSONObject("header").get("inParam").toString());
             JSONObject returnObj = table.getJSONObject("header").getJSONObject("returnType");
 
-            String paramStr = "";
+            StringBuilder result = new StringBuilder();
             for (int i = 0; i < inParam.length(); i++) {
                 JSONObject param = (JSONObject) inParam.get(i);
 
-                paramStr += ((i > 0)? ", " : "") + param.getString("type") +((param.getBoolean("iterable"))? "[]" : "")+ " " + param.getString("name");
+                result.append((i > 0) ? ", " : "").append(param.getString("type")).append((param.getBoolean("iterable")) ? "[]" : "").append(" ").append(param.getString("name"));
             }
 
-            return returnObj.getString("type") +((returnObj.getBoolean("iterable"))? "[]" : "")+ " " +tableName + "("+paramStr+")";
+            return returnObj.getString("type") + ((returnObj.getBoolean("iterable")) ? "[]" : "") + " " + tableName + "(" + result.toString() + ")";
         } catch (Exception e) {
             return "";
         }
@@ -49,7 +49,7 @@ public class JSONHolder {
 
                     List<Map<String, Object>> row = new ArrayList<Map<String, Object>>();
                     for (int j= 0; j < rowElements.length(); j++) {
-                        Object value = null;
+                        Object value;
 
                         JSONObject dataCell = ((JSONObject)rowElements.get(j));
                         if (dataCell.getString("valueType").equals("DATE")) {
@@ -84,13 +84,13 @@ public class JSONHolder {
 
         return dataRows;
     }
-    
+
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         try {
             if (!table.isNull("properties")) {
-                JSONArray propertiesJSON = new JSONArray(table.get("properties").toString());;
+                JSONArray propertiesJSON = new JSONArray(table.get("properties").toString());
                 for (int i = 0; i < propertiesJSON.length(); i++) {
                     JSONObject prop = (JSONObject) propertiesJSON.get(i);
                     String type = "";
