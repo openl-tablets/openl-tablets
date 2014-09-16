@@ -13,8 +13,8 @@ public class ProjectTreeBuilder extends TreeBuilder {
 
     private ProjectModel projectModel;
 
-    public ProjectTreeBuilder(ITreeElement<?> root, ProjectModel projectModel, boolean hideDispatcherTables) {
-        super(root, hideDispatcherTables);
+    public ProjectTreeBuilder(ProjectModel projectModel, boolean hideDispatcherTables) {
+        super(hideDispatcherTables);
         this.projectModel = projectModel;
     }
 

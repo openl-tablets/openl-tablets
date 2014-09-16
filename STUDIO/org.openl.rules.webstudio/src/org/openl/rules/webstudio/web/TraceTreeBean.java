@@ -94,7 +94,7 @@ public class TraceTreeBean {
     }
 
     private TreeNode buildTreeNode(TraceHelper traceHelper, ITreeElement<?> tree) {
-        return new TraceTreeBuilder(tree, traceHelper).build();
+        return new TraceTreeBuilder(traceHelper).build(tree);
     }
 
 }
