@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.compile;
 
+import org.openl.rules.tbasic.TBasicSpecificationKey;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -61,8 +63,6 @@ public class LabelManager {
             loopLabel = isLoopLabel;
         }
     }
-
-    private static final String RETURN_PREFIX = "RETURN";
 
     private static final String LABEL_INSTRUCTION_PREFIX = "gen_label_";
 
@@ -198,7 +198,7 @@ public class LabelManager {
      * @return true if label instruction is a return one.
      */
     public boolean isReturnInstruction(String labelInstruction) {
-        return labelInstruction.startsWith(RETURN_PREFIX);        
+        return labelInstruction.startsWith(TBasicSpecificationKey.RETURN.toString());
     }
 
 }
