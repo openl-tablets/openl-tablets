@@ -39,9 +39,7 @@ public class Profiler {
 
         System.out.println("Going to profile for " + ms + "ms");
 
-        BenchmarkUnit[] buu = { bu };
-
-        BenchmarkInfo bi = new Benchmark(buu).runUnit(bu, ms, false);
+        BenchmarkInfo bi = new Benchmark().runUnit(bu, ms);
 
         System.out.println(bi);
 

@@ -25,10 +25,6 @@ public abstract class BenchmarkUnit {
     }
 
     public String getName() {
-        String name = getNameSpecial();
-        if (name != null) {
-            return name;
-        }
 
         String className = getClass().getName();
 
@@ -46,15 +42,8 @@ public abstract class BenchmarkUnit {
 
     }
 
-    protected String getNameSpecial() {
-        return null;
-    }
-
     public long millisecondsToRun() throws Exception {
-        long start = System.nanoTime();
-        runNtimes(1);
-        long end = System.nanoTime();
-        return ((end - start) + 500L * 1000) / 1000000;
+        return millisecondsToRun(1);
     }
 
     public long millisecondsToRun(long times) throws Exception {
@@ -64,30 +53,8 @@ public abstract class BenchmarkUnit {
         return (end - start + 500000) / 1000000;
     }
 
-    public long millisecondsToRun1() throws Exception {
-        long start = System.currentTimeMillis();
-        runNtimes(1);
-        long end = System.currentTimeMillis();
-        return end - start;
-    }
-
-    public long millisecondsToRun1(int times) throws Exception {
-        long start = System.currentTimeMillis();
-        runNtimes(times);
-        long end = System.currentTimeMillis();
-        return end - start;
-    }
-
     public int nUnitRuns() {
         return 1;
-    }
-
-    /**
-     * Returns a list of units that must be executed before this unit or null
-     */
-
-    public String[] performAfter() {
-        return new String[0];
     }
 
     /**
@@ -107,9 +74,4 @@ public abstract class BenchmarkUnit {
     public String[] unitName() {
         return new String[] { "Run", "Runs" };
     }
-
-    public boolean isTestMemory() {
-        return false;
-    }
-
 }

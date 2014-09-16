@@ -6,7 +6,6 @@ import javax.faces.bean.RequestScoped;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
-import org.openl.rules.ui.tree.richfaces.TreeBuilder;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -28,8 +27,7 @@ public class ExplainTreeBean {
         Explanation explanation = explanator.getExplanation(rootID);
         ITreeElement<?> tree = explanation.getExplainTree();
         if (tree != null) {
-            TreeBuilder treeBuilder = new ExplainTreeBuilder(tree);
-            TreeNode rfTree = treeBuilder.build(true);
+            TreeNode rfTree = new ExplainTreeBuilder(tree).build(true);
             return rfTree;
         }
         return null;

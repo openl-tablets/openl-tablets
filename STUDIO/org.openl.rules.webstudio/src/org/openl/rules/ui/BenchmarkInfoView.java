@@ -99,14 +99,6 @@ public class BenchmarkInfoView {
         return benchmarkInfo.avg();
     }
 
-    public double avgMemory() {
-        return benchmarkInfo.avgMemory();
-    }
-
-    public double avgLeaked() {
-        return benchmarkInfo.avgLeaked();
-    }
-
     public double deviation() {
         return benchmarkInfo.deviation();
     }
@@ -141,10 +133,6 @@ public class BenchmarkInfoView {
 
     public String runsunitsec() {
         return benchmarkInfo.runsunitsec();
-    }
-
-    public String printUnits() {
-        return benchmarkInfo.printUnits();
     }
 
     public String unitName() {

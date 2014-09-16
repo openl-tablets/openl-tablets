@@ -1,22 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.13.0-SNAPSHOT</version>
+        <version>5.14.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>OpenL - Util - OpenL Maven Plugin</name>
-
     <properties>
         <openlResourcesDirectory>${project.basedir}/src/main/openl</openlResourcesDirectory>
         <openlOutputDirectory>${project.build.directory}/openl</openlOutputDirectory>
         <mavenVersion>2.2.1</mavenVersion>
         <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -33,7 +31,6 @@
             <artifactId>maven-model</artifactId>
             <version>${mavenVersion}</version>
         </dependency>
-
         <!-- dependencies to annotations -->
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
@@ -41,12 +38,10 @@
             <version>${mavenPluginPluginVersion}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.openl.rules</groupId>
             <!-- TODO Move dependent classes to org.openl.rules.project -->
@@ -54,7 +49,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
@@ -62,7 +56,6 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -88,7 +81,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pdf-plugin</artifactId>
@@ -112,7 +104,6 @@
                     <value>plugin-documentation</value>
                 </property>
             </activation>
-
             <reporting>
                 <plugins>
                     <plugin>
@@ -120,14 +111,12 @@
                         <artifactId>maven-plugin-plugin</artifactId>
                         <version>${mavenPluginPluginVersion}</version>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-project-info-reports-plugin</artifactId>
                         <reportSets>
                             <reportSet>
-                                <reports>
-                                </reports>
+                                <reports/>
                             </reportSet>
                         </reportSets>
                     </plugin>

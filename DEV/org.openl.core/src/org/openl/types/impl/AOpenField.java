@@ -17,6 +17,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public abstract class AOpenField implements IOpenField {
     private String name;
+    
     private IOpenClass type = JavaOpenClass.OBJECT;
 
     protected AOpenField(String name, IOpenClass type) {
@@ -55,7 +56,7 @@ public abstract class AOpenField implements IOpenField {
     public IOpenClass getType() {
         return type;
     }
-
+    
     /*
      * (non-Javadoc)
      *

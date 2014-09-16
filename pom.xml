@@ -1,14 +1,11 @@
-<!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.13.1.RC1-SNAPSHOT</version>
+    <version>5.14.0-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>http://openl-tablets.sourceforge.net</url>
-
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -16,7 +13,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <id>StanislavShor</id>
@@ -63,13 +59,11 @@
             <timezone>+3</timezone>
         </developer>
     </developers>
-
     <scm>
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
-
+        <tag>HEAD</tag>
+    </scm>
     <properties>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
@@ -81,9 +75,9 @@
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <jacococ.argLine /> <!-- Empty for building without JaCoCo agent -->
+        <jacococ.argLine/>
+        <!-- Empty for building without JaCoCo agent -->
     </properties>
-
     <modules>
         <module>POI</module>
         <module>DEV</module>
@@ -94,8 +88,6 @@
         <module>DEMO</module>
         <module>Util/openl-sourceforge-publisher</module>
     </modules>
-
-
     <distributionManagement>
         <repository>
             <id>internal-minsk</id>
@@ -108,7 +100,6 @@
             <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
@@ -134,13 +125,11 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>2.5</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.8</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-plugin</artifactId>
@@ -155,19 +144,16 @@
                         <target>1.6</target>
                     </configuration>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.17</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -176,13 +162,11 @@
                         <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
                 </plugin>
-
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.3</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -220,7 +204,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -245,7 +228,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>reporting</id>
@@ -400,7 +382,6 @@
             </build>
         </profile>
     </profiles>
-
     <dependencyManagement>
         <dependencies>
             <!-- Testing -->
@@ -410,28 +391,24 @@
                 <version>4.11</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- Build tool -->
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>1.9.4</version>
             </dependency>
-
             <!-- Apache Velocity is a general purpose template engine. -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
             </dependency>
-
             <!-- Apache Commons DBCP software implements Database Connection Pooling -->
             <dependency>
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
                 <version>1.4</version>
             </dependency>
-
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
             or are considered to be so standard as to justify existence in java.lang. -->
             <dependency>
@@ -439,42 +416,36 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.3.2</version>
             </dependency>
-
             <!-- The Apache Commons Collections package contains types that extend and augment the Java Collections Framework. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>4.0</version>
             </dependency>
-
-            <!-- Commons Logging is a thin adapter allowing configurable bridging to other, well known logging systems. -->
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.3</version>
-            </dependency>
-
             <!-- Apache Commons BeanUtils provides an easy-to-use but flexible wrapper around reflection and introspection. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
             <!-- contains simple encoder and decoders for various formats such as Base64 and Hexadecimal. -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>1.9</version>
             </dependency>
-
             <!--  provides a simple yet flexible means of adding support for multipart file upload functionality to servlets and web applications. -->
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>1.3.1</version>
             </dependency>
-
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
             <dependency>
@@ -482,29 +453,31 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.4</version>
             </dependency>
-
             <!-- The Apache Commons Digester package lets you configure an XML to Java object mapping module
             which triggers certain actions called rules whenever a particular pattern of nested XML elements is recognized. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-digester3</artifactId>
                 <version>3.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
             <!-- The Apache Commons Discovery component is about discovering, or finding, implementations for pluggable interfaces. -->
             <dependency>
                 <groupId>commons-discovery</groupId>
                 <artifactId>commons-discovery</artifactId>
                 <version>0.5</version>
             </dependency>
-
             <!-- Apache Commons Object Pooling Library -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
                 <version>2.2</version>
             </dependency>
-
             <!-- mathematics and statistics components addressing the most common practical problems
             not immediately available in the Java programming language or commons-lang. -->
             <dependency>
@@ -512,7 +485,6 @@
                 <artifactId>commons-math</artifactId>
                 <version>2.2</version>
             </dependency>
-
             <!-- Tools to assist in the reading of configuration/preferences files in various formats. -->
             <dependency>
                 <groupId>commons-configuration</groupId>
@@ -523,26 +495,32 @@
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils-core</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
-
             <!-- Configuration library for JVM languages. -->
             <dependency>
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
                 <version>1.2.1</version>
             </dependency>
-
             <!-- Spring Framework -->
-
             <!-- Core utilities used by other modules. Define this if you use Spring
                 Utility APIs (org.springframework.core.*/org.springframework.util.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
             <!-- Expression Language (depends on spring-core) Define this if you use
                 Spring Expression APIs (org.springframework.expression.*) -->
             <dependency>
@@ -550,7 +528,6 @@
                 <artifactId>spring-expression</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Bean Factory and JavaBeans utilities (depends on spring-core) Define
                 this if you use Spring Bean APIs (org.springframework.beans.*) -->
             <dependency>
@@ -558,7 +535,6 @@
                 <artifactId>spring-beans</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Aspect Oriented Programming (AOP) Framework (depends on spring-core,
                 spring-beans) Define this if you use Spring AOP APIs (org.springframework.aop.*) -->
             <dependency>
@@ -566,7 +542,6 @@
                 <artifactId>spring-aop</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Application Context (depends on spring-core, spring-expression, spring-aop,
                 spring-beans) This is the central artifact for Spring's Dependency Injection
                 Container and is generally always defined -->
@@ -575,7 +550,6 @@
                 <artifactId>spring-context</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Various Application Context utilities, including EhCache, JavaMail,
                 Quartz, and Freemarker integration Define this if you need any of these integrations -->
             <dependency>
@@ -583,7 +557,6 @@
                 <artifactId>spring-context-support</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Transaction Management Abstraction (depends on spring-core, spring-beans,
                 spring-aop, spring-context) Define this if you use Spring Transactions or
                 DAO Exception Hierarchy (org.springframework.transaction.*/org.springframework.dao.*) -->
@@ -592,7 +565,6 @@
                 <artifactId>spring-tx</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- JDBC Data Access Library (depends on spring-core, spring-beans, spring-context,
                 spring-tx) Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*) -->
             <dependency>
@@ -600,7 +572,6 @@
                 <artifactId>spring-jdbc</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA,
                 and iBatis. (depends on spring-core, spring-beans, spring-context, spring-tx)
                 Define this if you need ORM (org.springframework.orm.*) -->
@@ -609,7 +580,6 @@
                 <artifactId>spring-orm</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Web application development utilities applicable to both Servlet
                 and Portlet Environments (depends on spring-core, spring-beans, spring-context)
                 Define this if you use Spring MVC, or wish to use Struts, JSF, or another
@@ -619,14 +589,12 @@
                 <artifactId>spring-web</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Spring's JMS support package, covering synchronous JMS access as well as message listener containers. -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jms</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
-
             <!-- Spring's TestContext framework. Also includes common Servlet and Portlet API mocks. -->
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -634,67 +602,55 @@
                 <version>${org.springframework.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- Spring Security -->
-
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.sdicons.jsontools</groupId>
                 <artifactId>jsontools-core</artifactId>
                 <version>1.7</version>
             </dependency>
-
             <!-- BEGIN of JSF, JSP, Servlets, RichFaces -->
-
             <!-- JSF -->
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.faces</artifactId>
                 <version>${org.mojarra.version}</version>
             </dependency>
-
             <!-- RichFaces -->
             <dependency>
                 <groupId>org.richfaces.core</groupId>
                 <artifactId>richfaces-core-impl</artifactId>
                 <version>${org.richfaces.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.richfaces.ui</groupId>
                 <artifactId>richfaces-components-ui</artifactId>
                 <version>${org.richfaces.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>taglibs</groupId>
                 <artifactId>standard</artifactId>
                 <version>1.1.2</version>
             </dependency>
-
             <!-- Servlets -->
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -702,20 +658,17 @@
                 <version>3.0.1</version>
                 <scope>provided</scope>
             </dependency>
-
             <dependency>
                 <groupId>javax.servlet.jsp</groupId>
                 <artifactId>jsp-api</artifactId>
                 <version>2.1</version>
                 <scope>provided</scope>
             </dependency>
-
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>jstl</artifactId>
                 <version>1.2</version>
             </dependency>
-
             <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
             <dependency>
                 <groupId>javax.el</groupId>
@@ -724,7 +677,6 @@
                 <scope>provided</scope>
             </dependency>
             <!-- END of JSF, JSP, Servlets, RichFaces -->
-
             <!-- Tomcat7 annotations package -->
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
@@ -732,44 +684,39 @@
                 <version>7.0.54</version>
                 <scope>provided</scope>
             </dependency>
-
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>1.2.17</version>
             </dependency>
-
             <!-- The slf4j API -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.version}</version>
             </dependency>
-
             <!-- SLF4J LOG4J-12 Binding -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${org.slf4j.version}</version>
             </dependency>
-
             <!-- JCL 1.1.1 implemented over SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${org.slf4j.version}</version>
             </dependency>
-
             <!-- Jackrabbit content repository implementation -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-data</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
-		<type>test-jar</type>
-		<classifier>tests</classifier>
-		<scope>test</scope>
-            </dependency> 
+                <type>test-jar</type>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-core</artifactId>
@@ -805,35 +752,30 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <!-- JCR-RMI makes it possible to remotely access JCR content repositories. -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-jcr-rmi</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
             </dependency>
-
             <!-- WebDAV server implementations for JCR -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-jcr-server</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
             </dependency>
-
             <!-- Jackrabbit SPI To WebDAV -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-spi2dav</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
             </dependency>
-
             <!-- Jackrabbit JCR To SPI -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-jcr2spi</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
             </dependency>
-
             <!-- Web application that hosts and serves a Jackrabbit content repository -->
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
@@ -842,89 +784,76 @@
                 <type>war</type>
                 <scope>runtime</scope>
             </dependency>
-
             <dependency>
                 <groupId>javax.jcr</groupId>
                 <artifactId>jcr</artifactId>
                 <version>2.0</version>
             </dependency>
-
             <!--  JUnit extension targeted for database-driven projects -->
             <dependency>
                 <groupId>org.dbunit</groupId>
                 <artifactId>dbunit</artifactId>
                 <version>2.5.0</version>
             </dependency>
-
             <dependency>
                 <groupId>javax.transaction</groupId>
                 <artifactId>jta</artifactId>
                 <version>1.1</version>
             </dependency>
-
             <!-- Hibernate -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>${org.hibernate.version}</version>
             </dependency>
-
             <!-- Integration for Ehcache into Hibernate as a second-level caching service -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-ehcache</artifactId>
                 <version>${org.hibernate.version}</version>
             </dependency>
-
             <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>5.1.1.Final</version>
             </dependency>
-
             <!-- MySQL java connector -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.31</version>
             </dependency>
-
             <!-- Lightweight 100% Java SQL Database Engine -->
             <dependency>
                 <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
                 <version>2.3.2</version>
             </dependency>
-
             <!-- Contains the core Apache Derby database engine, which also includes the embedded JDBC driver. -->
             <dependency>
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
                 <version>10.10.2.0</version>
             </dependency>
-
             <!-- XML parsers -->
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>2.11.0</version>
             </dependency>
-
             <!-- Apache-hosted set of DOM, SAX, and JAXP interfaces -->
             <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
             </dependency>
-
             <!-- Code generation library with shaded ASM dependecies -->
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>3.1</version>
             </dependency>
-
             <!-- Apache CXF Runtime JAX-WS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -937,67 +866,59 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-
             <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-extension-providers</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-
             <!-- Apache CXF Runtime HTTP Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-
             <!-- Apache CXF Runtime HTTP Jetty Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-
             <!-- Apache CXF Runtime Aegis Databinding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-databinding-aegis</artifactId>
                 <version>${org.apache.cxf.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-corba</artifactId>
                 <version>${org.apache.cxf.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
             </dependency>
-
             <!-- XMLBeans is a technology for accessing XML by binding it to Java types. -->
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
@@ -1010,136 +931,116 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <!-- StAX is a standard XML processing API that allows you to stream XML data from and to your application. -->
             <dependency>
                 <groupId>javax.xml.stream</groupId>
                 <artifactId>stax-api</artifactId>
                 <version>1.0-2</version>
             </dependency>
-
             <!-- Stax2 API is an extension to basic Stax 1.0 API -->
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>stax2-api</artifactId>
                 <version>3.1.4</version>
             </dependency>
-
             <!-- supports the standard Java API JSR-105: XML Digital Signature APIs -->
             <dependency>
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
                 <version>2.0.0</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml-schemas</artifactId>
                 <version>3.8</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>ooxml-schemas</artifactId>
                 <version>1.1</version>
             </dependency>
-
             <!-- JAXB (JSR 222) API -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.2.11</version>
             </dependency>
-
             <!-- JAXB (JSR 222) Reference Implementation -->
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>2.2.7</version>
             </dependency>
-
             <!-- serialize objects to XML (or JSON) and back again. -->
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
                 <version>1.4.7</version>
             </dependency>
-
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>0.9.0</version>
             </dependency>
-
             <!-- parser generator for reading, processing, executing, or translating structured text or binary files -->
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4</artifactId>
                 <version>4.3</version>
             </dependency>
-
             <!-- Date and time library to replace JDK date handling -->
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.3</version>
             </dependency>
-
             <!-- editing bytecodes in Java -->
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>3.18.2-GA</version>
             </dependency>
-
             <!-- standards-based cache for boosting performance -->
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>2.6.9</version>
             </dependency>
-
             <!-- Mock objects library for java -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>1.9.5</version>
             </dependency>
-
             <!-- Java library which deep-clones objects. -->
             <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
                 <version>1.9.0</version>
             </dependency>
-
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.mapping.dev</artifactId>
                 <version>${openl.mapping.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>commons-jxpath</groupId>
                 <artifactId>commons-jxpath</artifactId>
                 <version>1.3</version>
             </dependency>
-
             <!-- Hessian is a compact binary protocol for connecting web services. -->
             <dependency>
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
                 <version>4.0.38</version>
             </dependency>
-
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
                 <version>3.0</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 </project>

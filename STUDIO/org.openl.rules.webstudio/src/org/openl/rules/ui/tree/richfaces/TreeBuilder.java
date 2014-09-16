@@ -5,21 +5,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.ui.tree.AbstractTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.tree.ITreeElement;
 
-public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
+abstract class TreeBuilder {
 
     private ITreeElement<?> root;
     private boolean hideDispatcherTables;
 
-    public TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
+    TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
         this.root = root;
         this.hideDispatcherTables = hideDispatcherTables;
     }
 
-    @Override
     public TreeNode build() {
         return build(false);
     }
@@ -52,7 +50,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         }
     }
 
-    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
+    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
     }
 
@@ -65,7 +63,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return rfNode;
     }
 
-    protected void setNodeData(ITreeElement<?> source, TreeNode dest) {
+    private void setNodeData(ITreeElement<?> source, TreeNode dest) {
         String name = getDisplayName(source, INamedThing.SHORT);
         String title = getDisplayName(source, INamedThing.REGULAR);
         String url = getUrl(source);
@@ -83,11 +81,11 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         dest.setActive(active);
     }
 
-    protected boolean isActive(ITreeElement<?> element) {
+    boolean isActive(ITreeElement<?> element) {
         return true;
     }
 
-    protected String getType(ITreeElement<?> element) {
+    private String getType(ITreeElement<?> element) {
         String type = element.getType();
         if (type != null) {
             return type;
@@ -95,11 +93,9 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return StringUtils.EMPTY;
     }
 
-    protected String getUrl(ITreeElement<?> element) {
-        return StringUtils.EMPTY;
-    }
+    abstract String getUrl(ITreeElement<?> element);
 
-    protected String getDisplayName(Object obj, int mode) {
+    String getDisplayName(Object obj, int mode) {
         if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
             return FormattersManager.format(obj);
         }
@@ -110,11 +106,11 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return String.valueOf(obj);
     }
 
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         return 0;
     }
 
-    protected int getNumErrors(ITreeElement<?> element) {
+    int getNumErrors(ITreeElement<?> element) {
         return 0;
     }
 

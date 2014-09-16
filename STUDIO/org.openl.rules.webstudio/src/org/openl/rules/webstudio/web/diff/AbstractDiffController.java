@@ -122,58 +122,84 @@ public abstract class AbstractDiffController {
 
             richDiffTree = new TreeNode(diffTree);
 
-            rebuild(idGenerator, richDiffTree, diffTree);
+            rebuild(idGenerator, richDiffTree);
         }
         // reset selection
         selectedNode = null;
     }
 
-    private void rebuild(AtomicInteger idGenerator, TreeNode parent, DiffTreeNode diff) {
-        for (DiffTreeNode d : diff.getChildren()) {
-            TreeNode node = new TreeNode(d);
+    private void rebuild(AtomicInteger idGenerator, TreeNode parent) {
+        for (DiffTreeNode d : parent.getDiffTreeNode().getChildren()) {
+            List<PropertyNode> propertyNodes = getPropertyNodes(d);
 
-            String type = node.getType();
-            if (type.equals(XlsProjectionType.GRID.name())) {
-                // don't show tree deeper
+            TreeNode node = new TreeNode(d, propertyNodes.isEmpty() && !hasChildren(d));
+
+            if (shouldSkipNode(node)) {
                 continue;
-                // TODO implement XlsProjectionDiffer and you don't need that check
-            }
-
-            if (type.equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(d)) {
-                continue;// skip equal elements
             }
 
             parent.addChild(String.valueOf(idGenerator.getAndIncrement()), node);
 
             // props
-            Projection p1 = d.getElement(0).getProjection();
-            Projection p2 = d.getElement(1).getProjection();
-            if (p1 != null && p2 != null && !isEqualElements(d)) {
-                for(ProjectionProperty pp1 : p1.getProperties()) {
-                    ProjectionProperty pp2 = p2.getProperty(pp1.getName());
+            for (PropertyNode propertyNode : propertyNodes) {
+                node.addChild(String.valueOf(idGenerator.getAndIncrement()), propertyNode);
+            }
 
-                    if (pp2 != null) {
-                        Object v1 = pp1.getRawValue();
-                        Object v2 = pp2.getRawValue();
-                        if (v1 != null && v2 != null) {
-                            if (!v1.equals(v2)) {
-                                if (pp1.getName().equals("name")) {
-                                    v1 = "";
-                                }
-                                String s = pp1.getName() + ": " + v1 + " -> " + v2;
+            rebuild(idGenerator, node);
+        }
+    }
 
-                                PropertyNode np = new PropertyNode(d, s);
-                                node.addChild(String.valueOf(idGenerator.getAndIncrement()), np);
+    private boolean hasChildren(DiffTreeNode diff) {
+        for (DiffTreeNode node : diff.getChildren()) {
+            if (!shouldSkipNode(new TreeNode(node))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean shouldSkipNode(TreeNode node) {
+        String type = node.getType();
+        if (type.equals(XlsProjectionType.GRID.name())) {
+            // don't show tree deeper
+            return true;
+            // TODO implement XlsProjectionDiffer and you don't need that check
+        }
+
+        // skip equal elements
+        return type.equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(node.getDiffTreeNode());
+    }
+
+    private List<PropertyNode> getPropertyNodes(DiffTreeNode d) {
+        List<PropertyNode> propertyNodes = new ArrayList<PropertyNode>();
+
+        Projection p1 = d.getElement(0).getProjection();
+        Projection p2 = d.getElement(1).getProjection();
+        if (p1 != null && p2 != null && !isEqualElements(d)) {
+            for(ProjectionProperty pp1 : p1.getProperties()) {
+                ProjectionProperty pp2 = p2.getProperty(pp1.getName());
+
+                if (pp2 != null) {
+                    Object v1 = pp1.getRawValue();
+                    Object v2 = pp2.getRawValue();
+                    if (v1 != null && v2 != null) {
+                        if (!v1.equals(v2)) {
+                            if (pp1.getName().equals("name")) {
+                                v1 = "";
                             }
+                            String s = pp1.getName() + ": " + v1 + " -> " + v2;
+
+                            PropertyNode np = new PropertyNode(d, s);
+                            propertyNodes.add(np);
                         }
                     }
                 }
             }
-
-            rebuild(idGenerator, node, d);
         }
+        return propertyNodes;
     }
-    
+
     private boolean isEqualElements(DiffTreeNode d){
         return d.getElement(1).isSelfEqual();
     }

@@ -14,6 +14,10 @@
         .list-modules .list-item {
             position: relative;
         }
+        .list .list-item {
+            /* EPBDS-5032: Fix for IE9 */
+            width: 104%;
+        }
         .list-modules .list-item .editable-link-inner {
             position: absolute;
             top: 30%;
@@ -22,7 +26,7 @@
         }
         .list > .list-item .path {
             color: #999;
-            padding-left: 20px;
+            margin-left: 10px;
             float: right;
         }
 

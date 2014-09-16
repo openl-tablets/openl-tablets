@@ -18,8 +18,8 @@ import java.util.*;
 public class LocalWorkspaceImpl implements LocalWorkspace {
 
     private WorkspaceUser user;
-    private File location;
-    private Map<String, AProject> localProjects;
+    private final File location;
+    private final Map<String, AProject> localProjects;
     private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
@@ -64,7 +64,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         localProject.update(project, user);
 
         // add project
-        localProjects.put(name, localProject);
+        synchronized (localProjects) {
+            localProjects.put(name, localProject);
+        }
         return localProject;
     }
 
@@ -81,7 +83,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public AProject getProject(String name) throws ProjectException {
-        AProject lp = localProjects.get(name);
+        AProject lp;
+        synchronized (localProjects) {
+            lp = localProjects.get(name);
+        }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''!", null, name);
         }
@@ -90,7 +95,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public Collection<AProject> getProjects() {
-        return localProjects.values();
+        synchronized (localProjects) {
+            return localProjects.values();
+        }
     }
 
     protected WorkspaceUser getUser() {
@@ -98,7 +105,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public boolean hasProject(String name) {
-        return (localProjects.get(name) != null);
+        synchronized (localProjects) {
+            return (localProjects.get(name) != null);
+        }
     }
 
     private boolean isLocalOnly(AProject lp) {
@@ -119,28 +128,33 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
             AProject lpi = new AProject(new LocalFolderAPI(f, ap, this));
-            ;
-            localProjects.put(name, lpi);
+            synchronized (localProjects) {
+                localProjects.put(name, lpi);
+            }
         }
     }
 
     protected void notifyRemoved(AProject project) {
-        localProjects.remove(project.getName());
+        synchronized (localProjects) {
+            localProjects.remove(project.getName());
+        }
     }
 
     public void refresh() {
         // check existing
-        Iterator<AProject> i = localProjects.values().iterator();
-        while (i.hasNext()) {
-            AProject lp = i.next();
+        synchronized (localProjects) {
+            Iterator<AProject> i = localProjects.values().iterator();
+            while (i.hasNext()) {
+                AProject lp = i.next();
 
-            File projectLocation = new File(location, lp.getName());
-            if (projectLocation.exists()) {
-                // still here
-                lp.refresh();
-            } else {
-                // deleted externally
-                i.remove();
+                File projectLocation = new File(location, lp.getName());
+                if (projectLocation.exists()) {
+                    // still here
+                    lp.refresh();
+                } else {
+                    // deleted externally
+                    i.remove();
+                }
             }
         }
 
@@ -152,21 +166,24 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
         for (File folder : folders) {
             String name = folder.getName();
-            if (!localProjects.containsKey(name)) {
-                // new project detected
-                ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-                AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));
-                ;
+            synchronized (localProjects) {
+                if (!localProjects.containsKey(name)) {
+                    // new project detected
+                    ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
+                    AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));
 
-                // add it
-                localProjects.put(name, newlyDetected);
+                    // add it
+                    localProjects.put(name, newlyDetected);
+                }
             }
         }
     }
 
     public void release() {
         saveAll();
-        localProjects.clear();
+        synchronized (localProjects) {
+            localProjects.clear();
+        }
 
         userWorkspace = null;
         for (LocalWorkspaceListener lwl : listeners) {
