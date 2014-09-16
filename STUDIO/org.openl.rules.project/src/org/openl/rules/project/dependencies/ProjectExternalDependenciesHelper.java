@@ -26,7 +26,7 @@ public final class ProjectExternalDependenciesHelper {
     }
 
     public static boolean isProject(String dependencyName) {
-        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName.lastIndexOf(")") == dependencyName.length() - 1;
+        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName.lastIndexOf(')') == dependencyName.length() - 1;
     }
 
     public static String getProjectName(String dependencyName) {
