@@ -112,8 +112,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
     }
 
-    private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws RRepositoryException,
-            ProjectException {
+    private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
 
@@ -129,7 +128,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 if (isOldFormatVersion(projectVersion)) {
                     sb.append('#').append(projectVersion.getVersionName());
                 } else {
-                    sb.append('#').append("0.0." + projectVersion.getVersionName());
+                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
                 }
             } else {
                 sb.append('#').append(projectVersion.getRevision());
@@ -146,11 +145,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
     }
 
     private boolean isOldFormatVersion (ProjectVersion version) {
-        if (version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1) {
-            return true;
-        }
-
-        return false;
+        return version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1;
     }
 
     /**
@@ -168,7 +163,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 if (isOldFormatVersion(projectVersion)) {
                     sb.append('#').append(projectVersion.getVersionName());
                 } else {
-                    sb.append('#').append("0.0." + projectVersion.getVersionName());
+                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
                 }
             } else {
                 sb.append('#').append(projectVersion.getRevision());
