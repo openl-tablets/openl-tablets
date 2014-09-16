@@ -19,17 +19,14 @@ abstract class TreeBuilder {
     }
 
     public TreeNode build() {
-        return build(false);
+        return buildNode(root);
     }
 
-    public TreeNode build(boolean hasRoot) {
-        TreeNode node = buildNode(root);
-        if (hasRoot) {
-            // Wrap to root node
-            TreeNode rfRoot = new TreeNode();
-            rfRoot.addChild(0, node);
-            node = rfRoot;
-        }
+    public TreeNode buildWithRoot() {
+        TreeNode subNode = build();
+        // Wrap to root node
+        TreeNode node = new TreeNode();
+        node.addChild(0, subNode);
         return node;
     }
 
