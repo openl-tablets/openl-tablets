@@ -131,8 +131,8 @@ public class LaunchFileServlet extends HttpServlet {
             }
 
         } else { // remote mode
-            String fileName = null;
-            String path = null;
+            String fileName;
+            String path;
 
             if (isExcel) {
                 fileName = wbName;
@@ -140,7 +140,11 @@ public class LaunchFileServlet extends HttpServlet {
             } else if (isWord) {
                 fileName = wdName;
                 path = wdPath;
+            } else {
+                log.error("Unsupported file format");
+                return;
             }
+
             String filePath = new File(path, fileName).getAbsolutePath();
 
             String query = "filename=" + StringTool.encodeURL(filePath);
