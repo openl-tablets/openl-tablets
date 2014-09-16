@@ -49,7 +49,7 @@ public class ProductionRepositoryConvertor {
     public static final CommonVersion to = new CommonVersionImpl(4);
     private final CommonUser system = new CommonUserImpl("system");
 
-    private String repHome = "/temp/repo/";
+    private final String repHome;
 
     private TransientRepository repo;
     private Session target;
@@ -131,8 +131,7 @@ public class ProductionRepositoryConvertor {
     protected Session createSession(String user, String pass) throws RepositoryException {
         char[] password = pass.toCharArray();
         SimpleCredentials sc = new SimpleCredentials(user, password);
-        Session session = repo.login(sc);
-        return session;
+        return repo.login(sc);
     }
 
     private void copyDeployments(RProductionRepository repository) {

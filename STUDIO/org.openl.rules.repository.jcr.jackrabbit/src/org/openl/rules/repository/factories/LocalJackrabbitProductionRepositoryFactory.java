@@ -1,5 +1,7 @@
 package org.openl.rules.repository.factories;
 
+import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
@@ -95,7 +97,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     protected void convert() throws RRepositoryException {
         RProductionRepository repositoryInstance = null;
-        String tempRepoHome = "/temp/prod_repo/";
+        String tempRepoHome = getTempDirectoryPath() + "/.openl/prod_repo/";
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession();

@@ -1,5 +1,7 @@
 package org.openl.rules.repository.factories;
 
+import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
@@ -173,7 +175,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     protected void convert() throws RRepositoryException {
         RRepository repositoryInstance = null;
-        String tempRepoHome = "/temp/repo/";
+        String tempRepoHome = getTempDirectoryPath() + "/.openl/repo/";
         try {
             repositoryInstance = super.getRepositoryInstance();
             //FIXME
