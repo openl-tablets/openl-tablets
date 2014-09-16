@@ -27,10 +27,7 @@ public class InputArgsBean {
 
     public boolean isMethodHasParameters() {
         IOpenMethod testMethod = getTestedMethod();
-        if (testMethod != null) {
-            return testMethod.getSignature().getNumberOfParameters() > 0;
-        }
-        return false;
+        return testMethod != null && testMethod.getSignature().getNumberOfParameters() > 0;
     }
 
     public void setUri(String uri) {
@@ -147,8 +144,7 @@ public class InputArgsBean {
             Object parameterValue = null;
             try {
                 parameterValue = parameterType.newInstance(env);
-            } catch (Exception e) {
-
+            } catch (Exception ignored) {
             }
             args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, parameterType, IParameterDeclaration.IN);
         }

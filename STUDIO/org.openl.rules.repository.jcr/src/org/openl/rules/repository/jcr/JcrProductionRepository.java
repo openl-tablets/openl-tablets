@@ -44,7 +44,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
 
         private String getDateString(Date date, String condition) {
-            DateFormat format = null;
+            DateFormat format;
 
             if (condition.indexOf(">") > -1) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
@@ -56,10 +56,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
             String dateString = format.format(date);
 
-            StringBuilder sb = new StringBuilder();
-
-            sb.append("CAST('").append(dateString).append("' AS DATE)");
-            return sb.toString();
+            return "CAST('" + dateString + "' AS DATE)";
         }
 
         public String buildQuery(SearchParams params) {
