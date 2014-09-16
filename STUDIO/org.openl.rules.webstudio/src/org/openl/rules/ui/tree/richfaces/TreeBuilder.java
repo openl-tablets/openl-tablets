@@ -13,7 +13,7 @@ abstract class TreeBuilder {
     private ITreeElement<?> root;
     private boolean hideDispatcherTables;
 
-    public TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
+    TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
         this.root = root;
         this.hideDispatcherTables = hideDispatcherTables;
     }
@@ -50,7 +50,7 @@ abstract class TreeBuilder {
         }
     }
 
-    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
+    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
     }
 
@@ -63,7 +63,7 @@ abstract class TreeBuilder {
         return rfNode;
     }
 
-    protected void setNodeData(ITreeElement<?> source, TreeNode dest) {
+    private void setNodeData(ITreeElement<?> source, TreeNode dest) {
         String name = getDisplayName(source, INamedThing.SHORT);
         String title = getDisplayName(source, INamedThing.REGULAR);
         String url = getUrl(source);
@@ -81,11 +81,11 @@ abstract class TreeBuilder {
         dest.setActive(active);
     }
 
-    protected boolean isActive(ITreeElement<?> element) {
+    boolean isActive(ITreeElement<?> element) {
         return true;
     }
 
-    protected String getType(ITreeElement<?> element) {
+    private String getType(ITreeElement<?> element) {
         String type = element.getType();
         if (type != null) {
             return type;
@@ -93,11 +93,9 @@ abstract class TreeBuilder {
         return StringUtils.EMPTY;
     }
 
-    protected String getUrl(ITreeElement<?> element) {
-        return StringUtils.EMPTY;
-    }
+    abstract String getUrl(ITreeElement<?> element);
 
-    protected String getDisplayName(Object obj, int mode) {
+    String getDisplayName(Object obj, int mode) {
         if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
             return FormattersManager.format(obj);
         }
@@ -108,11 +106,11 @@ abstract class TreeBuilder {
         return String.valueOf(obj);
     }
 
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         return 0;
     }
 
-    protected int getNumErrors(ITreeElement<?> element) {
+    int getNumErrors(ITreeElement<?> element) {
         return 0;
     }
 

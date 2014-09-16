@@ -20,7 +20,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
 
     @Override
     @Deprecated
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
         if (pte.getTableSyntaxNode() != null
                 && projectModel.isTestable(pte.getTableSyntaxNode())) {
@@ -30,13 +30,13 @@ public class ProjectTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected int getNumErrors(ITreeElement<?> element) {
+    int getNumErrors(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
         return pte.getNumErrors();
     }
 
     @Override
-    protected boolean isActive(ITreeElement<?> element) {
+    boolean isActive(ITreeElement<?> element) {
         ProjectTreeNode projectNode = (ProjectTreeNode) element;
         TableSyntaxNode syntaxNode = projectNode.getTableSyntaxNode();
         if (syntaxNode != null) {
@@ -52,7 +52,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected String getUrl(ITreeElement<?> element) {
+    String getUrl(ITreeElement<?> element) {
         WebStudio studio = projectModel.getStudio();
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
