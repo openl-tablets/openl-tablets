@@ -143,7 +143,7 @@ public class TraceHelper {
         }
     }
 
-    public int getNodeKey(ITreeElement<?> node) {
+    public Integer getNodeKey(ITreeElement<?> node) {
         return traceTreeCache.getKey(node);
     }
 
