@@ -23,42 +23,34 @@ abstract class TreeBuilder {
     }
 
     public TreeNode build(boolean hasRoot) {
-        TreeNode rfRoot = new TreeNode();
+        TreeNode node = buildNode(root);
         if (hasRoot) {
-            TreeNode rfTree = toRFNode(root);
-            rfRoot.addChild(0, rfTree);
-            addNodes(rfTree, root);
-        } else {
-            addNodes(rfRoot, root);
+            // Wrap to root node
+            TreeNode rfRoot = new TreeNode();
+            rfRoot.addChild(0, node);
+            node = rfRoot;
         }
-        return rfRoot;
+        return node;
     }
 
-    private void addNodes(TreeNode dest, ITreeElement<?> source) {
-        int index = 1;
-        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(source);
+    private TreeNode buildNode(ITreeElement<?> element) {
+        if (element == null) {
+            return createNullNode();
+        }
+        TreeNode node = createNode(element);
+        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(element);
         for (ITreeElement<?> child : children) {
-            TreeNode rfChild = toRFNode(child);
+            TreeNode rfChild = buildNode(child);
             if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
                 continue;
             }
-            dest.addChild(index, rfChild);
-            if (child != null) {
-                addNodes(rfChild, child);
-            }
-            index++;
+            node.addChild(rfChild, rfChild);
         }
+        return node;
     }
 
     Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
-    }
-
-    private TreeNode toRFNode(ITreeElement<?> node) {
-        if (node == null) {
-            return createNullNode();
-        }
-        return createNode(node);
     }
 
     private TreeNode createNode(ITreeElement<?> element) {
