@@ -61,8 +61,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
      */
     protected String getDefaultTechnicalName() {
         TableSyntaxNode node = getSelectedNode();
-        String defaultName = TestTableBuilder.getDefaultTechnicalName(node);
-        return defaultName;
+        return TestTableBuilder.getDefaultTechnicalName(node);
     }
 
     /**
@@ -149,7 +148,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
         List<TableSyntaxNode> syntaxNodes = getSyntaxNodes();
         List<SelectItem> result = new ArrayList<SelectItem>();
-        String itemName = null;
+        String itemName;
 
         for (int i = 0; i < syntaxNodes.size(); i++) {
             TableSyntaxNode node = syntaxNodes.get(i);
@@ -172,19 +171,19 @@ public class TestTableCreationWizard extends TableCreationWizard {
          ITableProperties tableProps = syntaxNode.getTableProperties();
          
          String nodeName = syntaxNode.getMember().getName();
-         String dimension = "";
+        StringBuilder dimensionBuilder = new StringBuilder();
          
          if (tableProps != null) {
-             for (int i=0; i < dimensionProps.length; i++) {
-                 String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
-                 
+             for (String dimensionProp : dimensionProps) {
+                 String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+
                  if (propValue != null && !propValue.isEmpty()) {
-                     dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                     dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
                  }
              }
          }
-         if (!dimension.isEmpty()) {
-             return nodeName +" ["+ dimension +"]";
+        if (dimensionBuilder.length() > 0) {
+            return nodeName +"["+ dimensionBuilder.toString() +"]";
          } else {
              return nodeName;
          }
@@ -192,9 +191,6 @@ public class TestTableCreationWizard extends TableCreationWizard {
     /**
      * Checks if it is possible to create test for current table(table is executable at runtime), and checks if
      * return type of the table is not void.
-     * 
-     * @param node
-     * @return
      */
     private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
         if (node.isExecutableNode()) {

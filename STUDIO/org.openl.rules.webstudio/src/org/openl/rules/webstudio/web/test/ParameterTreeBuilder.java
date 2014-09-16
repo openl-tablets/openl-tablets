@@ -177,7 +177,7 @@ public class ParameterTreeBuilder {
 
     public String tableToHtml(Object value) {
         if (value != null && value instanceof ParameterWithValueDeclaration) {
-            String returnString = "";
+            StringBuilder result = new StringBuilder();
             if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
                         .getIterator(((ParameterWithValueDeclaration) value).getValue());
@@ -189,7 +189,7 @@ public class ParameterTreeBuilder {
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
                                 TableRenderer(TableModel.initializeTableModel((GridTable) singleValue, numRows));
 
-                        returnString = returnString + tableRenderer.render(false, null, "testId", null) + "<br/>";
+                        result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     } else if (singleValue instanceof SubGridTable) {
                         SubGridTable sgTable = (SubGridTable) singleValue;
                         GridTable gridTable = new GridTable(sgTable.getRegion(), sgTable.getGrid());
@@ -197,12 +197,12 @@ public class ParameterTreeBuilder {
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
                                 TableRenderer(TableModel.initializeTableModel(gridTable, numRows));
 
-                        returnString = returnString + tableRenderer.render(false, null, "testId", null) + "<br/>";
+                        result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     }
                 }
             }
 
-            return returnString;
+            return result.toString();
         }
 
         return value == null ? "null" : value.toString();
