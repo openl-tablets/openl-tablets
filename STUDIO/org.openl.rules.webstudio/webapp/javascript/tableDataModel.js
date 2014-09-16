@@ -434,7 +434,7 @@ var tableModel = {
     checkNames : function(checkingRes) {
         re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
         onlyChar = /^([a-zA-Z]+)/;
-        var repittedNames = new Array();
+        var repittedNames = [];
 
         if (!re.test(this.header.name)) {
             checkingRes.push("Table name '"+this.header.name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'.");
