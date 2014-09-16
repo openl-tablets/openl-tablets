@@ -89,7 +89,7 @@ public class RootFolderExtractor {
     }
 
     private String getFolderName(String path) {
-        int ind = path.indexOf("/");
+        int ind = path.indexOf('/');
         if (ind > -1) {
             return path.substring(0, ind);
         }

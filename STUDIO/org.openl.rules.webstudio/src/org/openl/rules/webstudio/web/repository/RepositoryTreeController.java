@@ -1277,7 +1277,7 @@ public class RepositoryTreeController {
         this.setFileName(FilenameUtils.getName(file.getName()));
 
         if (fileName.contains(".")) {
-            this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
+            this.setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
             if (FileTypeHelper.isZipFile(fileName)) {
                 ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter);
@@ -1540,7 +1540,7 @@ public class RepositoryTreeController {
                         modulePath = modulePath.substring(1);
                     }
                     Module module = new Module();
-                    module.setName(fileName.substring(0, fileName.lastIndexOf(".")));
+                    module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
                     module.setType(ModuleType.API);
                     module.setRulesRootPath(new PathEntry(modulePath));
                     projectDescriptor.getModules().add(module);

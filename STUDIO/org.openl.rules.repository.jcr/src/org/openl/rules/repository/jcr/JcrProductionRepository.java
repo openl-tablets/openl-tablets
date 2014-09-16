@@ -406,13 +406,13 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             if (deploymentName.contains("#")) {
                 String versionStr;
 
-                if (deploymentName.indexOf("#") > deploymentName.lastIndexOf(".")) {
-                    versionStr = deploymentName.substring(deploymentName.indexOf("#") + 1, deploymentName.length());
+                if (deploymentName.indexOf('#') > deploymentName.lastIndexOf('.')) {
+                    versionStr = deploymentName.substring(deploymentName.indexOf('#') + 1, deploymentName.length());
                 } else {
-                    versionStr = deploymentName.substring(deploymentName.lastIndexOf(".") + 1, deploymentName.length());
+                    versionStr = deploymentName.substring(deploymentName.lastIndexOf('.') + 1, deploymentName.length());
                 }
 
-                deploymentName = deploymentName.substring(0, deploymentName.indexOf("#"));
+                deploymentName = deploymentName.substring(0, deploymentName.indexOf('#'));
 
                 if (!StringUtils.isEmpty(versionStr)) {
                     versionNum = Integer.valueOf(versionStr);
