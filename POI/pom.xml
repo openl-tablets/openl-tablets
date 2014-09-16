@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.13.1-SNAPSHOT</version>
+        <version>5.13.0</version>
     </parent>
 
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.lib.poi.dev-pom</artifactId>
-    <version>5.13.1-SNAPSHOT</version>
+    <version>5.13.0</version>
     <packaging>pom</packaging>
     <name>OpenL - POI 3.8 - Dev POM</name>
     <description>POI for OpenL</description>
