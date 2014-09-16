@@ -111,7 +111,7 @@ public class InputArgsBean {
         int i = 0;
         for (ParameterDeclarationTreeNode node : parentNode.getChildren()) {
             if (node != currentNode) {
-                index.setValue(ary, new Integer(i), node.getValue());
+                index.setValue(ary, i, node.getValue());
                 i++;
             }
         }
@@ -131,8 +131,8 @@ public class InputArgsBean {
         IOpenIndex index = info.getIndex(fieldType, JavaOpenClass.INT);
 
         for (int i = 0; i < elementsCount - 1; i++) {
-            Object obj = index.getValue(currentnode.getValue(), new Integer(i));
-            index.setValue(ary, new Integer(i), obj);
+            Object obj = index.getValue(currentnode.getValue(), i);
+            index.setValue(ary, i, obj);
         }
         currentnode.setValueForced(ary);
     }

@@ -205,7 +205,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     /**
      * Gets project by name.
      *
-     * @param name
      * @return project
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
      *                                                                    failed or no project with specified name
@@ -256,7 +255,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     /**
      * Checks whether project with given name exists in the repository.
      *
-     * @param name
      * @return <code>true</code> if project with such name exists
      * @throws org.openl.rules.repository.exceptions.RRepositoryException
      */
@@ -406,7 +404,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         Map<String, Integer> versionsList = new HashMap<String, Integer>();
         for (FolderAPI folder : getDeploymentProjects()) {
             String deploymentName = folder.getName();
-            Integer versionNum = new Integer(0);
+            Integer versionNum = 0;
 
             if (deploymentName.indexOf("#") > -1) {
                 String versionStr;
@@ -420,7 +418,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 deploymentName = deploymentName.substring(0, deploymentName.indexOf("#"));
 
                 if (!StringUtils.isEmpty(versionStr)) {
-                    versionNum = new Integer(versionStr);
+                    versionNum = Integer.valueOf(versionStr);
                 }
             }
 
