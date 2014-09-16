@@ -57,7 +57,7 @@ public class RulesRepositoryFactory {
             config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
         }
         if (config == null) {
-            throw new RRepositoryException(MSG_FAILED, new NullPointerException());
+            throw new RRepositoryException(MSG_FAILED, new IllegalStateException("Config isn't initialized"));
         }
 
         config.updateProperty(confRepositoryFactoryClass);
