@@ -167,11 +167,6 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     }
 
     @Override
-    protected void reset() {
-        super.reset();
-    }
-
-    @Override
     public String getName() {
         return "newTableProperty";
     }
