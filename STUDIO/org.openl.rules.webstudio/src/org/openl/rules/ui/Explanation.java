@@ -52,8 +52,7 @@ public class Explanation {
 
     public static String getName(ExplanationNumberValue<?> value) {
         IMetaInfo mi = value.getMetaInfo();
-        String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
-        return name;
+        return mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
     }
 
     public Explanation(Explanator explanator) {
@@ -119,16 +118,16 @@ public class Explanation {
 
     private String expandFunction(ExplanationNumberValue<?> value, String parentUrl) {
         String url = findUrl(value, parentUrl);
-        String ret = value.getFunction().getFunctionName().toUpperCase() + " (";
+        StringBuilder ret = new StringBuilder(value.getFunction().getFunctionName().toUpperCase()).append(" (");
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
         for (int i = 0; params != null && i < params.length; i++) {
             if (i > 0) {
-                ret += ", ";
+                ret.append(", ");
             }
-            ret += expandArgument(params[i], true, url, 0);
+            ret.append(expandArgument(params[i], true, url, 0));
         }
-        return ret + ")";
+        return ret.append(")").toString();
     }
 
     protected String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
@@ -137,7 +136,7 @@ public class Explanation {
         NumberCast cast = value.getCast();
         CastOperand operand = cast.getOperand();
 
-        String argument = expandArgument(cast.getValue(), operand.isAutocast() ? isMultiplicative : false, url, level);
+        String argument = expandArgument(cast.getValue(), operand.isAutocast() && isMultiplicative, url, level);
 
         return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }

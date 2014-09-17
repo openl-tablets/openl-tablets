@@ -44,11 +44,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
 
         private String getDateString(Date date, String condition) {
-            DateFormat format = null;
+            DateFormat format;
 
-            if (condition.indexOf(">") > -1) {
+            if (condition.contains(">")) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
-            } else if (condition.indexOf("<") > -1) {
+            } else if (condition.contains("<")) {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59.999'Z'");
             } else {
                 format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -56,10 +56,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
             String dateString = format.format(date);
 
-            StringBuilder sb = new StringBuilder();
-
-            sb.append("CAST('").append(dateString).append("' AS DATE)");
-            return sb.toString();
+            return "CAST('" + dateString + "' AS DATE)";
         }
 
         public String buildQuery(SearchParams params) {
@@ -205,7 +202,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     /**
      * Gets project by name.
      *
-     * @param name
      * @return project
      * @throws org.openl.rules.repository.exceptions.RRepositoryException if
      *                                                                    failed or no project with specified name
@@ -256,7 +252,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     /**
      * Checks whether project with given name exists in the repository.
      *
-     * @param name
      * @return <code>true</code> if project with such name exists
      * @throws org.openl.rules.repository.exceptions.RRepositoryException
      */
@@ -406,21 +401,21 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         Map<String, Integer> versionsList = new HashMap<String, Integer>();
         for (FolderAPI folder : getDeploymentProjects()) {
             String deploymentName = folder.getName();
-            Integer versionNum = new Integer(0);
+            Integer versionNum = 0;
 
-            if (deploymentName.indexOf("#") > -1) {
+            if (deploymentName.contains("#")) {
                 String versionStr;
 
-                if (deploymentName.indexOf("#") > deploymentName.lastIndexOf(".")) {
-                    versionStr = deploymentName.substring(deploymentName.indexOf("#") + 1, deploymentName.length());
+                if (deploymentName.indexOf('#') > deploymentName.lastIndexOf('.')) {
+                    versionStr = deploymentName.substring(deploymentName.indexOf('#') + 1, deploymentName.length());
                 } else {
-                    versionStr = deploymentName.substring(deploymentName.lastIndexOf(".") + 1, deploymentName.length());
+                    versionStr = deploymentName.substring(deploymentName.lastIndexOf('.') + 1, deploymentName.length());
                 }
 
-                deploymentName = deploymentName.substring(0, deploymentName.indexOf("#"));
+                deploymentName = deploymentName.substring(0, deploymentName.indexOf('#'));
 
                 if (!StringUtils.isEmpty(versionStr)) {
-                    versionNum = new Integer(versionStr);
+                    versionNum = Integer.valueOf(versionStr);
                 }
             }
 

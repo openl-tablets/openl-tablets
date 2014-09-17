@@ -14,7 +14,7 @@ import org.openl.rules.common.impl.CommonUserImpl;
  */
 public interface RVersion extends CommonVersion {
     
-    public static RVersion NON_DEFINED_VERSION = new RVersion() {
+    RVersion NON_DEFINED_VERSION = new RVersion() {
         
         public int compareTo(CommonVersion o) {
             return -1;

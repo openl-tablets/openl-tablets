@@ -111,8 +111,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 properties.put(name, rp);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         if (rp == null) {
@@ -182,7 +183,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private Object getPropValueByType(String propName, Node n) throws RepositoryException {
 
         Value value = n.getProperty(propName).getValue();
-        Object propValue = null;
+        Object propValue;
         int valueType = value.getType();
         switch (valueType) {
             case PropertyType.DATE:
@@ -241,20 +242,14 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         if (props == null) {
             return;
         }
-        // do not update JCR if property wasn't changed
-        /*folder props aren't save
-        if (isSame(this.props, props)) {
-            return;
-        }
-        */
-        Set<String> propNames = props.keySet();
-        for (String propName : propNames) {
-            Object propValue = props.get(propName);
+
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
             try {
-                setProperty(propName, propValue);
+                setProperty(entry.getKey(), entry.getValue());
             } catch (RRepositoryException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
         this.props = props;
@@ -411,7 +406,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
             if (frozenNode.hasProperty(propName)) {
                 Value value = frozenNode.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
@@ -483,7 +478,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         try {
@@ -495,7 +492,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         properties.clear();
@@ -523,7 +522,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 inhProps = getParentProps(node().getParent());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return inhProps;
@@ -552,7 +553,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return inhProps;

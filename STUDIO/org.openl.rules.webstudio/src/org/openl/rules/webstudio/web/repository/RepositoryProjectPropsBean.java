@@ -153,9 +153,10 @@ public class RepositoryProjectPropsBean {
         Map<String, String> attribs = repoAttrsUtils.getActiveAttribs();
 
         if (attribs != null) {
-            for (String key : attribs.keySet()) {
+            for (Map.Entry<String, String> entry: attribs.entrySet()) {
                 boolean presents = false;
 
+                String key = entry.getKey();
                 for (PropertyRow row : propsStore) {
                     if (row.getType().equals(PropertyRowType.PROPERTY)) {
                         TableProperty tp = (TableProperty) row.getData();
@@ -167,7 +168,7 @@ public class RepositoryProjectPropsBean {
                 }
 
                 if (!presents) {
-                    props.add(new SelectItem(key, attribs.get(key)));
+                    props.add(new SelectItem(key, entry.getValue()));
                 }
             }
         }
@@ -215,10 +216,6 @@ public class RepositoryProjectPropsBean {
         }
 
         propsStore.add(getGroupFirstPosition(OTHER_PROP_GROUP_NAME), selectProp);
-        return;
-
-        //setProperty(selectProp.getName(),null);
-
     }
 
     private int getGroupFirstPosition(String groupName) {
@@ -347,8 +344,7 @@ public class RepositoryProjectPropsBean {
         return makeTableProps(inheritedProp, settedPropsList, true);
     }
 
-    public static List<TableProperty> getVersionPropToolTip(java.util.Map objList) {
-        Map<String, Object> props = (Map<String, Object>) objList;
+    public static List<TableProperty> getVersionPropToolTip(Map<String, Object> props) {
         List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
 
@@ -475,7 +471,7 @@ public class RepositoryProjectPropsBean {
 
             for (String key : customAttrs.keySet()) {
                 if (settedPropsList.containsKey(key)) {
-                    if (firstRow && !onlyBDProps) {
+                    if (firstRow) {
                         propsStore.add(addGroupHeaderRow(OTHER_PROP_GROUP_NAME));
                         firstRow = false;
                     }

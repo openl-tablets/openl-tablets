@@ -210,7 +210,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     String propertyName = propertyMatch.substring(1, propertyMatch.length() - 1);
                     try {
                         if (propertyName.contains(":")) {
-                            int t = propertyName.indexOf(":");
+                            int t = propertyName.indexOf(':');
                             String p = propertyName.substring(0, t);
                             dateFormats.put(p, new SimpleDateFormat(propertyName.substring(t + 1)));
                             propertyName = p;

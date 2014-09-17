@@ -5,44 +5,47 @@ import org.openl.rules.dt.trace.DTConditionTraceObject;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class TraceTreeBuilder extends TreeBuilder {
-    private static final int UNSUCCESSFUL = 0;
-    private static final int SUCCESSFUL_WITHOUT_RESULT = 1;
-    private static final int SUCCESSFUL_WITH_RESULT = 2;
 
-    private TraceHelper traceHelper;
+    private final boolean detailedTraceTree;
 
-    public TraceTreeBuilder(ITreeElement<?> root, TraceHelper traceHelper) {
-        super(root, false);
-        this.traceHelper = traceHelper;
+    public TraceTreeBuilder(boolean detailedTraceTree) {
+        this.detailedTraceTree = detailedTraceTree;
     }
 
     @Override
-    protected String getUrl(ITreeElement<?> element) {
-        String params = element != null ? Constants.REQUEST_PARAM_ID + "=" + traceHelper.getNodeKey(element) : "";
+    String getUrl(ITreeElement<?> element) {
+        TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
+        Integer nodeKey = traceHelper.getNodeKey(element);
+        String params = nodeKey != null ? Constants.REQUEST_PARAM_ID + "=" + nodeKey : "";
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;
     }
 
+
     @Override
-    protected int getState(ITreeElement<?> element) {
+    String getType(ITreeElement<?> element) {
+        String type = super.getType(element);
         if (element instanceof DTConditionTraceObject) {
             DTConditionTraceObject condition = (DTConditionTraceObject) element;
-            return condition.isSuccessful() ? (condition.hasRuleResult() ? SUCCESSFUL_WITH_RESULT : SUCCESSFUL_WITHOUT_RESULT) : UNSUCCESSFUL;
+            if (!condition.isSuccessful()) {
+                return type + "_fail";
+            } else if (condition.hasRuleResult()) {
+                return type + "_result";
+            }
         }
-
-        return super.getState(element);
+        return type;
     }
 
     @Override
-    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
+    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         if (source instanceof DecisionTableTraceObject) {
             DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
-            return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();
+            return detailedTraceTree ? parent.getChildren() : parent.getTraceResults();
         }
 
         return super.getChildrenIterator(source);
     }
-
 }

@@ -10,13 +10,16 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.Privilege;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
-import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.PrincipalImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserUtil {
+    private final Logger log = LoggerFactory.getLogger(UserUtil.class);
+
     private TransientRepository repository;
 
     public UserUtil(TransientRepository repository) {
@@ -34,16 +37,16 @@ public class UserUtil {
             session = createSession();
 
             UserManager userManager = ((JackrabbitSession) session).getUserManager();
-            AccessControlManager accessControlManager = (JackrabbitAccessControlManager) ((JackrabbitSession) session).getAccessControlManager();
+            AccessControlManager accessControlManager = session.getAccessControlManager();
 
-            User user = userManager.createUser(name, password, new PrincipalImpl(name), null);
+            userManager.createUser(name, password, new PrincipalImpl(name), null);
 
             AccessControlPolicy[] accessControlPolicies = accessControlManager.getPolicies(session.getRootNode()
                 .getPath());
 
             /* Delete all priveleges from root node */
-            for (int i = 0; i < accessControlPolicies.length; i++) {
-                AccessControlList acl = ((AccessControlList) accessControlPolicies[i]);
+            for (AccessControlPolicy accessControlPolicy : accessControlPolicies) {
+                AccessControlList acl = ((AccessControlList) accessControlPolicy);
 
                 for (AccessControlEntry ace : acl.getAccessControlEntries()) {
                     acl.removeAccessControlEntry(ace);
@@ -58,8 +61,8 @@ public class UserUtil {
             Privilege[] privileges = new Privilege[] { accessControlManager.privilegeFromName(Privilege.JCR_ALL) };
 
             /* Set admin right of new user for root node */
-            for (int i = 0; i < accessControlPolicies.length; i++) {
-                AccessControlList acl = ((AccessControlList) accessControlPolicies[i]);
+            for (AccessControlPolicy accessControlPolicy : accessControlPolicies) {
+                AccessControlList acl = ((AccessControlList) accessControlPolicy);
                 acl.addAccessControlEntry(new PrincipalImpl(name), privileges);
                 accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
             }
@@ -84,7 +87,9 @@ public class UserUtil {
             session.save();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return false;
         } finally {
             if (session != null) {
@@ -105,7 +110,9 @@ public class UserUtil {
             session.save();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return false;
         } finally {
             if (session != null) {

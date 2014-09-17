@@ -1,10 +1,10 @@
 package org.openl.rules.tbasic;
 
+import org.openl.meta.StringValue;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.openl.meta.StringValue;
 
 public class AlgorithmTreeNode {
 
@@ -44,11 +44,33 @@ public class AlgorithmTreeNode {
         return specification;
     }
 
+    public String getSpecificationKeyword() {
+        if (specification != null) {
+            return specification.getKeyword();
+        }
+        return null;
+    }
+
     public void setAlgorithmRow(AlgorithmRow algorithmRow) {
         this.algorithmRow = algorithmRow;
     }
 
     public void setSpecification(TableParserSpecificationBean specification) {
         this.specification = specification;
+    }
+
+    @Override
+    public String toString() {
+        if (specification != null) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("Specification Keyword : ");
+            buf.append(specification.getKeyword());
+            if (algorithmRow != null) {
+                buf.append(". Row : ");
+                buf.append(algorithmRow);
+            }
+            return buf.toString();
+        }
+        return super.toString();
     }
 }

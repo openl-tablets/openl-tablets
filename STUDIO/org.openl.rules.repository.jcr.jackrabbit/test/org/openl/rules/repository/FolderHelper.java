@@ -9,7 +9,10 @@ import java.io.FileFilter;
  * @author Aleh Bykhavets
  *
  */
-public class FolderHelper {
+public final class FolderHelper {
+    private FolderHelper() {
+    }
+
     /**
      * Lists folders only.
      */
@@ -22,12 +25,7 @@ public class FolderHelper {
     private static FileFilter foldersOnly;
 
     public static boolean checkOrCreateFolder(File location) {
-        if (location.exists()) {
-            // ok
-            return true;
-        } else {
-            return location.mkdirs();
-        }
+        return location.exists() || location.mkdirs();
     }
 
     public static boolean clearFolder(File folder) {
@@ -59,6 +57,11 @@ public class FolderHelper {
         if (folder.isDirectory()) {
             // list sub elements
             File[] files = folder.listFiles();
+
+            if (files == null) {
+                // Some I/O error occurs
+                return false;
+            }
 
             // delete one by one
             for (File f : files) {

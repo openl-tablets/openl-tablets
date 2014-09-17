@@ -1,12 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLErrorMessage;
@@ -19,9 +12,15 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Request scope managed bean providing logic for problems tree page of OpenL Studio.
- * 
+ *
  * @author Andrei Astrouski
  */
 @ManagedBean
@@ -33,16 +32,16 @@ public class ProblemsBean {
 
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
-    
+
     private static Map<Class<?>, MessageHandler> messageHandlers;
-    
+
     static {
         messageHandlers = new HashMap<Class<?>, MessageHandler>();
         messageHandlers.put(OpenLErrorMessage.class, new ErrorMessageHandler());
         messageHandlers.put(OpenLWarnMessage.class, new WarningMessageHandler());
         messageHandlers.put(OpenLMessage.class, new MessageHandler());
     }
-    
+
     public ProblemsBean() {
     }
 
@@ -95,14 +94,12 @@ public class ProblemsBean {
     }
 
     private String getNodeUrl(OpenLMessage message, ProjectModel model) {
-        String url = null;
-
         MessageHandler messageHandler = messageHandlers.get(message.getClass());
 
-        url = messageHandler.getSourceUrl(message, model);
+        String url = messageHandler.getSourceUrl(message, model);
 
         if (StringUtils.isBlank(url)) {
-            url = messageHandler.getUrlForEmptySource(message, model);
+            url = messageHandler.getUrlForEmptySource(message);
         }
 
         return url;

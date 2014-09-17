@@ -121,23 +121,21 @@ var PopupMenu = {
 
 	getTarget: function (e) {
 		var evt = this.menu_ie ? window.event : e;
-		var el = undefined;
 		if (evt.target) {
 			return evt.target;
 		} else if (evt.srcElement) {
 			return evt.srcElement;
 		}
-		;
 		return undefined;
 	},
 
-	_init: function (contentElement, event, extraClass) {
+	_init: function () {
 		document.onclick = function(e) {
 			var el = PopupMenu.getTarget(e);
 			if (el && (el.name != 'menurevealbutton') && !PopupMenu.inMenuDiv(el))
 				PopupMenu.closeMenu();
 			return true;
-		}
+		};
 
 		try {
 			this.te_menu = document.createElement('<div id="divmenu" class="te_menu" style="display:none; float:none;z-index:5; position:absolute;">');
@@ -156,10 +154,10 @@ var PopupMenu = {
 				PopupMenu.cancelDisappear();
 				PopupMenu.disappearFunction = setTimeout("PopupMenu.closeMenu()", PopupMenu.disappearInterval2);
 			}
-		}
-		this.te_menu.onmouseover = function(e) {
+		};
+		this.te_menu.onmouseover = function() {
 			PopupMenu.cancelDisappear();
-		}
+		};
 
 		document.body.appendChild(this.te_menu);
 		this.showPopupMenu = this._showPopupMenu;
@@ -192,4 +190,4 @@ var PopupMenu = {
 	// init
 	showPopupMenu: function() {this._init(); this._showPopupMenu.apply(this, arguments);},
 	sheduleShowMenu: function() {this._init(); this._sheduleShowMenu.apply(this, arguments);}
-}
+};

@@ -18,17 +18,19 @@ import org.openl.vm.trace.Tracer;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.
  */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class TraceTreeBean {
 
     @ManagedProperty("#{runTestHelper}")
     private RunTestHelper runTestHelper;
+
+    private boolean detailedTraceTree = true;
 
     public void setRunTestHelper(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
@@ -56,17 +58,17 @@ public class TraceTreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TraceHelper traceHelper = studio.getTraceHelper();
         if (traceHelper.getTreeRoot() != null) {
-            return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
+            return new TraceTreeBuilder(detailedTraceTree).build(traceHelper.getTreeRoot());
         }
         return null;
     }
 
     public boolean isDetailedTraceTree() {
-        return WebStudioUtils.getWebStudio().getTraceHelper().isDetailedTraceTree();
+        return detailedTraceTree;
     }
 
     public void setDetailedTraceTree(boolean detailedTraceTree) {
-        WebStudioUtils.getWebStudio().getTraceHelper().setDetailedTraceTree(detailedTraceTree);
+        this.detailedTraceTree = detailedTraceTree;
     }
 
     public boolean hasDecisionTables() {
@@ -92,9 +94,4 @@ public class TraceTreeBean {
         }
         return false;
     }
-
-    private TreeNode buildTreeNode(TraceHelper traceHelper, ITreeElement<?> tree) {
-        return new TraceTreeBuilder(tree, traceHelper).build();
-    }
-
 }

@@ -3,31 +3,25 @@
  */
 package org.openl.rules.tbasic.compile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.StringValue;
-import org.openl.rules.tbasic.Algorithm;
-import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
-import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.rules.tbasic.NoParamMethodField;
+import org.openl.rules.tbasic.*;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.*;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // FIXME: !!!!!!!!!!!!!!! refactor to eliminate code duplications and to isolate
 // different functionality in separate classes
@@ -58,6 +52,16 @@ public class AlgorithmCompiler {
 
     private IBindingContext thisContext;
 
+    private Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<String, OperationPreprocessor>();
+
+    {
+        operationPreprocessors.put(OperationType.COMPILE.toString(), new CompilePreprocessor());
+        operationPreprocessors.put(OperationType.DECLARE.toString(), new DeclarePreprocessor());
+        operationPreprocessors.put(OperationType.DECLARE_ARRAY_ELEMENT.toString(), new DeclareArrayElementPreprocessor());
+        operationPreprocessors.put(OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor());
+        operationPreprocessors.put(OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
+    }
+
     public AlgorithmCompiler(IBindingContext context, IOpenMethodHeader header, List<AlgorithmTreeNode> nodesToCompile) {
         this.context = context;
         this.header = header;
@@ -70,12 +74,12 @@ public class AlgorithmCompiler {
 
     public void compile(Algorithm algorithm) throws Exception {
         initialization(algorithm);
-        precompile(nodesToCompile);
-        compile(nodesToCompile);
+        precompile();
+        compile();
         postprocess(algorithm);
     }
 
-    private void compile(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
+    private void compile() throws Exception {
         for (AlgorithmFunctionCompiler functionCompiler : functions) {
             functionCompiler.compile();
         }
@@ -144,6 +148,36 @@ public class AlgorithmCompiler {
         initNewInternalVariable(variableName.getValue(), variableType);
     }
 
+    /**
+     * Find out the type of the array element. And define the internal variable
+     */
+    private void declareArrayElement(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+            throws SyntaxNodeException {
+        // Points to the location of the elementName in the TBasic table
+        //
+        String elementNameParameter = conversionStep.getOperationParam1();
+
+        // Points to the location of the iterable array parameter in the Tbasic table
+        //
+        String iterableArrayParameter = conversionStep.getOperationParam2();
+
+        // Extract the element name
+        //
+        StringValue elementName = AlgorithmCompilerTool.getCellContent(nodesToCompile, elementNameParameter);
+
+        // Extract the type of the iterable array
+        //
+        IOpenClass iterableArrayType = getTypeOfField(AlgorithmCompilerTool.getCellContent(nodesToCompile,
+                iterableArrayParameter));
+        if (!iterableArrayType.isArray()) {
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getAction()
+                    .asSourceCodeModule();
+            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. The cell should be of the array type", elementName), errorSource);
+        }
+        IOpenClass elementType = iterableArrayType.getComponentClass();
+        initNewInternalVariable(elementName.getValue(), elementType);
+    }
+
     private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, String returnValueInstruction)
             throws SyntaxNodeException {
         // find first RETURN operation
@@ -164,7 +198,7 @@ public class AlgorithmCompiler {
         // FIXME delete this method at all
         List<AlgorithmTreeNode> returnNodeSubList = null;
         for (int i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
-            if (nodes.get(i).getSpecification().getKeyword().equals("RETURN")) {
+            if (TBasicSpecificationKey.RETURN.toString().equals(nodes.get(i).getSpecificationKeyword())) {
                 returnNodeSubList = nodes.subList(i, i + 1);
             } else if (nodes.get(i).getChildren() != null) {
                 returnNodeSubList = findFirstReturn(nodes.get(i).getChildren());
@@ -188,8 +222,8 @@ public class AlgorithmCompiler {
     private List<AlgorithmTreeNode> getMainFunctionBody() {
         int currentOperationIndex = 0;
         while (currentOperationIndex < nodesToCompile.size()
-                && !nodesToCompile.get(currentOperationIndex).getSpecification().getKeyword().equals("FUNCTION")
-                && !nodesToCompile.get(currentOperationIndex).getSpecification().getKeyword().equals("SUB")) {
+                && !TBasicSpecificationKey.FUNCTION.toString().equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword())
+                && !TBasicSpecificationKey.SUB.toString().equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword())) {
             currentOperationIndex++;
         }
         return nodesToCompile.subList(0, currentOperationIndex);
@@ -205,10 +239,10 @@ public class AlgorithmCompiler {
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
-        IBindingContext cxt = getAlgorithmBindingContext();
-        IOpenClass filedType = OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
-                signature, thisTargetClass, cxt).getMethod().getType();
-        return filedType;
+        return OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
+                signature, thisTargetClass, getAlgorithmBindingContext())
+                    .getMethod()
+                    .getType();
     }
 
     private void initialization(Algorithm algorithm) throws SyntaxNodeException {
@@ -257,8 +291,8 @@ public class AlgorithmCompiler {
      * Main precompile, compile, postprocess logic
      **************************************************************************/
 
-    private void precompile(List<AlgorithmTreeNode> nodesToProcess) throws SyntaxNodeException {
-        precompileNestedNodes(nodesToProcess);
+    private void precompile() throws SyntaxNodeException {
+        precompileNestedNodes(nodesToCompile);
     }
 
     private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
@@ -282,36 +316,80 @@ public class AlgorithmCompiler {
         }
     }
 
-    /**
-     * @param nodesToCompile
-     * @param conversionRule
-     * @throws BoundError
-     */
     private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
             throws SyntaxNodeException {
         assert nodesToCompile.size() > 0;
         assert conversionStep != null;
 
         String operationType = conversionStep.getOperationType();
-        // TODO
-        if (!operationType.startsWith("!") || operationType.equals("!CheckLabel")) {
-            // do nothing
-        } else if (operationType.equals("!Compile")) {
+        if (!operationType.startsWith("!") || operationType.equals(OperationType.CHECK_LABEL.toString())) {
+            // Do nothing
+            //
+        } else {
+            OperationPreprocessor preprocessor = operationPreprocessors.get(operationType);
+            if (preprocessor == null) {
+                IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                        .asSourceCodeModule();
+                throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Unknown compilation instruction %s", operationType), errorSource);
+            } else {
+                preprocessor.preprocess(nodesToCompile, conversionStep);
+            }
+        }
+    }
+
+    public interface OperationPreprocessor {
+        void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException;
+    }
+
+    private final class CompilePreprocessor implements OperationPreprocessor {
+
+        @Override
+        public void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException {
             List<AlgorithmTreeNode> nodesToProcess;
             nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
                     .getOperationParam1());
             precompileNestedNodes(nodesToProcess);
-        } else if (operationType.equals("!Declare")) {
-            declareVariable(nodesToCompile, conversionStep);
-        } else if (operationType.equals("!Subroutine")) {
-            declareSubroutine(nodesToCompile);
-        } else if (operationType.equals("!Function")) {
-            declareFunction(nodesToCompile, conversionStep);
-        } else {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Unknown compilation instruction %s", operationType), errorSource);
         }
     }
+
+    private final class DeclarePreprocessor implements OperationPreprocessor {
+
+        @Override
+        public void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException {
+            declareVariable(nodesToCompile, conversionStep);
+        }
+    }
+
+    private final class DeclareArrayElementPreprocessor implements OperationPreprocessor {
+
+        @Override
+        public void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException {
+            declareArrayElement(nodesToCompile, conversionStep);
+        }
+    }
+
+    private final class DeclareSubroutinePreprocessor implements OperationPreprocessor {
+
+        @Override
+        public void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException {
+            declareSubroutine(nodesToCompile);
+        }
+    }
+
+    private final class DeclareFunctionPreprocessor implements OperationPreprocessor {
+
+        @Override
+        public void preprocess(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+                throws SyntaxNodeException {
+            declareFunction(nodesToCompile, conversionStep);
+        }
+    }
+
 
 }

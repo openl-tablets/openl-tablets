@@ -3,40 +3,36 @@ package org.openl.rules.ui.tree.richfaces;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class ProjectTreeBuilder extends TreeBuilder {
 
-    private ProjectModel projectModel;
-
-    public ProjectTreeBuilder(ITreeElement<?> root, ProjectModel projectModel, boolean hideDispatcherTables) {
-        super(root, hideDispatcherTables);
-        this.projectModel = projectModel;
+    public ProjectTreeBuilder(boolean hideDispatcherTables) {
+        super(hideDispatcherTables);
     }
 
     @Override
     @Deprecated
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
         if (pte.getTableSyntaxNode() != null
-                && projectModel.isTestable(pte.getTableSyntaxNode())) {
+                && WebStudioUtils.getProjectModel().isTestable(pte.getTableSyntaxNode())) {
             return 2; // has tests
         }
         return super.getState(element);
     }
 
     @Override
-    protected int getNumErrors(ITreeElement<?> element) {
+    int getNumErrors(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
         return pte.getNumErrors();
     }
 
     @Override
-    protected boolean isActive(ITreeElement<?> element) {
+    boolean isActive(ITreeElement<?> element) {
         ProjectTreeNode projectNode = (ProjectTreeNode) element;
         TableSyntaxNode syntaxNode = projectNode.getTableSyntaxNode();
         if (syntaxNode != null) {
@@ -52,12 +48,11 @@ public class ProjectTreeBuilder extends TreeBuilder {
     }
 
     @Override
-    protected String getUrl(ITreeElement<?> element) {
-        WebStudio studio = projectModel.getStudio();
+    String getUrl(ITreeElement<?> element) {
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = ((ProjectTreeNode) element).getTableSyntaxNode();
-            return studio.url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
+            return WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
         }
         return null;
     }

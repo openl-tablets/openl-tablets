@@ -1,16 +1,17 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.List;
-
 import org.openl.base.INamedThing;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.List;
 
 /**
  * The <code>ReturnAnalyzer</code> class analyzes body of some TBasic function
@@ -40,7 +41,7 @@ public class ReturnAnalyzer {
      *
      * @param nodesToAnalyze Body of some function to analyze.
      * @return Correctness of code.
-     * @throws BoundError If function contains unreachable code or incorrect
+     * @throws SyntaxNodeException If function contains unreachable code or incorrect
      *             return type.
      */
     public SuitablityAsReturn analyze(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
@@ -52,8 +53,8 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeGroup(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
-        if (nodesToAnalyze.get(0).getSpecification().getKeyword().equals("IF")
-                && nodesToAnalyze.get(1).getSpecification().getKeyword().equals("ELSE")) {
+        if (TBasicSpecificationKey.IF.toString().equals(nodesToAnalyze.get(0).getSpecificationKeyword())
+                && TBasicSpecificationKey.ELSE.toString().equals(nodesToAnalyze.get(1).getSpecificationKeyword())) {
             return analyzeIFOperation(nodesToAnalyze, nodesToAnalyze.get(0).getSpecification().isMultiline());
         } else {
             return SuitablityAsReturn.NONE;
@@ -81,7 +82,7 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeNode(AlgorithmTreeNode nodeToAnalyze) throws SyntaxNodeException {
-        if (nodeToAnalyze.getSpecification().getKeyword().equals("RETURN")) {
+        if (TBasicSpecificationKey.RETURN.toString().equals(nodeToAnalyze.getSpecificationKeyword())) {
             if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getCondition())) {
                 return SuitablityAsReturn.RETURN;
             } else {
@@ -120,7 +121,7 @@ public class ReturnAnalyzer {
     }
 
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
-        String currentNodeKeyword = nodeToAnalyze.getSpecification().getKeyword();
+        String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
         String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(
                 currentNodeKeyword);
         if (operationNamesToGroup != null) {

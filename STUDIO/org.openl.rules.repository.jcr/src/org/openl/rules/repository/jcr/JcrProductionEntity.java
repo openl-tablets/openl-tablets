@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 
 public abstract class JcrProductionEntity implements REntity {
     private String name;
@@ -146,7 +145,7 @@ public abstract class JcrProductionEntity implements REntity {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
@@ -164,7 +163,7 @@ public abstract class JcrProductionEntity implements REntity {
         }
     }
 
-    protected Node node() {
+    protected final Node node() {
         return node;
     }
 
@@ -252,10 +251,8 @@ public abstract class JcrProductionEntity implements REntity {
         if (isSame(this.props, props)) {
             return;
         }
-        Set<String> propNames = props.keySet();
-        for (String propName : propNames) {
-            Object propValue = props.get(propName);
-            setProperty(propName, propValue);
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
+            setProperty(entry.getKey(), entry.getValue());
         }
         this.props = props;
     }

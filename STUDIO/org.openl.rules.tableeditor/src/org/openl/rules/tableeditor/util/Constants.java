@@ -60,4 +60,6 @@ public final class Constants {
 
     public static final String THIRD_PARTY_LIBS_PROTOTYPE = "prototype";
 
+    private Constants() {
+    }
 }

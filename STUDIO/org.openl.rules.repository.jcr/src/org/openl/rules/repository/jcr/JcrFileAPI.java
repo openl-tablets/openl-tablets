@@ -13,6 +13,8 @@ import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of JCR File.
@@ -21,11 +23,12 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * 
  */
 public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
+    private final Logger log = LoggerFactory.getLogger(JcrEntityAPI.class);
 
     /**
      * Creates a new instance of file.
      * 
-     * @param parentNode parent node (files or folder)
+     * @param parent parent node (files or folder)
      * @param nodeName name of new node
      * @return newly created instance
      * @throws RepositoryException if fails
@@ -66,8 +69,9 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
             Node frozen = NodeUtil.getNode4Version(node(), version);
             return new JcrFileAPI(frozen, getTransactionManager(), getArtefactPath(), true);
         } catch (RepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return null;
         }
     }

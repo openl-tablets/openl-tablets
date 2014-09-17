@@ -125,9 +125,15 @@ public class TableCopier extends TableCreationWizard {
                     TableProperty compareToProperty = getProperty(prop.getName());
                     String compareToPropertyDisplayName = compareToProperty == null ? ""
                             : compareToProperty.getDisplayName();
-                    validation.append("new Validation(" + inputId + ", '"
-                            + validator + "', '', {compareToFieldId:" + compareToFieldId
-                            + ",messageParams:'" + compareToPropertyDisplayName + "'})");
+                    validation.append("new Validation(")
+                            .append(inputId)
+                            .append(", '")
+                            .append(validator)
+                            .append("', '', {compareToFieldId:")
+                            .append(compareToFieldId)
+                            .append(",messageParams:'")
+                            .append(compareToPropertyDisplayName)
+                            .append("'})");
                 }
             }
         }
@@ -254,7 +260,7 @@ public class TableCopier extends TableCreationWizard {
         return header.trim().replaceFirst(repl, tableTechnicalName.trim());
     }
 
-    protected void initTableName() {
+    private void initTableName() {
         if (table != null) {
             tableTechnicalName = table.getName();
         }
@@ -273,8 +279,8 @@ public class TableCopier extends TableCreationWizard {
      */
     protected String parseTechnicalName(String header, String tableType) {
         String result = null;
-        String headerIntern = header;
-        String[] headerTokens = null;
+        String headerIntern;
+        String[] headerTokens;
         if (!XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType) && !XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
             headerIntern = header.replaceFirst("\\(.*\\)", "");
             headerTokens = StringUtils.split(headerIntern);
@@ -369,9 +375,7 @@ public class TableCopier extends TableCreationWizard {
         for (TableProperty property : propertiesManager.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
-            if (isEmpty(value)) {
-                continue;
-            } else {
+            if (!isEmpty(value)) {
                 newProperties.put(name.trim(), value);
             }
         }
@@ -424,11 +428,9 @@ public class TableCopier extends TableCreationWizard {
             ProjectModel model = studio.getModel();
             TableEditorModel tableEditorModel = model.getTableEditorModel(table.getUri());
 
-            Set<String> propNames = properties.keySet();
             try {
-                for (String propName : propNames) {
-                    Object propValue = properties.get(propName);
-                    tableEditorModel.setProperty(propName, propValue);
+                for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                    tableEditorModel.setProperty(entry.getKey(), entry.getValue());
                 }
                 getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
             } catch (Exception e) {

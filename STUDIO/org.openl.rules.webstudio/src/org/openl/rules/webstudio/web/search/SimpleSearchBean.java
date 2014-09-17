@@ -35,7 +35,7 @@ public class SimpleSearchBean {
         return searchQuery;
     }
 
-    public void setSearchQuery(String searchQuery) {
+    public final void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
     }
 
@@ -67,7 +67,7 @@ public class SimpleSearchBean {
         }
     }
 
-    public String search() {
+    public final String search() {
         String[][] searchResults = {};
 
         if (StringUtils.isNotBlank(searchQuery)) {
@@ -105,18 +105,12 @@ public class SimpleSearchBean {
 
     public boolean isXlsFile() {
         String uri = getUri();
-        if (uri.indexOf(".xls") >= 0) {
-            return true;
-        }
-        return false;
+        return uri.contains(".xls");
     }
 
     public boolean isDocFile() {
         String uri = getUri();
-        if (uri.indexOf(".doc") >= 0) {
-            return true;
-        }
-        return false;
+        return uri.contains(".doc");
     }
 
 }

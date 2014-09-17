@@ -44,7 +44,6 @@ public class TableDetailsBean {
     private String newTableId;
     private String propertyToAdd;
     private String id;
-    private String uri;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -53,6 +52,7 @@ public class TableDetailsBean {
 
         IOpenLTable table;
 
+        String uri;
         if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
             table = studio.getModel().getTable(uri);
@@ -148,7 +148,7 @@ public class TableDetailsBean {
         return id;
     }
 
-    public IOpenLTable getTable() {
+    public final IOpenLTable getTable() {
         return WebStudioUtils.getWebStudio().getModel().getTableById(id);
     }
 
@@ -174,10 +174,10 @@ public class TableDetailsBean {
 
         Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
                 .groupProperties(propDefinitions);
-        for (String groupName : propGroups.keySet()) {
+        for (Map.Entry<String, Set<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<SelectItem>();
 
-            for (TablePropertyDefinition propDefinition : propGroups.get(groupName)) {
+            for (TablePropertyDefinition propDefinition : entry.getValue()) {
                 String propName = propDefinition.getName();
                 if (!currentProps.contains(propName)
                         && !"version".equals(propName)
@@ -187,7 +187,7 @@ public class TableDetailsBean {
             }
 
             if (!items.isEmpty()) {
-                SelectItemGroup itemGroup = new SelectItemGroup(groupName);
+                SelectItemGroup itemGroup = new SelectItemGroup(entry.getKey());
                 itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
                 propertiesToAdd.add(itemGroup);
             }

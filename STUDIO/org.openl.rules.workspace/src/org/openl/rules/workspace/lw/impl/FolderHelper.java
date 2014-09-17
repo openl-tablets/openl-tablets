@@ -10,19 +10,17 @@ import java.io.File;
  *
  * @author Aleh Bykhavets
  */
-public class FolderHelper {
+public final class FolderHelper {
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
+    private FolderHelper() {
+    }
+
     public static boolean checkOrCreateFolder(File location) {
-        if (location.exists()) {
-            // ok
-            return true;
-        } else {
-            return location.mkdirs();
-        }
+        return location.exists() || location.mkdirs();
     }
 
     /**
@@ -77,6 +75,11 @@ public class FolderHelper {
         if (folder.isDirectory()) {
             // list sub elements
             File[] files = folder.listFiles();
+
+            if (files == null) {
+                // Some I/O error occurs
+                return false;
+            }
 
             // delete one by one
             for (File f : files) {

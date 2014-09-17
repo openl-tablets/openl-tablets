@@ -37,7 +37,7 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
         Object v2 = p2.getRawValue();
 
         if (v1 == null) {
-            return (v1 == v2);
+            return v2 == null;
         } else {
             return v1.equals(v2);
         }

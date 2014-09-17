@@ -60,17 +60,16 @@ public class StartupListener implements ServletContextListener {
         // Replace system config manager
         SysConfigManager.setConfigManager(configManager);
 
-        initSystemProperties(context);
+        initSystemProperties();
     }
 
-    private void initSystemProperties(ServletContext context) {
+    private void initSystemProperties() {
         ConfigurationManager cm = new ConfigurationManager(true,
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         Map<String, Object> properties = cm.getProperties(true);
 
-        for (String propertyName : properties.keySet()) {
-            Object propValue = properties.get(propertyName);
-            System.setProperty(propertyName, String.valueOf(propValue));
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
         }
     }
 

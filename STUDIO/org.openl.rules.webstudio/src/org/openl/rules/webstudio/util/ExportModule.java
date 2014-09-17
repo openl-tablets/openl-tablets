@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class ExportModule {
+public final class ExportModule {
+    private ExportModule() {
+    }
 
     public static void writeOutContent(final HttpServletResponse res, final File content, final String filename) {
         if (content == null) {

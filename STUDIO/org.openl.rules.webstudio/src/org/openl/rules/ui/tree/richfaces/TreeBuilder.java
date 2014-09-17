@@ -5,89 +5,86 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.ui.tree.AbstractTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.tree.ITreeElement;
 
-public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
+abstract class TreeBuilder {
 
-    private ITreeElement<?> root;
     private boolean hideDispatcherTables;
 
-    public TreeBuilder(ITreeElement<?> root, boolean hideDispatcherTables) {
-        this.root = root;
+
+    TreeBuilder() {
+    }
+
+    TreeBuilder(boolean hideDispatcherTables) {
         this.hideDispatcherTables = hideDispatcherTables;
     }
 
-    @Override
-    public TreeNode build() {
-        return build(false);
+    public TreeNode build(ITreeElement<?> root) {
+        return buildNode(root);
     }
 
-    public TreeNode build(boolean hasRoot) {
-        TreeNode rfTree = new TreeNode();
-        addNodes(rfTree, root);
-        if (hasRoot) {
-            setNodeData(root, rfTree);
-            TreeNode rfRoot = new TreeNode();
-            rfRoot.addChild(0, rfTree);
-            return rfRoot;
+    public TreeNode buildWithRoot(ITreeElement<?> root) {
+        TreeNode subNode = build(root);
+        // Wrap to root node
+        TreeNode node = new TreeNode();
+        node.addChild(0, subNode);
+        return node;
+    }
+
+    private TreeNode buildNode(ITreeElement<?> element) {
+        if (element == null) {
+            return createNullNode();
         }
-        return rfTree;
-    }
-
-    private void addNodes(TreeNode dest, ITreeElement<?> source) {
-        int index = 1;
-        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(source);
+        TreeNode node = createNode(element);
+        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(element);
         for (ITreeElement<?> child : children) {
-            TreeNode rfChild = toRFNode(child);
+            TreeNode rfChild = buildNode(child);
             if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
                 continue;
             }
-            dest.addChild(index, rfChild);
-            if (child != null) {
-                addNodes(rfChild, child);
-            }
-            index++;
+            node.addChild(rfChild, rfChild);
         }
+        return node;
     }
 
-    protected Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
+    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         return source.getChildren();
     }
 
-    private TreeNode toRFNode(ITreeElement<?> node) {
-        if (node == null) {
-            return createNullNode();
-        }
-        TreeNode rfNode = new TreeNode(node.isLeaf());
-        setNodeData(node, rfNode);
-        return rfNode;
+    private TreeNode createNode(ITreeElement<?> element) {
+        boolean leaf = element.isLeaf();
+        TreeNode node = new TreeNode(leaf);
+
+        String name = getDisplayName(element, INamedThing.SHORT);
+        node.setName(name);
+
+        String title = getDisplayName(element, INamedThing.REGULAR);
+        node.setTitle(title);
+
+        String url = getUrl(element);
+        node.setUrl(url);
+
+        int state = getState(element);
+        node.setState(state);
+
+        int numErrors = getNumErrors(element);
+        node.setNumErrors(numErrors);
+
+        String type = getType(element);
+        node.setType(type);
+
+        boolean active = isActive(element);
+        node.setActive(active);
+
+        return node;
     }
 
-    protected void setNodeData(ITreeElement<?> source, TreeNode dest) {
-        String name = getDisplayName(source, INamedThing.SHORT);
-        String title = getDisplayName(source, INamedThing.REGULAR);
-        String url = getUrl(source);
-        int state = getState(source);
-        int numErrors = getNumErrors(source);
-        String type = getType(source);
-        boolean active = isActive(source);
-
-        dest.setName(name);
-        dest.setTitle(title);
-        dest.setUrl(url);
-        dest.setState(state);
-        dest.setNumErrors(numErrors);
-        dest.setType(type);
-        dest.setActive(active);
-    }
-
-    protected boolean isActive(ITreeElement<?> element) {
+    boolean isActive(ITreeElement<?> element) {
         return true;
     }
 
-    protected String getType(ITreeElement<?> element) {
+    String getType(ITreeElement<?> element) {
         String type = element.getType();
         if (type != null) {
             return type;
@@ -95,11 +92,9 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return StringUtils.EMPTY;
     }
 
-    protected String getUrl(ITreeElement<?> element) {
-        return StringUtils.EMPTY;
-    }
+    abstract String getUrl(ITreeElement<?> element);
 
-    protected String getDisplayName(Object obj, int mode) {
+    String getDisplayName(Object obj, int mode) {
         if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
             return FormattersManager.format(obj);
         }
@@ -110,11 +105,11 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return String.valueOf(obj);
     }
 
-    protected int getState(ITreeElement<?> element) {
+    int getState(ITreeElement<?> element) {
         return 0;
     }
 
-    protected int getNumErrors(ITreeElement<?> element) {
+    int getNumErrors(ITreeElement<?> element) {
         return 0;
     }
 

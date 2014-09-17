@@ -690,14 +690,6 @@ form .formfields {
     opacity: 0.35;
 }
 
-.hasRuleResultNode {
-    font-weight: bold;
-}
-
-.noRuleResultNode {
-    font-style: italic;
-}
-
 .panel > .panel-header {
     height: 32px;
     font-size: 110%;

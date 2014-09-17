@@ -165,7 +165,7 @@ public class JcrOldEntity implements REntity {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
@@ -183,7 +183,7 @@ public class JcrOldEntity implements REntity {
         }
     }
 
-    protected Node node() {
+    protected final Node node() {
         return node;
     }
 

@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.openl.rules.table.xls.builder.DataTableField;
-import org.openl.rules.webstudio.web.test.ParameterDeclarationTreeNode;
 import org.richfaces.model.TreeNode;
 
 /**
@@ -65,10 +64,12 @@ public class DataTableTreeNode implements TreeNode {
 
     @Override
     public void addChild(Object key, TreeNode child) {
-        if (child == null)
+        if (child == null) {
             removeChild(key);
+            return;
+        }
 
-        if (!(child instanceof ParameterDeclarationTreeNode)) {
+        if (!(child instanceof DataTableTreeNode)) {
             String message = String.format("Unsupported node type %s", child.getClass().getName());
             throw new IllegalArgumentException(message);
         }

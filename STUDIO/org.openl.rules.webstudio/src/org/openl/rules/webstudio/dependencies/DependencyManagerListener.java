@@ -4,7 +4,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.syntax.code.IDependency;
 
 public interface DependencyManagerListener {
-    public void onLoadDependency(CompiledDependency loadedDependency);
+    void onLoadDependency(CompiledDependency loadedDependency);
 
-    public void onResetDependency(IDependency dependency);
+    void onResetDependency(IDependency dependency);
 }

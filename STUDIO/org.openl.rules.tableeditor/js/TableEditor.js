@@ -220,8 +220,9 @@ var TableEditor = Class.create({
 
         var row = table.down("tr");
 
+        var tdElt; // JavaScript doesn't have block level variables. Only function body, global object or page.
         if (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             while (tdElt) {
                 this.columns += tdElt.colSpan ? tdElt.colSpan : 1;
                 tdElt = tdElt.next("td");
@@ -229,7 +230,7 @@ var TableEditor = Class.create({
         }
 
         while (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             if (tdElt) {
                 this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
             }
@@ -260,8 +261,7 @@ var TableEditor = Class.create({
     
     saveChanges: function() {
         this.setCellValue();
-        var selt = this;
-        
+
         var beforeSavePassed = true;
         if (this.actions && this.actions.beforeSave) {
             beforeSavePassed = this.actions.beforeSave();
@@ -275,7 +275,7 @@ var TableEditor = Class.create({
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
-        this.doOperation(TableEditor.Operations.ROLLBACK, params, function(data) {
+        this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
             window.onbeforeunload = Prototype.emptyFunction;
         });
     },
@@ -314,7 +314,7 @@ var TableEditor = Class.create({
     },
     
 
-    isFormated: function(elt) {
+    isFormated: function() {
 
         var cell = this.currentElement;
         var decorator = this.decorator;
@@ -444,10 +444,11 @@ var TableEditor = Class.create({
             return res;
         };
 
+        var theIndex; // JavaScript doesn't have block level variables. Only function body, global object or page.
         switch (event.keyCode) {
             case 37: case 38: // LEFT, UP
             var cell = null;
-            var theIndex = event.keyCode == 38 ? 0 : 1;
+            theIndex = event.keyCode == 38 ? 0 : 1;
             while (--sp[theIndex] >= 1) {
                 cell = scanUpLeft.call(this, 1 - theIndex, true);
                 if (cell) {
@@ -461,7 +462,7 @@ var TableEditor = Class.create({
             break;
 
             case 39: case 40:  //RIGHT, DOWN
-            var theIndex = event.keyCode == 40 ? 0 : 1;
+            theIndex = event.keyCode == 40 ? 0 : 1;
 
             sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
             if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
@@ -676,7 +677,7 @@ var TableEditor = Class.create({
         var url = this.baseUrl + action;
         if (paramString)
             url = url + "?" + paramString;
-        return url
+        return url;
     },
 
     /**
@@ -803,7 +804,7 @@ var TableEditor = Class.create({
 
         this.decorator.decorateToolBar(elt);
 
-        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function() {
             if (self.editor) {
                 self.editor.input.style.textAlign = _align;
             }
@@ -899,7 +900,7 @@ var TableEditor = Class.create({
             indent: _indent
         };
 
-        this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_INDENT, params, function() {
             var resultPadding = 0;
             // TODO Refactor with css calc()
             if (cell.style.paddingLeft.indexOf("em") > 0) {
@@ -928,7 +929,7 @@ var TableEditor = Class.create({
             bold: !_bold
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function() {
  
             if ( _bold) {
                 cell.style.fontWeight = "normal";
@@ -953,7 +954,7 @@ var TableEditor = Class.create({
             italic: !_italic
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function() {
 
             if (_italic) {
                 cell.style.fontStyle = "normal";
@@ -978,7 +979,7 @@ var TableEditor = Class.create({
             underline: !_underline
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function() {
 
             if (_underline) {
                 cell.style.textDecoration = "none";
@@ -1053,7 +1054,7 @@ TableEditor.Operations = {
 
 // Standalone functions
 
-TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; }
+TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; };
 
 /**
  *  Responsible for visual display of 'selected' element.

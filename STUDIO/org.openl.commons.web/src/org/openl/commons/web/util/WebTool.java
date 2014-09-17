@@ -17,9 +17,11 @@ import java.util.Map;
  *
  * @author Stanislav Shor
  */
-public class WebTool {
-
+public final class WebTool {
     private static final Logger log = LoggerFactory.getLogger(WebTool.class);
+
+    private WebTool() {
+    }
 
     public static String listRequestParams(ServletRequest request) {
         return listRequestParams(request.getParameterMap(), null);
@@ -32,14 +34,15 @@ public class WebTool {
     public static String listRequestParams(Map<String, String[]> paramsMap, String[] exceptParams) {
         StringBuilder buf = new StringBuilder();
 
-        for (String paramName : paramsMap.keySet()) {
+        for (Map.Entry<String, String[]> entry: paramsMap.entrySet()) {
+            String paramName = entry.getKey();
             if (ArrayUtils.contains(exceptParams, paramName)) {
                 continue;
             }
             if (buf.length() != 0) {
                 buf.append('&');
             }
-            String[] paramValues = paramsMap.get(paramName);
+            String[] paramValues = entry.getValue();
             buf.append(paramName).append('=').append(
                     StringTool.encodeURL(paramValues[0]));
         }

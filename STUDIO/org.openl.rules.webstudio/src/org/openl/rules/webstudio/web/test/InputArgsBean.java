@@ -27,10 +27,7 @@ public class InputArgsBean {
 
     public boolean isMethodHasParameters() {
         IOpenMethod testMethod = getTestedMethod();
-        if (testMethod != null) {
-            return testMethod.getSignature().getNumberOfParameters() > 0;
-        }
-        return false;
+        return testMethod != null && testMethod.getSignature().getNumberOfParameters() > 0;
     }
 
     public void setUri(String uri) {
@@ -111,7 +108,7 @@ public class InputArgsBean {
         int i = 0;
         for (ParameterDeclarationTreeNode node : parentNode.getChildren()) {
             if (node != currentNode) {
-                index.setValue(ary, new Integer(i), node.getValue());
+                index.setValue(ary, i, node.getValue());
                 i++;
             }
         }
@@ -131,8 +128,8 @@ public class InputArgsBean {
         IOpenIndex index = info.getIndex(fieldType, JavaOpenClass.INT);
 
         for (int i = 0; i < elementsCount - 1; i++) {
-            Object obj = index.getValue(currentnode.getValue(), new Integer(i));
-            index.setValue(ary, new Integer(i), obj);
+            Object obj = index.getValue(currentnode.getValue(), i);
+            index.setValue(ary, i, obj);
         }
         currentnode.setValueForced(ary);
     }
@@ -147,8 +144,7 @@ public class InputArgsBean {
             Object parameterValue = null;
             try {
                 parameterValue = parameterType.newInstance(env);
-            } catch (Exception e) {
-
+            } catch (Exception ignored) {
             }
             args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, parameterType, IParameterDeclaration.IN);
         }

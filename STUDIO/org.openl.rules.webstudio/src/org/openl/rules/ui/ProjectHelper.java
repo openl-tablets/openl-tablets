@@ -20,11 +20,14 @@ import org.openl.types.impl.MethodDelegator;
  * @author snshor
  *
  */
-public class ProjectHelper {
+public final class ProjectHelper {
 
     private static final String TEST_CASES = "test cases";
     private static final String NO = "No";
     private static final String RUNS = "runs";
+
+    private ProjectHelper() {
+    }
 
     public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
         List<TestSuiteMethod> res = new ArrayList<TestSuiteMethod>();
@@ -185,9 +188,8 @@ public class ProjectHelper {
 
     public static String getTestInfo(TestSuite testSuite) {
         String info = null;
-        IOpenMethod testMethod = testSuite.getTestSuiteMethod();
-        if (testMethod instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) testMethod;
+        TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+        if (testSuiteMethod != null) {
             if (testSuiteMethod.isRunmethod()) {
                 if (testSuite.getNumberOfTests() < 1) {
                     info = formatTestInfo(NO, RUNS);

@@ -30,8 +30,12 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.StateHolder;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalArtefactAPI implements ArtefactAPI {
+    private final Logger log = LoggerFactory.getLogger(LocalArtefactAPI.class);
+
     protected File source;
     private PropertiesContainerImpl properties;
     private Map<String, Object> props;
@@ -78,11 +82,14 @@ public class LocalArtefactAPI implements ArtefactAPI {
                 try {
                     this.properties.addProperty(property);
                 } catch (PropertyException e) {
-                    // TODO: log
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getMessage(), e);
+                    }
                 }
             }
         } else {
-            // TODO: log fail
+            // TODO consider exception throwing
+            log.error("Incorrect type of stateHolder. Was: '{}', but should be 'ArtefactStateHolder", stateHolder.getClass().getName());
         }
     }
 
@@ -230,7 +237,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         }
     }
 
-    protected void load(){
+    private void load(){
         new StatePersistance(this, getProjectLocation()).load();
     }
 
@@ -263,11 +270,11 @@ public class LocalArtefactAPI implements ArtefactAPI {
             if (parentArtefactAPI.getProps() != null) {
                 Map<String, Object> parentProp = parentArtefactAPI.getProps();
                 
-                for (String key : parentProp.keySet()) {
-                    InheritedProperty inhProp = new InheritedProperty(parentProp.get(key), 
+                for (Map.Entry<String, Object> entry: parentProp.entrySet()) {
+                    InheritedProperty inhProp = new InheritedProperty(entry.getValue(),
                             (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT ),
                             parentArtefactAPI.getName() );
-                    inheritedProps.put(key, inhProp);
+                    inheritedProps.put(entry.getKey(), inhProp);
                 }
             }
 

@@ -18,8 +18,12 @@ import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
+    private final Logger log = LoggerFactory.getLogger(AProjectArtefact.class);
+
     private ArtefactAPI impl;
     private AProject project;
 
@@ -142,13 +146,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        /*
-        try {
-            setProps(artefact.getProps());
-        } catch (PropertyException e1) {
-            // TODO log
-            e1.printStackTrace();
-        }*/
         try {
             getAPI().removeAllProperties();
 
@@ -159,8 +156,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 addProperty(property);
             }
         } catch (PropertyException e) {
-            // TODO log
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         artefact.impl.clearModifyStatus();
@@ -178,8 +176,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 addProperty(property);
             }
         } catch (PropertyException e) {
-            // TODO log
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         artefact.impl.clearModifyStatus();
@@ -206,8 +205,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                     }
                 }*/
             } catch (PropertyException e) {
-                // TODO log
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
 
             artefact.impl.clearModifyStatus();
@@ -301,9 +301,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
      * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
      * Checks that lockedUser is LOCAL and current user is DEFAULT
      * 
-     * @param lockedUser
-     * @param currentUser
-     * @return
+     * @param lockedUser - owner of the lock
+     * @param currentUser - current user trying to unlock
+     * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"
      */
     private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
         return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());

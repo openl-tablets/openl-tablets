@@ -9,8 +9,8 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  *
  * @author Aleh Bykhavets
  */
-public class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[' , ']'};
+public final class NameChecker {
+    private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']'};
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name can not contain forbidden characters ("
             + NameChecker.getForbiddenCharacters() + "), start with space, end with space or dot!";
@@ -18,6 +18,9 @@ public class NameChecker {
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
     public static final String BAD_PROJECT_NAME_MSG = "Project name can not contain forbidden characters ("
             + NameChecker.getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
+
+    private NameChecker() {
+    }
 
     protected static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars
@@ -52,10 +55,10 @@ public class NameChecker {
         if (artefactName.endsWith(".")) {
             return false;
         }
-        
+
         //check empty name
-        if(artefactName.isEmpty()){
-        	return false;
+        if (artefactName.isEmpty()) {
+            return false;
         }
 
         // seems OK
@@ -91,21 +94,17 @@ public class NameChecker {
 
         return forbiddenChars;
     }
-    
+
     public static boolean checkIsFolderPresent(AProjectFolder folder, String folderName) {
-		try {
-        	AProjectArtefact artefact = folder.getArtefact(folderName);
-        	
-        	if(artefact instanceof AProjectFolder){
-				//Such folder is present
-        		return true;
-			}
-        	
-        	return false;
-		} catch (ProjectException e1) {
-			//Such folder isn't present
-			return false;
-		}
-	}
-    
+        try {
+            AProjectArtefact artefact = folder.getArtefact(folderName);
+
+            return artefact instanceof AProjectFolder;
+
+        } catch (ProjectException e1) {
+            //Such folder isn't present
+            return false;
+        }
+    }
+
 }

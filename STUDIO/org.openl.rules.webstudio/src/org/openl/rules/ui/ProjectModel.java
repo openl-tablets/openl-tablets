@@ -1,21 +1,5 @@
 package org.openl.rules.ui;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -104,6 +88,22 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.trace.Tracer;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+
 public class ProjectModel {
 
     /**
@@ -189,8 +189,7 @@ public class ProjectModel {
                     }
 
                 };
-                BenchmarkUnit[] buu = {bu};
-                return new Benchmark(buu).runUnit(bu, ms, false);
+                return new Benchmark().runUnit(bu, ms);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
@@ -237,8 +236,7 @@ public class ProjectModel {
 
         };
 
-        BenchmarkUnit[] buu = {bu};
-        return new Benchmark(buu).runUnit(bu, ms, false);
+        return new Benchmark().runUnit(bu, ms);
 
     }
 
@@ -303,8 +301,7 @@ public class ProjectModel {
 
                 }
 
-                BenchmarkUnit[] buu = {bu};
-                return new Benchmark(buu).runUnit(bu, ms, false);
+                return new Benchmark().runUnit(bu, ms);
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
@@ -681,10 +678,6 @@ public class ProjectModel {
         }
 
         return searchResults;
-    }
-
-    public WebStudio getStudio() {
-        return studio;
     }
 
     public IOpenLTable getTable(String tableUri) {

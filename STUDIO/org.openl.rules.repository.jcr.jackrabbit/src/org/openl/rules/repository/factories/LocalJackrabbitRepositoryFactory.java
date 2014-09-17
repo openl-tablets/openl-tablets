@@ -1,5 +1,7 @@
 package org.openl.rules.repository.factories;
 
+import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
@@ -47,19 +49,20 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     protected TransientRepository repository;
     protected String repHome;
     private String nodeTypeFile;
-    private ShutDownHook shutDownHook;
     protected boolean convert = false;
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
         try {
             release();
         } catch (RRepositoryException e) {
-            log.error("finalize", e);
-        }
-
-        if (shutDownHook != null) {
-            Runtime.getRuntime().removeShutdownHook(shutDownHook);
+            try {
+                log.error("finalize", e);
+            } catch (Throwable ignored) {
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            super.finalize();
         }
     }
 
@@ -172,7 +175,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     protected void convert() throws RRepositoryException {
         RRepository repositoryInstance = null;
-        String tempRepoHome = "/temp/repo/";
+        String tempRepoHome = getTempDirectoryPath() + "/.openl/repo/";
         try {
             repositoryInstance = super.getRepositoryInstance();
             //FIXME
@@ -215,7 +218,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } finally {
             FileUtils.deleteQuietly(tmpRepoHome);
         }
-        return;
 
     }
 
@@ -225,7 +227,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             systemSession = createSession();
             NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
-            boolean initNodeTypes = false;
             // Does JCR know anything about OpenL?
             return ntm.hasNodeType(JcrNT.NT_PROD_PROJECT);
         } catch (RepositoryException e) {

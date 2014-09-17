@@ -161,7 +161,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
@@ -280,10 +280,8 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         if (isSame(this.props, props)) {
             return;
         }
-        Set<String> propNames = props.keySet();
-        for (String propName : propNames) {
-            Object propValue = props.get(propName);
-            setProperty(propName, propValue);
+        for (Map.Entry<String, Object> entry: props.entrySet()) {
+            setProperty(entry.getKey(), entry.getValue());
         }
         this.props = props;
     }

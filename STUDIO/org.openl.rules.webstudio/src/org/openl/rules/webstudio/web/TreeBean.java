@@ -51,7 +51,7 @@ public class TreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
-            TreeNode rfTree = new ProjectTreeBuilder(tree, studio.getModel(), hideDispatcherTables).build();
+            TreeNode rfTree = new ProjectTreeBuilder(hideDispatcherTables).build(tree);
             return rfTree;
         }
         // Empty tree

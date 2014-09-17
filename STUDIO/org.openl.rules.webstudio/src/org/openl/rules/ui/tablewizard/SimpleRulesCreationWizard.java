@@ -40,6 +40,9 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
+    private static final String TABLE_TYPE = "xls.dt";
+    private static final String RESTORE_TABLE_FUNCTION = "tableModel.restoreTableFromJSONString";
+
     private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
     @NotBlank(message = "Can not be empty")
@@ -49,9 +52,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     private String jsonTable;
     private JSONHolder table;
     private String restoreTable;
-    private final String TABLE_TYPE = "xls.dt";
-
-    private String restoreTableFunction = "tableModel.restoreTableFromJSONString";
 
     private List<DomainTypeHolder> typesList;
 
@@ -132,10 +132,10 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
         Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
                 .groupProperties(propDefinitions);
-        for (String groupName : propGroups.keySet()) {
+        for (Map.Entry<String, Set<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<SelectItem>();
 
-            for (TablePropertyDefinition propDefinition : propGroups.get(groupName)) {
+            for (TablePropertyDefinition propDefinition : entry.getValue()) {
                 String propName = propDefinition.getName();
                 if (propDefinition.getDeprecation() == null) {
                     items.add(new SelectItem(propName, propDefinition.getDisplayName()));
@@ -143,7 +143,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             }
 
             if (!items.isEmpty()) {
-                SelectItemGroup itemGroup = new SelectItemGroup(groupName);
+                SelectItemGroup itemGroup = new SelectItemGroup(entry.getKey());
                 itemGroup.setSelectItems(items.toArray(new SelectItem[items.size()]));
                 propertyNames.add(itemGroup);
             }
@@ -278,7 +278,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         this.typesList = typesList;
     }
 
-    public class DomainTypeHolder {
+    public final class DomainTypeHolder {
         private String name;
         private String type;
         private boolean iterable = false;
@@ -387,7 +387,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private String getTableInitFunction(String jsonStr) {
-        return this.restoreTableFunction + "(" + jsonStr + ")";
+        return RESTORE_TABLE_FUNCTION + "(" + jsonStr + ")";
     }
 
     public String getRestoreTable() {
@@ -444,9 +444,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      */
     public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
-        FacesMessage message = new FacesMessage();
-        ValidatorException validEx = null;
-        int paramId = this.getParamId(toValidate.getClientId());
+        getParamId(toValidate.getClientId());
 
         if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
             return;
