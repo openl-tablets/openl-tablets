@@ -38,11 +38,6 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     }
 
     @Override
-    public void clearForm() {
-       super.clearForm();
-    }
-
-    @Override
     public void setType(String type) {
         super.setType(type);
         if (isLocal()) {
