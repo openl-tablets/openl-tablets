@@ -489,7 +489,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     // Generates result after editing
     createFinalResult: function() {
         var result;
-        var values = new Array();
+        var values = [];
         values[0] = this.values[0].value;
         values[1] = this.values[1].value;
 
