@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.install;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.IOUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -22,10 +23,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -334,8 +337,11 @@ public class InstallWizard {
         Properties dbProps = new Properties();
 
         for (File propFile : getDBPropetiesFiles()) {
+            InputStream is = null;
             try {
-                dbProps.load(new FileInputStream(propFile));
+                is = new FileInputStream(propFile);
+                dbProps.load(is);
+                is.close();
                 String propertyFilePath = System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
                 String dbVendor = dbProps.getProperty("db.vendor");
 
@@ -344,6 +350,8 @@ public class InstallWizard {
                 log.error("The file {} not found", propFile.getAbsolutePath(), e);
             } catch (IOException e) {
                 log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
+            } finally {
+                IOUtils.closeQuietly(is);
             }
         }
         return dbVendors;
