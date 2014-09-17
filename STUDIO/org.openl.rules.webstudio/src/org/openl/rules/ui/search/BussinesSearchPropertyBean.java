@@ -109,17 +109,17 @@ public class BussinesSearchPropertyBean {
      * @return Massive of tables that suit to table contains field 
      */
     public TableSyntaxNode[] searchTableContains() {
-        String[][] values = {};
+        String[][] values;
         TableSyntaxNode[] result = null;
         List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
         if(tableContain!="") {
             values = WebStudioUtils.getWebStudio().getModel().getIndexer().getResultsForQuery(tableContain, 200, null);
             if(values.length>0) {
                 for(int i = 0; i < values.length; ++i) {
-                    String uri = values[i][0];                    
+                    String uri = values[i][0];
                     if (uri.indexOf(".xls") >= 0) {
                         resultNodes.add(WebStudioUtils.getWebStudio().getModel().getNode(uri));
-                    } 
+                    }
                 }
             }
             result = resultNodes.toArray(new TableSyntaxNode[0]);
