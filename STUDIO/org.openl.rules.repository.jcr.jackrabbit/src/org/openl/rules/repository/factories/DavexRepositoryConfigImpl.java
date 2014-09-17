@@ -17,11 +17,10 @@ import javax.jcr.NamespaceException;
 public class DavexRepositoryConfigImpl implements RepositoryConfig {
 
     public static final int DEFAULT_ITEM_CACHE_SIZE = 5000;
+    private static final int POLL_TIMEOUT = 1000; // ms
 
     private final CacheBehaviour cacheBehaviour;
     private final int itemCacheSize;
-
-    private final int pollTimeout = 1000; // ms
 
     private final RepositoryService service;
 
@@ -45,7 +44,7 @@ public class DavexRepositoryConfigImpl implements RepositoryConfig {
     }
 
     public int getPollTimeout() {
-        return pollTimeout;
+        return POLL_TIMEOUT;
     }
 
     private static RepositoryService createService(String uri) throws RepositoryException {
