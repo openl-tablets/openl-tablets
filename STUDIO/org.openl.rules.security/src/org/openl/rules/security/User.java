@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface User extends UserDetails {
 
-    public String getFirstName();
+    String getFirstName();
 
-    public String getLastName();
+    String getLastName();
 
     boolean hasPrivilege(String privilege);
 

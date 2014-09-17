@@ -8,7 +8,7 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 public interface RTransactionManager {
-    public static UserTransaction NO_TRANSACTION = new UserTransaction() {
+    UserTransaction NO_TRANSACTION = new UserTransaction() {
         public void setTransactionTimeout(int arg0) throws SystemException {
         }
 

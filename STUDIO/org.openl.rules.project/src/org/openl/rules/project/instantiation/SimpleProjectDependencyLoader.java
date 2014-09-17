@@ -135,6 +135,6 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         compiledDependency = null;
     }
 
-    public static interface EmptyInterface {
+    public interface EmptyInterface {
     }
 }

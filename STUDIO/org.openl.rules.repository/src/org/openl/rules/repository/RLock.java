@@ -7,7 +7,7 @@ import org.openl.rules.common.LockInfo;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RLock extends LockInfo{
-    public final static RLock NO_LOCK = new RLock() {
+    RLock NO_LOCK = new RLock() {
         public Date getLockedAt() {
             return null;
         }

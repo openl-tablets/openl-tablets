@@ -1,7 +1,7 @@
 package org.openl.rules.repository;
 
 public interface RRepositoryListener {
-    public static class RRepositoryEvent {
+    class RRepositoryEvent {
         private String projectName;
 
         public RRepositoryEvent(String projectName) {
