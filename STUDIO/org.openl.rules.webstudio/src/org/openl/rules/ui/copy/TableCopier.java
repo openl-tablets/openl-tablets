@@ -125,9 +125,15 @@ public class TableCopier extends TableCreationWizard {
                     TableProperty compareToProperty = getProperty(prop.getName());
                     String compareToPropertyDisplayName = compareToProperty == null ? ""
                             : compareToProperty.getDisplayName();
-                    validation.append("new Validation(" + inputId + ", '"
-                            + validator + "', '', {compareToFieldId:" + compareToFieldId
-                            + ",messageParams:'" + compareToPropertyDisplayName + "'})");
+                    validation.append("new Validation(")
+                            .append(inputId)
+                            .append(", '")
+                            .append(validator)
+                            .append("', '', {compareToFieldId:")
+                            .append(compareToFieldId)
+                            .append(",messageParams:'")
+                            .append(compareToPropertyDisplayName)
+                            .append("'})");
                 }
             }
         }
@@ -273,8 +279,8 @@ public class TableCopier extends TableCreationWizard {
      */
     protected String parseTechnicalName(String header, String tableType) {
         String result = null;
-        String headerIntern = header;
-        String[] headerTokens = null;
+        String headerIntern;
+        String[] headerTokens;
         if (!XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType) && !XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
             headerIntern = header.replaceFirst("\\(.*\\)", "");
             headerTokens = StringUtils.split(headerIntern);
@@ -369,9 +375,7 @@ public class TableCopier extends TableCreationWizard {
         for (TableProperty property : propertiesManager.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
-            if (isEmpty(value)) {
-                continue;
-            } else {
+            if (!isEmpty(value)) {
                 newProperties.put(name.trim(), value);
             }
         }

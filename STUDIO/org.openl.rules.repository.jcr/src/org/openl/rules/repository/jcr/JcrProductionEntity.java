@@ -146,7 +146,7 @@ public abstract class JcrProductionEntity implements REntity {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
                 Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
