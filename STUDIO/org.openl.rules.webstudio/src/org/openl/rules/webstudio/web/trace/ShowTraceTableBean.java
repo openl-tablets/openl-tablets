@@ -1,16 +1,12 @@
 package org.openl.rules.webstudio.web.trace;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -21,6 +17,12 @@ import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IParameterDeclaration;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Request scope managed bean for showTraceTable page.
@@ -54,12 +56,36 @@ public class ShowTraceTableBean {
 
     public ParameterWithValueDeclaration[] getInputParameters() {
         ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
-        return new TracerObjectDecorator(tto).getInputParameters();
+        ATableTracerNode tracerNode = null;
+        if (tto instanceof ATableTracerNode) {
+            tracerNode = (ATableTracerNode) tto;
+        } else if (tto != null && tto.getParent() instanceof ATableTracerNode) {
+            // ATableTracerLeaf
+            tracerNode = (ATableTracerNode) tto.getParent();
+        }
+        if (tracerNode == null || !(tracerNode.getTraceObject() instanceof ExecutableRulesMethod)) {
+            return null;
+        }
+
+        ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
+        Object[] parameters = tracerNode.getParameters();
+        ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
+        for (int i = 0; i < paramDescriptions.length; i++) {
+            paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
+                    parameters[i], IParameterDeclaration.IN);
+        }
+        return paramDescriptions;
     }
-    
+
     public ParameterWithValueDeclaration[] getReturnResult() {
-    	return new ParameterWithValueDeclaration[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
-    }    
+        ITableTracerObject tableTracer = traceHelper.getTableTracer(traceElementId);
+        ParameterWithValueDeclaration returnResult = null;
+        Object result = tableTracer.getResult();
+        if (result != null) {
+            returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT);
+        }
+        return new ParameterWithValueDeclaration[]{returnResult};
+    }
 
     public List<OpenLMessage> getErrors() {
         Throwable error = traceHelper.getTracerError(traceElementId);
