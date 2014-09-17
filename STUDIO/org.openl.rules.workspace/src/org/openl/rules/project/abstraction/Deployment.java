@@ -48,7 +48,7 @@ public class Deployment extends AProject {
 		init();
 	}
 
-	protected void init() {
+	private void init() {
 		super.refresh();
 		projects = new HashMap<String, AProject>();
 		//Map<String, AProjectArtefact> artefacts = new HashMap<String, AProjectArtefact>();

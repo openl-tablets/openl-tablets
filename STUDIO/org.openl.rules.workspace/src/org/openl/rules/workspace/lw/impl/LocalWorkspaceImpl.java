@@ -121,7 +121,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    protected void loadProjects() {
+    private void loadProjects() {
         File[] folders = location.listFiles(localWorkspaceFolderFilter);
         for (File f : folders) {
             String name = f.getName();

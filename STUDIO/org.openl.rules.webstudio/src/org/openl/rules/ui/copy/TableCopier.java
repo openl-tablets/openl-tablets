@@ -254,7 +254,7 @@ public class TableCopier extends TableCreationWizard {
         return header.trim().replaceFirst(repl, tableTechnicalName.trim());
     }
 
-    protected void initTableName() {
+    private void initTableName() {
         if (table != null) {
             tableTechnicalName = table.getName();
         }

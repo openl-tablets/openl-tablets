@@ -230,7 +230,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         }
     }
 
-    protected void load(){
+    private void load(){
         new StatePersistance(this, getProjectLocation()).load();
     }
 

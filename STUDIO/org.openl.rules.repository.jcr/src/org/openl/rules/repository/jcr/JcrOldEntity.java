@@ -183,7 +183,7 @@ public class JcrOldEntity implements REntity {
         }
     }
 
-    protected Node node() {
+    protected final Node node() {
         return node;
     }
 

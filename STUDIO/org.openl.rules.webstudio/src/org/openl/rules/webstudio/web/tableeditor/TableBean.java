@@ -204,7 +204,7 @@ public class TableBean {
         }
     }
 
-    public boolean isDispatcherValidationNode() {
+    public final boolean isDispatcherValidationNode() {
         return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
