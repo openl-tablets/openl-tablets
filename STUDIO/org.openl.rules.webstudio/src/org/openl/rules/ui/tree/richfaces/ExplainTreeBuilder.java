@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberValue;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
@@ -12,6 +13,19 @@ import org.openl.util.tree.ITreeElement;
 public class ExplainTreeBuilder extends TreeBuilder {
 
     private static final String showTablePage = "/faces/pages/modules/explain/showExplainTable.xhtml?";
+
+    @Override
+    String getType(ITreeElement<?> element) {
+        String type = super.getType(element);
+        String filtered = type
+                .replace('.', '_')
+                .replace(Formulas.ADD.toString(), "plus")
+                .replace(Formulas.SUBTRACT.toString(), "minus")
+                .replace(Formulas.MULTIPLY.toString(), "mul")
+                .replace(Formulas.DIVIDE.toString(), "div")
+                .replace(Formulas.REM.toString(), "rem");
+        return filtered;
+    }
 
     @Override
     String getDisplayName(Object obj, int mode) {

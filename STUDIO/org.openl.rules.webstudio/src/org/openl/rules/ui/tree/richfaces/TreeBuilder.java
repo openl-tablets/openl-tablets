@@ -84,7 +84,7 @@ abstract class TreeBuilder {
         return true;
     }
 
-    private String getType(ITreeElement<?> element) {
+    String getType(ITreeElement<?> element) {
         String type = element.getType();
         if (type != null) {
             return type;
