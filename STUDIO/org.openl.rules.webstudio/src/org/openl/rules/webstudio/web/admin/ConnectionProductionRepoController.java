@@ -137,7 +137,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         this.connectionChecked = connectionChecked;
     }
 
-    public class RepoDirChecker{
+    public static class RepoDirChecker{
         private String root = "";
         private boolean hasRepoDir = false;
         private boolean hasVersionDir = false;

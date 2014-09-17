@@ -19,7 +19,7 @@ public class StartupListener implements ServletContextListener {
 
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
-    private class WebConfigLocator extends ConfigLocator {
+    private static class WebConfigLocator extends ConfigLocator {
         private ServletContext context;
 
         WebConfigLocator(ServletContext context) {

@@ -17,7 +17,7 @@ public class NumberRangeEditor implements ICellEditor {
         return typeResponse;
     }
 
-    public class NumberRangeParams {
+    public static class NumberRangeParams {
 
         private String entryEditor;
 
