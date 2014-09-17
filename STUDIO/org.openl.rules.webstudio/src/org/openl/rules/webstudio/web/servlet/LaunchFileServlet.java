@@ -32,7 +32,7 @@ public class LaunchFileServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
+    private transient final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

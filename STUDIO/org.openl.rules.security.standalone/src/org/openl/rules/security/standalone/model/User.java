@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,9 @@ import java.util.Date;
  *
  * @author Aliaksandr Antonik.
  */
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 3338114016452713380L;
+
     private String firstName;
     private String lastName;
     private Date activationDate;
