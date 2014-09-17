@@ -428,11 +428,9 @@ public class TableCopier extends TableCreationWizard {
             ProjectModel model = studio.getModel();
             TableEditorModel tableEditorModel = model.getTableEditorModel(table.getUri());
 
-            Set<String> propNames = properties.keySet();
             try {
-                for (String propName : propNames) {
-                    Object propValue = properties.get(propName);
-                    tableEditorModel.setProperty(propName, propValue);
+                for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                    tableEditorModel.setProperty(entry.getKey(), entry.getValue());
                 }
                 getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
             } catch (Exception e) {

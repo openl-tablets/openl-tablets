@@ -34,14 +34,15 @@ public final class WebTool {
     public static String listRequestParams(Map<String, String[]> paramsMap, String[] exceptParams) {
         StringBuilder buf = new StringBuilder();
 
-        for (String paramName : paramsMap.keySet()) {
+        for (Map.Entry<String, String[]> entry: paramsMap.entrySet()) {
+            String paramName = entry.getKey();
             if (ArrayUtils.contains(exceptParams, paramName)) {
                 continue;
             }
             if (buf.length() != 0) {
                 buf.append('&');
             }
-            String[] paramValues = paramsMap.get(paramName);
+            String[] paramValues = entry.getValue();
             buf.append(paramName).append('=').append(
                     StringTool.encodeURL(paramValues[0]));
         }

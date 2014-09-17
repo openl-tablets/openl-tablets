@@ -270,11 +270,11 @@ public class LocalArtefactAPI implements ArtefactAPI {
             if (parentArtefactAPI.getProps() != null) {
                 Map<String, Object> parentProp = parentArtefactAPI.getProps();
                 
-                for (String key : parentProp.keySet()) {
-                    InheritedProperty inhProp = new InheritedProperty(parentProp.get(key), 
+                for (Map.Entry<String, Object> entry: parentProp.entrySet()) {
+                    InheritedProperty inhProp = new InheritedProperty(entry.getValue(),
                             (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT ),
                             parentArtefactAPI.getName() );
-                    inheritedProps.put(key, inhProp);
+                    inheritedProps.put(entry.getKey(), inhProp);
                 }
             }
 

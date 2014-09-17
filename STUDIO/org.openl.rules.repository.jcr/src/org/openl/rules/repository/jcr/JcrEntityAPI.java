@@ -243,11 +243,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             return;
         }
 
-        Set<String> propNames = props.keySet();
-        for (String propName : propNames) {
-            Object propValue = props.get(propName);
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
             try {
-                setProperty(propName, propValue);
+                setProperty(entry.getKey(), entry.getValue());
             } catch (RRepositoryException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getMessage(), e);

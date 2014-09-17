@@ -135,11 +135,12 @@ public class SearchBean {
 
         // Init properties query
         Map<String, String> requestParams = FacesUtils.getRequestParameterMap();
-        for (String paramName: requestParams.keySet()) {
+        for (Map.Entry<String, String> entry: requestParams.entrySet()) {
+            String paramName = entry.getKey();
             if (!ArrayUtils.contains(SEARCH_PARAMS, paramName)
                     && TablePropertyDefinitionUtils.doesPropertyExist(paramName)) {
                 TableProperty property = getPropertyByName(paramName);
-                String propertyValue = requestParams.get(paramName);
+                String propertyValue = entry.getValue();
                 property.setStringValue(propertyValue);
             }
         }
