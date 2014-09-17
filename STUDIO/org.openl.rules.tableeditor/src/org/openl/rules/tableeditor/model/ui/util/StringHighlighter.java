@@ -6,8 +6,8 @@ package org.openl.rules.tableeditor.model.ui.util;
  */
 public class StringHighlighter {
     
-    private final String BOLD_OPEN = "<b>";
-    private final String BOLD_CLOSE = "</b>";
+    private static final String BOLD_OPEN = "<b>";
+    private static final String BOLD_CLOSE = "</b>";
 
     // tokens to be highlighted in the text
     private String[] tokensToHighlight;
@@ -55,9 +55,7 @@ public class StringHighlighter {
      */
     private int findToken(String token, int startPos) {
         String text = this.text;
-        int tokenIndex = 0;
-        tokenIndex = text.toLowerCase().indexOf(token, startPos);                
-        return tokenIndex;            
+        return text.toLowerCase().indexOf(token, startPos);
     }
 
     /**
