@@ -1,12 +1,10 @@
 package org.openl.rules.webstudio.web.trace;
 
-import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IParameterDeclaration;
 import org.openl.util.tree.ITreeElement;
@@ -159,24 +157,6 @@ public class TracerObjectDecorator implements ITableTracerObject {
         }
     }
 
-    public boolean isSpreadsheetResult() {
-        return getResult() != null && SpreadsheetResultHelper.isSpreadsheetResult(getResult().getClass());
-    }
-
-    public String getFormattedResult() {
-        Object result = getResult();
-
-        return format(result);
-    }
-
-    public static String format(Object value) {
-        String str = "NOW I CANNOT FIND RESULT";
-        if (value != null) {
-            str = FormattersManager.format(value);
-        }
-        return str;
-    }
-
     public ParameterWithValueDeclaration getReturnResult() {
         ParameterWithValueDeclaration returnResult = null;
         Object result = getResult();
@@ -185,6 +165,4 @@ public class TracerObjectDecorator implements ITableTracerObject {
         }
         return returnResult;
     }
-
-
 }
