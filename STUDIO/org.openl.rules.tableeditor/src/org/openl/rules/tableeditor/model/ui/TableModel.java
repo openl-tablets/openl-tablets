@@ -111,7 +111,7 @@ public class TableModel {
                 cm = ((CellModelDelegator) icm).getModel();
                 return cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
             default:
-                throw new RuntimeException();
+                throw new IllegalArgumentException("Incorrect border");
 
         }
 

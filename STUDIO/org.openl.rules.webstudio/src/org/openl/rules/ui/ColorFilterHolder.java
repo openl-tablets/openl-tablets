@@ -48,7 +48,7 @@ public class ColorFilterHolder {
             case 3:
                 return new GreyColorFilter(trcy);
             default:
-                throw new RuntimeException("Unknown Filter Type: " + filterType);
+                throw new IllegalArgumentException("Unknown Filter Type: " + filterType);
         }
     }
 
