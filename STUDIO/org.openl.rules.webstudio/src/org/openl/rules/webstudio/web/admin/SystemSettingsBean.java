@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
@@ -408,8 +407,6 @@ public class SystemSettingsBean {
                     getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-
-            configNames = ArrayUtils.add(configNames, newConfigName);
 
             productionRepositoryConfigurations.add(newConfig);
             // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
