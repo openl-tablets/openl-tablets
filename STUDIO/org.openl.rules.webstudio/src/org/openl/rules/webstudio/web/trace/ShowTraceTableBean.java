@@ -77,14 +77,14 @@ public class ShowTraceTableBean {
         return paramDescriptions;
     }
 
-    public ParameterWithValueDeclaration[] getReturnResult() {
+    public ParameterWithValueDeclaration getReturnResult() {
         ITableTracerObject tableTracer = traceHelper.getTableTracer(traceElementId);
         ParameterWithValueDeclaration returnResult = null;
         Object result = tableTracer.getResult();
         if (result != null) {
             returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT);
         }
-        return new ParameterWithValueDeclaration[]{returnResult};
+        return returnResult;
     }
 
     public List<OpenLMessage> getErrors() {

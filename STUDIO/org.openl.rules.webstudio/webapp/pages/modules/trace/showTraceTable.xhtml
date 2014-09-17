@@ -48,20 +48,19 @@
                 <table >
                 <tr class="tr-middle-align">
                     <td style="padding-right: 5px;"><b>Returned result: </b></td>
-                    <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
-                        <td>
-                            <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
-                                <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
-                            </h:panelGroup>
-                            <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
-                                <ui:include src="/pages/modules/test/parameter.xhtml">
-                                    <ui:param name="parameter" value="#{parameter}"/>
-                                    <ui:param name="lazy" value="false" />
-                                    <ui:param name="hasExplainLinks" value="false" />
-                                </ui:include>
-                            </h:panelGroup>
-                        </td>
-                    </ui:repeat>
+                    <c:set var="result" value="#{showTraceTableBean.returnResult}"/>
+                    <td>
+                        <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(result.value)}">
+                            <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(result.value)}" escape="false" />
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(result.value)}">
+                            <ui:include src="/pages/modules/test/parameter.xhtml">
+                                <ui:param name="parameter" value="#{result}"/>
+                                <ui:param name="lazy" value="false" />
+                                <ui:param name="hasExplainLinks" value="false" />
+                            </ui:include>
+                        </h:panelGroup>
+                    </td>
                 </tr>
             </table>
             </div>
