@@ -4,7 +4,9 @@
  */
 package org.openl.rules.ui;
 
+import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.openl.base.INamedThing;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
@@ -18,7 +20,6 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
@@ -30,8 +31,7 @@ import java.util.List;
  */
 public class TraceHelper {
 
-    private TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
-    private int treeElementsNumber = 0;
+    private BidiMap<Integer, ITreeElement<?>> traceTreeCache = new DualHashBidiMap<Integer, ITreeElement<?>>();
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -45,7 +45,7 @@ public class TraceHelper {
     }
 
     public ITableTracerObject getTableTracer(int elementId) {
-        ITreeElement<?> node = traceTreeCache.getNode(elementId);
+        ITreeElement<?> node = traceTreeCache.get(elementId);
         if (node instanceof ITableTracerObject) {
             return (ITableTracerObject) node;
         }
@@ -120,19 +120,14 @@ public class TraceHelper {
     }
 
     public void cacheTraceTree(ITreeElement<ITracerObject> tree) {
-        cleanCachedTree();
-        cacheTree(tree);
-    }
-
-    private void cleanCachedTree() {
         traceTreeCache.clear();
-        treeElementsNumber = 0;
+        cacheTree(tree);
     }
 
     private void cacheTree(ITreeElement<ITracerObject> treeNode) {
         Iterable<? extends ITreeElement<ITracerObject>> children = treeNode.getChildren();
         for (ITreeElement<ITracerObject> child : children) {
-            traceTreeCache.put(treeElementsNumber++, child);
+            traceTreeCache.put(traceTreeCache.size(), child);
             cacheTree(child);
         }
     }
