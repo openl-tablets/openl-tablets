@@ -17,7 +17,6 @@
 package org.openl.rules.jacrkrabbit.transactions;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.transaction.xa.XAResource;
@@ -48,7 +47,7 @@ public class JackRabbitUserTransaction implements UserTransaction {
     /**
      * The XAResources map
      */
-    private Map xaResources = new HashMap();
+    private Map<XAResource, Xid> xaResources = new HashMap<XAResource, Xid>();
 
     /**
      * Status
@@ -89,10 +88,9 @@ public class JackRabbitUserTransaction implements UserTransaction {
 
     /**
      * Enlists the given Session to this UserTransaction
-     * @param session
      */
     public void enlistXAResource(Session session) {
-        xaResources.put(session, new XidImpl(counter));
+        xaResources.put((XAResource) session, new XidImpl(counter));
     }
 
     /**
@@ -104,10 +102,8 @@ public class JackRabbitUserTransaction implements UserTransaction {
 //        }
 
         try {
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                XAResource resource = (XAResource) it.next();
-                XidImpl xid = (XidImpl) xaResources.get(resource);
-                resource.start(xid, XAResource.TMNOFLAGS);
+            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                entry.getKey().start(entry.getValue(), XAResource.TMNOFLAGS);
             }
             status = Status.STATUS_ACTIVE;
 
@@ -130,17 +126,13 @@ public class JackRabbitUserTransaction implements UserTransaction {
         }
 
         try {
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                XAResource resource = (XAResource) it.next();
-                XidImpl xid = (XidImpl) xaResources.get(resource);
-                resource.end(xid, XAResource.TMSUCCESS);
+            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                entry.getKey().end(entry.getValue(), XAResource.TMSUCCESS);
             }
 
             status = Status.STATUS_PREPARING;
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                XAResource resource = (XAResource) it.next();
-                XidImpl xid = (XidImpl) xaResources.get(resource);
-                resource.prepare(xid);
+            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                entry.getKey().prepare(entry.getValue());
             }
             status = Status.STATUS_PREPARED;
 
@@ -149,10 +141,8 @@ public class JackRabbitUserTransaction implements UserTransaction {
                 Thread distributedThread = new Thread() {
                     public void run() {
                         try {
-                            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                                XAResource resource = (XAResource) it.next();
-                                XidImpl xid = (XidImpl) xaResources.get(resource);
-                                resource.commit(xid, false);
+                            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                                entry.getKey().commit(entry.getValue(), false);
                             }
                         } catch (Exception e) {
                             throw new RuntimeException(e.getMessage());
@@ -166,10 +156,8 @@ public class JackRabbitUserTransaction implements UserTransaction {
                             "Commit from different thread but same XID must not block");
                 }
             } else {
-                for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                    XAResource resource = (XAResource) it.next();
-                    XidImpl xid = (XidImpl) xaResources.get(resource);
-                    resource.commit(xid, false);
+                for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                    entry.getKey().commit(entry.getValue(), false);
                 }
             }
             
@@ -214,17 +202,13 @@ public class JackRabbitUserTransaction implements UserTransaction {
         }
 
         try {
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                XAResource resource = (XAResource) it.next();
-                XidImpl xid = (XidImpl) xaResources.get(resource);
-                resource.end(xid, XAResource.TMFAIL);
+            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                entry.getKey().end(entry.getValue(), XAResource.TMFAIL);
             }
 
             status = Status.STATUS_ROLLING_BACK;
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                XAResource resource = (XAResource) it.next();
-                XidImpl xid = (XidImpl) xaResources.get(resource);
-                resource.rollback(xid);
+            for (Map.Entry<XAResource, Xid> entry : xaResources.entrySet()) {
+                entry.getKey().rollback(entry.getValue());
             }
             status = Status.STATUS_ROLLEDBACK;
 
@@ -251,8 +235,8 @@ public class JackRabbitUserTransaction implements UserTransaction {
      */
     public void setTransactionTimeout(int seconds) throws SystemException {
         try {
-            for (Iterator it = xaResources.keySet().iterator(); it.hasNext(); ) {
-                ((XAResource) it.next()).setTransactionTimeout(seconds);
+            for (XAResource xaResource : xaResources.keySet()) {
+                xaResource.setTransactionTimeout(seconds);
             }
         } catch (XAException e) {
             SystemException se = new SystemException(
