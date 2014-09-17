@@ -21,7 +21,6 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.Tracer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public class TraceHelper {
 
     private TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
     private int treeElementsNumber = 0;
-    private ITreeElement<ITracerObject> treeRoot;
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -121,12 +119,9 @@ public class TraceHelper {
         return new IGridFilter[]{colorGridFilter};
     }
 
-    public ITreeElement<ITracerObject> getTraceTree(Tracer tracer) {
-        ITreeElement<ITracerObject> tree = tracer.getRoot();
+    public void cacheTraceTree(ITreeElement<ITracerObject> tree) {
         cleanCachedTree();
         cacheTree(tree);
-        treeRoot = tree;
-        return tree;
     }
 
     private void cleanCachedTree() {
@@ -150,9 +145,5 @@ public class TraceHelper {
         ITableTracerObject tto = getTableTracer(elementId);
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
         return new TableSyntaxNodeAdapter(tsn);
-    }
-
-    public ITreeElement<ITracerObject> getTreeRoot() {
-        return treeRoot;
     }
 }

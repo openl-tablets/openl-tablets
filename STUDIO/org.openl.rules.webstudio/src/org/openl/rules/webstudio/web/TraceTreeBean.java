@@ -31,6 +31,7 @@ public class TraceTreeBean {
     private RunTestHelper runTestHelper;
 
     private boolean detailedTraceTree = true;
+    private ITreeElement<ITracerObject> root;
 
     public void setRunTestHelper(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
@@ -44,8 +45,8 @@ public class TraceTreeBean {
         ProjectModel model = studio.getModel();
         TraceHelper traceHelper = studio.getTraceHelper();
         Tracer tracer = model.traceElement(testSuite);
-
-        traceHelper.getTraceTree(tracer);// Register
+        root = tracer.getRoot();
+        traceHelper.cacheTraceTree(root);// Register
     }
 
     public void traceIntoFile() {
@@ -55,10 +56,8 @@ public class TraceTreeBean {
     }
 
     public TreeNode getTree() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TraceHelper traceHelper = studio.getTraceHelper();
-        if (traceHelper.getTreeRoot() != null) {
-            return new TraceTreeBuilder(detailedTraceTree).build(traceHelper.getTreeRoot());
+        if (root != null) {
+            return new TraceTreeBuilder(detailedTraceTree).build(root);
         }
         return null;
     }
@@ -72,11 +71,8 @@ public class TraceTreeBean {
     }
 
     public boolean hasDecisionTables() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TraceHelper traceHelper = studio.getTraceHelper();
-
-        if (traceHelper.getTreeRoot() != null) {
-            return hasDecisionTables(traceHelper.getTreeRoot());
+        if (root != null) {
+            return hasDecisionTables(root);
         } else {
             return false;
         }
