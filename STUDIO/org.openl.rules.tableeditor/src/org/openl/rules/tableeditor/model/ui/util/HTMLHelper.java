@@ -40,12 +40,7 @@ public final class HTMLHelper {
                        && (hex2.charAt(0) == hex2.charAt(1))
                        && (hex3.charAt(0) == hex3.charAt(1));
 
-        return new StringBuilder()
-            .append("#")
-            .append(dig3hex ? hex1.charAt(0) : hex1)
-            .append(dig3hex ? hex2.charAt(0) : hex2)
-            .append(dig3hex ? hex3.charAt(0) : hex3)
-            .toString();
+        return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0) : hex3);
     }
 
     public static String toRgbColor(short[] color) {
@@ -69,7 +64,7 @@ public final class HTMLHelper {
     }
 
     public static String boxCSStoString(String[] values) {
-        String result = null;
+        String result;
 
         boolean evenSame = values[1].equals(values[3]);
         boolean pairSame = evenSame && values[0].equals(values[2]);

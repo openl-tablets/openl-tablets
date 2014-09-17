@@ -25,12 +25,7 @@ public final class FolderHelper {
     private static FileFilter foldersOnly;
 
     public static boolean checkOrCreateFolder(File location) {
-        if (location.exists()) {
-            // ok
-            return true;
-        } else {
-            return location.mkdirs();
-        }
+        return location.exists() || location.mkdirs();
     }
 
     public static boolean clearFolder(File folder) {

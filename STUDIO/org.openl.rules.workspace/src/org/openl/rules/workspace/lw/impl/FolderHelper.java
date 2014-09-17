@@ -20,12 +20,7 @@ public final class FolderHelper {
     }
 
     public static boolean checkOrCreateFolder(File location) {
-        if (location.exists()) {
-            // ok
-            return true;
-        } else {
-            return location.mkdirs();
-        }
+        return location.exists() || location.mkdirs();
     }
 
     /**
