@@ -266,7 +266,7 @@ public class JackRabbitUserTransaction implements UserTransaction {
     /**
      * Internal {@link Xid} implementation.
      */
-    class XidImpl implements Xid {
+    static class XidImpl implements Xid {
 
         /** Global transaction id */
         private final byte[] globalTxId;

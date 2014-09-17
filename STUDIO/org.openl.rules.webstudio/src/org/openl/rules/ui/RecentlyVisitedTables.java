@@ -112,7 +112,7 @@ public class RecentlyVisitedTables {
     /*
      * This is the class wrapper. It is used for the properly name showing
      */
-    public class VisitedTableWrapper {
+    public static class VisitedTableWrapper {
         private final String id;
         private final String type;
         private final String name;

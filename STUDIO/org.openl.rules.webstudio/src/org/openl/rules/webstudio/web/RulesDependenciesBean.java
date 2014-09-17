@@ -13,7 +13,6 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.impl.ExecutableMethod;
-import org.openl.util.StringTool;
 
 /**
  * @author Andrei Astrouski
@@ -60,7 +59,7 @@ public class RulesDependenciesBean {
         return tables;
     }
 
-    public class Table {
+    public static class Table {
 
         private String name;
         private String id;

@@ -24,7 +24,7 @@ public class ArrayCellEditor implements ICellEditor {
         return typeResponse;
     }
 
-    public class ArrayEditorParams {
+    public static class ArrayEditorParams {
 
         private String separator;
         private String entryEditor;
