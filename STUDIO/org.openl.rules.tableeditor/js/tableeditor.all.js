@@ -452,8 +452,9 @@ var TableEditor = Class.create({
 
         var row = table.down("tr");
 
+        var tdElt; // JavaScript doesn't have block level variables. Only function body, global object or page.
         if (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             while (tdElt) {
                 this.columns += tdElt.colSpan ? tdElt.colSpan : 1;
                 tdElt = tdElt.next("td");
@@ -461,7 +462,7 @@ var TableEditor = Class.create({
         }
 
         while (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             if (tdElt) {
                 this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
             }
@@ -492,8 +493,7 @@ var TableEditor = Class.create({
     
     saveChanges: function() {
         this.setCellValue();
-        var selt = this;
-        
+
         var beforeSavePassed = true;
         if (this.actions && this.actions.beforeSave) {
             beforeSavePassed = this.actions.beforeSave();
@@ -507,7 +507,7 @@ var TableEditor = Class.create({
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
-        this.doOperation(TableEditor.Operations.ROLLBACK, params, function(data) {
+        this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
             window.onbeforeunload = Prototype.emptyFunction;
         });
     },
@@ -546,7 +546,7 @@ var TableEditor = Class.create({
     },
     
 
-    isFormated: function(elt) {
+    isFormated: function() {
 
         var cell = this.currentElement;
         var decorator = this.decorator;
@@ -676,10 +676,11 @@ var TableEditor = Class.create({
             return res;
         };
 
+        var theIndex; // JavaScript doesn't have block level variables. Only function body, global object or page.
         switch (event.keyCode) {
             case 37: case 38: // LEFT, UP
             var cell = null;
-            var theIndex = event.keyCode == 38 ? 0 : 1;
+            theIndex = event.keyCode == 38 ? 0 : 1;
             while (--sp[theIndex] >= 1) {
                 cell = scanUpLeft.call(this, 1 - theIndex, true);
                 if (cell) {
@@ -693,7 +694,7 @@ var TableEditor = Class.create({
             break;
 
             case 39: case 40:  //RIGHT, DOWN
-            var theIndex = event.keyCode == 40 ? 0 : 1;
+            theIndex = event.keyCode == 40 ? 0 : 1;
 
             sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
             if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
@@ -908,7 +909,7 @@ var TableEditor = Class.create({
         var url = this.baseUrl + action;
         if (paramString)
             url = url + "?" + paramString;
-        return url
+        return url;
     },
 
     /**
@@ -1035,7 +1036,7 @@ var TableEditor = Class.create({
 
         this.decorator.decorateToolBar(elt);
 
-        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function() {
             if (self.editor) {
                 self.editor.input.style.textAlign = _align;
             }
@@ -1131,7 +1132,7 @@ var TableEditor = Class.create({
             indent: _indent
         };
 
-        this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_INDENT, params, function() {
             var resultPadding = 0;
             // TODO Refactor with css calc()
             if (cell.style.paddingLeft.indexOf("em") > 0) {
@@ -1160,7 +1161,7 @@ var TableEditor = Class.create({
             bold: !_bold
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function() {
  
             if ( _bold) {
                 cell.style.fontWeight = "normal";
@@ -1185,7 +1186,7 @@ var TableEditor = Class.create({
             italic: !_italic
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function() {
 
             if (_italic) {
                 cell.style.fontStyle = "normal";
@@ -1210,7 +1211,7 @@ var TableEditor = Class.create({
             underline: !_underline
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function() {
 
             if (_underline) {
                 cell.style.textDecoration = "none";
@@ -1285,7 +1286,7 @@ TableEditor.Operations = {
 
 // Standalone functions
 
-TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; }
+TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; };
 
 /**
  *  Responsible for visual display of 'selected' element.
@@ -1568,23 +1569,21 @@ var PopupMenu = {
 
 	getTarget: function (e) {
 		var evt = this.menu_ie ? window.event : e;
-		var el = undefined;
 		if (evt.target) {
 			return evt.target;
 		} else if (evt.srcElement) {
 			return evt.srcElement;
 		}
-		;
 		return undefined;
 	},
 
-	_init: function (contentElement, event, extraClass) {
+	_init: function () {
 		document.onclick = function(e) {
 			var el = PopupMenu.getTarget(e);
 			if (el && (el.name != 'menurevealbutton') && !PopupMenu.inMenuDiv(el))
 				PopupMenu.closeMenu();
 			return true;
-		}
+		};
 
 		try {
 			this.te_menu = document.createElement('<div id="divmenu" class="te_menu" style="display:none; float:none;z-index:5; position:absolute;">');
@@ -1603,10 +1602,10 @@ var PopupMenu = {
 				PopupMenu.cancelDisappear();
 				PopupMenu.disappearFunction = setTimeout("PopupMenu.closeMenu()", PopupMenu.disappearInterval2);
 			}
-		}
-		this.te_menu.onmouseover = function(e) {
+		};
+		this.te_menu.onmouseover = function() {
 			PopupMenu.cancelDisappear();
-		}
+		};
 
 		document.body.appendChild(this.te_menu);
 		this.showPopupMenu = this._showPopupMenu;
@@ -1639,7 +1638,7 @@ var PopupMenu = {
 	// init
 	showPopupMenu: function() {this._init(); this._showPopupMenu.apply(this, arguments);},
 	sheduleShowMenu: function() {this._init(); this._sheduleShowMenu.apply(this, arguments);}
-}/**
+};/**
  * Base class for Editors.
  * If you need to create your own editor just override methods of this class.
  *
@@ -4736,7 +4735,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
         var self = this;
 
-        this.input.onkeypress = function(event) {return self.keyPressed(event || window.event)}
+        this.input.onkeypress = function(event) {return self.keyPressed(event || window.event);};
 
         if (param) {
             this.min = param.min;
@@ -5012,18 +5011,18 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var buttonContainer = new Element("div");
         buttonContainer.className = "multiselect_buttons";
 
-        buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">'
+        buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">';
         var b1 = buttonContainer.down(), b2 = b1.next();
         self.selectAllButton = b1;
 
         b1.onclick = function() {
             self.setAllCheckBoxes(this.value == "Select All");
             this.value = (this.value == "Select All" ? "Deselect All" : "Select All");
-        }
+        };
 
         b2.onclick = function() {
             self.finishEdit();
-        }
+        };
 
         this.multiselectPanel.appendChild(buttonContainer);
 
@@ -5043,16 +5042,16 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         this.multiselectPanel.appendChild(container);
 
-        this.input.onclick = function(event) {
+        this.input.onclick = function() {
             self.open();
         };
-        this.input.onkeydown = function(event) {
+        this.input.onkeydown = function() {
             self.open();
             return false;
-        }
-        this.input.oncontextmenu = function(event) {
+        };
+        this.input.oncontextmenu = function() {
             return false;
-        }
+        };
 
         this.documentClickListener = this.documentClickHandler.bindAsEventListener(this);
 
@@ -5083,7 +5082,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         if (isAllBoxesChecked()) {
             this.selectAllButton.value = "Deselect All";
-        };
+        }
 
         this.changeSelectAllBtnName(this.selectAllButton);
 
@@ -5128,8 +5127,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     combineValue: function() {
         var entries = this.entries;
         return this.choices.findAll(function(key) {
-            return entries[key].checked}
-        ).join(this.separator)
+                return entries[key].checked;
+            }).join(this.separator);
     },
 
     destroy: function($super) {
@@ -5170,7 +5169,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     documentClickHandler: function(e) {
         var element = Event.element(e);
-        var abort = false;
         if (!this.is(element)) {
             this.close();
         }
@@ -5193,7 +5191,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var allCheckBoxes = $$('div.multiselect_container input:checkbox');
 
         allCheckBoxes.each (function (e) {
-            e.observe ('change', function(e) {
+            e.observe('change', function () {
                 val.value = "Select All";
                 if (isAllBoxesUnchecked()) {
                     val.value = "Select All";
@@ -5341,7 +5339,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         // Creating variables with inputText
         self.tdValues = new Array(2);
         self.values = new Array(2);
-        for (var i = 0; i < self.tdValues.length; i++) {
+        var i; // JavaScript doesn't have block level variables. Only function body, global object or page.
+        for (i = 0; i < self.tdValues.length; i++) {
             self.tdValues[i] = new Element("td");
             self.values[i] = new Element("input");
             self.values[i].value = "";
@@ -5358,16 +5357,16 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         // Creating variables with buttons
         self.btns = new Array(4);
         self.btns[0] = buttnons.down();
-        for (var i = 1; i < self.btns.length; i++) {
+        for (i = 1; i < self.btns.length; i++) {
             self.btns[i] = self.btns[i - 1].next();
         }
-        for (var i = 0; i < self.btns.length; i++) {
+        for (i = 0; i < self.btns.length; i++) {
             self.btns[i].className = "range-btn";
             self.btns[i].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
                 self.createIntervalBorders(self.btns.indexOf(this));
                 self.createResult();
-            }
+            };
           }
 
         // Creating result DIV
@@ -5380,25 +5379,25 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         self.btnDone = buttonContainer.down();
         self.btnDone.onclick = function() {
             self.finishEdit();
-        }
+        };
         this.rangePanel.appendChild(buttonContainer);
 
         if (param) {
             this.entryEditor = param.entryEditor;
         }
 
-        this.input.onclick = function(event) {
+        this.input.onclick = function () {
             self.open();
-        }
+        };
 
-        this.input.onkeydown = function(event) {
+        this.input.onkeydown = function() {
             self.open();
             return false;
-        }
+        };
 
-        this.input.oncontextmenu = function(event) {
+        this.input.oncontextmenu = function() {
             return false;
-        }
+        };
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
         Event.observe(this.rangePanel, "keypress", this.eventHandler);
@@ -5446,7 +5445,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     }
                 }
             }
-        })
+        });
         self.unstableSeparators.each(function(separator) {
             if (value.indexOf(separator) !== -1) {
                 self.currentSeparator = self.defaultSeparator;
@@ -5590,7 +5589,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     content = content + "=";
                 }
             }
-            content = content + this.values[1].value
+            content = content + this.values[1].value;
         }
         this.resultContainer.innerHTML = content;
         if (content == "") {
@@ -5623,9 +5622,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.checkboxes[0].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
                 self.createResult();
-            }
-            self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event)};
-            self.values[0].onkeyup = function() {self.createResult()};
+            };
+            self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event);};
+            self.values[0].onkeyup = function() {self.createResult();};
         } else if (btnId == 3) {
             self.values[0].value = "";
             self.tdValues[0].update('');
@@ -5653,7 +5652,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.checkboxes[1].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
                 self.createResult();
-            }
+            };
         }
 
         if (btnId == 0) {
@@ -5681,11 +5680,11 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         self.values[1] = self.tdValues[1].down("input[type='text']");
         self.values[1].className = "range-input";
         self.values[1].onkeypress = function(event) {
-            return self.keyPressed(event || window.event)
-        }
+            return self.keyPressed(event || window.event);
+        };
         self.values[1].onkeyup = function() {
-            self.createResult()
-        }
+            self.createResult();
+        };
     },
 
     close: function() {
@@ -5776,7 +5775,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     // Generates result after editing
     createFinalResult: function() {
         var result;
-        var values = new Array();
+        var values = [];
         values[0] = this.values[0].value;
         values[1] = this.values[1].value;
 
@@ -5793,8 +5792,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             var prefix = "";
             var suffix = "";
             if (values[0] && values[1]){
-                var leftBorder;
-                var rightBorder;
                 if (!(this.checkboxes[0].checked && this.checkboxes[1].checked)) {
                     if (this.checkboxes[0].checked) {
                         prefix = "[";
@@ -5849,7 +5846,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     documentClickHandler: function(e) {
         var element = Event.element(e);
-        var abort = false;
         if (!this.is(element) && element != "") {
             this.close();
         }
