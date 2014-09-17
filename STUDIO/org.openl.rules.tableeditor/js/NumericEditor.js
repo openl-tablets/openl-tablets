@@ -16,7 +16,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
         var self = this;
 
-        this.input.onkeypress = function(event) {return self.keyPressed(event || window.event)}
+        this.input.onkeypress = function(event) {return self.keyPressed(event || window.event);};
 
         if (param) {
             this.min = param.min;

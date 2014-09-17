@@ -676,7 +676,7 @@ var TableEditor = Class.create({
         var url = this.baseUrl + action;
         if (paramString)
             url = url + "?" + paramString;
-        return url
+        return url;
     },
 
     /**
@@ -1053,7 +1053,7 @@ TableEditor.Operations = {
 
 // Standalone functions
 
-TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; }
+TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; };
 
 /**
  *  Responsible for visual display of 'selected' element.
