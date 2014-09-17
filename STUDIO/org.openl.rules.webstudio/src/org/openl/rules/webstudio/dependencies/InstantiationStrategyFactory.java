@@ -335,7 +335,7 @@ public class InstantiationStrategyFactory {
         }
     }
 
-    public static class ModuleInstantiator {
+    public static final class ModuleInstantiator {
         private final RulesInstantiationStrategy instantiationStrategy;
         private final WebStudioWorkspaceRelatedDependencyManager dependencyManager;
 
