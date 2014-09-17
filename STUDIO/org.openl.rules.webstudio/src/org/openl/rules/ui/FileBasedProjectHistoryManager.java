@@ -50,7 +50,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         storage.add(source);
     }
 
-    public void delete() {
+    public final void delete() {
         storage.delete(maxFilesInStorage);
     }
 

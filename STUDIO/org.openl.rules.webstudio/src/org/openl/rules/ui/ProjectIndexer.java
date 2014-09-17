@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Gets all the files from project directory and set it to {@link FileIndex} for further indexing .
+ * Gets all the files from project directory and set it to {@link FileIndexer} for further indexing .
  * 
  * @author snshor
  *
@@ -34,7 +34,6 @@ public class ProjectIndexer extends FileIndexer {
      * Find the max length between 'bin' and 'classes' folders in the given path. 
      * 
      * @param path Path to file.
-     * @return
      */
     int findMaxPathLength(String path) {
         int idx1 = path.lastIndexOf("bin");
@@ -46,7 +45,7 @@ public class ProjectIndexer extends FileIndexer {
      * Iterates over project folder, searches for excel and word files.
      * 
      */
-    synchronized void  loadFiles() {
+    private synchronized void loadFiles() {
 		TreeIterator<File> filesTreeIter = new WebstudioTreeIterator(new File(projectRoot), 0);
 		
 		HashMap<String, String> fileMap = new HashMap<String, String>();
@@ -84,7 +83,6 @@ public class ProjectIndexer extends FileIndexer {
      * 
      * @param existingFile File that has been already found and put to map.
      * @param currentFile Path to current file.
-     * @return
      */
     private String selectPreferrablePath(String existingFile, String currentFile) {
         if (existingFile == null) {

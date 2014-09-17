@@ -143,7 +143,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     }
 
     @Override
-    public void destroy() {
+    public final void destroy() {
         try {
             if (zipFile != null) {
                 zipFile.close();

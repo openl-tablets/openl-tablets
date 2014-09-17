@@ -148,7 +148,7 @@ public class TableDetailsBean {
         return id;
     }
 
-    public IOpenLTable getTable() {
+    public final IOpenLTable getTable() {
         return WebStudioUtils.getWebStudio().getModel().getTableById(id);
     }
 
