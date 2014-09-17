@@ -8,7 +8,7 @@
     <version>5.13.0</version>
     <name>OpenL Tablets - General POM</name>
     <url>http://openl-tablets.sourceforge.net</url>
-
+    <description>OpenL Tablets rules engine and related frameworks</description>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -65,10 +65,10 @@
     </developers>
 
     <scm>
-        <connection>scm:hg:${staging.hg.repo.url}</connection>
-        <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
-      <tag>release-5.13.0</tag>
-  </scm>
+        <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+        <developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
+        <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
+    </scm>
 
     <properties>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
