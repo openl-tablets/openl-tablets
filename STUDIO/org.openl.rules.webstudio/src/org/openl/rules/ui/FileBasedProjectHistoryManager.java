@@ -88,7 +88,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     public SortedMap<Long, File> get(String... names) {
-        Collection<File> files = null;
+        Collection<File> files;
         if (names != null && names.length > 0) {
             files = storage.list(names);
         } else {

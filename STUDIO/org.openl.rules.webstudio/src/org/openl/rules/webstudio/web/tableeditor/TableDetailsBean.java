@@ -44,7 +44,6 @@ public class TableDetailsBean {
     private String newTableId;
     private String propertyToAdd;
     private String id;
-    private String uri;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -53,6 +52,7 @@ public class TableDetailsBean {
 
         IOpenLTable table;
 
+        String uri;
         if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
             table = studio.getModel().getTable(uri);

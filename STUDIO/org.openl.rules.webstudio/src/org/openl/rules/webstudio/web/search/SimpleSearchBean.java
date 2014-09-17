@@ -105,18 +105,12 @@ public class SimpleSearchBean {
 
     public boolean isXlsFile() {
         String uri = getUri();
-        if (uri.indexOf(".xls") >= 0) {
-            return true;
-        }
-        return false;
+        return uri.contains(".xls");
     }
 
     public boolean isDocFile() {
         String uri = getUri();
-        if (uri.indexOf(".doc") >= 0) {
-            return true;
-        }
-        return false;
+        return uri.contains(".doc");
     }
 
 }

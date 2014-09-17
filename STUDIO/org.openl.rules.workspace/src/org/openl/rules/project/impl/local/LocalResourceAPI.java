@@ -13,8 +13,11 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.StateHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
+    private final Logger log = LoggerFactory.getLogger(LocalResourceAPI.class);
 
     private String resourceType;
 
@@ -38,7 +41,8 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
             super.applyStateHolder(state.parent);
             this.resourceType = state.resourceType;
         } else {
-            // TODO: log fail
+            // TODO consider exception throwing
+            log.error("Incorrect type of stateHolder. Was: '{}', but should be 'ArtefactStateHolder", stateHolder.getClass().getName());
         }
     }
 

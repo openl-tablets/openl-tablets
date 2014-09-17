@@ -57,7 +57,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         File f = new File(location, name);
-        f.mkdir();
+        if (!f.mkdir() && !f.exists()) {
+            throw new ProjectException(String.format("Can't create the folder '%s'", f.getAbsolutePath()));
+        }
 
         AProject localProject = new AProject(new LocalFolderAPI(f, ap, this));
 
