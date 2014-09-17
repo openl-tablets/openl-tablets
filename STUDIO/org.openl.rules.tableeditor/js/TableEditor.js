@@ -220,8 +220,9 @@ var TableEditor = Class.create({
 
         var row = table.down("tr");
 
+        var tdElt; // JavaScript doesn't have block level variables. Only function body, global object or page.
         if (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             while (tdElt) {
                 this.columns += tdElt.colSpan ? tdElt.colSpan : 1;
                 tdElt = tdElt.next("td");
@@ -229,7 +230,7 @@ var TableEditor = Class.create({
         }
 
         while (row) {
-            var tdElt = row.down("td");
+            tdElt = row.down("td");
             if (tdElt) {
                 this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
             }
@@ -443,10 +444,11 @@ var TableEditor = Class.create({
             return res;
         };
 
+        var theIndex; // JavaScript doesn't have block level variables. Only function body, global object or page.
         switch (event.keyCode) {
             case 37: case 38: // LEFT, UP
             var cell = null;
-            var theIndex = event.keyCode == 38 ? 0 : 1;
+            theIndex = event.keyCode == 38 ? 0 : 1;
             while (--sp[theIndex] >= 1) {
                 cell = scanUpLeft.call(this, 1 - theIndex, true);
                 if (cell) {
@@ -460,7 +462,7 @@ var TableEditor = Class.create({
             break;
 
             case 39: case 40:  //RIGHT, DOWN
-            var theIndex = event.keyCode == 40 ? 0 : 1;
+            theIndex = event.keyCode == 40 ? 0 : 1;
 
             sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
             if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
