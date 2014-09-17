@@ -235,9 +235,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         for (TableProperty property : propertiesManager.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
-            if (value == null || (value != null && (value instanceof String && StringUtils.isEmpty((String) value)))) {
-                continue;
-            } else {
+            if (value != null && (!(value instanceof String) || !StringUtils.isEmpty((String) value))) {
                 resultProperties.put(name.trim(), value);
             }
         }
