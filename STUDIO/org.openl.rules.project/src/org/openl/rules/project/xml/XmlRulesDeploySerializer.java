@@ -31,17 +31,11 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     }
 
     public RulesDeploy deserialize(InputStream source) {
-        RulesDeploy rulesDeploy = (RulesDeploy) xstream.fromXML(source);
-        postProcess(rulesDeploy);
-        return rulesDeploy;
+        return (RulesDeploy) xstream.fromXML(source);
     }
 
     public RulesDeploy deserialize(String source) {
-        RulesDeploy rulesDeploy = (RulesDeploy) xstream.fromXML(source);
-        postProcess(rulesDeploy);
-        return rulesDeploy;
+        return (RulesDeploy) xstream.fromXML(source);
     }
 
-    private void postProcess(RulesDeploy descriptor) {
-    }
 }
