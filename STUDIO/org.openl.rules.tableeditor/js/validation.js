@@ -88,7 +88,7 @@ Validator.methods = {
         }
         return more;
     }
-}
+};
 
 var Validation = Class.create({
 
@@ -177,11 +177,11 @@ var Validation = Class.create({
 
 Validation.isAllValidated = function() {
     return Validation.prototype.firedMessageTips.keys().length == 0;
-}
+};
 
 Validation.add = function(a, b, c) {
     Validation.prototype.addValidator(a, b, c);
-}
+};
 
 Validation.add('required', 'This field is required', function(value, params) {
     return !Validator.methods.empty(value);

@@ -80,7 +80,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.currentSeparator = self.defaultSeparator;
                 self.createIntervalBorders(self.btns.indexOf(this));
                 self.createResult();
-            }
+            };
           }
 
         // Creating result DIV
@@ -93,7 +93,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         self.btnDone = buttonContainer.down();
         self.btnDone.onclick = function() {
             self.finishEdit();
-        }
+        };
         this.rangePanel.appendChild(buttonContainer);
 
         if (param) {
@@ -102,16 +102,16 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         this.input.onclick = function(event) {
             self.open();
-        }
+        };
 
         this.input.onkeydown = function(event) {
             self.open();
             return false;
-        }
+        };
 
         this.input.oncontextmenu = function(event) {
             return false;
-        }
+        };
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
         Event.observe(this.rangePanel, "keypress", this.eventHandler);
@@ -159,7 +159,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     }
                 }
             }
-        })
+        });
         self.unstableSeparators.each(function(separator) {
             if (value.indexOf(separator) !== -1) {
                 self.currentSeparator = self.defaultSeparator;
@@ -303,7 +303,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     content = content + "=";
                 }
             }
-            content = content + this.values[1].value
+            content = content + this.values[1].value;
         }
         this.resultContainer.innerHTML = content;
         if (content == "") {
@@ -336,9 +336,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.checkboxes[0].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
                 self.createResult();
-            }
-            self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event)};
-            self.values[0].onkeyup = function() {self.createResult()};
+            };
+            self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event);};
+            self.values[0].onkeyup = function() {self.createResult();};
         } else if (btnId == 3) {
             self.values[0].value = "";
             self.tdValues[0].update('');
@@ -366,7 +366,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.checkboxes[1].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
                 self.createResult();
-            }
+            };
         }
 
         if (btnId == 0) {
@@ -394,11 +394,11 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         self.values[1] = self.tdValues[1].down("input[type='text']");
         self.values[1].className = "range-input";
         self.values[1].onkeypress = function(event) {
-            return self.keyPressed(event || window.event)
-        }
+            return self.keyPressed(event || window.event);
+        };
         self.values[1].onkeyup = function() {
-            self.createResult()
-        }
+            self.createResult();
+        };
     },
 
     close: function() {
