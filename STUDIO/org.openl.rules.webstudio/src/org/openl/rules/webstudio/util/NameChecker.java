@@ -9,7 +9,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  *
  * @author Aleh Bykhavets
  */
-public class NameChecker {
+public final class NameChecker {
     private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[' , ']'};
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name can not contain forbidden characters ("
@@ -18,6 +18,9 @@ public class NameChecker {
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
     public static final String BAD_PROJECT_NAME_MSG = "Project name can not contain forbidden characters ("
             + NameChecker.getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
+
+    private NameChecker() {
+    }
 
     protected static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars

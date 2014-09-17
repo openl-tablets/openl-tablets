@@ -9,7 +9,10 @@ import java.io.FileFilter;
  * @author Aleh Bykhavets
  *
  */
-public class FolderHelper {
+public final class FolderHelper {
+    private FolderHelper() {
+    }
+
     /**
      * Lists folders only.
      */

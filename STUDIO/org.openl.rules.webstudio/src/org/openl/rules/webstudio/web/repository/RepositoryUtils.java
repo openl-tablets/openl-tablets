@@ -19,7 +19,7 @@ import java.util.Comparator;
  *
  * @author Aleh Bykhavets
  */
-public class RepositoryUtils {
+public final class RepositoryUtils {
     public static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR = new Comparator<ProjectVersion>() {
         public int compare(ProjectVersion o1, ProjectVersion o2) {
             return o2.compareTo(o1);
@@ -35,6 +35,9 @@ public class RepositoryUtils {
             }
         }
     };
+
+    private RepositoryUtils() {
+    }
 
     public static DeployID getDeployID(ADeploymentProject ddProject) {
         StringBuilder sb = new StringBuilder(ddProject.getName());

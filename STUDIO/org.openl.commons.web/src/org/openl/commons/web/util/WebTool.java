@@ -17,9 +17,11 @@ import java.util.Map;
  *
  * @author Stanislav Shor
  */
-public class WebTool {
-
+public final class WebTool {
     private static final Logger log = LoggerFactory.getLogger(WebTool.class);
+
+    private WebTool() {
+    }
 
     public static String listRequestParams(ServletRequest request) {
         return listRequestParams(request.getParameterMap(), null);

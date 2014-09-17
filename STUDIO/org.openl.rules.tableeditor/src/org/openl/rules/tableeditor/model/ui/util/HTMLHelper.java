@@ -5,7 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author Andrei Astrouski
  */
-public class HTMLHelper {
+public final class HTMLHelper {
+
+    private HTMLHelper() {
+    }
 
     public static String htmlStringWithSelections(String src, String[] tokens) {
         StringHighlighter sf = new StringHighlighter(tokens, src);        

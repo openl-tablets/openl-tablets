@@ -4,7 +4,10 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.model.Module;
 
-public class RulesInstantiationStrategyFactory {
+public final class RulesInstantiationStrategyFactory {
+    private RulesInstantiationStrategyFactory() {
+    }
+
     /**
      * @return {@link SingleModuleInstantiationStrategy} instance that will compile
      *         {@link Module}
