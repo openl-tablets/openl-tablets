@@ -54,7 +54,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         // Creating variables with inputText
         self.tdValues = new Array(2);
         self.values = new Array(2);
-        for (var i = 0; i < self.tdValues.length; i++) {
+        var i; // JavaScript doesn't have block level variables. Only function body, global object or page.
+        for (i = 0; i < self.tdValues.length; i++) {
             self.tdValues[i] = new Element("td");
             self.values[i] = new Element("input");
             self.values[i].value = "";
@@ -71,10 +72,10 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         // Creating variables with buttons
         self.btns = new Array(4);
         self.btns[0] = buttnons.down();
-        for (var i = 1; i < self.btns.length; i++) {
+        for (i = 1; i < self.btns.length; i++) {
             self.btns[i] = self.btns[i - 1].next();
         }
-        for (var i = 0; i < self.btns.length; i++) {
+        for (i = 0; i < self.btns.length; i++) {
             self.btns[i].className = "range-btn";
             self.btns[i].onclick = function() {
                 self.currentSeparator = self.defaultSeparator;
