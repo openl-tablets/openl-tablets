@@ -350,10 +350,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             return new DomainTypeHolder(this.name, this.type, this.iterable);
         }
 
-        public DomainTypeHolder(TypeNamePair tnp) {
-            // TODO Auto-generated constructor stub
-        }
-
         public String getTypeName() {
             return typeName;
         }
