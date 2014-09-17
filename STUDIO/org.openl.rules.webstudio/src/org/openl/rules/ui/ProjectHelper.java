@@ -188,9 +188,8 @@ public final class ProjectHelper {
 
     public static String getTestInfo(TestSuite testSuite) {
         String info = null;
-        IOpenMethod testMethod = testSuite.getTestSuiteMethod();
-        if (testMethod instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) testMethod;
+        TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+        if (testSuiteMethod != null) {
             if (testSuiteMethod.isRunmethod()) {
                 if (testSuite.getNumberOfTests() < 1) {
                     info = formatTestInfo(NO, RUNS);
