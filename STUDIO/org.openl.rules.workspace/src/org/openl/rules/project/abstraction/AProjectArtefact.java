@@ -301,9 +301,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
      * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
      * Checks that lockedUser is LOCAL and current user is DEFAULT
      * 
-     * @param lockedUser
-     * @param currentUser
-     * @return
+     * @param lockedUser - owner of the lock
+     * @param currentUser - current user trying to unlock
+     * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"
      */
     private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
         return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());
