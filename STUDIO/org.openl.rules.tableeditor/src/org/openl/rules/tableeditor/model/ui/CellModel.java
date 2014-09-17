@@ -63,7 +63,7 @@ public class CellModel implements ICellModel {
         hasFormula = false;
     }
 
-    public void atttributesToHtml(StringBuilder buf, TableModel table, boolean selectErrorCell) {
+    public void atttributesToHtml(StringBuilder buf, boolean selectErrorCell) {
         if (colspan != 1) {
             buf.append(" colspan=\"").append(colspan).append("\"");
         }
@@ -71,16 +71,16 @@ public class CellModel implements ICellModel {
             buf.append(" rowspan=\"").append(rowspan).append("\"");
         }
 
-        String style = getHtmlStyle(table, selectErrorCell);
+        String style = getHtmlStyle(selectErrorCell);
 
         buf.append(" style=\"").append(style).append("\"");
     }
 
-    public void atttributesToHtml(StringBuilder buf, TableModel table) {
-        atttributesToHtml(buf, table, false);
+    public void atttributesToHtml(StringBuilder buf) {
+        atttributesToHtml(buf, false);
     }
 
-    private void borderToHtml(StringBuilder buf, TableModel table) {
+    private void borderToHtml(StringBuilder buf) {
         if (borderStyle == null) {
             return;
         }
@@ -187,11 +187,9 @@ public class CellModel implements ICellModel {
     /**
      * Returns style string for cell.
      *
-     * @param tm
-     *
      * @return style string for cell
      */
-    public String getHtmlStyle(TableModel tm, boolean selectErrorCell) {
+    public String getHtmlStyle(boolean selectErrorCell) {
         StringBuilder sb = new StringBuilder();
         if (halign != null) {
             sb.append("text-align:").append(halign).append(";");
@@ -215,7 +213,7 @@ public class CellModel implements ICellModel {
         if (selectErrorCell) {
             sb.append("border: 2px solid red;");
         } else if (borderStyle != null) {
-            borderToHtml(sb, tm);
+            borderToHtml(sb);
         }
 
         if (font != null) {

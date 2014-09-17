@@ -374,7 +374,7 @@ public class HTMLRenderer {
                                 selectErrorCell = true;
                             }
                         }
-                        ((CellModel) cell).atttributesToHtml(s, tableModel, selectErrorCell);
+                        ((CellModel) cell).atttributesToHtml(s, selectErrorCell);
                     }
 
                     StringBuilder cellId = new StringBuilder();
