@@ -11,7 +11,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  * @author DLiauchuk
  *
  */
-public class SystemValuesManager {
+public final class SystemValuesManager {
 
     private Map<String, ISystemValue> systemValues = new HashMap<String, ISystemValue>();
 
