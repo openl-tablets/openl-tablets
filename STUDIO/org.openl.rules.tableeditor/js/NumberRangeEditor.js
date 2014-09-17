@@ -100,16 +100,16 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             this.entryEditor = param.entryEditor;
         }
 
-        this.input.onclick = function(event) {
+        this.input.onclick = function () {
             self.open();
         };
 
-        this.input.onkeydown = function(event) {
+        this.input.onkeydown = function() {
             self.open();
             return false;
         };
 
-        this.input.oncontextmenu = function(event) {
+        this.input.oncontextmenu = function() {
             return false;
         };
 
@@ -506,8 +506,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             var prefix = "";
             var suffix = "";
             if (values[0] && values[1]){
-                var leftBorder;
-                var rightBorder;
                 if (!(this.checkboxes[0].checked && this.checkboxes[1].checked)) {
                     if (this.checkboxes[0].checked) {
                         prefix = "[";
@@ -562,7 +560,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     documentClickHandler: function(e) {
         var element = Event.element(e);
-        var abort = false;
         if (!this.is(element) && element != "") {
             this.close();
         }

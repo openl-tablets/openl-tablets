@@ -63,14 +63,14 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         this.multiselectPanel.appendChild(container);
 
-        this.input.onclick = function(event) {
+        this.input.onclick = function() {
             self.open();
         };
-        this.input.onkeydown = function(event) {
+        this.input.onkeydown = function() {
             self.open();
             return false;
         };
-        this.input.oncontextmenu = function(event) {
+        this.input.oncontextmenu = function() {
             return false;
         };
 
@@ -190,7 +190,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     documentClickHandler: function(e) {
         var element = Event.element(e);
-        var abort = false;
         if (!this.is(element)) {
             this.close();
         }
@@ -213,7 +212,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var allCheckBoxes = $$('div.multiselect_container input:checkbox');
 
         allCheckBoxes.each (function (e) {
-            e.observe ('change', function(e) {
+            e.observe('change', function () {
                 val.value = "Select All";
                 if (isAllBoxesUnchecked()) {
                     val.value = "Select All";

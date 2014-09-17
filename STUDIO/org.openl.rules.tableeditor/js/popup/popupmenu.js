@@ -121,7 +121,6 @@ var PopupMenu = {
 
 	getTarget: function (e) {
 		var evt = this.menu_ie ? window.event : e;
-		var el = undefined;
 		if (evt.target) {
 			return evt.target;
 		} else if (evt.srcElement) {
@@ -130,7 +129,7 @@ var PopupMenu = {
 		return undefined;
 	},
 
-	_init: function (contentElement, event, extraClass) {
+	_init: function () {
 		document.onclick = function(e) {
 			var el = PopupMenu.getTarget(e);
 			if (el && (el.name != 'menurevealbutton') && !PopupMenu.inMenuDiv(el))
@@ -156,7 +155,7 @@ var PopupMenu = {
 				PopupMenu.disappearFunction = setTimeout("PopupMenu.closeMenu()", PopupMenu.disappearInterval2);
 			}
 		};
-		this.te_menu.onmouseover = function(e) {
+		this.te_menu.onmouseover = function() {
 			PopupMenu.cancelDisappear();
 		};
 

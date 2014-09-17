@@ -260,8 +260,7 @@ var TableEditor = Class.create({
     
     saveChanges: function() {
         this.setCellValue();
-        var selt = this;
-        
+
         var beforeSavePassed = true;
         if (this.actions && this.actions.beforeSave) {
             beforeSavePassed = this.actions.beforeSave();
@@ -275,7 +274,7 @@ var TableEditor = Class.create({
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
-        this.doOperation(TableEditor.Operations.ROLLBACK, params, function(data) {
+        this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
             window.onbeforeunload = Prototype.emptyFunction;
         });
     },
@@ -314,7 +313,7 @@ var TableEditor = Class.create({
     },
     
 
-    isFormated: function(elt) {
+    isFormated: function() {
 
         var cell = this.currentElement;
         var decorator = this.decorator;
@@ -803,7 +802,7 @@ var TableEditor = Class.create({
 
         this.decorator.decorateToolBar(elt);
 
-        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function() {
             if (self.editor) {
                 self.editor.input.style.textAlign = _align;
             }
@@ -899,7 +898,7 @@ var TableEditor = Class.create({
             indent: _indent
         };
 
-        this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_INDENT, params, function() {
             var resultPadding = 0;
             // TODO Refactor with css calc()
             if (cell.style.paddingLeft.indexOf("em") > 0) {
@@ -928,7 +927,7 @@ var TableEditor = Class.create({
             bold: !_bold
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function() {
  
             if ( _bold) {
                 cell.style.fontWeight = "normal";
@@ -953,7 +952,7 @@ var TableEditor = Class.create({
             italic: !_italic
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function() {
 
             if (_italic) {
                 cell.style.fontStyle = "normal";
@@ -978,7 +977,7 @@ var TableEditor = Class.create({
             underline: !_underline
         };
         this.decorator.decorateToolBar(elt);
-        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
+        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function() {
 
             if (_underline) {
                 cell.style.textDecoration = "none";
