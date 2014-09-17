@@ -216,10 +216,6 @@ public class InstallWizard {
     /**
      * Validates WebStudio working directory for write access. If specified
      * folder is not writable the validation error will appears
-     *
-     * @param context
-     * @param toValidate
-     * @param value
      */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         String studioPath;
@@ -276,23 +272,25 @@ public class InstallWizard {
     }
 
     /**
-     * Creates a temp file for validating folder write permisions
+     * Creates a temp file for validating folder write permissions
      *
      * @param file is a folder where temp file will be created
      * @return true if specified folder is writable, otherwise returns false
      */
     public boolean isWritable(File file) {
-        boolean isAccessable = false;
+        boolean isAccessible;
 
         try {
             File tmpFile = File.createTempFile("temp", null, file);
-            isAccessable = true;
-            tmpFile.delete();
+            isAccessible = true;
+            if (!tmpFile.delete()) {
+                log.warn("Can't delete temp file {}", tmpFile.getName());
+            }
 
         } catch (IOException ioe) {
             throw new ValidatorException(FacesUtils.createErrorMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
         }
-        return isAccessable;
+        return isAccessible;
     }
 
     /**
@@ -313,8 +311,6 @@ public class InstallWizard {
 
     /**
      * Returns collection of properties files for external databases
-     *
-     * @return
      */
     public Collection<File> getDBPropetiesFiles() {
         File dbPropFolder = new File(System.getProperty("webapp.root") + "/WEB-INF/conf/db");
@@ -332,8 +328,6 @@ public class InstallWizard {
 
     /**
      * Returns a Map of data base vendors
-     *
-     * @return
      */
     public List<SelectItem> getDBVendors() {
         List<SelectItem> dbVendors = new ArrayList<SelectItem>();

@@ -18,15 +18,15 @@ import java.util.Map;
 
 public class DBUtils {
     private static final String USERS_TABLE = "openluser";
+    private static final String SQL_ERRORS_FILE_PATH = "db/sql-errors.properties";
+    private static final String TABLE_FOR_VALIDATION = "schema_version";
+
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
     private Map<String, Object> dbErrors;
-    private ConfigurationManager sqlErrorsConfig;
-    private String sqlErrorsFilePath = "db/sql-errors.properties";
-    private String tableForValidation = "schema_version";
 
     public DBUtils() {
-        sqlErrorsConfig = new ConfigurationManager(false, null, System.getProperty("webapp.root") + "/WEB-INF/conf/" + sqlErrorsFilePath);
+        ConfigurationManager sqlErrorsConfig = new ConfigurationManager(false, null, System.getProperty("webapp.root") + "/WEB-INF/conf/" + SQL_ERRORS_FILE_PATH);
         dbErrors = sqlErrorsConfig.getProperties();
     }
 
@@ -41,15 +41,15 @@ public class DBUtils {
      * @return connection (session) to a specific database.
      */
     public Connection createConnection(String dbDriver, String dbPrefix, String dbUrl, String login, String password) {
-        Connection conn = null;
-        int errorCode = 0;
+        Connection conn;
+        int errorCode;
 
         try {
             Class.forName(dbDriver);
             conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
         } catch (ClassNotFoundException cnfe) {
             log.error(cnfe.getMessage(), cnfe);
-            throw new ValidatorException(FacesUtils.createErrorMessage("Incorrectd database driver"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Incorrect database driver"));
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
             String errorMessage = (String) dbErrors.get("" + errorCode);
@@ -90,7 +90,7 @@ public class DBUtils {
      * @return true if table 'schema_version' exists into DB
      */
     public boolean isTableSchemaVersionExists(Connection conn) throws SQLException {
-        return getDBOpenlTables(conn).contains(tableForValidation);
+        return getDBOpenlTables(conn).contains(TABLE_FOR_VALIDATION);
     }
 
     public boolean isTableUsersExists(Connection conn) throws SQLException {
