@@ -63,7 +63,7 @@ public class CellModel implements ICellModel {
         hasFormula = false;
     }
 
-    public void atttributesToHtml(StringBuilder buf, boolean selectErrorCell) {
+    public void attributesToHtml(StringBuilder buf, boolean selectErrorCell) {
         if (colspan != 1) {
             buf.append(" colspan=\"").append(colspan).append("\"");
         }
@@ -76,8 +76,8 @@ public class CellModel implements ICellModel {
         buf.append(" style=\"").append(style).append("\"");
     }
 
-    public void atttributesToHtml(StringBuilder buf) {
-        atttributesToHtml(buf, false);
+    public void attributesToHtml(StringBuilder buf) {
+        attributesToHtml(buf, false);
     }
 
     private void borderToHtml(StringBuilder buf) {
