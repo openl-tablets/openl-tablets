@@ -183,7 +183,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private Object getPropValueByType(String propName, Node n) throws RepositoryException {
 
         Value value = n.getProperty(propName).getValue();
-        Object propValue = null;
+        Object propValue;
         int valueType = value.getType();
         switch (valueType) {
             case PropertyType.DATE:
@@ -408,7 +408,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
             if (frozenNode.hasProperty(propName)) {
                 Value value = frozenNode.getProperty(propName).getValue();
-                Object propValue = null;
+                Object propValue;
                 int valueType = value.getType();
                 switch (valueType) {
                     case PropertyType.DATE:
@@ -480,7 +480,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         try {
@@ -492,7 +494,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         properties.clear();
@@ -520,7 +524,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 inhProps = getParentProps(node().getParent());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return inhProps;
@@ -549,7 +555,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 }
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         return inhProps;

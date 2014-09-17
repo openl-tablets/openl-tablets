@@ -31,7 +31,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     /**
      * Creates new folder.
      *
-     * @param parentNode parent node (files or other folder)
+     * @param parent parent node (files or other folder)
      * @param nodeName name of new node
      * @return newly created folder
      * @throws RepositoryException if fails
@@ -80,8 +80,8 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     }
 
     /** {@inheritDoc} */
-    public List<JcrFolderAPI> getFolders() throws RRepositoryException {
-        List<JcrFolderAPI> result = new LinkedList<JcrFolderAPI>();
+    public List<JcrEntityAPI> getFolders() throws RRepositoryException {
+        List<JcrEntityAPI> result = new LinkedList<JcrEntityAPI>();
         listNodes(result, false);
         return result;
     }
@@ -95,7 +95,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
      * @param isFiles whether return only files or only folders
      * @throws RRepositoryException if failed
      */
-    private void listNodes(List list2add, boolean isFiles) throws RRepositoryException {
+    private void listNodes(List<JcrEntityAPI> list2add, boolean isFiles) throws RRepositoryException {
         try {
             //FIXME for old
             NodeIterator ni = node().getNodes();
@@ -105,7 +105,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
 
                 // TODO: use search? But looking through direct child nodes
                 // seems faster
-                boolean isFolder = false;
+                boolean isFolder;
                 if(isOldVersion()){
                     Node frozenNode = NodeUtil.normalizeOldNode(n, getVersion());
                     isFolder = frozenNode.getProperty("jcr:frozenPrimaryType").getString().equals(JcrNT.NT_FOLDER);
@@ -132,7 +132,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     public JcrEntityAPI getArtefact(String name) throws ProjectException {
         try {
             Node n = node().getNode(name);
-            boolean isFolder = false;
+            boolean isFolder;
             if(isOldVersion()){
                 Node frozenNode = NodeUtil.normalizeOldNode(n, getVersion());
                 isFolder = frozenNode.getProperty("jcr:frozenPrimaryType").getString().equals(JcrNT.NT_FOLDER);

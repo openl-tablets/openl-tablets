@@ -28,7 +28,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     /**
      * Creates a new instance of file.
      * 
-     * @param parentNode parent node (files or folder)
+     * @param parent parent node (files or folder)
      * @param nodeName name of new node
      * @return newly created instance
      * @throws RepositoryException if fails
