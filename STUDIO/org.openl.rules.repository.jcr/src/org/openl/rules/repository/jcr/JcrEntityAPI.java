@@ -111,8 +111,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 properties.put(name, rp);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         if (rp == null) {
@@ -241,20 +242,16 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         if (props == null) {
             return;
         }
-        // do not update JCR if property wasn't changed
-        /*folder props aren't save
-        if (isSame(this.props, props)) {
-            return;
-        }
-        */
+
         Set<String> propNames = props.keySet();
         for (String propName : propNames) {
             Object propValue = props.get(propName);
             try {
                 setProperty(propName, propValue);
             } catch (RRepositoryException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
         this.props = props;

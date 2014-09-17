@@ -15,8 +15,12 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.PrincipalImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserUtil {
+    private final Logger log = LoggerFactory.getLogger(UserUtil.class);
+
     private TransientRepository repository;
 
     public UserUtil(TransientRepository repository) {
@@ -84,7 +88,9 @@ public class UserUtil {
             session.save();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return false;
         } finally {
             if (session != null) {
@@ -105,7 +111,9 @@ public class UserUtil {
             session.save();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return false;
         } finally {
             if (session != null) {

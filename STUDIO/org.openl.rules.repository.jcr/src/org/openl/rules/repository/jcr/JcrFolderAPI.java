@@ -16,6 +16,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation for JCR Folder.
@@ -24,6 +26,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
+    private final Logger log = LoggerFactory.getLogger(JcrFolderAPI.class);
 
     /**
      * Creates new folder.
@@ -122,7 +125,6 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
                 }
             }
         } catch (RepositoryException e) {
-            e.printStackTrace();
             throw new RRepositoryException("Failed to list nodes.", e);
         }
     }
@@ -152,8 +154,9 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         try {
             return node().hasNode(name);
         } catch (RepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             return false;
         }
     }
@@ -164,8 +167,9 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
             artefacts.addAll(getFolders());
             artefacts.addAll(getFiles());
         } catch (RRepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
         return artefacts;
     }
