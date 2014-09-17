@@ -76,6 +76,11 @@ public final class FolderHelper {
             // list sub elements
             File[] files = folder.listFiles();
 
+            if (files == null) {
+                // Some I/O error occurs
+                return false;
+            }
+
             // delete one by one
             for (File f : files) {
                 if (f.isDirectory()) {
