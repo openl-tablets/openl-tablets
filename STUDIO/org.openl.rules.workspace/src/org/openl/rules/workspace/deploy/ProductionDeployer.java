@@ -37,11 +37,11 @@ public interface ProductionDeployer {
      * @throws RRepositoryException if cannot get info from repository for some
      *             reason
      */
-    public boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException;
+    boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException;
     
     /**
      * Destroy deployer and release associated resources
      * @throws RRepositoryException if exception during deploying is occured
      */
-    public void destroy() throws RRepositoryException;
+    void destroy() throws RRepositoryException;
 }

@@ -196,7 +196,7 @@ public class ReloadableDelegatingFilter implements Filter {
      *
      * @author NSamatov
      */
-    public static interface ConfigurationReloader {
+    public interface ConfigurationReloader {
         void reload();
     }
 }

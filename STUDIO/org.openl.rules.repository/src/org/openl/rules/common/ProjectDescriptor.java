@@ -15,7 +15,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public interface ProjectDescriptor<T extends CommonVersion> {
-    public static class ProjectDescriptorConverter implements Converter {
+    class ProjectDescriptorConverter implements Converter {
         public boolean canConvert(Class cls) {
             return ProjectDescriptor.class.isAssignableFrom(cls);
         }
@@ -41,7 +41,7 @@ public interface ProjectDescriptor<T extends CommonVersion> {
         }
     }
 
-    public static class ProjectDescriptorHelper {
+    class ProjectDescriptorHelper {
         private static final XStream XSTREAM = new XStream(new DomDriver());
         static {
             XSTREAM.alias("descriptors", List.class);
