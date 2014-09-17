@@ -10,6 +10,12 @@ import org.openl.util.tree.ITreeElement;
 
 public class TraceTreeBuilder extends TreeBuilder {
 
+    private final boolean detailedTraceTree;
+
+    public TraceTreeBuilder(boolean detailedTraceTree) {
+        this.detailedTraceTree = detailedTraceTree;
+    }
+
     @Override
     String getUrl(ITreeElement<?> element) {
         TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
@@ -37,8 +43,7 @@ public class TraceTreeBuilder extends TreeBuilder {
     Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
         if (source instanceof DecisionTableTraceObject) {
             DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
-            TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
-            return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();
+            return detailedTraceTree ? parent.getChildren() : parent.getTraceResults();
         }
 
         return super.getChildrenIterator(source);
