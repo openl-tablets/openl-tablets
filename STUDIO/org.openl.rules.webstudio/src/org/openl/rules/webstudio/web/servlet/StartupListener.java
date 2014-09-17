@@ -20,9 +20,9 @@ public class StartupListener implements ServletContextListener {
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
     private static class WebConfigLocator extends ConfigLocator {
-        private ServletContext context;
+        private final ServletContext context;
 
-        WebConfigLocator(ServletContext context) {
+        private WebConfigLocator(ServletContext context) {
             this.context = context;
         }
 
@@ -74,6 +74,8 @@ public class StartupListener implements ServletContextListener {
     }
 
     public void contextDestroyed(ServletContextEvent event) {
+        // Clear previous ConfigManager
+        SysConfigManager.setConfigManager(new ConfigManager());
         String name = event.getServletContext().getServletContextName();
         log.info("{} is down.", name);
     }
