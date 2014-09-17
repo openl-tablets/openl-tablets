@@ -20,11 +20,14 @@ import org.openl.types.impl.MethodDelegator;
  * @author snshor
  *
  */
-public class ProjectHelper {
+public final class ProjectHelper {
 
     private static final String TEST_CASES = "test cases";
     private static final String NO = "No";
     private static final String RUNS = "runs";
+
+    private ProjectHelper() {
+    }
 
     public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
         List<TestSuiteMethod> res = new ArrayList<TestSuiteMethod>();

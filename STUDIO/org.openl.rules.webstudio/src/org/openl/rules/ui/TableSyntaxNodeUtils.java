@@ -9,9 +9,12 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.types.IOpenMethod;
 
-public class TableSyntaxNodeUtils {
+public final class TableSyntaxNodeUtils {
 
     private static final String ROUND_BRACKETS_WITH_ANY_TEXT = "\\(.*\\)";
+
+    private TableSyntaxNodeUtils() {
+    }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
         return getTableDisplayValue(tableSyntaxNode, 0);

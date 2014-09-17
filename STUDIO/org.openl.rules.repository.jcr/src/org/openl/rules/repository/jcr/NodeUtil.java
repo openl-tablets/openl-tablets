@@ -21,7 +21,9 @@ import java.util.Date;
  *
  * @author Aleh Bykhavets
  */
-public class NodeUtil {
+public final class NodeUtil {
+    private NodeUtil() {
+    }
 
     /**
      * Checks whether type of the JCR node is correct.

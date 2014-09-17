@@ -23,7 +23,10 @@ import java.util.Map;
  *
  * @author Andrey Naumenko
  */
-public class AcegiFunctions {
+public final class AcegiFunctions {
+
+    private AcegiFunctions() {
+    }
 
     public static String authentication(String operation) {
         final Logger log = LoggerFactory.getLogger(AcegiFunctions.class);

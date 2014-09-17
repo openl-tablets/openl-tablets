@@ -5,7 +5,7 @@ package org.openl.rules.webstudio.web.repository;
  *
  * @author Aleh Bykhavets
  */
-public class UiConst {
+public final class UiConst {
     // <rich:treeNode type="..."
     public static final String TYPE_FILE = "file";
     public static final String TYPE_FOLDER = "folder";
@@ -46,4 +46,7 @@ public class UiConst {
     // default.css
     public static final String STYLE_ERROR = "error";
     public static final String STYLE_WARNING = "warning";
+
+    private UiConst() {
+    }
 }

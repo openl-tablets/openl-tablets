@@ -10,11 +10,14 @@ import java.io.File;
  *
  * @author Aleh Bykhavets
  */
-public class FolderHelper {
+public final class FolderHelper {
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
+
+    private FolderHelper() {
+    }
 
     public static boolean checkOrCreateFolder(File location) {
         if (location.exists()) {

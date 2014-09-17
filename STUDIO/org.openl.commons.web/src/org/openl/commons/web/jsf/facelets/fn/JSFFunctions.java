@@ -20,7 +20,10 @@ import com.sdicons.json.mapper.MapperException;
  *
  * @author Andrey Naumenko
  */
-public class JSFFunctions {
+public final class JSFFunctions {
+    private JSFFunctions() {
+    }
+
     /**
      * Concatenates the specified string <code>str2</code> to the end of this
      * string <code>str1</code>.

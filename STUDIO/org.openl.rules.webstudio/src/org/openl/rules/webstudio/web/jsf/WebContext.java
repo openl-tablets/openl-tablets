@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.web.jsf;
 
-public class WebContext {
+public final class WebContext {
+    private WebContext() {
+    }
+
     private static String contextPath;
 
     /**

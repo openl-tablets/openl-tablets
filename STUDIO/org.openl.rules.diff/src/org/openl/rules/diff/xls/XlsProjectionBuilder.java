@@ -22,7 +22,10 @@ import org.openl.source.IOpenSourceCodeModule;
 
 import static org.openl.rules.diff.xls.XlsProjectionType.*;
 
-public class XlsProjectionBuilder {
+public final class XlsProjectionBuilder {
+
+    public XlsProjectionBuilder() {
+    }
 
     public static XlsProjection build(XlsMetaInfo xmi, String xlsName) {
         XlsProjection projection = new XlsProjection(xlsName, BOOK);
