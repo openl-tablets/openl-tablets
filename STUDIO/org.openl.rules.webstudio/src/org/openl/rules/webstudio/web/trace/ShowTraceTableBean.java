@@ -32,9 +32,6 @@ public class ShowTraceTableBean {
     private TraceHelper traceHelper;
     private int traceElementId;
 
-    private String tracerUri;
-    private String tracerName;
-
     public ShowTraceTableBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         traceHelper = studio.getTraceHelper();
@@ -44,17 +41,6 @@ public class ShowTraceTableBean {
         if (traceElementIdParam != null) {
             traceElementId = Integer.parseInt(traceElementIdParam);
         }
-
-        tracerUri = traceHelper.getTracerUri(traceElementId);
-        tracerName = traceHelper.getTracerName(traceElementId);
-    }
-
-    public String getTracerUri() {
-        return tracerUri;
-    }
-
-    public String getTracerName() {
-        return tracerName;
     }
 
     public IOpenLTable getTraceTable() {

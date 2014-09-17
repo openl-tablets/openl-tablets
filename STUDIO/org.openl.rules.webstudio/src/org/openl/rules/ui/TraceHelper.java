@@ -7,7 +7,6 @@ package org.openl.rules.ui;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.openl.base.INamedThing;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -50,32 +49,6 @@ public class TraceHelper {
             return (ITableTracerObject) node;
         }
         return null;
-    }
-
-    public String getTracerUri(int elementId) {
-        ITableTracerObject tto = getTableTracer(elementId);
-        if (tto != null) {
-            TableSyntaxNode tsn = tto.getTableSyntaxNode();
-            return tsn.getUri();
-        }
-        return null;
-    }
-
-    public String getTracerName(int elementId) {
-        ITableTracerObject tto = getTableTracer(elementId);
-        String displayName = null;
-
-        if (tto != null) {
-            if (tto instanceof ATableTracerNode) {
-                displayName = tto.getDisplayName(INamedThing.REGULAR);
-            } else {
-                // ATableTracerLeaf
-                displayName = tto.getParent().getDisplayName(INamedThing.REGULAR) + ": "
-                        + tto.getDisplayName(INamedThing.REGULAR);
-            }
-        }
-
-        return displayName;
     }
 
     public Throwable getTracerError(int elementID) {
