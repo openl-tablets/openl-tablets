@@ -9,9 +9,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class TraceTreeBuilder extends TreeBuilder {
-    private static final int UNSUCCESSFUL = 0;
-    private static final int SUCCESSFUL_WITHOUT_RESULT = 1;
-    private static final int SUCCESSFUL_WITH_RESULT = 2;
 
     @Override
     String getUrl(ITreeElement<?> element) {
@@ -21,14 +18,19 @@ public class TraceTreeBuilder extends TreeBuilder {
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;
     }
 
+
     @Override
-    int getState(ITreeElement<?> element) {
+    String getType(ITreeElement<?> element) {
+        String type = super.getType(element);
         if (element instanceof DTConditionTraceObject) {
             DTConditionTraceObject condition = (DTConditionTraceObject) element;
-            return condition.isSuccessful() ? (condition.hasRuleResult() ? SUCCESSFUL_WITH_RESULT : SUCCESSFUL_WITHOUT_RESULT) : UNSUCCESSFUL;
+            if (!condition.isSuccessful()) {
+                return type + "_fail";
+            } else if (condition.hasRuleResult()) {
+                return type + "_result";
+            }
         }
-
-        return super.getState(element);
+        return type;
     }
 
     @Override
