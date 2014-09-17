@@ -215,7 +215,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                             dateFormats.put(p, new SimpleDateFormat(propertyName.substring(t + 1)));
                             propertyName = p;
                         }
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid at: " + propertyMatch);
                     }
                     propertyNames.add(propertyName);
