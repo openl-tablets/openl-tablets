@@ -60,7 +60,6 @@ public class JcrProperty implements org.openl.rules.common.Property {
                     node.setProperty(name, value.toString());
             }
         } catch (RepositoryException e) {
-            e.printStackTrace();
             throw new RRepositoryException("Cannot create property ''{0}''.", e, name);
         }
     }

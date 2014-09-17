@@ -48,10 +48,14 @@ import org.openl.rules.repository.jcr.JcrFileAPI;
 import org.openl.rules.repository.jcr.JcrFolderAPI;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.NodeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
 //FIXME refactor to use AProjectArtefacts
 public class RepositoryConvertor {
+    private final Logger log = LoggerFactory.getLogger(RepositoryConvertor.class);
+
     public static final CommonVersion from = new CommonVersionImpl(7);
     public static final CommonVersion to = new CommonVersionImpl(4);
     private final CommonUser system = new CommonUserImpl("system");
@@ -154,7 +158,9 @@ public class RepositoryConvertor {
                 copyProject(project, repository);
             }
         } catch (RRepositoryException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -189,8 +195,9 @@ public class RepositoryConvertor {
                 jcrProject.lock(project.getLock().getLockedBy());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -256,8 +263,9 @@ public class RepositoryConvertor {
         try {
             newEntity.setProps(entity.getProps());
         } catch (PropertyException e1) {
-            // TODO log
-            e1.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e1.getMessage(), e1);
+            }
         }
         try {
             newEntity.removeAllProperties();
@@ -268,8 +276,9 @@ public class RepositoryConvertor {
             newEntity.addProperty(org.openl.rules.repository.api.ArtefactProperties.PROP_LINE_OF_BUSINESS,
                     ValueType.STRING, entity.getLineOfBusiness());
         } catch (PropertyException e) {
-            // TODO log
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -279,7 +288,9 @@ public class RepositoryConvertor {
                 copyDDProject(project, repository);
             }
         } catch (RRepositoryException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -329,8 +340,9 @@ public class RepositoryConvertor {
                 jcrDDproject.lock(project.getLock().getLockedBy());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 }

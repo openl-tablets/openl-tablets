@@ -18,8 +18,12 @@ import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
+    private final Logger log = LoggerFactory.getLogger(AProjectArtefact.class);
+
     private ArtefactAPI impl;
     private AProject project;
 
@@ -142,13 +146,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        /*
-        try {
-            setProps(artefact.getProps());
-        } catch (PropertyException e1) {
-            // TODO log
-            e1.printStackTrace();
-        }*/
         try {
             getAPI().removeAllProperties();
 
@@ -159,8 +156,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 addProperty(property);
             }
         } catch (PropertyException e) {
-            // TODO log
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         artefact.impl.clearModifyStatus();
@@ -178,8 +176,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 addProperty(property);
             }
         } catch (PropertyException e) {
-            // TODO log
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         artefact.impl.clearModifyStatus();
@@ -206,8 +205,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                     }
                 }*/
             } catch (PropertyException e) {
-                // TODO log
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
 
             artefact.impl.clearModifyStatus();
