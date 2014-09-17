@@ -25,11 +25,6 @@ public class WebStudioProfiler extends Profiler.Unit {
 
     static class BMMethodBenchmarkUnit extends MethodBenchmarkUnit {
 
-        /**
-         * @param m
-         * @param instance
-         * @param env
-         */
         public BMMethodBenchmarkUnit(IBenchmarkableMethod bm, Object instance, IRuntimeEnv env) {
             super(bm, instance, env);
         }
@@ -93,7 +88,7 @@ public class WebStudioProfiler extends Profiler.Unit {
         IOpenMethod m = model.getCompiledOpenClass().getOpenClass().getMethod(methodName, null);
 
         if (m == null) {
-            throw new Exception("Method " + methodName + " not found");
+            throw new IllegalArgumentException("Method " + methodName + " not found");
         }
 
         if (m instanceof IBenchmarkableMethod) {
@@ -104,10 +99,6 @@ public class WebStudioProfiler extends Profiler.Unit {
 
     }
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     private void run(String[] arg) throws Exception {
         args = arg;
 

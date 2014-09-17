@@ -145,7 +145,7 @@ public class JackRabbitUserTransaction implements UserTransaction {
                                 entry.getKey().commit(entry.getValue(), false);
                             }
                         } catch (Exception e) {
-                            throw new RuntimeException(e.getMessage());
+                            throw new IllegalStateException(e.getMessage());
                         }
                     }
                 };
