@@ -20,6 +20,14 @@ public class Tracer implements TraceStack {
         init();
     }
 
+    public static void put(ITracerObject obj) {
+        if (isTracerOn()) {
+            Tracer tracer = Tracer.tracer.get();
+            tracer.push(obj);
+            tracer.pop();
+        }
+    }
+
     public static Tracer getTracer() {
         return tracer.get();
     }

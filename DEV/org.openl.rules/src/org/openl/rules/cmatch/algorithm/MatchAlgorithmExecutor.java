@@ -14,9 +14,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
             traceObject.setResult(NO_MATCH);
 
-            Tracer t = Tracer.getTracer();
-            t.push(traceObject);
-            t.pop();
+            Tracer.put(traceObject);
         }
     }
 
@@ -31,12 +29,10 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             t.push(traceObject);
 
             for (MatchNode node : line.getChildren()) {
-                t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-                t.pop();
+                Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
             }
 
-            t.push(new ResultTraceObject(columnMatch, resultIndex));
-            t.pop();
+            Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
 
             t.pop();
         }

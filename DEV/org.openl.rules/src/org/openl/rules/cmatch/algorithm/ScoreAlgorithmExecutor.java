@@ -30,9 +30,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
         public void nextScore(MatchNode node, int resultIndex) {
             if (Tracer.isTracerDefined()) {
-                Tracer tracer = Tracer.getTracer();
-                tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-                tracer.pop();
+                Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
             }
         }
     }
