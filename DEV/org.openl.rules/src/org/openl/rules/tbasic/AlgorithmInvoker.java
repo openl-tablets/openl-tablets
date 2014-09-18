@@ -51,7 +51,7 @@ public class AlgorithmInvoker extends RulesMethodInvoker {
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
         ATableTracerNode algorithmTracer = getTraceObject(params);
-        Tracer.getTracer().push(algorithmTracer);
+        Tracer.begin(algorithmTracer);
 
         Object resultValue = null;
         try {
@@ -62,7 +62,7 @@ public class AlgorithmInvoker extends RulesMethodInvoker {
             log.error("Error when tracing TBasic table", e);
             throw e;
         } finally {
-            Tracer.getTracer().pop();
+            Tracer.end();
         }
 
         return resultValue;

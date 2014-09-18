@@ -17,20 +17,18 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 this.columnMatch = columnMatch;
                 traceObject = new WColumnMatchTraceObject(columnMatch, params);
                 // wcm
-                Tracer tracer = Tracer.getTracer();
-                tracer.push(traceObject);
+                Tracer.begin(traceObject);
 
                 wScore = new WScoreTraceObject(columnMatch, params);
                 // score
-                tracer.push(wScore);
+                Tracer.begin(wScore);
             }
         }
 
         public void closeMatch(int resultIndex) {
             if (Tracer.isTracerDefined()) {
-                Tracer tracer = Tracer.getTracer();
                 // score
-                tracer.pop();
+                Tracer.end();
 
                 Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
 
@@ -38,18 +36,17 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
                 traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
                 // wcm
-                tracer.pop();
+                Tracer.end();
             }
         }
 
         public void closeNoMatch() {
             if (Tracer.isTracerDefined()) {
                 // score
-                Tracer tracer = Tracer.getTracer();
-                tracer.pop();
+                Tracer.end();
                 // wcm
                 traceObject.setResult(NO_MATCH);
-                tracer.pop();
+                Tracer.end();
             }
         }
 

@@ -3,8 +3,6 @@
  */
 package org.openl.vm.trace;
 
-import java.util.Stack;
-
 /**
  * @author snshor
  */
@@ -23,9 +21,22 @@ public class Tracer implements TraceStack {
 
     public static void put(ITracerObject obj) {
         if (isTracerOn()) {
-            Tracer tracer = Tracer.tracer.get();
-            tracer.push(obj);
-            tracer.pop();
+            ITracerObject current = tracer.get().current;
+            current.addChild(obj);
+            obj.setParent(current);
+        }
+    }
+
+    public static void begin(ITracerObject obj) {
+        if (isTracerOn()) {
+            put(obj);
+            tracer.get().current = obj;
+        }
+    }
+
+    public static void end() {
+        if (isTracerOn()) {
+            tracer.get().current = tracer.get().current.getParent();
         }
     }
 

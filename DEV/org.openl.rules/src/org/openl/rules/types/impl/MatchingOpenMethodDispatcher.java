@@ -76,7 +76,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Object returnResult = null;
         traceObject = null;
-        Tracer tracer = Tracer.getTracer();
 
         /**
          * this block is for overloaded by active property tables without any
@@ -86,20 +85,20 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
         if (selected.size() > 1) {
             traceObject = getTracedObject(selected, params);
-            tracer.push(traceObject);
+            Tracer.begin(traceObject);
         }
         try {
             returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
             if (traceObject == null) {
                 traceObject = getTracedObject(selected, params);
-                tracer.push(traceObject);
+                Tracer.begin(traceObject);
             }
             traceObject.setError(e);
             throw e;
         } finally {
             if (traceObject != null) {
-                tracer.pop();
+                Tracer.end();
             }
         }
         return returnResult;

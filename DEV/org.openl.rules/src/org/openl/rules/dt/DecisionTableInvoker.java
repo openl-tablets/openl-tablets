@@ -77,12 +77,11 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
 
         Object returnValue = null;
 
-        Tracer tracer = Tracer.getTracer();
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
-        tracer.push(traceObject);
+        Tracer.begin(traceObject);
 
         DecisionTableOptimizedAlgorithm algorithm = null;
-        TraceStack conditionsStack = new ChildTraceStack(tracer);
+        TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
 
         try {
             algorithm = getInvokableMethod().getAlgorithm();
@@ -96,7 +95,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                 int ruleN = rules.nextInt();
 
                 try {
-                    tracer.push(traceObject.traceRule(ruleN));
+                    Tracer.begin(traceObject.traceRule(ruleN));
 
                     returnValue = getReturn(target, params, env, ruleN);
                     if (returnValue != null) {
@@ -104,7 +103,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                         return returnValue;
                     }
                 } finally {
-                    tracer.pop();
+                    Tracer.end();
                     conditionsStack.reset();
                 }
             }
@@ -112,7 +111,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             addErrorToTrace(traceObject, e);
         } finally {
             conditionsStack.reset();
-            tracer.pop();
+            Tracer.end();
 
             // Restore index without rules meta info (memory optimization)
             if (algorithm != null) {

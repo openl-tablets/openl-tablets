@@ -45,7 +45,7 @@ public abstract class RuntimeOperation {
         if (debugMode && significantForDebug) {
             operationTracer = new TBasicOperationTraceObject(this);
             operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
-            Tracer.getTracer().push(operationTracer);
+            Tracer.begin(operationTracer);
         }
 
         try {
@@ -55,7 +55,7 @@ public abstract class RuntimeOperation {
         } finally {
             if (debugMode && significantForDebug) {
                 operationTracer.setResult(result);
-                Tracer.getTracer().pop();
+                Tracer.end();
             }
         }
 

@@ -15,16 +15,14 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
             if (Tracer.isTracerDefined()) {
                 this.columnMatch = columnMatch;
                 traceObject = new ColumnMatchTraceObject(columnMatch, params);
-                Tracer tracer = Tracer.getTracer();
-                tracer.push(traceObject);
+                Tracer.begin(traceObject);
             }
         }
 
         public void closeMatch(int sumScore) {
             if (Tracer.isTracerDefined()) {
                 traceObject.setResult(sumScore);
-                Tracer tracer = Tracer.getTracer();
-                tracer.pop();
+                Tracer.end();
             }
         }
 
