@@ -13,7 +13,7 @@ import org.openl.vm.trace.Tracer;
  */
 public abstract class DefaultInvokerWithTrace implements InvokerWithTrace {
         
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    public final Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         // check if the object can be invoked
         //
         if (canInvoke()) {
