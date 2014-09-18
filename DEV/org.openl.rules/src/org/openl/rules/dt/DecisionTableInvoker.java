@@ -81,7 +81,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
         Tracer.begin(traceObject);
 
         DecisionTableOptimizedAlgorithm algorithm = null;
-        TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
+        TraceStack conditionsStack = new ChildTraceStack();
 
         try {
             algorithm = getInvokableMethod().getAlgorithm();

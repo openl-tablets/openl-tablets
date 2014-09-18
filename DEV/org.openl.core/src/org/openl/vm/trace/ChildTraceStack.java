@@ -8,22 +8,17 @@ package org.openl.vm.trace;
  * 
  */
 public class ChildTraceStack implements TraceStack {
-    private final TraceStack tracer;
     private int pushed = 0;
-
-    public ChildTraceStack(TraceStack tracer) {
-        this.tracer = tracer;
-    }
 
     @Override
     public void push(ITracerObject tracerObject) {
-        tracer.push(tracerObject);
+        Tracer.begin(tracerObject);
         pushed++;
     }
 
     @Override
     public void pop() {
-        tracer.pop();
+        Tracer.end();
         pushed--;
     }
 
@@ -33,5 +28,4 @@ public class ChildTraceStack implements TraceStack {
             pop();
         }
     }
-
 }
