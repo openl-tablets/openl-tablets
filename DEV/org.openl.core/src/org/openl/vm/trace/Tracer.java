@@ -11,14 +11,10 @@ import java.util.Stack;
 public class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
-    private static ThreadLocal<Boolean> tracerIsActive = new ThreadLocal<Boolean>() {
-        protected Boolean initialValue() {
-            return Boolean.TRUE;
-        }
-    };
 
     private Stack<ITracerObject> stack = new Stack<ITracerObject>();
     private ITracerObject root;
+    private boolean active = true;
 
     public Tracer() {
         init();
@@ -33,15 +29,19 @@ public class Tracer implements TraceStack {
     }
 
     public static boolean isTracerOn() {
-        return isTracerDefined() && tracerIsActive.get() != null && tracerIsActive.get();
+        return isTracerDefined() && tracer.get().active;
     }
 
     public static void disableTrace() {
-        tracerIsActive.set(Boolean.FALSE);
+        if (isTracerDefined()) {
+            tracer.get().active = false;
+        }
     }
 
     public static void enableTrace() {
-        tracerIsActive.set(Boolean.TRUE);
+        if (isTracerDefined()) {
+            tracer.get().active = true;
+        }
     }
 
 
