@@ -42,12 +42,11 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
 
         Object result = null;
 
         SpreadsheetTraceObject traceObject = (SpreadsheetTraceObject) getTraceObject(params);
-        tracer.push(traceObject);
+        Tracer.begin(traceObject);
 
         try {
             SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(
@@ -61,7 +60,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
             log.error("Error when tracing Spreadsheet table", e);
             throw e;
         } finally {
-            tracer.pop();
+            Tracer.end();
         }
         return result;
     }

@@ -29,15 +29,12 @@ public class MethodTableInvoker extends RulesMethodInvoker {
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
 
         MethodTableTraceObject traceObject = (MethodTableTraceObject) getTraceObject(params);
-        tracer.push(traceObject);
-
-        Object result = null;
+        Tracer.begin(traceObject);
 
         try {
-            result = getInvokableMethod().getCompositeMethod().invoke(target, params, env);
+            Object result = getInvokableMethod().getCompositeMethod().invoke(target, params, env);
             traceObject.setResult(result);
             return result;
 
@@ -46,7 +43,7 @@ public class MethodTableInvoker extends RulesMethodInvoker {
             log.error("Error when tracing Method table", e);
             throw e;
         } finally {
-            tracer.pop();
+            Tracer.end();
         }
     }
 

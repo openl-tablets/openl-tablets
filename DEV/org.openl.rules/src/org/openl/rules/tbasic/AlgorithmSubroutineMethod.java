@@ -83,7 +83,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
             debugMode = true;
 
             methodTracer = new TBasicMethodTraceObject(this);
-            Tracer.getTracer().push(methodTracer);
+            Tracer.begin(methodTracer);
         }
 
         Object resultValue = null;
@@ -94,7 +94,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         } finally {
             if (debugMode) {
                 methodTracer.setResult(resultValue);
-                Tracer.getTracer().pop();
+                Tracer.end();
             }
         }
 
