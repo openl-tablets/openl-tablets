@@ -4,7 +4,7 @@
 package org.openl.vm.trace;
 
 /**
- * @author snshor
+ * @author Yury Molchan
  */
 public class Tracer implements TraceStack {
 
@@ -44,22 +44,18 @@ public class Tracer implements TraceStack {
         return tracer.get();
     }
 
-    public static boolean isTracerDefined() {
-        return tracer.get() != null;
-    }
-
     public static boolean isTracerOn() {
-        return isTracerDefined() && tracer.get().active;
+        return tracer.get() != null && tracer.get().active;
     }
 
     public static void disableTrace() {
-        if (isTracerDefined()) {
+        if (tracer.get() != null) {
             tracer.get().active = false;
         }
     }
 
     public static void enableTrace() {
-        if (isTracerDefined()) {
+        if (tracer.get() != null) {
             tracer.get().active = true;
         }
     }

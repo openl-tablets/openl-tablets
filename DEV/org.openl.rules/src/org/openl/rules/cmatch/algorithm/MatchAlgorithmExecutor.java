@@ -10,7 +10,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
     private void fillTracer(ColumnMatch columnMatch, MatchNode line, int resultIndex, Object[] params) {
-        if (Tracer.isTracerDefined()) {
+        if (Tracer.isTracerOn()) {
 
             ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
             Object returnValues[] = columnMatch.getReturnValues();
@@ -60,12 +60,10 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        if (Tracer.isTracerDefined()) {
-            ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
-            traceObject.setResult(NO_MATCH);
+        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
+        traceObject.setResult(NO_MATCH);
 
-            Tracer.put(traceObject);
-        }
+        Tracer.put(traceObject);
         return NO_MATCH;
     }
 }

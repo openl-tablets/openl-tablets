@@ -71,12 +71,6 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
 
-        if (!Tracer.isTracerDefined()) {
-            return invokeOptimized(target, params, env);
-        }
-
-        Object returnValue = null;
-
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         Tracer.begin(traceObject);
 
@@ -97,7 +91,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                 try {
                     Tracer.begin(traceObject.traceRule(ruleN));
 
-                    returnValue = getReturn(target, params, env, ruleN);
+                    Object returnValue = getReturn(target, params, env, ruleN);
                     if (returnValue != null) {
                         traceObject.setResult(returnValue);
                         return returnValue;
@@ -123,7 +117,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             }
         }
 
-        return returnValue;
+        return null;
     }
 
     protected Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {
