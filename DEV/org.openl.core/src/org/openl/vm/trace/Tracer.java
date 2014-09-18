@@ -113,8 +113,4 @@ public class Tracer implements TraceStack {
         init();
     }
 
-    @Override
-    public int size() {
-        return stack.size();
-    }
 }

@@ -109,11 +109,6 @@ public class TraceableRangeIndex extends RangeIndex {
                 }
             }
         }
-        
-        @Override
-        public int size() {
-            return delegate.size() + stack.size();
-        }
 
 
     }
