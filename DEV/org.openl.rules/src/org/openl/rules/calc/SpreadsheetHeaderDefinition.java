@@ -54,15 +54,6 @@ public class SpreadsheetHeaderDefinition {
         return null;
     }
 
-    public Object getArray(SpreadsheetResultCalculator target, IRuntimeEnv env) {
-        
-        if (row < 0) {
-            return target.getColumn(column, env);
-        } else {
-            return target.getRow(row, env);
-        }
-    }
-
     public String getFirstname() {
         
         for (SymbolicTypeDefinition definition : vars) {
