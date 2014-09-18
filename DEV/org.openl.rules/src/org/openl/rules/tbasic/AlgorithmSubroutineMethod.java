@@ -79,7 +79,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         boolean debugMode = false;
         TBasicMethodTraceObject methodTracer = null;
 
-        if (Tracer.isTracerOn() && Tracer.getTracer() != null) {
+        if (Tracer.isTracerOn()) {
             debugMode = true;
 
             methodTracer = new TBasicMethodTraceObject(this);

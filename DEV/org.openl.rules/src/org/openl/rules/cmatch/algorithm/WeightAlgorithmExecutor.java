@@ -8,17 +8,16 @@ import org.openl.vm.trace.Tracer;
 
 public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
     private static class TraceHelper {
-        private final Tracer tracer;
         private ColumnMatch columnMatch;
         private WColumnMatchTraceObject traceObject;
         private WScoreTraceObject wScore;
 
         public TraceHelper(ColumnMatch columnMatch, Object[] params) {
-            tracer = Tracer.getTracer();
-            if (tracer != null) {
+            if (Tracer.isTracerDefined()) {
                 this.columnMatch = columnMatch;
                 traceObject = new WColumnMatchTraceObject(columnMatch, params);
                 // wcm
+                Tracer tracer = Tracer.getTracer();
                 tracer.push(traceObject);
 
                 wScore = new WScoreTraceObject(columnMatch, params);
@@ -28,45 +27,43 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
         }
 
         public void closeMatch(int sumScore, int resultIndex) {
-            if (tracer == null) {
-                return;
+            if (Tracer.isTracerDefined()) {
+                Tracer tracer = Tracer.getTracer();
+                // score
+                tracer.pop();
+
+                tracer.push(new MatchTraceObject(columnMatch, 1, resultIndex));
+                tracer.pop();
+
+                tracer.push(new ResultTraceObject(columnMatch, resultIndex));
+                tracer.pop();
+
+                traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
+                // wcm
+                tracer.pop();
             }
-
-            // score
-            tracer.pop();
-
-            tracer.push(new MatchTraceObject(columnMatch, 1, resultIndex));
-            tracer.pop();
-
-            tracer.push(new ResultTraceObject(columnMatch, resultIndex));
-            tracer.pop();
-
-            traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
-            // wcm
-            tracer.pop();
         }
 
         public void closeNoMatch() {
-            if (tracer == null) {
-                return;
+            if (Tracer.isTracerDefined()) {
+                // score
+                Tracer tracer = Tracer.getTracer();
+                tracer.pop();
+                // wcm
+                traceObject.setResult(NO_MATCH);
+                tracer.pop();
             }
-
-            // score
-            tracer.pop();
-            // wcm
-            traceObject.setResult(NO_MATCH);
-            tracer.pop();
         }
 
         public void nextScore(MatchNode node, int resultIndex, int sumScore, int score) {
-            if (tracer == null) {
-                return;
+            if (Tracer.isTracerDefined()) {
+
+                wScore.setScore(sumScore);
+
+                Tracer tracer = Tracer.getTracer();
+                tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
+                tracer.pop();
             }
-
-            wScore.setScore(sumScore);
-
-            tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            tracer.pop();
         }
     }
 

@@ -70,14 +70,14 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
     }
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
 
-        if (tracer == null) {
+        if (!Tracer.isTracerDefined()) {
             return invokeOptimized(target, params, env);
         }
 
         Object returnValue = null;
 
+        Tracer tracer = Tracer.getTracer();
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         tracer.push(traceObject);
 

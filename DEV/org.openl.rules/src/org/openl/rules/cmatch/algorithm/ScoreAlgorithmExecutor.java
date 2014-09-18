@@ -8,35 +8,32 @@ import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
     private static class TraceHelper {
-        private final Tracer tracer;
         private ColumnMatch columnMatch;
         private ColumnMatchTraceObject traceObject;
 
         public TraceHelper(ColumnMatch columnMatch, Object[] params) {
-            tracer = Tracer.getTracer();
-            if (tracer != null) {
+            if (Tracer.isTracerDefined()) {
                 this.columnMatch = columnMatch;
                 traceObject = new ColumnMatchTraceObject(columnMatch, params);
+                Tracer tracer = Tracer.getTracer();
                 tracer.push(traceObject);
             }
         }
 
         public void closeMatch(int sumScore) {
-            if (tracer == null) {
-                return;
+            if (Tracer.isTracerDefined()) {
+                traceObject.setResult(sumScore);
+                Tracer tracer = Tracer.getTracer();
+                tracer.pop();
             }
-
-            traceObject.setResult(sumScore);
-            tracer.pop();
         }
 
-        public void nextScore(MatchNode node, int resultIndex, int sumScore, int score) {
-            if (tracer == null) {
-                return;
+        public void nextScore(MatchNode node, int resultIndex) {
+            if (Tracer.isTracerDefined()) {
+                Tracer tracer = Tracer.getTracer();
+                tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
+                tracer.pop();
             }
-
-            tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            tracer.pop();
         }
     }
 
@@ -63,7 +60,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    t.nextScore(node, resultIndex, sumScore, score);
+                    t.nextScore(node, resultIndex);
                     break;
                 }
             }
