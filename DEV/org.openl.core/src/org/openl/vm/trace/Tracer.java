@@ -53,10 +53,6 @@ public class Tracer implements TraceStack {
         return root;
     }
 
-    public void setRoot(ITracerObject root) {
-        this.root = root;
-    }
-
     public ITracerObject[] getTracerObjects() {
         return root.getTracerObjects();
     }
