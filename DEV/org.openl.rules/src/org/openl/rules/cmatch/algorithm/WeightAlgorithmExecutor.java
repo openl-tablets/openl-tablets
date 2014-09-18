@@ -7,61 +7,17 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
-    private static class TraceHelper {
-        private ColumnMatch columnMatch;
-        private WColumnMatchTraceObject traceObject;
-        private WScoreTraceObject wScore;
-
-        public TraceHelper(ColumnMatch columnMatch, Object[] params) {
-            if (Tracer.isTracerDefined()) {
-                this.columnMatch = columnMatch;
-                traceObject = new WColumnMatchTraceObject(columnMatch, params);
-                // wcm
-                Tracer.begin(traceObject);
-
-                wScore = new WScoreTraceObject(columnMatch, params);
-                // score
-                Tracer.begin(wScore);
-            }
-        }
-
-        public void closeMatch(int resultIndex) {
-            if (Tracer.isTracerDefined()) {
-                // score
-                Tracer.end();
-
-                Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
-
-                Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
-
-                traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
-                // wcm
-                Tracer.end();
-            }
-        }
-
-        public void closeNoMatch() {
-            if (Tracer.isTracerDefined()) {
-                // score
-                Tracer.end();
-                // wcm
-                traceObject.setResult(NO_MATCH);
-                Tracer.end();
-            }
-        }
-
-        public void nextScore(MatchNode node, int resultIndex, int sumScore) {
-            if (Tracer.isTracerDefined()) {
-                wScore.setScore(sumScore);
-                Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            }
-        }
-    }
 
     public static final Object NO_MATCH = null;
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        TraceHelper t = new TraceHelper(columnMatch, params);
+        WColumnMatchTraceObject traceObject = new WColumnMatchTraceObject(columnMatch, params);
+        // wcm
+        Tracer.begin(traceObject);
+
+        WScoreTraceObject wScore = new WScoreTraceObject(columnMatch, params);
+        // score
+        Tracer.begin(wScore);
 
         MatchNode checkTree = columnMatch.getCheckTree();
         Object returnValues[] = columnMatch.getReturnValues();
@@ -83,7 +39,8 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = columnMatch.getColumnScores()[resultIndex] * node.getWeight();
                     sumScore += score;
-                    t.nextScore(node, resultIndex, sumScore);
+                    wScore.setScore(sumScore);
+                    Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                     break;
                 }
             }
@@ -95,12 +52,25 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
-                t.closeMatch(resultIndex);
+                // score
+                Tracer.end();
+
+                Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
+
+                Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
+
+                traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
+                // wcm
+                Tracer.end();
                 return returnValues[resultIndex];
             }
         }
 
-        t.closeNoMatch();
+        // score
+        Tracer.end();
+        // wcm
+        traceObject.setResult(NO_MATCH);
+        Tracer.end();
         return NO_MATCH;
     }
 }
