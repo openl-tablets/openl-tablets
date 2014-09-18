@@ -2,6 +2,7 @@ package org.openl.rules.method;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.table.ATableTracerNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -23,7 +24,7 @@ public abstract class RulesMethodInvoker implements InvokerWithTrace {
         // check if the object can be invoked
         //
         if (canInvoke()) {
-            if (isTracerOn()) {
+            if (Tracer.isTracerOn()) {
                 // invoke in trace
                 return invokeTraced(target, params, env);
             } else {
@@ -32,21 +33,13 @@ public abstract class RulesMethodInvoker implements InvokerWithTrace {
             }
         } else {
             // object can`t be invoked, inform user about the problem.
-            OpenLRuntimeException error = getError();
-            if (isTracerOn()) {
+            SyntaxNodeException cause = getInvokableMethod().getSyntaxNode().getErrors()[0];
+            OpenLRuntimeException error = new OpenLRuntimeException(cause);
+            if (Tracer.isTracerOn()) {
                 setErrorToTrace(error, params);
             }
             throw error;
         }
-    }
-
-    /**
-     * Gets the error.
-     *
-     * @return error.
-     */
-    protected OpenLRuntimeException getError() {
-        return new OpenLRuntimeException(getInvokableMethod().getSyntaxNode().getErrors()[0]);
     }
 
 
@@ -58,10 +51,6 @@ public abstract class RulesMethodInvoker implements InvokerWithTrace {
      */
     protected ATableTracerNode getTraceObject(Object[] params) {
         return TracedObjectFactory.getTracedObject(invokableMethod, params);
-    }
-
-    protected  boolean isTracerOn() {
-        return Tracer.isTracerOn();
     }
 
     protected void setErrorToTrace(OpenLRuntimeException error, Object[] params) {
