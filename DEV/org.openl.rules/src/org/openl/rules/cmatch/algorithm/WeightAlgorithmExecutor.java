@@ -59,7 +59,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
                 Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
 
-                traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
+                traceObject.setResult(returnValues[resultIndex]);
                 // wcm
                 Tracer.end();
                 return returnValues[resultIndex];
