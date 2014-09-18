@@ -9,15 +9,6 @@ import org.openl.vm.trace.Tracer;
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
-    private void fillNoMatchTracer(ColumnMatch columnMatch, Object[] params) {
-        if (Tracer.isTracerDefined()) {
-            ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
-            traceObject.setResult(NO_MATCH);
-
-            Tracer.put(traceObject);
-        }
-    }
-
     private void fillTracer(ColumnMatch columnMatch, MatchNode line, int resultIndex, Object[] params) {
         if (Tracer.isTracerDefined()) {
 
@@ -69,7 +60,12 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        fillNoMatchTracer(columnMatch, params);
+        if (Tracer.isTracerDefined()) {
+            ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
+            traceObject.setResult(NO_MATCH);
+
+            Tracer.put(traceObject);
+        }
         return NO_MATCH;
     }
 }
