@@ -72,10 +72,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         this.spreadsheetTraceObject = spreadsheetTraceObject;
     }
 
-    public Object getColumn(int column, IRuntimeEnv env2) {
-        return null;
-    }
-
     public String getColumnName(int column) {
         return spreadsheet.getColumnNames()[column];
     }
