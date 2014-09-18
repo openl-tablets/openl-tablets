@@ -55,10 +55,8 @@ public abstract class DefaultInvokerWithTrace implements InvokerWithTrace {
     }
     
     protected void setErrorToTrace(OpenLRuntimeException error, Object[] params) {
-        Tracer tracer = Tracer.getTracer();
         ATableTracerNode traceObject = getTraceObject(params);
         traceObject.setError(error);
-        tracer.push(traceObject);
-        tracer.pop();
+        Tracer.put(traceObject);
     }
 }

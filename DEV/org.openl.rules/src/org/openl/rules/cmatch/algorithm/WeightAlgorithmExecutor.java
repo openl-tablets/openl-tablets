@@ -26,17 +26,15 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        public void closeMatch(int sumScore, int resultIndex) {
+        public void closeMatch(int resultIndex) {
             if (Tracer.isTracerDefined()) {
                 Tracer tracer = Tracer.getTracer();
                 // score
                 tracer.pop();
 
-                tracer.push(new MatchTraceObject(columnMatch, 1, resultIndex));
-                tracer.pop();
+                Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
 
-                tracer.push(new ResultTraceObject(columnMatch, resultIndex));
-                tracer.pop();
+                Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
 
                 traceObject.setResult(columnMatch.getReturnValues()[resultIndex]);
                 // wcm
@@ -55,14 +53,10 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        public void nextScore(MatchNode node, int resultIndex, int sumScore, int score) {
+        public void nextScore(MatchNode node, int resultIndex, int sumScore) {
             if (Tracer.isTracerDefined()) {
-
                 wScore.setScore(sumScore);
-
-                Tracer tracer = Tracer.getTracer();
-                tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-                tracer.pop();
+                Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
             }
         }
     }
@@ -92,7 +86,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = columnMatch.getColumnScores()[resultIndex] * node.getWeight();
                     sumScore += score;
-                    t.nextScore(node, resultIndex, sumScore, score);
+                    t.nextScore(node, resultIndex, sumScore);
                     break;
                 }
             }
@@ -104,7 +98,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
-                t.closeMatch(sumScore, resultIndex);
+                t.closeMatch(resultIndex);
                 return returnValues[resultIndex];
             }
         }
