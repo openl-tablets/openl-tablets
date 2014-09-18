@@ -85,10 +85,6 @@ public class Tracer implements TraceStack {
         stack.clear();
     }
 
-    private void addTracerObject(ITracerObject to) {
-        root.addChild(to);
-    }
-
     @Override
     public void pop() {
         stack.pop();
@@ -98,7 +94,7 @@ public class Tracer implements TraceStack {
     public void push(ITracerObject obj) {
         // TODO: remove side effect from the push method
         if (stack.size() == 0) {
-            addTracerObject(obj);
+            root.addChild(obj);
         } else {
             ITracerObject to = stack.peek();
             to.addChild(obj);
