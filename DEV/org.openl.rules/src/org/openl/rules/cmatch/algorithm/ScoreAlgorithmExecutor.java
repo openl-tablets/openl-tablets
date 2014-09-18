@@ -7,34 +7,10 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
-    private static class TraceHelper {
-        private ColumnMatch columnMatch;
-        private ColumnMatchTraceObject traceObject;
-
-        public TraceHelper(ColumnMatch columnMatch, Object[] params) {
-            if (Tracer.isTracerDefined()) {
-                this.columnMatch = columnMatch;
-                traceObject = new ColumnMatchTraceObject(columnMatch, params);
-                Tracer.begin(traceObject);
-            }
-        }
-
-        public void closeMatch(int sumScore) {
-            if (Tracer.isTracerDefined()) {
-                traceObject.setResult(sumScore);
-                Tracer.end();
-            }
-        }
-
-        public void nextScore(MatchNode node, int resultIndex) {
-            if (Tracer.isTracerDefined()) {
-                Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            }
-        }
-    }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        TraceHelper t = new TraceHelper(columnMatch, params);
+        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
+        Tracer.begin(traceObject);
 
         MatchNode checkTree = columnMatch.getCheckTree();
         int[] scores = columnMatch.getColumnScores();
@@ -56,13 +32,14 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    t.nextScore(node, resultIndex);
+                    Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                     break;
                 }
             }
         }
 
-        t.closeMatch(sumScore);
+        traceObject.setResult(sumScore);
+        Tracer.end();
         return sumScore;
     }
 
