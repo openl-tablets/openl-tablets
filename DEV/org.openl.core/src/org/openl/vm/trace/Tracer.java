@@ -12,8 +12,9 @@ public class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 
-    private Stack<ITracerObject> stack = new Stack<ITracerObject>();
     private ITracerObject root;
+    private ITracerObject current;
+
     private boolean active = true;
 
     public Tracer() {
@@ -86,26 +87,19 @@ public class Tracer implements TraceStack {
                 return null;
             }
         };
-        stack.clear();
+        current = root;
     }
 
     @Override
     public void pop() {
-        stack.pop();
+        current = current.getParent();
     }
 
     @Override
     public void push(ITracerObject obj) {
-        // TODO: remove side effect from the push method
-        if (stack.size() == 0) {
-            root.addChild(obj);
-        } else {
-            ITracerObject to = stack.peek();
-            to.addChild(obj);
-            obj.setParent(to);
-        }
-
-        stack.push(obj);
+        current.addChild(obj);
+        obj.setParent(current);
+        current = obj;
     }
 
     @Override
