@@ -40,6 +40,10 @@ public class Tracer implements TraceStack {
         }
     }
 
+    public static Tracer getTracer() {
+        return tracer.get();
+    }
+
     public static boolean isTracerDefined() {
         return tracer.get() != null;
     }
