@@ -15,7 +15,7 @@ public class Tracer implements TraceStack {
 
     private boolean active = true;
 
-    public Tracer() {
+    private Tracer() {
         init();
     }
 
@@ -58,11 +58,6 @@ public class Tracer implements TraceStack {
         if (tracer.get() != null) {
             tracer.get().active = true;
         }
-    }
-
-
-    public static void setTracer(Tracer t) {
-        tracer.set(t);
     }
 
     public ITracerObject getRoot() {
@@ -114,4 +109,15 @@ public class Tracer implements TraceStack {
         init();
     }
 
+    public static void initialize() {
+        if (tracer.get() == null) {
+            tracer.set(new Tracer());
+        } else {
+            tracer.get().init();
+        }
+    }
+
+    public static void destroy() {
+        tracer.set(null);
+    }
 }
