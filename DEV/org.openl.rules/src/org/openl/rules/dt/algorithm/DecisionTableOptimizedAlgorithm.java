@@ -224,7 +224,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author sshor
  */
 public class DecisionTableOptimizedAlgorithm {
-    private static AlgorithmDecoratorFactory DEFAULT_ALGORITHM_DECORATOR_FACTORY = new DefaultAlgorithmDecoratorFactory();
+    private static final DefaultAlgorithmDecoratorFactory DEFAULT_ALGORITHM_DECORATOR_FACTORY = new DefaultAlgorithmDecoratorFactory();
 
     /**
      * There is one evaluator per condition in DT
@@ -529,7 +529,7 @@ public class DecisionTableOptimizedAlgorithm {
     protected final IIntIterator checkedRules(Object target,
             Object[] params,
             IRuntimeEnv env,
-            AlgorithmDecoratorFactory decoratorFactory) {
+            DefaultAlgorithmDecoratorFactory decoratorFactory) {
 
         // Select rules set using indexed mode
         //
@@ -623,46 +623,32 @@ public class DecisionTableOptimizedAlgorithm {
     }
 
     /**
-     * A decorator factory that creates a decorators for an objects used in
-     * decision table algorithm
-     * 
-     * @author NSamatov
-     */
-    public static interface AlgorithmDecoratorFactory {
-        /**
-         * Create a decorator of a selector for given condition
-         * 
-         * @param selector original selector
-         * @param condition condition that will be used to check with selector
-         * @return a decorator for selector
-         */
-        IIntSelector create(IIntSelector selector, ICondition condition);
-
-        /**
-         * Create a decorator of a rule's index for given condition
-         * 
-         * @param index original rule's index
-         * @param condition condition that will be used to check with rule's
-         *            index
-         * @return a decorator for index
-         */
-        ARuleIndex create(ARuleIndex index, ICondition condition);
-    }
-
-    /**
      * Default decorator factory that creates nothing: it returns original
      * objects
      * 
      * @author NSamatov
      */
-    public static class DefaultAlgorithmDecoratorFactory implements AlgorithmDecoratorFactory {
+    public static class DefaultAlgorithmDecoratorFactory {
 
-        @Override
+        /**
+         * Create a decorator of a selector for given condition
+         *
+         * @param selector original selector
+         * @param condition condition that will be used to check with selector
+         * @return a decorator for selector
+         */
         public IIntSelector create(IIntSelector selector, ICondition condition) {
             return selector;
         }
 
-        @Override
+        /**
+         * Create a decorator of a rule's index for given condition
+         *
+         * @param index original rule's index
+         * @param condition condition that will be used to check with rule's
+         *            index
+         * @return a decorator for index
+         */
         public ARuleIndex create(ARuleIndex index, ICondition condition) {
             return index;
         }
