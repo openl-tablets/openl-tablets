@@ -8,15 +8,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Yury Molchan
  */
-public class MethodTableInvoker extends RulesMethodInvoker {
+public class MethodTableInvoker extends RulesMethodInvoker<TableMethod> {
 
     public MethodTableInvoker(TableMethod tableMethod) {
         super(tableMethod);
-    }
-
-    @Override
-    public TableMethod getInvokableMethod() {
-        return (TableMethod) super.getInvokableMethod();
     }
 
     @Override

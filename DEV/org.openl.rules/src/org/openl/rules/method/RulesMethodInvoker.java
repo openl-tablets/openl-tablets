@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public abstract class RulesMethodInvoker implements InvokerWithTrace {
+public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implements InvokerWithTrace {
 
     private final Logger log = LoggerFactory.getLogger(RulesMethodInvoker.class);
-    private ExecutableRulesMethod invokableMethod;
+    private T invokableMethod;
 
-    protected RulesMethodInvoker(ExecutableRulesMethod invokableMethod) {
+    protected RulesMethodInvoker(T invokableMethod) {
         this.invokableMethod = invokableMethod;
     }
 
@@ -86,7 +86,7 @@ public abstract class RulesMethodInvoker implements InvokerWithTrace {
         Tracer.put(traceObject);
     }
 
-    public ExecutableRulesMethod getInvokableMethod() {
+    public T getInvokableMethod() {
         return invokableMethod;
     }
 }

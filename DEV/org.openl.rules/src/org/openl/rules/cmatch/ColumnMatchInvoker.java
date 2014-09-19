@@ -7,15 +7,10 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author Yury Molchan
  */
-public class ColumnMatchInvoker extends RulesMethodInvoker {
+public class ColumnMatchInvoker extends RulesMethodInvoker<ColumnMatch> {
 
     public ColumnMatchInvoker(ColumnMatch columnMatch) {
         super(columnMatch);
-    }
-
-    @Override
-    public ColumnMatch getInvokableMethod() {
-        return (ColumnMatch) super.getInvokableMethod();
     }
 
     @Override

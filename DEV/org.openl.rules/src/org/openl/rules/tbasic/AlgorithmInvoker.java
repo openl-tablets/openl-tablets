@@ -12,15 +12,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Yury Molchan
  */
-public class AlgorithmInvoker extends RulesMethodInvoker {
+public class AlgorithmInvoker extends RulesMethodInvoker<Algorithm> {
 
     public AlgorithmInvoker(Algorithm algorithm) {
         super(algorithm);
-    }
-
-    @Override
-    public Algorithm getInvokableMethod() {
-        return (Algorithm) super.getInvokableMethod();
     }
 
     @Override
