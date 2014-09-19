@@ -22,12 +22,12 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.DecisionTableTraceFilterFactory;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
+import org.openl.vm.trace.ITracerObject;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -143,9 +143,9 @@ public class ShowTraceTableBean {
         return ObjectViewer.displaySpreadsheetResultNoFilters((SpreadsheetResult) value);
     }
 
-    private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
-        for (ITableTracerObject child : tto.getTableTracers()) {
-            List<IGridRegion> r = child.getGridRegions();
+    private void fillRegions(ITracerObject tto, List<IGridRegion> regions) {
+        for (ITracerObject child : tto.getChildren()) {
+            List<IGridRegion> r = ((ITableTracerObject)child).getGridRegions();
             if (CollectionUtils.isNotEmpty(r)) {
                 regions.addAll(r);
             } else if (!child.isLeaf()) {

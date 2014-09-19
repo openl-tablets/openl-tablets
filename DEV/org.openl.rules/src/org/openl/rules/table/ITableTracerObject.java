@@ -12,6 +12,4 @@ public interface ITableTracerObject extends ITracerObject {
     List<IGridRegion> getGridRegions();
 
     TableSyntaxNode getTableSyntaxNode();
-
-    ITableTracerObject[] getTableTracers();
 }

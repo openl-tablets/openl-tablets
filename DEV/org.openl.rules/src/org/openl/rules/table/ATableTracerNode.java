@@ -7,7 +7,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
@@ -106,17 +105,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             }
         }
         return syntaxNode;
-    }
-
-    public ITableTracerObject[] getTableTracers() {
-        ITracerObject[] tracerObjects = getTracerObjects();
-
-        int size = tracerObjects.length;
-        ITableTracerObject[] temp = new ITableTracerObject[size];
-
-        System.arraycopy(tracerObjects, 0, temp, 0, size);
-
-        return temp;
     }
 
     public Object getResult() {

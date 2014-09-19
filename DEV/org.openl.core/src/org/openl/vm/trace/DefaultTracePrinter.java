@@ -18,7 +18,7 @@ public class DefaultTracePrinter implements TracePrinter {
 
     public void print(ITracerObject tracer, Writer writer) throws IOException {
 
-        ITracerObject[] tracerObjects = tracer.getTracerObjects();
+        Iterable<ITracerObject> tracerObjects = tracer.getChildren();
         String formattedString = formatter.format(tracerObjects);
 
         writer.write(formattedString);

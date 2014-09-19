@@ -1,14 +1,14 @@
 package org.openl.vm.trace;
 
+import org.openl.base.INamedThing;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.openl.base.INamedThing;
-
 public abstract class SimpleTracerObject implements ITracerObject {
-    
+
     private Object traceObject;
-    
+
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
 
@@ -39,7 +39,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
         children.add(child);
     }
 
-    public Iterable<? extends org.openl.util.tree.ITreeElement<ITracerObject>> getChildren() {
+    public Iterable<ITracerObject> getChildren() {
         if (children == null) {
             return Collections.emptyList();
         }
@@ -55,12 +55,12 @@ public abstract class SimpleTracerObject implements ITracerObject {
     }
 
     public ITracerObject[] getTracerObjects() {
-     
+
         if (children == null) {
             return new ITracerObject[0];
         }
-        
-        return (ITracerObject[]) children.toArray(new ITracerObject[children.size()]);
+
+        return children.toArray(new ITracerObject[children.size()]);
     }
 
     public boolean isLeaf() {
