@@ -44,8 +44,7 @@ public class TraceTreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         TraceHelper traceHelper = studio.getTraceHelper();
-        Tracer tracer = model.traceElement(testSuite);
-        root = tracer.getRoot();
+        root = model.traceElement(testSuite);
         traceHelper.cacheTraceTree(root);// Register
     }
 

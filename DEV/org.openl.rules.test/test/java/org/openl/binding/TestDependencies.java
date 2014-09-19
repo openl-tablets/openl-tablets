@@ -61,7 +61,7 @@ public class TestDependencies extends TestCase {
         Object res = Tools.run(url.toURI().getPath(), "hello1", new Object[] { new Integer(23) });
         System.out.println(res);
 
-        ITracerObject[] tt = Tracer.getTracer().getTracerObjects();
+        ITracerObject[] tt = Tracer.getRoot().getTracerObjects();
 
         for (int i = 0; i < tt.length; i++) {
             printTO(tt[i], 0);
