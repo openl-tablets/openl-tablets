@@ -45,7 +45,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
         try {
             SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(
                     getInvokableMethod(), (IDynamicObject) target, params, env,
-                    traceObject);
+                    preFetchedResult);
 
             result = getInvokableMethod().getResultBuilder().makeResult(res);
             traceObject.setResult(result);
