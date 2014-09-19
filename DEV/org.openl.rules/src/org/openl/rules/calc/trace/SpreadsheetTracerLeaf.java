@@ -20,12 +20,12 @@ import java.util.List;
  */
 public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     private static final String SPREADSHEET_CELL_TYPE = "spreadsheetCell";
-    private SpreadsheetTraceObject spreadsheetTraceObject;
+    private Spreadsheet spreadsheet;
     private SpreadsheetCell spreadsheetCell;
 
-    public SpreadsheetTracerLeaf(SpreadsheetTraceObject spreadsheetTraceObject, SpreadsheetCell spreadsheetCell) {
+    public SpreadsheetTracerLeaf(Spreadsheet spreadsheet, SpreadsheetCell spreadsheetCell) {
         super(spreadsheetCell);
-        this.spreadsheetTraceObject = spreadsheetTraceObject;
+        this.spreadsheet = spreadsheet;
         this.spreadsheetCell = spreadsheetCell;
     }
 
@@ -49,7 +49,7 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
-        return spreadsheetTraceObject.getTableSyntaxNode();
+        return spreadsheet.getSyntaxNode();
     }
 
     public String getType() {
@@ -58,7 +58,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
 
     public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
-        Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
 
