@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author DLiauchuk
  */
-public class SpreadsheetInvoker extends RulesMethodInvoker {
+public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
     private final Logger log = LoggerFactory.getLogger(SpreadsheetInvoker.class);
     protected Object[][] preFetchedResult;
@@ -24,11 +24,6 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
         this.preFetchedResult = preFetchResult(spreadsheet);
     }
 
-    @Override
-    public Spreadsheet getInvokableMethod() {
-        return (Spreadsheet) super.getInvokableMethod();
-    }
-
     public boolean canInvoke() {
         return getInvokableMethod().getResultBuilder() != null;
     }
@@ -36,7 +31,6 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(
                 getInvokableMethod(), (IDynamicObject) target, params, env,
-//				(Object[][])null);
                 preFetchedResult);
         return getInvokableMethod().getResultBuilder().makeResult(res);
     }
@@ -98,5 +92,4 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
         return res;
 
     }
-
 }

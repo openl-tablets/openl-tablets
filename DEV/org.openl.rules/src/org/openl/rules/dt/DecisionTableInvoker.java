@@ -23,17 +23,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author DLiauchuk
  */
-public class DecisionTableInvoker extends RulesMethodInvoker {
+public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     private final Logger log = LoggerFactory.getLogger(DecisionTableInvoker.class);
 
     public DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
-    }
-
-    @Override
-    public DecisionTable getInvokableMethod() {
-        return (DecisionTable) super.getInvokableMethod();
     }
 
     public boolean canInvoke() {
