@@ -54,15 +54,6 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return this;
     }
 
-    public ITracerObject[] getTracerObjects() {
-
-        if (children == null) {
-            return new ITracerObject[0];
-        }
-
-        return children.toArray(new ITracerObject[children.size()]);
-    }
-
     public boolean isLeaf() {
         return children == null;
     }
