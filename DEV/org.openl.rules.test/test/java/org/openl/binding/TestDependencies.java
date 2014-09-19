@@ -54,20 +54,19 @@ public class TestDependencies extends TestCase {
 
     public void testTracer() throws Exception {
 
-        Tracer t = new Tracer();
-        Tracer.setTracer(t);
+        Tracer.initialize();
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
         
         Object res = Tools.run(url.toURI().getPath(), "hello1", new Object[] { new Integer(23) });
         System.out.println(res);
 
-        ITracerObject[] tt = t.getTracerObjects();
+        ITracerObject[] tt = Tracer.getTracer().getTracerObjects();
 
         for (int i = 0; i < tt.length; i++) {
             printTO(tt[i], 0);
         }
-
+        Tracer.destroy();
     }
 
     void printTO(ITracerObject to, int level) {

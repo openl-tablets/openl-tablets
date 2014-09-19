@@ -1289,16 +1289,16 @@ public class ProjectModel {
     }
 
     public Tracer traceElement(TestSuite testSuite) {
-        Tracer t = new Tracer();
-        Tracer.setTracer(t);
-
+        Tracer t = null;
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
+                Tracer.initialize();
+                t = Tracer.getTracer();
                 runTest(testSuite, false);
             } finally {
-                Tracer.setTracer(null);
+                Tracer.destroy();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
