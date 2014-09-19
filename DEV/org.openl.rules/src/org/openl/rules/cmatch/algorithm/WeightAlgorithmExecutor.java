@@ -11,10 +11,6 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        WColumnMatchTraceObject traceObject = new WColumnMatchTraceObject(columnMatch, params);
-        // wcm
-        Tracer.begin(traceObject);
-
         WScoreTraceObject wScore = new WScoreTraceObject(columnMatch, params);
         // score
         Tracer.begin(wScore);
@@ -59,17 +55,11 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
                 Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
 
-                traceObject.setResult(returnValues[resultIndex]);
-                // wcm
-                Tracer.end();
                 return returnValues[resultIndex];
             }
         }
 
         // score
-        Tracer.end();
-        // wcm
-        traceObject.setResult(NO_MATCH);
         Tracer.end();
         return NO_MATCH;
     }

@@ -2,18 +2,13 @@ package org.openl.rules.method.table;
 
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Invoker for {@link TableMethod}.
  *
- * @author DLiauchuk
+ * @author Yury Molchan
  */
 public class MethodTableInvoker extends RulesMethodInvoker {
-
-    private final Logger log = LoggerFactory.getLogger(MethodTableInvoker.class);
 
     public MethodTableInvoker(TableMethod tableMethod) {
         super(tableMethod);
@@ -24,31 +19,13 @@ public class MethodTableInvoker extends RulesMethodInvoker {
         return (TableMethod) super.getInvokableMethod();
     }
 
+    @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         return getInvokableMethod().getCompositeMethod().invoke(target, params, env);
     }
 
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-
-        MethodTableTraceObject traceObject = (MethodTableTraceObject) getTraceObject(params);
-        Tracer.begin(traceObject);
-
-        try {
-            Object result = getInvokableMethod().getCompositeMethod().invoke(target, params, env);
-            traceObject.setResult(result);
-            return result;
-
-        } catch (RuntimeException e) {
-            traceObject.setError(e);
-            log.error("Error when tracing Method table", e);
-            throw e;
-        } finally {
-            Tracer.end();
-        }
-    }
-
+    @Override
     public boolean canInvoke() {
         return getInvokableMethod().getCompositeMethod().getMethodBodyBoundNode() != null;
     }
-
 }

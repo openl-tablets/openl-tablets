@@ -4,6 +4,9 @@ import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+/**
+ * @author Yury Molchan
+ */
 public class ColumnMatchInvoker extends RulesMethodInvoker {
 
     public ColumnMatchInvoker(ColumnMatch columnMatch) {
@@ -15,10 +18,12 @@ public class ColumnMatchInvoker extends RulesMethodInvoker {
         return (ColumnMatch) super.getInvokableMethod();
     }
 
+    @Override
     public boolean canInvoke() {
         return getInvokableMethod().getAlgorithmExecutor() != null;
     }
 
+    @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         Object result = getInvokableMethod().getAlgorithmExecutor().invoke(target, params, env, getInvokableMethod());
 
@@ -31,16 +36,5 @@ public class ColumnMatchInvoker extends RulesMethodInvoker {
         }
 
         return result;
-    }
-
-    /**
-     * Column match is traceable. But trace is handled inside algorithm executor. See implementations
-     * of {@link org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor#invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch)}
-     */
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        // trace operations implemented in 
-        // IMatchAlgorithmExecutor#invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch)}
-        //
-        return invokeSimple(target, params, env);
     }
 }

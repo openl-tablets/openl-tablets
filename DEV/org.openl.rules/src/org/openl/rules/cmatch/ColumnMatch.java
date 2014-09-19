@@ -109,7 +109,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
         this.totalScore = totalScore;
     }
 
-    protected IMatchAlgorithmExecutor getAlgorithmExecutor() {
+    public IMatchAlgorithmExecutor getAlgorithmExecutor() {
         return algorithmExecutor;
     }
 
