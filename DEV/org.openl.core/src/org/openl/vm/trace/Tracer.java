@@ -60,12 +60,8 @@ public class Tracer implements TraceStack {
         }
     }
 
-    public ITracerObject getRoot() {
-        return root;
-    }
-
-    public ITracerObject[] getTracerObjects() {
-        return root.getTracerObjects();
+    public static ITracerObject getRoot() {
+        return tracer.get().root;
     }
 
     private void init() {
