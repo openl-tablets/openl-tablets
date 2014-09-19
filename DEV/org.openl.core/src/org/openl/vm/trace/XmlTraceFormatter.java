@@ -7,7 +7,7 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 public class XmlTraceFormatter implements TraceFormatter {
 
-    public String format(ITracerObject[] tracerObjects) {
+    public String format(Iterable<ITracerObject> tracerObjects) {
         throw new NotImplementedException(String.format("%s is not implemented yet", getClass().getName()));
     }
 
