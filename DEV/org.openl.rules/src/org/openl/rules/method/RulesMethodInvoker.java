@@ -5,15 +5,17 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for invokers supporting tracing.
  *
- * @author DLiauchuk
- *
+ * @author Yury Molchan
  */
 public abstract class RulesMethodInvoker implements InvokerWithTrace {
 
+    private final Logger log = LoggerFactory.getLogger(RulesMethodInvoker.class);
     private ExecutableRulesMethod invokableMethod;
 
     protected RulesMethodInvoker(ExecutableRulesMethod invokableMethod) {
@@ -42,6 +44,31 @@ public abstract class RulesMethodInvoker implements InvokerWithTrace {
         }
     }
 
+    @Override
+    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+
+        ATableTracerNode traceObject = getTraceObject(params);
+        Tracer.begin(traceObject);
+
+        try {
+            Object result = invokeSimpleTraced(target, params, env);
+            traceObject.setResult(result);
+            return result;
+        } catch (RuntimeException e) {
+            traceObject.setError(e);
+            log.error("Error when tracing", e);
+            throw e;
+        } finally {
+            Tracer.end();
+        }
+    }
+
+    /**
+     * This method can be overridden instead of {@link #invokeTraced} for cases when no needs to write additional trace functionality.
+     */
+    protected Object invokeSimpleTraced(Object target, Object[] params, IRuntimeEnv env) {
+        return invokeSimple(target, params, env);
+    }
 
     /**
      * Creates traceable node for current invokable object.

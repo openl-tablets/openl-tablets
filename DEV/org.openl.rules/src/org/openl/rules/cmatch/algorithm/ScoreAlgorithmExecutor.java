@@ -9,8 +9,6 @@ import org.openl.vm.trace.Tracer;
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
-        Tracer.begin(traceObject);
 
         MatchNode checkTree = columnMatch.getCheckTree();
         int[] scores = columnMatch.getColumnScores();
@@ -37,10 +35,6 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 }
             }
         }
-
-        traceObject.setResult(sumScore);
-        Tracer.end();
         return sumScore;
     }
-
 }
