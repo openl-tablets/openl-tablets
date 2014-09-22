@@ -30,6 +30,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import java.util.List;
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
-    private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -563,7 +563,7 @@ public class ProjectBean {
     private ProjectDescriptor getOriginalProjectDescriptor() {
         ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
         try {
-            File file = new File(descriptor.getProjectFolder(), PROJECT_DESCRIPTOR_FILE);
+            File file = new File(descriptor.getProjectFolder(), ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             return projectDescriptorManager.readOriginalDescriptor(file);
         } catch (FileNotFoundException ignored) {
             return descriptor;
