@@ -128,7 +128,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         if (Tracer.isTracerOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
             getValueTraced(row, column);
         } else {
-            Object result = null;
+            Object result;
 
             if (cacheResult) {
 
@@ -156,20 +156,8 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheet, spreadsheetCell);
         Tracer.begin(spreadsheetTraceLeaf);
 
-        Object result = null;
-
         try {
-            if (cacheResult) {
-
-                result = results[row][column];
-
-                if (result != null) {
-                    spreadsheetTraceLeaf.setValue(result);
-                    return result;
-                }
-            }
-
-            result = spreadsheetCell.calculate(this, targetModule, params, env);
+            Object result = spreadsheetCell.calculate(this, targetModule, params, env);
             results[row][column] = result;
 
             spreadsheetTraceLeaf.setValue(result);
