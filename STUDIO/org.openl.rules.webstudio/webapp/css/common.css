@@ -524,7 +524,8 @@ table.properties-form.wide textarea {
 }
 
 table.properties-form.wide input[type="text"].with-button {
-    width: 280px;
+    /* 280px - 2px for IE9 and Chrome*/
+    width: 278px;
 }
 
 table td.delimeter {
