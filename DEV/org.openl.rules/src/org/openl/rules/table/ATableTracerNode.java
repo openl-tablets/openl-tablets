@@ -4,7 +4,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.trace.SimpleTracerObject;
@@ -72,24 +71,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return buf.toString();
     }
 
-    protected String parametersAsString(IOpenMethod method, int mode) {
-        StringBuilder buf = new StringBuilder(64);
-        buf.append(method.getName()).append('(');
-
-        IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
-
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(", ");
-            }
-            buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
-            buf.append(method.getSignature().getParameterName(i)).append(" = ");
-            buf.append(FormattersManager.format(params[i]));
-        }
-        buf.append(')');
-        return buf.toString();
-    }
-
     protected boolean isVoid(IOpenMethod method) {
         return (JavaOpenClass.isVoid(method.getType()));
     }
@@ -120,10 +101,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public Object[] getParameters() {
         return params.clone();
-    }
-
-    public String getFormattedResult() {
-        return FormattersManager.format(getResult());
     }
 
     protected String getFormattedValue(Object value, IOpenMethod method) {
