@@ -9,14 +9,8 @@ import org.openl.types.IOpenMethod;
 
 public class SpreadsheetTraceObject extends ATableTracerNode {
 
-    private static final String SPREADSHEET_TYPE = "spreadsheet";
-
     public SpreadsheetTraceObject(Spreadsheet spreadsheet, Object[] params) {
-        super(spreadsheet, params);
-    }
-
-    public String getType() {
-        return SPREADSHEET_TYPE;
+        super("spreadsheet", spreadsheet, params);
     }
 
     public String getDisplayName(int mode) {

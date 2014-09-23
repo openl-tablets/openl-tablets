@@ -8,7 +8,7 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
      * @param traceObject
      */
     public TBasicAlgorithmTraceObject(Algorithm traceObject, Object[] inputParams) {
-        super(traceObject, inputParams);
+        super("tbasic", traceObject, inputParams);
     }
 
     /*
@@ -19,14 +19,5 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
     public String getDisplayName(int mode) {
         Algorithm algorithm = (Algorithm) getTraceObject();
         return String.format("Algorithm %s", asString(algorithm, mode));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.util.ITreeElement#getType()
-     */
-    public String getType() {
-        return "tbasic";
     }
 }

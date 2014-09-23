@@ -5,10 +5,8 @@ import org.openl.rules.table.ATableTracerNode;
 
 public class DecisionTableTraceObject extends ATableTracerNode {
 
-    private static final String DECISION_TABLE_TYPE = "decisiontable";
-
     public DecisionTableTraceObject(DecisionTable decisionTable, Object[] params) {
-        super(decisionTable, params);
+        super("decisiontable", decisionTable, params);
     }
 
     public String getDisplayName(int mode) {
@@ -17,9 +15,5 @@ public class DecisionTableTraceObject extends ATableTracerNode {
 
     public DecisionTable getDecisionTable() {
         return (DecisionTable) getTraceObject();
-    }
-
-    public String getType() {
-        return DECISION_TABLE_TYPE;
     }
 }
