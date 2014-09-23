@@ -565,8 +565,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String beforeSaveAction = editorModel.getBeforeSaveAction();
         if (beforeSaveAction != null) {
-            boolean result = (Boolean) FacesUtils.invokeMethodExpression(beforeSaveAction);
-            return result;
+            return (Boolean) FacesUtils.invokeMethodExpression(beforeSaveAction);
         }
         return true;
     }
@@ -584,7 +583,7 @@ public class TableEditorController extends BaseTableEditorController {
 
     private static String pojo2json(Object pojo) {
         try {
-            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")").toString();
+            return "(" + JSONMapper.toJSON(pojo).render(true) + ")";
         } catch (MapperException e) {
             return null;
         }

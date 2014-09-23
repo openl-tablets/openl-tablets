@@ -2,11 +2,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -90,12 +86,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * 
      * @param valuesTable Logical table representing array values for current
      *            table.
-     * @param bindingContext
+     * @param bindingContext binding context
      * @param foreignTable Foreign table with stored info about dependent
      *            values.
-     * @param foreignKeyIndex
-     * @param domainClass
-     * @return
+     * @param foreignKeyIndex index of the foreign key column
+     * @param domainClass domain class for the column values
+     * @return foreign key values
      */
     private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
             IBindingContext bindingContext,
@@ -108,13 +104,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
-        boolean multiValue = false;
-
         if (valuesHeight == 1) {
 
-            multiValue = true;
             if(!bindingContext.isExecutionMode())
-                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, true);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -141,13 +134,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
                     if(!bindingContext.isExecutionMode())
-                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
                     values.add(null);
                     continue;
                 }
 
                 if(!bindingContext.isExecutionMode())
-                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
                 addResValues(values, res);
@@ -341,7 +334,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 prepareForeignKeyCell(cxt, db);
 
                 final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
-                String[] domainStrings = index.keySet().toArray(new String[0]);
+                Set<String> strings = index.keySet();
+                String[] domainStrings = strings.toArray(new String[strings.size()]);
                 Arrays.sort(domainStrings, new Comparator<String>() {
                     @Override
                     public int compare(String ds1, String ds2) {
@@ -429,7 +423,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     CollectionUtils.select(cellValues, predicate, values);
 
                     int size = values.size();
-                    IOpenClass componentType = null;
+                    IOpenClass componentType;
 
                     if (valueAnArray) {
                         componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
@@ -477,6 +471,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         for (int i = 1; i < fieldChainTokens.length; i++) {
             IdentifierNode token = fieldChainTokens[i];
+            if (resObj == null) {
+                String message = String.format("Incorrect field '%s' in type [%s]",
+                        token.getIdentifier(),
+                        resInctClass);
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+            }
             try {
                 Method method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
                 resObj = method.invoke(resObj);
@@ -491,7 +491,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String message = String.format("Incorrect field '%s' in type [%s]",
                         token.getIdentifier(),
                         resObj.getClass());
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
         }
 
