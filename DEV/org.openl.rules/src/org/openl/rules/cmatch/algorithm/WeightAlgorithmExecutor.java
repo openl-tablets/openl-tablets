@@ -35,7 +35,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = columnMatch.getColumnScores()[resultIndex] * node.getWeight();
                     sumScore += score;
-                    wScore.setScore(sumScore);
+                    wScore.setResult(sumScore);
                     Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                     break;
                 }
