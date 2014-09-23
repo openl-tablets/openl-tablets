@@ -13,11 +13,14 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.TableUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.dt.element.FunctionalRow;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -30,6 +33,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
+import org.openl.util.text.ILocation;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from
@@ -46,10 +50,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
+    private ICell foreignKeyCell;
+
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
             IdentifierNode[] foreignKeyTableAccessorChainTokens,
+            ICell foreignKeyCell,
             StringValue displayValue,
             OpenL openl, boolean constructor, IdentifierNode[] fieldChainTokens) {
 
@@ -58,6 +65,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
         this.foreignKeyTableAccessorChainTokens = foreignKeyTableAccessorChainTokens;
+        this.foreignKeyCell = foreignKeyCell;
     }
 
     /**
@@ -78,7 +86,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Goes through the values as foreign keys, finds all info about this
      * objects in foreign table and puts it to array. Can process array value
-     * presented as {@link FunctionalRow#ARRAY_ELEMENTS_SEPARATOR} array.
+     * presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
      * 
      * @param valuesTable Logical table representing array values for current
      *            table.
@@ -211,7 +219,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
@@ -243,6 +251,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String message = "Column " + columnName + " not found";
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
+
+        prepareForeignKeyCell(bindingContext, db);
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
 
@@ -294,7 +304,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
     public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt)
@@ -328,6 +338,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
+                prepareForeignKeyCell(cxt, db);
 
                 final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
                 String[] domainStrings = index.keySet().toArray(new String[0]);
@@ -489,6 +500,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     public String[] getForeignKeyColumnChainTokens() {
         return foreignKeyColumnChainTokens;
+    }
+
+    private void prepareForeignKeyCell(IBindingContext bindingContext, IDataBase db) {
+        if (foreignKeyCell != null && !bindingContext.isExecutionMode()) {
+            ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
+            ILocation location = foreignKeyTable.getLocation();
+            NodeUsage nodeUsage = new TableUsage(foreignTable, location);
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+            foreignKeyCell.setMetaInfo(meta);
+        }
+
+        // Not needed anymore
+        foreignKeyCell = null;
     }
 
     static class ResultChainObject {
