@@ -8,7 +8,11 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.ui.filters.*;
+import org.openl.rules.table.ui.filters.CellStyleGridFilter;
+import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.FontGridFilter;
+import org.openl.rules.table.ui.filters.IColorFilter;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
@@ -54,12 +58,7 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private void fillRegions(ITableTracerObject rootTraceObject) {
-        Iterable<? extends ITreeElement<ITracerObject>> children;
-        if (rootTraceObject instanceof DecisionTableTraceObject) {
-            children = ((DecisionTableTraceObject) rootTraceObject).getTraceConditions();
-        } else {
-            children = rootTraceObject.getChildren();
-        }
+        Iterable<? extends ITreeElement<ITracerObject>> children = rootTraceObject.getChildren();
         for (ITreeElement<ITracerObject> item : children) {
             // TODO: Remove class casting
             ITableTracerObject child = (ITableTracerObject) item;
@@ -72,16 +71,16 @@ public class DecisionTableTraceFilterFactory {
                 }
                 if (conditionTrace.isSuccessful()) {
                     successfulChecks.addAll(regions);
-                    for (IGridRegion region : regions){
-                        if (unsuccessfulChecks.contains(region)){
+                    for (IGridRegion region : regions) {
+                        if (unsuccessfulChecks.contains(region)) {
                             unsuccessfulChecks.remove(region);
                         }
                     }
                     allCheckedRegions.addAll(regions);
                 } else {
                     unsuccessfulChecks.addAll(regions);
-                    for (IGridRegion region : regions){
-                        if (successfulChecks.contains(region)){
+                    for (IGridRegion region : regions) {
+                        if (successfulChecks.contains(region)) {
                             successfulChecks.remove(region);
                         }
                     }
@@ -103,12 +102,12 @@ public class DecisionTableTraceFilterFactory {
             for (IGridRegion region : selectedRegions) {
                 if (successfulChecks.contains(region) || resultRegions.contains(region)) {
                     successfulSelectedRegions.add(region);
-                    if (unsuccessfulSelectedRegions.contains(region)){
+                    if (unsuccessfulSelectedRegions.contains(region)) {
                         unsuccessfulSelectedRegions.remove(region);
                     }
                 } else if (unsuccessfulChecks.contains(region)) {
                     unsuccessfulSelectedRegions.add(region);
-                    if (successfulSelectedRegions.contains(region)){
+                    if (successfulSelectedRegions.contains(region)) {
                         successfulSelectedRegions.remove(region);
                     }
 
@@ -118,40 +117,40 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private List<IGridFilter> buildFilters() {
-        short[] resultColor = new short[] { 0, 0xaa, 0 };
+        short[] resultColor = new short[]{0, 0xaa, 0};
 
         FontGridFilter successfulFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(successfulChecks),
-            false))
-            .setFontColor(resultColor)
-            .setItalic(true)
-            .setBold(false)
-            .build();
+                false))
+                .setFontColor(resultColor)
+                .setItalic(true)
+                .setBold(false)
+                .build();
         FontGridFilter unsuccessfulFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(unsuccessfulChecks),
-            false))
-            .setFontColor(IColorFilter.RED)
-            .setItalic(true)
-            .setBold(false)
-            .build();
+                false))
+                .setFontColor(IColorFilter.RED)
+                .setItalic(true)
+                .setBold(false)
+                .build();
         FontGridFilter resultFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-            false))
-            .setFontColor(resultColor)
-            .setItalic(false)
-            .setBold(true)
-            .build();
+                false))
+                .setFontColor(resultColor)
+                .setItalic(false)
+                .setBold(true)
+                .build();
         FontGridFilter indexedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(indexedRegions),
-            false))
-            .setUnderlined(true)
-            .build();
+                false))
+                .setUnderlined(true)
+                .build();
 
         CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-            true))
-            .setBorderStyle(ICellStyle.BORDER_DOTTED)
-            .build();
+                true))
+                .setBorderStyle(ICellStyle.BORDER_DOTTED)
+                .build();
         CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-            false))
-            .setBorderStyle(ICellStyle.BORDER_THICK)
-            .setBorderRGB(resultColor)
-            .build();
+                false))
+                .setBorderStyle(ICellStyle.BORDER_THICK)
+                .setBorderRGB(resultColor)
+                .build();
 
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(successfulFontFilter);
@@ -167,21 +166,21 @@ public class DecisionTableTraceFilterFactory {
         if (!successfulSelectedRegions.isEmpty()) {
             filters.add(createColorFilter(toArray(successfulSelectedRegions), resultColor, ColorGridFilter.BACKGROUND));
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(successfulSelectedRegions),
-                false))
-                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                .setFontColor(IColorFilter.WHITE)
-                .build();
+                    false))
+                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                    .setFontColor(IColorFilter.WHITE)
+                    .build();
             filters.add(selectedFontFilter);
         }
         if (!unsuccessfulSelectedRegions.isEmpty()) {
             filters.add(createColorFilter(toArray(unsuccessfulSelectedRegions),
-                IColorFilter.RED,
-                ColorGridFilter.BACKGROUND));
+                    IColorFilter.RED,
+                    ColorGridFilter.BACKGROUND));
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions),
-                false))
-                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                .setFontColor(IColorFilter.WHITE)
-                .build();
+                    false))
+                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                    .setFontColor(IColorFilter.WHITE)
+                    .build();
             filters.add(selectedFontFilter);
         }
         filters.add(new ColorGridFilter(new RegionGridSelector(toArray(allCheckedRegions), true), defaultColorFilter));
