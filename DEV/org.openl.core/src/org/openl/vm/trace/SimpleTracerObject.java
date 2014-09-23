@@ -7,18 +7,9 @@ import java.util.Collections;
 
 public abstract class SimpleTracerObject implements ITracerObject {
 
-    private Object traceObject;
-
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
     private Object result;
-
-    public SimpleTracerObject() {
-    }
-
-    public SimpleTracerObject(Object traceObject) {
-        this.traceObject = traceObject;
-    }
 
     public void setParent(ITracerObject parentTraceObject) {
         parent = parentTraceObject;
@@ -26,10 +17,6 @@ public abstract class SimpleTracerObject implements ITracerObject {
 
     public ITracerObject getParent() {
         return parent;
-    }
-
-    public Object getTraceObject() {
-        return traceObject;
     }
 
     public void addChild(ITracerObject child) {

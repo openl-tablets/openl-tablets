@@ -15,18 +15,15 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     private Object params[];
     private Throwable error;
-
-    public ATableTracerNode() {
-        this(null, null);
-    }
+    private IMemberMetaInfo traceObject;
 
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
+        this.traceObject = traceObject;
         /**
          * Why traceObject is instanceof IMemberMetaInfo? don`t need it!
          * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
          * @author DLiauchuk
          */
-        super(traceObject);
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
             Object[] clonedParams = null;
@@ -41,6 +38,10 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         } else {
             this.params = new Object[0];
         }
+    }
+
+    public IMemberMetaInfo getTraceObject() {
+        return traceObject;
     }
 
     protected String asString(IOpenMethod method, int mode) {
@@ -96,9 +97,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode syntaxNode = null;
 
-        IMemberMetaInfo tracedNode = (IMemberMetaInfo) getTraceObject();
-        if (tracedNode != null) {
-            ISyntaxNode tsn = tracedNode.getSyntaxNode();
+        if (traceObject != null) {
+            ISyntaxNode tsn = traceObject.getSyntaxNode();
             if (tsn instanceof TableSyntaxNode) {
                 syntaxNode = (TableSyntaxNode) tsn;
             }

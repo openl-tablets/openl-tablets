@@ -30,8 +30,6 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing 
     @Override
     Iterable<ITracerObject> getChildren();
 
-    Object getTraceObject();
-
     String getUri();
 
     Object getResult();
