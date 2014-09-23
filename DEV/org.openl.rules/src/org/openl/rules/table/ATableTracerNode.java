@@ -4,6 +4,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.trace.SimpleTracerObject;
@@ -45,18 +46,10 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     protected String asString(IOpenMethod method, int mode) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append(method.getType().getDisplayName(mode)).append(' ');
+        IOpenClass type = method.getType();
+        buf.append(type.getDisplayName(mode)).append(' ');
 
-        buf.append(resultAsString(method));
-
-        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
-
-        return buf.toString();
-    }
-
-    protected String resultAsString(IOpenMethod method) {
-        StringBuilder buf = new StringBuilder(64);
-        if (!isVoid(method)) {
+        if (!JavaOpenClass.isVoid(type)) {
             if (hasError()) {
                 // append error of any
                 //
@@ -68,11 +61,10 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             }
             buf.append(' ');
         }
-        return buf.toString();
-    }
 
-    protected boolean isVoid(IOpenMethod method) {
-        return (JavaOpenClass.isVoid(method.getType()));
+        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
+
+        return buf.toString();
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
