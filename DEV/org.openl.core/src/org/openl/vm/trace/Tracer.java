@@ -23,7 +23,6 @@ public class Tracer implements TraceStack {
         if (isTracerOn()) {
             ITracerObject current = tracer.get().current;
             current.addChild(obj);
-            obj.setParent(current);
         }
     }
 
@@ -96,7 +95,6 @@ public class Tracer implements TraceStack {
     @Override
     public void push(ITracerObject obj) {
         current.addChild(obj);
-        obj.setParent(current);
         current = obj;
     }
 
