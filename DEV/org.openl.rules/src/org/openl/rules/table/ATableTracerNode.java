@@ -1,9 +1,9 @@
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -18,23 +18,13 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     private String type;
     private Object params[];
     private Throwable error;
-    private IMemberMetaInfo traceObject;
+    private ExecutableRulesMethod method;
     private String prefix;
 
-    public ATableTracerNode(String type, String prefix, IMemberMetaInfo traceObject, Object[] params) {
-        this(traceObject, params);
+    public ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
         this.type = type;
         this.prefix = prefix;
-
-    }
-
-    public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
-        this.traceObject = traceObject;
-        /**
-         * Why traceObject is instanceof IMemberMetaInfo? don`t need it!
-         * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
-         * @author DLiauchuk
-         */
+        this.method = method;
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
             Object[] clonedParams = null;
@@ -51,15 +41,14 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         }
     }
 
-    public IMemberMetaInfo getTraceObject() {
-        return traceObject;
+    public ExecutableRulesMethod getTraceObject() {
+        return method;
     }
 
     @Override
     public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
         buf.append(prefix).append(' ');
-        IOpenMethod method = (IOpenMethod) traceObject;
         IOpenClass type = method.getType();
         buf.append(type.getDisplayName(mode)).append(' ');
 
@@ -84,8 +73,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode syntaxNode = null;
 
-        if (traceObject != null) {
-            ISyntaxNode tsn = traceObject.getSyntaxNode();
+        if (method != null) {
+            ISyntaxNode tsn = method.getSyntaxNode();
             if (tsn instanceof TableSyntaxNode) {
                 syntaxNode = (TableSyntaxNode) tsn;
             }
@@ -121,7 +110,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     @Override
     public String getUri() {
-        return traceObject.getSourceUrl();
+        return method.getSourceUrl();
     }
 
     @Override

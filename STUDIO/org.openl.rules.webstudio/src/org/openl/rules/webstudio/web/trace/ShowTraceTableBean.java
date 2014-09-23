@@ -96,11 +96,11 @@ public class ShowTraceTableBean {
             // ATableTracerLeaf
             tracerNode = (ATableTracerNode) tto.getParent();
         }
-        if (tracerNode == null || !(tracerNode.getTraceObject() instanceof ExecutableRulesMethod)) {
+        if (tracerNode == null || tracerNode.getTraceObject() == null) {
             return null;
         }
 
-        ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
+        ExecutableRulesMethod tracedMethod = tracerNode.getTraceObject();
         Object[] parameters = tracerNode.getParameters();
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
