@@ -16,7 +16,7 @@ import java.util.List;
 public class MethodTableTraceObject extends ATableTracerNode {
 
     public MethodTableTraceObject(TableMethod method, Object[] params) {
-        super("method", method, params);
+        super("method", "Method table", method, params);
     }
 
     public List<IGridRegion> getGridRegions() {
@@ -29,9 +29,4 @@ public class MethodTableTraceObject extends ATableTracerNode {
         }
         return regions;
     }
-
-    public String getDisplayName(int mode) {
-        return "Method table " + asString((TableMethod) getTraceObject(), mode);
-    }
-
 }

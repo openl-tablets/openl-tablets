@@ -6,11 +6,7 @@ import org.openl.rules.table.ATableTracerNode;
 public class DecisionTableTraceObject extends ATableTracerNode {
 
     public DecisionTableTraceObject(DecisionTable decisionTable, Object[] params) {
-        super("decisiontable", decisionTable, params);
-    }
-
-    public String getDisplayName(int mode) {
-        return "DT " + asString(getDecisionTable(), mode);
+        super("decisiontable", "DT", decisionTable, params);
     }
 
     public DecisionTable getDecisionTable() {

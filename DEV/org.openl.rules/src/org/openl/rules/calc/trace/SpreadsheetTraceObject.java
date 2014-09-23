@@ -10,11 +10,7 @@ import org.openl.types.IOpenMethod;
 public class SpreadsheetTraceObject extends ATableTracerNode {
 
     public SpreadsheetTraceObject(Spreadsheet spreadsheet, Object[] params) {
-        super("spreadsheet", spreadsheet, params);
-    }
-
-    public String getDisplayName(int mode) {
-        return "SpreadSheet " + asString((Spreadsheet) getTraceObject(), mode);
+        super("spreadsheet", "SpreadSheet", spreadsheet, params);
     }
 
     /**
