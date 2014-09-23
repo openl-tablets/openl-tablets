@@ -3,7 +3,7 @@ package org.openl.rules.lang.xls.types;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 
@@ -22,18 +22,18 @@ public class CellMetaInfo {
     private IOpenClass domain;
     private String paramName;
     private boolean multiValue;
-    private List<MethodUsage> usedMethods;
+    private List<? extends NodeUsage> usedNodes;
 
     public CellMetaInfo(Type type, String paramName, IOpenClass domain, boolean multiValue) {
         this(type, paramName, domain, multiValue, null);
     }
     
-    public CellMetaInfo(Type type, String paramName, IOpenClass domain, boolean multiValue, List<MethodUsage> usedMethods) {
+    public CellMetaInfo(Type type, String paramName, IOpenClass domain, boolean multiValue, List<? extends NodeUsage> usedNodes) {
         this.type = type;
         this.domain = domain;
         this.paramName = paramName;
         this.setMultiValue(multiValue);
-        this.usedMethods = usedMethods;
+        this.usedNodes = usedNodes;
     }
 
     public IOpenClass getDataType() {
@@ -56,19 +56,19 @@ public class CellMetaInfo {
         return multiValue;
     }
 
-    public List<MethodUsage> getUsedMethods() {
-        return usedMethods;
+    public List<? extends NodeUsage> getUsedNodes() {
+        return usedNodes;
     }
 
-    public void setUsedMethods(List<MethodUsage> usedMethods) {
-        this.usedMethods = usedMethods;
+    public void setUsedNodes(List<? extends NodeUsage> usedNodes) {
+        this.usedNodes = usedNodes;
     }
     
-    public boolean hasMethodUsagesInCell() {
-        return !CollectionUtils.isEmpty(getUsedMethods());
+    public boolean hasNodeUsagesInCell() {
+        return !CollectionUtils.isEmpty(getUsedNodes());
     }
-    
-    public static boolean isCellContainsMethodUsages(ICell cell){
-        return cell.getMetaInfo() != null && cell.getMetaInfo().hasMethodUsagesInCell();
+
+    public static boolean isCellContainsNodeUsages(ICell cell){
+        return cell.getMetaInfo() != null && cell.getMetaInfo().hasNodeUsagesInCell();
     }
 }

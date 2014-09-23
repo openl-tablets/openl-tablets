@@ -114,7 +114,7 @@ public class TableEditorController extends BaseTableEditorController {
 
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
-        } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+        } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
             value = cell.getStringValue();
         }
         return value;

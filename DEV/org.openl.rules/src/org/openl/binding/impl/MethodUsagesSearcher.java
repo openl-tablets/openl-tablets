@@ -23,7 +23,7 @@ import org.openl.util.text.TextInfo;
  */
 public class MethodUsagesSearcher {
 
-    public static class MethodUsage {
+    public static class MethodUsage implements NodeUsage {
         private int startPos;
         private int endPos;
         private IOpenMethod method;
@@ -81,14 +81,16 @@ public class MethodUsagesSearcher {
          *         <code>null</code> if this method is not represented by some
          *         OpenL component.
          */
-        public String getTableUri() {
+        @Override
+        public String getUri() {
             return getTableUri(method);
         }
 
         /**
          * @return String description of the method signature.
          */
-        public String getMethodSignature() {
+        @Override
+        public String getDescription() {
             StringBuilder buff = new StringBuilder();
             MethodUtil.printMethod(method, buff);
             return buff.toString();
@@ -102,7 +104,6 @@ public class MethodUsagesSearcher {
      * @param sourceString Source of OpenL expression.
      * @param startIndex Position in the <code>sourceString</code> which defines
      *            start of OpenL expression.
-     * @return
      */
     public static List<MethodUsage> findAllMethods(IBoundNode boundNode, String sourceString, int startIndex) {
         List<MethodUsage> methods = new ArrayList<MethodUsage>();
@@ -125,8 +126,8 @@ public class MethodUsagesSearcher {
                 } else {
                     method = methodCaller.getMethod();
                 }
-                int pstart = 0;
-                int pend = 0;
+                int pstart;
+                int pend;
                 if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location.isTextLocation()) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;
@@ -141,7 +142,7 @@ public class MethodUsagesSearcher {
             }
         }
         if (boundNode instanceof ATargetBoundNode) {
-            IBoundNode targetNode = ((ATargetBoundNode) boundNode).getTargetNode();
+            IBoundNode targetNode = boundNode.getTargetNode();
             if (targetNode != null) {
                 findAllMethods(targetNode, methods, sourceString, startIndex);
             }

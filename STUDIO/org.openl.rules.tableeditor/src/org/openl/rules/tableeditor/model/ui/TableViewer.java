@@ -2,7 +2,7 @@ package org.openl.rules.tableeditor.model.ui;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -108,7 +108,7 @@ public class TableViewer {
                 content = formattedValue;
                 // has method call
                 //
-            } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+            } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
                 content = createFormulaCellWithLinks(cell, formattedValue);
                 // has image
             } else if (image(formattedValue)) {
@@ -141,10 +141,10 @@ public class TableViewer {
         int nextSymbolIndex = 0;
         StringBuilder buff = new StringBuilder();
         if (isShowLinks()) {
-            for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
+            for (NodeUsage methodUsage : cell.getMetaInfo().getUsedNodes()) {
                 int pstart = methodUsage.getStart();
                 int pend = methodUsage.getEnd();
-                String tableUri = methodUsage.getTableUri();
+                String tableUri = methodUsage.getUri();
                 // add link to used table with signature in tooltip
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (tableUri != null) {
@@ -160,7 +160,7 @@ public class TableViewer {
                 } else {
                     buff.append(formattedValue.substring(pstart, pend + 1));
                 }
-                buff.append("<em>").append(methodUsage.getMethodSignature()).append("</em></span>");
+                buff.append("<em>").append(methodUsage.getDescription()).append("</em></span>");
                 nextSymbolIndex = pend + 1;
             }
         }
