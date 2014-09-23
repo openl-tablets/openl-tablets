@@ -1,10 +1,7 @@
 package org.openl.rules.tbasic.runtime.debug;
 
 import org.openl.rules.table.ATableTracerNode;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.Algorithm;
-
-import java.util.List;
 
 public class TBasicAlgorithmTraceObject extends ATableTracerNode {
     /**
@@ -22,11 +19,6 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
     public String getDisplayName(int mode) {
         Algorithm algorithm = (Algorithm) getTraceObject();
         return String.format("Algorithm %s", asString(algorithm, mode));
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        // regions of sub-elements should be combined
-        return null;
     }
 
     /*
