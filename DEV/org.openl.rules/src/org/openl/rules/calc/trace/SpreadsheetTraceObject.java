@@ -5,10 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.ATableTracerNode;
-import org.openl.rules.table.IGridRegion;
 import org.openl.types.IOpenMethod;
-
-import java.util.List;
 
 public class SpreadsheetTraceObject extends ATableTracerNode {
 
@@ -16,10 +13,6 @@ public class SpreadsheetTraceObject extends ATableTracerNode {
 
     public SpreadsheetTraceObject(Spreadsheet spreadsheet, Object[] params) {
         super(spreadsheet, params);
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        return null;
     }
 
     public String getType() {

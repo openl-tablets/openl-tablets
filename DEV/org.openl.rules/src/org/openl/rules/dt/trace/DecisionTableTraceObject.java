@@ -2,9 +2,6 @@ package org.openl.rules.dt.trace;
 
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.table.ATableTracerNode;
-import org.openl.rules.table.IGridRegion;
-
-import java.util.List;
 
 public class DecisionTableTraceObject extends ATableTracerNode {
 
@@ -24,9 +21,5 @@ public class DecisionTableTraceObject extends ATableTracerNode {
 
     public String getType() {
         return DECISION_TABLE_TYPE;
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        return null;
     }
 }

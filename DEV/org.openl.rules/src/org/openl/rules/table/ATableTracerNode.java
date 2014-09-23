@@ -9,6 +9,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.trace.SimpleTracerObject;
 
+import java.util.List;
+
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
 
     public static final String ERROR_RESULT = "ERROR";
@@ -103,5 +105,11 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     @Override
     public String getUri() {
         return traceObject.getSourceUrl();
+    }
+
+    @Override
+    public List<IGridRegion> getGridRegions() {
+        // Default stub implementation
+        return null;
     }
 }
