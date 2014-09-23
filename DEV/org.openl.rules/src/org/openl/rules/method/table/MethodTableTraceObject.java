@@ -1,16 +1,16 @@
 package org.openl.rules.method.table;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Trace object for method table.
- * 
+ *
  * @author PUdalau
  */
 public class MethodTableTraceObject extends ATableTracerNode {
@@ -23,11 +23,6 @@ public class MethodTableTraceObject extends ATableTracerNode {
 
     public TableMethod getMethod() {
         return (TableMethod) getTraceObject();
-    }
-
-    @Override
-    public String getUri() {
-        return getMethod().getSourceUrl();
     }
 
     public List<IGridRegion> getGridRegions() {

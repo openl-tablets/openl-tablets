@@ -2,7 +2,10 @@ package org.openl.rules.types.impl;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.table.*;
+import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenMethod;
 
 import java.util.List;
@@ -25,11 +28,6 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
 
     public DecisionTable getDispatcherTable() {
         return (DecisionTable) getTraceObject();
-    }
-
-    @Override
-    public String getUri() {
-        return getDispatcherTable().getSourceUrl();
     }
 
     public List<IGridRegion> getGridRegions() {

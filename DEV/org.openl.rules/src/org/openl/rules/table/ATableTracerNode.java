@@ -100,4 +100,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return "= " + FormattersManager.format(value);
     }
 
+    @Override
+    public String getUri() {
+        return traceObject.getSourceUrl();
+    }
 }
