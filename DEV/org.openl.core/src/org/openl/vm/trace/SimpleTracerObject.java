@@ -11,6 +11,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
 
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
+    private Object result;
 
     public SimpleTracerObject() {
     }
@@ -60,4 +61,13 @@ public abstract class SimpleTracerObject implements ITracerObject {
     }
 
     public abstract String getUri();
+
+    @Override
+    public Object getResult() {
+        return result;
+    }
+
+    public void setResult(Object result) {
+        this.result = result;
+    }
 }
