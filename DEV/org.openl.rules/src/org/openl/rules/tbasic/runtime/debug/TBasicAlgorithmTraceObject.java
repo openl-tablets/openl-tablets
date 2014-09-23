@@ -1,25 +1,17 @@
-/**
- *
- */
 package org.openl.rules.tbasic.runtime.debug;
-
-import java.util.List;
 
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.Algorithm;
-import org.openl.types.IMemberMetaInfo;
 
-/**
- * @author User
- *
- */
+import java.util.List;
+
 public class TBasicAlgorithmTraceObject extends ATableTracerNode {
     /**
      * @param traceObject
      */
     public TBasicAlgorithmTraceObject(Algorithm traceObject, Object[] inputParams) {
-        super((IMemberMetaInfo)traceObject, inputParams);
+        super(traceObject, inputParams);
     }
 
     /*
@@ -44,16 +36,5 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
      */
     public String getType() {
         return "tbasic";
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.vm.ITracerObject.SimpleTracerObject#getUri()
-     */
-    @Override
-    public String getUri() {
-        Algorithm algorithm = (Algorithm) getTraceObject();
-        return algorithm.getSourceUrl();
     }
 }

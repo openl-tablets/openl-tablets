@@ -1,12 +1,12 @@
 package org.openl.rules.cmatch.algorithm;
 
-import java.util.List;
-
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.types.IOpenMethod;
+
+import java.util.List;
 
 public class ColumnMatchTraceObject extends ATableTracerNode {
 
@@ -33,10 +33,5 @@ public class ColumnMatchTraceObject extends ATableTracerNode {
 
     public String getType() {
         return "cmatch";
-    }
-
-    @Override
-    public String getUri() {
-        return columnMatch.getSourceUrl();
     }
 }

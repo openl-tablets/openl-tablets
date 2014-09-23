@@ -1,11 +1,11 @@
 package org.openl.rules.cmatch.algorithm;
 
-import java.util.List;
-
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
+
+import java.util.List;
 
 public class WScoreTraceObject extends ATableTracerNode {
     private ColumnMatch columnMatch;
@@ -33,11 +33,6 @@ public class WScoreTraceObject extends ATableTracerNode {
 
     public String getType() {
         return "wcmScore";
-    }
-
-    @Override
-    public String getUri() {
-        return columnMatch.getSourceUrl();
     }
 
     public void setScore(int score) {

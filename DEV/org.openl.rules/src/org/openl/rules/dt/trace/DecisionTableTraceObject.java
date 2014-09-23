@@ -26,11 +26,6 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         return DECISION_TABLE_TYPE;
     }
 
-    @Override
-    public String getUri() {
-        return getDecisionTable().getSyntaxNode().getUri();
-    }
-
     public List<IGridRegion> getGridRegions() {
         return null;
     }
