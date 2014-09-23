@@ -7,14 +7,10 @@ import org.openl.types.IOpenMethod;
 public class ColumnMatchTraceObject extends ATableTracerNode {
 
     public ColumnMatchTraceObject(ColumnMatch columnMatch, Object[] params) {
-        super(columnMatch, params);
+        super("cmatch", columnMatch, params);
     }
 
     public String getDisplayName(int mode) {
         return "CM " + asString((IOpenMethod) getTraceObject(), mode);
-    }
-
-    public String getType() {
-        return "cmatch";
     }
 }

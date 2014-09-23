@@ -15,10 +15,8 @@ import java.util.List;
  */
 public class MethodTableTraceObject extends ATableTracerNode {
 
-    private static final String METHOD_TABLE_TYPE = "method";
-
     public MethodTableTraceObject(TableMethod method, Object[] params) {
-        super(method, params);
+        super("method", method, params);
     }
 
     public List<IGridRegion> getGridRegions() {
@@ -30,10 +28,6 @@ public class MethodTableTraceObject extends ATableTracerNode {
             regions.add(cell.getAbsoluteRegion());
         }
         return regions;
-    }
-
-    public String getType() {
-        return METHOD_TABLE_TYPE;
     }
 
     public String getDisplayName(int mode) {

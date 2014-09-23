@@ -17,12 +17,11 @@ import java.util.List;
  * @author PUdalau
  */
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
-    private static final String TYPE = "overloadedMethodChoice";
     private List<IOpenMethod> methodCandidates;
 
     public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params,
                                              List<IOpenMethod> methodCandidates) {
-        super(dispatcherTable, params);
+        super("overloadedMethodChoice", dispatcherTable, params);
         this.methodCandidates = methodCandidates;
     }
 
@@ -32,10 +31,6 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
 
         ILogicalTable table = ((DecisionTable) getTraceObject()).getRuleTable(methodIndex);
         return GridTableUtils.getGridRegions(table);
-    }
-
-    public String getType() {
-        return TYPE;
     }
 
     public String getDisplayName(int mode) {

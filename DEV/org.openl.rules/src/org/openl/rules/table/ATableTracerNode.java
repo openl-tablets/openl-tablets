@@ -15,10 +15,16 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public static final String ERROR_RESULT = "ERROR";
 
+    private String type;
     private Object params[];
     private Throwable error;
     private IMemberMetaInfo traceObject;
 
+    public ATableTracerNode(String type, IMemberMetaInfo traceObject, Object[] params) {
+        this(traceObject, params);
+        this.type = type;
+
+    }
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
         this.traceObject = traceObject;
         /**
@@ -100,6 +106,11 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     protected String getFormattedValue(Object value, IOpenMethod method) {
         // add '=' symbol if not void
         return "= " + FormattersManager.format(value);
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
     @Override
