@@ -6,10 +6,11 @@ import org.openl.rules.table.ATableTracerNode;
 public class WScoreTraceObject extends ATableTracerNode {
 
     public WScoreTraceObject(ColumnMatch columnMatch, Object[] params) {
-        super("wcmScore", columnMatch, params);
+        super("wcmScore", null, columnMatch, params);
     }
 
+    @Override
     public String getDisplayName(int mode) {
-        return ("Score: " + getResult());
+        return "Score: " + getResult();
     }
 }

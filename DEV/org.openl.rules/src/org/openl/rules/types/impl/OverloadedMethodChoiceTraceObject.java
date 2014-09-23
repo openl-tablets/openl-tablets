@@ -21,7 +21,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
 
     public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params,
                                              List<IOpenMethod> methodCandidates) {
-        super("overloadedMethodChoice", dispatcherTable, params);
+        super("overloadedMethodChoice", null, dispatcherTable, params);
         this.methodCandidates = methodCandidates;
     }
 
@@ -33,8 +33,8 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         return GridTableUtils.getGridRegions(table);
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return "Overloaded method choice for method " + MethodUtil.printMethod(methodCandidates.get(0), 0, false);
     }
-
 }

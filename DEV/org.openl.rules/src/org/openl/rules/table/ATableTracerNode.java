@@ -19,12 +19,15 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     private Object params[];
     private Throwable error;
     private IMemberMetaInfo traceObject;
+    private String prefix;
 
-    public ATableTracerNode(String type, IMemberMetaInfo traceObject, Object[] params) {
+    public ATableTracerNode(String type, String prefix, IMemberMetaInfo traceObject, Object[] params) {
         this(traceObject, params);
         this.type = type;
+        this.prefix = prefix;
 
     }
+
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
         this.traceObject = traceObject;
         /**
@@ -52,8 +55,11 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return traceObject;
     }
 
-    protected String asString(IOpenMethod method, int mode) {
+    @Override
+    public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
+        buf.append(prefix).append(' ');
+        IOpenMethod method = (IOpenMethod) traceObject;
         IOpenClass type = method.getType();
         buf.append(type.getDisplayName(mode)).append(' ');
 
