@@ -141,10 +141,10 @@ public class TableViewer {
         int nextSymbolIndex = 0;
         StringBuilder buff = new StringBuilder();
         if (isShowLinks()) {
-            for (NodeUsage methodUsage : cell.getMetaInfo().getUsedNodes()) {
-                int pstart = methodUsage.getStart();
-                int pend = methodUsage.getEnd();
-                String tableUri = methodUsage.getUri();
+            for (NodeUsage nodeUsage : cell.getMetaInfo().getUsedNodes()) {
+                int pstart = nodeUsage.getStart();
+                int pend = nodeUsage.getEnd();
+                String tableUri = nodeUsage.getUri();
                 // add link to used table with signature in tooltip
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (tableUri != null) {
@@ -160,7 +160,7 @@ public class TableViewer {
                 } else {
                     buff.append(formattedValue.substring(pstart, pend + 1));
                 }
-                buff.append("<em>").append(methodUsage.getDescription()).append("</em></span>");
+                buff.append("<em>").append(nodeUsage.getDescription()).append("</em></span>");
                 nextSymbolIndex = pend + 1;
             }
         }
