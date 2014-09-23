@@ -14,7 +14,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     public static final String ERROR_RESULT = "ERROR";
 
     private Object params[];
-    private Object result;
     private Throwable error;
 
     public ATableTracerNode() {
@@ -65,7 +64,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             } else {
                 // append formatted result
                 //
-                buf.append(getFormattedValue(result, method));
+                buf.append(getFormattedValue(getResult(), method));
             }
             buf.append(' ');
         }
@@ -107,14 +106,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return syntaxNode;
     }
 
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
     public Throwable getError() {
         return error;
     }
@@ -132,7 +123,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     public String getFormattedResult() {
-        return FormattersManager.format(result);
+        return FormattersManager.format(getResult());
     }
 
     protected String getFormattedValue(Object value, IOpenMethod method) {
