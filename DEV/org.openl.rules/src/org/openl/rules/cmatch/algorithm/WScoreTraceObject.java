@@ -7,14 +7,13 @@ import org.openl.rules.table.IGridRegion;
 import java.util.List;
 
 public class WScoreTraceObject extends ATableTracerNode {
-    private int score;
 
     public WScoreTraceObject(ColumnMatch columnMatch, Object[] params) {
         super(columnMatch, params);
     }
 
     public String getDisplayName(int mode) {
-        return ("Score: " + score);
+        return ("Score: " + getResult());
     }
 
     public List<IGridRegion> getGridRegions() {
@@ -24,9 +23,5 @@ public class WScoreTraceObject extends ATableTracerNode {
 
     public String getType() {
         return "wcmScore";
-    }
-
-    public void setScore(int score) {
-        this.score = score;
     }
 }
