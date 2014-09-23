@@ -18,10 +18,6 @@ public class SpreadsheetTraceObject extends ATableTracerNode {
         super(spreadsheet, params);
     }
 
-    public Spreadsheet getSpreadsheet() {
-        return (Spreadsheet) getTraceObject();
-    }
-
     public List<IGridRegion> getGridRegions() {
         return null;
     }
@@ -31,7 +27,7 @@ public class SpreadsheetTraceObject extends ATableTracerNode {
     }
 
     public String getDisplayName(int mode) {
-        return "SpreadSheet " + asString(getSpreadsheet(), mode);
+        return "SpreadSheet " + asString((Spreadsheet) getTraceObject(), mode);
     }
 
     /**

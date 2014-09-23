@@ -26,15 +26,11 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         this.methodCandidates = methodCandidates;
     }
 
-    public DecisionTable getDispatcherTable() {
-        return (DecisionTable) getTraceObject();
-    }
-
     public List<IGridRegion> getGridRegions() {
         IOpenMethod method = (IOpenMethod) getResult();
         int methodIndex = methodCandidates.indexOf(method);
 
-        ILogicalTable table = getDispatcherTable().getRuleTable(methodIndex);
+        ILogicalTable table = ((DecisionTable) getTraceObject()).getRuleTable(methodIndex);
         return GridTableUtils.getGridRegions(table);
     }
 

@@ -21,13 +21,9 @@ public class MethodTableTraceObject extends ATableTracerNode {
         super(method, params);
     }
 
-    public TableMethod getMethod() {
-        return (TableMethod) getTraceObject();
-    }
-
     public List<IGridRegion> getGridRegions() {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        ITable<?> tableBodyGrid = getMethod().getSyntaxNode().getTableBody().getSource();
+        ITable<?> tableBodyGrid = getTableSyntaxNode().getTableBody().getSource();
         ICell cell;
         for (int row = 0; row < tableBodyGrid.getHeight(); row += cell.getHeight()) {
             cell = tableBodyGrid.getCell(0, row);
@@ -41,7 +37,7 @@ public class MethodTableTraceObject extends ATableTracerNode {
     }
 
     public String getDisplayName(int mode) {
-        return "Method table " + asString(getMethod(), mode);
+        return "Method table " + asString((TableMethod) getTraceObject(), mode);
     }
 
 }
