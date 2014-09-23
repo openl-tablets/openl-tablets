@@ -8,6 +8,7 @@ import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithmTraceDecorator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -84,7 +85,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
                 int ruleN = rules.nextInt();
 
                 try {
-                    Tracer.begin(traceObject.traceRule(ruleN));
+                    Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleN));
 
                     Object returnValue = getReturn(target, params, env, ruleN);
                     if (returnValue != null) {

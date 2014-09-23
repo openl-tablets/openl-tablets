@@ -11,7 +11,6 @@ import java.util.List;
 public class DecisionTableTraceObject extends ATableTracerNode {
 
     private static final String DECISION_TABLE_TYPE = "decisiontable";
-    private List<ITracerObject> traceResults = new ArrayList<ITracerObject>();
     private List<ITracerObject> traceConditions = new ArrayList<ITracerObject>();
 
     public DecisionTableTraceObject(DecisionTable decisionTable, Object[] params) {
@@ -46,18 +45,9 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         traceConditions.add(child);
     }
 
-    public Iterable<ITracerObject> getTraceResults() {
-        return traceResults;
-    }
 
     public Iterable<ITracerObject> getTraceConditions() {
         return traceConditions;
-    }
-
-    public DTRuleTracerLeaf traceRule(int i) {
-        DTRuleTracerLeaf result = new DTRuleTracerLeaf(this, i);
-        traceResults.add(result);
-        return result;
     }
 
     public List<IGridRegion> getGridRegions() {
