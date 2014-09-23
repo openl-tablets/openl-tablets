@@ -36,8 +36,11 @@ public class TraceTreeBuilder extends TreeBuilder {
             DTConditionTraceObject condition = (DTConditionTraceObject) element;
             if (!condition.isSuccessful()) {
                 return type + "_fail";
-            } else if (condition.hasRuleResult()) {
-                return type + "_result";
+            } else{
+                ITreeElement<?> result = findResult(element.getChildren());
+                if (result != null) {
+                    return type + "_result";
+                }
             }
         }
         return type;
