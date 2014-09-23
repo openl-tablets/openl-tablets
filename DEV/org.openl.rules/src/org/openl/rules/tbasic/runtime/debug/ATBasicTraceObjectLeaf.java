@@ -7,14 +7,6 @@ import org.openl.vm.trace.ITracerObject;
 
 public abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
 
-    public ATBasicTraceObjectLeaf() {
-        super();
-    }
-
-    public ATBasicTraceObjectLeaf(Object tracedObject) {
-        super(tracedObject);
-    }
-
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode tsn = null;
 

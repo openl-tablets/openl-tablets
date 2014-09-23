@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.openl.rules.tbasic.runtime.debug;
 
 import org.openl.rules.table.IGridRegion;
@@ -15,14 +12,13 @@ import java.util.List;
 public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     private HashMap<String, Object> fieldValues;
+    private RuntimeOperation operation;
 
-    public TBasicOperationTraceObject(Object tracedObject) {
-        super(tracedObject);
+    public TBasicOperationTraceObject(RuntimeOperation operation) {
+        this.operation = operation;
     }
 
     public String getDisplayName(int mode) {
-        RuntimeOperation operation = (RuntimeOperation) getTraceObject();
-
         String operationName = operation.getSourceCode().getOperationName();
         String stepNameForDebug = (operation.getNameForDebug() != null ? operation.getNameForDebug() : "");
         String resultValue = "";
@@ -65,7 +61,6 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     public List<IGridRegion> getGridRegions() {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        RuntimeOperation operation = (RuntimeOperation) getTraceObject();
         regions.add(operation.getSourceCode().getGridRegion());
         return regions;
     }
@@ -88,7 +83,6 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     @Override
     public String getUri() {
-        RuntimeOperation operation = (RuntimeOperation) getTraceObject();
         String operationUri = operation.getSourceCode().getSourceUri();
 
         return operationUri;
