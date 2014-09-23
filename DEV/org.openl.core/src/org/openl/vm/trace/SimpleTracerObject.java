@@ -37,6 +37,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
         }
 
         children.add(child);
+        child.setParent(this);
     }
 
     public Iterable<ITracerObject> getChildren() {
