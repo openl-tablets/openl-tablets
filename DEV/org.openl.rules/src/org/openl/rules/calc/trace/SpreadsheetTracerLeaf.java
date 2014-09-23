@@ -24,7 +24,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     private SpreadsheetCell spreadsheetCell;
 
     public SpreadsheetTracerLeaf(Spreadsheet spreadsheet, SpreadsheetCell spreadsheetCell) {
-        super(spreadsheetCell);
         this.spreadsheet = spreadsheet;
         this.spreadsheetCell = spreadsheetCell;
     }
