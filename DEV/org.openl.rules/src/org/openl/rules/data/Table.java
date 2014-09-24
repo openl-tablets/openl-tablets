@@ -225,6 +225,20 @@ public class Table implements ITable {
 
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
 
+        if (!bindingContext.isExecutionMode()) {
+            for (int j = 0; j < columns; j++) {
+                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
+
+                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+
+                    if (fkDescriptor.isReference()) {
+                        fkDescriptor.setForeignKeyCellMetaInfo(dataBase);
+                    }
+                }
+            }
+        }
+
         for (int i = startRow; i < rows; i++) {
 
             Object target = Array.get(dataArray, i - startRow);
