@@ -1438,52 +1438,29 @@ public class RepositoryTreeController {
     }
 
     public String createProjectWithFiles() {
-        String errorMessage = createProject();
-        if (errorMessage == null) {
-            try {
+        String errorMessage = validateProjectName();
+        if (errorMessage != null) {
+            FacesUtils.addErrorMessage(errorMessage);
+        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+            FacesUtils.addErrorMessage("There are no uploaded files.");
+        } else {
+            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter).uploadProject();
+            if (errorMessage != null) {
+                FacesUtils.addErrorMessage(errorMessage);
+            } else try {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
+                FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
-            FacesUtils.addInfoMessage("Project was created successfully.");
         }
 
         /* Clear the load form */
         clearForm();
 
         return null;
-    }
-
-    private String createProject() {
-        String errorMessage;
-
-        if (StringUtils.isNotBlank(projectName)) {
-            if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
-                ProjectUploader projectUploader = new ProjectUploader(uploadedFiles,
-                        projectName,
-                        userWorkspace,
-                        zipFilter);
-                errorMessage = validateProjectName();
-                if (errorMessage == null) {
-                    errorMessage = projectUploader.uploadProject();
-                }
-            } else {
-                errorMessage = "There are no uploaded files.";
-            }
-        } else {
-            errorMessage = "Project name must not be empty.";
-        }
-
-        if (errorMessage == null) {
-            clearUploadedFiles();
-        } else {
-            clearUploadedFiles();
-            FacesUtils.addErrorMessage(errorMessage);
-        }
-
-        return errorMessage;
     }
 
     private void clearForm() {
