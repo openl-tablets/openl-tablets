@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ChangeVersion" basedir="BasePom/org.openl.rules.base-pom" default="help">
+<project name="ChangeVersion" basedir="." default="help">
 
     <fileset
             id="openl_version_file"
