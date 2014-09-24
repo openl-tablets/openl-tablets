@@ -91,7 +91,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 			// Create domain class definition which will be used by OpenL engine at runtime. 
 			//
-			DomainOpenClass tableType = new DomainOpenClass(typeName, baseOpenClass, domain, null);
+			DomainOpenClass tableType = new DomainOpenClass(typeName, baseOpenClass, domain, new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
 			
 			// Add domain class definition to biding context as internal type.
 			//
@@ -116,14 +116,14 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
-            tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tableSource.getUri(0)));
-            
+            tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
+
 			// Add domain class definition to biding context as internal type.
 			//
 			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
 			if (parsedHeader.length == 4) {
-				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX].getIdentifier());
+				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX]);
 			} else {
 				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
 			}
