@@ -1,36 +1,32 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
-import org.richfaces.model.UploadedFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProjectUploader {
     private String projectName;
     private UserWorkspace userWorkspace;
     private PathFilter zipFilter;
-    private List<UploadedFile> uploadedFiles;
+    private List<ProjectFile> uploadedFiles;
 
-    public ProjectUploader(UploadedFile uploadedFile, String projectName, UserWorkspace userWorkspace, PathFilter zipFilter) {
-        super();
-        this.uploadedFiles = new ArrayList<UploadedFile>();
+    public ProjectUploader(ProjectFile uploadedFile, String projectName, UserWorkspace userWorkspace, PathFilter zipFilter) {
+        this.uploadedFiles = new ArrayList<ProjectFile>();
         this.uploadedFiles.add(uploadedFile);
-        
+
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
         this.zipFilter = zipFilter;
     }
-    
-    public ProjectUploader(List<UploadedFile> uploadedFiles, String projectName, UserWorkspace userWorkspace,
-            PathFilter zipFilter) {
-        super();
+
+    public ProjectUploader(List<ProjectFile> uploadedFiles, String projectName, UserWorkspace userWorkspace,
+                           PathFilter zipFilter) {
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
@@ -40,13 +36,19 @@ public class ProjectUploader {
     public String uploadProject() {
         String errorMessage = null;
         AProjectCreator projectCreator = null;
-        try {
-            projectCreator = getProjectCreator(uploadedFiles);
-            if (projectCreator != null) {
-                errorMessage = projectCreator.createRulesProject();
+        if (uploadedFiles.isEmpty()) {
+            errorMessage = "Can`t create project from given file.";
+        } else try {
+            // Get the last file
+            ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
+            String fileName = file.getName();
+            if (FileTypeHelper.isZipFile(fileName)) {
+                // Create project creator for the single zip file
+                projectCreator = new ZipFileProjectCreator(fileName, file.getInput(), projectName, userWorkspace, zipFilter);
             } else {
-                errorMessage = "Can`t create project from given file.";
+                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
             }
+            errorMessage = projectCreator.createRulesProject();
         } catch (IOException e) {
             errorMessage = e.getMessage();
         } finally {
@@ -56,35 +58,4 @@ public class ProjectUploader {
         }
         return errorMessage;
     }
-
-    private AProjectCreator getProjectCreator(List<UploadedFile> uploadedFiles) throws IOException {
-        AProjectCreator projectCreator = null;
-
-        if (!uploadedFiles.isEmpty()) {
-            if (FileTypeHelper.isZipFile(FilenameUtils.getName(getLastElement().getName()))) {
-                /*Create project creator for single zip file*/
-                String file = FilenameUtils.getName(getLastElement().getName());
-                projectCreator = new ZipFileProjectCreator(file, getLastElement().getInputStream(), projectName, userWorkspace, zipFilter);
-            } else {
-                List<ProjectFile> projectFiles = new ArrayList<ProjectFile>();
-                for (UploadedFile uploadedFile : uploadedFiles) {
-                    projectFiles.add(new ProjectFile(
-                            uploadedFile.getName(), uploadedFile.getInputStream(), uploadedFile.getSize()));
-                }
-                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace,
-                        zipFilter, projectFiles.toArray(new ProjectFile[uploadedFiles.size()]));
-            }
-
-        }
-        return projectCreator;
-    }
-
-    private UploadedFile getLastElement() {
-        if (!uploadedFiles.isEmpty()) {
-            return uploadedFiles.get(uploadedFiles.size() - 1);
-        } else {
-            return null;
-        }
-    }
-
 }
