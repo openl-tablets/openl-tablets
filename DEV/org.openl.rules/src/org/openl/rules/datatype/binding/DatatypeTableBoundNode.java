@@ -234,8 +234,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return fieldType.getName().equals(dataType.getName());
     }
 
-    public static IOpenClass getRootComponentClass(IOpenClass openClass) {
-        IOpenClass fieldType = openClass;
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
         if (!fieldType.isArray()) {
             return fieldType;
         }
@@ -275,10 +274,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public static IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc)
         throws OpenLCompilationException {
-        
-        IdentifierNode[] idn = Tokenizer.tokenize(cellSrc, " \r\n");
-
-        return idn;
+        return Tokenizer.tokenize(cellSrc, " \r\n");
     }
 
     /**
@@ -292,16 +288,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     /**
      * Checks if the given row can be processed. 
      * 
-     * @param rowSrc
+     * @param rowSrc checked row
      * @return false if row content is empty, or was commented with special symbols.
      */
     public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
         String srcCode = rowSrc.getCode().trim();
 
-        if (srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode)) {
-            return false;
-        }
-        return true;
+        return !(srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode));
     }
 
     private IOpenClass getFieldType(IBindingContext cxt, ILogicalTable row, GridCellSourceCodeModule tableSrc) 
