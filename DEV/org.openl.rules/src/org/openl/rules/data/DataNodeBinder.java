@@ -11,6 +11,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -83,6 +84,10 @@ public class DataNodeBinder extends AXlsTableBinder {
         if (tableType == null) {
             String message = String.format("Type not found: '%s'", typeName);
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+        }
+
+        if (!bindingContext.isExecutionMode()) {
+            RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parsedHeader[TYPE_INDEX], tableType.getMetaInfo());
         }
 
         // Check that table type loaded properly.
@@ -180,7 +185,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * <code>TRUE</code>. calls
      * {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, IBindingContext, OpenL, boolean)}
      * to populate <code>ITable</code> with data. Also adds to
-     * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
+     * <code>TableSyntaxNode</code> sub table for displaying on business view.
      * 
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tableSyntaxNode <code>TableSyntaxNode</code> to be processed.
