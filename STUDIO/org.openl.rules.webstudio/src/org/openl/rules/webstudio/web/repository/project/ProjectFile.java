@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import org.apache.commons.io.FilenameUtils;
+import org.richfaces.model.UploadedFile;
+
 import java.io.InputStream;
 
 public class ProjectFile {
@@ -8,42 +11,26 @@ public class ProjectFile {
     private InputStream input;
     private long size;
 
-    public ProjectFile() {
-    }
-
     public ProjectFile(String name, InputStream input) {
         this.name = name;
         this.input = input;
     }
 
-    public ProjectFile(String name, InputStream input, long size) {
-        this.name = name;
-        this.input = input;
-        this.size = size;
+    public ProjectFile(UploadedFile uploadedFile) {
+        this.name = FilenameUtils.getName(uploadedFile.getName());
+        this.input = uploadedFile.getInputStream();
+        this.size = uploadedFile.getSize();
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public InputStream getInput() {
         return input;
-    }
-
-    public void setInput(InputStream input) {
-        this.input = input;
     }
 
     public long getSize() {
         return size;
     }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
 }
