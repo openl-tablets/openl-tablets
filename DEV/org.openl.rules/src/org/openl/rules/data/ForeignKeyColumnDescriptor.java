@@ -245,8 +245,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
-        prepareForeignKeyCell(bindingContext, db);
-
         boolean valuesAnArray = isValuesAnArray(fieldType);
 
         if (!valuesAnArray) {
@@ -330,8 +328,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     String message = "Column " + columnName + " not found";
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
-
-                prepareForeignKeyCell(cxt, db);
 
                 final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
                 Set<String> strings = index.keySet();
@@ -502,13 +498,15 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return foreignKeyColumnChainTokens;
     }
 
-    private void prepareForeignKeyCell(IBindingContext bindingContext, IDataBase db) {
-        if (foreignKeyCell != null && !bindingContext.isExecutionMode()) {
+    public void setForeignKeyCellMetaInfo(IDataBase db) {
+        if (foreignKeyCell != null) {
             ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
-            ILocation location = foreignKeyTable.getLocation();
-            NodeUsage nodeUsage = new TableUsage(foreignTable, location);
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
-            foreignKeyCell.setMetaInfo(meta);
+            if (foreignTable != null) {
+                ILocation location = foreignKeyTable.getLocation();
+                NodeUsage nodeUsage = new TableUsage(foreignTable, location);
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+                foreignKeyCell.setMetaInfo(meta);
+            }
         }
 
         // Not needed anymore
