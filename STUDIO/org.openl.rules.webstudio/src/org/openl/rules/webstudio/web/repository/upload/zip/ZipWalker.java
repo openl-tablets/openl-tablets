@@ -1,5 +1,10 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
+import org.apache.commons.io.IOUtils;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
+import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
+import org.openl.rules.workspace.filter.PathFilter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,26 +14,15 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
-import org.openl.rules.workspace.filter.PathFilter;
-import org.richfaces.model.UploadedFile;
-
 public class ZipWalker {
-    private final UploadedFile uploadedFile;
+    private final ProjectFile uploadedFile;
     private final File zipFile;
     private final RootFolderExtractor folderExtractor;
 
-    public ZipWalker(UploadedFile uploadedFile, PathFilter zipFilter) throws IOException {
+    public ZipWalker(ProjectFile uploadedFile, PathFilter zipFilter) throws IOException {
         this.uploadedFile = uploadedFile;
         this.zipFile = null;
         this.folderExtractor = createFolderExtractor(zipFilter);
-    }
-
-    public ZipWalker(File zipFile, PathFilter zipFilter) throws IOException {
-        this.uploadedFile = null;
-        this.zipFile = zipFile;
-        folderExtractor = createFolderExtractor(zipFilter);
     }
 
     public void iterateEntries(ZipEntryCommand command) throws IOException {
@@ -55,7 +49,7 @@ public class ZipWalker {
     }
 
     private ZipInputStream getZipInputStream() throws FileNotFoundException {
-        return uploadedFile != null ? new ZipInputStream(uploadedFile.getInputStream()) : new ZipInputStream(new FileInputStream(zipFile));
+        return uploadedFile != null ? new ZipInputStream(uploadedFile.getInput()) : new ZipInputStream(new FileInputStream(zipFile));
     }
 
     private RootFolderExtractor createFolderExtractor(PathFilter zipFilter) throws IOException {
