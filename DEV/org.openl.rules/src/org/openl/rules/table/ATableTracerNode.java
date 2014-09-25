@@ -72,12 +72,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode syntaxNode = null;
-
         if (method != null) {
-            ISyntaxNode tsn = method.getSyntaxNode();
-            if (tsn instanceof TableSyntaxNode) {
-                syntaxNode = (TableSyntaxNode) tsn;
-            }
+            syntaxNode = method.getSyntaxNode();
         }
         return syntaxNode;
     }
