@@ -1,0 +1,23 @@
+<project>
+	<id>test</id>
+	<name>test ?</name>
+	<modules>
+		<module>
+			<name>testmodule</name>
+			<rules-root
+				path="dependencies/test3/module/dependency-module?/dependency?.xls" />
+		</module>
+	</modules>
+
+	<properties>
+		<property>
+			<name>name1</name>
+			<value>value1</value>
+		</property>
+		<property>
+			<name>name2</name>
+			<value>value2</value>
+		</property>
+	</properties>
+
+</project>

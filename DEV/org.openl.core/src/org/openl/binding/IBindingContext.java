@@ -154,4 +154,13 @@ public interface IBindingContext extends ICastFactory {
 	boolean isExecutionMode();
 	void setExternalParams(Map<String, Object> params);
 	Map<String, Object> getExternalParams();
+	
+	
+	
+	
+	//context properties
+	
+	public String getContextProperty(String name);
+	public void setContextProperty(String name, String value);
+	
 }

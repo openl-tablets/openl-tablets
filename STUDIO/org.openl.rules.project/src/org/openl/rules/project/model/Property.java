@@ -6,15 +6,6 @@ public final class Property {
 	
 	public Property(){}
 
-	public Property(String name, String value) {
-		if (name == null)
-			throw new IllegalArgumentException("name argument can't be null");
-		if (value == null)
-			throw new IllegalArgumentException("value argument can't be null");
-		this.name = name;
-		this.value = value;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -23,18 +14,13 @@ public final class Property {
 		return value;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Property) {
-			Property property = (Property) obj;
-			return this.name.equals(property.name);
-		}
-		return false;
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	@Override
-	public int hashCode() {
-		return this.name.hashCode();
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 }
