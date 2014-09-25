@@ -435,6 +435,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             addDispatcherMethod((OpenMethodDispatcher) method);
             return;
         }
+        IOpenMethod m = decorateForMultimoduleDispatching(method);
 
         // Get method key.
         //
@@ -467,10 +468,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             //
             if (existedMethod instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                IOpenMethod m = decorateForMultimoduleDispatching(method);
                 decorator.addMethod(m);
             } else {
-                IOpenMethod m = decorateForMultimoduleDispatching(method);
                 if (m != existedMethod) {
                     OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
                     dispatcher.addMethod(m);
@@ -479,7 +478,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         } else {
             // Just wrap original method with dispatcher functionality.
             //
-            IOpenMethod m = decorateForMultimoduleDispatching(method);
             if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod){
                 methodMap().put(key, m);
             }else{
