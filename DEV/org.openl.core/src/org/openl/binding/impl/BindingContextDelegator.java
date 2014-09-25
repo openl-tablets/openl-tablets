@@ -34,7 +34,15 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     protected IBindingContext delegate;
 
-    public BindingContextDelegator(IBindingContext delegate) {
+    public String getContextProperty(String name) {
+		return delegate.getContextProperty(name);
+	}
+
+	public void setContextProperty(String name, String value) {
+		delegate.setContextProperty(name, value);
+	}
+
+	public BindingContextDelegator(IBindingContext delegate) {
         this.delegate = delegate;
     }
 

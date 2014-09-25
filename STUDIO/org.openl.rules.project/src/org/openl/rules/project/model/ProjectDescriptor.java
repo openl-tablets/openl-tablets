@@ -1,17 +1,16 @@
 package org.openl.rules.project.model;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
-import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+
+import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.types.java.JavaOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProjectDescriptor {
     private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
@@ -21,6 +20,8 @@ public class ProjectDescriptor {
     private File projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
+    private List<Property> properties;
+    
     private List<ProjectDependencyDescriptor> dependencies;
     private ClassLoader classLoader;
     private String propertiesFileNamePattern;
@@ -189,4 +190,12 @@ public class ProjectDescriptor {
             super.finalize();
         }
     }
+
+	public List<Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(List<Property> properties) {
+		this.properties = properties;
+	}
 }
