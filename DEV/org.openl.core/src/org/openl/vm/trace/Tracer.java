@@ -6,7 +6,7 @@ package org.openl.vm.trace;
 /**
  * @author Yury Molchan
  */
-public class Tracer implements TraceStack {
+public final class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 
