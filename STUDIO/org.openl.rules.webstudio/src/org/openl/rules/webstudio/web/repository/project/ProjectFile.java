@@ -10,6 +10,7 @@ public class ProjectFile {
     private String name;
     private InputStream input;
     private long size;
+    private UploadedFile uploadedFile;
 
     public ProjectFile(String name, InputStream input) {
         this.name = name;
@@ -18,8 +19,8 @@ public class ProjectFile {
 
     public ProjectFile(UploadedFile uploadedFile) {
         this.name = FilenameUtils.getName(uploadedFile.getName());
-        this.input = uploadedFile.getInputStream();
         this.size = uploadedFile.getSize();
+        this.uploadedFile = uploadedFile;
     }
 
     public String getName() {
@@ -27,7 +28,13 @@ public class ProjectFile {
     }
 
     public InputStream getInput() {
-        return input;
+        if (uploadedFile != null) {
+            // returns a new instance for each call
+            // In some cases the same input stream is used several times. See ZipWalker implementation.
+            return uploadedFile.getInputStream();
+        } else {
+            return input;
+        }
     }
 
     public long getSize() {
