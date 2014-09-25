@@ -72,7 +72,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         candidatesSorted = null;
     }
 
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+    private Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Object returnResult = null;
         traceObject = null;
 
