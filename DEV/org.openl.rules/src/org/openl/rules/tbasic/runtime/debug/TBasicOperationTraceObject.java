@@ -15,6 +15,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
     private RuntimeOperation operation;
 
     public TBasicOperationTraceObject(RuntimeOperation operation) {
+        super("tbasicOperation");
         this.operation = operation;
     }
 
@@ -75,10 +76,6 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         } else {
             return null;
         }
-    }
-
-    public String getType() {
-        return "tbasicOperation";
     }
 
     @Override
