@@ -70,6 +70,8 @@
     <Connector port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="8443"
+               compression="on"
+               compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,text/json,application/x-javascript,application/javascript,application/json"
                URIEncoding="UTF-8" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
