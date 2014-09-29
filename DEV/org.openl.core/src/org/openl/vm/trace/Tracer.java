@@ -65,14 +65,10 @@ public final class Tracer implements TraceStack {
 
     private void init() {
 
-        root = new SimpleTracerObject() {
+        root = new SimpleTracerObject("traceroot") {
 
             public String getDisplayName(int mode) {
                 return "Trace";
-            }
-
-            public String getType() {
-                return "traceroot";
             }
 
             @Override

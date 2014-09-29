@@ -19,11 +19,11 @@ import java.util.List;
  * @author PUdalau
  */
 public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
-    private static final String SPREADSHEET_CELL_TYPE = "spreadsheetCell";
     private Spreadsheet spreadsheet;
     private SpreadsheetCell spreadsheetCell;
 
     public SpreadsheetTracerLeaf(Spreadsheet spreadsheet, SpreadsheetCell spreadsheetCell) {
+        super("spreadsheetCell");
         this.spreadsheet = spreadsheet;
         this.spreadsheetCell = spreadsheetCell;
     }
@@ -49,10 +49,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
 
     public TableSyntaxNode getTableSyntaxNode() {
         return spreadsheet.getSyntaxNode();
-    }
-
-    public String getType() {
-        return SPREADSHEET_CELL_TYPE;
     }
 
     public String getDisplayName(int mode) {

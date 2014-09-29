@@ -14,14 +14,13 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public static final String ERROR_RESULT = "ERROR";
 
-    private String type;
     private Object params[];
     private Throwable error;
     private ExecutableRulesMethod method;
     private String prefix;
 
     public ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
-        this.type = type;
+        super(type);
         this.prefix = prefix;
         this.method = method;
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
@@ -96,11 +95,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     protected String getFormattedValue(Object value, IOpenMethod method) {
         // add '=' symbol if not void
         return "= " + FormattersManager.format(value);
-    }
-
-    @Override
-    public String getType() {
-        return type;
     }
 
     @Override

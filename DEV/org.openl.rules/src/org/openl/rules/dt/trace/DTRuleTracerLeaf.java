@@ -1,7 +1,10 @@
 package org.openl.rules.dt.trace;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.*;
+import org.openl.rules.table.ATableTracerLeaf;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
 
 import java.util.List;
 
@@ -12,12 +15,11 @@ import java.util.List;
  */
 public class DTRuleTracerLeaf extends ATableTracerLeaf {
 
-    private static final String NAME = "Rule";
-
     private int ruleIndex;
     private DecisionTableTraceObject decisionTableTraceObject;
 
     public DTRuleTracerLeaf(DecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
+        super("rule");
         this.ruleIndex = ruleIdx;
         this.decisionTableTraceObject = decisionTableTraceObject;
     }
@@ -40,10 +42,6 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
 
     public TableSyntaxNode getTableSyntaxNode() {
         return getParentTraceObject().getDecisionTable().getSyntaxNode();
-    }
-
-    public String getType() {
-        return NAME.toLowerCase();
     }
 
     @Override

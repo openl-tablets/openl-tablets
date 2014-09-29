@@ -10,6 +10,16 @@ public abstract class SimpleTracerObject implements ITracerObject {
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
     private Object result;
+    private String type;
+
+    protected SimpleTracerObject(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
 
     public void setParent(ITracerObject parentTraceObject) {
         parent = parentTraceObject;

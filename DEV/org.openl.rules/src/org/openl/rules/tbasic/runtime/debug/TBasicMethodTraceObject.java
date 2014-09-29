@@ -12,6 +12,7 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
     private AlgorithmSubroutineMethod method;
 
     public TBasicMethodTraceObject(AlgorithmSubroutineMethod method) {
+        super("tbasicMethod");
         this.method = method;
     }
 
@@ -32,10 +33,6 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
     public List<IGridRegion> getGridRegions() {
         // regions of sub-elements should be combined
         return null;
-    }
-
-    public String getType() {
-        return "tbasicMethod";
     }
 
     @Override
