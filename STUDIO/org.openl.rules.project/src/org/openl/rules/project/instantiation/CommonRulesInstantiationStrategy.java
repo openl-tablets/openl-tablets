@@ -2,8 +2,10 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Map;
 
+import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
+import org.openl.runtime.AEngineFactory;
 
 public abstract class CommonRulesInstantiationStrategy implements RulesInstantiationStrategy {
 
@@ -159,4 +161,25 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public void setExternalParameters(Map<String, Object> parameters) {
         this.externalParameters = parameters;
     }
+    
+    @Override
+    public CompiledOpenClass compile() throws RulesInstantiationException {
+    	return compileInternal(getEngineFactory());
+    }
+
+    
+    
+    protected abstract AEngineFactory getEngineFactory() throws RulesInstantiationException;
+
+	protected final CompiledOpenClass compileInternal(AEngineFactory engineFactory) throws RulesInstantiationException {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(getClassLoader());
+        try {
+            return engineFactory.getCompiledOpenClass();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+    
+    
 }

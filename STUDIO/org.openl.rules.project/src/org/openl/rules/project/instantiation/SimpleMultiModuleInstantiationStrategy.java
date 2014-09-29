@@ -59,16 +59,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
     }
 
-    @Override
-    public CompiledOpenClass compile() throws RulesInstantiationException {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-        try {
-            return getEngineFactory().getCompiledOpenClass();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
 
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
@@ -82,7 +72,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     }
 
     @SuppressWarnings("unchecked")
-    private RulesEngineFactory<?> getEngineFactory() {
+    protected RulesEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = null;
         try {
             serviceClass = getServiceClass();

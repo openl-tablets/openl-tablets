@@ -1,6 +1,9 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import org.openl.CompiledOpenClass;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
@@ -11,10 +14,6 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile
@@ -109,16 +108,6 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         }
     }
 
-    @Override
-    public CompiledOpenClass compile() throws RulesInstantiationException {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-        try {
-            return getEngineFactory().getCompiledOpenClass();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
 
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
@@ -132,7 +121,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private LazyEngineFactory<?> getEngineFactory() {
+    protected LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = null;
         try {
             serviceClass = getServiceClass();
@@ -168,4 +157,5 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
 
         return engineFactory;
     }
+
 }

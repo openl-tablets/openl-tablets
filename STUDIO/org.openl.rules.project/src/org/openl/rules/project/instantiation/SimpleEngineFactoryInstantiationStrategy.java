@@ -3,7 +3,6 @@ package org.openl.rules.project.instantiation;
 import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RulesEngineFactory;
@@ -93,29 +92,9 @@ public class SimpleEngineFactoryInstantiationStrategy extends SingleModuleInstan
         engineFactory = null;
     }
     
-    @Override
-    public CompiledOpenClass compile()throws RulesInstantiationException {
-        try {
-            return compile(getServiceClass());
-        } catch (ClassNotFoundException e) {
-           throw new RulesInstantiationException("Failed to compile module", e);
-        }
-    }
-
-    private CompiledOpenClass compile(Class<Object> clazz) {
-        RulesEngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
-        
-        // Ensure that compilation will be done in strategy classLoader
-        //
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-
-        try {
-            return engineInstanceFactory.getCompiledOpenClass();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
+    
+    
+    
 
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
@@ -137,4 +116,13 @@ public class SimpleEngineFactoryInstantiationStrategy extends SingleModuleInstan
     public boolean isServiceClassDefined() {
         return true; 
     }
+
+	@Override
+	protected RulesEngineFactory<?> getEngineFactory() throws RulesInstantiationException {
+		try {
+			return this.getEngineFactory(getServiceClass());
+		} catch (ClassNotFoundException e) {
+			throw new RulesInstantiationException(e);
+		}
+	}
 }
