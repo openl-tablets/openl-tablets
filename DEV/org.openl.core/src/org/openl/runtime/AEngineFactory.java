@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -58,6 +59,9 @@ public abstract class AEngineFactory {
     protected abstract InvocationHandler prepareInvocationHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap, IRuntimeEnv runtimeEnv);
 
+    
+    public abstract CompiledOpenClass getCompiledOpenClass(); 
+    
     /**
      * Creates methods map that contains interface's methods as key and
      * appropriate open class's members as value.

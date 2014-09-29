@@ -8,6 +8,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,4 +249,10 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
     public boolean isServiceClassDefined() {
         return true;
     }
+
+	@Override
+	protected RulesEngineFactory<?> getEngineFactory()
+			throws RulesInstantiationException {
+		throw new UnsupportedOperationException();
+	}
 }
