@@ -29,6 +29,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        super.finalizeBind(cxt);
         ColumnMatchBuilder builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);

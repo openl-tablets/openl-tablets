@@ -5,7 +5,9 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.MethodParametersNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.text.ILocation;
 
 /*
  * Created on Sep 23, 2003 Developed by Intelligent ChoicePoint Inc. 2003
@@ -35,10 +37,25 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
         ISyntaxNode parametersNode = node.getChild(PARAMETERS_NODE);
         MethodParametersNode boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
 
+        IMethodSignature signature = boundParametersNode.getSignature();
+
+        ILocation typeLocation = null;
+        ILocation[] paramTypeLocations = null;
+        if (!bindingContext.isExecutionMode()) {
+            typeLocation = typeNode.getSyntaxNode().getSourceLocation();
+
+            paramTypeLocations = new ILocation[signature.getNumberOfParameters()];
+            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                paramTypeLocations[i] = boundParametersNode.getParamTypeLocation(i);
+            }
+        }
+
         OpenMethodHeader header = new OpenMethodHeader(methodName,
             typeNode.getType(),
-            boundParametersNode.getSignature(),
-            null);
+            signature,
+            null,
+            typeLocation,
+            paramTypeLocations);
 
         return new MethodHeaderNode(node, header);
     }

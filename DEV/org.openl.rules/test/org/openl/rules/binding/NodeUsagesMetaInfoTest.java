@@ -3,6 +3,8 @@ package org.openl.rules.binding;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.binding.impl.NodeUsage;
@@ -19,6 +21,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode carType;
     private TableSyntaxNode typeB;
     private TableSyntaxNode typeC;
+    private TableSyntaxNode rule1;
+    private TableSyntaxNode convert;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -32,6 +36,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         carType = findTable("Datatype CarType <String>");
         typeB = findTable("Datatype TypeB");
         typeC = findTable("Datatype TypeC extends TypeB");
+        rule1 = findTable("Rules TypeB rule1(TypeB typeB, TypeC typeC)");
+        convert = findTable("Method TypeB convert(TypeC param)");
     }
 
     @Test
@@ -82,5 +88,28 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(carType.getUri(), carTypeNodeUsage.getUri());
         assertEquals(0, carTypeNodeUsage.getStart());
         assertEquals(6, carTypeNodeUsage.getEnd());
+    }
+
+    @Test
+    public void testLinksInDecisionTableHeader() throws Exception {
+        ICell header = rule1.getGridTable().getCell(0, 0);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(header));
+
+        List<? extends NodeUsage> usedNodes = header.getMetaInfo().getUsedNodes();
+        assertEquals(3, usedNodes.size());
+        assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals(typeB.getUri(), usedNodes.get(1).getUri());
+        assertEquals(typeC.getUri(), usedNodes.get(2).getUri());
+    }
+
+    @Test
+    public void testLinksInMethodTableHeader() throws Exception {
+        ICell header = convert.getGridTable().getCell(0, 0);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(header));
+
+        List<? extends NodeUsage> usedNodes = header.getMetaInfo().getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
     }
 }

@@ -7,24 +7,33 @@ import org.openl.util.text.TextInfo;
  * @author nsamatov.
  */
 public class SimpleNodeUsage implements NodeUsage {
-    private final IdentifierNode identifierNode;
+    private final int start;
+    private final int end;
     private final String description;
     private final String uri;
 
+    public SimpleNodeUsage(int start, int end, String description, String uri) {
+        this.start = start;
+        this.end = end;
+        this.description = description;
+        this.uri = uri;
+    }
+
     public SimpleNodeUsage(IdentifierNode identifierNode, String description, String uri) {
-        this.identifierNode = identifierNode;
+        this.start = identifierNode.getLocation().getStart().getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
+        this.end = identifierNode.getLocation().getEnd().getAbsolutePosition(new TextInfo(identifierNode.getIdentifier())) - 1;
         this.description = description;
         this.uri = uri;
     }
 
     @Override
     public int getStart() {
-        return identifierNode.getLocation().getStart().getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
+        return start;
     }
 
     @Override
     public int getEnd() {
-        return identifierNode.getLocation().getEnd().getAbsolutePosition(new TextInfo(identifierNode.getIdentifier())) - 1;
+        return end;
     }
 
     @Override
