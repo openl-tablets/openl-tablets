@@ -17,6 +17,7 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.impl.MethodSignature;
+import org.openl.util.text.ILocation;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -25,10 +26,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MethodParametersNode extends ABoundNode {
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
     public MethodParametersNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         super(syntaxNode, children);
     }
@@ -43,12 +40,17 @@ public class MethodParametersNode extends ABoundNode {
         ParameterDeclaration[] params = new ParameterDeclaration[len];
 
         for (int i = 0; i < len; i++) {
-            params[i] = new ParameterDeclaration(((ParameterNode) children[i]).getType(), ((ParameterNode) children[i])
+            params[i] = new ParameterDeclaration(children[i].getType(), ((ParameterNode) children[i])
                     .getName(), IParameterDeclaration.IN);
         }
 
         return new MethodSignature(params);
 
+    }
+
+    public ILocation getParamTypeLocation(int paramNum) {
+        // 0-th child is param type, 1-st child is param name. See ParameterDeclarationNodeBinder
+        return children[paramNum].getSyntaxNode().getChild(0).getSourceLocation();
     }
 
     public IOpenClass getType() {

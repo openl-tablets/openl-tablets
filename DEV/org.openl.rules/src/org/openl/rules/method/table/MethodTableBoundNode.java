@@ -44,6 +44,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        super.finalizeBind(bindingContext);
 
         TableSyntaxNode tsn = getTableSyntaxNode();
 
