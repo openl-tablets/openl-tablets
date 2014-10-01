@@ -92,6 +92,8 @@ public class WebStudio {
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
 
+    private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
+
     private String workspacePath;
     private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<BenchmarkInfoView>();
     private List<StudioListener> listeners = new ArrayList<StudioListener>();
@@ -927,5 +929,9 @@ public class WebStudio {
         }
 
         return "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName) + "/" + pageUrl;
+    }
+
+    public WebStudioLinkBuilder getLinkBuilder() {
+        return linkBuilder;
     }
 }

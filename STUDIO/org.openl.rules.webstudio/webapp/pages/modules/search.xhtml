@@ -42,7 +42,7 @@
                         <br /><br />
 
                         <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
-                            rendered="#{table != null}" linkBase="#{studio.url('table')}" />
+                            rendered="#{table != null}" linkBuilder="#{studio.linkBuilder}" />
                     </div>
                  </c:forEach>
             </div>

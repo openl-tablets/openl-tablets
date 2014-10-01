@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.NodeUsage;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -20,9 +19,7 @@ public class TableViewer {
 
     private IGridRegion reg;
 
-    private String linkBase;
-
-    private String linkTarget;
+    private LinkBuilder linkBuilder;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -84,12 +81,11 @@ public class TableViewer {
     /**
      * Two argument constructor
      */
-    public TableViewer(IGrid grid, IGridRegion reg, String linkBase, String linkTarget) {
+    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder) {
         super();
         this.grid = grid;
         this.reg = reg;
-        this.linkBase = linkBase;
-        this.linkTarget = linkTarget;
+        this.linkBuilder = linkBuilder;
     }
 
     CellModel buildCell(ICell cell, CellModel cm) {
@@ -149,15 +145,7 @@ public class TableViewer {
                 // add link to used table with signature in tooltip
                 buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart))).append("<span class=\"title\">");
                 if (tableUri != null) {
-                    String tableId = TableUtils.makeTableId(tableUri);
-                    buff.append("<a href=\"").append(linkBase).append("?id=")
-                        .append(tableId).append("\"");
-                    if (StringUtils.isNotBlank(linkTarget)) {
-                        buff.append(" target=\"").append(linkTarget).append("\"");
-                    }
-                    buff.append(">")
-                        .append(escapeHtml4(formattedValue.substring(pstart, pend + 1)))
-                        .append("</a>");
+                    buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
                 } else {
                     buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
                 }
@@ -170,7 +158,7 @@ public class TableViewer {
     }
 
     private boolean isShowLinks() {
-        return linkBase != null;
+        return linkBuilder != null;
     }
 
     public TableModel buildModel(IGridTable gt) {
