@@ -203,15 +203,9 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <name>linkBase</name>
+            <name>linkBuilder</name>
             <deferred-value>
-                <type>String</type>
-            </deferred-value>
-        </attribute>
-        <attribute>
-            <name>linkTarget</name>
-            <deferred-value>
-                <type>String</type>
+                <type>org.openl.rules.tableeditor.model.ui.LinkBuilder</type>
             </deferred-value>
         </attribute>
         <attribute>
