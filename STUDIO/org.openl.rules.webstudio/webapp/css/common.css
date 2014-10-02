@@ -573,7 +573,12 @@ ul.enum li {
     position: relative;
     z-index: 1;
     zoom: 1;
-    color: #06F;
+}
+
+.title > a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted;
 }
 
 .title em {
@@ -593,6 +598,11 @@ ul.enum li {
     padding: 3px 5px;
     bottom: 22px;
     left: 0;
+}
+
+tr:first-child .title:hover em {
+    bottom: inherit;
+    top: 22px;
 }
 
 .menuPanel a {
