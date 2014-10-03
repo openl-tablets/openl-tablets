@@ -907,6 +907,9 @@ public class WebStudio {
                     return tableURI.startsWith(projectURI);
                 }
             });
+            if (project == null) {
+                return null;
+            }
             // Get a module
             Module module = CollectionUtils.find(project.getModules(), new Predicate<Module>() {
                 @Override
