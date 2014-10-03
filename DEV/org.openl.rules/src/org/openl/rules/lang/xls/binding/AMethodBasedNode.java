@@ -156,7 +156,12 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
             int startPosition = getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(tableHeaderText);
             // Link to return type
-            IMetaInfo metaInfo = tableHeader.getType().getMetaInfo();
+            IOpenClass type = tableHeader.getType();
+            IMetaInfo metaInfo = type.getMetaInfo();
+            while (metaInfo == null && type.isArray()) {
+                type = type.getComponentClass();
+                metaInfo = type.getMetaInfo();
+            }
             ILocation typeLocation = tableHeader.getTypeLocation();
             if (metaInfo != null && typeLocation != null) {
                 int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
@@ -168,7 +173,13 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
             if (paramTypeLocations != null) {
                 for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                    metaInfo = header.getSignature().getParameterType(i).getMetaInfo();
+                    IOpenClass parameterType = header.getSignature().getParameterType(i);
+                    metaInfo = parameterType.getMetaInfo();
+                    while (metaInfo == null && parameterType.isArray()) {
+                        parameterType = parameterType.getComponentClass();
+                        metaInfo = parameterType.getMetaInfo();
+                    }
+
                     if (metaInfo != null) {
                         ILocation sourceLocation = paramTypeLocations[i];
                         int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
