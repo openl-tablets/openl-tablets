@@ -42,7 +42,12 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
         ILocation typeLocation = null;
         ILocation[] paramTypeLocations = null;
         if (!bindingContext.isExecutionMode()) {
-            typeLocation = typeNode.getSyntaxNode().getSourceLocation();
+            ISyntaxNode syntaxNode = typeNode.getSyntaxNode();
+            while (syntaxNode.getNumberOfChildren() == 1 && !(syntaxNode instanceof IdentifierNode)) {
+                // Get type node for array
+                syntaxNode = syntaxNode.getChild(0);
+            }
+            typeLocation = syntaxNode.getSourceLocation();
 
             paramTypeLocations = new ILocation[signature.getNumberOfParameters()];
             for (int i = 0; i < signature.getNumberOfParameters(); i++) {

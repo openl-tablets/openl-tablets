@@ -37,7 +37,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         typeB = findTable("Datatype TypeB");
         typeC = findTable("Datatype TypeC extends TypeB");
         rule1 = findTable("Rules TypeB rule1(TypeB typeB, TypeC typeC)");
-        convert = findTable("Method TypeB convert(TypeC param)");
+        convert = findTable("Method TypeB[][] convert(TypeC[][] param)");
     }
 
     @Test
@@ -109,7 +109,13 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         List<? extends NodeUsage> usedNodes = header.getMetaInfo().getUsedNodes();
         assertEquals(2, usedNodes.size());
+
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+        assertEquals(7, usedNodes.get(0).getStart());
+        assertEquals(11, usedNodes.get(0).getEnd());
+
         assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
+        assertEquals(25, usedNodes.get(1).getStart());
+        assertEquals(29, usedNodes.get(1).getEnd());
     }
 }

@@ -11,6 +11,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -50,7 +51,13 @@ public class MethodParametersNode extends ABoundNode {
 
     public ILocation getParamTypeLocation(int paramNum) {
         // 0-th child is param type, 1-st child is param name. See ParameterDeclarationNodeBinder
-        return children[paramNum].getSyntaxNode().getChild(0).getSourceLocation();
+        ISyntaxNode typeNode = children[paramNum].getSyntaxNode().getChild(0);
+
+        while (typeNode.getNumberOfChildren() == 1 && !(typeNode instanceof IdentifierNode)) {
+            // Get type node for array
+            typeNode = typeNode.getChild(0);
+        }
+        return typeNode.getSourceLocation();
     }
 
     public IOpenClass getType() {
