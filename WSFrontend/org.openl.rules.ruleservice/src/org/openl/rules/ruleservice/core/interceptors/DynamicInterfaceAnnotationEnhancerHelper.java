@@ -39,7 +39,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                     if (arg1.equals(method.getName())) {
                         Type[] typesInTemplateMethod = Type.getArgumentTypes(method);
                         Type[] typesInCurrentMethod = Type.getArgumentTypes(arg2);
-                        if (typesInCurrentMethod.length == typesInCurrentMethod.length) {
+                        if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
                             boolean isCompatible = true;
                             for (int i = 0; i < typesInCurrentMethod.length; i++) {
                                 if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {

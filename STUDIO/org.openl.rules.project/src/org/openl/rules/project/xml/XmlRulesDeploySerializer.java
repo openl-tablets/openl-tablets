@@ -18,7 +18,8 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.omitField(RulesDeploy.class, "log");
 
         xstream.setMode(XStream.NO_REFERENCES);
-
+        
+        xstream.aliasType("publisher", RulesDeploy.PublisherType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy.class);
     }
 

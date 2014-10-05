@@ -33,8 +33,8 @@ public class InterfaceTransformer {
 
     /**
      * @param interfaceToTransform Base class for generations.
-     * @param className            Name for new class(java notation: with .(dot) as the
-     *                             delimiter).
+     * @param className Name for new class(java notation: with .(dot) as the
+     *            delimiter).
      */
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.interfaceToTransform = interfaceToTransform;
@@ -50,11 +50,11 @@ public class InterfaceTransformer {
      */
     public void accept(ClassVisitor classVisitor) {
         classVisitor.visit(Opcodes.V1_5,
-                InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
-                className.replace('.', '/'),
-                null,
-                InterfaceGenerator.JAVA_LANG_OBJECT,
-                null);
+            InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
+            className.replace('.', '/'),
+            null,
+            InterfaceGenerator.JAVA_LANG_OBJECT,
+            null);
         for (Annotation annotation : interfaceToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
             processAnnotation(annotation, av);
@@ -64,14 +64,14 @@ public class InterfaceTransformer {
             if (isConstantField(field)) {
                 try {
                     FieldVisitor fieldVisitor = classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
-                            field.getName(),
-                            Type.getDescriptor(field.getType()),
-                            null,
-                            field.get(null));
+                        field.getName(),
+                        Type.getDescriptor(field.getType()),
+                        null,
+                        field.get(null));
                     if (fieldVisitor != null) {
                         for (Annotation annotation : field.getAnnotations()) {
                             AnnotationVisitor av = fieldVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                                    true);
+                                true);
                             processAnnotation(annotation, av);
                         }
                     }
@@ -84,15 +84,27 @@ public class InterfaceTransformer {
         for (Method method : interfaceToTransform.getMethods()) {
             String ruleName = method.getName();
             MethodVisitor methodVisitor = classVisitor.visitMethod(InterfaceGenerator.PUBLIC_ABSTRACT,
-                    ruleName,
-                    Type.getMethodDescriptor(method),
-                    null,
-                    null);
+                ruleName,
+                Type.getMethodDescriptor(method),
+                null,
+                null);
             if (methodVisitor != null) {
                 for (Annotation annotation : method.getAnnotations()) {
                     AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                            true);
+                        true);
                     processAnnotation(annotation, av);
+                }
+                if (method.getParameterAnnotations().length > 0) {
+                    int index = 0;
+                    for (Annotation[] annotatons : method.getParameterAnnotations()) {
+                        for (int j = 0; j < annotatons.length; j++) {
+                            AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index,
+                                Type.getDescriptor(annotatons[j].annotationType()),
+                                true);
+                            processAnnotation(annotatons[j], av);
+                        }
+                        index++;
+                    }
                 }
             }
 

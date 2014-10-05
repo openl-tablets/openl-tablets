@@ -5,29 +5,26 @@
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 
-	<!-- Bean helps to read configuration and apply it to override types -->
-	<bean id="rootClassNamesBindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
-		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}" />
-	</bean>
-
-	<bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
-		scope="prototype" >
-		<property name="additionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
-	</bean>
-
-	<bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationSupportVariationsFactoryBean"
-		scope="prototype" >
-		<property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
-	</bean>
-
 	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
+	<bean id="serviceDescriptionConfigurationReadXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="ws.readXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.ws.readXsiTypes}"/>
+	</bean>
+
+	<bean id="serviceDescriptionConfigurationWriteXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype">
+		<property name="propertyName" value="ws.writeXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.ws.writeXsiTypes}"/>
+	</bean>
+	
 	<bean id="aegisDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
 		scope="prototype">
-		<property name="writeXsiTypes" value="true" />
+		<property name="readXsiTypes" ref="serviceDescriptionConfigurationReadXsiTypesFactoryBean" />
+		<property name="writeXsiTypes" ref="serviceDescriptionConfigurationWriteXsiTypesFactoryBean" />
 		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
 		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
 	</bean>

@@ -3,12 +3,13 @@ package org.openl.rules.ruleservice.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -33,7 +34,7 @@ public final class OpenLService {
     private boolean useRuleServiceRuntimeContext = false;
     private boolean provideVariations = false;
     private Collection<Module> modules;
-    private Collection<Class<RuleServicePublisher>> publishers;
+    private Set<String> publishers;
 
     /**
      * Not full constructor, by default variations is not supported.
@@ -45,7 +46,7 @@ public final class OpenLService {
      * @param modules a list of modules for load
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
+            Set<String> publishers, Collection<Module> modules) {
         this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules);
     }
 
@@ -70,7 +71,7 @@ public final class OpenLService {
      * @param modules a list of modules for load
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            boolean provideVariations, Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
+            boolean provideVariations, Set<String> publishers, Collection<Module> modules) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
         }
@@ -86,9 +87,9 @@ public final class OpenLService {
         this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
         if (publishers != null) {
-            this.publishers = Collections.unmodifiableCollection(publishers);
+            this.publishers = Collections.unmodifiableSet(publishers);
         } else {
-            this.publishers = Collections.emptyList();
+            this.publishers = Collections.emptySet();
         }
     }
 
@@ -120,7 +121,7 @@ public final class OpenLService {
      * 
      * @return service publishers
      */
-    public Collection<Class<RuleServicePublisher>> getPublishers() {
+    public Collection<String> getPublishers() {
         if (publishers == null)
             return Collections.emptyList();
         return publishers;
@@ -263,20 +264,20 @@ public final class OpenLService {
         private boolean provideVariations = false;
         private boolean useRuleServiceRuntimeContext = false;
         private Collection<Module> modules;
-        private Collection<Class<RuleServicePublisher>> publishers;
+        private Set<String> publishers;
 
-        public OpenLServiceBuilder setPublishers(Collection<Class<RuleServicePublisher>> publishers) {
+        public OpenLServiceBuilder setPublishers(Set<String> publishers) {
             if (publishers == null) {
-                this.publishers = new ArrayList<Class<RuleServicePublisher>>(0);
+                this.publishers = new HashSet<String>(0);
             } else {
                 this.publishers = publishers;
             }
             return this;
         }
 
-        public OpenLServiceBuilder addPublishers(Collection<Class<RuleServicePublisher>> publishers) {
+        public OpenLServiceBuilder addPublishers(Set<String> publishers) {
             if (this.publishers == null) {
-                this.publishers = new ArrayList<Class<RuleServicePublisher>>();
+                this.publishers = new HashSet<String>();
             }
             if (publishers != null) {
                 this.publishers.addAll(publishers);
@@ -284,9 +285,9 @@ public final class OpenLService {
             return this;
         }
 
-        public OpenLServiceBuilder addPublisher(Class<RuleServicePublisher> publisher) {
+        public OpenLServiceBuilder addPublisher(String publisher) {
             if (this.publishers == null) {
-                this.publishers = new ArrayList<Class<RuleServicePublisher>>();
+                this.publishers = new HashSet<String>();
             }
             if (publisher != null) {
                 this.publishers.add(publisher);

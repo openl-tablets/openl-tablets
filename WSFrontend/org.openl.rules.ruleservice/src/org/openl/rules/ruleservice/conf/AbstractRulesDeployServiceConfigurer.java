@@ -107,6 +107,11 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                                 if (rulesDeploy.isUseRuleServiceRuntimeContext() != null) {
                                     serviceDescriptionBuilder.setUseRuleServiceRuntimeContext(rulesDeploy.isUseRuleServiceRuntimeContext());
                                 }
+                                if (rulesDeploy.getPublishers() != null) {
+                                    for (RulesDeploy.PublisherType key : rulesDeploy.getPublishers()){
+                                        serviceDescriptionBuilder.addPublisher(key.toString());
+                                    }
+                                }
                                 if (rulesDeploy.getConfiguration() != null) {
                                     serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                                 }
