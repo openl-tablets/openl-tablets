@@ -5,14 +5,9 @@ import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.vm.trace.ITracerObject;
 
-public abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
-
-    public ATBasicTraceObjectLeaf() {
-        super();
-    }
-
-    public ATBasicTraceObjectLeaf(Object tracedObject) {
-        super(tracedObject);
+abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
+    protected ATBasicTraceObjectLeaf(String type) {
+        super(type);
     }
 
     public TableSyntaxNode getTableSyntaxNode() {

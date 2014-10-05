@@ -8,7 +8,5 @@ public interface TraceStack {
     void push(ITracerObject obj);
 
     void reset();
-    
-    int size();
 
 }

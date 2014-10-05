@@ -8,7 +8,6 @@ import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor
- *
  */
 public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing {
 
@@ -18,21 +17,20 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing 
      * @return Parent <code>ITracerObject</code>.
      */
     ITracerObject getParent();
-    
+
     /**
      * Set parent trace object.
      *
-     * @param Parent <code>ITracerObject</code>.
+     * @param parentTraceObject <code>ITracerObject</code>.
      */
     void setParent(ITracerObject parentTraceObject);
 
     void addChild(ITracerObject child);
-    
-    ITracerObject[] getTracerObjects();
 
-    Object getTraceObject();
+    @Override
+    Iterable<ITracerObject> getChildren();
 
     String getUri();
-    
+
     Object getResult();
 }

@@ -5,7 +5,7 @@ import java.io.Writer;
 
 public interface TracePrinter {
 
-    String print(Tracer tracer) throws IOException;
-    
-    void print(Tracer tracer, Writer writer) throws IOException;
+    String print(ITracerObject tracer) throws IOException;
+
+    void print(ITracerObject tracer, Writer writer) throws IOException;
 }

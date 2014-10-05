@@ -1,4 +1,4 @@
-<project name="overallRelease" default="help" basedir="BasePom/org.openl.rules.base-pom">
+<project name="overallRelease" default="help" basedir=".">
 
 	<description>
 	    This script is designed to build all projects from base-pom in two ways:
@@ -45,31 +45,30 @@
 	</target>
 
 	<target name="changeVersionsBeforeCommit">
-
-        <antcall target="change">
+        	<antcall target="change">
 			<param name="projects_root" value="${moduleFolder}"/>
 			<param name="previous_version" value="${current_version}"/>
 			<param name="version" value="${release_version}"/>
 		</antcall>
-		<antcall target="commitModule"/>
+		<!--<antcall target="commitModule"/>-->
 	</target>
 	
 	<target name="releaseModule">
-		<echo>Changing versions before the release</echo>
-		<antcall target="changeVersionsBeforeCommit"/>
+		<!--<echo>Changing versions before the release</echo>
+		<antcall target="changeVersionsBeforeCommit"/>-->
 
-		<echo>release:prepare</echo>		
+		<!--<echo>release:prepare</echo>		
 		<maven dir="${moduleFolder}">
 			<arg line="-B -X release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -DreleaseVersion=${release_version} -Dstaging.hg.repo.url=${local_staging_repo} -Darguments=&quot;-P internal-deploy&quot;"/>
-		</maven>
+		</maven>-->
 
 		<echo>release:perform</echo>
 		<maven dir="${moduleFolder}">
 			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy,gpg-sign -Dgpg.passphrase=${passphrase} -Dstaging.hg.repo.url=${local_staging_repo}&quot;" />
 		</maven>
 
-		<echo>Changing versions after the release</echo>
-		<antcall target="changeVersionsAfterCommit"/>
+		<!--<echo>Changing versions after the release</echo>
+		<antcall target="changeVersionsAfterCommit"/>-->
 	</target>
 	
 	<target name="changeVersionsAfterCommit">
@@ -83,9 +82,9 @@
 	</target>
 
 	<target name="releaseAll">
-			<antcall target="releaseModule">
-				<param name="moduleFolder" value="${root_folder}"/>
-			</antcall>
+		<antcall target="releaseModule">
+			<param name="moduleFolder" value="${root_folder}"/>
+		</antcall>
 	</target>
 	
 	<target name="help">

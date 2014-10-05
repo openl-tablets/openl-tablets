@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
 import org.apache.commons.io.FilenameUtils;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import java.util.jar.JarFile;
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
-    private final static String RULES_FILE_NAME = "rules.xml";
 
     private String destinationDirectory;
 
@@ -193,7 +193,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (!FolderHelper.clearFolder(new File(destDirectory))) {
             log.warn("Failed on a folder clear. Path: \"{}\"", destDirectory);
         }

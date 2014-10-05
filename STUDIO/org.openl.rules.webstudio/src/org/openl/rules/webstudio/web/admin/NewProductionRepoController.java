@@ -21,11 +21,6 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
     private static final String PRODUCTION_PEPOSITORY_TYPE = "local";
 
     @Override
-    public void clearForm() {
-        super.clearForm();
-    }
-
-    @Override
     public void save() {
         /*Only local repo can be created*/
         this.setType(PRODUCTION_PEPOSITORY_TYPE);

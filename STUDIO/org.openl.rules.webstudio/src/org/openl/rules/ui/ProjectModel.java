@@ -86,6 +86,7 @@ import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
+import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
 
 import java.io.File;
@@ -1288,17 +1289,17 @@ public class ProjectModel {
         previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
-    public Tracer traceElement(TestSuite testSuite) {
-        Tracer t = new Tracer();
-        Tracer.setTracer(t);
-
+    public ITracerObject traceElement(TestSuite testSuite) {
+        ITracerObject t = null;
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
+                Tracer.initialize();
+                t = Tracer.getRoot();
                 runTest(testSuite, false);
             } finally {
-                Tracer.setTracer(null);
+                Tracer.destroy();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);

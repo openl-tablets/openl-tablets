@@ -1,34 +1,28 @@
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
+
+import java.util.List;
 
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
 
     public static final String ERROR_RESULT = "ERROR";
 
     private Object params[];
-    private Object result;
     private Throwable error;
+    private ExecutableRulesMethod method;
+    private String prefix;
 
-    public ATableTracerNode() {
-        this(null, null);
-    }
-
-    public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
-        /**
-         * Why traceObject is instanceof IMemberMetaInfo? don`t need it!
-         * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
-         * @author DLiauchuk
-         */
-        super(traceObject);
+    public ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
+        super(type);
+        this.prefix = prefix;
+        this.method = method;
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
             Object[] clonedParams = null;
@@ -45,20 +39,18 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         }
     }
 
-    protected String asString(IOpenMethod method, int mode) {
-        StringBuilder buf = new StringBuilder(64);
-        buf.append(method.getType().getDisplayName(mode)).append(' ');
-
-        buf.append(resultAsString(method));
-
-        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
-
-        return buf.toString();
+    public ExecutableRulesMethod getTraceObject() {
+        return method;
     }
 
-    protected String resultAsString(IOpenMethod method) {
+    @Override
+    public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
-        if (!isVoid(method)) {
+        buf.append(prefix).append(' ');
+        IOpenClass type = method.getType();
+        buf.append(type.getDisplayName(mode)).append(' ');
+
+        if (!JavaOpenClass.isVoid(type)) {
             if (hasError()) {
                 // append error of any
                 //
@@ -66,65 +58,22 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             } else {
                 // append formatted result
                 //
-                buf.append(getFormattedValue(result, method));
+                buf.append(getFormattedValue(getResult(), method));
             }
             buf.append(' ');
         }
+
+        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
+
         return buf.toString();
-    }
-
-    protected String parametersAsString(IOpenMethod method, int mode) {
-        StringBuilder buf = new StringBuilder(64);
-        buf.append(method.getName()).append('(');
-
-        IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
-
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buf.append(", ");
-            }
-            buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
-            buf.append(method.getSignature().getParameterName(i)).append(" = ");
-            buf.append(FormattersManager.format(params[i]));
-        }
-        buf.append(')');
-        return buf.toString();
-    }
-
-    protected boolean isVoid(IOpenMethod method) {
-        return (JavaOpenClass.isVoid(method.getType()));
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode syntaxNode = null;
-
-        IMemberMetaInfo tracedNode = (IMemberMetaInfo) getTraceObject();
-        if (tracedNode != null) {
-            ISyntaxNode tsn = tracedNode.getSyntaxNode();
-            if (tsn instanceof TableSyntaxNode) {
-                syntaxNode = (TableSyntaxNode) tsn;
-            }
+        if (method != null) {
+            syntaxNode = method.getSyntaxNode();
         }
         return syntaxNode;
-    }
-
-    public ITableTracerObject[] getTableTracers() {
-        ITracerObject[] tracerObjects = getTracerObjects();
-
-        int size = tracerObjects.length;
-        ITableTracerObject[] temp = new ITableTracerObject[size];
-
-        System.arraycopy(tracerObjects, 0, temp, 0, size);
-
-        return temp;
-    }
-
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
     }
 
     public Throwable getError() {
@@ -143,13 +92,19 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return params.clone();
     }
 
-    public String getFormattedResult() {
-        return FormattersManager.format(result);
-    }
-
     protected String getFormattedValue(Object value, IOpenMethod method) {
         // add '=' symbol if not void
         return "= " + FormattersManager.format(value);
     }
 
+    @Override
+    public String getUri() {
+        return method.getSourceUrl();
+    }
+
+    @Override
+    public List<IGridRegion> getGridRegions() {
+        // Default stub implementation
+        return null;
+    }
 }

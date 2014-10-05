@@ -7,7 +7,7 @@ import java.io.Writer;
 public class DefaultTracePrinter implements TracePrinter {
 
     private TraceFormatter formatter = new RawStringTraceFormatter();
-    
+
     public TraceFormatter getFormatter() {
         return formatter;
     }
@@ -16,20 +16,19 @@ public class DefaultTracePrinter implements TracePrinter {
         this.formatter = formatter;
     }
 
-    public void print(Tracer tracer, Writer writer) throws IOException {
+    public void print(ITracerObject tracer, Writer writer) throws IOException {
 
-        ITracerObject[] tracerObjects = tracer.getTracerObjects();
+        Iterable<ITracerObject> tracerObjects = tracer.getChildren();
         String formattedString = formatter.format(tracerObjects);
-        
+
         writer.write(formattedString);
     }
 
-    public String print(Tracer tracer) throws IOException {
-        
+    public String print(ITracerObject tracer) throws IOException {
+
         StringWriter writer = new StringWriter();
         print(tracer, writer);
-        
+
         return writer.toString();
     }
-
 }

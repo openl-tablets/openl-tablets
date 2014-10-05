@@ -13,7 +13,6 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.DefaultInvokerWithTrace;
 import org.openl.rules.method.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -30,7 +29,7 @@ import org.openl.vm.trace.Tracer;
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
  * 
- * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
+ * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
@@ -73,10 +72,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         candidatesSorted = null;
     }
 
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
+    private Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         Object returnResult = null;
         traceObject = null;
-        Tracer tracer = Tracer.getTracer();
 
         /**
          * this block is for overloaded by active property tables without any
@@ -86,20 +84,20 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
         if (selected.size() > 1) {
             traceObject = getTracedObject(selected, params);
-            tracer.push(traceObject);
+            Tracer.begin(traceObject);
         }
         try {
             returnResult = super.invoke(target, params, env);
         } catch (RuntimeException e) {
             if (traceObject == null) {
                 traceObject = getTracedObject(selected, params);
-                tracer.push(traceObject);
+                Tracer.begin(traceObject);
             }
             traceObject.setError(e);
             throw e;
         } finally {
             if (traceObject != null) {
-                tracer.pop();
+                Tracer.end();
             }
         }
         return returnResult;

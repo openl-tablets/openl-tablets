@@ -524,7 +524,8 @@ table.properties-form.wide textarea {
 }
 
 table.properties-form.wide input[type="text"].with-button {
-    width: 280px;
+    /* 280px - 2px for IE9 and Chrome*/
+    width: 278px;
 }
 
 table td.delimeter {
@@ -572,7 +573,12 @@ ul.enum li {
     position: relative;
     z-index: 1;
     zoom: 1;
-    color: #06F;
+}
+
+.title > a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted;
 }
 
 .title em {
@@ -592,6 +598,11 @@ ul.enum li {
     padding: 3px 5px;
     bottom: 22px;
     left: 0;
+}
+
+tr:first-child .title:hover em {
+    bottom: inherit;
+    top: 22px;
 }
 
 .menuPanel a {

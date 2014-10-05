@@ -34,9 +34,4 @@ public class ChildTraceStack implements TraceStack {
         }
     }
 
-    @Override
-    public int size() {
-        return tracer.size();
-    }
-
 }

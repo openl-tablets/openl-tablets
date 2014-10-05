@@ -38,11 +38,6 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     }
 
     @Override
-    public void clearForm() {
-       super.clearForm();
-    }
-
-    @Override
     public void setType(String type) {
         super.setType(type);
         if (isLocal()) {
@@ -93,25 +88,30 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
     private boolean checkLocalRepo(RepositoryConfiguration repoConfig) {
         File repoDir = new File(repoConfig.getPath());
+        String errorMessage = "There is no repository in this folder. Please, correct folder path";
         if (repoDir.exists()) {
             File[] files = repoDir.listFiles();
             RepoDirChecker checker = new RepoDirChecker(repoConfig.getPath());
+            if (files == null) {
+                setErrorMessage(errorMessage);
+                return false;
+            }
 
-            for (int i = 0; i < files.length; i++) {
+            for (File file : files) {
                 try {
-                    checker.check(files[i].getCanonicalPath());
+                    checker.check(file.getCanonicalPath());
                 } catch (IOException e) {
-                    setErrorMessage("There is no repository in this folder. Please, correct folder path");
+                    setErrorMessage(errorMessage);
                     return false;
                 }
             }
 
             if(!checker.isRepoThere()) {
-                setErrorMessage("There is no repository in this folder. Please, correct folder path");
+                setErrorMessage(errorMessage);
                 return false;
             }
 
-            if (checker.isRepoThere() && !StringUtils.isEmpty(repoConfig.getLogin())) {
+            if (!StringUtils.isEmpty(repoConfig.getLogin())) {
                 try {
                     RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
                     repository.release();
@@ -121,7 +121,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 }
             }
         } else {
-            setErrorMessage("There is no repository in this folder. Please, correct folder path");
+            setErrorMessage(errorMessage);
             return false;
         }
 
@@ -137,7 +137,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         this.connectionChecked = connectionChecked;
     }
 
-    public class RepoDirChecker{
+    public static class RepoDirChecker{
         private String root = "";
         private boolean hasRepoDir = false;
         private boolean hasVersionDir = false;

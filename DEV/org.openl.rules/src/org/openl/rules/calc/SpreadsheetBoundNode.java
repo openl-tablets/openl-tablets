@@ -90,8 +90,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         builder.populateSpreadsheetOpenClass();
     }
     
-    public void finalizeBind(IBindingContext bindingContext) throws Exception {        
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();       
+    public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        super.finalizeBind(bindingContext);
+
+        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         

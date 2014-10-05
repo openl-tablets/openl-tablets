@@ -22,15 +22,15 @@ public class TableModel {
     }
 
     public static TableModel initializeTableModel(IGridTable table, int numRows) {
-        return initializeTableModel(table, null, numRows, null, null);
+        return initializeTableModel(table, null, numRows, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, filters, -1, null, null);
+        return initializeTableModel(table, filters, -1, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows,
-            String linkBase, String linkTarget) {
+            LinkBuilder linkBuilder) {
         if (table == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBase, linkTarget).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBuilder).buildModel(table, numRows);
     }
 
     public TableModel(int width, int height, IGridTable gridTable) {
@@ -111,7 +111,7 @@ public class TableModel {
                 cm = ((CellModelDelegator) icm).getModel();
                 return cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
             default:
-                throw new RuntimeException();
+                throw new IllegalArgumentException("Incorrect border");
 
         }
 

@@ -11,6 +11,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
@@ -26,6 +27,15 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     protected boolean isStatic;
 
     protected IMemberMetaInfo info;
+
+    protected ILocation typeLocation;
+    protected ILocation[] paramTypeLocations;
+
+    public OpenMethodHeader(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass, ILocation typeLocation, ILocation[] paramTypeLocations) {
+        this(name, typeClass, signature, declaringClass);
+        this.typeLocation = typeLocation;
+        this.paramTypeLocations = paramTypeLocations;
+    }
 
     public OpenMethodHeader(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass) {
         this(name, typeClass, signature, declaringClass, false, null);
@@ -75,9 +85,6 @@ public class OpenMethodHeader implements IOpenMethodHeader {
         return name;
     }
 
-    /**
-     * @return
-     */
     public IMethodSignature getSignature() {
         return signature;
     }
@@ -106,6 +113,14 @@ public class OpenMethodHeader implements IOpenMethodHeader {
 
     public void setTypeClass(IOpenClass typeClass) {
         this.typeClass = typeClass;
+    }
+
+    public ILocation getTypeLocation() {
+        return typeLocation;
+    }
+
+    public ILocation[] getParamTypeLocations() {
+        return paramTypeLocations;
     }
 
     @Override

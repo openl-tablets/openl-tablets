@@ -37,7 +37,7 @@ public class TraceIntoFileBean {
 
     public void traceIntoFile(TestSuite testSuite) {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        Tracer tracer = model.traceElement(testSuite);
+        ITracerObject tracer = model.traceElement(testSuite);
 
         TracePrinter tracePrinter = getTracePrinter(fileFormat);
 

@@ -49,8 +49,6 @@ public class SimpleDiffTreePrinter extends DiffTreePrinter {
         if (des.length > 2) {
             System.err.println("2 only in this printer");
         }
-        DiffElement dif1 = des[0];
-        DiffElement dif2 = des[1];
     }
 
     private void writeStatus(DiffStatus status) {

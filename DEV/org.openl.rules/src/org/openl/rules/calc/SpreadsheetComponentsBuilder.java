@@ -9,6 +9,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.DefaultResultBuilder;
@@ -79,8 +80,6 @@ public class SpreadsheetComponentsBuilder {
     /**
      * Extract following data form the spreadsheet source table:
      * row names, column names, header definitions, return cell.
-     * 
-     * @param spreadsheetHeaderType
      */
     public void buildHeaders(IOpenClass spreadsheetHeaderType) {
         addRowHeaders();
@@ -213,14 +212,15 @@ public class SpreadsheetComponentsBuilder {
         for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
 
             IOpenClass headerType = null;
+            IdentifierNode typeIdentifierNode = null;
 
             for (SymbolicTypeDefinition symbolicTypeDefinition : headerDefinition.getVars()) {
 
-                if (symbolicTypeDefinition.getType() != null) {
-
+                typeIdentifierNode = symbolicTypeDefinition.getType();
+                if (typeIdentifierNode != null) {
                     SyntaxNodeException error = null;
 
-                    String typeIdentifier = symbolicTypeDefinition.getType().getIdentifier(); 
+                    String typeIdentifier = typeIdentifierNode.getIdentifier();
 
                     IOpenClass type = findType(typeIdentifier);
 
@@ -228,14 +228,13 @@ public class SpreadsheetComponentsBuilder {
                         // error case, can`t find type.
                         //
                         String message = "Type not found: " + typeIdentifier;
-                        error = SyntaxNodeExceptionUtils.createError(message, symbolicTypeDefinition.getType());
+                        error = SyntaxNodeExceptionUtils.createError(message, typeIdentifierNode);
                     } else if (headerType == null) {
                         // initialize header type
                         //                        
                         headerType = type;
                     } else if (headerType != type) {
-                        error = SyntaxNodeExceptionUtils.createError("Type redefinition", symbolicTypeDefinition
-                                .getType());
+                        error = SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode);
                     }
                     if (error != null) {
                         tableSyntaxNode.addError(error);
@@ -246,6 +245,17 @@ public class SpreadsheetComponentsBuilder {
 
             if (headerType != null) {
                 headerDefinition.setType(headerType);
+                if (!bindingContext.isExecutionMode()) {
+                    ILogicalTable cell;
+
+                    if (headerDefinition.getRow() >= 0) {
+                        cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                    } else {
+                        cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                    }
+
+                    RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, typeIdentifierNode, headerType.getMetaInfo());
+                }
             }
         }
     }
@@ -259,7 +269,7 @@ public class SpreadsheetComponentsBuilder {
      * @return appropriate IOpenClass for given typeIdentifier
      */
     private IOpenClass findType(String typeIdentifier) {
-        IOpenClass result = null;
+        IOpenClass result;
         if (JavaClassGeneratorHelper.isArray(typeIdentifier)) {
             // gets the name of the type, remove square brackets for array type declaration.
             //
@@ -268,7 +278,7 @@ public class SpreadsheetComponentsBuilder {
             IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
 
             if (type == null) {
-                return result;
+                return null;
             }
 
             int typeDimension = JavaClassGeneratorHelper.getDimension(typeIdentifier);
@@ -342,13 +352,13 @@ public class SpreadsheetComponentsBuilder {
     /**
      * Derives single cell return type.
      * 
-     * @param cellsCount
-     * @param headerDefinition
+     * @param cellsCount spreadsheet cells count
+     * @param headerDefinition spreadsheet header
      * @return the type that should be in the cell that is located in RETURN row
      *         or column
      * 
      * Right now we allow only to return types = scalars or arrays.
-     * @throws BoundError
+     * @throws SyntaxNodeException
      */
     private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
             throws SyntaxNodeException {
@@ -377,7 +387,7 @@ public class SpreadsheetComponentsBuilder {
     }
     
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
-        IResultBuilder resultBuilder = null;
+        IResultBuilder resultBuilder;
         
         SymbolicTypeDefinition symbolicTypeDefinition = null;
         
@@ -393,7 +403,7 @@ public class SpreadsheetComponentsBuilder {
             if (isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError(
                         "If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
-                        symbolicTypeDefinition.getName());
+                        symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
             }
 
             resultBuilder = new DefaultResultBuilder();
@@ -409,7 +419,7 @@ public class SpreadsheetComponentsBuilder {
             switch (notEmptyReturnDefinitions.size()) {
                 case 0:
                     throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
-                            symbolicTypeDefinition.getName());
+                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
                 case 1:
                     resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions);
                     break;

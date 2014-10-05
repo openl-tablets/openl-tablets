@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.install;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.IOUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -22,10 +23,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -216,10 +219,6 @@ public class InstallWizard {
     /**
      * Validates WebStudio working directory for write access. If specified
      * folder is not writable the validation error will appears
-     *
-     * @param context
-     * @param toValidate
-     * @param value
      */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         String studioPath;
@@ -276,23 +275,25 @@ public class InstallWizard {
     }
 
     /**
-     * Creates a temp file for validating folder write permisions
+     * Creates a temp file for validating folder write permissions
      *
      * @param file is a folder where temp file will be created
      * @return true if specified folder is writable, otherwise returns false
      */
     public boolean isWritable(File file) {
-        boolean isAccessable = false;
+        boolean isAccessible;
 
         try {
             File tmpFile = File.createTempFile("temp", null, file);
-            isAccessable = true;
-            tmpFile.delete();
+            isAccessible = true;
+            if (!tmpFile.delete()) {
+                log.warn("Can't delete temp file {}", tmpFile.getName());
+            }
 
         } catch (IOException ioe) {
             throw new ValidatorException(FacesUtils.createErrorMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
         }
-        return isAccessable;
+        return isAccessible;
     }
 
     /**
@@ -313,8 +314,6 @@ public class InstallWizard {
 
     /**
      * Returns collection of properties files for external databases
-     *
-     * @return
      */
     public Collection<File> getDBPropetiesFiles() {
         File dbPropFolder = new File(System.getProperty("webapp.root") + "/WEB-INF/conf/db");
@@ -332,16 +331,17 @@ public class InstallWizard {
 
     /**
      * Returns a Map of data base vendors
-     *
-     * @return
      */
     public List<SelectItem> getDBVendors() {
         List<SelectItem> dbVendors = new ArrayList<SelectItem>();
         Properties dbProps = new Properties();
 
         for (File propFile : getDBPropetiesFiles()) {
+            InputStream is = null;
             try {
-                dbProps.load(new FileInputStream(propFile));
+                is = new FileInputStream(propFile);
+                dbProps.load(is);
+                is.close();
                 String propertyFilePath = System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
                 String dbVendor = dbProps.getProperty("db.vendor");
 
@@ -350,6 +350,8 @@ public class InstallWizard {
                 log.error("The file {} not found", propFile.getAbsolutePath(), e);
             } catch (IOException e) {
                 log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
+            } finally {
+                IOUtils.closeQuietly(is);
             }
         }
         return dbVendors;

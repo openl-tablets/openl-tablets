@@ -19,7 +19,6 @@ import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.tableeditor.util.WebUtil;
 
 /**
  * Render TableEditor HTML.
@@ -83,8 +82,7 @@ public class HTMLRenderer {
             IGridFilter[] filters = editor.getFilters();
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows,
-                    editor.getLinkBase(), editor.getLinkTarget());
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder());
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -103,7 +101,7 @@ public class HTMLRenderer {
                 String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
 
                 result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
-                        + WebUtil.internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","
+                        + internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","
                         + (Constants.MODE_EDIT.equals(mode) ? 1 : 0) + "," + editor.isEditable() + ");"));
             }
         }
@@ -167,7 +165,7 @@ public class HTMLRenderer {
     public String renderCSS(String cssPath) {
         Set<String> resources = getResourcesWritten();
         if (resources.add(cssPath)) {
-            return "<link rel=\"stylesheet\" href=\"" + WebUtil.internalPath(cssPath) + "\"></link>";
+            return "<link rel=\"stylesheet\" href=\"" + internalPath(cssPath) + "\"></link>";
         }
         return "";
     }
@@ -209,7 +207,7 @@ public class HTMLRenderer {
     protected String renderEditorToolbar(String editorId, String editorJsVar, String mode) {
         StringBuilder result = new StringBuilder();
 
-        final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
+        final String toolbarItemSeparator = "<img src=" + internalPath("img/toolbarSeparator.gif")
                 + " class=\"item_separator\"></img>";
 
         result.append("<div style=\"").append(mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "").append("\" class=\"te_toolbar\">")
@@ -272,7 +270,7 @@ public class HTMLRenderer {
         editor = (editor == null || editor.equals("")) ? "" : editor + ".";
         StringBuilder result = new StringBuilder();
         result.append("<img id=\"").append(itemId)
-            .append("\" src=\"").append(WebUtil.internalPath(imgSrc))
+            .append("\" src=\"").append(internalPath(imgSrc))
             .append("\" title=\"").append(title)
             .append("\" onclick=\"").append(editor).append(action)
             .append("\" class='te_toolbar_item te_toolbar_item_disabled'")
@@ -283,7 +281,7 @@ public class HTMLRenderer {
     public String renderJS(String jsPath) {
         Set<String> resources = getResourcesWritten();
         if (resources.add(jsPath)) {
-            return "<script src=\"" + WebUtil.internalPath(jsPath) + "\"></script>";
+            return "<script src=\"" + internalPath(jsPath) + "\"></script>";
         }
         return "";
     }
@@ -374,7 +372,7 @@ public class HTMLRenderer {
                                 selectErrorCell = true;
                             }
                         }
-                        ((CellModel) cell).atttributesToHtml(s, tableModel, selectErrorCell);
+                        ((CellModel) cell).attributesToHtml(s, selectErrorCell);
                     }
 
                     StringBuilder cellId = new StringBuilder();
@@ -413,4 +411,7 @@ public class HTMLRenderer {
         }
     }
 
+    public static String internalPath(String path) {
+        return FacesUtils.getContextPath() + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
+    }
 }

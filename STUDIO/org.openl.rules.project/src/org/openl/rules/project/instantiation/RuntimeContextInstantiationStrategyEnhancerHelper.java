@@ -189,7 +189,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
             if (signature.startsWith("(" + RUNTIME_CONTEXT)) {
                 return "(" + signature.substring(RUNTIME_CONTEXT.length() + 1);
             } else {
-                throw new RuntimeException("wrong signature!");
+                throw new IllegalArgumentException("wrong signature!");
             }
         }
     }

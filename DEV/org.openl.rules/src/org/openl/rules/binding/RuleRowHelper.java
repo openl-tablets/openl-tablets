@@ -2,13 +2,16 @@ package org.openl.rules.binding;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaHolder;
+import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.convertor.IObjectToDataConvertor;
@@ -27,11 +30,13 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
@@ -129,7 +134,7 @@ public class RuleRowHelper {
                 Array.set(arrayValues, i, values.get(i));
             }
         }else {
-            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[]{0});
             if(!openlAdaptor.getBindingContext().isExecutionMode()) {
                 setCellMetaInfo(cell, paramName, paramType, true);
             }
@@ -395,6 +400,15 @@ public class RuleRowHelper {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
         ICell cell = logicalCell.getSource().getCell(0, 0);
         cell.setMetaInfo(meta);
+    }
+
+    public static void setCellMetaInfoWithNodeUsage(ILogicalTable logicalCell, IdentifierNode identifier, IMetaInfo metaInfo) {
+        if (metaInfo != null) {
+            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier, metaInfo.getDisplayName(0), metaInfo.getSourceUrl());
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+            ICell cell = logicalCell.getSource().getCell(0, 0);
+            cell.setMetaInfo(meta);
+        }
     }
 
     private static void setMetaInfo(IMetaHolder holder,

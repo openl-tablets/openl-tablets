@@ -1,9 +1,9 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+
 import org.apache.commons.lang3.StringUtils;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
-import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -19,9 +19,7 @@ public class TableViewer {
 
     private IGridRegion reg;
 
-    private String linkBase;
-
-    private String linkTarget;
+    private LinkBuilder linkBuilder;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -83,12 +81,11 @@ public class TableViewer {
     /**
      * Two argument constructor
      */
-    public TableViewer(IGrid grid, IGridRegion reg, String linkBase, String linkTarget) {
+    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder) {
         super();
         this.grid = grid;
         this.reg = reg;
-        this.linkBase = linkBase;
-        this.linkTarget = linkTarget;
+        this.linkBuilder = linkBuilder;
     }
 
     CellModel buildCell(ICell cell, CellModel cm) {
@@ -108,13 +105,13 @@ public class TableViewer {
                 content = formattedValue;
                 // has method call
                 //
-            } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
+            } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
                 content = createFormulaCellWithLinks(cell, formattedValue);
                 // has image
             } else if (image(formattedValue)) {
                 content = formattedValue;
             } else {            
-                content = StringEscapeUtils.escapeHtml4(formattedValue);
+                content = escapeHtml4(formattedValue);
             }
             cm.setContent(content);
             if (cell.getFormula() != null) {
@@ -141,35 +138,27 @@ public class TableViewer {
         int nextSymbolIndex = 0;
         StringBuilder buff = new StringBuilder();
         if (isShowLinks()) {
-            for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
-                int pstart = methodUsage.getStart();
-                int pend = methodUsage.getEnd();
-                String tableUri = methodUsage.getTableUri();
+            for (NodeUsage nodeUsage : cell.getMetaInfo().getUsedNodes()) {
+                int pstart = nodeUsage.getStart();
+                int pend = nodeUsage.getEnd();
+                String tableUri = nodeUsage.getUri();
                 // add link to used table with signature in tooltip
-                buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
+                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart))).append("<span class=\"title\">");
                 if (tableUri != null) {
-                    String tableId = TableUtils.makeTableId(tableUri);
-                    buff.append("<a href=\"").append(linkBase).append("?id=")
-                        .append(tableId).append("\"");
-                    if (StringUtils.isNotBlank(linkTarget)) {
-                        buff.append(" target=\"").append(linkTarget).append("\"");
-                    }
-                    buff.append(">")
-                        .append(formattedValue.substring(pstart, pend + 1))
-                        .append("</a>");
+                    buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
                 } else {
-                    buff.append(formattedValue.substring(pstart, pend + 1));
+                    buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
                 }
-                buff.append("<em>").append(methodUsage.getMethodSignature()).append("</em></span>");
+                buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
                 nextSymbolIndex = pend + 1;
             }
         }
-        buff.append(formattedValue.substring(nextSymbolIndex));
+        buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
         return buff.toString();
     }
 
     private boolean isShowLinks() {
-        return linkBase != null;
+        return linkBuilder != null;
     }
 
     public TableModel buildModel(IGridTable gt) {

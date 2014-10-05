@@ -3,110 +3,95 @@
  */
 package org.openl.vm.trace;
 
-import java.util.Stack;
-
 /**
- * @author snshor
- * 
+ * @author Yury Molchan
  */
-public class Tracer implements TraceStack {
+public final class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
-    private static ThreadLocal<Boolean> tracerIsActive = new ThreadLocal<Boolean>(){
-      protected Boolean initialValue() {
-          return Boolean.TRUE;
-      };  
-    };
-    
-    private Stack<ITracerObject> stack = new Stack<ITracerObject>();
-    private ITracerObject root;
 
-    public Tracer() {
+    private ITracerObject root;
+    private ITracerObject current;
+
+    private boolean active = true;
+
+    private Tracer() {
         init();
+    }
+
+    public static void put(ITracerObject obj) {
+        if (isTracerOn()) {
+            ITracerObject current = tracer.get().current;
+            current.addChild(obj);
+        }
+    }
+
+    public static void begin(ITracerObject obj) {
+        if (isTracerOn()) {
+            put(obj);
+            tracer.get().current = obj;
+        }
+    }
+
+    public static void end() {
+        if (isTracerOn()) {
+            tracer.get().current = tracer.get().current.getParent();
+        }
     }
 
     public static Tracer getTracer() {
         return tracer.get();
     }
-    
-    public static boolean isTracerDefined() {
-        return tracer.get() != null;
-    }
-    
+
     public static boolean isTracerOn() {
-        return tracer.get() != null && tracerIsActive.get() != null && tracerIsActive.get();
-    }
-    
-    public static void disableTrace(){
-        tracerIsActive.set(Boolean.FALSE);
-    }
-    
-    public static void enableTrace(){
-        tracerIsActive.set(Boolean.TRUE);
-    }
-    
-
-    public static void setTracer(Tracer t) {
-        tracer.set(t);
+        return tracer.get() != null && tracer.get().active;
     }
 
-    public ITracerObject getRoot() {
-        return root;
+    public static void disableTrace() {
+        if (tracer.get() != null) {
+            tracer.get().active = false;
+        }
     }
 
-    public void setRoot(ITracerObject root) {
-        this.root = root;
+    public static void enableTrace() {
+        if (tracer.get() != null) {
+            tracer.get().active = true;
+        }
     }
 
-    public ITracerObject[] getTracerObjects() {
-        return root.getTracerObjects();
+    public static ITracerObject getRoot() {
+        return tracer.get().root;
     }
 
     private void init() {
 
-        root = new SimpleTracerObject() {
+        root = new SimpleTracerObject("traceroot") {
 
             public String getDisplayName(int mode) {
                 return "Trace";
-            }
-
-            public String getType() {
-                return "traceroot";
             }
 
             @Override
             public String getUri() {
                 return null;
             }
-            
-            public Object getResult() {                
+
+            public Object getResult() {
                 return null;
             }
         };
-        stack.clear();
-    }
-
-    private void addTracerObject(ITracerObject to) {
-        root.addChild(to);
+        current = root;
     }
 
     @Override
     public void pop() {
-        stack.pop();
+        current = current.getParent();
     }
 
     @Override
     public void push(ITracerObject obj) {
-        // TODO: remove side effect from the push method
-        if (stack.size() == 0) {
-            addTracerObject(obj);
-        } else {
-            ITracerObject to = stack.peek();
-            to.addChild(obj);
-            obj.setParent(to);
-        }
-
-        stack.push(obj);
+        current.addChild(obj);
+        current = obj;
     }
 
     @Override
@@ -114,8 +99,15 @@ public class Tracer implements TraceStack {
         init();
     }
 
-    @Override
-    public int size() {
-        return stack.size();
+    public static void initialize() {
+        if (tracer.get() == null) {
+            tracer.set(new Tracer());
+        } else {
+            tracer.get().init();
+        }
+    }
+
+    public static void destroy() {
+        tracer.set(null);
     }
 }

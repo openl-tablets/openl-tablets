@@ -45,6 +45,7 @@ body {
 
 #main .links {
     margin-top: 27px;
+    margin-bottom: 55px;
 }
 
 #main .links td {
@@ -86,4 +87,32 @@ h2 {
     font-size: 16px;
     color: #28b;
     margin: 29px 0 16px;
+}
+
+li {
+    margin-left: 35px;
+}
+
+.caret:before {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 3px solid #fff;
+    content: "";
+    display: inline-block;
+    left: -4px;
+    position: absolute;
+    top: -5px;
+}
+
+.caret {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #8c2;
+    position: relative;
+    content: "";
+    display: inline-block;
+    height: 0;
+    vertical-align: top;
+    width: 0;
+    top: 6px;
 }

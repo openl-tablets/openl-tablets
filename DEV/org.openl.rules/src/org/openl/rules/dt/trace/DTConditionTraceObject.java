@@ -1,11 +1,10 @@
 package org.openl.rules.dt.trace;
 
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.table.*;
-import org.openl.util.tree.ITreeElement;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class DTConditionTraceObject extends DecisionTableTraceObject {
@@ -57,19 +56,5 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
     public List<IGridRegion> getGridRegions() {
         ILogicalTable table = condition.getValueCell(ruleIndex);
         return GridTableUtils.getGridRegions(table);
-    }
-
-    public boolean hasRuleResult() {
-        return hasRuleResult(this);
-    }
-
-    private boolean hasRuleResult(ITreeElement<ITracerObject> rootTraceObject) {
-        Iterable<? extends ITreeElement<ITracerObject>> children = rootTraceObject.getChildren();
-        for (ITreeElement<ITracerObject> child: children) {
-            if (child instanceof DTRuleTracerLeaf || hasRuleResult(child)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

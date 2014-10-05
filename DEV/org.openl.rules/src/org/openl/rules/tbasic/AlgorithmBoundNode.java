@@ -30,6 +30,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        super.finalizeBind(cxt);
         AlgorithmBuilder builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();

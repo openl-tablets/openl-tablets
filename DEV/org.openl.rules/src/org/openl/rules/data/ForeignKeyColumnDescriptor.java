@@ -2,22 +2,21 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.TableUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.dt.element.FunctionalRow;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -30,6 +29,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
+import org.openl.util.text.ILocation;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from
@@ -46,10 +46,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
+    private ICell foreignKeyCell;
+
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
             IdentifierNode[] foreignKeyTableAccessorChainTokens,
+            ICell foreignKeyCell,
             StringValue displayValue,
             OpenL openl, boolean constructor, IdentifierNode[] fieldChainTokens) {
 
@@ -58,6 +61,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
         this.foreignKeyTableAccessorChainTokens = foreignKeyTableAccessorChainTokens;
+        this.foreignKeyCell = foreignKeyCell;
     }
 
     /**
@@ -78,16 +82,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Goes through the values as foreign keys, finds all info about this
      * objects in foreign table and puts it to array. Can process array value
-     * presented as {@link FunctionalRow#ARRAY_ELEMENTS_SEPARATOR} array.
+     * presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
      * 
      * @param valuesTable Logical table representing array values for current
      *            table.
-     * @param bindingContext
+     * @param bindingContext binding context
      * @param foreignTable Foreign table with stored info about dependent
      *            values.
-     * @param foreignKeyIndex
-     * @param domainClass
-     * @return
+     * @param foreignKeyIndex index of the foreign key column
+     * @param domainClass domain class for the column values
+     * @return foreign key values
      */
     private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
             IBindingContext bindingContext,
@@ -100,13 +104,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
 
-        boolean multiValue = false;
-
         if (valuesHeight == 1) {
 
-            multiValue = true;
             if(!bindingContext.isExecutionMode())
-                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, true);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -133,13 +134,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
                     if(!bindingContext.isExecutionMode())
-                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
                     values.add(null);
                     continue;
                 }
 
                 if(!bindingContext.isExecutionMode())
-                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
                 addResValues(values, res);
@@ -211,7 +212,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
@@ -294,7 +295,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataNodeBinder#getForeignKeyTokens()}). Is used when data table is
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
     public void populateLiteralByForeignKey(Object target, ILogicalTable valuesTable, IDataBase db, IBindingContext cxt)
@@ -328,9 +329,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-
                 final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
-                String[] domainStrings = index.keySet().toArray(new String[0]);
+                Set<String> strings = index.keySet();
+                String[] domainStrings = strings.toArray(new String[strings.size()]);
                 Arrays.sort(domainStrings, new Comparator<String>() {
                     @Override
                     public int compare(String ds1, String ds2) {
@@ -418,7 +419,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     CollectionUtils.select(cellValues, predicate, values);
 
                     int size = values.size();
-                    IOpenClass componentType = null;
+                    IOpenClass componentType;
 
                     if (valueAnArray) {
                         componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
@@ -466,6 +467,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         for (int i = 1; i < fieldChainTokens.length; i++) {
             IdentifierNode token = fieldChainTokens[i];
+            if (resObj == null) {
+                String message = String.format("Incorrect field '%s' in type [%s]",
+                        token.getIdentifier(),
+                        resInctClass);
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+            }
             try {
                 Method method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
                 resObj = method.invoke(resObj);
@@ -480,7 +487,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String message = String.format("Incorrect field '%s' in type [%s]",
                         token.getIdentifier(),
                         resObj.getClass());
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
         }
 
@@ -489,6 +496,21 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     public String[] getForeignKeyColumnChainTokens() {
         return foreignKeyColumnChainTokens;
+    }
+
+    public void setForeignKeyCellMetaInfo(IDataBase db) {
+        if (foreignKeyCell != null) {
+            ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
+            if (foreignTable != null) {
+                ILocation location = foreignKeyTable.getLocation();
+                NodeUsage nodeUsage = new TableUsage(foreignTable, location);
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+                foreignKeyCell.setMetaInfo(meta);
+            }
+        }
+
+        // Not needed anymore
+        foreignKeyCell = null;
     }
 
     static class ResultChainObject {

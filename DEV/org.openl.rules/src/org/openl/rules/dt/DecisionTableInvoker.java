@@ -8,6 +8,7 @@ import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithmTraceDecorator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -23,17 +24,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author DLiauchuk
  */
-public class DecisionTableInvoker extends RulesMethodInvoker {
+public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     private final Logger log = LoggerFactory.getLogger(DecisionTableInvoker.class);
 
     public DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
-    }
-
-    @Override
-    public DecisionTable getInvokableMethod() {
-        return (DecisionTable) super.getInvokableMethod();
     }
 
     public boolean canInvoke() {
@@ -70,24 +66,16 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
     }
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
-        Tracer tracer = Tracer.getTracer();
-
-        if (tracer == null) {
-            return invokeOptimized(target, params, env);
-        }
-
-        Object returnValue = null;
 
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
-        tracer.push(traceObject);
+        Tracer.begin(traceObject);
 
         DecisionTableOptimizedAlgorithm algorithm = null;
-        DecisionTableOptimizedAlgorithmTraceDecorator algorithmDelegator = null;
-        TraceStack conditionsStack = new ChildTraceStack(tracer);
+        TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
 
         try {
             algorithm = getInvokableMethod().getAlgorithm();
-            algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
+            DecisionTableOptimizedAlgorithmTraceDecorator algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
             algorithmDelegator.buildIndex(); // Rebuild index with rules meta info
 
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
@@ -97,15 +85,15 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                 int ruleN = rules.nextInt();
 
                 try {
-                    tracer.push(traceObject.traceRule(ruleN));
+                    Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleN));
 
-                    returnValue = getReturn(target, params, env, ruleN);
+                    Object returnValue = getReturn(target, params, env, ruleN);
                     if (returnValue != null) {
                         traceObject.setResult(returnValue);
                         return returnValue;
                     }
                 } finally {
-                    tracer.pop();
+                    Tracer.end();
                     conditionsStack.reset();
                 }
             }
@@ -113,7 +101,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             addErrorToTrace(traceObject, e);
         } finally {
             conditionsStack.reset();
-            tracer.pop();
+            Tracer.end();
 
             // Restore index without rules meta info (memory optimization)
             if (algorithm != null) {
@@ -125,7 +113,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             }
         }
 
-        return returnValue;
+        return null;
     }
 
     protected Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {

@@ -7,41 +7,8 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
-    private static class TraceHelper {
-        private final Tracer tracer;
-        private ColumnMatch columnMatch;
-        private ColumnMatchTraceObject traceObject;
-
-        public TraceHelper(ColumnMatch columnMatch, Object[] params) {
-            tracer = Tracer.getTracer();
-            if (tracer != null) {
-                this.columnMatch = columnMatch;
-                traceObject = new ColumnMatchTraceObject(columnMatch, params);
-                tracer.push(traceObject);
-            }
-        }
-
-        public void closeMatch(int sumScore) {
-            if (tracer == null) {
-                return;
-            }
-
-            traceObject.setResult(sumScore);
-            tracer.pop();
-        }
-
-        public void nextScore(MatchNode node, int resultIndex, int sumScore, int score) {
-            if (tracer == null) {
-                return;
-            }
-
-            tracer.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            tracer.pop();
-        }
-    }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        TraceHelper t = new TraceHelper(columnMatch, params);
 
         MatchNode checkTree = columnMatch.getCheckTree();
         int[] scores = columnMatch.getColumnScores();
@@ -63,14 +30,11 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    t.nextScore(node, resultIndex, sumScore, score);
+                    Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                     break;
                 }
             }
         }
-
-        t.closeMatch(sumScore);
         return sumScore;
     }
-
 }

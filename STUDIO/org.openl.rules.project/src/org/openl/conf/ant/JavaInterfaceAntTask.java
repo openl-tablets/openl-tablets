@@ -11,10 +11,10 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 
 public class JavaInterfaceAntTask extends JavaAntTask {
     
-    private static final String RULES_XML = "rules.xml";    
     private static final String DEFAULT_CLASSPATH = "./bin";
 
     private boolean ignoreTestMethods = true;
@@ -61,7 +61,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
 
     // TODO extract the code that writes rules.xml, to another class
     protected void writeRulesXML() {
-        File rulesDescriptor = new File(getResourcesPath() + RULES_XML);
+        File rulesDescriptor = new File(getResourcesPath() + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
 
         ProjectDescriptor projectToWrite;
@@ -95,7 +95,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log("Error while reading previously created rules.xml", e, Project.MSG_ERR);
+                log("Error while reading previously created project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, e, Project.MSG_ERR);
                 throw new IllegalStateException(e);
             }
         } else {
@@ -109,7 +109,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
             FileOutputStream fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log("Error while writing rules.xml", e, Project.MSG_ERR);
+            log("Error while writing project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, e, Project.MSG_ERR);
         }
     }
     

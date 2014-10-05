@@ -2,17 +2,30 @@ package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.*;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.ResourceTransformer;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ModuleType;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -22,7 +35,11 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.project.*;
+import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
+import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
+import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -36,7 +53,6 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
-import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +63,28 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -90,7 +123,7 @@ public class RepositoryTreeController {
     private String projectName;
     private String newProjectTemplate;
     private String folderName;
-    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+    private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -1271,13 +1304,14 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        UploadedFile file = event.getUploadedFile();
+        ProjectFile file = new ProjectFile(event.getUploadedFile());
         uploadedFiles.add(file);
+        String fileName = file.getName();
 
-        this.setFileName(FilenameUtils.getName(file.getName()));
+        setFileName(fileName);
 
         if (fileName.contains(".")) {
-            this.setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+            setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
             if (FileTypeHelper.isZipFile(fileName)) {
                 ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter);
@@ -1286,7 +1320,7 @@ public class RepositoryTreeController {
                 }
             }
         } else {
-            this.setProjectName(fileName);
+            setProjectName(fileName);
         }
     }
 
@@ -1438,52 +1472,29 @@ public class RepositoryTreeController {
     }
 
     public String createProjectWithFiles() {
-        String errorMessage = createProject();
-        if (errorMessage == null) {
-            try {
+        String errorMessage = validateProjectName();
+        if (errorMessage != null) {
+            FacesUtils.addErrorMessage(errorMessage);
+        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+            FacesUtils.addErrorMessage("There are no uploaded files.");
+        } else {
+            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter).uploadProject();
+            if (errorMessage != null) {
+                FacesUtils.addErrorMessage(errorMessage);
+            } else try {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
+                FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
-            FacesUtils.addInfoMessage("Project was created successfully.");
         }
 
         /* Clear the load form */
         clearForm();
 
         return null;
-    }
-
-    private String createProject() {
-        String errorMessage;
-
-        if (StringUtils.isNotBlank(projectName)) {
-            if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
-                ProjectUploader projectUploader = new ProjectUploader(uploadedFiles,
-                        projectName,
-                        userWorkspace,
-                        zipFilter);
-                errorMessage = validateProjectName();
-                if (errorMessage == null) {
-                    errorMessage = projectUploader.uploadProject();
-                }
-            } else {
-                errorMessage = "There are no uploaded files.";
-            }
-        } else {
-            errorMessage = "Project name must not be empty.";
-        }
-
-        if (errorMessage == null) {
-            clearUploadedFiles();
-        } else {
-            clearUploadedFiles();
-            FacesUtils.addErrorMessage(errorMessage);
-        }
-
-        return errorMessage;
     }
 
     private void clearForm() {
@@ -1502,7 +1513,7 @@ public class RepositoryTreeController {
         try {
             AProjectFolder node = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
 
-            AProjectResource addedFileResource = node.addResource(fileName, getLastUploadedFile().getInputStream());
+            AProjectResource addedFileResource = node.addResource(fileName, getLastUploadedFile().getInput());
 
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
 
@@ -1561,7 +1572,7 @@ public class RepositoryTreeController {
 
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
-            node.setContent(getLastUploadedFile().getInputStream());
+            node.setContent(getLastUploadedFile().getInput());
 
             clearUploadedFiles();
         } catch (Exception e) {
@@ -1572,7 +1583,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    private UploadedFile getLastUploadedFile() {
+    private ProjectFile getLastUploadedFile() {
         if (!uploadedFiles.isEmpty()) {
             return uploadedFiles.get(uploadedFiles.size() - 1);
         }
@@ -1583,7 +1594,7 @@ public class RepositoryTreeController {
         String errorMessage;
 
         if (StringUtils.isNotBlank(projectName)) {
-            UploadedFile uploadedItem = getLastUploadedFile();
+            ProjectFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
                         projectName,

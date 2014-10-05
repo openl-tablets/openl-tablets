@@ -71,22 +71,9 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
-    @Override
-    public CompiledOpenClass compile() throws RulesInstantiationException {
-
-        // Ensure that compilation will be done in strategy classLoader
-        //
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-        try {
-            return getEngineFactory().getCompiledOpenClass();
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
-
+ 
     @SuppressWarnings("unchecked")
-    private RulesEngineFactory<?> getEngineFactory() {
+    protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass;
         try {
             serviceClass = (Class<Object>) getServiceClass();

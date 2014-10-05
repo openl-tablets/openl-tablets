@@ -1,22 +1,24 @@
 package org.openl.vm.trace;
 
+import org.openl.base.INamedThing;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.openl.base.INamedThing;
-
 public abstract class SimpleTracerObject implements ITracerObject {
-    
-    private Object traceObject;
-    
+
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
+    private Object result;
+    private String type;
 
-    public SimpleTracerObject() {
+    protected SimpleTracerObject(String type) {
+        this.type = type;
     }
 
-    public SimpleTracerObject(Object traceObject) {
-        this.traceObject = traceObject;
+    @Override
+    public String getType() {
+        return type;
     }
 
     public void setParent(ITracerObject parentTraceObject) {
@@ -27,19 +29,16 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return parent;
     }
 
-    public Object getTraceObject() {
-        return traceObject;
-    }
-
     public void addChild(ITracerObject child) {
         if (children == null) {
             children = new ArrayList<ITracerObject>();
         }
 
         children.add(child);
+        child.setParent(this);
     }
 
-    public Iterable<? extends org.openl.util.tree.ITreeElement<ITracerObject>> getChildren() {
+    public Iterable<ITracerObject> getChildren() {
         if (children == null) {
             return Collections.emptyList();
         }
@@ -54,18 +53,18 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return this;
     }
 
-    public ITracerObject[] getTracerObjects() {
-     
-        if (children == null) {
-            return new ITracerObject[0];
-        }
-        
-        return (ITracerObject[]) children.toArray(new ITracerObject[children.size()]);
-    }
-
     public boolean isLeaf() {
         return children == null;
     }
 
     public abstract String getUri();
+
+    @Override
+    public Object getResult() {
+        return result;
+    }
+
+    public void setResult(Object result) {
+        this.result = result;
+    }
 }

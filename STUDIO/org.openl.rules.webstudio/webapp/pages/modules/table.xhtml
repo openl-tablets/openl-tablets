@@ -163,7 +163,7 @@
                         #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
                     </th>
                 </tr>
-                <ui:repeat var="test" value="#{tableBean.tests}"> 
+                <ui:repeat var="test" value="#{tableBean.tests}">
                     <tr>
                         <td>
                             <input type="checkbox" class="test-id" value="#{test.id}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" checked="checked"/>
@@ -449,7 +449,7 @@
                 <td>
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create a new Test table" 
+                            styleClass="toolbarButton" title="Create a new Test table"
                             oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
@@ -487,7 +487,7 @@
                         <div>
                             <h:outputLink value="#{studio.url('table', targetTable.uri)}">
                                 <f:param name="id" value="#{targetTable.id}" />
-                                <h:outputText value="#{tableBean.getTableName(targetTable)}" /> 
+                                <h:outputText value="#{tableBean.getTableName(targetTable)}" />
                             </h:outputLink>
                         </div>
                         </h:panelGroup>
@@ -566,7 +566,7 @@
             </form>
 
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}" rowIndex="#{tableBean.rowIndex}"
-                linkBase="#{studio.url('table')}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
+                linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"

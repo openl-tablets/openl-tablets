@@ -153,9 +153,8 @@ public class Table implements ITable {
     public Object getValue(int col, int row) {
 
         Object rowObject = Array.get(getDataArray(), row);
-        Object colObject = dataModel.getDescriptor()[col].getColumnValue(rowObject);
 
-        return colObject;
+        return dataModel.getDescriptor()[col].getColumnValue(rowObject);
     }
 
     public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
@@ -225,6 +224,20 @@ public class Table implements ITable {
 
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
 
+        if (!bindingContext.isExecutionMode()) {
+            for (int j = 0; j < columns; j++) {
+                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
+
+                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+
+                    if (fkDescriptor.isReference()) {
+                        fkDescriptor.setForeignKeyCellMetaInfo(dataBase);
+                    }
+                }
+            }
+        }
+
         for (int i = startRow; i < rows; i++) {
 
             Object target = Array.get(dataArray, i - startRow);
@@ -258,7 +271,7 @@ public class Table implements ITable {
         }
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
+                    errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
         }
     }
 

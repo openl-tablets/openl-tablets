@@ -6,7 +6,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,19 +26,12 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (getDispatchingOpenMethod() != null) {
-            return getDispatchingOpenMethod().invoke(target, updateArguments(params, env, getDispatchingOpenMethod()), env);
+        IOpenMethod openMethod = getDispatchingOpenMethod();
+        if (openMethod != null) {
+            return openMethod.invoke(target, updateArguments(params, env, openMethod), env);
         } else {
             log.warn("Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
                     MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
-            return invokeJavaDispatching(target, params, env);
-        }
-    }
-
-    public Object invokeJavaDispatching(Object target, Object[] params, IRuntimeEnv env) {
-        if (Tracer.isTracerOn()) {
-            return invokeTraced(target, params, env);
-        } else {
             return super.invoke(target, params, env);
         }
     }

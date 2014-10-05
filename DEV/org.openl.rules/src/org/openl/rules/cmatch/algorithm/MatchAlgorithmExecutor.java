@@ -9,42 +9,6 @@ import org.openl.vm.trace.Tracer;
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
-    private void fillNoMatchTracer(ColumnMatch columnMatch, Object[] params) {
-        Tracer t = Tracer.getTracer();
-        if (t == null) {
-            return;
-        }
-
-        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
-        traceObject.setResult(NO_MATCH);
-
-        t.push(traceObject);
-        t.pop();
-    }
-
-    private void fillTracer(ColumnMatch columnMatch, MatchNode line, int resultIndex, Object[] params) {
-        Tracer t = Tracer.getTracer();
-        if (t == null) {
-            return;
-        }
-
-        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
-        Object returnValues[] = columnMatch.getReturnValues();
-        traceObject.setResult(returnValues[resultIndex]);
-
-        t.push(traceObject);
-
-        for (MatchNode node : line.getChildren()) {
-            t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-            t.pop();
-        }
-
-        t.push(new ResultTraceObject(columnMatch, resultIndex));
-        t.pop();
-
-        t.pop();
-    }
-
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
         MatchNode checkTree = columnMatch.getCheckTree();
         Object returnValues[] = columnMatch.getReturnValues();
@@ -71,13 +35,14 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 }
 
                 if (success) {
-                    fillTracer(columnMatch, line, resultIndex, params);
+                    for (MatchNode node : line.getChildren()) {
+                        Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
+                    }
+                    Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
                     return returnValues[resultIndex];
                 }
             }
         }
-
-        fillNoMatchTracer(columnMatch, params);
         return NO_MATCH;
     }
 }

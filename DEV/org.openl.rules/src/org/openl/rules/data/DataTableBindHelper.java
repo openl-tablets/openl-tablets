@@ -13,6 +13,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -396,6 +397,7 @@ public class DataTableBindHelper {
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
                 IdentifierNode[] accessorChainTokens = null;
+                ICell foreignKeyCell = null;
 
                 if (fieldAccessorChainTokens.length == 1 && !hasForeignKeysRow) {
                     // process single field in chain, e.g. driver;
@@ -417,6 +419,7 @@ public class DataTableBindHelper {
                     IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(bindingContext, descriptorRows, columnNum);
                     foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
                     foreignKey = foreignKeyTokens.length > 1 ? foreignKeyTokens[1] : null;
+                    foreignKeyCell = descriptorRows.getSubtable(columnNum, 1, 1, 1).getSource().getCell(0, 0);
 
                     if (foreignKeyTable != null) {
                         accessorChainTokens = Tokenizer.tokenize(foreignKeyTable.getModule(),
@@ -440,6 +443,7 @@ public class DataTableBindHelper {
                     foreignKeyTable,
                     foreignKey,
                     accessorChainTokens,
+                    foreignKeyCell,
                     header,
                     fieldAccessorChainTokens);
 
@@ -510,6 +514,7 @@ public class DataTableBindHelper {
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
             IdentifierNode[] foreignKeyTableAccessorChainTokens,
+            ICell foreignKeyCell,
             StringValue header,
             IdentifierNode[] fieldChainTokens) {
         ColumnDescriptor currentColumnDescriptor;
@@ -519,6 +524,7 @@ public class DataTableBindHelper {
                 foreignKeyTable,
                 foreignKey,
                 foreignKeyTableAccessorChainTokens,
+                foreignKeyCell,
                 header,
                 openl,
                 constructorField,

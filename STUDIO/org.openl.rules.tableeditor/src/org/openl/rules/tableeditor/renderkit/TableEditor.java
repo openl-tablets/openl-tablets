@@ -6,10 +6,10 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.tableeditor.model.ui.LinkBuilder;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.BooleanUtils;
 
@@ -32,8 +32,7 @@ public class TableEditor {
     private String onAfterSave;
     private String onError;
     private String excludeScripts;
-    private String linkBase;
-    private String linkTarget;
+    private LinkBuilder linkBuilder;
     private Integer rowIndex;
 
     public TableEditor() {
@@ -46,8 +45,7 @@ public class TableEditor {
         editable = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_EDITABLE), true);
         mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
         view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
-        linkBase = (String) attributes.get(Constants.ATTRIBUTE_LINK_BASE);
-        linkTarget = (String) attributes.get(Constants.ATTRIBUTE_LINK_TARGET);
+        linkBuilder = (LinkBuilder) attributes.get(Constants.ATTRIBUTE_LINK_BUILDER);
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
@@ -189,24 +187,12 @@ public class TableEditor {
         this.onError = onError;
     }
 
-    public String getLinkBase() {
-        return linkBase;
+    public LinkBuilder getLinkBuilder() {
+        return linkBuilder;
     }
 
-    public void setLinkBase(String linkBase) {
-        this.linkBase = linkBase;
-    }
-
-    public String getLinkTarget() {
-        return linkTarget;
-    }
-
-    public void setLinkTarget(String linkTarget) {
-        this.linkTarget = linkTarget;
-    }
-
-    public boolean isShowLinks() {
-        return linkBase != null;
+    public void setLinkBuilder(LinkBuilder linkBuilder) {
+        this.linkBuilder = linkBuilder;
     }
 
     public void setRowIndex(Integer rowIndex) {

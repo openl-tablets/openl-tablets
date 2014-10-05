@@ -10,7 +10,6 @@ import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
@@ -177,26 +176,14 @@ public class Explanation {
 
         ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
         if (mi != null) {
-            IOpenSourceCodeModule source = mi.getSource();
-            /*if (source instanceof GridCellSourceCodeModule) {
-                // Get table uri
-                IGridTable table = ((GridCellSourceCodeModule) source).getTable();
-                url = GridTableUtils.getOriginalTable(table).getId();
-            } else {*/
             // Get cell uri
             url = mi.getSourceUrl();
-            /*}*/
         }
 
         if (url == null) {
             url = parentUrl;
         }
-        /*IMetaInfo mi = value.getMetaInfo();
 
-        String url = mi != null ? mi.getSourceUrl() : null;
-        if (url == null) {
-            return parentUrl;
-        }*/
         return url;
 
     }

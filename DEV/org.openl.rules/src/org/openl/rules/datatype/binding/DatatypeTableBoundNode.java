@@ -16,6 +16,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.datatype.gen.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -46,6 +47,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private TableSyntaxNode tableSyntaxNode;
     private DatatypeOpenClass dataType;
+    private IdentifierNode parentClassIdentifier;
     private String parentClassName;
     private ModuleOpenClass moduleOpenClass;
 
@@ -58,19 +60,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
     
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, String parentClassName) {
+    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, IdentifierNode parentClassIdentifier) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
         this.openl = openl;
-        this.parentClassName = parentClassName;
+        this.parentClassIdentifier = parentClassIdentifier;
+        this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : parentClassName;
         this.moduleOpenClass = moduleOpenClass;
     }
     
     /**
      * Process datatype fields from source table.
      * 
-     * @param cxt
+     * @param cxt binding context
      * @throws Exception
      */
     private void addFields(IBindingContext cxt) throws Exception {
@@ -118,7 +121,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * Generate a simple java bean for current datatype table.
      * 
      * @param fields fields for bean class
-     * @return Class<?> descriptor of generated bean class.
+     * @return Class descriptor of generated bean class.
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
     private Class<?> createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
@@ -161,6 +164,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
+
+            if (!cxt.isExecutionMode()) {
+                IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
+                IMetaInfo metaInfo = fieldType.getMetaInfo();
+                if (metaInfo == null) {
+                    metaInfo = getRootComponentClass(fieldType).getMetaInfo();
+                }
+
+                // Link to field type table
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo);
+            }
 
             FieldDescription fieldDescription;
             try {
@@ -212,7 +226,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     /**
      * Checks if the type of the field is equal to the current datatype.
      *
-     * @param field
+     * @param field checking field
      * @return true if the type of the field is equal to the given datatype
      */
     private boolean isRecursiveField(IOpenField field) {
@@ -220,8 +234,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return fieldType.getName().equals(dataType.getName());
     }
 
-    public static IOpenClass getRootComponentClass(IOpenClass openClass) {
-        IOpenClass fieldType = openClass;
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
         if (!fieldType.isArray()) {
             return fieldType;
         }
@@ -261,10 +274,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public static IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc)
         throws OpenLCompilationException {
-        
-        IdentifierNode[] idn = Tokenizer.tokenize(cellSrc, " \r\n");
-
-        return idn;
+        return Tokenizer.tokenize(cellSrc, " \r\n");
     }
 
     /**
@@ -278,16 +288,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     /**
      * Checks if the given row can be processed. 
      * 
-     * @param rowSrc
+     * @param rowSrc checked row
      * @return false if row content is empty, or was commented with special symbols.
      */
     public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
         String srcCode = rowSrc.getCode().trim();
 
-        if (srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode)) {
-            return false;
-        }
-        return true;
+        return !(srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode));
     }
 
     private IOpenClass getFieldType(IBindingContext cxt, ILogicalTable row, GridCellSourceCodeModule tableSrc) 
@@ -352,6 +359,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             
             dataType.setSuperClass(parentClass);
+
+            if (!cxt.isExecutionMode()) {
+                // Link to parent class table
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parentClassIdentifier, parentClass.getMetaInfo());
+            }
+
         }
         addFields(cxt);
         //adding constructor with all fields after all fields have been added

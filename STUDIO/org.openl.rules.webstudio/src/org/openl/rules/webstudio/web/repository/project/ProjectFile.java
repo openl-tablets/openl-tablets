@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import org.apache.commons.io.FilenameUtils;
+import org.richfaces.model.UploadedFile;
+
 import java.io.InputStream;
 
 public class ProjectFile {
@@ -7,43 +10,34 @@ public class ProjectFile {
     private String name;
     private InputStream input;
     private long size;
-
-    public ProjectFile() {
-    }
+    private UploadedFile uploadedFile;
 
     public ProjectFile(String name, InputStream input) {
         this.name = name;
         this.input = input;
     }
 
-    public ProjectFile(String name, InputStream input, long size) {
-        this.name = name;
-        this.input = input;
-        this.size = size;
+    public ProjectFile(UploadedFile uploadedFile) {
+        this.name = FilenameUtils.getName(uploadedFile.getName());
+        this.size = uploadedFile.getSize();
+        this.uploadedFile = uploadedFile;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public InputStream getInput() {
-        return input;
-    }
-
-    public void setInput(InputStream input) {
-        this.input = input;
+        if (uploadedFile != null) {
+            // returns a new instance for each call
+            // In some cases the same input stream is used several times. See ZipWalker implementation.
+            return uploadedFile.getInputStream();
+        } else {
+            return input;
+        }
     }
 
     public long getSize() {
         return size;
     }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
 }

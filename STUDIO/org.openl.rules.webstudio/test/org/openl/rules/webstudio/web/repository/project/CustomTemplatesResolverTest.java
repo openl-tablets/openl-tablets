@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 
 /**
  * @author nsamatov.
@@ -37,7 +38,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         touch(new File(sample2Folder, "Main2.xlsx"));
 
         // Auto rating project
-        touch(new File(autoRatingFolder, "rules.xml"));
+        touch(new File(autoRatingFolder, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)); 
         File rulesFolder = createFolder(autoRatingFolder, "rules");
         touch(new File(rulesFolder, "Rating.xlsx"));
     }
@@ -79,7 +80,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
 
         projectFiles = templatesResolver.getProjectFiles(RATING_TEMPLATES_CATEGORY, "Auto rating");
         assertEquals(2, projectFiles.length);
-        assertTrue(contains(projectFiles, "rules.xml"));
+        assertTrue(contains(projectFiles, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
         assertTrue(contains(projectFiles, "rules/Rating.xlsx"));
         close(projectFiles);
     }

@@ -31,7 +31,7 @@ public class CellModel implements ICellModel {
         DEFAULT_CELL_STYLES.put("border-width", "1px");
         DEFAULT_CELL_STYLES.put("border-color", "#bbd");
         DEFAULT_CELL_STYLES.put("background", "#fff");
-    };
+    }
 
     private boolean hasFormula;
     private String formula;
@@ -63,7 +63,7 @@ public class CellModel implements ICellModel {
         hasFormula = false;
     }
 
-    public void atttributesToHtml(StringBuilder buf, TableModel table, boolean selectErrorCell) {
+    public void attributesToHtml(StringBuilder buf, boolean selectErrorCell) {
         if (colspan != 1) {
             buf.append(" colspan=\"").append(colspan).append("\"");
         }
@@ -71,16 +71,16 @@ public class CellModel implements ICellModel {
             buf.append(" rowspan=\"").append(rowspan).append("\"");
         }
 
-        String style = getHtmlStyle(table, selectErrorCell);
+        String style = getHtmlStyle(selectErrorCell);
 
-        buf.append(" style=\"" + style + "\"");
+        buf.append(" style=\"").append(style).append("\"");
     }
 
-    public void atttributesToHtml(StringBuilder buf, TableModel table) {
-        atttributesToHtml(buf, table, false);
+    public void attributesToHtml(StringBuilder buf) {
+        attributesToHtml(buf, false);
     }
 
-    private void borderToHtml(StringBuilder buf, TableModel table) {
+    private void borderToHtml(StringBuilder buf) {
         if (borderStyle == null) {
             return;
         }
@@ -97,7 +97,7 @@ public class CellModel implements ICellModel {
 
         String[] styles = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            String style = null;
+            String style;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 style = (borderStyle[1] == null) ? "none" : borderStyle[1].getStyle();
             } else {
@@ -116,7 +116,7 @@ public class CellModel implements ICellModel {
 
         String[] colors = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            String color = null;
+            String color;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 color = (borderStyle[1] == null) ? "#000" : HTMLHelper.toHexColor(borderStyle[1].getRgb());
             } else {
@@ -187,35 +187,33 @@ public class CellModel implements ICellModel {
     /**
      * Returns style string for cell.
      *
-     * @param tm
-     *
      * @return style string for cell
      */
-    public String getHtmlStyle(TableModel tm, boolean selectErrorCell) {
+    public String getHtmlStyle(boolean selectErrorCell) {
         StringBuilder sb = new StringBuilder();
         if (halign != null) {
-            sb.append("text-align:" + halign + ";");
+            sb.append("text-align:").append(halign).append(";");
         }
 
         if (valign != null) {
-            sb.append("vertical-align:" + valign + ";");
+            sb.append("vertical-align:").append(valign).append(";");
         }
 
         if (width != 0) {
-            sb.append("width:" + width + "px" + ";");
+            sb.append("width:").append(width).append("px").append(";");
         }
 
         if (rgbBackground != null) {
             String rgb = HTMLHelper.toHexColor(rgbBackground);
             if (!rgb.equals(DEFAULT_CELL_STYLES.get("background"))) {
-                sb.append("background:" + rgb + ";");
+                sb.append("background:").append(rgb).append(";");
             }
         }
 
         if (selectErrorCell) {
             sb.append("border: 2px solid red;");
         } else if (borderStyle != null) {
-            borderToHtml(sb, tm);
+            borderToHtml(sb);
         }
 
         if (font != null) {
@@ -223,7 +221,7 @@ public class CellModel implements ICellModel {
         }
 
         if (ident > 0) {
-            sb.append("padding-left:" + ((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + ident) + "em" + ";");
+            sb.append("padding-left:").append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + ident).append("em").append(";");
         }
 
         return sb.toString();
@@ -264,7 +262,7 @@ public class CellModel implements ICellModel {
         if (color != null) {
             String colorStr = HTMLHelper.toHexColor(color);
             if (!colorStr.equals(DEFAULT_CELL_STYLES.get("color"))) {
-                buf.append("color:" + colorStr + ";");
+                buf.append("color:").append(colorStr).append(";");
             }
         }
 
@@ -300,10 +298,10 @@ public class CellModel implements ICellModel {
     }
 
     /**
-     * DOCUMENT ME!
+     * Set border style for a cell
      *
-     * @param bStyle
-     * @param dir
+     * @param bStyle border style for given direction
+     * @param dir one of ICellStyle.TOP, ICellStyle.BOTTOM, ICellStyle.LEFT, ICellStyle.RIGHT
      */
     public void setBorderStyle(BorderStyle bStyle, int dir) {
         if (borderStyle == null) {
