@@ -24,9 +24,9 @@
                     <warSourceDirectory>webapps</warSourceDirectory>
                     <warName>${war.name}-${project.version}</warName>
                     <packagingExcludes>
-						WEB-INF/lib/geronimo-servlet*.jar,
-						WEB-INF/lib/poi-2.5.1-*.jar
-					</packagingExcludes>
+			WEB-INF/lib/geronimo-servlet*.jar,
+			WEB-INF/lib/poi-2.5.1-*.jar
+                    </packagingExcludes>
                     <webResources>
                         <resource>
                             <directory>conf</directory>
@@ -152,6 +152,10 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -163,6 +167,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-service-description</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

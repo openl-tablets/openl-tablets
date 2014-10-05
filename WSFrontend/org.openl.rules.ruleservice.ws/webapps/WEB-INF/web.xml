@@ -4,78 +4,74 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>Openl Web Service</display-name>
 
-    <!-- Filters -->
+	<!-- Filters -->
+	<filter>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-    <filter>
-        <filter-name>CharacterEncodingFilter</filter-name>
-        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-        <init-param>
-            <param-name>encoding</param-name>
-            <param-value>UTF-8</param-value>
-        </init-param>
-    </filter>
-    <filter-mapping>
-        <filter-name>CharacterEncodingFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <!-- Servlets -->
-
+	<!-- Servlets -->
 	<servlet>
 		<servlet-name>WSServlet</servlet-name>
 		<servlet-class>org.openl.rules.ruleservice.servlet.WSServlet</servlet-class>
-        <init-param>
-            <param-name>uriEncoding</param-name>
-            <param-value>UTF-8</param-value>
-        </init-param>
-        <init-param>
-            <param-name>static-resources-list</param-name>
-            <param-value>
+		<init-param>
+			<param-name>uriEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>static-resources-list</param-name>
+			<param-value>
                 /css/.+\.css
                 /images/.+\.png
             </param-value>
-        </init-param>
-        <init-param>
-            <param-name>redirects-list</param-name>
-            <param-value>
+		</init-param>
+		<init-param>
+			<param-name>redirects-list</param-name>
+			<param-value>
                 /
                 /services/?
             </param-value>
-        </init-param>
-        <init-param>
-            <param-name>redirect-servlet-name</param-name>
-            <param-value>servicesListServlet</param-value>
-        </init-param>
+		</init-param>
+		<init-param>
+			<param-name>redirect-servlet-name</param-name>
+			<param-value>servicesListServlet</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-    <servlet>
-        <servlet-name>servicesListServlet</servlet-name>
-        <servlet-class>org.openl.rules.ruleservice.servlet.ServicesListServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>servicesListServlet</servlet-name>
+		<servlet-class>org.openl.rules.ruleservice.servlet.ServicesListServlet</servlet-class>
+	</servlet>
 
-    <servlet>
-        <servlet-name>index.jsp</servlet-name>
-        <jsp-file>/services/index.jsp</jsp-file>
-    </servlet>
+	<servlet>
+		<servlet-name>index.jsp</servlet-name>
+		<jsp-file>/services/index.jsp</jsp-file>
+	</servlet>
 
-    <!-- Mapping -->
+	<!-- Mapping -->
+	<servlet-mapping>
+		<servlet-name>WSServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>servicesListServlet</servlet-name>
+		<url-pattern>/services/</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>index.jsp</servlet-name>
+		<url-pattern>/services/index.jsp</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>WSServlet</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>servicesListServlet</servlet-name>
-        <url-pattern>/services/</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>index.jsp</servlet-name>
-        <url-pattern>/services/index.jsp</url-pattern>
-    </servlet-mapping>
-
-    <!-- Other stuff -->
-
+	<!-- Other stuff -->
 	<context-param>
 		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
 		<param-name>contextConfigLocation</param-name>

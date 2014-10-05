@@ -11,6 +11,15 @@ package org.openl.rules.ruleservice.databinding;
  */
 
 
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.dom.DOMSource;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.AegisType;
@@ -22,19 +31,12 @@ import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.namespace.QName;
-import javax.xml.transform.dom.DOMSource;
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 public class AegisDatabindingFactoryBean {
 
     private final Logger log = LoggerFactory.getLogger(AegisDatabindingFactoryBean.class);
 
     private Boolean writeXsiTypes;
+    private Boolean readXsiTypes;
     private Set<String> overrideTypes;
     private TypeCreationOptions configuration;
     private Boolean mtomUseXmime;
@@ -79,6 +81,10 @@ public class AegisDatabindingFactoryBean {
 
         if (getWriteXsiTypes() != null) {
             aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes().booleanValue());
+        }
+
+        if (getReadXsiTypes() != null) {
+            aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes().booleanValue());
         }
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
@@ -253,5 +259,13 @@ public class AegisDatabindingFactoryBean {
 
     public void setSupportVariations(boolean supportVariations) {
         this.supportVariations = supportVariations;
+    }
+    
+    public Boolean getReadXsiTypes() {
+        return readXsiTypes;
+    }
+    
+    public void setReadXsiTypes(Boolean readXsiTypes) {
+        this.readXsiTypes = readXsiTypes;
     }
 }

@@ -5,8 +5,33 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml" />
+	<import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml" />
+
+	<!-- Bean helps to read configuration and apply it to override types -->
+	<bean id="rootClassNamesBindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+		<property name="rootClassNames" value="${ruleservice.aegisbinding.rootClassNames}" />
+	</bean>
+
+	<bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+		scope="prototype" >
+		<property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
+	</bean>
+
+	<bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationSupportVariationsFactoryBean"
+		scope="prototype" >
+		<property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
+	</bean>
 
 	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
 		<property name="defaultRuleServicePublisher" ref="webServiceRuleServicePublisher"/>
+		<property name="supportedPublishers">
+			<map>
+				<entry key="WEBSERVICE" value-ref="webServiceRuleServicePublisher"/>
+				<entry key="RESTFUL" value-ref="JAXRSServicesRuleServicePublisher"/>
+			</map>
+		</property>
 	</bean>
 </beans>
