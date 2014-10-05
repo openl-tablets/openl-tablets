@@ -15,17 +15,17 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
 
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
 
-    private Set<String> additionalRootClassNames;
+    private Set<String> defaultAdditionalRootClassNames;
 
-    public void setAdditionalRootClassNames(Set<String> additionalRootClassNames) {
-        if (additionalRootClassNames == null) {
+    public void setDefaultAdditionalRootClassNames(Set<String> defaultAdditionalRootClassNames) {
+        if (defaultAdditionalRootClassNames == null) {
             throw new IllegalArgumentException("addtionalRootClassNames arg can't be null");
         }
-        this.additionalRootClassNames = additionalRootClassNames;
+        this.defaultAdditionalRootClassNames = defaultAdditionalRootClassNames;
     }
 
-    public Set<String> getAdditionalRootClassNames() {
-        return additionalRootClassNames;
+    public Set<String> getDefaultAdditionalRootClassNames() {
+        return defaultAdditionalRootClassNames;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
     protected Set<String> createInstance() throws Exception {
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription != null && serviceDescription.getConfiguration() != null) {
-            Set<String> ret = new HashSet<String>(getAdditionalRootClassNames());
+            Set<String> ret = new HashSet<String>(getDefaultAdditionalRootClassNames());
             if (serviceDescription.getConfiguration() != null) {
                 Object value = serviceDescription.getConfiguration().get(ROOT_CLASS_NAMES_BINDING);
                 if (value instanceof String) {
@@ -63,7 +63,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
             return ret;
         }
 
-        return Collections.unmodifiableSet(getAdditionalRootClassNames());
+        return Collections.unmodifiableSet(getDefaultAdditionalRootClassNames());
     }
 
     @Override
@@ -73,8 +73,8 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (this.additionalRootClassNames == null) {
-            this.additionalRootClassNames = new HashSet<String>();
+        if (this.defaultAdditionalRootClassNames == null) {
+            this.defaultAdditionalRootClassNames = new HashSet<String>();
         }
     }
 }

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+
+	<bean id="JAXRSserviceDescriptionConfigurationReadXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="jaxrs.readXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.readXsiTypes}"/>
+	</bean>
+
+	<bean id="JAXRSserviceDescriptionConfigurationWriteXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="jaxrs.writeXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.writeXsiTypes}"/>
+	</bean>
+
+	<bean id="JAXRSserviceDescriptionConfigurationIgnoredNamespaceFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationStringFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="jaxrs.ignoredNamespace"/>
+		<property name="defaultValue" value="http://beans.generated.openl.org"/>
+	</bean>
+	
+	<bean id="JAXRSserviceDescriptionConfigurationIgnoreNamespacesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="jaxrs.ignoreNamespaces"/>
+		<property name="defaultValue" value="false"/>
+	</bean>
+	
+	<bean id="JAXRSaegisDatabindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
+		scope="prototype">
+		<property name="readXsiTypes" ref="JAXRSserviceDescriptionConfigurationReadXsiTypesFactoryBean" />
+		<property name="writeXsiTypes" ref="JAXRSserviceDescriptionConfigurationWriteXsiTypesFactoryBean" />
+		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
+		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+	</bean>
+
+	<bean id="JAXRSServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
+		<property name="targetObject" ref="JAXRSaegisDatabindingFactoryBean"/>
+		<property name="targetMethod" value="createAegisDatabinding"/>
+		<property name="singleton" value="false"/>
+	</bean>
+ 
+	<!-- Main description for the one RESTfulService  -->
+	<!-- All configurations for server (like a data binding type and interceptors) 
+		are represented there. ServerFactoryBean configuration is similar to a CXF 
+		simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
+		but without namespace "simple". -->
+
+	<bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
+		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
+	</bean>
+	
+	<bean id="JAXRSNamespaceMapBean" class="org.openl.rules.ruleservice.databinding.JAXRSNamespaceMapFactoryBean" scope="prototype">
+		<property name="ignoredNamespace" ref="JAXRSserviceDescriptionConfigurationIgnoredNamespaceFactoryBean"/>
+	</bean>
+	
+	<bean id="JAXRSAegisJSONProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisJSONProvider" scope="prototype">
+		<property name="ignoreNamespaces" ref="JAXRSserviceDescriptionConfigurationIgnoreNamespacesFactoryBean"/>
+		<property name="namespaceMap" ref="JAXRSNamespaceMapBean"/>
+	</bean>
+	
+	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider"/>
+	
+	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
+		scope="prototype">
+		<property name="dataBinding" ref="JAXRSServicesDataBinding" />
+		<property name="features">
+			<list>
+				<ref bean="JAXRSServicesLoggingFeature" />
+			</list>
+		</property>
+		<property name="providers">
+			<list>
+				<ref bean="JAXRSAegisJSONProvider"/>
+				<ref bean="JAXRSAegisElementProvider"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Prototypes factory. It will create new server prototype for each new 
+		WebService. -->
+	<bean id="JAXRSServicesServerPrototypeFactory"
+		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName">
+			<idref bean="JAXRSServicesServerPrototype" />
+		</property>
+	</bean>
+
+	<!-- Initializes OpenL Engine instances according to web services configuration 
+		description and calls RuleServicePublisher to expose corresponding web service -->
+	<!-- Exposes web services. -->
+	<bean id="JAXRSServicesRuleServicePublisher"
+		class="org.openl.rules.ruleservice.publish.JAXRSServicesRuleServicePublisher">
+		<property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
+		<property name="baseAddress" value="${ruleservice.baseAddress}" />
+	</bean>
+</beans>

@@ -91,20 +91,25 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
 
-        ServerFactoryBean svrFactory = getServerFactoryBean();
-
-        String url = processURL(service.getUrl());
-
-        String serviceAddress = getBaseAddress() + url;
-        svrFactory.setAddress(serviceAddress);
-        svrFactory.setServiceClass(service.getServiceClass());
-        svrFactory.setServiceBean(service.getServiceBean());
-
         try {
-            Server wsServer = svrFactory.create();
-            ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
-            runningServices.put(service, serviceServer);
-            availableServices.add(createServiceInfo(service));
+            ServerFactoryBean svrFactory = getServerFactoryBean();
+            ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
+            try{
+                String url = processURL(service.getUrl());
+                String serviceAddress = getBaseAddress() + url;
+                svrFactory.setAddress(serviceAddress);
+                svrFactory.setServiceClass(service.getServiceClass());
+                svrFactory.setServiceBean(service.getServiceBean());
+
+                svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
+                Server wsServer = svrFactory.create();
+
+                ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
+                runningServices.put(service, serviceServer);
+                availableServices.add(createServiceInfo(service));
+            } finally {
+                svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
+            }
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
