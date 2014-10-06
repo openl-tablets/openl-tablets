@@ -2,7 +2,9 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -81,31 +83,6 @@ public class SystemSettingsBean {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "design-repository.local.home");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "design-repository.remote.rmi.url");
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
-    }
-
-    /**
-     * @deprecated
-     */
-    private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
-
-    static {
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
-                "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("rmi",
-                "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
-                "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
-    }
-
-    /**
-     * @deprecated
-     */
-    private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
-
-    static {
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "production-repository.local.home");
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "production-repository.remote.rmi.url");
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
     }
 
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
@@ -385,38 +362,6 @@ public class SystemSettingsBean {
         this.deploymentManager = deploymentManager;
     }
 
-    public void addProductionRepository() {
-        try {
-            String emptyConfigName = "_new_";
-            RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName,
-                    getProductionConfigManager(emptyConfigName));
-
-            String templateName = template.getName();
-            String[] configNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
-            long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
-
-            String templatePath = template.getPath();
-            String[] paths = new String[productionRepositoryConfigurations.size()];
-            for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-                paths[i] = productionRepositoryConfigurations.get(i).getPath();
-            }
-
-            String newNum = String.valueOf(maxNumber + 1);
-            String newConfigName = getConfigName(templateName + newNum);
-            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-                    getProductionConfigManager(newConfigName));
-            newConfig.setName(templateName + newNum);
-            newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-
-            productionRepositoryConfigurations.add(newConfig);
-            // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
-            // "' is added successfully");
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage(e.getMessage());
-        }
-    }
-
     public void deleteProductionRepository(String configName) {
         try {
             Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
@@ -436,23 +381,6 @@ public class SystemSettingsBean {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());
-        }
-    }
-
-    public void saveProductionRepository(String configName) {
-        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-            RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
-            if (prodConfig.getConfigName().equals(configName)) {
-                try {
-                    validate(prodConfig);
-
-                    productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
-                    FacesUtils.addInfoMessage("Repository '" + prodConfig.getName() + "' is saved successfully");
-                } catch (Exception e) {
-                    FacesUtils.addErrorMessage(e.getMessage());
-                }
-                break;
-            }
         }
     }
 
@@ -498,21 +426,18 @@ public class SystemSettingsBean {
     public void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
             /**Close connection to jcr before checking connection*/
-            this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
-            RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(
-                    repoConfig.getProperties());
-            repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(
+            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            RRepositoryFactory repoFactory = productionRepositoryFactoryProxy.getFactory(
                     repoConfig.getProperties());
 
             RRepository repository = repoFactory.getRepositoryInstance();
             /*Close repo connection after validation*/
             repository.release();
-            this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
+            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
         } catch (RRepositoryException e) {
-            Throwable resultException = e;
-
-            while (resultException.getCause() != null) {
-                resultException = resultException.getCause();
+            Throwable resultException = ExceptionUtils.getRootCause(e);
+            if (resultException == null) {
+                resultException = e;
             }
 
             if (resultException instanceof javax.jcr.LoginException) {
@@ -596,40 +521,6 @@ public class SystemSettingsBean {
         return configName;
     }
 
-    private long getMaxTemplatedConfigName(String[] configNames, String templateName) {
-        return getMaxNumberOfTemplatedNames(configNames, templateName, "rules-", ".properties");
-    }
-
-    private long getMaxTemplatedPath(String[] configNames, String templateName) {
-        return getMaxNumberOfTemplatedNames(configNames, templateName, "", "");
-    }
-
-    private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
-        Pattern pattern = Pattern.compile("\\Q" + prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
-        int startPosition = (prefix + templateName).length();
-        int suffixLength = suffix.length();
-
-        long maxNumber = 0;
-        for (String configName : configNames) {
-            if (pattern.matcher(configName).matches()) {
-                long sequenceNumber;
-                try {
-                    sequenceNumber = Long.parseLong(configName.substring(startPosition, configName.length()
-                            - suffixLength));
-                } catch (NumberFormatException ignore) {
-                    continue;
-                }
-
-                if (sequenceNumber > maxNumber) {
-                    maxNumber = sequenceNumber;
-                }
-            }
-        }
-        return maxNumber;
-    }
-
     public void dateFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
         String inputDate = (String) value;
 
@@ -665,19 +556,6 @@ public class SystemSettingsBean {
             FacesUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
         }
-    }
-
-    public void designRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "Design Repository directory";
-        validateNotBlank((String) value, directoryType);
-        setDesignRepositoryPath((String) value);
-        workingDirValidator(getDesignRepositoryPath(), directoryType);
-    }
-
-    public void productionRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "Production Repositories directory";
-        validateNotBlank((String) value, directoryType);
-        workingDirValidator((String) value, directoryType);
     }
 
     public void maxCachedProjectsCountValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -751,11 +629,8 @@ public class SystemSettingsBean {
         } catch (Exception e) {
             FacesUtils.addErrorMessage(e.getMessage());
             throw new ValidatorException(new FacesMessage(e.getMessage()));
-
         } finally {
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
+            FileUtils.deleteQuietly(tmpFile);
         }
     }
 
@@ -767,29 +642,29 @@ public class SystemSettingsBean {
         }
     }
 
-    /* Deleting the folder which were created for validating folder permissions */
+    /**
+     * Deleting the folder which were created for validating folder permissions
+     *
+     * @deprecated This method deletes all parent folders if they are not locked - this is error-prone especially in non-Windows
+     * OS. Remove it and delete only created folders.
+     */
+    @Deprecated
     private void deleteFolder(String folderPath) {
         File workFolder = new File(folderPath);
         File parent = workFolder.getParentFile();
 
         while (parent != null) {
-            workFolder.delete();
+            if (!workFolder.delete()) {
+                log.warn("The folder '{}' isn't deleted", workFolder.getName());
+            }
             parent = workFolder.getParentFile();
             workFolder = parent;
         }
     }
 
-    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
-        return productionRepositoriesTreeController;
-    }
-
     public void setProductionRepositoriesTreeController(
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
-    }
-
-    public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
-        return productionRepositoryFactoryProxy;
     }
 
     public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -62,10 +63,9 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
             repository.release();
             return true;
         } catch (RRepositoryException e) {
-            Throwable resultException = e;
-
-            while (resultException.getCause() != null) {
-                resultException = resultException.getCause();
+            Throwable resultException = ExceptionUtils.getRootCause(e);
+            if (resultException == null) {
+                resultException = e;
             }
 
             if (resultException instanceof javax.jcr.LoginException) {
