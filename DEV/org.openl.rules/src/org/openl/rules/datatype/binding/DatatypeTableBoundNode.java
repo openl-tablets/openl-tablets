@@ -13,6 +13,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
@@ -173,7 +174,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 }
 
                 // Link to field type table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo);
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
             }
 
             FieldDescription fieldDescription;
@@ -362,7 +363,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             if (!cxt.isExecutionMode()) {
                 // Link to parent class table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parentClassIdentifier, parentClass.getMetaInfo());
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parentClassIdentifier, parentClass.getMetaInfo(),
+                        NodeType.DATATYPE);
             }
 
         }

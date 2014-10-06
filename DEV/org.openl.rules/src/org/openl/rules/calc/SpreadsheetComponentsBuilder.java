@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.NodeType;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
@@ -254,7 +255,8 @@ public class SpreadsheetComponentsBuilder {
                         cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                     }
 
-                    RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, typeIdentifierNode, headerType.getMetaInfo());
+                    RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, typeIdentifierNode, headerType.getMetaInfo(),
+                            NodeType.DATATYPE);
                 }
             }
         }

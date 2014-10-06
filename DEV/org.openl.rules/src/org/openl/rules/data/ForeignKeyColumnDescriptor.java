@@ -9,6 +9,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.TableUsage;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -503,7 +504,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
             if (foreignTable != null) {
                 ILocation location = foreignKeyTable.getLocation();
-                NodeUsage nodeUsage = new TableUsage(foreignTable, location);
+                NodeUsage nodeUsage = new TableUsage(foreignTable, location, NodeType.DATA);
                 CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
                 foreignKeyCell.setMetaInfo(meta);
             }

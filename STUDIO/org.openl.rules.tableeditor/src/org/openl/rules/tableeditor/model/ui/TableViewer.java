@@ -142,8 +142,12 @@ public class TableViewer {
                 int pstart = nodeUsage.getStart();
                 int pend = nodeUsage.getEnd();
                 String tableUri = nodeUsage.getUri();
+                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
                 // add link to used table with signature in tooltip
-                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart))).append("<span class=\"title\">");
+                buff.append("<span class=\"title")
+                        .append(" title-")
+                        .append(nodeUsage.getNodeType().toString().toLowerCase())
+                        .append("\">");
                 if (tableUri != null) {
                     buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
                 } else {
