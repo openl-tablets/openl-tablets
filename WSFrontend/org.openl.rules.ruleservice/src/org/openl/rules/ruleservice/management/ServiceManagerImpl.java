@@ -77,19 +77,15 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
      */
     public void start() {
         log.info("Assembling services after service manager start");
-        synchronized (this) {
-            processServices();
-        }
+        processServices();
     }
 
     public void onDeploymentAdded() {
         log.info("Assembling services after data source modification");
-        synchronized (this) {
-            processServices();
-        }
+        processServices();
     }
 
-    private void processServices() {
+    private synchronized void processServices() {
         resetOpenL();
 
         Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
