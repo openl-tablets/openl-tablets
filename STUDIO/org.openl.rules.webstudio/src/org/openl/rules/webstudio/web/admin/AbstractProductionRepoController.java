@@ -82,7 +82,7 @@ public abstract class AbstractProductionRepoController {
 
 
         if (this.isSecure()) {
-            /*Default Admin credencials for creating new admin user in repo*/
+            /*Default Admin credentials for creating new admin user in repo*/
             repoConfig.setLogin("admin");
             repoConfig.setPassword("admin");
 
