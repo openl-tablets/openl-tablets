@@ -9,6 +9,7 @@ package org.openl.rules.data;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.NodeType;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -87,7 +88,8 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
 
         if (!bindingContext.isExecutionMode()) {
-            RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parsedHeader[TYPE_INDEX], tableType.getMetaInfo());
+            RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parsedHeader[TYPE_INDEX], tableType.getMetaInfo(),
+                    NodeType.DATATYPE);
         }
 
         // Check that table type loaded properly.
