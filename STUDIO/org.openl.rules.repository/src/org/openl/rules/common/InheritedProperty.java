@@ -3,11 +3,7 @@ package org.openl.rules.common;
 import java.io.Serializable;
 
 public class InheritedProperty implements Serializable {
-    
-    
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 1L;
     private Object value;
     private ArtefactType typeOfNode;
