@@ -3,7 +3,7 @@ package org.openl.rules.project.abstraction;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.*;
-import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
+import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
