@@ -2,32 +2,22 @@ package org.openl.rules.webstudio.web.admin;
 
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter.ConfigurationReloader;
@@ -54,8 +44,6 @@ public class SystemSettingsBean {
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
-
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
@@ -71,6 +59,8 @@ public class SystemSettingsBean {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
+
+    private final SystemSettingsValidator validator = new SystemSettingsValidator(this);
 
     public String getUserWorkspaceHome() {
         return configManager.getPath(USER_WORKSPACE_HOME);
@@ -201,8 +191,8 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-                validate(prodConfig);
-                validateConnection(prodConfig);
+                validator.validate(prodConfig, productionRepositoryConfigurations);
+                validator.validateConnection(prodConfig, productionRepositoryFactoryProxy);
             }
 
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
@@ -290,82 +280,6 @@ public class SystemSettingsBean {
         }
     }
 
-    public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
-        if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = "Repository name is empty. Please, enter repository name";
-            throw new RepositoryValidationException(msg);
-        }
-        if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = "Repository path is empty. Please, enter repository path";
-            throw new RepositoryValidationException(msg);
-        }
-
-        if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
-            String msg = String.format(
-                    "Repository name '%s' contains illegal characters. Please, correct repository name",
-                    prodConfig.getName());
-            throw new RepositoryValidationException(msg);
-        }
-
-        // workingDirValidator(prodConfig.getPath(),
-        // "Production Repository directory");
-
-        // Check for name uniqueness.
-        for (RepositoryConfiguration other : productionRepositoryConfigurations) {
-            if (other != prodConfig) {
-                if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one",
-                            prodConfig.getName());
-                    throw new RepositoryValidationException(msg);
-                }
-
-                if (prodConfig.getPath().equals(other.getPath())) {
-                    String msg = String.format("Repository path '%s' already exists. Please, insert a new one",
-                            prodConfig.getPath());
-                    throw new RepositoryValidationException(msg);
-                }
-            }
-        }
-    }
-
-    /*FIXME move to utils class*/
-    public void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
-        try {
-            /**Close connection to jcr before checking connection*/
-            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            RRepositoryFactory repoFactory = productionRepositoryFactoryProxy.getFactory(
-                    repoConfig.getProperties());
-
-            RRepository repository = repoFactory.getRepositoryInstance();
-            /*Close repo connection after validation*/
-            repository.release();
-            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-        } catch (RRepositoryException e) {
-            Throwable resultException = ExceptionUtils.getRootCause(e);
-            if (resultException == null) {
-                resultException = e;
-            }
-
-            if (resultException instanceof javax.jcr.LoginException) {
-                if (!repoConfig.isSecure()) {
-                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                            + "\" : Connection is secure. Please, insert login and password");
-                } else {
-                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                            + "\" : Invalid login or password. Please, check login and password");
-                }
-            } else if (resultException instanceof javax.security.auth.login.FailedLoginException) {
-                throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                        + "\" : Invalid login or password. Please, check login and password");
-            } else if (resultException instanceof java.net.ConnectException) {
-                throw new RepositoryValidationException("Connection refused. Please, check repository URL");
-            }
-
-            throw new RepositoryValidationException("Repository \"" + repoConfig.getName() + "\" : "
-                    + resultException.getMessage());
-        }
-    }
-
     private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig)
             throws ServletException {
         boolean changed = prodConfig.save();
@@ -427,145 +341,8 @@ public class SystemSettingsBean {
         return configName;
     }
 
-    public void dateFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String inputDate = (String) value;
-
-        validateNotBlank(inputDate, "Date format");
-
-    }
-
-    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "Workspace Directory";
-        validateNotBlank((String) value, directoryType);
-        setUserWorkspaceHome((String) value);
-        workingDirValidator(getUserWorkspaceHome(), directoryType);
-
-    }
-
-    public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String directoryType = "History Directory";
-        validateNotBlank((String) value, directoryType);
-        setProjectHistoryHome((String) value);
-        workingDirValidator(getProjectHistoryHome(), directoryType);
-
-    }
-
-    public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String errorMessage = null;
-        String count = (String) value;
-        validateNotBlank(count, "The maximum count of saved changes");
-        if (!Pattern.matches("[0-9]+", count)) {
-            errorMessage = "The maximum count of saved changes should be positive integer";
-        }
-
-        if (errorMessage != null) {
-            FacesUtils.addErrorMessage(errorMessage);
-            throw new ValidatorException(new FacesMessage(errorMessage));
-        }
-    }
-
-    public void maxCachedProjectsCountValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String count = (String) value;
-        validateNotNegativeInteger(count, "The maximum number of cached projects");
-    }
-
-    public void cachedProjectIdleTimeValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String count = (String) value;
-        validateNotNegativeInteger(count, "The time to store a project in cache");
-    }
-
-    public void testRunThreadCountValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String count = (String) value;
-        validateGreaterThanZero(count, "Number of threads");
-    }
-
-    private void validateNotNegativeInteger(String count, String target) {
-        String message = target + " must be positive integer or zero";
-        try {
-            int v = Integer.parseInt(StringUtils.trim(count));
-            if (v < 0) {
-                FacesUtils.addErrorMessage(message);
-                throw new ValidatorException(new FacesMessage(message));
-            }
-        } catch (NumberFormatException e) {
-            FacesUtils.addErrorMessage(message);
-            throw new ValidatorException(new FacesMessage(message));
-        }
-    }
-
-    private void validateGreaterThanZero(String count, String target) {
-        String message = target + " must be positive integer";
-        try {
-            int v = Integer.parseInt(StringUtils.trim(count));
-            if (v <= 0) {
-                FacesUtils.addErrorMessage(message);
-                throw new ValidatorException(new FacesMessage(message));
-            }
-        } catch (NumberFormatException e) {
-            FacesUtils.addErrorMessage(message);
-            throw new ValidatorException(new FacesMessage(message));
-        }
-    }
-
-    public void workingDirValidator(String value, String folderType) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        boolean hasAccess;
-
-        try {
-
-            studioWorkingDir = new File(value);
-
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
-
-                hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value
-                            + " '    Please, contact to your system administrator."));
-                }
-            } else {
-                if (!studioWorkingDir.mkdirs()) {
-                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
-                } else {
-                    deleteFolder(value);
-                }
-            }
-        } catch (Exception e) {
-            FacesUtils.addErrorMessage(e.getMessage());
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
-        } finally {
-            FileUtils.deleteQuietly(tmpFile);
-        }
-    }
-
-    private void validateNotBlank(String value, String folderType) throws ValidatorException {
-        if (StringUtils.isBlank(value)) {
-            String errorMessage = folderType + " could not be empty";
-            FacesUtils.addErrorMessage(errorMessage);
-            throw new ValidatorException(new FacesMessage(errorMessage));
-        }
-    }
-
-    /**
-     * Deleting the folder which were created for validating folder permissions
-     *
-     * @deprecated This method deletes all parent folders if they are not locked - this is error-prone especially in non-Windows
-     * OS. Remove it and delete only created folders.
-     */
-    @Deprecated
-    private void deleteFolder(String folderPath) {
-        File workFolder = new File(folderPath);
-        File parent = workFolder.getParentFile();
-
-        while (parent != null) {
-            if (!workFolder.delete()) {
-                log.warn("The folder '{}' isn't deleted", workFolder.getName());
-            }
-            parent = workFolder.getParentFile();
-            workFolder = parent;
-        }
+    public SystemSettingsValidator getValidator() {
+        return validator;
     }
 
     public void setProductionRepositoriesTreeController(
