@@ -156,6 +156,8 @@
         <div>
             <h:form id="systemSettingsForm">
 
+            <c:set var="validator" value="#{systemSettingsBean.validator}" />
+
             <h:panelGroup id="restartMessage" layout="block" styleClass="restartMessage">
                 <h:panelGroup rendered="#{studio.needRestart}" layout="block" styleClass="problem-warning">
                     <b>System settings were changed!</b>
@@ -195,7 +197,7 @@
                                         <h:outputText value="Workspace Directory:" />
                                         <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}" styleClass="pathInput"
                                             disabled="#{jsffn:isSystemProp('user.workspace.home')}"
-                                            validator="#{systemSettingsBean.workSpaceDirValidator}"/>
+                                            validator="#{validator.workSpaceDirValidator}"/>
                                     </h:panelGrid>
                                 </div>
                             </section>
@@ -206,13 +208,13 @@
                                         <h:outputText value="History Directory:" />
                                         <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
                                             disabled="#{jsffn:isSystemProp('project.history.home')}"
-                                           validator="#{systemSettingsBean.historyDirValidator}"/>
+                                           validator="#{validator.historyDirValidator}"/>
                                     </h:panelGrid>
                                     <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
                                         <h:outputText value="The maximum count of saved changes for each project:" />
                                         <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
                                             disabled="#{jsffn:isSystemProp('project.history.count')}"
-                                            validator="#{systemSettingsBean.historyCountValidator}"/>
+                                            validator="#{validator.historyCountValidator}"/>
                                     </h:panelGrid>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Unlimited numbers of copies" />
@@ -262,7 +264,7 @@
                                         <h:outputText value="Date Format:" />
                                         <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
                                             disabled="#{jsffn:isSystemProp('data.format.date')}"
-                                            validator = "#{systemSettingsBean.dateFormatValidator}"/>
+                                            validator = "#{validator.dateFormatValidator}"/>
                                     </h:panelGrid>
                                 </div>
                             </section>
@@ -395,12 +397,12 @@
                                     <h:panelGrid id="maxCachedProjectsCount" columns="2" columnClasses="titleColumn">
                                         <h:outputText value="The maximum number of cached projects" />
                                         <h:inputText value="#{systemSettingsBean.maxCachedProjectsCount}" title="The maximum number of cached projects in memory, before they are evicted (0 == no limit)."
-                                                     validator="#{systemSettingsBean.maxCachedProjectsCountValidator}"/>
+                                                     validator="#{validator.maxCachedProjectsCountValidator}"/>
                                     </h:panelGrid>
                                     <h:panelGrid id="cachedProjectIdleTime" columns="2" columnClasses="titleColumn">
                                         <h:outputText value="The time to store a project in cache (in seconds)" />
                                         <h:inputText value="#{systemSettingsBean.cachedProjectIdleTime}" title="The maximum amount of time to store a project in cache from its last opened time. A value of 0 means that a project can stay in cache for infinity."
-                                                     validator="#{systemSettingsBean.cachedProjectIdleTimeValidator}"/>
+                                                     validator="#{validator.cachedProjectIdleTimeValidator}"/>
                                     </h:panelGrid>
                                 </div>
                             </section>
@@ -414,7 +416,7 @@
                                     <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
                                         <h:outputText value="Thread number for tests" />
                                         <h:inputText value="#{systemSettingsBean.testRunThreadCount}"
-                                                     validator="#{systemSettingsBean.testRunThreadCountValidator}"/>
+                                                     validator="#{validator.testRunThreadCountValidator}"/>
                                     </h:panelGrid>
                                 </div>
                             </section>

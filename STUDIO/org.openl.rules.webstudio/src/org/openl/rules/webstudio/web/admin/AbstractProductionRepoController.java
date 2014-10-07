@@ -118,7 +118,7 @@ public abstract class AbstractProductionRepoController {
 
     public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
         try {
-            systemSettingsBean.validate(prodConfig);
+            systemSettingsBean.getValidator().validate(prodConfig, systemSettingsBean.getProductionRepositoryConfigurations());
 
             if (this.secure) {
                 if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
