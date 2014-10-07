@@ -12,7 +12,7 @@ import java.util.TimerTask;
  */
 public final class CheckFileSystemChanges extends TimerTask {
     private File baseDir;
-    private HashMap<File, Long> dir = new HashMap<File, Long>();
+    private HashMap<File, Long> timestamps = new HashMap<File, Long>();
 
     private FileSystemDataSource fileSystemDataSource;
     private LocalTemporaryDeploymentsStorage storage;
@@ -38,7 +38,7 @@ public final class CheckFileSystemChanges extends TimerTask {
     }
 
     private void add(File file) {
-        dir.put(file, new Long(file.lastModified()));
+        timestamps.put(file, new Long(file.lastModified()));
         if (file.isDirectory()) {
             File filesArray[] = file.listFiles();
             for (File f : filesArray) {
@@ -52,7 +52,7 @@ public final class CheckFileSystemChanges extends TimerTask {
 
         // scan the files and check for modification/addition
         for (File f : filesArray) {
-            Long current = dir.get(f);
+            Long current = timestamps.get(f);
             checkedFiles.add(f);
             if (current == null) {
                 // new file
@@ -61,7 +61,7 @@ public final class CheckFileSystemChanges extends TimerTask {
             } else {
                 if (current.longValue() != f.lastModified()) {
                     // modified file
-                    dir.put(f, new Long(f.lastModified()));
+                    timestamps.put(f, new Long(f.lastModified()));
                     changed = true;
                 }
                 if (f.isDirectory()) {
@@ -78,10 +78,10 @@ public final class CheckFileSystemChanges extends TimerTask {
      * @return true if deleted files were
      */
     private boolean checkDeleted(Set<File> checkedFiles) {
-        Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
+        Set<File> ref = ((HashMap<File, Long>) timestamps.clone()).keySet();
         ref.removeAll(checkedFiles);
         for (File deletedFile : ref) {
-            dir.remove(deletedFile);
+            timestamps.remove(deletedFile);
         }
         return !ref.isEmpty();
     }
