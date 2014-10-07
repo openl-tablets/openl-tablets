@@ -53,7 +53,7 @@ public final class CheckFileSystemChanges extends TimerTask {
 
         // scan the files and check for modification/addition
         for (int i = 0; i < filesArray.length; i++) {
-            Long current = (Long) dir.get(filesArray[i]);
+            Long current = dir.get(filesArray[i]);
             checkedFiles.add(filesArray[i]);
             if (current == null) {
                 // new file
@@ -85,7 +85,7 @@ public final class CheckFileSystemChanges extends TimerTask {
         ref.removeAll(checkedFiles);
         Iterator<File> it = ref.iterator();
         while (it.hasNext()) {
-            File deletedFile = (File) it.next();
+            File deletedFile = it.next();
             dir.remove(deletedFile);
             if (!onChangeFired) {
                 onChange();
