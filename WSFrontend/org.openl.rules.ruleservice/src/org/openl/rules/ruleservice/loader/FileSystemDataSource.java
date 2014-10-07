@@ -223,22 +223,16 @@ public class FileSystemDataSource implements DataSource {
             // transfer to the hashmap be used a reference and keep the
             // lastModfied value
             for (int i = 0; i < filesArray.length; i++) {
-                add(filesArray[i], false);
+                add(filesArray[i]);
             }
         }
 
-        private void add(File file, boolean fireEvent) {
+        private void add(File file) {
             dir.put(file, new Long(file.lastModified()));
-            if (fireEvent) {
-                onChange(file, "add");
-            }
             if (file.isDirectory()) {
                 File filesArray[] = file.listFiles();
                 for (int i = 0; i < filesArray.length; i++) {
-                    if (fireEvent) {
-                        onChange(filesArray[i], "add");
-                    }
-                    add(filesArray[i], fireEvent);
+                    add(filesArray[i]);
                 }
             }
         }
@@ -262,7 +256,7 @@ public class FileSystemDataSource implements DataSource {
                         onChange();
                         onChangeFired = true;
                     }
-                    add(filesArray[i], true);
+                    add(filesArray[i]);
                 } else {
                     if (current.longValue() != filesArray[i].lastModified()) {
                         // modified file
@@ -271,7 +265,6 @@ public class FileSystemDataSource implements DataSource {
                             onChange();
                             onChangeFired = true;
                         }
-                        onChange(filesArray[i], "modify");
                     }
                     if (filesArray[i].isDirectory()) {
                         onChangeFired = checkModifiedAndNew(filesArray[i], checkedFiles, onChangeFired);
@@ -293,7 +286,6 @@ public class FileSystemDataSource implements DataSource {
                     onChange();
                     onChangeFired = true;
                 }
-                onChange(deletedFile, "delete");
             }
         }
 
@@ -313,10 +305,6 @@ public class FileSystemDataSource implements DataSource {
                 listener.onDeploymentAdded();
             }
             storage.clear();
-        }
-
-        protected void onChange(File file, String action) {
-
         }
     }
 
