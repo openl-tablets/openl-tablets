@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.project.abstraction.Deployment;
 
@@ -12,18 +11,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class FileSystemDataSourceTest {
-    private static FileSystemDataSource dataSource;
+    private FileSystemDataSource dataSource;
 
     private static String FILE_SYSTEM_DATA_SOURCE_DIRECTORY = "test-resources/filesystemdatasource";
 
-    @BeforeClass
-    public static void setDataSource() {
-        dataSource = new FileSystemDataSource(FILE_SYSTEM_DATA_SOURCE_DIRECTORY);
-    }
-
     @Before
-    public void removeAllDataSourceListeners() {
-        dataSource.removeAllListeners();
+    public void setDataSource() {
+        dataSource = new FileSystemDataSource(FILE_SYSTEM_DATA_SOURCE_DIRECTORY);
     }
 
     @Test
@@ -69,19 +63,6 @@ public class FileSystemDataSourceTest {
         dataSource.addListener(dataSourceListener);
         assertEquals(1, dataSource.listeners.size());
         dataSource.removeListener(dataSourceListener);
-        assertEquals(0, dataSource.listeners.size());
-    }
-
-    @Test
-    public void testRemoveAllListeners() {
-        assertEquals(0, dataSource.listeners.size());
-        DataSourceListener dataSourceListener = new DataSourceListener() {
-            public void onDeploymentAdded() {
-            }
-        };
-        dataSource.addListener(dataSourceListener);
-        assertEquals(1, dataSource.listeners.size());
-        dataSource.removeAllListeners();
         assertEquals(0, dataSource.listeners.size());
     }
 }
