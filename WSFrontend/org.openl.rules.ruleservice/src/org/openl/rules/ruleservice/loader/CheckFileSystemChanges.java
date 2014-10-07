@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.loader;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
@@ -33,8 +32,8 @@ public final class CheckFileSystemChanges extends TimerTask {
 
         // transfer to the hashmap be used a reference and keep the
         // lastModfied value
-        for (int i = 0; i < filesArray.length; i++) {
-            add(filesArray[i]);
+        for (File file : filesArray) {
+            add(file);
         }
     }
 
@@ -42,8 +41,8 @@ public final class CheckFileSystemChanges extends TimerTask {
         dir.put(file, new Long(file.lastModified()));
         if (file.isDirectory()) {
             File filesArray[] = file.listFiles();
-            for (int i = 0; i < filesArray.length; i++) {
-                add(filesArray[i]);
+            for (File f : filesArray) {
+                add(f);
             }
         }
     }
@@ -52,27 +51,27 @@ public final class CheckFileSystemChanges extends TimerTask {
         File filesArray[] = file.listFiles();
 
         // scan the files and check for modification/addition
-        for (int i = 0; i < filesArray.length; i++) {
-            Long current = dir.get(filesArray[i]);
-            checkedFiles.add(filesArray[i]);
+        for (File f : filesArray) {
+            Long current = dir.get(f);
+            checkedFiles.add(f);
             if (current == null) {
                 // new file
                 if (!onChangeFired) {
                     onChange();
                     onChangeFired = true;
                 }
-                add(filesArray[i]);
+                add(f);
             } else {
-                if (current.longValue() != filesArray[i].lastModified()) {
+                if (current.longValue() != f.lastModified()) {
                     // modified file
-                    dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
+                    dir.put(f, new Long(f.lastModified()));
                     if (!onChangeFired) {
                         onChange();
                         onChangeFired = true;
                     }
                 }
-                if (filesArray[i].isDirectory()) {
-                    onChangeFired = checkModifiedAndNew(filesArray[i], checkedFiles, onChangeFired);
+                if (f.isDirectory()) {
+                    onChangeFired = checkModifiedAndNew(f, checkedFiles, onChangeFired);
                 }
             }
         }
@@ -83,9 +82,7 @@ public final class CheckFileSystemChanges extends TimerTask {
         // now check for deleted files
         Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
         ref.removeAll(checkedFiles);
-        Iterator<File> it = ref.iterator();
-        while (it.hasNext()) {
-            File deletedFile = it.next();
+        for (File deletedFile : ref) {
             dir.remove(deletedFile);
             if (!onChangeFired) {
                 onChange();
