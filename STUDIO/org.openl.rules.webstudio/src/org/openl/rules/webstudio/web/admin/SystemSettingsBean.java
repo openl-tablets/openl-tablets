@@ -1,7 +1,23 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -24,24 +40,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import java.io.File;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
-
 /**
- * TODO Remove property getters/setters when migrating to EL 2.2 TODO Move
- * methods for production repository to another class
+ * TODO Remove property getters/setters when migrating to EL 2.2
  *
  * @author Andrei Astrouski
  */
@@ -58,34 +58,10 @@ public class SystemSettingsBean {
 
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 
-    private boolean secureDesignRepo = false;
-
-    /**
-     * @deprecated
-     */
-    private static final BidiMap<String, String> DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
-
-    static {
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local",
-                "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("rmi",
-                "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory");
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
-                "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
-    }
-
-    /**
-     * @deprecated
-     */
-    private static final Map<String, String> DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
-
-    static {
-        DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "design-repository.local.home");
-        DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "design-repository.remote.rmi.url");
-        DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
-    }
-
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
+    private RepositoryConfiguration designRepositoryConfiguration = new RepositoryConfiguration("",
+            configManager,
+            RepositoryType.DESIGN);
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
@@ -148,45 +124,8 @@ public class SystemSettingsBean {
         configManager.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
     }
 
-    public String getDesignRepositoryType() {
-        String factory = configManager.getStringProperty(DESIGN_REPOSITORY_FACTORY);
-        return DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
-    }
-
-    public void setDesignRepositoryType(String type) {
-        configManager.setProperty(DESIGN_REPOSITORY_FACTORY, DESIGN_REPOSITORY_TYPE_FACTORY_MAP.get(type));
-    }
-
-    public String getDesignRepositoryName() {
-        return configManager.getStringProperty(DESIGN_REPOSITORY_NAME);
-    }
-
-    public void setDesignRepositoryName(String name) {
-        configManager.setProperty(DESIGN_REPOSITORY_NAME, name);
-    }
-
-    public String getDesignRepositoryPath() {
-        String type = getDesignRepositoryType();
-        String propName = DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
-
-        return "local".equals(type) ? configManager.getPath(propName) : configManager.getStringProperty(propName);
-    }
-
-    public void setDesignRepositoryPath(String path) {
-        String type = getDesignRepositoryType();
-        String propName = DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
-        String normalizedPath = StringUtils.trimToEmpty(path);
-
-        if ("local".equals(type)) {
-            configManager.setPath(propName, normalizedPath);
-        } else {
-            configManager.setProperty(propName, normalizedPath);
-        }
-    }
-
-    public boolean isDesignRepositoryPathSystem() {
-        String type = getDesignRepositoryType();
-        return configManager.isSystemProperty(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+    public RepositoryConfiguration getDesignRepositoryConfiguration() {
+        return designRepositoryConfiguration;
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -197,47 +136,14 @@ public class SystemSettingsBean {
         return productionRepositoryConfigurations;
     }
 
-    public void setDesignRepositoryLogin(String login) {
-        configManager.setProperty(DESIGN_REPOSITORY_LOGIN, login);
-    }
-
-    public String getDesignRepositoryLogin() {
-        return configManager.getStringProperty(DESIGN_REPOSITORY_LOGIN);
-    }
-
-    public void setDesignRepositoryPass(String pass) {
-        if (!StringUtils.isEmpty(pass)) {
-            configManager.setPassword(DESIGN_REPOSITORY_PASSWORD, pass);
-        }
-    }
-
-    public String getDesignRepositoryPass() {
-        return "";
-    }
-
-    public boolean isSecureDesignRepo() {
-        return secureDesignRepo || !StringUtils.isEmpty(this.getDesignRepositoryLogin());
-    }
-
-    public void setSecureDesignRepo(boolean secureDesignRepo) {
-        if (!secureDesignRepo) {
-            configManager.removeProperty(DESIGN_REPOSITORY_LOGIN);
-            configManager.removeProperty(DESIGN_REPOSITORY_PASSWORD);
-            configManager.removeProperty(DESIGN_REPOSITORY_CONFIG_FILE);
-        } else {
-            configManager.setProperty(DESIGN_REPOSITORY_CONFIG_FILE, RepositoryConfiguration.SECURE_CONFIG_FILE);
-        }
-
-        this.secureDesignRepo = secureDesignRepo;
-    }
-
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
+                    RepositoryType.PRODUCTION);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -485,7 +391,7 @@ public class SystemSettingsBean {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-                getProductionConfigManager(newConfigName));
+                getProductionConfigManager(newConfigName), RepositoryType.PRODUCTION);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 
