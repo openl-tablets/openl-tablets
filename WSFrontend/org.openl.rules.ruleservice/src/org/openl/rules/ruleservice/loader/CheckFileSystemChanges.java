@@ -11,7 +11,7 @@ import java.util.TimerTask;
  * TimerTask for check file data source modifications.
  */
 public final class CheckFileSystemChanges extends TimerTask {
-    private String path;
+    private File baseDir;
     private HashMap<File, Long> dir = new HashMap<File, Long>();
 
     private FileSystemDataSource fileSystemDataSource;
@@ -27,8 +27,8 @@ public final class CheckFileSystemChanges extends TimerTask {
             throw new IllegalArgumentException("path argument can't be null");
         }
 
-        this.path = path;
-        File filesArray[] = new File(path).listFiles();
+        baseDir = new File(path);
+        File filesArray[] = baseDir.listFiles();
 
         // transfer to the hashmap be used a reference and keep the
         // lastModfied value
@@ -89,7 +89,7 @@ public final class CheckFileSystemChanges extends TimerTask {
     public final void run() {
         Set<File> checkedFiles = new HashSet<File>();
         boolean changed = false;
-        changed = checkModifiedAndNew(new File(path), checkedFiles, changed);
+        changed = checkModifiedAndNew(baseDir, checkedFiles, changed);
         changed |= checkDeleted(checkedFiles);
         if (changed) {
             onChange();
