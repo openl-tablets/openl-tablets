@@ -205,7 +205,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                     if (modules.isEmpty()) {
                         // Case module names where not set to the methods
                         //
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, origin, properties set and different method body!",
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
                             existedMethod.getName()),
                             existedMethod);
                     } else {
@@ -215,7 +215,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                         if (modules.size() > 1) {
                             modulesString = modulesString + ", " + modules.get(1);
                         }
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, origin, properties set and different method body!",
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, properties set and different method body!",
                             existedMethod.getName(),
                             modulesString),
                             existedMethod);
