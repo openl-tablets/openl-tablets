@@ -216,16 +216,29 @@ public class FileSystemDataSource implements DataSource {
         }
     }
 
-    public static abstract class DirWatcher extends TimerTask {
+    /**
+     * TimerTask for check file data source modifications.
+     */
+    public static final class CheckFileSystemChanges extends TimerTask {
         private String path;
         private HashMap<File, Long> dir = new HashMap<File, Long>();
         private DirFilterWatcher dfw;
 
-        public DirWatcher(String path) {
+        private FileSystemDataSource fileSystemDataSource;
+        private LocalTemporaryDeploymentsStorage storage;
+
+        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource,
+                LocalTemporaryDeploymentsStorage storage) {
+            this(fileSystemDataSource.getLoadDeploymentsFromDirectory());
+            this.fileSystemDataSource = fileSystemDataSource;
+            this.storage = storage;
+        }
+
+        public CheckFileSystemChanges(String path) {
             this(path, "");
         }
 
-        public DirWatcher(String path, String filter) {
+        public CheckFileSystemChanges(String path, String filter) {
             if (path == null) {
                 throw new IllegalArgumentException("path argument can't be null");
             }
@@ -324,28 +337,6 @@ public class FileSystemDataSource implements DataSource {
         /**
          * Executes once on change if change is detected
          */
-        protected abstract void onChange();
-
-        protected abstract void onChange(File file, String action);
-    }
-
-    /**
-     * TimerTask for check file data source modifications.
-     *
-     * @author
-     */
-    public final static class CheckFileSystemChanges extends DirWatcher {
-        private FileSystemDataSource fileSystemDataSource;
-        private LocalTemporaryDeploymentsStorage storage;
-
-        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource,
-                LocalTemporaryDeploymentsStorage storage) {
-            super(fileSystemDataSource.getLoadDeploymentsFromDirectory());
-            this.fileSystemDataSource = fileSystemDataSource;
-            this.storage = storage;
-        }
-
-        @Override
         protected synchronized void onChange() {
             List<DataSourceListener> listeners = fileSystemDataSource.listeners;
             for (DataSourceListener listener : listeners) {
@@ -354,7 +345,6 @@ public class FileSystemDataSource implements DataSource {
             storage.clear();
         }
 
-        @Override
         protected void onChange(File file, String action) {
 
         }
