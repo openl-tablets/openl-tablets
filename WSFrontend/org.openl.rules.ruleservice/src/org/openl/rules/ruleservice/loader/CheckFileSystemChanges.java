@@ -49,12 +49,6 @@ public final class CheckFileSystemChanges extends TimerTask {
     }
 
     private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean onChangeFired) {
-        if (file == null) {
-            throw new IllegalArgumentException("file arg can't be null");
-        }
-        if (!file.isDirectory()) {
-            throw new IllegalArgumentException("file arg should be a directory");
-        }
         File filesArray[] = file.listFiles();
 
         // scan the files and check for modification/addition
