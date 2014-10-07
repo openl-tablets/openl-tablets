@@ -1,8 +1,5 @@
 package org.openl.rules.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
@@ -12,13 +9,12 @@ import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodDependencyInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that decorates the <code>IOpenMehtod</code> interface for method
@@ -184,29 +180,42 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
+            /**
+             * Throw the error with the right message for the case
+             * when the methods are equal
+             */
             if (newMethod instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
-                TableUriMethod m1 = (TableUriMethod) newMethod;
-                TableUriMethod m2 = (TableUriMethod) existedMethod;
-                String newMethodHashUrl = m1.getTableUri();
-                String existedMethodHashUrl = m2.getTableUri();
+                String newMethodHashUrl = ((TableUriMethod) newMethod).getTableUri();
+                String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
+
                 if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
+                    // Modules to which methods belongs to
+                    //
                     List<String> modules = new ArrayList<String>();
-                    if (newMethod instanceof IMethodDependencyInfo) {
-                        modules.add(((IMethodDependencyInfo) newMethod).getDependencyName());
+                    if (newMethod instanceof IMethodModuleInfo) {
+                        // Get the name of the module for the newMethod
+                        //
+                        modules.add(((IMethodModuleInfo) newMethod).getModuleName());
                     }
-                    if (newMethod instanceof IMethodDependencyInfo) {
-                        modules.add(((IMethodDependencyInfo) existedMethod).getDependencyName());
+                    if (existedMethod instanceof IMethodModuleInfo) {
+                        // Get the name of the module for the existedMethod
+                        //
+                        modules.add(((IMethodModuleInfo) existedMethod).getModuleName());
                     }
                     if (modules.isEmpty()) {
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                        // Case module names where not set to the methods
+                        //
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, origin, properties set and different method body!",
                             existedMethod.getName()),
                             existedMethod);
                     } else {
+                        // Case when the module names where set to the methods
+                        //
                         String modulesString = modules.get(0);
                         if (modules.size() > 1) {
                             modulesString = modulesString + ", " + modules.get(1);
                         }
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, properties set and different method body!",
+                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, origin, properties set and different method body!",
                             existedMethod.getName(),
                             modulesString),
                             existedMethod);
