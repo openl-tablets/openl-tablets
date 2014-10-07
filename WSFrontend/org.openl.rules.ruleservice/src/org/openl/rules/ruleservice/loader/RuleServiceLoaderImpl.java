@@ -15,7 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the
@@ -51,8 +55,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * @see #setDataSource, #setProjectResolver
      */
     public RuleServiceLoaderImpl(DataSource dataSource,
-                                 LocalTemporaryDeploymentsStorage storage,
-                                 RulesProjectResolver projectResolver) {
+            LocalTemporaryDeploymentsStorage storage,
+            RulesProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
@@ -142,15 +146,21 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"", deploymentName, deploymentVersion.getVersionName());
+        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"",
+                deploymentName,
+                deploymentVersion.getVersionName());
 
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
             Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from data source", deploymentName, deploymentVersion.getVersionName());
+            log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from data source",
+                    deploymentName,
+                    deploymentVersion.getVersionName());
             return deployment;
         }
-        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from local repository", deploymentName, deploymentVersion.getVersionName());
+        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from local repository",
+                deploymentName,
+                deploymentVersion.getVersionName());
         return localDeployment;
     }
 
@@ -158,8 +168,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * {@inheritDoc}
      */
     public Collection<Module> resolveModulesForProject(String deploymentName,
-                                                       CommonVersion deploymentVersion,
-                                                       String projectName) {
+            CommonVersion deploymentVersion,
+            String projectName) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
@@ -170,13 +180,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new IllegalArgumentException("projectName argument can't be null");
         }
 
-        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}", deploymentName, deploymentVersion.getVersionName(), projectName);
+        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}",
+                deploymentName,
+                deploymentVersion.getVersionName(),
+                projectName);
 
-        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
-        if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            localDeployment = storage.loadDeployment(deployment);
-        }
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
 
         AProject project = localDeployment.getProject(projectName);
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
@@ -210,11 +219,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         String deploymentName = serviceDescription.getDeployment().getName();
         CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-        Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
-        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
-        if (localDeployment == null) {
-            localDeployment = storage.loadDeployment(deployment);
-        }
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
 
         Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
 
@@ -257,5 +262,14 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             }
         }
         return Collections.unmodifiableCollection(ret);
+    }
+
+    private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
+        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+        if (localDeployment == null) {
+            Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
+            localDeployment = storage.loadDeployment(deployment);
+        }
+        return localDeployment;
     }
 }
