@@ -1,10 +1,8 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.TimerTask;
 
 /**
@@ -12,7 +10,7 @@ import java.util.TimerTask;
  */
 public final class CheckFileSystemChanges extends TimerTask {
     private File baseDir;
-    private HashMap<File, Long> timestamps = new HashMap<File, Long>();
+    private ArrayList<FileTimeStamp> timestamps;
 
     private FileSystemDataSource fileSystemDataSource;
     private LocalTemporaryDeploymentsStorage storage;
@@ -28,70 +26,51 @@ public final class CheckFileSystemChanges extends TimerTask {
         }
 
         baseDir = new File(path);
-        File filesArray[] = baseDir.listFiles();
 
-        // transfer to the hashmap be used a reference and keep the
-        // lastModfied value
-        for (File file : filesArray) {
-            add(file);
-        }
+        ArrayList<FileTimeStamp> timestamps = new ArrayList<FileTimeStamp>();
+        collect(baseDir, timestamps);
+        this.timestamps = timestamps;
     }
 
-    private void add(File file) {
-        timestamps.put(file, file.lastModified());
+    private void collect(File file, ArrayList<FileTimeStamp> result) {
         if (file.isDirectory()) {
             File filesArray[] = file.listFiles();
             for (File f : filesArray) {
-                add(f);
+                collect(f, result);
             }
+        } else {
+            // Assuming that "a not directory is a file"
+            result.add(new FileTimeStamp(file));
         }
-    }
-
-    private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean changed) {
-        File filesArray[] = file.listFiles();
-
-        // scan the files and check for modification/addition
-        for (File f : filesArray) {
-            Long current = timestamps.get(f);
-            checkedFiles.add(f);
-            if (current == null) {
-                // new file
-                changed = true;
-                add(f);
-            } else {
-                if (current != f.lastModified()) {
-                    // modified file
-                    timestamps.put(f, f.lastModified());
-                    changed = true;
-                }
-                if (f.isDirectory()) {
-                    changed = checkModifiedAndNew(f, checkedFiles, changed);
-                }
-            }
-        }
-        return changed;
-    }
-
-    /**
-     * Checks for deleted files.
-     *
-     * @return true if deleted files were
-     */
-    private boolean checkDeleted(Set<File> checkedFiles) {
-        Set<File> ref = ((HashMap<File, Long>) timestamps.clone()).keySet();
-        ref.removeAll(checkedFiles);
-        for (File deletedFile : ref) {
-            timestamps.remove(deletedFile);
-        }
-        return !ref.isEmpty();
     }
 
     public final void run() {
-        Set<File> checkedFiles = new HashSet<File>();
+        int quantity = timestamps.size();
+        // Allocate memory for scanning the base directory.
+        // Usually directory size is not increased extensively from the previous scanning,
+        // so 10 free cells is enough for fast expanding.
+        ArrayList<FileTimeStamp> newTimestampes = new ArrayList<FileTimeStamp>(quantity + 10);
+        // Scanning all files in the base directory
+        collect(baseDir, newTimestampes);
         boolean changed = false;
-        changed = checkModifiedAndNew(baseDir, checkedFiles, changed);
-        changed |= checkDeleted(checkedFiles);
+        // If quantity of files is different from the previous scanning
+        // e.g. files have been added or deleted
+        if (newTimestampes.size() != quantity) {
+            // then we can ensure that the base directory has been modified
+            changed = true;
+        } else {
+            // else scan file modification from the previous scanning
+            for (FileTimeStamp entry : timestamps) {
+                if (entry.isModifyed()) {
+                    // A file has been deleted or recreated to a directory or modified
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        // After above checks if changes have been found, keep the scanned files and fire an event
         if (changed) {
+            timestamps = newTimestampes;
             onChange();
         }
     }
@@ -106,4 +85,5 @@ public final class CheckFileSystemChanges extends TimerTask {
         }
         storage.clear();
     }
+
 }
