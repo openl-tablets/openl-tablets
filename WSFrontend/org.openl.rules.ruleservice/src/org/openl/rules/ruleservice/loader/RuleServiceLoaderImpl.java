@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -138,35 +139,6 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
-    public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
-        }
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument can't be null");
-        }
-
-        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"",
-                deploymentName,
-                deploymentVersion.getVersionName());
-
-        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
-        if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from data source",
-                    deploymentName,
-                    deploymentVersion.getVersionName());
-            return deployment;
-        }
-        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from local repository",
-                deploymentName,
-                deploymentVersion.getVersionName());
-        return localDeployment;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName) {
@@ -199,7 +171,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 log.error("Project resolving failed!", e);
                 return Collections.emptyList();
             }
-            return Collections.unmodifiableList(projectDescriptor.getModules());
+            List<Module> modules = projectDescriptor.getModules();
+            return Collections.unmodifiableList(modules);
         } else {
             return Collections.emptyList();
         }
@@ -215,14 +188,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
         log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
 
-        Collection<Module> ret = new ArrayList<Module>();
-        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-        String deploymentName = serviceDescription.getDeployment().getName();
-        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
-
         Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
 
+        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         for (ModuleDescription moduleDescription : modulesToLoad) {
             String projectName = moduleDescription.getProjectName();
             if (projectModules.containsKey(projectName)) {
@@ -234,6 +202,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 projectModules.put(projectName, modules);
             }
         }
+
+        String deploymentName = serviceDescription.getDeployment().getName();
+        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
+
+        Collection<Module> ret = new ArrayList<Module>();
         for (String projectName : projectModules.keySet()) {
             AProject project = localDeployment.getProject(projectName);
             if (project == null) {

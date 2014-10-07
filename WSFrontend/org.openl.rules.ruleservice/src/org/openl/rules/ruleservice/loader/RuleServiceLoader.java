@@ -31,15 +31,6 @@ public interface RuleServiceLoader {
     Collection<Deployment> getDeployments();
 
     /**
-     * Returns deployment.
-     * 
-     * @param deploymentName
-     * @param deploymentVersion
-     * @return
-     */
-    Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
-
-    /**
      * 
      * @param deploymentName
      * @param deploymentVersion
