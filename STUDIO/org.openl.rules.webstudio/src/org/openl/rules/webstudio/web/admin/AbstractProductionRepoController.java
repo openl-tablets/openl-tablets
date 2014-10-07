@@ -55,7 +55,8 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration(String connectionType) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(this.getName()), getProductionConfigManager(getName()));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(this.getName()), getProductionConfigManager(getName()),
+                RepositoryType.PRODUCTION);
 
         repoConfig.setName(getName());
         repoConfig.setType(getType());
@@ -74,7 +75,8 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration(String connectionType) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()),
+                RepositoryType.PRODUCTION);
 
         repoConfig.setName(getName());
         repoConfig.setType(getType());
@@ -96,7 +98,8 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration getDefaultRepositoryConfiguration() {
         if (defaultRepoConfig == null) {
-            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"));
+            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"),
+                    RepositoryType.PRODUCTION);
         }
         
         return defaultRepoConfig;
