@@ -85,7 +85,7 @@ public final class CheckFileSystemChanges extends TimerTask {
         return onChangeFired;
     }
 
-    private void checkDeleted(File file, Set<File> checkedFiles, boolean onChangeFired) {
+    private void checkDeleted(Set<File> checkedFiles, boolean onChangeFired) {
         // now check for deleted files
         Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
         ref.removeAll(checkedFiles);
@@ -104,7 +104,7 @@ public final class CheckFileSystemChanges extends TimerTask {
         Set<File> checkedFiles = new HashSet<File>();
         boolean onChangedFired = false;
         onChangedFired = checkModifiedAndNew(new File(path), checkedFiles, onChangedFired);
-        checkDeleted(new File(path), checkedFiles, onChangedFired);
+        checkDeleted(checkedFiles, onChangedFired);
     }
 
     /**
