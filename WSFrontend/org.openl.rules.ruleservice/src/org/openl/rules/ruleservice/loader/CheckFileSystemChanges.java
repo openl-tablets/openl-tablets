@@ -47,7 +47,7 @@ public final class CheckFileSystemChanges extends TimerTask {
         }
     }
 
-    private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean onChangeFired) {
+    private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean changed) {
         File filesArray[] = file.listFiles();
 
         // scan the files and check for modification/addition
@@ -56,46 +56,44 @@ public final class CheckFileSystemChanges extends TimerTask {
             checkedFiles.add(f);
             if (current == null) {
                 // new file
-                if (!onChangeFired) {
-                    onChange();
-                    onChangeFired = true;
-                }
+                changed = true;
                 add(f);
             } else {
                 if (current.longValue() != f.lastModified()) {
                     // modified file
                     dir.put(f, new Long(f.lastModified()));
-                    if (!onChangeFired) {
-                        onChange();
-                        onChangeFired = true;
-                    }
+                    changed = true;
                 }
                 if (f.isDirectory()) {
-                    onChangeFired = checkModifiedAndNew(f, checkedFiles, onChangeFired);
+                    changed = checkModifiedAndNew(f, checkedFiles, changed);
                 }
             }
         }
-        return onChangeFired;
+        return changed;
     }
 
-    private void checkDeleted(Set<File> checkedFiles, boolean onChangeFired) {
-        // now check for deleted files
+    /**
+     * Checks for deleted files.
+     *
+     * @return true if deleted files were
+     */
+    private boolean checkDeleted(Set<File> checkedFiles) {
         Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
         ref.removeAll(checkedFiles);
         for (File deletedFile : ref) {
             dir.remove(deletedFile);
-            if (!onChangeFired) {
-                onChange();
-                onChangeFired = true;
-            }
         }
+        return !ref.isEmpty();
     }
 
     public final void run() {
         Set<File> checkedFiles = new HashSet<File>();
-        boolean onChangedFired = false;
-        onChangedFired = checkModifiedAndNew(new File(path), checkedFiles, onChangedFired);
-        checkDeleted(checkedFiles, onChangedFired);
+        boolean changed = false;
+        changed = checkModifiedAndNew(new File(path), checkedFiles, changed);
+        changed |= checkDeleted(checkedFiles);
+        if (changed) {
+            onChange();
+        }
     }
 
     /**
