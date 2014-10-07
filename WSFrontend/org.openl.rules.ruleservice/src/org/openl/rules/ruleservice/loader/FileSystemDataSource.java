@@ -187,19 +187,6 @@ public class FileSystemDataSource implements DataSource {
     /**
      * {@inheritDoc}
      */
-    public void removeAllListeners() {
-        synchronized (listeners) {
-            Iterator<DataSourceListener> itr = listeners.iterator();
-            while (itr.hasNext()) {
-                itr.next();
-                itr.remove();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void removeListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");

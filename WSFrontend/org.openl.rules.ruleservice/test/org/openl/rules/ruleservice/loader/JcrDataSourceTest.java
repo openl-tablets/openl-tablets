@@ -1,8 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -18,26 +17,21 @@ import static org.openl.rules.ruleservice.Constants.VERSION;
 
 public class JcrDataSourceTest {
 
-    private static JcrDataSource dataSource;
+    private JcrDataSource dataSource;
 
-    @BeforeClass
-    public static void setDataSource() throws Exception {
+    @Before
+    public void setDataSource() throws Exception {
         dataSource = new JcrDataSource();
     }
 
-    @AfterClass
-    public static void releaseDataSource() throws Exception {
+    @After
+    public void releaseDataSource() throws Exception {
         dataSource.destroy();
     }
 
     @Test
     public void testJcrDataSource() {
         assertNotNull(dataSource);
-    }
-
-    @Before
-    public void removeAllDataSourceListeners() {
-        dataSource.removeAllListeners();
     }
 
     @Test
@@ -76,19 +70,6 @@ public class JcrDataSourceTest {
         dataSource.addListener(dataSourceListener);
         assertEquals(1, dataSource.listeners.size());
         dataSource.removeListener(dataSourceListener);
-        assertEquals(0, dataSource.listeners.size());
-    }
-
-    @Test
-    public void testRemoveAllListeners() {
-        assertEquals(0, dataSource.listeners.size());
-        DataSourceListener dataSourceListener = new DataSourceListener() {
-            public void onDeploymentAdded() {
-            }
-        };
-        dataSource.addListener(dataSourceListener);
-        assertEquals(1, dataSource.listeners.size());
-        dataSource.removeAllListeners();
         assertEquals(0, dataSource.listeners.size());
     }
 }

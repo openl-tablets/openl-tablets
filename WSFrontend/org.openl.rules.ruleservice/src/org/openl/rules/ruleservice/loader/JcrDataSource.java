@@ -146,29 +146,12 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void removeAllListeners() {
-        synchronized (listeners) {
-            RProductionRepository rProductionRepository = getRProductionRepository();
-            for (DataSourceListener dataSourceListener : listeners.keySet()) {
-                RDeploymentListener listener = listeners.get(dataSourceListener);
-                if (listener != null) {
-                    try {
-                        rProductionRepository.removeListener(listener);
-                        listeners.remove(dataSourceListener);
-                        log.info("{} class listener is removed from jcr data source", dataSourceListener.getClass());
-                    } catch (RRepositoryException e) {
-                        throw new DataSourceException(e);
-                    }
-                }
-            }
-        }
-    }
-
     public void destroy() throws Exception {
         log.debug("JCR data source releasing");
+        if (productionRepositoryFactoryProxy == null) {
+            // a proxy  has not been initialized yet
+            return;
+        }
         productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
 
         if (shouldDestroyProxy) {
