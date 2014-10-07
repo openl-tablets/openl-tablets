@@ -57,7 +57,7 @@
             overflow: auto;
             border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
-            margin-top: 0px;
+            margin-top: 0;
         }
 
         .historyCheckAll {
@@ -94,7 +94,7 @@
                 maxNumberHistory.val("30");
                 maxNumberHistory.select();
             }
-        };
+        }
 
         function hideMaxCountInHistory() {
             if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
@@ -110,7 +110,7 @@
             } else {
                 $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
             }
-        };
+        }
 
         function showAvaliableProjectsInHistory(showHistory) {
             if (showHistory) {
@@ -124,7 +124,7 @@
                 $j("#cleanHistoryHref").hide();
             }
             hideMaxCountInHistory();
-        };
+        }
 
         function changeAllProjectCheck(element) {
             checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").size();
@@ -140,7 +140,7 @@
             } else {
                 $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
             }
-        };
+        }
 
         function changeRunTestsInParallel(element) {
             if (element.checked) {
