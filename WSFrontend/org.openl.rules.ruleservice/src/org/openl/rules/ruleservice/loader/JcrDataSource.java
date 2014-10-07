@@ -12,7 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * JCR repository data source. Uses
@@ -26,7 +30,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
 
     private static final String SEPARATOR = "#";
 
-    private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
+    Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
 
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
     private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
@@ -71,7 +75,9 @@ public class JcrDataSource implements DataSource, DisposableBean {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"", deploymentName, deploymentVersion.getVersionName());
+        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"",
+                deploymentName,
+                deploymentVersion.getVersionName());
 
         try {
             StringBuilder sb = new StringBuilder(deploymentName);
@@ -84,18 +90,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
         } catch (RRepositoryException e) {
             throw new DataSourceException(e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<DataSourceListener> getListeners() {
-        List<DataSourceListener> tmp = null;
-        synchronized (listeners) {
-            Collection<DataSourceListener> dataSourceListeners = listeners.keySet();
-            tmp = new ArrayList<DataSourceListener>(dataSourceListeners);
-        }
-        return Collections.unmodifiableList(tmp);
     }
 
     private RProductionRepository getRProductionRepository() {

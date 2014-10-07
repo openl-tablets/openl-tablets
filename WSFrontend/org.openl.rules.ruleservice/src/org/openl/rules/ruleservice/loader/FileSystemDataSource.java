@@ -11,7 +11,15 @@ import org.springframework.beans.factory.FactoryBean;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TimerTask;
 
 /**
  * File based data source. Thread safe implementation.
@@ -32,7 +40,7 @@ public class FileSystemDataSource implements DataSource {
 
     private Object flag = new Object();
 
-    private List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
+    List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
 
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
@@ -93,9 +101,11 @@ public class FileSystemDataSource implements DataSource {
                     loadDeploymentsFromFolder = new File(getLoadDeploymentsFromDirectory());
                     if (!loadDeploymentsFromFolder.exists()) {
                         if (!loadDeploymentsFromFolder.mkdirs()) {
-                            log.warn("File system data source folder \"{}\" creation was fail!", getLoadDeploymentsFromDirectory());
+                            log.warn("File system data source folder \"{}\" creation was fail!",
+                                    getLoadDeploymentsFromDirectory());
                         } else {
-                            log.info("File system data source \"{}\" was successfully created!", getLoadDeploymentsFromDirectory());
+                            log.info("File system data source \"{}\" was successfully created!",
+                                    getLoadDeploymentsFromDirectory());
                         }
                     }
                 }
@@ -154,15 +164,10 @@ public class FileSystemDataSource implements DataSource {
 
     private void validateDeployment(Deployment deployment) {
         if (deployment.getProjects().isEmpty()) {
-            log.warn("File system data source folder \"{}\" does not contain projects. Make sure that you have specified correct folder!", getLoadDeploymentsFromDirectory());
+            log.warn(
+                    "File system data source folder \"{}\" does not contain projects. Make sure that you have specified correct folder!",
+                    getLoadDeploymentsFromDirectory());
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<DataSourceListener> getListeners() {
-        return Collections.unmodifiableList(listeners);
     }
 
     /**
@@ -346,7 +351,8 @@ public class FileSystemDataSource implements DataSource {
         private FileSystemDataSource fileSystemDataSource;
         private LocalTemporaryDeploymentsStorage storage;
 
-        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource, LocalTemporaryDeploymentsStorage storage) {
+        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource,
+                LocalTemporaryDeploymentsStorage storage) {
             super(fileSystemDataSource.getLoadDeploymentsFromDirectory());
             this.fileSystemDataSource = fileSystemDataSource;
             this.storage = storage;
@@ -354,7 +360,7 @@ public class FileSystemDataSource implements DataSource {
 
         @Override
         protected synchronized void onChange() {
-            List<DataSourceListener> listeners = fileSystemDataSource.getListeners();
+            List<DataSourceListener> listeners = fileSystemDataSource.listeners;
             for (DataSourceListener listener : listeners) {
                 listener.onDeploymentAdded();
             }
