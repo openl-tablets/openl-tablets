@@ -7,19 +7,13 @@ import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.FactoryBean;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TimerTask;
 
 /**
  * File based data source. Thread safe implementation.
@@ -195,160 +189,5 @@ public class FileSystemDataSource implements DataSource {
             listeners.remove(dataSourceListener);
             log.info("{} class listener is unregistered from file system data source", dataSourceListener.getClass());
         }
-    }
-
-    /**
-     * TimerTask for check file data source modifications.
-     */
-    public static final class CheckFileSystemChanges extends TimerTask {
-        private String path;
-        private HashMap<File, Long> dir = new HashMap<File, Long>();
-
-        private FileSystemDataSource fileSystemDataSource;
-        private LocalTemporaryDeploymentsStorage storage;
-
-        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource,
-                LocalTemporaryDeploymentsStorage storage) {
-            this.fileSystemDataSource = fileSystemDataSource;
-            this.storage = storage;
-            String path = fileSystemDataSource.getLoadDeploymentsFromDirectory();
-
-            if (path == null) {
-                throw new IllegalArgumentException("path argument can't be null");
-            }
-
-            this.path = path;
-            File filesArray[] = new File(path).listFiles();
-
-            // transfer to the hashmap be used a reference and keep the
-            // lastModfied value
-            for (int i = 0; i < filesArray.length; i++) {
-                add(filesArray[i]);
-            }
-        }
-
-        private void add(File file) {
-            dir.put(file, new Long(file.lastModified()));
-            if (file.isDirectory()) {
-                File filesArray[] = file.listFiles();
-                for (int i = 0; i < filesArray.length; i++) {
-                    add(filesArray[i]);
-                }
-            }
-        }
-
-        private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean onChangeFired) {
-            if (file == null) {
-                throw new IllegalArgumentException("file arg can't be null");
-            }
-            if (!file.isDirectory()) {
-                throw new IllegalArgumentException("file arg should be a directory");
-            }
-            File filesArray[] = file.listFiles();
-
-            // scan the files and check for modification/addition
-            for (int i = 0; i < filesArray.length; i++) {
-                Long current = (Long) dir.get(filesArray[i]);
-                checkedFiles.add(filesArray[i]);
-                if (current == null) {
-                    // new file
-                    if (!onChangeFired) {
-                        onChange();
-                        onChangeFired = true;
-                    }
-                    add(filesArray[i]);
-                } else {
-                    if (current.longValue() != filesArray[i].lastModified()) {
-                        // modified file
-                        dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-                        if (!onChangeFired) {
-                            onChange();
-                            onChangeFired = true;
-                        }
-                    }
-                    if (filesArray[i].isDirectory()) {
-                        onChangeFired = checkModifiedAndNew(filesArray[i], checkedFiles, onChangeFired);
-                    }
-                }
-            }
-            return onChangeFired;
-        }
-
-        private void checkDeleted(File file, Set<File> checkedFiles, boolean onChangeFired) {
-            // now check for deleted files
-            Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
-            ref.removeAll(checkedFiles);
-            Iterator<File> it = ref.iterator();
-            while (it.hasNext()) {
-                File deletedFile = (File) it.next();
-                dir.remove(deletedFile);
-                if (!onChangeFired) {
-                    onChange();
-                    onChangeFired = true;
-                }
-            }
-        }
-
-        public final void run() {
-            Set<File> checkedFiles = new HashSet<File>();
-            boolean onChangedFired = false;
-            onChangedFired = checkModifiedAndNew(new File(path), checkedFiles, onChangedFired);
-            checkDeleted(new File(path), checkedFiles, onChangedFired);
-        }
-
-        /**
-         * Executes once on change if change is detected
-         */
-        protected synchronized void onChange() {
-            List<DataSourceListener> listeners = fileSystemDataSource.listeners;
-            for (DataSourceListener listener : listeners) {
-                listener.onDeploymentAdded();
-            }
-            storage.clear();
-        }
-    }
-
-    public static class CheckFileSystemChangesFactoryBean implements FactoryBean<CheckFileSystemChanges> {
-
-        private FileSystemDataSource fileSystemDataSource;
-        private LocalTemporaryDeploymentsStorage storage;
-
-        public Class<?> getObjectType() {
-            return CheckFileSystemChanges.class;
-        }
-
-        public CheckFileSystemChanges getObject() throws Exception {
-            if (getFileSystemDataSource() == null) {
-                throw new IllegalStateException("File system data source can't be null");
-            }
-            return new CheckFileSystemChanges(getFileSystemDataSource(), getStorage());
-        }
-
-        public boolean isSingleton() {
-            return true;
-        }
-
-        public void setFileSystemDataSource(FileSystemDataSource fileSystemDataSource) {
-            if (fileSystemDataSource == null) {
-                throw new IllegalArgumentException("fileSystemDataSource can't be null");
-            }
-            this.fileSystemDataSource = fileSystemDataSource;
-        }
-
-        public void setStorage(LocalTemporaryDeploymentsStorage storage) {
-            if (storage == null) {
-                throw new IllegalArgumentException("storage can't be null");
-            }
-            this.storage = storage;
-        }
-
-        public FileSystemDataSource getFileSystemDataSource() {
-            return fileSystemDataSource;
-        }
-
-        public LocalTemporaryDeploymentsStorage getStorage() {
-            return storage;
-        }
-
     }
 }
