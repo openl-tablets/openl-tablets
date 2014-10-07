@@ -197,32 +197,12 @@ public class FileSystemDataSource implements DataSource {
         }
     }
 
-    public static class DirFilterWatcher implements FileFilter {
-        private String filter;
-
-        public DirFilterWatcher() {
-            this.filter = "";
-        }
-
-        public DirFilterWatcher(String filter) {
-            this.filter = filter;
-        }
-
-        public boolean accept(File file) {
-            if ("".equals(filter)) {
-                return true;
-            }
-            return (file.getName().endsWith(filter));
-        }
-    }
-
     /**
      * TimerTask for check file data source modifications.
      */
     public static final class CheckFileSystemChanges extends TimerTask {
         private String path;
         private HashMap<File, Long> dir = new HashMap<File, Long>();
-        private DirFilterWatcher dfw;
 
         private FileSystemDataSource fileSystemDataSource;
         private LocalTemporaryDeploymentsStorage storage;
@@ -238,8 +218,7 @@ public class FileSystemDataSource implements DataSource {
             }
 
             this.path = path;
-            dfw = new DirFilterWatcher("");
-            File filesArray[] = new File(path).listFiles(dfw);
+            File filesArray[] = new File(path).listFiles();
 
             // transfer to the hashmap be used a reference and keep the
             // lastModfied value
@@ -254,7 +233,7 @@ public class FileSystemDataSource implements DataSource {
                 onChange(file, "add");
             }
             if (file.isDirectory()) {
-                File filesArray[] = file.listFiles(dfw);
+                File filesArray[] = file.listFiles();
                 for (int i = 0; i < filesArray.length; i++) {
                     if (fireEvent) {
                         onChange(filesArray[i], "add");
@@ -271,7 +250,7 @@ public class FileSystemDataSource implements DataSource {
             if (!file.isDirectory()) {
                 throw new IllegalArgumentException("file arg should be a directory");
             }
-            File filesArray[] = file.listFiles(dfw);
+            File filesArray[] = file.listFiles();
 
             // scan the files and check for modification/addition
             for (int i = 0; i < filesArray.length; i++) {
