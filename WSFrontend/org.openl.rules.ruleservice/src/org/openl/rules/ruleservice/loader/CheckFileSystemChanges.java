@@ -38,7 +38,7 @@ public final class CheckFileSystemChanges extends TimerTask {
     }
 
     private void add(File file) {
-        timestamps.put(file, new Long(file.lastModified()));
+        timestamps.put(file, file.lastModified());
         if (file.isDirectory()) {
             File filesArray[] = file.listFiles();
             for (File f : filesArray) {
@@ -59,9 +59,9 @@ public final class CheckFileSystemChanges extends TimerTask {
                 changed = true;
                 add(f);
             } else {
-                if (current.longValue() != f.lastModified()) {
+                if (current != f.lastModified()) {
                     // modified file
-                    timestamps.put(f, new Long(f.lastModified()));
+                    timestamps.put(f, f.lastModified());
                     changed = true;
                 }
                 if (f.isDirectory()) {
