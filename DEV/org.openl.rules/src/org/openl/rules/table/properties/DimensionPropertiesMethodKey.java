@@ -1,8 +1,5 @@
 package org.openl.rules.table.properties;
 
-import java.lang.reflect.Array;
-import java.util.Map;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -10,17 +7,21 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
+import java.lang.reflect.Array;
+import java.util.Map;
+
 /**
- * Key to check identity of {@link ExecutableRulesMethod} methods. Methods are
- * identical when they have the same method signature and the same business
+ * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
+ *
+ * Methods are identical when they have the same method signature and the same business
  * dimension properties. 
  * 
  * @author DLiauchuk
  *
  */
-public class DimensionPropertiesMethodKey {
+public final class DimensionPropertiesMethodKey {
     
-    private IOpenMethod method;
+    private final IOpenMethod method;
     
     public DimensionPropertiesMethodKey(IOpenMethod method) {
         this.method = method;
