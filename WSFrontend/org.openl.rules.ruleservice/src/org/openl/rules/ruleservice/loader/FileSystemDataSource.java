@@ -229,25 +229,16 @@ public class FileSystemDataSource implements DataSource {
 
         private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource,
                 LocalTemporaryDeploymentsStorage storage) {
-            this(fileSystemDataSource.getLoadDeploymentsFromDirectory());
             this.fileSystemDataSource = fileSystemDataSource;
             this.storage = storage;
-        }
+            String path = fileSystemDataSource.getLoadDeploymentsFromDirectory();
 
-        public CheckFileSystemChanges(String path) {
-            this(path, "");
-        }
-
-        public CheckFileSystemChanges(String path, String filter) {
             if (path == null) {
                 throw new IllegalArgumentException("path argument can't be null");
             }
-            if (filter == null) {
-                throw new IllegalArgumentException("filter argument can't be null");
-            }
 
             this.path = path;
-            dfw = new DirFilterWatcher(filter);
+            dfw = new DirFilterWatcher("");
             File filesArray[] = new File(path).listFiles(dfw);
 
             // transfer to the hashmap be used a reference and keep the
