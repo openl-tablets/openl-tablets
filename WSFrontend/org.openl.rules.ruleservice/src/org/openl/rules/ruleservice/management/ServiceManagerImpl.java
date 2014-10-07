@@ -45,10 +45,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         }
     }
 
-    public RuleServiceLoader getRuleServiceLoader() {
-        return ruleServiceLoader;
-    }
-
     public RuleService getRuleService() {
         return ruleService;
     }
@@ -96,7 +92,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
