@@ -1,11 +1,13 @@
 package org.openl.rules.ruleservice.conf;
 
-import java.util.Collection;
-
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+
+import java.util.Collection;
+
 //*TODO
 public class DataSourceRulesBasedServiceConfigurerFactory extends AbstractRulesBasedServiceConfigurerFactoryBean {
     private RuleServiceLoader ruleServiceLoader;
@@ -57,6 +59,18 @@ public class DataSourceRulesBasedServiceConfigurerFactory extends AbstractRulesB
             throw new IllegalArgumentException("ruleServiceLoader arg can't be null");
         }
         this.ruleServiceLoader = ruleServiceLoader;
+    }
+
+    private CommonVersion getLastVersionForDeployment(RuleServiceLoader loader, String deploymentName) {
+        CommonVersion lastVersion = null;
+        for (Deployment deployment : loader.getDeployments()) {
+            if (deployment.getDeploymentName().equals(deploymentName)) {
+                if (lastVersion == null || lastVersion.compareTo(deployment.getCommonVersion()) < 0) {
+                    lastVersion = deployment.getCommonVersion();
+                }
+            }
+        }
+        return lastVersion;
     }
 
     @Override
