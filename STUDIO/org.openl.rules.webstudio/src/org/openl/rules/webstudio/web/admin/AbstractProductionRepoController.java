@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,13 +36,24 @@ public abstract class AbstractProductionRepoController {
 
     private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
     private RepositoryConfiguration defaultRepoConfig;
+    private List<RepositoryConfiguration> productionRepositoryConfigurations;
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
+        systemSettingsBean = null;
+    }
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
         getProductionRepositoryConfigurations().add(repoConf);
     }
 
     protected List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        return systemSettingsBean.getProductionRepositoryConfigurations();
+        return productionRepositoryConfigurations;
+    }
+
+    public void setProductionRepositoryConfigurations(List<RepositoryConfiguration> productionRepositoryConfigurations) {
+        this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
     public String getConfigurationName(String name) {
