@@ -1,17 +1,17 @@
 package org.openl.rules.ruleservice.loader;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.project.abstraction.Deployment;
+
+import java.util.Collection;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class LocalTemporaryDeploymentsStorageTest {
 
@@ -52,16 +52,6 @@ public class LocalTemporaryDeploymentsStorageTest {
         assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.clear();
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-    }
-
-    @Test
-    public void testRemoveDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.removeDeployment(deployment.getDeploymentName(), deployment.getCommonVersion());
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
     }
 
     @Test

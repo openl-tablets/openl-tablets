@@ -11,4 +11,6 @@ public interface NodeUsage {
     String getDescription();
 
     String getUri();
+
+    NodeType getNodeType();
 }

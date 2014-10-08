@@ -10,6 +10,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -166,7 +167,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             if (metaInfo != null && typeLocation != null) {
                 int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
                 int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl()));
+                nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl(),
+                        NodeType.DATATYPE));
             }
 
             // Link to input parameters
@@ -184,7 +186,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                         ILocation sourceLocation = paramTypeLocations[i];
                         int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                         int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                        nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl()));
+                        nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl(),
+                                NodeType.DATATYPE));
                     }
                 }
             }
