@@ -86,6 +86,11 @@ public class MethodUsagesSearcher {
             return getTableUri(method);
         }
 
+        @Override
+        public NodeType getNodeType() {
+            return NodeType.RULE;
+        }
+
         /**
          * @return String description of the method signature.
          */

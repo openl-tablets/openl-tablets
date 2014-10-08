@@ -1,11 +1,6 @@
 package org.openl.rules.common;
 
-import java.util.Date;
 import java.util.Map;
-
-import org.openl.rules.common.impl.PropertyImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-
 
 public interface RulesRepositoryArtefact {
     Map<String, Object> getProps();

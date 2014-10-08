@@ -20,28 +20,28 @@ public class CommonVersionImpl implements CommonVersion {
         this.minor = minor;
         this.revision = revision;
     }
-    
+
     public CommonVersionImpl(int revision) {
         this.revision = revision;
     }
 
+    /**
+     * x -> revision
+     * x.y -> major.minor
+     * x.y.z -> major.minor.revision
+     */
     public CommonVersionImpl(String s) {
         String[] version = s.split("\\.");
-        
+
         if (version.length == 1) {
-            revision = Integer.parseInt(version[0], 10);
+            revision = Integer.parseInt(version[0]);
         } else {
-            if (version.length > 0) {
-                major = Integer.parseInt(version[0], 10);
-            }
-            if (version.length > 1) {
-                minor = Integer.parseInt(version[1], 10);
-            }
+            major = Integer.parseInt(version[0]);
+            minor = Integer.parseInt(version[1]);
             if (version.length > 2) {
-                revision = Integer.parseInt(version[2], 10);
+                revision = Integer.parseInt(version[2]);
             }
         }
-
     }
 
     public int compareTo(CommonVersion o) {
@@ -53,6 +53,8 @@ public class CommonVersionImpl implements CommonVersion {
         /*Revision with num 0 always should be at last place*/
         if (revision == 0) {
             return -1;
+        } else if (o.getRevision() == 0) {
+            return 1;
         }
 
         if (major != o.getMajor()) {
@@ -63,11 +65,7 @@ public class CommonVersionImpl implements CommonVersion {
             return minor < o.getMinor() ? -1 : 1;
         }
 
-        if (revision != o.getRevision()) {
-            return revision < o.getRevision() ? -1 : 1;
-        }
-
-        return 0;
+        return revision < o.getRevision() ? -1 : 1;
     }
 
     @Override
