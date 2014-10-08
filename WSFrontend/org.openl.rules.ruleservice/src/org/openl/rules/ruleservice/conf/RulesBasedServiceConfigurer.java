@@ -9,7 +9,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ModuleDescription;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription.ServiceDescriptionBuilder;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -42,24 +41,16 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     protected abstract RulesInstantiationStrategy getRulesSource();
 
-    private void init(RuleServiceLoader loader) throws RuleServiceInstantiationException {
+    private static ThreadLocal<RuleServiceLoader> loader = new ThreadLocal<RuleServiceLoader>();
+
+    public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
+        Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         runtimeEnv = new SimpleVM().getRuntimeEnv();
         try {
             rulesOpenClass = getRulesSource().compile().getOpenClass();
             rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
             RulesBasedServiceConfigurer.loader.set(loader);
         } catch (RulesInstantiationException e) {
-            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
-        }
-    }
-
-    private static ThreadLocal<RuleServiceLoader> loader = new ThreadLocal<RuleServiceLoader>();
-
-    public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
-        Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        try {
-            init(loader);
-        } catch (RuleServiceInstantiationException e) {
             log.error("Failed to Instantiation rule service.", e);
         }
         try {
