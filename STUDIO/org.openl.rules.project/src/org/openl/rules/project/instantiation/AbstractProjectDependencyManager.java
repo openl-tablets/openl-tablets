@@ -5,14 +5,12 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
-import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -20,8 +18,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 
 public abstract class AbstractProjectDependencyManager extends DependencyManager {
-
-    protected List<IDependencyLoader> dependencyLoaders;
 
     // Disable cache. if cache required it should be used in loaders.
     @Override
