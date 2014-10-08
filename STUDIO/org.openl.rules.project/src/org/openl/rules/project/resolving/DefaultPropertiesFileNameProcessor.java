@@ -1,26 +1,19 @@
 package org.openl.rules.project.resolving;
 
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.enumeration.UsRegionsEnum;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.TableProperties;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
     private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
@@ -125,8 +118,12 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     throw new NoMatchFileNameException("Invalid date format for property '" + propertyName + "'");
                 }
             } else if (returnType.isEnum()) {
-                Object enumObject = UsRegionsEnum.valueOf(value);
-                setMethod.invoke(props, enumObject);
+
+                Method valueOfMethod = returnType.getMethod("valueOf", Class.class, String.class);
+                if (valueOfMethod != null) {
+                    Object enumObject = valueOfMethod.invoke(null, returnType, value);
+                    setMethod.invoke(props, enumObject);
+                }
             } else if (returnType.isArray()) {
                 Class<?> componentClass = returnType.getComponentType();
                 if (Boolean.class.equals(componentClass)) {

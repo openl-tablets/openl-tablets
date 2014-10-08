@@ -1,16 +1,12 @@
 package org.openl.rules.types.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
 import org.openl.rules.table.properties.expressions.sequence.IntersectedPropertiesPriorityRule;
 import org.openl.types.IOpenMethod;
+
+import java.util.*;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<Comparator<ITableProperties>>();
@@ -51,6 +47,20 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
             public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
                 return MIN (propertyValue1, propertyValue2);
+            }
+        });
+        maxMinPriorityRules.add(new ASimplePriorityRule<org.openl.rules.enumeration.OriginsEnum>("origin") {
+
+            public String getOperationName() {
+                return "MAX";
+            }
+
+            public org.openl.rules.enumeration.OriginsEnum getProprtyValue(ITableProperties properties) {
+                return properties.getOrigin();
+            }
+
+            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1, org.openl.rules.enumeration.OriginsEnum propertyValue2) {
+                return MAX (propertyValue1, propertyValue2);
             }
         });
 // <<< END INSERT >>>
