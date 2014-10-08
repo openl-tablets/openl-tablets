@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.net.ConnectException;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -20,11 +21,23 @@ public final class RepositoryValidators {
     private RepositoryValidators() {
     }
 
+    /**
+     * Same as {@link #validate(RepositoryConfiguration, java.util.List)} but don't check for name uniqueness (for example for Design repository).
+     *
+     * @param config Repository configuration
+     * @throws RepositoryValidationException if repository was configured incorrectly
+     */
+    public static void validate(RepositoryConfiguration config) throws RepositoryValidationException {
+        validate(config, Collections.<RepositoryConfiguration>emptyList());
+    }
 
-    // workingDirValidator(prodConfig.getPath(),
-    // "Production Repository directory");
-
-    // Check for name uniqueness.
+    /**
+     * Check that name, path are configured correctly and repository name doesn't have duplicates.
+     *
+     * @param prodConfig Repository configuration
+     * @param productionRepositoryConfigurations list of all production configurations
+     * @throws RepositoryValidationException if repository was configured incorrectly
+     */
     public static void validate(RepositoryConfiguration prodConfig,
             List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {

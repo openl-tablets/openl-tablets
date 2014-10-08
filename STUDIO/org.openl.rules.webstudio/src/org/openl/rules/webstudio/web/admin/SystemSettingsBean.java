@@ -2,10 +2,9 @@ package org.openl.rules.webstudio.web.admin;
 
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -38,21 +37,13 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 @ManagedBean
 @ViewScoped
 public class SystemSettingsBean {
+    private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
+
     @ManagedProperty(value = "#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
-
-    private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
-
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
-    private RepositoryConfiguration designRepositoryConfiguration = new RepositoryConfiguration("",
-            configManager,
-            RepositoryType.DESIGN);
-
-    private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
-    private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
 
     @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
@@ -60,7 +51,24 @@ public class SystemSettingsBean {
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    private final SystemSettingsValidator validator = new SystemSettingsValidator(this);
+    private ConfigurationManager configManager;
+    private RepositoryConfiguration designRepositoryConfiguration;
+
+    private ProductionRepositoryEditor productionRepositoryEditor;
+    private SystemSettingsValidator validator;
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
+
+        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryType.DESIGN);
+
+        productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
+                productionConfigManagerFactory,
+                productionRepositoryFactoryProxy);
+
+        validator = new SystemSettingsValidator(this);
+    }
 
     public String getUserWorkspaceHome() {
         return configManager.getPath(USER_WORKSPACE_HOME);
@@ -119,23 +127,7 @@ public class SystemSettingsBean {
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
-        if (productionRepositoryConfigurations.isEmpty()) {
-            initProductionRepositoryConfigurations();
-        }
-
-        return productionRepositoryConfigurations;
-    }
-
-    private void initProductionRepositoryConfigurations() {
-        productionRepositoryConfigurations.clear();
-
-        String[] repositoryConfigNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
-        for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = getProductionConfigManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
-                    RepositoryType.PRODUCTION);
-            productionRepositoryConfigurations.add(config);
-        }
+        return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }
 
     public boolean isCustomSpreadsheetType() {
@@ -190,26 +182,24 @@ public class SystemSettingsBean {
 
     public void applyChanges() {
         try {
-            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-                RepositoryValidators.validate(prodConfig, productionRepositoryConfigurations);
-                RepositoryValidators.validateConnection(prodConfig, productionRepositoryFactoryProxy);
-            }
+            RepositoryValidators.validate(designRepositoryConfiguration);
 
-            for (RepositoryConfiguration prodConfig : deletedConfigurations) {
-                deploymentManager.removeRepository(prodConfig.getConfigName());
-                prodConfig.delete();
-            }
+            productionRepositoryEditor.validate();
+            productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
+                @Override public void onDelete(String configName) throws RRepositoryException {
+                    deploymentManager.removeRepository(configName);
+                }
 
-            deletedConfigurations.clear();
+                @Override public void onRename(String oldConfigName, String newConfigName) {
+                    try {
+                        deploymentManager.removeRepository(oldConfigName);
+                    } catch (RRepositoryException e) {
+                        log.error(e.getMessage(), e);
+                    }
 
-            String configNames[] = new String[productionRepositoryConfigurations.size()];
-            for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
-                RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
-                RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig);
-                productionRepositoryConfigurations.set(i, newProdConfig);
-                configNames[i] = newProdConfig.getConfigName();
-            }
-            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
+                    deploymentManager.addRepository(newConfigName);
+                }
+            });
 
             saveSystemConfig();
         } catch (Exception e) {
@@ -226,15 +216,7 @@ public class SystemSettingsBean {
     }
 
     public void restoreDefaults() throws ServletException {
-        for (RepositoryConfiguration prodConfig : deletedConfigurations) {
-            prodConfig.delete();
-        }
-        deletedConfigurations.clear();
-
-        for (RepositoryConfiguration productionRepositoryConfiguration : productionRepositoryConfigurations) {
-            productionRepositoryConfiguration.delete();
-        }
-        productionRepositoryConfigurations.clear();
+        productionRepositoryEditor.revertChanges();
 
         // We cannot invoke configManager.restoreDefaults(): in this case some 
         // settings (such as user.mode, deployment.format.old etc) not edited in this page
@@ -247,7 +229,7 @@ public class SystemSettingsBean {
             refreshConfig();
         }
 
-        initProductionRepositoryConfigurations();
+        productionRepositoryEditor.reload();
     }
 
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
@@ -260,85 +242,16 @@ public class SystemSettingsBean {
 
     public void deleteProductionRepository(String configName) {
         try {
-            Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
-            while (it.hasNext()) {
-                RepositoryConfiguration prodConfig = it.next();
-                if (prodConfig.getConfigName().equals(configName)) {
-                    deletedConfigurations.add(prodConfig);
-                    it.remove();
+            productionRepositoryEditor.deleteProductionRepository(configName, new ProductionRepositoryEditor.Callback() {
+                @Override public void onDelete(String configName) throws RRepositoryException {
                     /* Delete Production repo from tree */
-                    productionRepositoriesTreeController.deleteProdRepo(prodConfig.getName());
-                    break;
+                    productionRepositoriesTreeController.deleteProdRepo(configName);
                 }
-            }
-
-            // FacesUtils.addInfoMessage("Repository '" + repositoryName +
-            // "' is deleted successfully");
+            });
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());
         }
-    }
-
-    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig)
-            throws ServletException {
-        boolean changed = prodConfig.save();
-        if (changed) {
-            String oldConfigName = prodConfig.getConfigName();
-            if (prodConfig.isNameChangedIgnoreCase()) {
-                prodConfig = renameConfigName(prodConfig);
-            }
-            String newConfigName = prodConfig.getConfigName();
-
-            try {
-                deploymentManager.removeRepository(oldConfigName);
-            } catch (RRepositoryException e) {
-                log.error(e.getMessage(), e);
-            }
-
-            deploymentManager.addRepository(newConfigName);
-        }
-        return prodConfig;
-    }
-
-    private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) throws ServletException {
-        // Move config to a new file
-        String newConfigName = getConfigName(prodConfig.getName());
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-                getProductionConfigManager(newConfigName), RepositoryType.PRODUCTION);
-        newConfig.copyContent(prodConfig);
-        newConfig.save();
-
-        // Rename link to a file in system config
-        String[] configNames = split(configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIGS));
-        for (int i = 0; i < configNames.length; i++) {
-            if (configNames[i].equals(prodConfig.getConfigName())) {
-                // Found necessary link - rename it
-                configNames[i] = newConfigName;
-                configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, join(configNames));
-                saveSystemConfig();
-                break;
-            }
-        }
-
-        // Delete old config file
-        prodConfig.delete();
-
-        return newConfig;
-    }
-
-    private ConfigurationManager getProductionConfigManager(String configName) {
-        return productionConfigManagerFactory.getConfigurationManager(configName);
-    }
-
-    private String getConfigName(String repositoryName) {
-        String configName = "rules-";
-        if (repositoryName != null) {
-            configName += repositoryName.toLowerCase();
-        }
-        configName += ".properties";
-
-        return configName;
     }
 
     public SystemSettingsValidator getValidator() {
@@ -371,11 +284,4 @@ public class SystemSettingsBean {
         });
     }
 
-    private String[] split(String s) {
-        return StringUtils.split(s, ",");
-    }
-
-    private String join(String arr[]) {
-        return StringUtils.join(arr, ",");
-    }
 }
