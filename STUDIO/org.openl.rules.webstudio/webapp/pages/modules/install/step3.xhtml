@@ -75,8 +75,7 @@
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
                                             <f:selectItems value="#{installWizard.DBVendors}" />
                                             <f:ajax  listener="#{installWizard.dbVendorChanged}" />
-                                            <f:ajax render="dbUrl"></f:ajax>
-                                            <f:ajax render="dbUsername"></f:ajax>
+                                            <f:ajax render="dbUrl dbUsername"/>
                                         </h:selectOneMenu> 
                                     </td>
                                 </tr>
