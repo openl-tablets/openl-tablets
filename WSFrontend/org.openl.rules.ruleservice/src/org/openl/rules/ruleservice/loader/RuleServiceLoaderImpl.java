@@ -73,11 +73,14 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         this.projectResolver = projectResolver;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public DataSource getDataSource() {
-        return dataSource;
+    @Override
+    public void addListener(DataSourceListener dataSourceListener) {
+        dataSource.addListener(dataSourceListener);
+    }
+
+    @Override
+    public void removeListener(DataSourceListener dataSourceListener) {
+        dataSource.removeListener(dataSourceListener);
     }
 
     /**
@@ -132,13 +135,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Deployment> getDeployments() {
-        return getDataSource().getDeployments();
+        return dataSource.getDeployments();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName) {
@@ -181,6 +186,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
@@ -241,7 +247,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
         Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
         if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
+            Deployment deployment = dataSource.getDeployment(deploymentName, commonVersion);
             localDeployment = storage.loadDeployment(deployment);
         }
         return localDeployment;
