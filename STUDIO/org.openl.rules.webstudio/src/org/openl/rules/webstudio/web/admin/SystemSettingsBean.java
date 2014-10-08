@@ -191,8 +191,8 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-                validator.validate(prodConfig, productionRepositoryConfigurations);
-                validator.validateConnection(prodConfig, productionRepositoryFactoryProxy);
+                RepositoryValidators.validate(prodConfig, productionRepositoryConfigurations);
+                RepositoryValidators.validateConnection(prodConfig, productionRepositoryFactoryProxy);
             }
 
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
