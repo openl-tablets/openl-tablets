@@ -31,7 +31,7 @@
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
 		<property name="propertyName" value="jaxrs.ignoreNamespaces"/>
-		<property name="defaultValue" value="false"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.ignoreNamespaces}"/>
 	</bean>
 	
 	<bean id="JAXRSaegisDatabindingFactoryBean"
@@ -70,6 +70,14 @@
 	
 	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider"/>
 	
+	<bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
+		<property name="addMessageToResponse" value="true"/>
+	</bean>
+	
+	<bean id="JAXRS200StatusOutInterceptor" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
+		<property name="enabled" value="${ruleservice.jaxrs.alwaysResponseStatusIsOK}"/>
+	</bean>
+	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">
 		<property name="dataBinding" ref="JAXRSServicesDataBinding" />
@@ -78,10 +86,21 @@
 				<ref bean="JAXRSServicesLoggingFeature" />
 			</list>
 		</property>
+		<property name="outFaultInterceptors">
+			<list>
+				<ref bean="JAXRS200StatusOutInterceptor"/>
+			</list>
+		</property>
+		<property name="outInterceptors">
+			<list>
+				<ref bean="JAXRS200StatusOutInterceptor"/>
+			</list>
+		</property>
 		<property name="providers">
 			<list>
 				<ref bean="JAXRSAegisJSONProvider"/>
 				<ref bean="JAXRSAegisElementProvider"/>
+				<ref bean="JAXRSWebApplicationExceptionMapper"/>
 			</list>
 		</property>
 	</bean>

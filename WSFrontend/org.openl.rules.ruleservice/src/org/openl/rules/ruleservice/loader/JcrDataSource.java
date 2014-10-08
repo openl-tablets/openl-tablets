@@ -37,7 +37,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
     /**
      * {@inheritDoc}
      */
-    public Collection<Deployment> getDeployments() {
+    public Collection<Deployment> getDeployments() { 
         try {
             List<FolderAPI> deploymentProjects = getRProductionRepository().getDeploymentProjects();
             Collection<Deployment> ret = new ArrayList<Deployment>();
