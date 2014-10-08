@@ -35,21 +35,16 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
     private static final String MODULES_GETTER_FIELD = "modulesGetter";
     private static final String SERVICES_FIELD_NAME = "services";
 
-    private Object rulesInstance;
-    private IRuntimeEnv runtimeEnv;
-    private IOpenClass rulesOpenClass;
-
     protected abstract RulesInstantiationStrategy getRulesSource();
-
-    private static ThreadLocal<RuleServiceLoader> loader = new ThreadLocal<RuleServiceLoader>();
 
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        runtimeEnv = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv runtimeEnv = new SimpleVM().getRuntimeEnv();
+        Object rulesInstance = null;
+        IOpenClass rulesOpenClass = null;
         try {
             rulesOpenClass = getRulesSource().compile().getOpenClass();
             rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
-            RulesBasedServiceConfigurer.loader.set(loader);
         } catch (RulesInstantiationException e) {
             log.error("Failed to Instantiation rule service.", e);
         }
@@ -58,7 +53,10 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
             Object[] services = (Object[]) servicesField.get(rulesInstance, runtimeEnv);
             for (Object service : services) {
                 try {
-                    serviceDescriptions.add(createServiceDescription(service));
+                    serviceDescriptions.add(createServiceDescription(service,
+                            rulesOpenClass,
+                            rulesInstance,
+                            runtimeEnv, loader));
                 } catch (Exception e) {
                     log.error("Failed to load service description.", e);
                 }
@@ -69,7 +67,10 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
         return serviceDescriptions;
     }
 
-    private ServiceDescription createServiceDescription(Object service) {
+    private ServiceDescription createServiceDescription(Object service,
+            IOpenClass rulesOpenClass,
+            Object rulesInstance,
+            IRuntimeEnv runtimeEnv, RuleServiceLoader loader) {
         final String serviceName = getFieldValue(service, SERVICE_NAME_FIELD, String.class);
         final String serviceUrl = getFieldValue(service, SERVICE_URL_FIELD, String.class);
         final String serviceClassName = getFieldValue(service, SERVICE_CLASS_NAME_FIELD, String.class);
@@ -87,12 +88,14 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
                 .setUrl(serviceUrl)
                 .setServiceClassName(serviceClassName)
                 .setProvideRuntimeContext(provideRuntimeContext);
-        gatherModules(modulesGetter, serviceDescriptionBuilder);
+        gatherModules(modulesGetter, serviceDescriptionBuilder, rulesInstance, runtimeEnv, loader);
         return serviceDescriptionBuilder.build();
     }
 
-    private void gatherModules(IOpenMethod modulesGetter, ServiceDescriptionBuilder serviceDescriptionBuilder) {
-        RuleServiceLoader loader = RulesBasedServiceConfigurer.loader.get();
+    private void gatherModules(IOpenMethod modulesGetter,
+            ServiceDescriptionBuilder serviceDescriptionBuilder,
+            Object rulesInstance,
+            IRuntimeEnv runtimeEnv, RuleServiceLoader loader) {
         if (loader == null) {
             throw new OpenLRuntimeException("Rules loader have not been specified.");
         }
