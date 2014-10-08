@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.conf;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -91,9 +90,6 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
             ServiceDescriptionBuilder serviceDescriptionBuilder,
             Object rulesInstance,
             IRuntimeEnv runtimeEnv, RuleServiceLoader loader) {
-        if (loader == null) {
-            throw new OpenLRuntimeException("Rules loader have not been specified.");
-        }
         DeploymentDescription deploymentDescription = null;
         Collection<Deployment> deployments = loader.getDeployments();
         for (Deployment deployment : deployments) {
