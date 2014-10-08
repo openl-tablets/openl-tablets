@@ -16,12 +16,20 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  * 
  */
 public interface RuleServiceLoader {
+
     /**
-     * Returns data source.
-     * 
-     * @return data source
+     * Adds a lister to data source.
+     *
+     * @param dataSourceListener
      */
-    DataSource getDataSource();
+    void addListener(DataSourceListener dataSourceListener);
+
+    /**
+     * Removes a listener from data source.
+     *
+     * @param dataSourceListener
+     */
+    void removeListener(DataSourceListener dataSourceListener);
 
     /**
      * Returns deployments
