@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class designed for storing service info.
@@ -25,6 +26,7 @@ public final class ServiceDescription {
     private Map<String, Object> configuration;
     private Collection<ModuleDescription> modules;
     private DeploymentDescription deployment;
+    private String[] publishers;
 
     /**
      * Main constructor.
@@ -36,9 +38,17 @@ public final class ServiceDescription {
      * @param provideVariations
      * @param modules
      */
-    ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName,
-            boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext, boolean provideVariations,
-            Collection<ModuleDescription> modules, DeploymentDescription deployment, Map<String, Object> configuration) {
+    ServiceDescription(String name,
+            String url,
+            String serviceClassName,
+            String interceptingTemplateClassName,
+            boolean provideRuntimeContext,
+            boolean useRuleServiceRuntimeContext,
+            boolean provideVariations,
+            Collection<ModuleDescription> modules,
+            DeploymentDescription deployment,
+            Map<String, Object> configuration,
+            String[] publishers) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
@@ -56,13 +66,23 @@ public final class ServiceDescription {
         } else {
             this.modules = Collections.emptySet();
         }
+
+        this.publishers = publishers;
         this.deployment = deployment;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName,
-                builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext, builder.provideVariations,
-                builder.modules, builder.deployment, builder.configuration);
+        this(builder.name,
+            builder.url,
+            builder.serviceClassName,
+            builder.interceptingTemplateClassName,
+            builder.provideRuntimeContext,
+            builder.useRuleServiceRuntimeContext,
+            builder.provideVariations,
+            builder.modules,
+            builder.deployment,
+            builder.configuration,
+            builder.publishers.toArray(new String[]{}));
     }
 
     /**
@@ -151,6 +171,10 @@ public final class ServiceDescription {
     public DeploymentDescription getDeployment() {
         return deployment;
     }
+    
+    public String[] getPublishers() {
+        return publishers;
+    }
 
     /** {@inheritDoc} */
     public int hashCode() {
@@ -199,6 +223,26 @@ public final class ServiceDescription {
         private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
         private DeploymentDescription deployment;
+        private Set<String> publishers = new HashSet<String>();
+
+        public void setPublishers(String[] publishers) {
+            this.publishers = new HashSet<String>();
+            if (publishers != null){
+                for (String publisher : publishers) {
+                    this.publishers.add(publisher);
+                }
+            }
+        }
+
+        public void addPublisher(String key) {
+            if (key == null) {
+                throw new IllegalArgumentException("key argument can't be null!");
+            }
+            if (this.publishers == null) {
+                this.publishers = new HashSet<String>();
+            }
+            this.publishers.add(key.toUpperCase());
+        }
 
         /**
          * Sets intercepting template class name
@@ -328,7 +372,7 @@ public final class ServiceDescription {
             this.deployment = deployment;
             return this;
         }
-        
+
         public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
             if (this.configuration == null) {
                 this.configuration = new HashMap<String, Object>();

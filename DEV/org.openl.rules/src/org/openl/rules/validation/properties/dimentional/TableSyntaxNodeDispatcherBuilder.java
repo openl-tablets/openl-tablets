@@ -235,17 +235,13 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
      * If no, we don`t need to create column for this property.
      */
     private boolean isPropertyPresented(String propertyName, List<ITableProperties> methodsProperties) {
-        boolean isPropertyPresented = false;
-
         for (ITableProperties properties : methodsProperties) {
-            String propertyValue = properties.getPropertyValueAsString(propertyName);
-            if (StringUtils.isNotEmpty(propertyValue)) {
-                isPropertyPresented = true;
-                break;
+            if (StringUtils.isNotEmpty(properties.getPropertyValueAsString(propertyName))) {
+                return true;
             }
         }
 
-        return isPropertyPresented;
+        return false;
     }
 
     private IOpenMethod getMember() {

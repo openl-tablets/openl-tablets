@@ -17,6 +17,8 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyManager.class);
 
+    private List<IDependencyLoader> dependencyLoaders;
+
     private Collection<ProjectDescriptor> projects;
 
     private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();

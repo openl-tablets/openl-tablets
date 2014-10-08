@@ -4,6 +4,9 @@
   <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
   <serviceName>rulesDeployName</serviceName>
   <serviceClass>java.lang.String</serviceClass>
+  <publishers>
+    <publisher>restful</publisher>
+  </publishers>
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <url>someURL</url>
 </rules-deploy>

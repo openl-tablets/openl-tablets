@@ -106,7 +106,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        dependencyLoaders = new ArrayList<IDependencyLoader>();
+        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
         Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
         for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
