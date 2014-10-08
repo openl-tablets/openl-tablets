@@ -153,7 +153,7 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getFieldValue(Object target, String fieldName, Class<T> fieldType) {
+    private <T> T getFieldValue(Object target, String fieldName, Class<T> fieldType) {
         try {
             return (T) PropertyUtils.getProperty(target, fieldName);
         } catch (Exception e) {
