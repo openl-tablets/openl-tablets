@@ -55,30 +55,6 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     private static ThreadLocal<RuleServiceLoader> loader = new ThreadLocal<RuleServiceLoader>();
 
-    /**
-     * Utility method that helps to get RulesLoader instance from rules.
-     *
-     * @return Rules loader instance.
-     */
-    public static RuleServiceLoader getLoader() {
-        RuleServiceLoader loader = RulesBasedServiceConfigurer.loader.get();
-        if (loader == null) {
-            throw new OpenLRuntimeException("Rules loader have not been specified.");
-        }
-        return loader;
-    }
-
-    /**
-     * Utility method that helps to get deployments from rules.
-     *
-     * @return Deployments from data source.
-     */
-    public static Deployment[] getDeployments() {
-        Collection<Deployment> deploymentsList = getLoader().getDeployments();
-        Deployment[] deployments = new Deployment[deploymentsList.size()];
-        return deploymentsList.toArray(deployments);
-    }
-
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         try {
@@ -110,12 +86,13 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
         String modulesGetterName = getFieldValue(service, MODULES_GETTER_FIELD, String.class);
         IOpenMethod modulesGetter = rulesOpenClass.getMethod(modulesGetterName,
-                new IOpenClass[]{JavaOpenClass.getOpenClass(Deployment.class),
+                new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
                         JavaOpenClass.getOpenClass(AProject.class),
-                        JavaOpenClass.getOpenClass(Module.class)});
+                        JavaOpenClass.getOpenClass(Module.class) });
         checkModulesGetter(serviceName, modulesGetter);
 
-        ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder().setName(serviceName)
+        ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder().setName(
+                serviceName)
                 .setUrl(serviceUrl)
                 .setServiceClassName(serviceClassName)
                 .setProvideRuntimeContext(provideRuntimeContext);
@@ -124,19 +101,26 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
     }
 
     private void gatherModules(IOpenMethod modulesGetter, ServiceDescriptionBuilder serviceDescriptionBuilder) {
+        RuleServiceLoader loader = RulesBasedServiceConfigurer.loader.get();
+        if (loader == null) {
+            throw new OpenLRuntimeException("Rules loader have not been specified.");
+        }
         DeploymentDescription deploymentDescription = null;
-        for (Deployment deployment : getDeployments()) {
+        Collection<Deployment> deployments = loader.getDeployments();
+        for (Deployment deployment : deployments) {
             for (AProject project : deployment.getProjects()) {
-                for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),
+                for (Module module : loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(),
                         project.getName())) {
                     Object isSuitable = modulesGetter.invoke(rulesInstance,
-                            new Object[]{deployment, project, module},
+                            new Object[] { deployment, project, module },
                             runtimeEnv);
-                    ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName(project.getName()).setModuleName(module.getName())
+                    ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName(
+                            project.getName()).setModuleName(module.getName())
                             .build();
                     if (isSuitable != null && (Boolean) isSuitable) {
-                        deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(), deployment.getCommonVersion());
+                        deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
+                                deployment.getCommonVersion());
                         serviceDescriptionBuilder.addModule(moduleDescription);
                     }
                 }
@@ -150,13 +134,16 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     private void checkModulesGetter(String serviceName, IOpenMethod modulesGetter) {
         if (modulesGetter == null) {
-            throw new RuntimeException(String.format("Modules getter for service \"%s\" was not found. Make sure that your getter name specified and there are exists rule with params [%s,%s,%s]",
+            throw new RuntimeException(String.format(
+                    "Modules getter for service \"%s\" was not found. Make sure that your getter name specified and there are exists rule with params [%s,%s,%s]",
                     serviceName,
                     Deployment.class.getSimpleName(),
                     AProject.class.getSimpleName(),
                     Module.class.getSimpleName()));
-        } else if (modulesGetter.getType() != JavaOpenClass.BOOLEAN && modulesGetter.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
-            throw new RuntimeException(String.format("Modules getter for service \"%s\" has a wrong return type. Return type should be \"boolean\"",
+        } else if (modulesGetter.getType() != JavaOpenClass.BOOLEAN && modulesGetter.getType() != JavaOpenClass.getOpenClass(
+                Boolean.class)) {
+            throw new RuntimeException(String.format(
+                    "Modules getter for service \"%s\" has a wrong return type. Return type should be \"boolean\"",
                     serviceName,
                     Deployment.class.getSimpleName(),
                     AProject.class.getSimpleName(),
