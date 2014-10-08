@@ -3,14 +3,29 @@ package org.openl.rules.project.model;
 import java.util.Map;
 
 public class RulesDeploy {
+
+    public enum PublisherType {
+        RESTFUL,
+        WEBSERVICE
+    }
+
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
+    private PublisherType[] publishers;
     private String interceptingTemplateClassName;
     private String serviceClass;
     private String url;
     private Map<String, Object> configuration;
+
+    public PublisherType[] getPublishers() {
+        return publishers;
+    }
+
+    public void setPublishers(PublisherType[] publishers) {
+        this.publishers = publishers;
+    }
 
     public Boolean isProvideRuntimeContext() {
         return isProvideRuntimeContext;
@@ -19,11 +34,11 @@ public class RulesDeploy {
     public void setProvideRuntimeContext(Boolean isProvideRuntimeContext) {
         this.isProvideRuntimeContext = isProvideRuntimeContext;
     }
-    
+
     public void setUseRuleServiceRuntimeContext(Boolean useRuleServiceRuntimeContext) {
         this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
     }
-    
+
     public Boolean isUseRuleServiceRuntimeContext() {
         return useRuleServiceRuntimeContext;
     }
@@ -67,11 +82,11 @@ public class RulesDeploy {
     public void setConfiguration(Map<String, Object> configuration) {
         this.configuration = configuration;
     }
-    
+
     public String getInterceptingTemplateClassName() {
         return interceptingTemplateClassName;
     }
-    
+
     public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
         this.interceptingTemplateClassName = interceptingTemplateClassName;
     }

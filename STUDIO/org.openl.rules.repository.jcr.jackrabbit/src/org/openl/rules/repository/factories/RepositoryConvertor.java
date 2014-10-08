@@ -25,7 +25,7 @@ import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
+import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;

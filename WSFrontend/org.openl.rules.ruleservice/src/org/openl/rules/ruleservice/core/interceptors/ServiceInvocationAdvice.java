@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,12 +167,21 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         "Called method not found in service bean. Please, check that excel file contains method with name \""
                                 + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
-            beforeInvocation(interfaceMethod, args);
             try {
+                beforeInvocation(interfaceMethod, args);
                 result = beanMethod.invoke(serviceBean, args);
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
-                result = afterInvocation(interfaceMethod, null, e, args);
+                if (e instanceof InvocationTargetException){
+                    Throwable t = ((InvocationTargetException) e).getTargetException();
+                    if (t instanceof Exception){
+                        result = afterInvocation(interfaceMethod, null, (Exception)((InvocationTargetException) e).getTargetException(), args);
+                    }else{
+                        throw t;
+                    }
+                }else{
+                    result = afterInvocation(interfaceMethod, null, e, args);
+                }
             }
             return result;
         } catch (Throwable t) {

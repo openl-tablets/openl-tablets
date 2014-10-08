@@ -1,22 +1,22 @@
 package org.openl.rules.validation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Validator that checks correctness of "active" property. Only one active table
@@ -51,8 +51,7 @@ public class ActivePropertyValidator extends TablesValidator {
                     activeTableWasFound = true;
                     break;
                 }
-                if (executableMethodTable.getTableProperties() != null && Boolean.TRUE.equals(executableMethodTable.getTableProperties()
-                    .getActive())) {
+                if (executableMethodTable.getTableProperties() != null && isActive(executableMethodTable)) {
                     if (activeTableWasFound) {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
@@ -82,6 +81,11 @@ public class ActivePropertyValidator extends TablesValidator {
         } else {
             return ValidationUtils.validationSuccess();
         }
+    }
+
+    private boolean isActive(TableSyntaxNode executableMethodTable) {
+        return Boolean.TRUE.equals(executableMethodTable.getTableProperties()
+            .getActive());
     }
 
     private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(TableSyntaxNode[] tableSyntaxNodes) {

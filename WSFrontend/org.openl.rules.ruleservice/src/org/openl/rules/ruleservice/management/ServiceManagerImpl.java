@@ -4,7 +4,12 @@ import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
-import org.openl.rules.ruleservice.core.*;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleService;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
+import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.slf4j.Logger;
@@ -28,25 +33,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private Map<String, ServiceDescription> serviceDescriptions = new HashMap<String, ServiceDescription>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
+        if (this.ruleServiceLoader != null) {
+            this.ruleServiceLoader.removeListener(this);
+        }
         this.ruleServiceLoader = ruleServiceLoader;
         if (this.ruleServiceLoader != null) {
-            try {
-                ruleServiceLoader.getDataSource().removeListener(this);
-            } catch (UnsupportedOperationException e) {
-            }
+            this.ruleServiceLoader.addListener(this);
         }
-        if (this.ruleServiceLoader.getDataSource() != null) {
-            try {
-                this.ruleServiceLoader.getDataSource().addListener(this);
-            } catch (UnsupportedOperationException e) {
-            }
-        } else {
-            throw new IllegalArgumentException("The should be defined the data source in rules loader");
-        }
-    }
-
-    public RuleServiceLoader getRuleServiceLoader() {
-        return ruleServiceLoader;
     }
 
     public RuleService getRuleService() {
@@ -75,11 +68,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     /**
      * Determine services to be deployed on start.
      */
+    @Override
     public void start() {
         log.info("Assembling services after service manager start");
         processServices();
     }
 
+    @Override
     public void onDeploymentAdded() {
         log.info("Assembling services after data source modification");
         processServices();
@@ -96,11 +91,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(
+                    ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
-                    log.warn("Service with name \"{}\" is duplicated! Only one service with this name will be deployed! Please, check your configuration!", serviceDescription.getName());
+                    log.warn(
+                            "Service with name \"{}\" is duplicated! Only one service with this name will be deployed! Please, check your configuration!",
+                            serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);
                 }

@@ -15,7 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the
@@ -51,8 +56,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * @see #setDataSource, #setProjectResolver
      */
     public RuleServiceLoaderImpl(DataSource dataSource,
-                                 LocalTemporaryDeploymentsStorage storage,
-                                 RulesProjectResolver projectResolver) {
+            LocalTemporaryDeploymentsStorage storage,
+            RulesProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
@@ -68,11 +73,14 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         this.projectResolver = projectResolver;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public DataSource getDataSource() {
-        return dataSource;
+    @Override
+    public void addListener(DataSourceListener dataSourceListener) {
+        dataSource.addListener(dataSourceListener);
+    }
+
+    @Override
+    public void removeListener(DataSourceListener dataSourceListener) {
+        dataSource.removeListener(dataSourceListener);
     }
 
     /**
@@ -127,39 +135,18 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Deployment> getDeployments() {
-        return getDataSource().getDeployments();
+        return dataSource.getDeployments();
     }
 
     /**
      * {@inheritDoc}
      */
-    public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
-        }
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument can't be null");
-        }
-
-        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"", deploymentName, deploymentVersion.getVersionName());
-
-        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
-        if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from data source", deploymentName, deploymentVersion.getVersionName());
-            return deployment;
-        }
-        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been returned from local repository", deploymentName, deploymentVersion.getVersionName());
-        return localDeployment;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Collection<Module> resolveModulesForProject(String deploymentName,
-                                                       CommonVersion deploymentVersion,
-                                                       String projectName) {
+            CommonVersion deploymentVersion,
+            String projectName) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
         }
@@ -170,13 +157,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new IllegalArgumentException("projectName argument can't be null");
         }
 
-        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}", deploymentName, deploymentVersion.getVersionName(), projectName);
+        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}",
+                deploymentName,
+                deploymentVersion.getVersionName(),
+                projectName);
 
-        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
-        if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
-            localDeployment = storage.loadDeployment(deployment);
-        }
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
 
         AProject project = localDeployment.getProject(projectName);
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
@@ -190,7 +176,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 log.error("Project resolving failed!", e);
                 return Collections.emptyList();
             }
-            return Collections.unmodifiableList(projectDescriptor.getModules());
+            List<Module> modules = projectDescriptor.getModules();
+            return Collections.unmodifiableList(modules);
         } else {
             return Collections.emptyList();
         }
@@ -199,6 +186,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
@@ -206,18 +194,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
         log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
 
-        Collection<Module> ret = new ArrayList<Module>();
-        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-        String deploymentName = serviceDescription.getDeployment().getName();
-        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-        Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
-        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
-        if (localDeployment == null) {
-            localDeployment = storage.loadDeployment(deployment);
-        }
-
         Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
 
+        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         for (ModuleDescription moduleDescription : modulesToLoad) {
             String projectName = moduleDescription.getProjectName();
             if (projectModules.containsKey(projectName)) {
@@ -229,6 +208,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 projectModules.put(projectName, modules);
             }
         }
+
+        String deploymentName = serviceDescription.getDeployment().getName();
+        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
+
+        Collection<Module> ret = new ArrayList<Module>();
         for (String projectName : projectModules.keySet()) {
             AProject project = localDeployment.getProject(projectName);
             if (project == null) {
@@ -257,5 +242,14 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             }
         }
         return Collections.unmodifiableCollection(ret);
+    }
+
+    private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
+        Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
+        if (localDeployment == null) {
+            Deployment deployment = dataSource.getDeployment(deploymentName, commonVersion);
+            localDeployment = storage.loadDeployment(deployment);
+        }
+        return localDeployment;
     }
 }

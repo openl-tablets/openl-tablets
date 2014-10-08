@@ -2,8 +2,10 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -14,18 +16,29 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class MultipleRuleServicePublisher implements InitializingBean, RuleServicePublisher {
 
-    private Collection<RuleServicePublisher> supportedPublishers = new ArrayList<RuleServicePublisher>();
+    private Map<String, RuleServicePublisher> supportedPublishers = new TreeMap<String, RuleServicePublisher>(new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.toUpperCase().compareTo(o2.toUpperCase());
+        }
+    });
 
     private RuleServicePublisher defaultRuleServicePublisher;
 
     private Map<String, OpenLService> services = new HashMap<String, OpenLService>();
 
-    public Collection<RuleServicePublisher> getSupportedPublishers() {
+    public Map<String, RuleServicePublisher> getSupportedPublishers() {
         return supportedPublishers;
     }
 
-    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = supportedPublishers;
+    public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
+        this.supportedPublishers = new TreeMap<String, RuleServicePublisher>(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.toUpperCase().compareTo(o2.toUpperCase());
+            }
+        });
+        this.supportedPublishers.putAll(supportedPublishers);
     }
 
     protected Collection<RuleServicePublisher> dispatch(OpenLService service) {
@@ -34,18 +47,15 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
             publishers.add(getDefaultRuleServicePublisher());
             return publishers;
         }
-        for (Class<RuleServicePublisher> clazz : service.getPublishers()) {
-            if (getDefaultRuleServicePublisher().getClass().equals(clazz)) {
-                publishers.add(getDefaultRuleServicePublisher());
-            }
-        }
         if (getSupportedPublishers() != null) {
-            for (RuleServicePublisher supportedPublisher : getSupportedPublishers()) {
-                for (Class<RuleServicePublisher> clazz : service.getPublishers()) {
-                    if (supportedPublisher.getClass().equals(clazz)) {
-                        publishers.add(supportedPublisher);
-                    }
+            for (String key : service.getPublishers()) {
+                RuleServicePublisher publisher = supportedPublishers.get(key);
+                if (supportedPublishers.get(key) != null) {
+                    publishers.add(publisher);
                 }
+            }
+            if (publishers.isEmpty()) {
+                publishers.add(getDefaultRuleServicePublisher());
             }
         }
         return publishers;
@@ -107,21 +117,5 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
         if (getDefaultRuleServicePublisher() == null) {
             throw new BeanInitializationException("You should define default publisher");
         }
-
-        if (getSupportedPublishers() != null || !getSupportedPublishers().isEmpty()) {
-            for (RuleServicePublisher p1 : getSupportedPublishers()) {
-                for (RuleServicePublisher p2 : getSupportedPublishers()) {
-                    if (p1 != p2 && p1.getClass().equals(p2.getClass())) {
-                        throw new BeanInitializationException(
-                                "Invalid publishers configuration. Two publishers with the same reailzation is not supported.");
-                    }
-                }
-                if (getDefaultRuleServicePublisher().getClass().equals(p1.getClass())) {
-                    throw new BeanInitializationException(
-                            "Invalid publishers configuration. Two publishers with the same reailzation is not supported.");
-                }
-            }
-        }
     }
-
 }

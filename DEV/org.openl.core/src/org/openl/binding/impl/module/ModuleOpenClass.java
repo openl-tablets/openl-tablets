@@ -6,14 +6,6 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -21,14 +13,13 @@ import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.types.IMethodDependencyInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
+import org.openl.types.*;
+import org.openl.types.impl.AMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
+
+import java.util.*;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -117,10 +108,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
             if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
                 try {
                     //Workaround for set dependency names in method while compile
-                    if (depMethod instanceof IMethodDependencyInfo){
-                        IMethodDependencyInfo methodDependencyInfo = (IMethodDependencyInfo) depMethod;
-                        if (methodDependencyInfo.getDependencyName() == null){
-                            methodDependencyInfo.setDependencyName(dependency.getDependencyName());
+                    if (depMethod instanceof AMethod){
+                        AMethod methodDependencyInfo = (AMethod) depMethod;
+                        if (methodDependencyInfo.getModuleName() == null){
+                            methodDependencyInfo.setModuleName(dependency.getDependencyName());
                         }
                     }
                     addMethod(depMethod);

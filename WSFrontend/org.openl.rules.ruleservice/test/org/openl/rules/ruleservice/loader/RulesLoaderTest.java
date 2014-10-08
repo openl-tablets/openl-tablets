@@ -1,5 +1,23 @@
 package org.openl.rules.ruleservice.loader;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
+import org.openl.rules.project.resolving.ResolvingStrategy;
+import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.ModuleDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -7,26 +25,6 @@ import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
 import static org.openl.rules.ruleservice.Constants.MODULE_NAME;
 import static org.openl.rules.ruleservice.Constants.PROJECT_NAME;
 import static org.openl.rules.ruleservice.Constants.VERSION;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.repository.jcr.JcrFolderAPI;
-import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.ModuleDescription;
-import org.openl.rules.ruleservice.core.ServiceDescription;
 
 public class RulesLoaderTest {
 
@@ -53,20 +51,6 @@ public class RulesLoaderTest {
     }
 
     @Test
-    public void testGetDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
-        CommonVersion commonVersion = new CommonVersionImpl(VERSION);
-        Deployment deployment = rulesLoader.getDeployment(DEPLOYMENT_NAME, commonVersion);
-        assertNotNull(deployment);
-        assertEquals(DEPLOYMENT_NAME, deployment.getDeploymentName());
-        assertEquals(VERSION, deployment.getCommonVersion().getVersionName());
-        assertTrue(deployment.getAPI() instanceof JcrFolderAPI);
-        storage.loadDeployment(deployment);
-        deployment = rulesLoader.getDeployment(DEPLOYMENT_NAME, commonVersion);
-        assertTrue(deployment.getAPI() instanceof LocalFolderAPI);
-    }
-
-    @Test
     public void testGetDeployments() {
         Collection<Deployment> deployments = rulesLoader.getDeployments();
         assertNotNull(deployments);
@@ -87,13 +71,13 @@ public class RulesLoaderTest {
     public void testGetModulesForService() {
         CommonVersion commonVersion = new CommonVersionImpl(VERSION);
         ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setModuleName(MODULE_NAME)
-            .setProjectName(PROJECT_NAME)
-            .build();
+                .setProjectName(PROJECT_NAME)
+                .build();
         ServiceDescription serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setName("myService")
-            .setProvideRuntimeContext(false)
-            .addModule(moduleDescription)
-            .setDeployment(new DeploymentDescription(DEPLOYMENT_NAME, commonVersion))
-            .build();
+                .setProvideRuntimeContext(false)
+                .addModule(moduleDescription)
+                .setDeployment(new DeploymentDescription(DEPLOYMENT_NAME, commonVersion))
+                .build();
         Collection<Module> result = rulesLoader.getModulesByServiceDescription(serviceDescription);
         assertTrue(!result.isEmpty());
     }

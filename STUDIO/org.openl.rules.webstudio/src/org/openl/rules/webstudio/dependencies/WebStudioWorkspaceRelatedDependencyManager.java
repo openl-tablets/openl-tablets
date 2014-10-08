@@ -17,6 +17,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
+    private List<IDependencyLoader> dependencyLoaders;
+
     private List<ProjectDescriptor> projects;
 
     private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();

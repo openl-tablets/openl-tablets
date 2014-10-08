@@ -53,11 +53,10 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
-        RuleServiceLoader rulesLoader = serviceManager.getRuleServiceLoader();
         serviceManager.start();
         OpenLService multimoduleService = serviceManager.getRuleService().getServiceByName("multimodule");
-        Deployment domainDeployment = rulesLoader.getDeployment("multimodule",
-                new CommonVersionImpl(1));
+        // RuleServiceLoader rulesLoader = serviceManager.getRuleServiceLoader();
+        Deployment domainDeployment = null; //rulesLoader.getDeployment("multimodule", new CommonVersionImpl(1));
         ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
         ProductionRepositoryFactoryProxy proxy = applicationContext.getBean("productionRepositoryFactoryProxy", ProductionRepositoryFactoryProxy.class);
         new JcrProductionDeployer(proxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE).deploy(testDeploymentProject,
