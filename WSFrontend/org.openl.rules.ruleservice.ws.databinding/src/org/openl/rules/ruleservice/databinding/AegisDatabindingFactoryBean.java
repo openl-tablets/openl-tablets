@@ -12,6 +12,8 @@ package org.openl.rules.ruleservice.databinding;
 
 
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +29,14 @@ import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.ruleservice.databinding.aegis.custom.BigDecimalType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.BigIntegerType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.ByteType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.DoubleType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.FloatType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.IntType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.LongType;
+import org.openl.rules.ruleservice.databinding.aegis.custom.ShortType;
 import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +116,25 @@ public class AegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.IntRangeBeanType.class, typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
+        //CUSTOM JAVA TYPES REGISTER
+        loadAegisTypeClassAndRegister(Double.class.getCanonicalName(),
+            DoubleType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
+        loadAegisTypeClassAndRegister(Float.class.getCanonicalName(),
+            FloatType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
+        loadAegisTypeClassAndRegister(Integer.class.getCanonicalName(),
+            IntType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
+        loadAegisTypeClassAndRegister(Long.class.getCanonicalName(),
+            LongType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
+        loadAegisTypeClassAndRegister(Short.class.getCanonicalName(),
+            ShortType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
+        loadAegisTypeClassAndRegister(Byte.class.getCanonicalName(),
+            ByteType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
+        loadAegisTypeClassAndRegister(BigInteger.class.getCanonicalName(),
+            BigIntegerType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
+        loadAegisTypeClassAndRegister(BigDecimal.class.getCanonicalName(),
+            BigDecimalType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
+        //END
+        
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
                 org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",

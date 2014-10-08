@@ -1,7 +1,10 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import net.sf.cglib.core.ReflectUtils;
 
@@ -22,13 +26,14 @@ import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.util.generation.InterfaceTransformer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+
 /**
- * Utility class for generate JAXRS annotations for service interface. 
+ * Utility class for generate JAXRS annotations for service interface.
  * 
  * @author Marat Kamalov
  *
  */
-public class JAXRSInterfaceAnnotationEnhancerHelper {
+public class JAXRSInterfaceEnhancerHelper {
 
     private static LocalVariableTableParameterNameDiscoverer DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
@@ -40,10 +45,14 @@ public class JAXRSInterfaceAnnotationEnhancerHelper {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
         private Class<?> originalClass;
+        private boolean changeReturnTypes = true;
 
-        public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass) {
+        public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
+                Class<?> originalClass,
+                boolean changeReturnTypes) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
+            this.changeReturnTypes = changeReturnTypes;
         }
 
         @Override
@@ -61,6 +70,11 @@ public class JAXRSInterfaceAnnotationEnhancerHelper {
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
+        }
+
+        private String changeReturnType(String signature) {
+            int index = signature.lastIndexOf(')');
+            return signature.substring(0, index + 1) + Type.getDescriptor(Response.class);
         }
 
         @Override
@@ -92,7 +106,13 @@ public class JAXRSInterfaceAnnotationEnhancerHelper {
                 }
             }
 
-            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+            MethodVisitor mv = null;
+
+            if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
+                mv = super.visitMethod(arg0, methodName, changeReturnType(arg2), arg3, arg4);
+            } else {
+                mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+            }
 
             if (!skip) {
                 boolean allPrimitives = true;
@@ -206,19 +226,20 @@ public class JAXRSInterfaceAnnotationEnhancerHelper {
         }
     }
 
-    public static Class<?> decorate(Class<?> originalClass, ClassLoader classLoader) throws Exception {
-        if (originalClass==null){
+    public static Class<?> decorateInterface(Class<?> originalClass, ClassLoader classLoader, boolean changeReturnTypes) throws Exception {
+        if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
-        if (!originalClass.isInterface()){
+        if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Original class should be an interface!");
         }
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
-            originalClass);
+            originalClass,
+            changeReturnTypes);
         String enchancedClassName = originalClass.getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
-        //Fix an NPE issue JAXRSUtil with no package class 
-        if (originalClass.getPackage() == null){
+        // Fix an NPE issue JAXRSUtil with no package class
+        if (originalClass.getPackage() == null) {
             enchancedClassName = "default." + enchancedClassName;
         }
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
@@ -228,8 +249,47 @@ public class JAXRSInterfaceAnnotationEnhancerHelper {
         return enchancedClass;
     }
 
-    public static Class<?> decorate(Class<?> originalClass) throws Exception {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return decorate(originalClass, classLoader);
+    public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {
+        return decorateInterface(originalClass, false);
     }
+
+    public static Class<?> decorateInterface(Class<?> originalClass, boolean changeReturnTypes) throws Exception {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        return decorateInterface(originalClass, classLoader, changeReturnTypes);
+    }
+
+    public static Object decorateBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
+        Map<Method, Method> methodMap = new HashMap<Method, Method>();
+        for (Method method : proxyInterface.getMethods()) {
+            boolean f = false;
+            for (Method targetMethod : targetInterface.getMethods()) {
+                if (targetMethod.getName().equals(method.getName())) {
+                    if (targetMethod.getParameterTypes().length == method.getParameterTypes().length) {
+                        Class<?>[] targetParams = targetMethod.getParameterTypes();
+                        Class<?>[] params = targetMethod.getParameterTypes();
+                        boolean found = true;
+                        for (int i = 0; i < targetParams.length; i++) {
+                            if (!targetParams[i].equals(params[i])) {
+                                found = false;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            methodMap.put(method, targetMethod);
+                            f = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!f) {
+                throw new IllegalStateException("Method doesn't exists in original interface!");
+            }
+        }
+
+        return Proxy.newProxyInstance(targetInterface.getClassLoader(),
+            new Class<?>[] { proxyInterface },
+            new JAXRSInvocationHandler(targetBean, methodMap));
+    }
+
 }

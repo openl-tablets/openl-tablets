@@ -19,6 +19,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ import org.springframework.beans.factory.ObjectFactory;
  * @author Nail Samatov, Marat Kamalov
  */
 public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+    private static final String REST_PREFIX = "REST/";
+
     private final Logger log = LoggerFactory.getLogger(JAXRSServicesRuleServicePublisher.class);
 
     private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
@@ -62,7 +65,11 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
     }
 
     protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass) throws Exception {
-        return JAXRSInterfaceAnnotationEnhancerHelper.decorate(serviceClass);
+        return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, true);
+    }
+
+    protected Object createWrappedBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
+        return JAXRSInterfaceEnhancerHelper.decorateBean(targetBean, proxyInterface, targetInterface);
     }
 
     @Override
@@ -72,13 +79,14 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
             if (service.getPublishers() != null && service.getPublishers().size() > 1) {
-                svrFactory.setAddress(getBaseAddress() + "REST/" + service.getUrl());
+                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + service.getUrl());
             } else {
                 svrFactory.setAddress(getBaseAddress() + service.getUrl());
             }
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass());
             svrFactory.setResourceClasses(serviceClass);
-            svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(service.getServiceBean()));
+            Object target = createWrappedBean(service.getServiceBean(), serviceClass, service.getServiceClass());
+            svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
             AegisContextResolver aegisContextResolver = new AegisContextResolver((AegisDatabinding) svrFactory.getDataBinding());
             svrFactory.setProvider(aegisContextResolver);
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
@@ -180,7 +188,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         });
         String url = service.getUrl() + "?_wadl";
         if (service.getPublishers() != null && service.getPublishers().size() > 1) {
-            url = "REST/" + url;
+            url = REST_PREFIX + url;
         }
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
     }
