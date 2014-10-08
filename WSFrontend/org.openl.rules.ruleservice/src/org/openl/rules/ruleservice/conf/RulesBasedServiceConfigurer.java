@@ -4,7 +4,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
@@ -39,24 +38,20 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        IRuntimeEnv runtimeEnv = new SimpleVM().getRuntimeEnv();
-        Object rulesInstance = null;
-        IOpenClass rulesOpenClass = null;
         try {
-            rulesOpenClass = getRulesSource().compile().getOpenClass();
-            rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
-        } catch (RulesInstantiationException e) {
-            log.error("Failed to Instantiation rule service.", e);
-        }
-        try {
+            IOpenClass rulesOpenClass = getRulesSource().compile().getOpenClass();
+            IRuntimeEnv runtimeEnv = new SimpleVM().getRuntimeEnv();
+            Object rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
             Object[] services = (Object[]) servicesField.get(rulesInstance, runtimeEnv);
             for (Object service : services) {
                 try {
-                    serviceDescriptions.add(createServiceDescription(service,
+                    ServiceDescription serviceDescription = createServiceDescription(service,
                             rulesOpenClass,
                             rulesInstance,
-                            runtimeEnv, loader));
+                            runtimeEnv,
+                            loader);
+                    serviceDescriptions.add(serviceDescription);
                 } catch (Exception e) {
                     log.error("Failed to load service description.", e);
                 }
@@ -75,8 +70,8 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
         final String serviceUrl = getFieldValue(service, SERVICE_URL_FIELD, String.class);
         final String serviceClassName = getFieldValue(service, SERVICE_CLASS_NAME_FIELD, String.class);
         final boolean provideRuntimeContext = getFieldValue(service, RUNTIME_CONTEXT_FIELD, boolean.class);
-
         String modulesGetterName = getFieldValue(service, MODULES_GETTER_FIELD, String.class);
+
         IOpenMethod modulesGetter = rulesOpenClass.getMethod(modulesGetterName,
                 new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
                         JavaOpenClass.getOpenClass(AProject.class),
