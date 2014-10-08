@@ -30,7 +30,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
 
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
-            throw new IllegalArgumentException("Uncomparable tables. Tasbles should have similar name,signature and dimension properties.");
+            throw new IllegalArgumentException("Uncomparable tables. Tables should have similar name, signature and dimension properties.");
         }
         return compare(PropertiesHelper.getTableProperties(first), PropertiesHelper.getTableProperties(second));
     }
@@ -39,17 +39,16 @@ public final class TableVersionComparator implements Comparator<ITableProperties
         return compare(first.getTableProperties(), second.getTableProperties());
     }
 
+    @Override
     public int compare(ITableProperties first, ITableProperties second) {
-        boolean firstActive = first.getActive() == null || first.getActive();
-        boolean secondActive = second.getActive() == null || second.getActive();
+        Boolean firstActive = first.getActive() == null || first.getActive();
+        Boolean secondActive = second.getActive() == null || second.getActive();
 
         if (firstActive != secondActive) {
-            if (firstActive) {
-                return -1;
-            } else if (secondActive) {
-                return 1;
-            }
+            return secondActive.compareTo(firstActive);
         }
+        // Case when both tables have the same active status
+        //
         Version firstNodeVersion = parseVersionForComparison(first.getVersion());
         Version secondNodeVersion = parseVersionForComparison(second.getVersion());
         return secondNodeVersion.compareTo(firstNodeVersion);

@@ -136,7 +136,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         List<ITableProperties> propertiesFromMethods = getMethodsProperties();
 
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods)) {
+            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods) && !"origin".equals(dimensionProperty.getName())) {
                 return true;
             }
         }
