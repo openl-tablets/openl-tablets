@@ -162,79 +162,24 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 projectName);
 
         Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
-
         AProject project = localDeployment.getProject(projectName);
+        if (project == null) {
+            throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
+        }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
+        List<Module> result = Collections.emptyList();
         if (resolvingStrategy != null) {
-            ProjectDescriptor projectDescriptor = null;
             try {
-                projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                List<Module> modules = projectDescriptor.getModules();
+                result =  Collections.unmodifiableList(modules);
             } catch (ProjectResolvingException e) {
                 log.error("Project resolving failed!", e);
-                return Collections.emptyList();
-            }
-            List<Module> modules = projectDescriptor.getModules();
-            return Collections.unmodifiableList(modules);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<Module> getModulesByServiceDescription(String deploymentName,
-            CommonVersion deploymentVersion,
-            Collection<ModuleDescription> modulesToLoad) {
-
-        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
-
-        for (ModuleDescription moduleDescription : modulesToLoad) {
-            String projectName = moduleDescription.getProjectName();
-            if (projectModules.containsKey(projectName)) {
-                Collection<ModuleDescription> modules = projectModules.get(projectName);
-                modules.add(moduleDescription);
-            } else {
-                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
-                modules.add(moduleDescription);
-                projectModules.put(projectName, modules);
             }
         }
-
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
-
-        Collection<Module> ret = new ArrayList<Module>();
-        for (String projectName : projectModules.keySet()) {
-            AProject project = localDeployment.getProject(projectName);
-            if (project == null) {
-                throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
-            }
-            String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath()
-                    .getStringValue();
-            File projectFolder = new File(artefactPath);
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            if (resolvingStrategy != null) {
-                ProjectDescriptor projectDescriptor = null;
-                try {
-                    projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-                } catch (ProjectResolvingException e) {
-                    log.error("Project resolving failed!", e);
-                    return Collections.emptyList();
-                }
-                Collection<Module> modules = projectDescriptor.getModules();
-                for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
-                    for (Module module : modules) {
-                        if (moduleDescription.getModuleName().equals(module.getName())) {
-                            ret.add(module);
-                        }
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableCollection(ret);
+        return result;
     }
 
     private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
