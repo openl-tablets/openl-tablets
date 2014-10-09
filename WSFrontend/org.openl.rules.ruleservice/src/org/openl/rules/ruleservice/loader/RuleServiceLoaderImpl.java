@@ -10,7 +10,6 @@ import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,16 +186,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
-        if (serviceDescription == null) {
-            throw new IllegalArgumentException("serviceDescription argument can't be null");
-        }
-
-        log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
+    public Collection<Module> getModulesByServiceDescription(String deploymentName,
+            CommonVersion deploymentVersion,
+            Collection<ModuleDescription> modulesToLoad) {
 
         Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
 
-        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         for (ModuleDescription moduleDescription : modulesToLoad) {
             String projectName = moduleDescription.getProjectName();
             if (projectModules.containsKey(projectName)) {
@@ -209,9 +204,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             }
         }
 
-        String deploymentName = serviceDescription.getDeployment().getName();
-        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
+        Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
 
         Collection<Module> ret = new ArrayList<Module>();
         for (String projectName : projectModules.keySet()) {
