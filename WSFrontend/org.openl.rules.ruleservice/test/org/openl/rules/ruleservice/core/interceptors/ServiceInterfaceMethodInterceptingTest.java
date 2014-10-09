@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +24,18 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
@@ -44,11 +46,13 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     public static interface OverloadInterface {
-        @ServiceCallAfterInterceptor(value = ResultConvertor.class)
-        Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
+        @ServiceCallAfterInterceptor(value = ResultConvertor.class) Double driverRiskScoreOverloadTest(
+                IRulesRuntimeContext runtimeContext,
+                String driverRisk);
 
-        @ServiceCallAfterInterceptor(value = ResultConvertor.class)
-        Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
+        @ServiceCallAfterInterceptor(value = ResultConvertor.class) Double driverRiskScoreNoOverloadTest(
+                IRulesRuntimeContext runtimeContext,
+                String driverRisk);
     }
 
     ServiceDescription serviceDescription;
@@ -62,18 +66,19 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         Collection<ModuleDescription> moduleDescriptions = new ArrayList<ModuleDescription>();
         ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName("Overload")
-            .setModuleName("service")
-            .build();
+                .setModuleName("service")
+                .build();
         moduleDescriptions.add(moduleDescription);
 
-        serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class.getName())
-            .setName("service")
-            .setUrl("/")
-            .setProvideRuntimeContext(true)
-            .setProvideVariations(false)
-            .setDeployment(deploymentDescription)
-            .setModules(moduleDescriptions)
-            .build();
+        serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class
+                .getName())
+                .setName("service")
+                .setUrl("/")
+                .setProvideRuntimeContext(true)
+                .setProvideVariations(false)
+                .setDeployment(deploymentDescription)
+                .setModules(moduleDescriptions)
+                .build();
         ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
 
         ruleServiceLoader = mock(RuleServiceLoader.class);
@@ -87,7 +92,10 @@ public class ServiceInterfaceMethodInterceptingTest {
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
         modules.add(module);
-        when(ruleServiceLoader.getModulesByServiceDescription(serviceDescription)).thenReturn(modules);
+        when(ruleServiceLoader.getModulesByServiceDescription(eq("someDeploymentName"),
+                eq(version),
+                anyCollection())).thenReturn(
+                modules);
         List<Deployment> deployments = new ArrayList<Deployment>();
         Deployment deployment = mock(Deployment.class);
         List<AProject> projects = new ArrayList<AProject>();
@@ -99,7 +107,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
         deployments.add(deployment);
         when(ruleServiceLoader.getDeployments()).thenReturn(deployments);
-        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service")).thenReturn(modules);
+        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
+                deploymentDescription.getVersion(),
+                "service")).thenReturn(modules);
     }
 
     @Test
@@ -120,12 +130,13 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void testServiceClassUndecorating() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
-        Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationFactory.getInstantiationStrategyFactory()
-            .getStrategy(modules, null),
-            OverloadInterface.class);
+        Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(
+                instantiationFactory.getInstantiationStrategyFactory()
+                        .getStrategy(modules, null),
+                OverloadInterface.class);
         for (Method method : OverloadInterface.class.getMethods()) {
             Method methodGenerated = interfaceForInstantiationStrategy.getMethod(method.getName(),
-                method.getParameterTypes());
+                    method.getParameterTypes());
             Assert.assertNotNull(methodGenerated);
             Assert.assertEquals(Object.class, methodGenerated.getReturnType());
         }
