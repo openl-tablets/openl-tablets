@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -205,7 +207,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             String deploymentName = serviceDescription.getDeployment().getName();
             CommonVersion deploymentVersion = serviceDescription.getDeployment().getVersion();
             Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-            Collection<Module> modules = ruleServiceLoader.getModulesByServiceDescription(deploymentName,
+            Collection<Module> modules = getModulesByServiceDescription(deploymentName,
                     deploymentVersion,
                     modulesToLoad);
 
@@ -232,6 +234,39 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
                     serviceDescription.getName()), e);
         }
+    }
+
+    private Collection<Module> getModulesByServiceDescription(String deploymentName,
+            CommonVersion deploymentVersion,
+            Collection<ModuleDescription> modulesToLoad) {
+
+        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
+
+        for (ModuleDescription moduleDescription : modulesToLoad) {
+            String projectName = moduleDescription.getProjectName();
+            if (projectModules.containsKey(projectName)) {
+                Collection<ModuleDescription> modules = projectModules.get(projectName);
+                modules.add(moduleDescription);
+            } else {
+                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
+                modules.add(moduleDescription);
+                projectModules.put(projectName, modules);
+            }
+        }
+
+        Collection<Module> ret = new ArrayList<Module>();
+        for (String projectName : projectModules.keySet()) {
+
+            Collection<Module> modules = ruleServiceLoader.resolveModulesForProject(deploymentName, deploymentVersion, projectName);
+            for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
+                for (Module module : modules) {
+                    if (moduleDescription.getModuleName().equals(module.getName())) {
+                        ret.add(module);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableCollection(ret);
     }
 
     public RuleServiceLoader getRuleServiceLoader() {

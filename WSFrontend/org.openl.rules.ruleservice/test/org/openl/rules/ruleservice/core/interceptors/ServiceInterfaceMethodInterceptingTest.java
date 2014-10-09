@@ -31,8 +31,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +64,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         Collection<ModuleDescription> moduleDescriptions = new ArrayList<ModuleDescription>();
         ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName("Overload")
-                .setModuleName("service")
+                .setModuleName("Overload")
                 .build();
         moduleDescriptions.add(moduleDescription);
 
@@ -92,10 +90,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
         modules.add(module);
-        when(ruleServiceLoader.getModulesByServiceDescription(eq("someDeploymentName"),
-                eq(version),
-                anyCollection())).thenReturn(
-                modules);
+        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
+                deploymentDescription.getVersion(),
+                moduleDescription.getProjectName())).thenReturn(modules);
         List<Deployment> deployments = new ArrayList<Deployment>();
         Deployment deployment = mock(Deployment.class);
         List<AProject> projects = new ArrayList<AProject>();
@@ -109,8 +106,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(ruleServiceLoader.getDeployments()).thenReturn(deployments);
         when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
                 deploymentDescription.getVersion(),
-                "service")).thenReturn(modules);
-    }
+                "service")).thenReturn(modules);    }
 
     @Test
     public void testResultConvertorInterceptor() throws Exception {
