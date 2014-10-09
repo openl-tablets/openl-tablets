@@ -15,6 +15,7 @@ import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -73,12 +74,7 @@ public class RulesLoaderTest {
         ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setModuleName(MODULE_NAME)
                 .setProjectName(PROJECT_NAME)
                 .build();
-        ServiceDescription serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setName("myService")
-                .setProvideRuntimeContext(false)
-                .addModule(moduleDescription)
-                .setDeployment(new DeploymentDescription(DEPLOYMENT_NAME, commonVersion))
-                .build();
-        Collection<Module> result = rulesLoader.getModulesByServiceDescription(serviceDescription);
+        Collection<Module> result = rulesLoader.getModulesByServiceDescription(DEPLOYMENT_NAME, commonVersion, Arrays.asList(moduleDescription));
         assertTrue(!result.isEmpty());
     }
 }
