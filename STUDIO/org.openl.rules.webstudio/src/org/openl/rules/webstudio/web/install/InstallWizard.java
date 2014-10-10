@@ -180,6 +180,7 @@ public class InstallWizard {
             systemConfig.setProperty("user.mode", userMode);
             systemConfig.save();
 
+            System.clearProperty("webstudio.home"); // Otherwise this property will not be saved to file.
             appConfig.setPath("webstudio.home", workingDir);
             appConfig.setProperty("webstudio.configured", true);
             appConfig.save();
