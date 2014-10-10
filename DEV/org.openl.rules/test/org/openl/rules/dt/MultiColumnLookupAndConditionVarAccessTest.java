@@ -1,12 +1,12 @@
 package org.openl.rules.dt;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class MultiColumnLookupAndConditionVarAccessTest extends TestCase {
+public class MultiColumnLookupAndConditionVarAccessTest {
 
     public interface IMultiColumnLookupTest {
 
@@ -19,8 +19,8 @@ public class MultiColumnLookupAndConditionVarAccessTest extends TestCase {
 
     private IMultiColumnLookupTest instance;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         RulesEngineFactory<IMultiColumnLookupTest> engineFactory = new RulesEngineFactory<IMultiColumnLookupTest>(
                 SRC, IMultiColumnLookupTest.class);
 
@@ -28,6 +28,7 @@ public class MultiColumnLookupAndConditionVarAccessTest extends TestCase {
 
     }
 
+    @Test
     public void testCombined() {
         DoubleValue res = instance.getBaseRate(10000, "$100,000 Deductible");
 
@@ -35,6 +36,7 @@ public class MultiColumnLookupAndConditionVarAccessTest extends TestCase {
 
     }
 
+    @Test
     public void test1() {
 
         int res = instance.multiColumnTest1(1, 10, 100);

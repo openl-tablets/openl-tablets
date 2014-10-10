@@ -759,6 +759,17 @@
             };
 
             ws.changes.configure(hasChanges, setTableHasChanges, showConfirmDialog, beforeUnload);
+
+            $j(".title").each(function () {
+                var elem = $j(this);
+                if (elem.position().top < 40) {
+                    if (!elem.hasClass('title-bottom')) {
+                        elem.addClass('title-bottom');
+                    }
+                } else {
+                    elem.removeClass('title-bottom');
+                }
+            });
         });
 
         //]]>
