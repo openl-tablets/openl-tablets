@@ -38,7 +38,9 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     protected int getSignatureStartIndex() {
-        return nameOfAlgorithm.getStartPosition() + nameOfAlgorithm.getCode().length() + 1;
+        return nameOfAlgorithm == null ?
+               super.getSignatureStartIndex() :
+               nameOfAlgorithm.getStartPosition() + nameOfAlgorithm.getCode().length() + 1;
     }
 
     public IOpenSourceCodeModule getAlgorithm() {
