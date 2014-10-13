@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
@@ -155,8 +156,6 @@ public abstract class FunctionalRow implements IDecisionRow {
      * </tr>
      * </table>
      * 
-     * @param dataTableBody
-     * @param tableType
      * @return <code>TRUE</code> if table is horizontal.
      */
     public ILogicalTable getDecisionTable() {
@@ -276,7 +275,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
 
         if (errors.size() > 0) {
-            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
+            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[errors.size()]));
         }
 
         return preparedValues;
@@ -475,6 +474,21 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         if (type == null) {
             throw SyntaxNodeExceptionUtils.createError("Type not found: " + typeCode, nodes[0]);
+        }
+
+        if (!bindingContext.isExecutionMode()) {
+            IOpenClass typeForLink = type;
+            while (typeForLink.getMetaInfo() == null && typeForLink.isArray()) {
+                typeForLink = typeForLink.getComponentClass();
+            }
+
+            IdentifierNode[] paramNodes = Tokenizer.tokenize(paramSource, "[] \n\r");
+            if (paramNodes.length > 0) {
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(paramsTable,
+                        paramNodes[0],
+                        typeForLink.getMetaInfo(),
+                        NodeType.DATATYPE);
+            }
         }
 
         if (nodes.length == 1) {
