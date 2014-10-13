@@ -10,7 +10,7 @@
 	<!-- Bean helps to read configuration and apply it to override types -->
 	<bean id="rootClassNamesBindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
-		<property name="rootClassNames" value="${ruleservice.aegisbinding.rootClassNames}" />
+		<property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}" />
 	</bean>
 
 	<bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
