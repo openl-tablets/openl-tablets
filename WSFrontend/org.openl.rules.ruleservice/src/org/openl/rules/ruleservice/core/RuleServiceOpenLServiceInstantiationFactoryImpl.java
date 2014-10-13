@@ -204,8 +204,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     public OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException {
         try {
             log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
-            String deploymentName = serviceDescription.getDeployment().getName();
-            CommonVersion deploymentVersion = serviceDescription.getDeployment().getVersion();
+            DeploymentDescription deployment = serviceDescription.getDeployment();
+            String deploymentName = deployment.getName();
+            CommonVersion deploymentVersion = deployment.getVersion();
             Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
             Collection<Module> modules = getModulesByServiceDescription(deploymentName,
                     deploymentVersion,
@@ -228,7 +229,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
             OpenLService openLService = builder.build();
 
-            initService(getDependencyManager(serviceDescription), openLService);
+            initService(getDependencyManager(deployment), openLService);
             return openLService;
         } catch (Exception e) {
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
@@ -316,13 +317,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
     }
 
-    private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
+    private IDependencyManager getDependencyManager(DeploymentDescription deployment) {
         if (externalDependencyManager != null) {
             return externalDependencyManager;
         }
 
         RuleServiceDeploymentRelatedDependencyManager dependencyManager;
-        DeploymentDescription deployment = serviceDescription.getDeployment();
         if (dependencyManagerMap.containsKey(deployment)) {
             dependencyManager = dependencyManagerMap.get(deployment);
         } else {
