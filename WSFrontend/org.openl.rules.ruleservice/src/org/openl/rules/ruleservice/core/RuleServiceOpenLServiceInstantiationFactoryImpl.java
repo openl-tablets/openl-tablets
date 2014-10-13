@@ -257,7 +257,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Collection<Module> ret = new ArrayList<Module>();
         for (String projectName : projectModules.keySet()) {
 
-            Collection<Module> modules = ruleServiceLoader.resolveModulesForProject(deploymentName, deploymentVersion, projectName);
+            Collection<Module> modules = ruleServiceLoader.resolveModulesForProject(deploymentName,
+                    deploymentVersion,
+                    projectName);
             for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
                 for (Module module : modules) {
                     if (moduleDescription.getModuleName().equals(module.getName())) {
@@ -314,31 +316,27 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
     }
 
-    private RuleServiceDeploymentRelatedDependencyManager getRuleServiceDependencyManager(ServiceDescription serviceDescription) {
-        if (dependencyManagerMap.containsKey(serviceDescription.getDeployment())) {
-            return dependencyManagerMap.get(serviceDescription.getDeployment());
-        } else {
-            boolean isLazy = false;
-            if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
-                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy();
-            }
-            RuleServiceDeploymentRelatedDependencyManager dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(
-                    serviceDescription.getDeployment(),
-                    getRuleServiceLoader(),
-                    isLazy);
-            dependencyManager.setExternalParameters(externalParameters);
-            dependencyManagerMap.put(serviceDescription.getDeployment(), dependencyManager);
-            return dependencyManager;
-        }
-    }
-
     private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
         if (externalDependencyManager != null) {
             return externalDependencyManager;
         }
 
-        RuleServiceDeploymentRelatedDependencyManager ruleServiceDependencyManager = getRuleServiceDependencyManager(
-                serviceDescription);
-        return ruleServiceDependencyManager;
+        RuleServiceDeploymentRelatedDependencyManager dependencyManager;
+        DeploymentDescription deployment = serviceDescription.getDeployment();
+        if (dependencyManagerMap.containsKey(deployment)) {
+            dependencyManager = dependencyManagerMap.get(deployment);
+        } else {
+            boolean isLazy = false;
+            if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
+                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy();
+            }
+            dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(
+                    deployment,
+                    ruleServiceLoader,
+                    isLazy);
+            dependencyManager.setExternalParameters(externalParameters);
+            dependencyManagerMap.put(deployment, dependencyManager);
+        }
+        return dependencyManager;
     }
 }
