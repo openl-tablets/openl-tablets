@@ -155,7 +155,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
             TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
 
-            int startPosition = getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(tableHeaderText);
+            int startPosition = getSignatureStartIndex();
             // Link to return type
             IOpenClass type = tableHeader.getType();
             IMetaInfo metaInfo = type.getMetaInfo();
@@ -196,5 +196,11 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                 cell.setMetaInfo(new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
             }
         }
+    }
+
+    protected int getSignatureStartIndex() {
+        ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
+        TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
+        return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(tableHeaderText);
     }
 }
