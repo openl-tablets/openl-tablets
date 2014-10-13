@@ -36,6 +36,11 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
     }
 
+    @Override
+    protected int getSignatureStartIndex() {
+        return nameOfAlgorithm.getStartPosition() + nameOfAlgorithm.getCode().length() + 1;
+    }
+
     public IOpenSourceCodeModule getAlgorithm() {
         return nameOfAlgorithm;
     }
