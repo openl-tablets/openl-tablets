@@ -75,7 +75,7 @@
 	</bean>
 	
 	<bean id="JAXRS200StatusOutInterceptor" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
-		<property name="enabled" value="${ruleservice.jaxrs.alwaysResponseStatusIsOK}"/>
+		<property name="enabled" value="${ruleservice.jaxrs.responseStatusIsOK}"/>
 	</bean>
 	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
