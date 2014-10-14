@@ -20,6 +20,8 @@ input[type='text'], input[type='password'], textarea, select {
     border-radius: 1px;
     background: #ffffff;
     color: #333;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
