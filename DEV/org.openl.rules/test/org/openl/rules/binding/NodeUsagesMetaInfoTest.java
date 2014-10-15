@@ -110,6 +110,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = condition2.getMetaInfo().getUsedNodes();
         assertEquals(1, usedNodes.size());
         assertEquals(carType.getUri(), usedNodes.get(0).getUri());
+
+        ICell returnCell = rule1.getGridTable().getCell(2, 3);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCell));
+        usedNodes = returnCell.getMetaInfo().getUsedNodes();
+        assertEquals(1, usedNodes.size());
+        assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
     }
 
     @Test
