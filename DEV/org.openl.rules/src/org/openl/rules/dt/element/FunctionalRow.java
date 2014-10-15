@@ -155,7 +155,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * <td align="center" bgcolor="#ffff99">value23</td>
      * </tr>
      * </table>
-     * 
+     *
      * @return <code>TRUE</code> if table is horizontal.
      */
     public ILogicalTable getDecisionTable() {
@@ -232,7 +232,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                     declaringClass,
                     methodType,
                     openl,
-                    bindingContext);
+                    bindingContext, i);
                     
                 String paramName = parameterDeclaration.getName();
                 
@@ -430,6 +430,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * @param methodType return type of method
      * @param openl openl context
      * @param bindingContext binding context
+     * @param paramNum the number of parameter in {@link #paramsTable}
      * @return parameter declaration
      * @throws OpenLCompilationException if and error has occurred
      */
@@ -439,7 +440,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass declaringClass,
             IOpenClass methodType,
             OpenL openl,
-            IBindingContext bindingContext) throws OpenLCompilationException {
+            IBindingContext bindingContext, int paramNum) throws OpenLCompilationException {
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
@@ -477,18 +478,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
 
         if (!bindingContext.isExecutionMode()) {
-            IOpenClass typeForLink = type;
-            while (typeForLink.getMetaInfo() == null && typeForLink.isArray()) {
-                typeForLink = typeForLink.getComponentClass();
-            }
-
-            IdentifierNode[] paramNodes = Tokenizer.tokenize(paramSource, "[] \n\r");
-            if (paramNodes.length > 0) {
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(paramsTable,
-                        paramNodes[0],
-                        typeForLink.getMetaInfo(),
-                        NodeType.DATATYPE);
-            }
+            setCellMetaInfo(paramNum, type);
         }
 
         if (nodes.length == 1) {
@@ -500,7 +490,26 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         return new ParameterDeclaration(type, name);
     }
-    
+
+    protected void setCellMetaInfo(int paramNum, IOpenClass type) throws OpenLCompilationException {
+        IOpenClass typeForLink = type;
+        while (typeForLink.getMetaInfo() == null && typeForLink.isArray()) {
+            typeForLink = typeForLink.getComponentClass();
+        }
+
+        ILogicalTable table = paramsTable.getRow(paramNum);
+        if (table != null) {
+            GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource());
+            IdentifierNode[] paramNodes = Tokenizer.tokenize(source, "[] \n\r");
+            if (paramNodes.length > 0) {
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
+                        paramNodes[0],
+                        typeForLink.getMetaInfo(),
+                        NodeType.DATATYPE);
+            }
+        }
+    }
+
     @Override
     public String toString() {    	 
     	return String.format("%s : %s", name, codeTable.toString());
