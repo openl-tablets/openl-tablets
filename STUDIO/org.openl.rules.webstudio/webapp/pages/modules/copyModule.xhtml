@@ -1,0 +1,125 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <style>
+    </style>
+
+    <rich:popupPanel id="copyModulePopup" width="470" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Copy Module" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                 onclick="ws.ui.hide('copyModulePopup')" alt="Close" />
+        </f:facet>
+
+        <h:form prependId="true" id="copyModuleForm">
+            <input type="hidden" id="moduleIndex" name="moduleIndex" />
+            <h:inputHidden id="moduleNameOld" />
+            <h:inputHidden id="modulePathOld" />
+
+            <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
+            <a4j:outputPanel ajaxRendered="true"/>
+
+            <table class="properties properties-form wide">
+                <tr class="single-module-param">
+                    <td>Name</td>
+                    <td><h:inputText id="moduleName" styleClass="editable-item"
+                        validator="#{projectBean.validateModuleNameForCopy}" /></td>
+                </tr>
+                <tr class="single-module-param">
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="moduleName" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr>
+                    <td class="required">Path</td>
+                    <td><h:inputText id="modulePath" styleClass="editable-item"
+                        validator="#{projectBean.validateModulePathForCopy}" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="modulePath" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+                <tr class="single-module-param"><td class="delimeter"></td></tr>
+                <tr class="single-module-param">
+                    <td>Included Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item" /></td>
+                </tr>
+                <tr class="single-module-param">
+                    <td>Excluded Methods (RegExp)</td>
+                    <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item" /></td>
+                </tr>
+            </table>
+
+            <footer>
+                <a4j:commandButton id="copyModuleBtn" value="Save" action="#{projectBean.copyModule}"
+                    styleClass="button-primary"
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('copyModulePopup');copyModuleDone();}" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('copyModulePopup');" />
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <script>
+    //<![CDATA[
+
+        function copyModule(module, callback) {
+            if (callback) {
+                copyModuleDone = callback;
+            }
+
+            if (module.includes) {
+                module.includes = module.includes.substr(1, module.includes.length - 2).replace(/, /g, "\n");
+            }
+            if (module.excludes) {
+                module.excludes = module.excludes.substr(1, module.excludes.length - 2).replace(/, /g, "\n");
+            }
+
+            var btn = $j("#copyModuleForm\\:copyModuleBtn");
+            btn.prop("disabled", true);
+
+            $j("#copyModuleForm\\:moduleIndex").val(module.index);
+            $j("#copyModuleForm\\:moduleNameOld").val(module.name);
+            $j("#copyModuleForm\\:moduleName").val(module.name);
+            $j("#copyModuleForm\\:modulePathOld").val(module.path);
+            $j("#copyModuleForm\\:modulePath").val(module.path);
+            $j("#copyModuleForm\\:moduleIncludes").val(module.includes);
+            $j("#copyModuleForm\\:moduleExcludes").val(module.excludes);
+
+            $j("#copyModuleForm span.error").remove();
+
+            $j("#copyModuleForm .properties :input").on("keyup change", function() {
+                var changed = (module.includedInWildcard || module.name != $j("#copyModuleForm\\:moduleName").val())
+                     && module.path != $j("#copyModuleForm\\:modulePath").val();
+
+                btn.prop("disabled", !changed);
+            });
+
+            $j("#copyModuleForm").find(".single-module-param").each(function() {
+                if (module.includedInWildcard) {
+                    $j(this).addClass("hidden");
+                } else {
+                    $j(this).removeClass('hidden');
+                }
+            });
+
+            ws.ui.show("copyModulePopup");
+        }
+
+        function copyModuleDone() {
+            ws.nav.reload(true);
+        }
+
+    //]]>
+    </script>
+
+</ui:composition>

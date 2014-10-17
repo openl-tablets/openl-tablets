@@ -192,6 +192,29 @@ public class ProjectBean {
         }
     }
 
+    public void validateModuleNameForCopy(FacesContext context, UIComponent toValidate, Object value) {
+        String newName = (String) value;
+        String oldName = FacesUtils.getRequestParameter("copyModuleForm:moduleNameOld");
+        String modulePath = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
+
+        Module toCheck = new Module();
+        toCheck.setRulesRootPath(new PathEntry(modulePath));
+        boolean withWildcard = isModuleWithWildcard(toCheck);
+        if (!withWildcard) {
+            FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+        }
+
+        if (StringUtils.isBlank(oldName) // Add new Module
+                || !oldName.equals(newName)) { // Edit current Module
+            if (!withWildcard || !StringUtils.isBlank(newName)) {
+                FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+
+                Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
+                FacesUtils.validate(module == null, "Module with such name already exists");
+            }
+        }
+    }
+
     // TODO Move messages to ValidationMessages.properties
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
@@ -201,6 +224,13 @@ public class ProjectBean {
             File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
             FacesUtils.validate(moduleFile.exists(), "File with such path doesn't exist");
         }
+    }
+
+    public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
+        String path = (String) value;
+        FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
+
+        FacesUtils.validate(!(path.contains("*") || path.contains("?")), "Path can't contain wildcard symbols");
     }
 
     public void editName() {
@@ -265,6 +295,77 @@ public class ProjectBean {
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
+        }
+    }
+
+    public void copyModule() {
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+
+        String name = FacesUtils.getRequestParameter("copyModuleForm:moduleName");
+        String oldPath = FacesUtils.getRequestParameter("copyModuleForm:modulePathOld");
+        String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
+        String includes = FacesUtils.getRequestParameter("copyModuleForm:moduleIncludes");
+        String excludes = FacesUtils.getRequestParameter("copyModuleForm:moduleExcludes");
+
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
+        try {
+            File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+
+            outputStream = new FileOutputStream(new File(projectFolder, path));
+            inputStream = new FileInputStream(new File(projectFolder, oldPath));
+            IOUtils.copy(inputStream, outputStream);
+
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            throw new Message("Error while project copying");
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
+
+
+        PathEntry pathEntry = new PathEntry();
+        pathEntry.setPath(path);
+
+        Module module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(pathEntry);
+
+        if (!isModuleMatchesSomePathPattern(module)) {
+            // Add new Module
+            module.setProject(newProjectDescriptor);
+            newProjectDescriptor.getModules().add(module);
+
+            MethodFilter filter = module.getMethodFilter();
+            if (filter == null) {
+                filter = new MethodFilter();
+                module.setMethodFilter(filter);
+            }
+            filter.setIncludes(null);
+            filter.setExcludes(null);
+
+            if (StringUtils.isNotBlank(includes)) {
+                filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
+            }
+            if (StringUtils.isNotBlank(excludes)) {
+                filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+            }
+
+            clean(newProjectDescriptor);
+            save(newProjectDescriptor);
+        } else {
+            studio.reset(ReloadType.FORCED);
+            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject().getName());
+            if (projectNode != null) {
+                // For example, repository wasn't refreshed yet
+                projectNode.refresh();
+            }
         }
     }
 
