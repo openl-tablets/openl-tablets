@@ -49,15 +49,6 @@
                         <h:message for="modulePath" styleClass="error" />
                     </a4j:outputPanel></td>
                 </tr>
-                <tr class="single-module-param"><td class="delimeter"></td></tr>
-                <tr class="single-module-param">
-                    <td>Included Methods (RegExp)</td>
-                    <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item" /></td>
-                </tr>
-                <tr class="single-module-param">
-                    <td>Excluded Methods (RegExp)</td>
-                    <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item" /></td>
-                </tr>
             </table>
 
             <footer>
@@ -77,13 +68,6 @@
                 copyModuleDone = callback;
             }
 
-            if (module.includes) {
-                module.includes = module.includes.substr(1, module.includes.length - 2).replace(/, /g, "\n");
-            }
-            if (module.excludes) {
-                module.excludes = module.excludes.substr(1, module.excludes.length - 2).replace(/, /g, "\n");
-            }
-
             var btn = $j("#copyModuleForm\\:copyModuleBtn");
             btn.prop("disabled", true);
 
@@ -92,8 +76,6 @@
             $j("#copyModuleForm\\:moduleName").val(module.name);
             $j("#copyModuleForm\\:modulePathOld").val(module.path);
             $j("#copyModuleForm\\:modulePath").val(module.path);
-            $j("#copyModuleForm\\:moduleIncludes").val(module.includes);
-            $j("#copyModuleForm\\:moduleExcludes").val(module.excludes);
 
             $j("#copyModuleForm span.error").remove();
 
