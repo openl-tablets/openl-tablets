@@ -21,8 +21,18 @@
         .list-modules .list-item .editable-link-inner {
             position: absolute;
             top: 30%;
+        }
+        .first-button {
             right: -30px;
             padding-left: 11px;
+        }
+        .second-button {
+            right: -55px;
+            padding-left: 5px;
+        }
+        .third-button {
+            right: -80px;
+            padding-left: 5px;
         }
         .list > .list-item .path {
             color: #999;
@@ -119,12 +129,13 @@
                     <div class="list list-modules">
                         <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}" />
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
-                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{projectBean.isModuleWithWildcard(module) or !projectBean.isModuleMatchesSomePathPattern(module)}">
+                            <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}" />
+                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{isModuleWithWildcard or !projectBean.isModuleMatchesSomePathPattern(module)}">
                                 <div>
-                                    <h:panelGroup rendered="#{projectBean.isModuleWithWildcard(module)}">
+                                    <h:panelGroup rendered="#{isModuleWithWildcard}">
                                         #{empty module.name ? 'Multiple modules' : module.name}
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!projectBean.isModuleWithWildcard(module)}">
+                                    <h:panelGroup rendered="#{!isModuleWithWildcard}">
                                         <a href="##{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}">#{module.name}</a>
                                     </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
@@ -162,12 +173,17 @@
                                     </div>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
-                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner"
+                                    <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
                                         onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                                    <h:panelGroup rendered="#{!isModuleWithWildcard}">
+                                        <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
+                                            onclick="copyModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                                src="webresource/images/copy.png" style="opacity:0.4" /></a>
+                                    </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
-                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner"
-                                               onclick="removeModule('#{i.index}')" style="right:-55px;padding-left: 5px"><img
+                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner #{isModuleWithWildcard ? 'second-button' : 'third-button'}"
+                                               onclick="removeModule('#{i.index}')"><img
                                                     src="webresource/images/remove.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                 </h:panelGroup>
@@ -247,6 +263,7 @@
 
     <c:if test="#{editable}">
         <ui:include src="/pages/modules/editModule.xhtml" />
+        <ui:include src="/pages/modules/copyModule.xhtml" />
     </c:if>
 
     <h:panelGroup rendered="#{editable}">
