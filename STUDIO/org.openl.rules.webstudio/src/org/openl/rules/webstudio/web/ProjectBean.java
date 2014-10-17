@@ -305,8 +305,6 @@ public class ProjectBean {
         String name = FacesUtils.getRequestParameter("copyModuleForm:moduleName");
         String oldPath = FacesUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
-        String includes = FacesUtils.getRequestParameter("copyModuleForm:moduleIncludes");
-        String excludes = FacesUtils.getRequestParameter("copyModuleForm:moduleExcludes");
 
         OutputStream outputStream = null;
         InputStream inputStream = null;
@@ -341,21 +339,6 @@ public class ProjectBean {
             // Add new Module
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
-
-            MethodFilter filter = module.getMethodFilter();
-            if (filter == null) {
-                filter = new MethodFilter();
-                module.setMethodFilter(filter);
-            }
-            filter.setIncludes(null);
-            filter.setExcludes(null);
-
-            if (StringUtils.isNotBlank(includes)) {
-                filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
-            }
-            if (StringUtils.isNotBlank(excludes)) {
-                filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
-            }
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
