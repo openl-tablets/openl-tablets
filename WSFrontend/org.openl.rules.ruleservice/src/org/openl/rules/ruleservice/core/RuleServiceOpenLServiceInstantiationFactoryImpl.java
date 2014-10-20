@@ -125,22 +125,18 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
-        return processCustomSpreadSheetResults(resultClass, classLoader);
-    }
-
-    private Class<?> processCustomSpreadSheetResults(Class<?> serviceClass, ClassLoader classLoader) {
-        if (serviceClass == null) {
+        if (resultClass == null) {
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
-            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(serviceClass, classLoader);
+            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(resultClass, classLoader);
             return decoratedClass;
         } catch (Exception e) {
             log.error("Failed to applying custom spreadsheet result convertor for class with name \"{}\"",
-                serviceClass.getCanonicalName(),
+                resultClass.getCanonicalName(),
                 e);
         }
-        return serviceClass;
+        return resultClass;
     }
 
     private Class<?> processInterceptingTemplateClassConfiguration(OpenLService service,
