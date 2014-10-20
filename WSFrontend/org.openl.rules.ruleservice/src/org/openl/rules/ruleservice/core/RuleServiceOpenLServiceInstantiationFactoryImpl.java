@@ -129,12 +129,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
-        return processCustomSpreadSheetResults(service, resultClass, classLoader);
+        return processCustomSpreadSheetResults(resultClass, classLoader);
     }
 
-    private Class<?> processCustomSpreadSheetResults(OpenLService service,
-            Class<?> serviceClass,
-            ClassLoader classLoader) {
+    private Class<?> processCustomSpreadSheetResults(Class<?> serviceClass, ClassLoader classLoader) {
         if (serviceClass == null) {
             throw new IllegalStateException("It shouldn't happen!");
         }
