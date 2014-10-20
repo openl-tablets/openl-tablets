@@ -59,7 +59,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (service.isProvideRuntimeContext()) {
             instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             if (service.isUseRuleServiceRuntimeContext()) {
-                instantiationStrategy = new RuleServiceRuntimeContextInstantiationStrategyEnhancer((RuntimeContextInstantiationStrategyEnhancer) instantiationStrategy);
+                instantiationStrategy = new RuleServiceRuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
         }
         resolveInterface(service, instantiationStrategy);
