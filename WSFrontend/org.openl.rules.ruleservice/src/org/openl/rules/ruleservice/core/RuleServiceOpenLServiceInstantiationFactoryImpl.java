@@ -48,10 +48,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void initService(IDependencyManager dependencyManager, OpenLService service) throws
                                                                                          RulesInstantiationException,
                                                                                          ClassNotFoundException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
         RulesInstantiationStrategy instantiationStrategy = null;
         instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(), dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
