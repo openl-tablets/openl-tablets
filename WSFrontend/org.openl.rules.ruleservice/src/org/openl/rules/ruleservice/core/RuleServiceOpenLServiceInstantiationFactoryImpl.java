@@ -103,26 +103,22 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
                                                                                                          ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
-        Class<?> serviceClass;
+        Class<?> serviceClass = null;
         ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
         if (serviceClassName != null) {
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
-                instantiationStrategy.setServiceClass(RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
-                    serviceClass));
+                Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+                    serviceClass);
+                instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
             } catch (ClassNotFoundException e) {
                 log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
-                log.info("Service class is undefined of service '{}'. Generated interface will be used.",
-                    service.getName());
-                serviceClass = processGeneratedServiceClass(service,
-                    instantiationStrategy.getInstanceClass(),
-                    serviceClassLoader);
             }
-        } else {
+        }
+        if (serviceClass == null) {
             log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
-            serviceClass = processGeneratedServiceClass(service,
-                instantiationStrategy.getInstanceClass(),
-                serviceClassLoader);
+            Class<?> instanceClass = instantiationStrategy.getInstanceClass();
+            serviceClass = processGeneratedServiceClass(service, instanceClass, serviceClassLoader);
         }
         service.setServiceClass(serviceClass);
     }
