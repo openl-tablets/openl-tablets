@@ -121,7 +121,7 @@ public class LocalTemporaryDeploymentsStorage {
      *
      * @return folder name
      */
-    protected String getDeploymentFolderName(String deploymentName, CommonVersion version) {
+    private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
         return String.format("%s_v%s", deploymentName, version.getVersionName());
     }
 
@@ -187,7 +187,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @param deployment
      * @return loaded deployment
      */
-    public Deployment loadDeployment(Deployment deployment) {
+    Deployment loadDeployment(Deployment deployment) {
         if (deployment == null) {
             throw new IllegalArgumentException("deployment argument can't be null");
         }
