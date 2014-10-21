@@ -1,14 +1,11 @@
 package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -178,13 +175,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     public OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException {
         try {
             log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
-            DeploymentDescription deployment = serviceDescription.getDeployment();
-            String deploymentName = deployment.getName();
-            CommonVersion deploymentVersion = deployment.getVersion();
-            Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-            Collection<Module> modules = getModulesByServiceDescription(deploymentName,
-                deploymentVersion,
-                modulesToLoad);
+            Collection<Module> modules = serviceDescription.getModules();
 
             OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
             builder.setName(serviceDescription.getName())
@@ -203,47 +194,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
             OpenLService openLService = builder.build();
 
+            DeploymentDescription deployment = serviceDescription.getDeployment();
             initService(getDependencyManager(deployment), openLService);
             return openLService;
         } catch (Exception e) {
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
                 serviceDescription.getName()), e);
         }
-    }
-
-    private Collection<Module> getModulesByServiceDescription(String deploymentName,
-            CommonVersion deploymentVersion,
-            Collection<ModuleDescription> modulesToLoad) {
-
-        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
-
-        for (ModuleDescription moduleDescription : modulesToLoad) {
-            String projectName = moduleDescription.getProjectName();
-            if (projectModules.containsKey(projectName)) {
-                Collection<ModuleDescription> modules = projectModules.get(projectName);
-                modules.add(moduleDescription);
-            } else {
-                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
-                modules.add(moduleDescription);
-                projectModules.put(projectName, modules);
-            }
-        }
-
-        Collection<Module> ret = new ArrayList<Module>();
-        for (String projectName : projectModules.keySet()) {
-
-            Collection<Module> modules = ruleServiceLoader.resolveModulesForProject(deploymentName,
-                deploymentVersion,
-                projectName);
-            for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
-                for (Module module : modules) {
-                    if (moduleDescription.getModuleName().equals(module.getName())) {
-                        ret.add(module);
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableCollection(ret);
     }
 
     public RuleServiceLoader getRuleServiceLoader() {
