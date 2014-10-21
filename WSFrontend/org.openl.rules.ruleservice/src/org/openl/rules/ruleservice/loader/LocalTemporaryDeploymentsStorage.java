@@ -121,7 +121,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @return folder name
      */
     private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
-        return String.format("%s_v%s", deploymentName, version.getVersionName());
+        return new StringBuilder(deploymentName).append("_v").append(version.getVersionName()).toString();
     }
 
     private File getFolderToLoadDeploymentsIn() {
@@ -139,8 +139,8 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     private File getDeploymentFolder(String deploymentName, CommonVersion version) {
-        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), getDeploymentFolderName(deploymentName,
-            version));
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), deploymentFolderName);
         return deploymentFolder;
     }
 
@@ -151,30 +151,10 @@ public class LocalTemporaryDeploymentsStorage {
      * @return deployment from storage or null if doens't exists
      */
     Deployment getDeployment(String deploymentName, CommonVersion version) {
-        String versionName = version.getVersionName();
-        log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
-
-        if (containsDeployment(deploymentName, version)) {
-            String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-            Deployment deployment = cacheForGetDeployment.get(deploymentFolderName);
-            if (deployment != null) {
-                log.debug("Getting deployment with name=\"{}\" and version=\"{}\" has been returned from cache.",
-                    deploymentName,
-                    versionName);
-                return deployment;
-            }
-            deployment = makeLocalDeployment(deploymentName, version);
-            cacheForGetDeployment.put(deploymentFolderName, deployment);
-            log.debug("Deployment with name=\"{}\" and version=\"{}\" has been returned from local storage and putted to cache.",
-                deploymentName,
-                versionName);
-            return deployment;
-        } else {
-            log.debug("Deployment with name=\"{}\" and version=\"{}\" hasn't been found in local storage.",
-                deploymentName,
-                versionName);
-            return null;
-        }
+        log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, version.getVersionName());
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        Deployment deployment = cacheForGetDeployment.get(deploymentFolderName);
+        return deployment;
     }
 
     /**
@@ -205,8 +185,10 @@ public class LocalTemporaryDeploymentsStorage {
             throw new RuleServiceRuntimeException(e);
         }
 
-        cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
-        log.debug("Deployement with name=\"{}\" and version=\"{}\" has been removed from cache.",
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
+
+        log.debug("Deployment with name=\"{}\" and version=\"{}\" has been made on local storage and putted to cache.",
             deploymentName,
             versionName);
         return loadedDeployment;
