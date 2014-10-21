@@ -151,14 +151,7 @@ public class LocalTemporaryDeploymentsStorage {
      *
      * @return deployment from storage or null if doens't exists
      */
-    public Deployment getDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
-        }
-        if (version == null) {
-            throw new IllegalArgumentException("version argument can't be null");
-        }
-
+    Deployment getDeployment(String deploymentName, CommonVersion version) {
         log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, version.getVersionName());
 
         if (containsDeployment(deploymentName, version)) {
@@ -232,13 +225,7 @@ public class LocalTemporaryDeploymentsStorage {
      *
      * @return true if and only if the deployment exists; false otherwise
      */
-    public boolean containsDeployment(String deploymentName, CommonVersion version) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
-        }
-        if (version == null) {
-            throw new IllegalArgumentException("version argument can't be null");
-        }
+    boolean containsDeployment(String deploymentName, CommonVersion version) {
         return getDeploymentFolder(deploymentName, version).exists();
     }
 
