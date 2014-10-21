@@ -1,5 +1,10 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -10,11 +15,6 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Local temporary file system storage for deployments. Clears all data on first
@@ -50,8 +50,7 @@ public class LocalTemporaryDeploymentsStorage {
      *
      * @see #setLocalWorkspaceFileFilter, #setLocalWorkspaceFolderFilter
      */
-    public LocalTemporaryDeploymentsStorage(FileFilter localWorkspaceFolderFilter,
-            FileFilter localWorkspaceFileFilter) {
+    public LocalTemporaryDeploymentsStorage(FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
@@ -141,7 +140,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     private File getDeploymentFolder(String deploymentName, CommonVersion version) {
         File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), getDeploymentFolderName(deploymentName,
-                version));
+            version));
         return deploymentFolder;
     }
 
@@ -152,31 +151,28 @@ public class LocalTemporaryDeploymentsStorage {
      * @return deployment from storage or null if doens't exists
      */
     Deployment getDeployment(String deploymentName, CommonVersion version) {
-        log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, version.getVersionName());
+        String versionName = version.getVersionName();
+        log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
 
         if (containsDeployment(deploymentName, version)) {
-            Deployment deployment = cacheForGetDeployment.get(getDeploymentFolderName(deploymentName, version));
+            String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+            Deployment deployment = cacheForGetDeployment.get(deploymentFolderName);
             if (deployment != null) {
                 log.debug("Getting deployment with name=\"{}\" and version=\"{}\" has been returned from cache.",
-                        deploymentName,
-                        version.getVersionName());
+                    deploymentName,
+                    versionName);
                 return deployment;
             }
-            File deploymentFolder = getDeploymentFolder(deploymentName, version);
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, new ArtefactPathImpl(
-                    deploymentFolder.getName()), new LocalWorkspaceImpl(null, deploymentFolder.getParentFile(),
-                    getLocalWorkspaceFolderFilter(), getLocalWorkspaceFileFilter()));
-            deployment = new Deployment(localFolderAPI);
-            cacheForGetDeployment.put(getDeploymentFolderName(deploymentName, version), deployment);
-            log.debug(
-                    "Deployment with name=\"{}\" and version=\"{}\" has been returned from local storage and putted to cache.",
-                    deploymentName,
-                    version.getVersionName());
+            deployment = makeLocalDeployment(deploymentName, version);
+            cacheForGetDeployment.put(deploymentFolderName, deployment);
+            log.debug("Deployment with name=\"{}\" and version=\"{}\" has been returned from local storage and putted to cache.",
+                deploymentName,
+                versionName);
             return deployment;
         } else {
             log.debug("Deployment with name=\"{}\" and version=\"{}\" hasn't been found in local storage.",
-                    deploymentName,
-                    version.getVersionName());
+                deploymentName,
+                versionName);
             return null;
         }
     }
@@ -192,32 +188,40 @@ public class LocalTemporaryDeploymentsStorage {
             throw new IllegalArgumentException("deployment argument can't be null");
         }
 
-        log.debug("Loading deployement with name=\"{}\" and version=\"{}\"",
-                deployment.getDeploymentName(),
-                deployment.getVersion().getVersionName());
+        String deploymentName = deployment.getDeploymentName();
+        CommonVersion version = deployment.getCommonVersion();
+        String versionName = deployment.getVersion().getVersionName();
+        log.debug("Loading deployement with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
 
-        File deploymentFolder = getDeploymentFolder(deployment.getDeploymentName(), deployment.getCommonVersion());
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, new ArtefactPathImpl(
-                deploymentFolder.getName()), new LocalWorkspaceImpl(null, deploymentFolder.getParentFile(),
-                getLocalWorkspaceFolderFilter(), getLocalWorkspaceFileFilter()));
-        Deployment loadedDeployment = new Deployment(localFolderAPI);
+        Deployment loadedDeployment = makeLocalDeployment(deploymentName, version);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
         } catch (ProjectException e) {
             log.warn("Exception occurs on loading deployment with name=\"{}\" and version=\"{}\" from data source",
-                    deployment.getDeploymentName(),
-                    deployment.getVersion().getVersionName(),
-                    e);
+                deploymentName,
+                versionName,
+                e);
             throw new RuleServiceRuntimeException(e);
         }
 
-        cacheForGetDeployment.remove(getDeploymentFolderName(deployment.getDeploymentName(),
-                deployment.getCommonVersion()));
+        cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
         log.debug("Deployement with name=\"{}\" and version=\"{}\" has been removed from cache.",
-                deployment.getDeploymentName(),
-                deployment.getVersion().getVersionName());
+            deploymentName,
+            versionName);
         return loadedDeployment;
+    }
+
+    private Deployment makeLocalDeployment(String deploymentName, CommonVersion version) {
+        File deploymentFolder = getDeploymentFolder(deploymentName, version);
+        ArtefactPathImpl path = new ArtefactPathImpl(deploymentFolder.getName());
+        File location = deploymentFolder.getParentFile();
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(null,
+            location,
+            localWorkspaceFolderFilter,
+            localWorkspaceFileFilter);
+        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, path, workspace);
+        return new Deployment(localFolderAPI);
     }
 
     /**
