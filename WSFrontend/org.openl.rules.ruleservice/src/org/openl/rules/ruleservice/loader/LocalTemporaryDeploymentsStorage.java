@@ -138,12 +138,6 @@ public class LocalTemporaryDeploymentsStorage {
         return folderToLoadDeploymentsIn;
     }
 
-    private File getDeploymentFolder(String deploymentName, CommonVersion version) {
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), deploymentFolderName);
-        return deploymentFolder;
-    }
-
     /**
      * Gets deployment from storage. If deployment doesn't exists in storage
      * returns null.
@@ -195,7 +189,8 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     private Deployment makeLocalDeployment(String deploymentName, CommonVersion version) {
-        File deploymentFolder = getDeploymentFolder(deploymentName, version);
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), deploymentFolderName);
         ArtefactPathImpl path = new ArtefactPathImpl(deploymentFolder.getName());
         File location = deploymentFolder.getParentFile();
         LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(null,
@@ -212,7 +207,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @return true if and only if the deployment exists; false otherwise
      */
     boolean containsDeployment(String deploymentName, CommonVersion version) {
-        return getDeploymentFolder(deploymentName, version).exists();
+        return cacheForGetDeployment.containsKey(getDeploymentFolderName(deploymentName, version));
     }
 
     /**
