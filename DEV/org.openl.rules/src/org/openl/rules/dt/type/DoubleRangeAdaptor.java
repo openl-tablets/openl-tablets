@@ -13,7 +13,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return INSTANCE;
     }
 
-    public Comparable<Double> getMax(DoubleRange range) {
+    public Double getMax(DoubleRange range) {
         double max = range.getUpperBound();
         if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() == BoundType.EXCLUDING) {
         	// the max should be moved to the left,
@@ -29,7 +29,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return max;
     }    
     
-    public Comparable<Double> getMin(DoubleRange range) {
+    public Double getMin(DoubleRange range) {
         double min = range.getLowerBound();
         if (range.getLowerBoundType() == BoundType.EXCLUDING) {
             min += Math.ulp(min);
@@ -39,7 +39,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 
 
 	@Override
-	public Comparable<Double> adaptValueType(Object value) {
+	public Double adaptValueType(Object value) {
         return Double.valueOf(((Number)value).doubleValue());
 	}
 

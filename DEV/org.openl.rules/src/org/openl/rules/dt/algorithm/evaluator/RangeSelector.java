@@ -14,9 +14,9 @@ public class RangeSelector implements IIntSelector {
     private Object target;
     private Object[] params;
     private IRuntimeEnv env;
-    private IRangeAdaptor<Object, Object> adaptor;
+    private IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor;
 
-    public RangeSelector(ICondition condition, Object value, Object target, Object[] params, IRangeAdaptor<Object, Object> adaptor,  IRuntimeEnv env) {
+    public RangeSelector(ICondition condition, Object value, Object target, Object[] params, IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor,  IRuntimeEnv env) {
         this.condition = condition;
         this.adaptor = adaptor;
         
@@ -62,7 +62,7 @@ public class RangeSelector implements IIntSelector {
             }
         }
         
-        return vFrom.compareTo(value) <= 0 && ((Comparable<Object>) value).compareTo(vTo) < 0;
+        return (vFrom == null || vFrom.compareTo(value) <= 0) && (vTo == null || ((Comparable<Object>) value).compareTo(vTo) < 0);
     }
 
 }

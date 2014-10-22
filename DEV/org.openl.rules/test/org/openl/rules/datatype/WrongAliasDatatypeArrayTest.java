@@ -25,7 +25,7 @@ public class WrongAliasDatatypeArrayTest extends BaseOpenlBuilderHelper {
 		assertTrue(getJavaWrapper().getCompiledClass().getMessages().size() == 1);
 		OpenLMessage message = getJavaWrapper().getCompiledClass().getMessages().get(0);
 		assertNotNull(message);
-		assertEquals("Object Val23 is outside of a valid domain", message.getSummary());
+		assertEquals("The value 'Val23' is outside of domain [Val1,Val2,Val3]", message.getSummary());
 	}
 	
 	@Test
