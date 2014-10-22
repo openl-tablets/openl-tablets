@@ -130,7 +130,8 @@
                         <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}" />
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
                             <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}" />
-                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{isModuleWithWildcard or !projectBean.isModuleMatchesSomePathPattern(module)}">
+                            <ui:param name="includedInWildcard" value="#{projectBean.isModuleMatchesSomePathPattern(module)}" />
+                            <h:panelGroup layout="block" id="#{i.index}currentModule" styleClass="list-item editable-inner" rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
                                     <h:panelGroup rendered="#{isModuleWithWildcard}">
                                         #{empty module.name ? 'Multiple modules' : module.name}
@@ -176,13 +177,13 @@
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
                                         onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                             src="webresource/images/edit.png" style="opacity:0.4" /></a>
-                                    <h:panelGroup rendered="#{!isModuleWithWildcard}">
+                                    <h:panelGroup>
                                         <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
-                                            onclick="copyModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
                                                 src="webresource/images/copy.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
-                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner #{isModuleWithWildcard ? 'second-button' : 'third-button'}"
+                                        <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner third-button"
                                                onclick="removeModule('#{i.index}')"><img
                                                     src="webresource/images/remove.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>

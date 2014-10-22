@@ -617,6 +617,11 @@ ul.enum li {
     top: 32px;
 }
 
+.title:hover.title-right em {
+    left: inherit;
+    right: 0;
+}
+
 .menuPanel a {
     margin-right: 10px;
 }

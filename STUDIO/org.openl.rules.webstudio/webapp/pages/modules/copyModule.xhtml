@@ -6,6 +6,41 @@
     xmlns:rich="http://richfaces.org/rich">
 
     <style>
+        .expandable-link {
+            cursor: pointer;
+            border-bottom: 1px dashed #777777;
+        }
+
+        .disabled-link {
+            cursor: default;
+        }
+
+        #copyModuleForm table td:first-child {
+            width: 130px;
+        }
+
+        #copyModuleForm table input[type="text"],
+        #copyModuleForm table select,
+        #copyModuleForm table textarea {
+            width: 295px;
+        }
+
+        #copyModuleForm table input[type="text"].with-button {
+            width: 258px;
+        }
+
+        #from-panel-short td,
+        tr.new-file-name-setting-short td {
+            padding-top: 6px;
+        }
+
+        .match {
+            background: url("webresource/images/ok.png") no-repeat;
+        }
+        .not-match {
+            background: url("webresource/images/error.png") no-repeat;
+        }
+
     </style>
 
     <rich:popupPanel id="copyModulePopup" width="470" autosized="true">
@@ -18,38 +53,114 @@
                  onclick="ws.ui.hide('copyModulePopup')" alt="Close" />
         </f:facet>
 
-        <h:form prependId="true" id="copyModuleForm">
-            <input type="hidden" id="moduleIndex" name="moduleIndex" />
-            <h:inputHidden id="moduleNameOld" />
-            <h:inputHidden id="modulePathOld" />
+        <h:form prependId="true" id="copyModuleForm" class="fields">
+            <section>
+                <h3>From</h3>
+                <div>
+                    <table id="from-panel-short" class="properties properties-form wide">
+                        <tr>
+                            <td>Module Name</td>
+                            <td>
+                                <span id="moduleNameLink" class="expandable-link">
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
 
-            <!--Workaround for a bug in jsf with displaying validation messages in incorrect place -->
-            <a4j:outputPanel ajaxRendered="true"/>
+                    <table id="from-panel-full" class="properties properties-form wide" >
+                        <tr>
+                            <td>Module Name</td>
+                            <td>
+                                <h:inputHidden id="moduleNameOld"/>
+                                <!-- Disabled items are not submitted-->
+                                <h:inputText id="moduleNameOldText"  disabled="true" />
+                            </td>
+                        </tr>
+                        <tr class="module-with-wildcard">
+                            <td>File Path Pattern</td>
+                            <td>
+                                <h:inputText id="modulePathPattern" value="#{projectBean.modulePathPattern}" disabled="true"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>File Path</td>
+                            <td>
+                                <h:panelGroup id="modulePathOldPanel">
+                                    <h:inputHidden id="modulePathOld"/>
 
-            <table class="properties properties-form wide">
-                <tr class="single-module-param">
-                    <td>Name</td>
-                    <td><h:inputText id="moduleName" styleClass="editable-item"
-                        validator="#{projectBean.validateModuleNameForCopy}" /></td>
-                </tr>
-                <tr class="single-module-param">
-                    <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="moduleName" styleClass="error" />
-                    </a4j:outputPanel></td>
-                </tr>
-                <tr>
-                    <td class="required">Path</td>
-                    <td><h:inputText id="modulePath" styleClass="editable-item"
-                        validator="#{projectBean.validateModulePathForCopy}" /></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="modulePath" styleClass="error" />
-                    </a4j:outputPanel></td>
-                </tr>
-            </table>
+                                    <select id="modulePathOldText" style="width:100%">
+                                        <ui:repeat value="#{projectBean.modulePathsForPathPattern}" var="modulePath">
+                                            <option value="#{modulePath}"><h:outputText value="#{modulePath}"/></option>
+                                        </ui:repeat>
+                                    </select>
+                                </h:panelGroup>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+
+            <section>
+                <h3>As</h3>
+                <div>
+                    <table class="properties properties-form wide">
+                        <tr>
+                            <td>New Module Name</td>
+                            <td>
+                                <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
+                                <h:panelGroup id="validationIcon" styleClass="imageButton" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
+                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton match">
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton not-match">
+                                        <em>
+                                            Values from file name won't be applied as business<br/>
+                                            dimension properties to rules. The file name doesn't<br/>
+                                            match File Name Pattern for the project.
+                                        </em>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="moduleName" styleClass="error" />
+                            </a4j:outputPanel></td>
+                        </tr>
+
+                        <tr class="new-file-name-setting-short">
+                            <td>New File Name</td>
+                            <td>
+                                <h:inputHidden id="modulePath"/>
+                            <span id="newFileNameLink" class="expandable-link">
+                            </span>
+                            </td>
+                        </tr>
+                        <tr class="new-file-name-setting-short">
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="newFileName" styleClass="error" />
+                            </a4j:outputPanel></td>
+                        </tr>
+
+                        <tr class="new-file-name-setting-full">
+                            <td>New File Path</td>
+                            <td><h:inputText id="newFileFolder" disabled="true" /></td>
+                        </tr>
+                        <tr class="new-file-name-setting-full">
+                            <td>New File Name</td>
+                            <td><h:inputText id="newFileName" validator="#{projectBean.validateModulePathForCopy}" /></td>
+                        </tr>
+                        <tr class="new-file-name-setting-full">
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="newFileName" styleClass="error" />
+                            </a4j:outputPanel></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
 
             <footer>
                 <a4j:commandButton id="copyModuleBtn" value="Save" action="#{projectBean.copyModule}"
@@ -57,48 +168,161 @@
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('copyModulePopup');copyModuleDone();}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('copyModulePopup');" />
             </footer>
+
+            <a4j:jsFunction name="rerenderCopyModuleDialog" render="modulePathPattern modulePathOldPanel" oncomplete="showCopyModuleDialog();">
+                <a4j:param name="moduleName" assignTo="#{projectBean.currentModuleName}" />
+            </a4j:jsFunction>
+
+            <a4j:jsFunction name="checkFileMatch" render="validationIcon">
+                <a4j:param name="newFileName" assignTo="#{projectBean.newFileName}" />
+            </a4j:jsFunction>
+
         </h:form>
     </rich:popupPanel>
 
     <script>
     //<![CDATA[
 
+        var currentModule;
+
         function copyModule(module, callback) {
             if (callback) {
                 copyModuleDone = callback;
             }
+            currentModule = module;
 
-            var btn = $j("#copyModuleForm\\:copyModuleBtn");
-            btn.prop("disabled", true);
+            rerenderCopyModuleDialog(module.name);
+        }
+
+        function showCopyModuleDialog() {
+            var module = currentModule;
+
+            $j("#copyModuleForm\\:copyModuleBtn").prop("disabled", true);
 
             $j("#copyModuleForm\\:moduleIndex").val(module.index);
             $j("#copyModuleForm\\:moduleNameOld").val(module.name);
+            $j("#copyModuleForm\\:moduleNameOldText").val(module.name);
             $j("#copyModuleForm\\:moduleName").val(module.name);
-            $j("#copyModuleForm\\:modulePathOld").val(module.path);
-            $j("#copyModuleForm\\:modulePath").val(module.path);
+            $j("#copyModuleForm\\:modulePathOld").val($j('#modulePathOldText').val());
 
             $j("#copyModuleForm span.error").remove();
 
-            $j("#copyModuleForm .properties :input").on("keyup change", function() {
-                var changed = (module.includedInWildcard || module.name != $j("#copyModuleForm\\:moduleName").val())
-                     && module.path != $j("#copyModuleForm\\:modulePath").val();
+            initExpandableLink('#from-panel-short', '#from-panel-full');
+            initExpandableLink('.new-file-name-setting-short', '.new-file-name-setting-full');
+            initListeners(module);
 
-                btn.prop("disabled", !changed);
-            });
+            if (module.isModuleWithWildcard) {
+                $j("#moduleNameLink").text('Select Module');
 
-            $j("#copyModuleForm").find(".single-module-param").each(function() {
-                if (module.includedInWildcard) {
-                    $j(this).addClass("hidden");
-                } else {
-                    $j(this).removeClass('hidden');
-                }
-            });
+                $j("#modulePathOldText").prop('disabled', false);
+                $j("#newFileNameLink").addClass('disabled-link');
+                $j(".module-with-wildcard").removeClass("hidden");
+                $j("#copyModuleForm\\:moduleName").addClass("with-button");
+                $j("#copyModuleForm\\:validationIcon").show();
 
-            ws.ui.show("copyModulePopup");
+                var newModuleName = getFileName($j("#copyModuleForm\\:modulePathPattern").val()).replace('*', '').replace('?', '');
+                $j("#copyModuleForm\\:moduleName").val(newModuleName).change();
+                $j("#modulePathOldText").change();
+            } else {
+                $j("#moduleNameLink").text(module.name);
+
+                $j("#modulePathOldText").prop('disabled', true);
+                $j("#newFileNameLink").removeClass('disabled-link');
+                $j(".module-with-wildcard").addClass("hidden");
+                $j("#copyModuleForm\\:moduleName").removeClass("with-button");
+                $j("#copyModuleForm\\:validationIcon").hide();
+            }
+
+            ws.ui.show('copyModulePopup');
         }
 
         function copyModuleDone() {
             ws.nav.reload(true);
+        }
+
+        function replaceSlash(path) {
+            return path.replace('\\', '/');
+        }
+
+        function getFolder(path) {
+            path = replaceSlash(path);
+            var index = path.lastIndexOf('/');
+            return index < 0 ? '' : path.substring(0, index);
+        }
+
+        function getFileName(path) {
+            path = replaceSlash(path);
+            var from = path.lastIndexOf('/');
+            path = from < 0 ? path : path.substring(from + 1);
+            var to = path.lastIndexOf('.');
+            return to < 0 ? path : path.substring(0, to);
+        }
+
+        function getExtension(path) {
+            path = replaceSlash(path);
+            var index = path.lastIndexOf('.');
+            return index < 0 ? '' : path.substring(index + 1);
+        }
+
+        function initListeners(module) {
+            $j("#modulePathOldText").off().change(function () {
+                if (module.isModuleWithWildcard) {
+                    var path = $j(this).val();
+                    $j("#copyModuleForm\\:modulePathOld").val(path);
+
+                    var name = getFileName(path);
+                    $j("#copyModuleForm\\:moduleNameOld").val(name);
+                    $j("#copyModuleForm\\:moduleNameOldText").val(name);
+                }
+            });
+
+            var newFileNameChangedManually = false;
+            $j("#copyModuleForm\\:moduleName").off().on("keyup change", function () {
+                var extension = getExtension(module.path);
+                var folder = getFolder(module.path) + '/';
+                var moduleName = $j(this).val();
+
+                $j("#copyModuleForm\\:newFileFolder").val(folder);
+                if (!newFileNameChangedManually) {
+                    $j("#copyModuleForm\\:newFileName").val(moduleName + '.' + extension)
+                }
+                var fileWithExtension = $j("#copyModuleForm\\:newFileName").val();
+                $j("#newFileNameLink").text(folder + fileWithExtension);
+                $j("#copyModuleForm\\:modulePath").val(folder + fileWithExtension);
+
+                if (module.isModuleWithWildcard) {
+                    checkFileMatch(folder + fileWithExtension);
+                }
+            }).change();
+
+            $j("#copyModuleForm\\:newFileName").off().on("keyup change", function () {
+                newFileNameChangedManually = true;
+                var folder = getFolder(module.path) + '/';
+                $j("#copyModuleForm\\:modulePath").val(folder + $j(this).val());
+            });
+
+            var checkForModification = function () {
+                var changed = (module.name != $j("#copyModuleForm\\:moduleName").val())
+                        && module.path != $j("#copyModuleForm\\:modulePath").val()
+                        && (!module.isModuleWithWildcard || $j("#from-panel-full").is(":visible"));
+
+                $j("#copyModuleForm\\:copyModuleBtn").prop("disabled", !changed);
+            };
+
+            $j("#copyModuleForm .properties :input").on("keyup change", checkForModification);
+            $j('.expandable-link').click(checkForModification);
+        }
+
+        function initExpandableLink(divWithLink, divToShow) {
+            $j(divWithLink).show();
+            $j(divToShow).hide();
+
+            $j(divWithLink).find('.expandable-link').off().click(function() {
+                if (!$j(this).hasClass('disabled-link')) {
+                    $j(divToShow).show();
+                    $j(divWithLink).hide();
+                }
+            })
         }
 
     //]]>

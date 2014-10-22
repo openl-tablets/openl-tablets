@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,7 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.*;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -32,10 +35,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @ManagedBean
 @RequestScoped
@@ -53,6 +53,9 @@ public class ProjectBean {
 
     private UIInput propertiesFileNameProcessorInput;
     private String propertiesFileNameProcessor;
+
+    private String currentModuleName;
+    private Boolean fileNameMatched;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -227,10 +230,12 @@ public class ProjectBean {
     }
 
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
-        String path = (String) value;
+        String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
         FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
 
         FacesUtils.validate(!(path.contains("*") || path.contains("?")), "Path can't contain wildcard symbols");
+        File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
+        FacesUtils.validate(!moduleFile.exists(), "File with such name already exists");
     }
 
     public void editName() {
@@ -308,10 +313,10 @@ public class ProjectBean {
 
         OutputStream outputStream = null;
         InputStream inputStream = null;
+        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        File outputFile = new File(projectFolder, path);
         try {
-            File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
-
-            outputStream = new FileOutputStream(new File(projectFolder, path));
+            outputStream = new FileOutputStream(outputFile);
             inputStream = new FileInputStream(new File(projectFolder, oldPath));
             IOUtils.copy(inputStream, outputStream);
 
@@ -321,6 +326,7 @@ public class ProjectBean {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
+            FileUtils.deleteQuietly(outputFile);
             throw new Message("Error while project copying");
         } finally {
             IOUtils.closeQuietly(inputStream);
@@ -529,10 +535,18 @@ public class ProjectBean {
         this.propertiesFileNameProcessor = propertiesFileNameProcessor;
     }
 
+    public String getCurrentModuleName() {
+        return currentModuleName;
+    }
+
+    public void setCurrentModuleName(String currentModuleName) {
+        this.currentModuleName = currentModuleName;
+    }
+
     public String getPropertiesFileNamePatternDescription() {
         ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
-        PropertiesFileNameProcessor processor = null;
+        PropertiesFileNameProcessor processor;
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
             processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
@@ -564,7 +578,7 @@ public class ProjectBean {
     public String getPropertiesPatternWarnings() {
         ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
         projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
-        PropertiesFileNameProcessor processor = null;
+        PropertiesFileNameProcessor processor;
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
             processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
@@ -588,6 +602,10 @@ public class ProjectBean {
     }
 
     public boolean isModuleMatchesSomePathPattern(Module module) {
+        return getModuleWithWildcard(module) != null;
+    }
+
+    private Module getModuleWithWildcard(Module module) {
         List<Module> modules = getOriginalProjectDescriptor().getModules();
 
         for (Module otherModule : modules) {
@@ -595,13 +613,85 @@ public class ProjectBean {
                 List<Module> modulesMatchingPathPattern = getModulesMatchingPathPattern(otherModule);
                 for (Module m : modulesMatchingPathPattern) {
                     if (module.getName().equals(m.getName())) {
-                        return true;
+                        return otherModule;
                     }
                 }
             }
         }
 
-        return false;
+        return null;
+    }
+
+    public String getModulePathPattern() {
+        if (currentModuleName == null) {
+            return null;
+        }
+
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(getOriginalProjectDescriptor());
+        Module module = studio.getModule(newProjectDescriptor, currentModuleName);
+        if (module == null) {
+            module = getModuleWithWildcard(studio.getModule(studio.getCurrentProjectDescriptor(), currentModuleName));
+        }
+        return getModulePath(module);
+    }
+
+    public List<String> getModulePathsForPathPattern() {
+        if (currentModuleName == null) {
+            return Collections.emptyList();
+        }
+
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(getOriginalProjectDescriptor());
+        Module module = studio.getModule(projectDescriptor, currentModuleName);
+        Module otherModule = null;
+        if (module != null) {
+            otherModule = getModuleWithWildcard(module);
+        }
+        if (otherModule != null) {
+            module = studio.getModule(newProjectDescriptor, otherModule.getName());
+        } else {
+            module = studio.getModule(newProjectDescriptor, currentModuleName);
+
+            if (!projectDescriptorManager.isModuleWithWildcard(module)) {
+                // Single module
+                return Arrays.asList(getModulePath(module));
+            }
+        }
+
+        // Multiple modules
+        List<Module> modules = getModulesMatchingPathPattern(module);
+
+        return new ArrayList<String>(CollectionUtils.collect(modules, new Transformer<Module, String>() {
+            @Override public String transform(Module input) {
+                return getModulePath(input);
+            }
+        }));
+    }
+
+    public void setNewFileName(String newFileName) {
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
+        PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
+        Module module = new Module();
+        module.setRulesRootPath(new PathEntry(newFileName));
+        fileNameMatched = null;
+        try {
+            PropertiesFileNameProcessor processor = builder.build(projectDescriptor);
+            String pattern = projectDescriptor.getPropertiesFileNamePattern();
+            if (pattern != null) {
+                processor.process(module, pattern);
+                fileNameMatched = true;
+            }
+        } catch (InvalidFileNameProcessorException ignored) {
+            // Can't check for name correctness
+        } catch (InvalidFileNamePatternException e) {
+            // Invalid pattern, can't check for name correctness
+        } catch (NoMatchFileNameException e) {
+            fileNameMatched = false;
+        }
+    }
+
+    public Boolean getFileNameMatched() {
+        return fileNameMatched;
     }
 
     public List<Module> getModulesMatchingPathPattern(Module module) {
