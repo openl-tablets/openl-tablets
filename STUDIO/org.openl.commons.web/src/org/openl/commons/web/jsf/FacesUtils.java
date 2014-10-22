@@ -288,4 +288,11 @@ public abstract class FacesUtils {
         }
     }
 
+    public static void validateAndAddErrorMessage(boolean condition, String message) {
+        if (!condition) {
+            addErrorMessage(message);
+            throwValidationError(message);
+        }
+    }
+
 }
