@@ -26,13 +26,17 @@
 
       <h:outputLabel for="#{prefix}serviceName" value="Service name"/>
       <h:panelGroup>
-          <h:inputText id="#{prefix}serviceName" maxlength="100" size="40" value="#{rulesDeploy.serviceName}" rendered="#{openedForEditing}"/>
+          <h:inputText id="#{prefix}serviceName" maxlength="100" size="40" value="#{rulesDeploy.serviceName}"
+                       rendered="#{openedForEditing}"
+                       validator="#{repositoryProjectRulesDeployConfig.validateServiceName}"/>
           <h:outputText value="#{rulesDeploy.serviceName}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}serviceClass" value="Service class"/>
       <h:panelGroup>
-          <h:inputText id="#{prefix}serviceClass" maxlength="100" size="40" value="#{rulesDeploy.serviceClass}" rendered="#{openedForEditing}"/>
+          <h:inputText id="#{prefix}serviceClass" maxlength="100" size="40" value="#{rulesDeploy.serviceClass}"
+                       rendered="#{openedForEditing}"
+                       validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
           <h:outputText value="#{rulesDeploy.serviceClass}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
@@ -52,8 +56,9 @@
     <br />
     <br />
     <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" />
-    <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" 
-      onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
+    <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}"
+                       rendered="#{openedForEditing}" render="projectTree nodeView" immediate="true"
+                       onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
   </h:panelGroup>
 
 </ui:composition>
