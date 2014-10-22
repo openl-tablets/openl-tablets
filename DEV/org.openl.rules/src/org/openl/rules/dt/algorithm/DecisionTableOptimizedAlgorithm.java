@@ -253,7 +253,8 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    static IRangeAdaptor<?, ?> getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
+    static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
+            IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {
                 return IntRangeAdaptor.getInstance();
@@ -304,11 +305,12 @@ public class DecisionTableOptimizedAlgorithm {
                     return new ContainsInArrayIndexedEvaluator();
                 }
 
-                IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) getRangeAdaptor(methodType,
+                IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(methodType,
                     paramType);
 
                 if (rangeAdaptor != null) {
-                    return new RangeIndexedEvaluator(rangeAdaptor, 1);
+                    return new RangeIndexedEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
+                        1);
                 }
 
                 if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
@@ -405,57 +407,57 @@ public class DecisionTableOptimizedAlgorithm {
     }
 
     private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
-        
+
         IConditionEvaluator decorate;
-        
+
         public ConditionEvaluatorDecoratorAsNotIndexed(IConditionEvaluator decorate) {
-            if (decorate == null){
+            if (decorate == null) {
                 throw new IllegalArgumentException("decorate arg can't be null!");
             }
             this.decorate = decorate;
         }
-        
+
         @Override
         public void setOptimizedSourceCode(String code) {
             decorate.setOptimizedSourceCode(code);
         }
-        
+
         @Override
         public ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator it) {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public boolean isIndexed() {
             return false;
         }
-        
+
         @Override
         public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
             return decorate.getSelector(condition, target, dtparams, env);
         }
-        
+
         @Override
         public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
             return decorate.getRuleParameterDomain(condition);
         }
-        
+
         @Override
         public String getOptimizedSourceCode() {
             return decorate.getOptimizedSourceCode();
         }
-        
+
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
             return decorate.getFormalSourceCode(condition);
         }
-        
+
         @Override
         public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
             return decorate.getConditionParameterDomain(paramIdx, condition);
         }
     };
-    
+
     /**
      * Clears condition's param values.
      * 
@@ -469,7 +471,7 @@ public class DecisionTableOptimizedAlgorithm {
                     table.getConditionRows()[i].clearParamValues();
                 }
             } else {
-                final IConditionEvaluator evaluator = evaluators[i]; 
+                final IConditionEvaluator evaluator = evaluators[i];
                 evaluators[i] = new ConditionEvaluatorDecoratorAsNotIndexed(evaluator);
                 break;
             }

@@ -75,7 +75,7 @@ public class TypeToAliasCast implements IOpenCast {
         // appropriate message.
         //
         if (!isInDomain) {
-            throw new RuntimeException("Object " + from + " is outside of a valid domain");
+            throw new OutsideOfValidDomainException("Object " + from + " is outside of a valid domain");
         }
 
         // Return object as a converted value.

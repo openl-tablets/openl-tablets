@@ -109,7 +109,7 @@ public class Condition extends FunctionalRow implements ICondition {
                     source);
             }
 
-            conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this, signature);
+            conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this, signature, bindingContextDelegator);
 
             if (conditionEvaluator != null) {
                 evaluator = makeOptimizedConditionMethodEvaluator(signature,
@@ -203,10 +203,14 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
+        String parameter = code;
+        if (parameter.indexOf(".") > 0){
+            parameter = parameter.substring(0, parameter.indexOf("."));
+        }
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
-            if (pname.equals(code)) {
-                return new ParameterMethodCaller(getMethod(), i);
+            if (pname.equals(parameter)) {
+                return new ParameterMethodCaller(getMethod(), i, code);
             }
         }
         return null;

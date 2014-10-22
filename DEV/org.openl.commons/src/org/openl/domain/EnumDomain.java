@@ -80,8 +80,12 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
     }
 
     public boolean contains(T obj) {
-        int idx = enumeration.getIndex(obj);
-        return bits.get(idx);
+        try{
+            int idx = enumeration.getIndex(obj);
+            return bits.get(idx);
+        }catch(RuntimeException e){
+            return false;
+        }
     }
 
     @Override
@@ -159,6 +163,21 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
         BitSet copy = (BitSet) bits.clone();
         copy.andNot(sd.bits);
         return new EnumDomain<T>(enumeration, copy);
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        boolean f = false;
+        for (Object o : enumeration.getAllObjects()){
+            if (f){
+                sb.append(",");
+            }else{
+                f = true;
+            }
+            sb.append(o.toString());
+        }
+        return "[" + sb.toString() + "]";
     }
 
 }

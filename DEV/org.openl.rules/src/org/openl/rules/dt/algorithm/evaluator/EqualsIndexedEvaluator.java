@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
@@ -30,6 +31,15 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class EqualsIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
+
+    private IOpenCast openCast;
+
+    public EqualsIndexedEvaluator() {
+    }
+
+    public EqualsIndexedEvaluator(IOpenCast openCast) {
+        this.openCast = openCast;
+    }
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
@@ -70,6 +80,9 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
             }
 
             Object value = indexedparams[i][0];
+            if (openCast != null) {
+                value = openCast.convert(value);
+            }
             if (comparatorBasedMap) {
                 if (!(value instanceof Comparable<?>)) {
                     throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");

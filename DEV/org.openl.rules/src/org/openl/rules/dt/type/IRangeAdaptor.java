@@ -7,23 +7,23 @@ package org.openl.rules.dt.type;
  * @author snshor
  * 
  */
-public interface IRangeAdaptor<T, C> {
+public interface IRangeAdaptor<T, C extends Comparable<?>> {
 
     /**
      * Gets max value of range.
      * 
      * @param param
-     * @return the max bound of the expression min <= X && X <= max
+     * @return the max bound of the expression min <= X && X <= max. Returns null if needs maximum max posible value.
      */
-    Comparable<C> getMax(T param);
+    C getMax(T param);
 
     /**
      * Gets min value of range.
      * 
      * @param param
-     * @return the min bound of the expression min <= X && X <= max
+     * @return the min bound of the expression min <= X && X <= max. Returns null if needs maximum min posible value.
      */
-    Comparable<C> getMin(T param);
+    C getMin(T param);
     
     /**
      * Adapts value type to the type of specific <code>IRangeAdaptor</code> implementation.
@@ -33,7 +33,7 @@ public interface IRangeAdaptor<T, C> {
      * values.
      * @return value, casted to the type of specific <code>IRangeAdaptor</code> implementation.
      */
-    Comparable<C> adaptValueType(Object value);
+    C adaptValueType(Object value);
 
 	boolean useOriginalSource();
 
