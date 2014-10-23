@@ -1,8 +1,5 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -20,6 +17,9 @@ import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.text.TextInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Node binder for executable nodes with check for duplicates.
