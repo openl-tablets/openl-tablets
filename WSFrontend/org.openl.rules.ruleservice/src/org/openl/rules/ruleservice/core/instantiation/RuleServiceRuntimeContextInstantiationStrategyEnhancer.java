@@ -1,40 +1,37 @@
 package org.openl.rules.ruleservice.core.instantiation;
 
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.project.instantiation.ValidationServiceClassException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.ValidationServiceClassException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Marat Kamalov
  */
-public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
-        AbstractServiceClassEnhancerInstantiationStrategy {
+public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends AbstractServiceClassEnhancerInstantiationStrategy {
     private final Logger log = LoggerFactory.getLogger(RuleServiceRuntimeContextInstantiationStrategyEnhancer.class);
 
     /**
      * Constructs new instance of instantiation strategy.
      *
      * @param instantiationStrategy instantiation strategy which used to
-     *                              instantiate original service
+     *            instantiate original service
      */
-    public RuleServiceRuntimeContextInstantiationStrategyEnhancer(
-            RuntimeContextInstantiationStrategyEnhancer instantiationStrategy) {
+    public RuleServiceRuntimeContextInstantiationStrategyEnhancer(RulesInstantiationStrategy instantiationStrategy) {
         super(instantiationStrategy);
     }
 
     @Override
     protected Class<?> decorateServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
         try {
-            return RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper
-                    .decorateClass(serviceClass, classLoader);
+            return RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(serviceClass, classLoader);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to replace runtime context in parameters of each method.", e);
         }
@@ -43,8 +40,8 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
     @Override
     protected Class<?> undecorateServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
         try {
-            return RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper
-                    .undecorateClass(serviceClass, classLoader);
+            return RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass,
+                    classLoader);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to replace runtime context in parameters of each method.", e);
         }
@@ -66,8 +63,8 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
      * @throws Exception
      */
     protected InvocationHandler makeInvocationHandler(Object instanceObject) throws Exception {
-        Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(), getOriginalInstantiationStrategy()
-                .getInstanceClass());
+        Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
+            getOriginalInstantiationStrategy().getInstanceClass());
         return new RuleServiceRuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);
     }
 
@@ -76,7 +73,7 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends
      * original service class methods.
      *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass   original service class
+     * @param serviceClass original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {

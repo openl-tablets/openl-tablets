@@ -20,6 +20,8 @@ input[type='text'], input[type='password'], textarea, select {
     border-radius: 1px;
     background: #ffffff;
     color: #333;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
@@ -571,8 +573,8 @@ ul.enum li {
 
 .title {
     position: relative;
-    z-index: 1;
     zoom: 1;
+    text-align: left;
 }
 
 .title-datatype > a,
@@ -582,9 +584,13 @@ ul.enum li {
     border-bottom: 1px dotted;
 }
 
-.title-rule > a {
+.title-field > a {
     color: inherit;
-    font-weight: bold;
+    text-decoration: none;
+}
+
+.title-field > a:hover {
+    border-bottom: 1px dotted;
 }
 
 .title em {
@@ -606,9 +612,14 @@ ul.enum li {
     left: 0;
 }
 
-tr:first-child .title:hover em {
+.title:hover.title-bottom em {
     bottom: inherit;
-    top: 22px;
+    top: 32px;
+}
+
+.title:hover.title-right em {
+    left: inherit;
+    right: 0;
 }
 
 .menuPanel a {

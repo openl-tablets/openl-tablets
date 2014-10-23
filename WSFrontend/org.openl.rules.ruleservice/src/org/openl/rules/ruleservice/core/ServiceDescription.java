@@ -1,10 +1,13 @@
 package org.openl.rules.ruleservice.core;
 
+import org.openl.rules.project.model.Module;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class designed for storing service info.
@@ -23,8 +26,9 @@ public final class ServiceDescription {
     private boolean useRuleServiceRuntimeContext;
     private boolean provideVariations;
     private Map<String, Object> configuration;
-    private Collection<ModuleDescription> modules;
+    private Collection<Module> modules;
     private DeploymentDescription deployment;
+    private String[] publishers;
 
     /**
      * Main constructor.
@@ -36,9 +40,17 @@ public final class ServiceDescription {
      * @param provideVariations
      * @param modules
      */
-    ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName,
-            boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext, boolean provideVariations,
-            Collection<ModuleDescription> modules, DeploymentDescription deployment, Map<String, Object> configuration) {
+    ServiceDescription(String name,
+            String url,
+            String serviceClassName,
+            String interceptingTemplateClassName,
+            boolean provideRuntimeContext,
+            boolean useRuleServiceRuntimeContext,
+            boolean provideVariations,
+            Collection<Module> modules,
+            DeploymentDescription deployment,
+            Map<String, Object> configuration,
+            String[] publishers) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
@@ -56,13 +68,23 @@ public final class ServiceDescription {
         } else {
             this.modules = Collections.emptySet();
         }
+
+        this.publishers = publishers;
         this.deployment = deployment;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName,
-                builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext, builder.provideVariations,
-                builder.modules, builder.deployment, builder.configuration);
+        this(builder.name,
+            builder.url,
+            builder.serviceClassName,
+            builder.interceptingTemplateClassName,
+            builder.provideRuntimeContext,
+            builder.useRuleServiceRuntimeContext,
+            builder.provideVariations,
+            builder.modules,
+            builder.deployment,
+            builder.configuration,
+            builder.publishers.toArray(new String[]{}));
     }
 
     /**
@@ -135,7 +157,7 @@ public final class ServiceDescription {
      * 
      * @return a set of modules
      */
-    public Collection<ModuleDescription> getModules() {
+    public Collection<Module> getModules() {
         return modules;
     }
 
@@ -150,6 +172,10 @@ public final class ServiceDescription {
 
     public DeploymentDescription getDeployment() {
         return deployment;
+    }
+    
+    public String[] getPublishers() {
+        return publishers;
     }
 
     /** {@inheritDoc} */
@@ -197,8 +223,28 @@ public final class ServiceDescription {
         private boolean provideVariations = false;
         private boolean useRuleServiceRuntimeContext = false;
         private Map<String, Object> configuration;
-        private Collection<ModuleDescription> modules;
+        private Collection<Module> modules;
         private DeploymentDescription deployment;
+        private Set<String> publishers = new HashSet<String>();
+
+        public void setPublishers(String[] publishers) {
+            this.publishers = new HashSet<String>();
+            if (publishers != null){
+                for (String publisher : publishers) {
+                    this.publishers.add(publisher);
+                }
+            }
+        }
+
+        public void addPublisher(String key) {
+            if (key == null) {
+                throw new IllegalArgumentException("key argument can't be null!");
+            }
+            if (this.publishers == null) {
+                this.publishers = new HashSet<String>();
+            }
+            this.publishers.add(key.toUpperCase());
+        }
 
         /**
          * Sets intercepting template class name
@@ -251,11 +297,11 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder setModules(Collection<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                this.modules = new HashSet<ModuleDescription>(0);
+                this.modules = new HashSet<Module>(0);
             } else {
-                this.modules = new HashSet<ModuleDescription>(modules);
+                this.modules = new HashSet<Module>(modules);
             }
             return this;
         }
@@ -266,9 +312,9 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder addModules(Collection<Module> modules) {
             if (this.modules == null) {
-                this.modules = new HashSet<ModuleDescription>(modules);
+                this.modules = new HashSet<Module>(modules);
             } else {
                 this.modules.addAll(modules);
             }
@@ -281,9 +327,9 @@ public final class ServiceDescription {
          * @param module
          * @return
          */
-        public ServiceDescriptionBuilder addModule(ModuleDescription module) {
+        public ServiceDescriptionBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new HashSet<ModuleDescription>(0);
+                this.modules = new HashSet<Module>(0);
             }
             if (module != null) {
                 this.modules.add(module);
@@ -328,7 +374,7 @@ public final class ServiceDescription {
             this.deployment = deployment;
             return this;
         }
-        
+
         public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
             if (this.configuration == null) {
                 this.configuration = new HashMap<String, Object>();

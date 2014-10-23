@@ -1,26 +1,54 @@
 package org.openl.rules.ruleservice.conf;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.IRulesDeploySerializer;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-
-import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import java.util.Set;
 
 /**
  * Selects the latest deployments and deploys each of their projects as single
  * service.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
-public class LastVersionProjectsServiceConfigurer extends AbstractRulesDeployServiceConfigurer {
-    @Override
-    protected Collection<Deployment> getDeploymentsFromRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
+public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
+
+    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
+
+    private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
+
+    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private boolean provideRuntimeContext = false;
+    private boolean supportVariations = false;
+    private boolean useRuleServiceRuntimeContext = false;
+
+    protected Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
-        for (Deployment deployment : ruleServiceLoader.getDeployments()) {
+        for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
             if (latestDeployments.containsKey(deploymentName)) {
-                if (latestDeployments.get(deploymentName).getCommonVersion().compareTo(deployment.getCommonVersion()) < 0) {
+                if (latestDeployments.get(deploymentName)
+                        .getCommonVersion()
+                        .compareTo(deployment.getCommonVersion()) < 0) {
                     latestDeployments.put(deploymentName, deployment);
                 }
             } else {
@@ -28,5 +56,159 @@ public class LastVersionProjectsServiceConfigurer extends AbstractRulesDeploySer
             }
         }
         return latestDeployments.values();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader) {
+        log.debug("Calculate services to be deployed...");
+
+        Collection<Deployment> allDeployments = ruleServiceLoader.getDeployments();
+        Collection<Deployment> deployments = filterDeployments(allDeployments);
+
+        Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
+        Set<String> serviceURLs = new HashSet<String>();
+        for (Deployment deployment : deployments) {
+            DeploymentDescription deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
+                    deployment.getCommonVersion());
+            for (AProject project : deployment.getProjects()) {
+                try {
+                    Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(deployment.getDeploymentName(),
+                            deployment.getCommonVersion(),
+                            project.getName());
+                    ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                            .setProvideRuntimeContext(provideRuntimeContext)
+                            .setProvideVariations(supportVariations)
+                            .setDeployment(deploymentDescription)
+                            .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
+
+                    serviceDescriptionBuilder.setModules(modulesOfProject);
+
+                    if (!modulesOfProject.isEmpty()) {
+                        InputStream content = null;
+                        RulesDeploy rulesDeploy = null;
+                        try {
+                            AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
+                            if (artifact instanceof AProjectResource) {
+                                AProjectResource resource = (AProjectResource) artifact;
+                                content = resource.getContent();
+                                rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                                if (rulesDeploy.getServiceClass() != null && !rulesDeploy.getServiceClass().isEmpty()) {
+                                    serviceDescriptionBuilder.setServiceClassName(rulesDeploy.getServiceClass());
+                                }
+                                if (rulesDeploy.isProvideRuntimeContext() != null) {
+                                    serviceDescriptionBuilder.setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
+                                }
+                                if (rulesDeploy.isProvideVariations() != null) {
+                                    serviceDescriptionBuilder.setProvideVariations(rulesDeploy.isProvideVariations());
+                                }
+                                if (rulesDeploy.isUseRuleServiceRuntimeContext() != null) {
+                                    serviceDescriptionBuilder.setUseRuleServiceRuntimeContext(rulesDeploy.isUseRuleServiceRuntimeContext());
+                                }
+                                if (rulesDeploy.getPublishers() != null) {
+                                    for (RulesDeploy.PublisherType key : rulesDeploy.getPublishers()) {
+                                        serviceDescriptionBuilder.addPublisher(key.toString());
+                                    }
+                                }
+                                if (rulesDeploy.getConfiguration() != null) {
+                                    serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
+                                }
+                                if (rulesDeploy.getInterceptingTemplateClassName() != null) {
+                                    serviceDescriptionBuilder.setInterceptingTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
+                                }
+                            }
+                        } catch (ProjectException e) {
+                        } finally {
+                            if (content != null) {
+                                try {
+                                    content.close();
+                                } catch (IOException e) {
+                                    log.error(e.getMessage(), e);
+                                }
+                            }
+                        }
+                        serviceDescriptionBuilder.setName(buildServiceName(deployment, project, rulesDeploy));
+                        serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, project, rulesDeploy));
+                        ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
+                        if (!serviceDescriptions.contains(serviceDescription) && !serviceURLs.contains(
+                                serviceDescription.getUrl())) {
+                            serviceURLs.add(serviceDescription.getUrl());
+                            serviceDescriptions.add(serviceDescription);
+                        } else {
+                            if (serviceDescriptions.contains(serviceDescription)) {
+                                log.warn(
+                                        "Service \"{}\" has already exists in a deployment list. The second service will be skipped. Please, use unique name for services.",
+                                        serviceDescription.getName());
+                            }
+                            if (serviceURLs.contains(serviceDescription.getUrl())) {
+                                log.warn(
+                                        "URL \"{}\" has already registered. The second service will be skipped. Please, use unique URLs for services.",
+                                        serviceDescription.getUrl());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error(
+                            "Project loading from repository was failed! Project with name \"{}\" in deployemtn \"{}\" was skipped!",
+                            project.getName(),
+                            deployment.getDeploymentName(),
+                            e);
+                }
+            }
+        }
+        return serviceDescriptions;
+    }
+
+    private String buildServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+        if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getServiceName())) {
+            return rulesDeploy.getServiceName();
+        } else {
+            return deployment.getDeploymentName() + '_' + project.getName();
+        }
+    }
+
+    private String buildServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+        if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getUrl())) {
+            return rulesDeploy.getUrl();
+        } else {
+            return deployment.getDeploymentName() + '/' + project.getName();
+        }
+    }
+
+    public final IRulesDeploySerializer getRulesDeploySerializer() {
+        return rulesDeploySerializer;
+    }
+
+    public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
+        if (rulesDeploySerializer == null) {
+            throw new IllegalArgumentException("rulesDeploySerializer arg can't be null!");
+        }
+        this.rulesDeploySerializer = rulesDeploySerializer;
+    }
+
+    public boolean isProvideRuntimeContext() {
+        return provideRuntimeContext;
+    }
+
+    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
+        this.provideRuntimeContext = provideRuntimeContext;
+    }
+
+    public boolean isSupportVariations() {
+        return supportVariations;
+    }
+
+    public void setSupportVariations(boolean supportVariations) {
+        this.supportVariations = supportVariations;
+    }
+
+    public boolean isUseRuleServiceRuntimeContext() {
+        return useRuleServiceRuntimeContext;
+    }
+
+    public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
+        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
     }
 }

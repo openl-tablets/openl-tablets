@@ -1,12 +1,13 @@
 package org.openl.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.MethodUsagesSearcher;
+import org.openl.binding.impl.*;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.CellMetaInfo.Type;
@@ -109,39 +110,57 @@ public class OpenLCellExpressionsCompiler {
                 src = ((SubTextSourceCodeModule) src).getBaseModule();
             }
             if (src instanceof GridCellSourceCodeModule) {
-                List<MethodUsage> methodUsages = MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
-                        source.getCode(), startIndex);
-                setCellMetaInfo(method, (GridCellSourceCodeModule) src, methodUsages);
+                List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
+                        source.getCode(), startIndex));
+                FieldUsageSearcher.findAllFields(nodeUsages,
+                        method.getMethodBodyBoundNode(),
+                        source.getCode(),
+                        startIndex);
+                Collections.sort(nodeUsages, new NodeUsageComparator());
+                setCellMetaInfo((GridCellSourceCodeModule) src, nodeUsages);
             }
         }
     }
 
     private static void setMetaInfoForCompositeSource(CompositeMethod method, CompositeSourceCodeModule source,
             int startIndex) {
-        List<MethodUsage> methodUsages = MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
-                source.getCode(), startIndex);
+        List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
+                source.getCode(), startIndex));
+        FieldUsageSearcher.findAllFields(nodeUsages,
+                method.getMethodBodyBoundNode(),
+                source.getCode(),
+                startIndex);
+
         IOpenSourceCodeModule[] modules = source.getModules();
         int moduleStart = 0;
-        for (int i = 0; i < modules.length; i++) {
-            int moduleEnd = moduleStart + modules[i].getCode().length();
-            if (modules[i] instanceof GridCellSourceCodeModule) {
-                GridCellSourceCodeModule cellSource = (GridCellSourceCodeModule) modules[i];
+        for (IOpenSourceCodeModule module : modules) {
+            int moduleEnd = moduleStart + module.getCode().length();
+            if (module instanceof GridCellSourceCodeModule) {
+                GridCellSourceCodeModule cellSource = (GridCellSourceCodeModule) module;
                 // find all methods used in current cell
-                List<MethodUsage> currentCellMethodUsages = new ArrayList<MethodUsage>();
-                for (MethodUsage usage : methodUsages) {
+                List<NodeUsage> currentCellMethodUsages = new ArrayList<NodeUsage>();
+                for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
-                        currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart, usage.getEnd()
-                                - moduleStart, usage.getMethod()));
+                        if (usage instanceof MethodUsage) {
+                            currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart, usage.getEnd()
+                                    - moduleStart, ((MethodUsage) usage).getMethod()));
+                        } else {
+                            currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
+                                    usage.getEnd() - moduleStart,
+                                    usage.getDescription(),
+                                    usage.getUri(),
+                                    usage.getNodeType()));
+                        }
                     }
                 }
-                setCellMetaInfo(method, cellSource, currentCellMethodUsages);
+                Collections.sort(currentCellMethodUsages, new NodeUsageComparator());
+                setCellMetaInfo(cellSource, currentCellMethodUsages);
             }
             moduleStart = moduleEnd + 1;
         }
     }
 
-    private static void setCellMetaInfo(CompositeMethod method, GridCellSourceCodeModule src,
-            List<MethodUsage> methodUsages) {
+    private static void setCellMetaInfo(GridCellSourceCodeModule src, List<NodeUsage> methodUsages) {
         ICell cell = src.getCell();
         if (!CollectionUtils.isEmpty(methodUsages) && cell != null) {
             cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));

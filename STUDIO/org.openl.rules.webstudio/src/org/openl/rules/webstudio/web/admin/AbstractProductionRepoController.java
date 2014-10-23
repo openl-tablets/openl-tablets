@@ -1,21 +1,19 @@
-/**
- * 
- */
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author Pavel Tarasevich
  * 
  */
-
 public abstract class AbstractProductionRepoController {
     private static final String LOCAL = "local";
     private String name;
@@ -27,7 +25,6 @@ public abstract class AbstractProductionRepoController {
     private boolean checked = false;
     private String errorMessage = "";
 
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
@@ -39,9 +36,24 @@ public abstract class AbstractProductionRepoController {
 
     private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
     private RepositoryConfiguration defaultRepoConfig;
+    private List<RepositoryConfiguration> productionRepositoryConfigurations;
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
+        systemSettingsBean = null;
+    }
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
-        systemSettingsBean.getProductionRepositoryConfigurations().add(repoConf);
+        getProductionRepositoryConfigurations().add(repoConf);
+    }
+
+    protected List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
+        return productionRepositoryConfigurations;
+    }
+
+    public void setProductionRepositoryConfigurations(List<RepositoryConfiguration> productionRepositoryConfigurations) {
+        this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
     public String getConfigurationName(String name) {
@@ -55,7 +67,8 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration(String connectionType) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(this.getName()), getProductionConfigManager(getName()));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(getName()), getProductionConfigManager(getName()),
+                RepositoryType.PRODUCTION);
 
         repoConfig.setName(getName());
         repoConfig.setType(getType());
@@ -74,7 +87,8 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration(String connectionType) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()),
+                RepositoryType.PRODUCTION);
 
         repoConfig.setName(getName());
         repoConfig.setType(getType());
@@ -82,7 +96,7 @@ public abstract class AbstractProductionRepoController {
 
 
         if (this.isSecure()) {
-            /*Default Admin credencials for creating new admin user in repo*/
+            /*Default Admin credentials for creating new admin user in repo*/
             repoConfig.setLogin("admin");
             repoConfig.setPassword("admin");
 
@@ -96,7 +110,8 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration getDefaultRepositoryConfiguration() {
         if (defaultRepoConfig == null) {
-            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"));
+            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"),
+                    RepositoryType.PRODUCTION);
         }
         
         return defaultRepoConfig;
@@ -115,7 +130,7 @@ public abstract class AbstractProductionRepoController {
 
     public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
         try {
-            systemSettingsBean.validate(prodConfig);
+            RepositoryValidators.validate(prodConfig, getProductionRepositoryConfigurations());
 
             if (this.secure) {
                 if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
@@ -185,28 +200,12 @@ public abstract class AbstractProductionRepoController {
         this.password = password;
     }
 
-    public ConfigurationManager getConfigManager() {
-        return configManager;
-    }
-
-    public void setConfigManager(ConfigurationManager configManager) {
-        this.configManager = configManager;
-    }
-
-    public ConfigurationManagerFactory getProductionConfigManagerFactory() {
-        return productionConfigManagerFactory;
-    }
-
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
     protected ConfigurationManager getProductionConfigManager(String name) {
         return productionConfigManagerFactory.getConfigurationManager(getConfigurationName(name));
-    }
-
-    public SystemSettingsBean getSystemSettingsBean() {
-        return systemSettingsBean;
     }
 
     public void setSystemSettingsBean(SystemSettingsBean systemSettingsBean) {

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
@@ -25,7 +24,6 @@ import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
@@ -60,24 +58,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         DeploymentDescription deploymentDescription = new DeploymentDescription("someDeploymentName", version);
 
-        Collection<ModuleDescription> moduleDescriptions = new ArrayList<ModuleDescription>();
-        ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setProjectName("Overload")
-            .setModuleName("service")
-            .build();
-        moduleDescriptions.add(moduleDescription);
-
-        serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class.getName())
-            .setName("service")
-            .setUrl("/")
-            .setProvideRuntimeContext(true)
-            .setProvideVariations(false)
-            .setDeployment(deploymentDescription)
-            .setModules(moduleDescriptions)
-            .build();
-        ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-
-        ruleServiceLoader = mock(RuleServiceLoader.class);
-
         Module module = new Module();
         module.setName("Overload");
         module.setType(ModuleType.API);
@@ -87,7 +67,22 @@ public class ServiceInterfaceMethodInterceptingTest {
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
         modules.add(module);
-        when(ruleServiceLoader.getModulesByServiceDescription(serviceDescription)).thenReturn(modules);
+
+        serviceDescription = new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class.getName())
+            .setName("service")
+            .setUrl("/")
+            .setProvideRuntimeContext(true)
+            .setProvideVariations(false)
+            .setDeployment(deploymentDescription)
+            .setModules(modules)
+            .build();
+        ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+
+        ruleServiceLoader = mock(RuleServiceLoader.class);
+
+        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
+            deploymentDescription.getVersion(),
+            projectDescriptor.getName())).thenReturn(modules);
         List<Deployment> deployments = new ArrayList<Deployment>();
         Deployment deployment = mock(Deployment.class);
         List<AProject> projects = new ArrayList<AProject>();
@@ -99,7 +94,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
         deployments.add(deployment);
         when(ruleServiceLoader.getDeployments()).thenReturn(deployments);
-        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service")).thenReturn(modules);
+        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
+            deploymentDescription.getVersion(),
+            "service")).thenReturn(modules);
     }
 
     @Test

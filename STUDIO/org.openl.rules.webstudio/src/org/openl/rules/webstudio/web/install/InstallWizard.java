@@ -6,7 +6,12 @@ import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.db.utils.DBUtils;
+import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.web.admin.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -15,6 +20,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -76,6 +82,15 @@ public class InstallWizard {
 
     private DBUtils dbUtils;
 
+    private RepositoryConfiguration designRepositoryConfiguration;
+    private ProductionRepositoryEditor productionRepositoryEditor;
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private RulesRepositoryFactory rulesRepositoryFactory;
+
+    // Reuse existing controllers
+    private ConnectionProductionRepoController connectionProductionRepoController;
+    private NewProductionRepoController newProductionRepoController;
+
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
@@ -100,6 +115,19 @@ public class InstallWizard {
     }
 
     public String next() {
+        // Validations
+        if (step == 2) {
+            try {
+                RepositoryValidators.validate(designRepositoryConfiguration);
+
+                productionRepositoryEditor.validate();
+            } catch (RepositoryValidationException e) {
+                FacesUtils.addErrorMessage(e.getMessage());
+                return null;
+            }
+        }
+
+        // Go to next step
         if (++step == 2) {
 
             workingDir = ConfigurationManager.normalizePath(workingDir);
@@ -109,6 +137,9 @@ public class InstallWizard {
                 systemConfig = new ConfigurationManager(true,
                         workingDir + "/system-settings/system.properties",
                         System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
+
+                initProductionRepositoryEditor();
 
                 dbConfig = new ConfigurationManager(true,
                         workingDir + "/system-settings/db.properties",
@@ -125,7 +156,6 @@ public class InstallWizard {
     }
 
     public String finish() {
-
         try {
             if (MULTI_USER_MODE.equals(userMode) && appMode.equals("production")) {
                 dbConfig.setProperty("db.url", dbPrefix + dbUrl);
@@ -145,14 +175,19 @@ public class InstallWizard {
                 dbConfig.restoreDefaults();
             }
 
+            productionRepositoryEditor.save();
+
             systemConfig.setProperty("user.mode", userMode);
             systemConfig.save();
 
+            System.clearProperty("webstudio.home"); // Otherwise this property will not be saved to file.
             appConfig.setPath("webstudio.home", workingDir);
             appConfig.setProperty("webstudio.configured", true);
             appConfig.save();
             System.setProperty("webstudio.home", workingDir);
             System.setProperty("webstudio.configured", "true");
+
+            destroyRepositoryObjects();
 
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
 
@@ -447,6 +482,9 @@ public class InstallWizard {
         String normWorkingDir = ConfigurationManager.normalizePath(workingDir);
         newWorkingDir = !normWorkingDir.equals(this.workingDir);
         this.workingDir = normWorkingDir;
+
+        // Other configurations depend on this property
+        System.setProperty("webstudio.home", this.workingDir);
     }
 
     public String getUserMode() {
@@ -554,6 +592,36 @@ public class InstallWizard {
         this.dbSchema = dbSchema;
     }
 
+    public RepositoryConfiguration getDesignRepositoryConfiguration() {
+        return designRepositoryConfiguration;
+    }
+
+    public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
+        return productionRepositoryEditor.getProductionRepositoryConfigurations();
+    }
+
+    public void deleteProductionRepository(String configName) {
+        try {
+            productionRepositoryEditor.deleteProductionRepository(configName);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            FacesUtils.addErrorMessage(e.getMessage());
+        }
+    }
+
+    public ConnectionProductionRepoController getConnectionProductionRepoController() {
+        return connectionProductionRepoController;
+    }
+
+    public NewProductionRepoController getNewProductionRepoController() {
+        return newProductionRepoController;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        destroyRepositoryObjects();
+    }
+
     private void migrateDatabase(final Map<String, Object> dbProperties) {
         XmlWebApplicationContext ctx = null;
         try {
@@ -579,4 +647,53 @@ public class InstallWizard {
         }
     }
 
+    private void initProductionRepositoryEditor() {
+        destroyRepositoryObjects();
+
+        final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
+                true,
+                System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
+                workingDir + "/system-settings/"
+        );
+        rulesRepositoryFactory = new RulesRepositoryFactory();
+        rulesRepositoryFactory.setConfig(systemConfig.getProperties());
+        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
+        productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
+        productionRepositoryFactoryProxy.setRulesRepositoryFactory(rulesRepositoryFactory);
+        productionRepositoryEditor = new ProductionRepositoryEditor(
+                systemConfig,
+                productionConfigManagerFactory,
+                productionRepositoryFactoryProxy
+        );
+
+        connectionProductionRepoController = new ConnectionProductionRepoController();
+        connectionProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
+        connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
+        connectionProductionRepoController.setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+
+        newProductionRepoController = new NewProductionRepoController();
+        newProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
+        newProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
+        newProductionRepoController.setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+    }
+
+    private void destroyRepositoryObjects() {
+        if (productionRepositoryFactoryProxy != null) {
+            try {
+                productionRepositoryFactoryProxy.destroy();
+            } catch (RRepositoryException e) {
+                log.error(e.getMessage(), e);
+            }
+            productionRepositoryFactoryProxy = null;
+        }
+
+        if (rulesRepositoryFactory != null) {
+            try {
+                rulesRepositoryFactory.destroy();
+            } catch (RRepositoryException e) {
+                log.error(e.getMessage(), e);
+            }
+            rulesRepositoryFactory = null;
+        }
+    }
 }

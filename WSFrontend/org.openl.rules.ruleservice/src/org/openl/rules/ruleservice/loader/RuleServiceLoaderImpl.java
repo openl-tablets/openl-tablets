@@ -8,19 +8,14 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the
@@ -73,11 +68,14 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         this.projectResolver = projectResolver;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public DataSource getDataSource() {
-        return dataSource;
+    @Override
+    public void addListener(DataSourceListener dataSourceListener) {
+        dataSource.addListener(dataSourceListener);
+    }
+
+    @Override
+    public void removeListener(DataSourceListener dataSourceListener) {
+        dataSource.removeListener(dataSourceListener);
     }
 
     /**
@@ -132,13 +130,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Deployment> getDeployments() {
-        return getDataSource().getDeployments();
+        return dataSource.getDeployments();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName) {
@@ -158,90 +158,30 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 projectName);
 
         Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
-
         AProject project = localDeployment.getProject(projectName);
+        if (project == null) {
+            throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
+        }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
+        List<Module> result = Collections.emptyList();
         if (resolvingStrategy != null) {
-            ProjectDescriptor projectDescriptor = null;
             try {
-                projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                List<Module> modules = projectDescriptor.getModules();
+                result =  Collections.unmodifiableList(modules);
             } catch (ProjectResolvingException e) {
                 log.error("Project resolving failed!", e);
-                return Collections.emptyList();
-            }
-            List<Module> modules = projectDescriptor.getModules();
-            return Collections.unmodifiableList(modules);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
-        if (serviceDescription == null) {
-            throw new IllegalArgumentException("serviceDescription argument can't be null");
-        }
-
-        log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
-
-        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
-
-        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-        for (ModuleDescription moduleDescription : modulesToLoad) {
-            String projectName = moduleDescription.getProjectName();
-            if (projectModules.containsKey(projectName)) {
-                Collection<ModuleDescription> modules = projectModules.get(projectName);
-                modules.add(moduleDescription);
-            } else {
-                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
-                modules.add(moduleDescription);
-                projectModules.put(projectName, modules);
             }
         }
-
-        String deploymentName = serviceDescription.getDeployment().getName();
-        CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
-        Deployment localDeployment = getDeploymentFromStorage(deploymentName, commonVersion);
-
-        Collection<Module> ret = new ArrayList<Module>();
-        for (String projectName : projectModules.keySet()) {
-            AProject project = localDeployment.getProject(projectName);
-            if (project == null) {
-                throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
-            }
-            String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath()
-                    .getStringValue();
-            File projectFolder = new File(artefactPath);
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            if (resolvingStrategy != null) {
-                ProjectDescriptor projectDescriptor = null;
-                try {
-                    projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-                } catch (ProjectResolvingException e) {
-                    log.error("Project resolving failed!", e);
-                    return Collections.emptyList();
-                }
-                Collection<Module> modules = projectDescriptor.getModules();
-                for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
-                    for (Module module : modules) {
-                        if (moduleDescription.getModuleName().equals(module.getName())) {
-                            ret.add(module);
-                        }
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableCollection(ret);
+        return result;
     }
 
     private Deployment getDeploymentFromStorage(String deploymentName, CommonVersion commonVersion) {
         Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
         if (localDeployment == null) {
-            Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
+            Deployment deployment = dataSource.getDeployment(deploymentName, commonVersion);
             localDeployment = storage.loadDeployment(deployment);
         }
         return localDeployment;

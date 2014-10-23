@@ -2,13 +2,10 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.math.BigInteger;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 
@@ -16,78 +13,75 @@ public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
     public static final String SECURE_CONFIG_FILE = "/secure-jackrabbit-repository.xml";
 
-    private ConfigurationManager configManager;
+    private final ConfigurationManager configManager;
 
-    private static final String PRODUCTION_REPOSITORY_FACTORY = "production-repository.factory";
-    private static final String PRODUCTION_REPOSITORY_NAME = "production-repository.name";
+    private final String REPOSITORY_FACTORY;
+    private final String REPOSITORY_NAME;
 
-    private static final String PRODUCTION_REPOSITORY_LOGIN = "production-repository.login";
-    private static final String PRODUCTION_REPOSITORY_PASS = "production-repository.password";
-    
-    private static final String PRODUCTION_REPOSITORY_CONFIG_FILE = "production-repository.config";
+    private final String REPOSITORY_LOGIN;
+    private final String REPOSITORY_PASS;
 
-    private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "production-repository.connection.type";
+    private final String REPOSITORY_CONFIG_FILE;
+
+    private final String REPOSITORY_CONNECTION_TYPE;
+
+    private final RepositoryType repositoryType;
 
     private boolean secure = false;
-    /** @deprecated */
-    private static final BidiMap<String, String> PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap<String, String>();
-    static {
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
-                "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("rmi",
-                "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
-                "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
-    }
-    /** @deprecated */
-    private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
-    static {
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("local", "production-repository.local.home");
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("rmi", "production-repository.remote.rmi.url");
-        PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
-    }
 
     private String configName;
 
     private String oldName = null;
 
-    public RepositoryConfiguration(String configName, ConfigurationManager configManager) {
+    public RepositoryConfiguration(String configName, ConfigurationManager configManager, RepositoryType repositoryType) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
+        this.repositoryType = repositoryType;
+
+        REPOSITORY_FACTORY = repositoryType.toString() + "-repository.factory";
+        REPOSITORY_NAME = repositoryType.toString() + "-repository.name";
+
+        REPOSITORY_LOGIN = repositoryType.toString() + "-repository.login";
+        REPOSITORY_PASS = repositoryType == RepositoryType.PRODUCTION ?
+                          "production-repository.password" :
+                          "design-repository.pass"; // For backward-compatibility
+
+        REPOSITORY_CONFIG_FILE = repositoryType.toString() + "-repository.config";
+        REPOSITORY_CONNECTION_TYPE = repositoryType.toString() + "-repository.connection.type";
     }
 
     public String getName() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_NAME);
+        return configManager.getStringProperty(REPOSITORY_NAME);
     }
 
     public void setName(String name) {
         oldName = getName();
-        configManager.setProperty(PRODUCTION_REPOSITORY_NAME, StringUtils.trimToEmpty(name));
+        configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
     }
 
     public String getType() {
-        String factory = configManager.getStringProperty(PRODUCTION_REPOSITORY_FACTORY);
-        return PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
+        return getJcrType().getAccessType();
     }
 
-    public void setType(String type) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_FACTORY, PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.get(type));
+    public void setType(String accessType) {
+        configManager.setProperty(REPOSITORY_FACTORY,
+                JcrType.findByAccessType(repositoryType, accessType).getFactoryClassName());
     }
 
     public String getPath() {
-        String type = getType();
-        String propName = PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+        JcrType jcrType = getJcrType();
+        String propName = jcrType.getRepositoryPathPropertyName();
 
-        return "local".equals(type) ?
-                configManager.getPath(propName) : configManager.getStringProperty(propName);
+        return "local".equals(jcrType.getAccessType()) ?
+               configManager.getPath(propName) : configManager.getStringProperty(propName);
     }
 
     public void setPath(String path) {
-        String type = getType();
-        String propName = PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+        JcrType jcrType = getJcrType();
+        String propName = jcrType.getRepositoryPathPropertyName();
         String normalizedPath = StringUtils.trimToEmpty(path);
 
-        if ("local".equals(type)) {
+        if ("local".equals(jcrType.getAccessType())) {
             configManager.setPath(propName, normalizedPath);
         } else {
             configManager.setProperty(propName, normalizedPath);
@@ -127,36 +121,35 @@ public class RepositoryConfiguration {
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
     }
 
-    public boolean isProductionRepositoryPathSystem() {
-        String type = getType();
-        return configManager.isSystemProperty(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+    public boolean isRepositoryPathSystem() {
+        return configManager.isSystemProperty(getJcrType().getRepositoryPathPropertyName());
     }
 
     public String getLogin() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_LOGIN);
+        return configManager.getStringProperty(REPOSITORY_LOGIN);
     }
 
     public void setLogin(String login) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_LOGIN, login);
+        configManager.setProperty(REPOSITORY_LOGIN, login);
     }
 
     public String getPassword() {
         return "";
-        //return configManager.getPassword(PRODUCTION_REPOSITORY_PASS);
+        //return configManager.getPassword(REPOSITORY_PASS);
     }
 
     public void setPassword(String pass) {
         if (!StringUtils.isEmpty(pass)) {
-            configManager.setPassword(PRODUCTION_REPOSITORY_PASS, pass);
+            configManager.setPassword(REPOSITORY_PASS, pass);
         }
     }
 
     public String getConnectionType() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
+        return configManager.getStringProperty(REPOSITORY_CONNECTION_TYPE);
     }
 
     public void setConnectionType(String connectionType) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_CONNECTION_TYPE, connectionType);
+        configManager.setProperty(REPOSITORY_CONNECTION_TYPE, connectionType);
     }
 
     public Map<String, Object> getProperties() {
@@ -164,26 +157,30 @@ public class RepositoryConfiguration {
     }
 
     public String getConfigFile() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIG_FILE);
+        return configManager.getStringProperty(REPOSITORY_CONFIG_FILE);
     }
 
     public void setConfigFile(String configFile) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, configFile);
+        configManager.setProperty(REPOSITORY_CONFIG_FILE, configFile);
     }
 
     public boolean isSecure() {
-        return secure || !StringUtils.isEmpty(this.getLogin());
+        return secure || !StringUtils.isEmpty(getLogin());
     }
 
     public void setSecure(boolean secure) {
         if (!secure) {
-            configManager.removeProperty(PRODUCTION_REPOSITORY_LOGIN);
-            configManager.removeProperty(PRODUCTION_REPOSITORY_PASS);
-            configManager.removeProperty(PRODUCTION_REPOSITORY_CONFIG_FILE);
+            configManager.removeProperty(REPOSITORY_LOGIN);
+            configManager.removeProperty(REPOSITORY_PASS);
+            configManager.removeProperty(REPOSITORY_CONFIG_FILE);
         } else {
-            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
+            configManager.setProperty(REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
         }
         this.secure = secure;
+    }
+
+    private JcrType getJcrType() {
+        return JcrType.findByFactory(repositoryType, configManager.getStringProperty(REPOSITORY_FACTORY));
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {
@@ -196,26 +193,29 @@ public class RepositoryConfiguration {
             while (true) {
                 boolean f1 = m1.find();
                 boolean f2 = m2.find();
-                if (!f1 && !f2)
+                if (!f1 && !f2) {
                     return 0;
+                }
                 if (f1 != f2) {
                     return f1 ? 1 : -1;
                 }
-                
+
                 String s1 = m1.group(1);
                 String s2 = m2.group(1);
                 int compare = s1.compareToIgnoreCase(s2);
                 if (compare != 0) {
                     return compare;
                 }
-                
+
                 String n1 = m1.group(2);
                 String n2 = m2.group(2);
                 if (!n1.equals(n2)) {
-                    if (n1.isEmpty())
+                    if (n1.isEmpty()) {
                         return -1;
-                    if (n2.isEmpty())
+                    }
+                    if (n2.isEmpty()) {
                         return 1;
+                    }
                     return new BigInteger(n1).compareTo(new BigInteger(n2));
                 }
             }

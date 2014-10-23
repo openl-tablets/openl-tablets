@@ -18,7 +18,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 @ViewScoped
 public class ConnectionProductionRepoController extends AbstractProductionRepoController {
     private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "connection";
-    private boolean connectionChecked = false;
 
     @Override
     public void save() {
@@ -55,33 +54,12 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         }
     }
 
-    /*FIXME move to utils class*/
     private boolean checkRemoteConnection(RepositoryConfiguration repoConfig) {
         try {
-            RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-            repository.release();
+            RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
             return true;
-        } catch (RRepositoryException e) {
-            Throwable resultException = e;
-
-            while (resultException.getCause() != null) {
-                resultException = resultException.getCause();
-            }
-
-            if (resultException instanceof javax.jcr.LoginException) {
-                if (!this.isSecure()) {
-                    setErrorMessage("Connection is secure. Please, insert login and password");
-                    return false;
-                } else {
-                    setErrorMessage("Invalid login or password. Please, check login and password");
-                    return false;
-                }
-            } else if (resultException instanceof java.net.ConnectException) {
-                setErrorMessage("Connection refused. Please, check repository URL");
-                return false;
-            }
-
-            setErrorMessage(resultException.getMessage());
+        } catch (RepositoryValidationException e) {
+            setErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -127,14 +105,6 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
         this.setChecked(true);
         return true;
-    }
-
-    public boolean isConnectionChecked() {
-        return connectionChecked;
-    }
-
-    public void setConnectionChecked(boolean connectionChecked) {
-        this.connectionChecked = connectionChecked;
     }
 
     public static class RepoDirChecker{

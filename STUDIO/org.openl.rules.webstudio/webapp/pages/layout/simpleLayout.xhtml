@@ -2,7 +2,8 @@
 <html
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j">
 
     <c:set var="contextPath" value="#{request.contextPath}" />
 
@@ -16,7 +17,29 @@
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
 
         <script>
+            //<![CDATA[
             var $j = $.noConflict();
+
+            var loadingPanel;
+
+            $j(function () {
+                loadingPanel = $j("#loadingPanel");
+
+                $j("body").css({"visibility": "visible"});
+            });
+
+            function showLoader() {
+                if (loadingPanel.is(":hidden")) {
+                    loadingPanel.show();
+                }
+            }
+
+            function hideLoader() {
+                if (loadingPanel.is(":visible")) {
+                    loadingPanel.hide();
+                }
+            }
+            //]]>
         </script>
 
         <title>
@@ -37,6 +60,13 @@
             <ui:insert name="footer">
                 <ui:include src="/pages/common/footer.xhtml" />
             </ui:insert>
+        </div>
+        <div id="loadingPanel" style="display: none">
+            <img src="#{contextPath}/images/ajax-loader.gif" />
+        </div>
+
+        <div style="display: none">
+            <a4j:status onstart="showLoader()" onstop="hideLoader()" />
         </div>
     </h:body>
 </html>

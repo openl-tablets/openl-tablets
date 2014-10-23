@@ -39,7 +39,11 @@ public class FieldBoundNode extends ATargetBoundNode {
     public String getFieldName() {
         return boundField.getName();
     }
-    
+
+    public IOpenField getBoundField() {
+        return boundField;
+    }
+
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
 

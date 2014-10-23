@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -106,7 +107,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        dependencyLoaders = new ArrayList<IDependencyLoader>();
+        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
         Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
         for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
@@ -119,29 +120,16 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                 project.getName());
                         ProjectDescriptor projectDescriptor = null;
                         if (!modulesOfProject.isEmpty()) {
-                            Module module = modulesOfProject.iterator().next();
-                            projectDescriptor = module.getProject();
-                            for (final Module m : modulesOfProject) {
+                            Module firstModule = modulesOfProject.iterator().next();
+                            projectDescriptor = firstModule.getProject();
+                            for (Module m : modulesOfProject) {
                                 IDependencyLoader moduleLoader;
+                                String moduleName = m.getName();
+                                List<Module> module = Arrays.asList(m);
                                 if (isLazy()) {
-                                    moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                            m.getName(),
-                                            new ArrayList<Module>() {
-                                                private static final long serialVersionUID = 9044645178042342374L;
-
-                                                {
-                                                    add(m);
-                                                }
-                                            });
+                                    moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription, moduleName, module);
                                 } else {
-                                    moduleLoader = new RuleServiceDependencyLoader(m.getName(),
-                                            new ArrayList<Module>() {
-                                                private static final long serialVersionUID = 9044645178042342374L;
-
-                                                {
-                                                    add(m);
-                                                }
-                                            });
+                                    moduleLoader = new RuleServiceDependencyLoader(moduleName, module);
                                 }
                                 dependencyLoaders.add(moduleLoader);
                             }

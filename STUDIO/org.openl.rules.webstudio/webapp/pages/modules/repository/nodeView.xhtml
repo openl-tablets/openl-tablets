@@ -45,6 +45,7 @@
   <h:panelGroup rendered="#{node.type == 'file'}">
       <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="openUpdateFileDialog();return false;" title="Upload the updated file"/>
       <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}" value="Export file" onclick="openExportFileDialog();return false;" title="Export file"/>
+      <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file" onclick="openCopyFileDialog();return false;" title="Copy file"/>
       <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="Delete the file"/>
   </h:panelGroup>
 
