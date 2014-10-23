@@ -57,6 +57,12 @@ public final class Constants {
     public static final String ID_POSTFIX_MENU = "_menu";
     public static final String ID_POSTFIX_CELL = "_c-";
 
+    /**
+     * Indicates cells that can show some meta info. Can contain links. Used in TableEditor.js and TableViewer class
+     */
+    public static final String TABLE_EDITOR_META_INFO_CLASS = "te-meta-info";
+    public static final String TABLE_EDITOR_ACTUAL_VALUE_CLASS = "te-actual-value";
+
     public static final String THIRD_PARTY_LIBS_PROTOTYPE = "prototype";
 
     private Constants() {
