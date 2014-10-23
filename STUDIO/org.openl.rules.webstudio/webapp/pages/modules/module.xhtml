@@ -20,6 +20,9 @@
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
                    onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'}, function(){ws.nav.go('#' + encodeURIComponent('#{module.project.name}') + '/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                <a href="javascript:void(0)" title="Copy" class="editable-link"
+                   onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'}, function(){ws.nav.go('#' + encodeURIComponent('#{module.project.name}') + '/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                        src="webresource/images/copy.png" style="opacity:0.4" /></a>
             </h:panelGroup>
         </h1>
 
@@ -126,6 +129,7 @@
 
     <c:if test="#{editable}">
         <ui:include src="/pages/modules/editModule.xhtml" />
+        <ui:include src="/pages/modules/copyModule.xhtml" />
     </c:if>
 
 </ui:composition>

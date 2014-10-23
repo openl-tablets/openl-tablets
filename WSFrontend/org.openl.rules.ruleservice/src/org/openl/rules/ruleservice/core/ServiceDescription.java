@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
+import org.openl.rules.project.model.Module;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +26,7 @@ public final class ServiceDescription {
     private boolean useRuleServiceRuntimeContext;
     private boolean provideVariations;
     private Map<String, Object> configuration;
-    private Collection<ModuleDescription> modules;
+    private Collection<Module> modules;
     private DeploymentDescription deployment;
     private String[] publishers;
 
@@ -45,7 +47,7 @@ public final class ServiceDescription {
             boolean provideRuntimeContext,
             boolean useRuleServiceRuntimeContext,
             boolean provideVariations,
-            Collection<ModuleDescription> modules,
+            Collection<Module> modules,
             DeploymentDescription deployment,
             Map<String, Object> configuration,
             String[] publishers) {
@@ -155,7 +157,7 @@ public final class ServiceDescription {
      * 
      * @return a set of modules
      */
-    public Collection<ModuleDescription> getModules() {
+    public Collection<Module> getModules() {
         return modules;
     }
 
@@ -221,7 +223,7 @@ public final class ServiceDescription {
         private boolean provideVariations = false;
         private boolean useRuleServiceRuntimeContext = false;
         private Map<String, Object> configuration;
-        private Collection<ModuleDescription> modules;
+        private Collection<Module> modules;
         private DeploymentDescription deployment;
         private Set<String> publishers = new HashSet<String>();
 
@@ -295,11 +297,11 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder setModules(Collection<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                this.modules = new HashSet<ModuleDescription>(0);
+                this.modules = new HashSet<Module>(0);
             } else {
-                this.modules = new HashSet<ModuleDescription>(modules);
+                this.modules = new HashSet<Module>(modules);
             }
             return this;
         }
@@ -310,9 +312,9 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder addModules(Collection<Module> modules) {
             if (this.modules == null) {
-                this.modules = new HashSet<ModuleDescription>(modules);
+                this.modules = new HashSet<Module>(modules);
             } else {
                 this.modules.addAll(modules);
             }
@@ -325,9 +327,9 @@ public final class ServiceDescription {
          * @param module
          * @return
          */
-        public ServiceDescriptionBuilder addModule(ModuleDescription module) {
+        public ServiceDescriptionBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new HashSet<ModuleDescription>(0);
+                this.modules = new HashSet<Module>(0);
             }
             if (module != null) {
                 this.modules.add(module);

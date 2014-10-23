@@ -893,6 +893,76 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String getCurrentNodePath() {
+        AProjectArtefact projectArtefact = getSelectedNode().getData();
+        return projectArtefact == null ? null : projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
+    }
+
+    public String copyFileVersion() {
+        String path = FacesUtils.getRequestParameter("copyFileForm:filePath");
+        String currentRevision = FacesUtils.getRequestParameter("copyFileForm:currentRevision");
+        boolean hasVersions = !repositoryTreeState.isLocalOnly() && getSelectedNode().hasVersions();
+        if (StringUtils.isBlank(path)) {
+            FacesUtils.addErrorMessage("Path should not be empty");
+            return null;
+        }
+        AProject selectedProject = repositoryTreeState.getSelectedProject();
+        ArtefactPath artefactPath = new ArtefactPathImpl(path);
+        try {
+            selectedProject.getArtefactByPath(artefactPath);
+            FacesUtils.addErrorMessage(String.format("File '%s' exists already", path));
+            return null;
+        } catch (ProjectException ignored) {
+            // Artefact by this path shouldn't exist
+        }
+
+        InputStream is = null;
+        try {
+            AProjectFolder folder = selectedProject;
+            for (int i = 0; i < artefactPath.segmentCount() - 1; i++) {
+                String segment = artefactPath.segment(i);
+                if (!folder.hasArtefact(segment)) {
+                    folder.addFolder(segment);
+                }
+                AProjectArtefact artefact = folder.getArtefact(segment);
+                if (!artefact.isFolder()) {
+                    FacesUtils.addErrorMessage(String.format("Artefact %s is not a folder", artefact.getArtefactPath().getStringValue()));
+                    return null;
+                }
+                folder = (AProjectFolder) folder.getArtefact(segment);
+            }
+
+            AProject forExport;
+            if (hasVersions && currentRevision == null) {
+                forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                        new CommonVersionImpl(version));
+
+                TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+                ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+                is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
+            } else {
+                TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+                is = ((AProjectResource) userWorkspace.getArtefactByPath(selectedNode.getData()
+                        .getArtefactPath())).getContent();
+            }
+
+            AProjectResource addedFileResource = folder.addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
+            fileName = addedFileResource.getName();
+            repositoryTreeState.refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName()));
+            registerInProjectDescriptor(addedFileResource);
+            resetStudioModel();
+            is.close();
+        } catch (Exception e) {
+            String msg = "Failed to export file version.";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        return null;
+    }
+
     public boolean isHideDeleted() {
         hideDeleted = repositoryTreeState.isHideDeleted();
         return hideDeleted;
@@ -1560,7 +1630,9 @@ public class RepositoryTreeController {
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
-
+                if (log.isErrorEnabled()) {
+                    log.error(ex.getMessage(), ex);
+                }
             }
         }
     }
