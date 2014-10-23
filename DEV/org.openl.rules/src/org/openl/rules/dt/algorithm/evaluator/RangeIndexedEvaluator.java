@@ -33,16 +33,16 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class RangeIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
-    private IRangeAdaptor<Object, Object> adaptor2;
+    private IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
     int nparams; // 1 or 2
 
-    public RangeIndexedEvaluator(IRangeAdaptor<Object, Object> adaptor, int nparams) {
-        this.adaptor2 = adaptor;
+    public RangeIndexedEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor, int nparams) {
+        this.rangeAdaptor = adaptor;
         this.nparams = nparams;
     }
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
-        if (adaptor2 != null && adaptor2.useOriginalSource())
+        if (rangeAdaptor != null && rangeAdaptor.useOriginalSource())
             return condition.getSourceCodeModule();
 
         IParameterDeclaration[] cparams = condition.getParams();
@@ -62,7 +62,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
 
-        return new RangeSelector(condition, value, target, dtparams, adaptor2, env);
+        return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 
     public boolean isIndexed() {
@@ -97,30 +97,36 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             Comparable<Object> vTo = null;
 
             if (nparams == 2) {
-                if (adaptor2 == null) {
+                if (rangeAdaptor == null) {
                     vFrom = (Comparable<Object>) indexedparams[i][0];
                     vTo = (Comparable<Object>) indexedparams[i][1];
                 } else {
-                    vFrom = adaptor2.getMin(indexedparams[i][0]);
-                    vTo = adaptor2.getMax(indexedparams[i][1]);
+                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
+                    vTo = rangeAdaptor.getMax(indexedparams[i][1]);
                 }
             } else {
                 // adapt border values for usage in IntervalMap
                 // see IntervalMap description
                 //
-                vFrom = adaptor2.getMin(indexedparams[i][0]);
-                vTo = adaptor2.getMax(indexedparams[i][0]);
+                if (rangeAdaptor == null) {
+                    vFrom = (Comparable<Object>) indexedparams[i][0];
+                    vTo = (Comparable<Object>) indexedparams[i][0];
+                } else {
+                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
+                    vTo = rangeAdaptor.getMax(indexedparams[i][0]);
+                }
             }
-
             Integer v = Integer.valueOf(i);
             Point<Integer> vFromPoint = new Point<Integer>();
             vFromPoint.v = vFrom;
             vFromPoint.isToPoint = false;
             vFromPoint.value = v;
+            vFromPoint.isPositiveInfinity = false;
             Point<Integer> vToPoint = new Point<Integer>();
             vToPoint.v = vTo;
             vToPoint.isToPoint = true;
             vToPoint.value = v;
+            vToPoint.isPositiveInfinity = true;
             points.add(vToPoint);
             points.add(vFromPoint);
         }
@@ -145,8 +151,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             } else {
                 values.remove(intervalPoint.value);
             }
-            if (i == length - 1 || intervalPoint.v.compareTo(points.get(i + 1).v) != 0) {
-                Comparable<?> indexedValue = intervalPoint.v;
+            if (i == length - 1 || intervalPoint.compareTo(points.get(i + 1)) != 0) {
+                Comparable<?> indexedValue = intervalPoint;
                 int[] rulesIndexesArray = null;
                 if (emptyNode.getRules().length > 0) {
                     rulesIndexesArray = merge(values, emptyNode.getRules());
@@ -158,11 +164,47 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 index.add(indexedValue);
             }
         }
-
         return new RangeIndex(emptyNode,
             index.toArray(new Comparable[index.size()]),
             rules.toArray(new DecisionTableRuleNode[rules.size()]),
-            adaptor2);
+            new PointRangeAdaptor<Integer>(rangeAdaptor));
+    }
+
+    static class PointRangeAdaptor<K> implements IRangeAdaptor<Point<K>, Comparable<? extends Object>> {
+        IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
+
+        public PointRangeAdaptor(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
+            this.rangeAdaptor = rangeAdaptor;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Comparable<? extends Object> adaptValueType(Object value) {
+            if (value == null) {
+                throw new IllegalArgumentException("Null values doesn't supported!");
+            }
+            if (rangeAdaptor != null){
+                value = rangeAdaptor.adaptValueType(value);
+            }
+            Point<K> point = new Point<K>();
+            point.v = (Comparable<Object>) value;
+            return point;
+        }
+
+        @Override
+        public Comparable<Object> getMax(Point<K> param) {
+            throw new UnsupportedOperationException("Operation not supported!");
+        }
+
+        @Override
+        public Comparable<Object> getMin(Point<K> param) {
+            throw new UnsupportedOperationException("Operation not supported!");
+        }
+
+        @Override
+        public boolean useOriginalSource() {
+            throw new UnsupportedOperationException("Operation not supported!");
+        }
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
@@ -237,17 +279,17 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             Comparable<?> vTo = null;
 
             if (nparams == 2) {
-                if (adaptor2 == null) {
+                if (rangeAdaptor == null) {
                     vFrom = (Comparable<?>) pi[0];
                     vTo = (Comparable<?>) pi[1];
                 } else {
-                    vFrom = adaptor2.getMin(pi[0]);
-                    vTo = adaptor2.getMax(pi[1]);
+                    vFrom = rangeAdaptor.getMin(pi[0]);
+                    vTo = rangeAdaptor.getMax(pi[1]);
                 }
 
             } else {
-                vFrom = adaptor2.getMin(pi[0]);
-                vTo = adaptor2.getMax(pi[0]);
+                vFrom = rangeAdaptor.getMin(pi[0]);
+                vTo = rangeAdaptor.getMax(pi[0]);
             }
 
             if (!(vFrom instanceof Integer)) {
@@ -262,11 +304,39 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
     private final static class Point<K> implements Comparable<Point<K>> {
         private Comparable<Object> v;
+        private boolean isPositiveInfinity = true;
         private K value;
         private boolean isToPoint;
 
         @Override
         public int compareTo(Point<K> o) {
+            if (this.v == null && o.v == null) {
+                if (this.isPositiveInfinity == o.isPositiveInfinity) {
+                    return 0;
+                } else {
+                    if (this.isPositiveInfinity) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+            if (this.v == null) {
+                if (this.isPositiveInfinity) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+
+            if (o.v == null) {
+                if (o.isPositiveInfinity) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+
             return this.v.compareTo(o.v);
         }
     }

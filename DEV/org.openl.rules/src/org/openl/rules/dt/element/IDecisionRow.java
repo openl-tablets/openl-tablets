@@ -39,6 +39,8 @@ public interface IDecisionRow {
     ILogicalTable getValueCell(int column);
     
     Object[][] getParamValues();
+    
+    
 
     void clearParamValues();
 

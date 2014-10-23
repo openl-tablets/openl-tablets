@@ -725,12 +725,20 @@ public class Operators {
         return x > y;
     }
 
-    public static <T> boolean gt(Comparable<T> c1, T c2) {
+    public static <T extends Comparable<T>> boolean gt(T c1, T c2) {
         return strict_gt(c1, c2);
     }
 
-    public static <T> boolean strict_gt(Comparable<T> c1, T c2) {
-        return c1.compareTo(c2) > 0;
+    public static <T extends Comparable<T>> boolean strict_gt(T c1, T c2) {
+        if (c1 != null){
+            return c1.compareTo(c2) > 0;
+        }else{
+            if (c2 != null){
+                return c2.compareTo(c1) < 0;
+            }else{
+                return false;
+            }
+        }
     }
 
     // Greater or Equals Than
@@ -790,12 +798,20 @@ public class Operators {
         return x >= y;
     }
 
-    public static <T extends Comparable<?>> boolean ge(Comparable<T> c1, T c2) {
-        return c1.compareTo(c2) >= 0;
+    public static <T extends Comparable<T>> boolean ge(T c1, T c2) {
+        return strict_ge(c1, c2);
     }
 
-    public static <T extends Comparable<?>> boolean strict_ge(Comparable<T> c1, T c2) {
-        return c1.compareTo(c2) >= 0;
+    public static <T extends Comparable<T>> boolean strict_ge(T c1, T c2) {
+        if (c1 != null){
+            return c1.compareTo(c2) >= 0;
+        }else{
+            if (c2 != null){
+                return c2.compareTo(c1) <= 0;
+            }else{
+                return true;
+            }
+        }
     }
 
     // Less Than
@@ -863,14 +879,21 @@ public class Operators {
         return x.compareTo(y) < 0;
     }
 
-    public static <T> boolean lt(Comparable<T> c1, T c2) {
+    public static <T extends Comparable<T>> boolean lt(T c1, T c2) {
         return strict_lt(c1, c2);
     }
 
-    public static <T> boolean strict_lt(Comparable<T> c1, T c2) {
-        return c1.compareTo(c2) < 0;
+    public static <T extends Comparable<T>> boolean strict_lt(T c1, T c2) {
+        if (c1 != null){
+            return c1.compareTo(c2) < 0;
+        }else{
+            if (c2 != null){
+                return c2.compareTo(c1) > 0;
+            }else{
+                return false;
+            }
+        }
     }
-
     // Less or Equals Than
 
     public static boolean le(byte x, byte y) {
@@ -929,12 +952,20 @@ public class Operators {
         return x <= y;
     }
 
-    public static <T> boolean le(Comparable<T> c1, T c2) {
+    public static <T extends Comparable<T>> boolean le(T c1, T c2) {
         return strict_le(c1, c2);
     }
 
-    public static <T> boolean strict_le(Comparable<T> c1, T c2) {
-        return c1.compareTo(c2) <= 0;
+    public static <T extends Comparable<T>> boolean strict_le(T c1, T c2) {
+        if (c1 != null){
+            return c1.compareTo(c2) <= 0;
+        }else{
+            if (c2 != null){
+                return c2.compareTo(c1) >= 0;
+            }else{
+                return true;
+            }
+        }
     }
 
     public static boolean le(String x, String[] y) {
