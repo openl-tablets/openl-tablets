@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -16,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -23,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 @ManagedBean
 @ViewScoped
 public class RepositoryProjectRulesDeployConfig {
-
     private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
     private final Logger log = LoggerFactory.getLogger(RepositoryProjectRulesDeployConfig.class);
 
@@ -131,5 +134,21 @@ public class RepositoryProjectRulesDeployConfig {
         }
 
         return null;
+    }
+
+    public void validateServiceName(FacesContext context, UIComponent toValidate, Object value) {
+        String name = (String) value;
+
+        if (!StringUtils.isBlank(name)) {
+            String message = "Invalid service name: only latin letters, numbers and _ are allowed, name must begin with a letter";
+            FacesUtils.validateAndAddErrorMessage(name.matches("[a-zA-Z][a-zA-Z_\\d]*"), message);
+        }
+    }
+
+    public void validateServiceClass(FacesContext context, UIComponent toValidate, Object value) {
+        String className = (String) value;
+        if (!StringUtils.isBlank(className)) {
+            FacesUtils.validateAndAddErrorMessage(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+        }
     }
 }

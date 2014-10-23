@@ -208,7 +208,7 @@ public class SpreadsheetComponentsBuilder {
                 }
         }
     }
-    
+
     private void buildHeaderDefinitionsTypes() {
         for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
 
@@ -246,22 +246,52 @@ public class SpreadsheetComponentsBuilder {
 
             if (headerType != null) {
                 headerDefinition.setType(headerType);
-                if (!bindingContext.isExecutionMode()) {
+                if (!bindingContext.isExecutionMode() && typeIdentifierNode != null) {
                     ILogicalTable cell;
-
-                    if (headerDefinition.getRow() >= 0) {
-                        cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
-                    } else {
-                        cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                    IOpenClass type = headerType;
+                    while (type.getMetaInfo() == null && type.isArray()) {
+                        type = type.getComponentClass();
                     }
+                    IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
 
-                    RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, typeIdentifierNode, headerType.getMetaInfo(),
-                            NodeType.DATATYPE);
+                    if (identifier != null) {
+                        if (headerDefinition.getRow() >= 0) {
+                            cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                        } else {
+                            cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                        }
+
+                        RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, identifier, type.getMetaInfo(),
+                                NodeType.DATATYPE);
+                    }
                 }
             }
         }
     }
-    
+
+    /**
+     * Cut a type identifier from a type identifier containing array symbols and whitespace.
+     *
+     * @param typeIdentifierNode identifier with additional info
+     * @return cleaned type identifier
+     */
+    private IdentifierNode cutTypeIdentifier(IdentifierNode typeIdentifierNode) {
+        try {
+            IdentifierNode[] nodes = Tokenizer.tokenize(typeIdentifierNode.getModule(),
+                    SpreadsheetSymbols.TYPE_DELIMETER + " []\n\r");
+            if (nodes.length > 1) {
+                return nodes[1];
+            }
+        } catch (OpenLCompilationException e) {
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",
+                    typeIdentifierNode);
+            getTableSyntaxNode().addError(error);
+            BindHelper.processError(error, getBindingContext());
+        }
+
+        return null;
+    }
+
     /**
      * Gets appropriate IOpenClass for given typeIdentifier.<br>
      * Supports array types.

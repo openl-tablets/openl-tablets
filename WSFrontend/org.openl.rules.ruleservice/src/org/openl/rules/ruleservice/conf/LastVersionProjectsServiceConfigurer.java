@@ -11,7 +11,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.slf4j.Logger;
@@ -85,13 +84,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             .setDeployment(deploymentDescription)
                             .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
 
-                    for (Module module : modulesOfProject) {
-                        ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder().setModuleName(
-                                module.getName())
-                                .setProjectName(project.getName())
-                                .build();
-                        serviceDescriptionBuilder.addModule(moduleDescription);
-                    }
+                    serviceDescriptionBuilder.setModules(modulesOfProject);
 
                     if (!modulesOfProject.isEmpty()) {
                         InputStream content = null;

@@ -1,7 +1,11 @@
 package org.openl.rules.ruleservice.core;
 
+import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -21,13 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
 
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Default implementation of RuleServiceOpenLServiceInstantiationFactory. Depend
  * on RuleLoader.
@@ -45,18 +42,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Map<String, Object> externalParameters;
 
-    private void initService(IDependencyManager dependencyManager, OpenLService service) throws
-                                                                                         RulesInstantiationException,
-                                                                                         ClassNotFoundException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
-        RulesInstantiationStrategy instantiationStrategy = null;
-        instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(), dependencyManager);
-        Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
-                externalParameters,
-                service.getModules());
+    private void initService(IDependencyManager dependencyManager, OpenLService service) throws RulesInstantiationException,
+                                                                                        ClassNotFoundException {
+        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
+            dependencyManager);
+        Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(externalParameters,
+            service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
 
         if (service.isProvideVariations()) {
@@ -65,19 +56,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (service.isProvideRuntimeContext()) {
             instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             if (service.isUseRuleServiceRuntimeContext()) {
-                instantiationStrategy = new RuleServiceRuntimeContextInstantiationStrategyEnhancer((RuntimeContextInstantiationStrategyEnhancer) instantiationStrategy);
+                instantiationStrategy = new RuleServiceRuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
         }
         resolveInterface(service, instantiationStrategy);
         instantiateServiceBean(service, instantiationStrategy);
     }
 
-    private void instantiateServiceBean(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws
-                                                                                                                RulesInstantiationException,
-                                                                                                                ClassNotFoundException {
-        Object serviceBean = null;
+    private void instantiateServiceBean(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
+                                                                                                               ClassNotFoundException {
         Class<?> serviceClass = service.getServiceClass();
-        serviceBean = instantiationStrategy.instantiate();
+        Object serviceBean = instantiationStrategy.instantiate();
         ProxyFactory factory = new ProxyFactory();
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -99,8 +88,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 }
             }
 
-            Object proxyServiceBean = null;
-            proxyServiceBean = factory.getProxy();
+            Object proxyServiceBean = factory.getProxy();
             service.setServiceBean(proxyServiceBean);
         } catch (Throwable t) {
             throw new RuleServiceRuntimeException("Can't create a proxy of service bean object", t);
@@ -109,59 +97,43 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
-    private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws
-                                                                                                          RulesInstantiationException,
-                                                                                                          ClassNotFoundException {
+    private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
+                                                                                                         ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
         Class<?> serviceClass = null;
         ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
         if (serviceClassName != null) {
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
-                instantiationStrategy.setServiceClass(RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(
-                        instantiationStrategy,
-                        serviceClass));
+                Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+                    serviceClass);
+                instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
             } catch (ClassNotFoundException e) {
                 log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
-                log.info("Service class is undefined of service '{}'. Generated interface will be used.",
-                        service.getName());
-                serviceClass = processGeneratedServiceClass(service,
-                        instantiationStrategy.getInstanceClass(),
-                        serviceClassLoader);
             }
-        } else {
-            log.info("Service class is undefined of service '{}'. Generated interface will be used.",
-                    service.getName());
-            serviceClass = processGeneratedServiceClass(service,
-                    instantiationStrategy.getInstanceClass(),
-                    serviceClassLoader);
+        }
+        if (serviceClass == null) {
+            log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
+            Class<?> instanceClass = instantiationStrategy.getInstanceClass();
+            serviceClass = processGeneratedServiceClass(service, instanceClass, serviceClassLoader);
         }
         service.setServiceClass(serviceClass);
     }
 
-    private Class<?> processGeneratedServiceClass(OpenLService service,
-            Class<?> serviceClass,
-            ClassLoader classLoader) {
+    private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
-        return processCustomSpreadSheetResults(service, resultClass, classLoader);
-    }
-
-    private Class<?> processCustomSpreadSheetResults(OpenLService service,
-            Class<?> serviceClass,
-            ClassLoader classLoader) {
-        if (serviceClass == null) {
+        if (resultClass == null) {
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
-            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(serviceClass,
-                    classLoader);
+            Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(resultClass, classLoader);
             return decoratedClass;
         } catch (Exception e) {
             log.error("Failed to applying custom spreadsheet result convertor for class with name \"{}\"",
-                    serviceClass.getCanonicalName(),
-                    e);
+                resultClass.getCanonicalName(),
+                e);
         }
-        return serviceClass;
+        return resultClass;
     }
 
     private Class<?> processInterceptingTemplateClassConfiguration(OpenLService service,
@@ -173,7 +145,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription == null) {
             log.error("Service description didn't find! Something wrong!\n" + "Interceptor template configuration was ignored for service '{}!",
-                    service.getName());
+                service.getName());
             return serviceClass;
         } else {
             String clazzName = serviceDescription.getInterceptorTemplateClassName();
@@ -181,17 +153,16 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 try {
                     Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName);
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
-                            interceptingTemplateClass,
-                            classLoader);
+                        interceptingTemplateClass,
+                        classLoader);
                     log.info("Interceptor template class \"{}\" was used for service: {}",
-                            clazzName,
-                            serviceDescription.getName());
+                        clazzName,
+                        serviceDescription.getName());
                     return decoratedClass;
                 } catch (Exception e) {
-                    log.error(
-                            "Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
-                            clazzName,
-                            e);
+                    log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                        clazzName,
+                        e);
                 }
             }
         }
@@ -204,21 +175,16 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     public OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException {
         try {
             log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
-            String deploymentName = serviceDescription.getDeployment().getName();
-            CommonVersion deploymentVersion = serviceDescription.getDeployment().getVersion();
-            Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
-            Collection<Module> modules = getModulesByServiceDescription(deploymentName,
-                    deploymentVersion,
-                    modulesToLoad);
+            Collection<Module> modules = serviceDescription.getModules();
 
             OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
             builder.setName(serviceDescription.getName())
-                    .setUrl(serviceDescription.getUrl())
-                    .setServiceClassName(serviceDescription.getServiceClassName())
-                    .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
-                    .setProvideVariations(serviceDescription.isProvideVariations())
-                    .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())
-                    .addModules(modules);
+                .setUrl(serviceDescription.getUrl())
+                .setServiceClassName(serviceDescription.getServiceClassName())
+                .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
+                .setProvideVariations(serviceDescription.isProvideVariations())
+                .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())
+                .addModules(modules);
 
             if (serviceDescription.getPublishers() != null) {
                 for (String key : serviceDescription.getPublishers()) {
@@ -228,47 +194,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
             OpenLService openLService = builder.build();
 
-            initService(getDependencyManager(serviceDescription), openLService);
+            DeploymentDescription deployment = serviceDescription.getDeployment();
+            initService(getDependencyManager(deployment), openLService);
             return openLService;
         } catch (Exception e) {
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
-                    serviceDescription.getName()), e);
+                serviceDescription.getName()), e);
         }
-    }
-
-    private Collection<Module> getModulesByServiceDescription(String deploymentName,
-            CommonVersion deploymentVersion,
-            Collection<ModuleDescription> modulesToLoad) {
-
-        Map<String, Collection<ModuleDescription>> projectModules = new HashMap<String, Collection<ModuleDescription>>();
-
-        for (ModuleDescription moduleDescription : modulesToLoad) {
-            String projectName = moduleDescription.getProjectName();
-            if (projectModules.containsKey(projectName)) {
-                Collection<ModuleDescription> modules = projectModules.get(projectName);
-                modules.add(moduleDescription);
-            } else {
-                Collection<ModuleDescription> modules = new ArrayList<ModuleDescription>();
-                modules.add(moduleDescription);
-                projectModules.put(projectName, modules);
-            }
-        }
-
-        Collection<Module> ret = new ArrayList<Module>();
-        for (String projectName : projectModules.keySet()) {
-
-            Collection<Module> modules = ruleServiceLoader.resolveModulesForProject(deploymentName,
-                    deploymentVersion,
-                    projectName);
-            for (ModuleDescription moduleDescription : projectModules.get(projectName)) {
-                for (Module module : modules) {
-                    if (moduleDescription.getModuleName().equals(module.getName())) {
-                        ret.add(module);
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableCollection(ret);
     }
 
     public RuleServiceLoader getRuleServiceLoader() {
@@ -316,13 +248,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
     }
 
-    private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
+    private IDependencyManager getDependencyManager(DeploymentDescription deployment) {
         if (externalDependencyManager != null) {
             return externalDependencyManager;
         }
 
         RuleServiceDeploymentRelatedDependencyManager dependencyManager;
-        DeploymentDescription deployment = serviceDescription.getDeployment();
         if (dependencyManagerMap.containsKey(deployment)) {
             dependencyManager = dependencyManagerMap.get(deployment);
         } else {
@@ -330,10 +261,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
                 isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy();
             }
-            dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(
-                    deployment,
-                    ruleServiceLoader,
-                    isLazy);
+            dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(deployment, ruleServiceLoader, isLazy);
             dependencyManager.setExternalParameters(externalParameters);
             dependencyManagerMap.put(deployment, dependencyManager);
         }
