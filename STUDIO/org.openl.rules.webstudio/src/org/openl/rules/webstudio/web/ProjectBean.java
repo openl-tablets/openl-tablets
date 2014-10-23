@@ -671,14 +671,17 @@ public class ProjectBean {
     public void setNewFileName(String newFileName) {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
+
         Module module = new Module();
+        int indexOfSlash = newFileName.lastIndexOf("/");
+        module.setName(indexOfSlash <0 ? newFileName : newFileName.substring(indexOfSlash + 1));
         module.setRulesRootPath(new PathEntry(newFileName));
+
         fileNameMatched = null;
         try {
-            PropertiesFileNameProcessor processor = builder.build(projectDescriptor);
             String pattern = projectDescriptor.getPropertiesFileNamePattern();
             if (pattern != null) {
-                processor.process(module, pattern);
+                builder.build(projectDescriptor).process(module, pattern);
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException ignored) {
