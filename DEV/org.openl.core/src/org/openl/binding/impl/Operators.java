@@ -31,10 +31,6 @@ public class Operators {
         return x + y;
     }
 
-    public static String add(byte x, String y) {
-        return x + y;
-    }
-
     public static String add(char x, String y) {
         return x + y;
     }
@@ -47,60 +43,111 @@ public class Operators {
         return c.getTime();
     }
 
-    public static String add(double x, String y) {
-        return x + y;
-    }
-
     public static byte add(byte x, byte y) {
         return (byte) (x + y);
+    }
+    
+    public static byte add(byte x, String y) {
+        return (byte) (x + Byte.valueOf(y));
+    }
+    
+    public static byte add(String x, byte y) {
+        return (byte) (y + Byte.valueOf(x));
     }
 
     public static short add(short x, short y) {
         return (short) (x + y);
     }
+    
+    public static short add(short x, String y) {
+        return (short) (x + Short.valueOf(y));
+    }
+    
+    public static short add(String x, short y) {
+        return (short) (y + Short.valueOf(x));
+    }
 
     public static int add(int x, int y) {
         return x + y;
+    }
+    
+    public static int add(int x, String y) {
+        return (x + Integer.valueOf(y));
+    }
+    
+    public static int add(String x, int y) {
+        return (y + Integer.valueOf(x));
     }
 
     public static long add(long x, long y) {
         return x + y;
     }
-
+    
     public static Long add(Long x, Long y) {
         return x + y;
     }
     
+    public static long add(long x, String y) {
+        return (x + Long.valueOf(y));
+    }
     
+    public static long add(String x, long y) {
+        return (y + Long.valueOf(x));
+    }
+
     public static float add(float x, float y) {
         return x + y;
+    }
+    
+    public static float add(float x, String y) {
+        return (x + Float.valueOf(y));
+    }
+    
+    public static float add(String x, float y) {
+        return (y + Float.valueOf(x));
     }
 
     public static double add(double x, double y) {
         return x + y;
     }
     
+    public static Double add(Double x, Double y) {
+        return x + y;
+    }
+
+    public static double add(double x, String y) {
+        return (x + Double.valueOf(y));
+    }
+    
+    public static double add(String x, double y) {
+        return (y + Double.valueOf(x));
+    }
+    
     public static BigInteger add(BigInteger x, BigInteger y) {
         return x.add(y);
     }
     
+    public static BigInteger add(String x, BigInteger y) {
+        return y.add(new BigInteger(x));
+    }
+
+    public static BigInteger add(BigInteger x, String y) {
+        return x.add(new BigInteger(y));
+    }
+
     public static BigDecimal add(BigDecimal x, BigDecimal y) {
         return x.add(y);
     }
 
-    public static String add(int x, String y) {
-        return x + y;
+    public static BigDecimal add(String x, BigDecimal y) {
+        return y.add(new BigDecimal(x));
     }
 
-    public static String add(long x, String y) {
-        return x + y;
+    public static BigDecimal add(BigDecimal x, String y) {
+        return x.add(new BigDecimal(y));
     }
-
+    
     public static String add(Object x, String y) {
-        return x + y;
-    }
-
-    public static String add(short x, String y) {
         return x + y;
     }
 
@@ -109,22 +156,6 @@ public class Operators {
     }
 
     public static String add(String x, char y) {
-        return x + y;
-    }
-
-    public static String add(String x, double y) {
-        return x + y;
-    }
-
-    public static String add(String x, Double y) {
-        return x + y;
-    }
-
-    public static String add(String x, int y) {
-        return x + y;
-    }
-
-    public static String add(String x, long y) {
         return x + y;
     }
 
@@ -160,11 +191,11 @@ public class Operators {
     public static double subtract(double x, double y) {
         return x - y;
     }
-    
+
     public static BigInteger subtract(BigInteger x, BigInteger y) {
         return x.subtract(y);
     }
-    
+
     public static BigDecimal subtract(BigDecimal x, BigDecimal y) {
         return x.subtract(y);
     }
@@ -197,11 +228,11 @@ public class Operators {
     public static double multiply(double x, double y) {
         return x * y;
     }
-    
+
     public static BigInteger multiply(BigInteger x, BigInteger y) {
         return x.multiply(y);
     }
-    
+
     public static BigDecimal multiply(BigDecimal x, BigDecimal y) {
         return x.multiply(y);
     }
@@ -230,11 +261,11 @@ public class Operators {
     public static double divide(double x, double y) {
         return x / y;
     }
-    
+
     public static BigInteger divide(BigInteger x, BigInteger y) {
         return x.divide(y);
     }
-    
+
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
         return MathUtils.divide(x, y);
     }
@@ -428,11 +459,11 @@ public class Operators {
         if (x == y) {
             return true;
         }
-        
+
         if (x != null && y != null) {
             return x.equals(y);
         }
-        
+
         return false;
     }
 
@@ -455,7 +486,7 @@ public class Operators {
 
         return false;
     }
-    
+
     public static boolean eq(BigInteger x, BigInteger y) {
         return strict_eq(x, y);
     }
@@ -652,6 +683,7 @@ public class Operators {
     public static boolean ne(BigDecimal x, BigDecimal y) {
         return !eq(x, y);
     }
+
     public static boolean ne(BigInteger x, BigInteger y) {
         return !eq(x, y);
     }
@@ -730,12 +762,12 @@ public class Operators {
     }
 
     public static <T extends Comparable<T>> boolean strict_gt(T c1, T c2) {
-        if (c1 != null){
+        if (c1 != null) {
             return c1.compareTo(c2) > 0;
-        }else{
-            if (c2 != null){
+        } else {
+            if (c2 != null) {
                 return c2.compareTo(c1) < 0;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -803,12 +835,12 @@ public class Operators {
     }
 
     public static <T extends Comparable<T>> boolean strict_ge(T c1, T c2) {
-        if (c1 != null){
+        if (c1 != null) {
             return c1.compareTo(c2) >= 0;
-        }else{
-            if (c2 != null){
+        } else {
+            if (c2 != null) {
                 return c2.compareTo(c1) <= 0;
-            }else{
+            } else {
                 return true;
             }
         }
@@ -884,18 +916,18 @@ public class Operators {
     }
 
     public static <T extends Comparable<T>> boolean strict_lt(T c1, T c2) {
-        if (c1 != null){
+        if (c1 != null) {
             return c1.compareTo(c2) < 0;
-        }else{
-            if (c2 != null){
+        } else {
+            if (c2 != null) {
                 return c2.compareTo(c1) > 0;
-            }else{
+            } else {
                 return false;
             }
         }
     }
-    // Less or Equals Than
 
+    // Less or Equals Than
     public static boolean le(byte x, byte y) {
         return strict_le(x, y);
     }
@@ -957,12 +989,12 @@ public class Operators {
     }
 
     public static <T extends Comparable<T>> boolean strict_le(T c1, T c2) {
-        if (c1 != null){
+        if (c1 != null) {
             return c1.compareTo(c2) <= 0;
-        }else{
-            if (c2 != null){
+        } else {
+            if (c2 != null) {
                 return c2.compareTo(c1) >= 0;
-            }else{
+            } else {
                 return true;
             }
         }
@@ -977,7 +1009,6 @@ public class Operators {
     }
 
     // Abs
-
     public static byte abs(byte x) {
         return (byte) Math.abs(x);
     }
@@ -1001,15 +1032,15 @@ public class Operators {
     public static double abs(double x) {
         return Math.abs(x);
     }
-    
+
     public static BigInteger abs(BigInteger x) {
         return x.abs();
     }
-    
+
     public static BigDecimal abs(BigDecimal x) {
         return x.abs();
     }
-    
+
     public static boolean and(boolean x, boolean y) {
         return x && y;
     }
@@ -1170,6 +1201,73 @@ public class Operators {
         return x;
     }
 
+    // Converts to String
+    // Byte
+    public static String autocast(byte x, String y) {
+        return Byte.toString(x);
+    }
+
+    public static Integer distance(byte x, String y) {
+        return 10;
+    }
+
+    // Short
+    public static String autocast(short x, String y) {
+        return Short.toString(x);
+    }
+
+    public static Integer distance(short x, String y) {
+        return 10;
+    }
+
+    public static String autocast(int x, String y) {
+        return Integer.toString(x);
+    }
+
+    public static Integer distance(int x, String y) {
+        return 10;
+    }
+
+    public static String autocast(long x, String y) {
+        return Long.toString(x);
+    }
+
+    public static Integer distance(long x, String y) {
+        return 10;
+    }
+
+    public static String autocast(float x, String y) {
+        return Float.toString(x);
+    }
+
+    public static Integer distance(float x, String y) {
+        return 10;
+    }
+
+    public static String autocast(double x, String y) {
+        return Double.toString(x);
+    }
+
+    public static Integer distance(double x, String y) {
+        return 10;
+    }
+
+    public static String autocast(BigDecimal x, String y) {
+       return x.toString();
+    }
+
+    public static Integer distance(BigDecimal x, String y) {
+        return 10;
+    }
+
+    public static String autocast(BigInteger x, String y) {
+        return x.toString();
+    }
+
+    public static Integer distance(BigInteger x, String y) {
+        return 10;
+    }
+    
     // Other auto casts
     //
     public static BigDecimal autocast(double x, BigDecimal y) {
@@ -1212,7 +1310,6 @@ public class Operators {
         return x.doubleValue();
     }
 
-    
     public static Number autocast(int i, Number N) {
         return i;
     }
@@ -1406,7 +1503,7 @@ public class Operators {
     public static long inc(long x) {
         return x + 1;
     }
-    
+
     public static BigInteger inc(BigInteger x) {
         return x.add(BigInteger.ONE);
     }
@@ -1456,11 +1553,11 @@ public class Operators {
     public static double pow(double x, double y) {
         return Math.pow(x, y);
     }
-    
+
     public static BigInteger pow(BigInteger x, BigInteger y) {
         return x.pow(y.intValue());
     }
-    
+
     public static BigDecimal pow(BigDecimal x, BigDecimal y) {
         return x.pow(y.intValue());
     }
@@ -1490,7 +1587,7 @@ public class Operators {
     public static long negative(long x) {
         return -x;
     }
-    
+
     public static BigInteger negative(BigInteger x) {
         return x.negate();
     }
@@ -1522,7 +1619,7 @@ public class Operators {
     public static long positive(long x) {
         return +x;
     }
-    
+
     public static BigInteger positive(BigInteger x) {
         return x;
     }
@@ -1580,7 +1677,7 @@ public class Operators {
     public static double rem(double x, double y) {
         return x % y;
     }
-    
+
     public static BigInteger rem(BigInteger x, BigInteger y) {
         return x.remainder(y);
     }
