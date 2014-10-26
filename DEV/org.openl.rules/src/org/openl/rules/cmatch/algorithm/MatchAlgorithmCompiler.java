@@ -15,7 +15,6 @@ import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;

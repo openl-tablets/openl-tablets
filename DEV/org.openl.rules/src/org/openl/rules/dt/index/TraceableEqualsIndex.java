@@ -33,9 +33,9 @@ public class TraceableEqualsIndex extends EqualsIndex {
                 valueNodes = new TreeMap<Object, DecisionTableRuleNode>(new Comparator<Object>() {
                     @Override
                     public int compare(Object o1, Object o2) {
-                        Object p1 = ((ComparableIndexTraceDecorator<?>) o1).delegate;
-                        Object p2 = ((ComparableIndexTraceDecorator<?>) o2).delegate;
-                        int result = sortedMap.comparator().compare(p1, p2);
+                        Object p1 = unwrap(o1);
+                        Object p2 = unwrap(o2);
+                        int result = sortedMap.comparator().compare(p1, p2); 
                         return result;
                     }
                 });
@@ -58,6 +58,17 @@ public class TraceableEqualsIndex extends EqualsIndex {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    protected Object unwrap(Object value) {
+        if (value instanceof ComparableValueTraceDecorator) {
+            return ((ComparableValueTraceDecorator) value).delegate;
+        } else if (value instanceof ComparableIndexTraceDecorator) {
+            return ((ComparableIndexTraceDecorator<Object>) value).delegate;
+        }
+
+        return value;
+    }
+    
     @Override
     public DecisionTableRuleNode findNode(Object value) {
         DecisionTableRuleNode result = super.findNode(value != null ? new ComparableValueTraceDecorator(value) : null);
