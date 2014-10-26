@@ -35,7 +35,7 @@ public final class Tracer implements TraceStack {
 
     public static void end() {
         if (isTracerOn()) {
-            tracer.get().current = tracer.get().current.getParent();
+            tracer.get().pop();
         }
     }
 

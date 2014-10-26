@@ -82,12 +82,12 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
             while (rules.hasNext()) {
 
-                int ruleN = rules.nextInt();
+                int ruleNumber = rules.nextInt();
 
                 try {
-                    Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleN));
+                    Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleNumber));
 
-                    Object returnValue = getReturn(target, params, env, ruleN);
+                    Object returnValue = getReturn(target, params, env, ruleNumber);
                     if (returnValue != null) {
                         traceObject.setResult(returnValue);
                         return returnValue;
