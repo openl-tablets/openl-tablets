@@ -34,6 +34,10 @@
             padding-top: 6px;
         }
 
+        #copyModuleForm .imageButton {
+            cursor: default;
+        }
+
         .match {
             background: url("webresource/images/ok.png") no-repeat;
         }
@@ -111,6 +115,10 @@
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
                                 <h:panelGroup id="validationIcon" styleClass="imageButton" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
                                     <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton match">
+                                        <em>
+                                            Values from file name will be applied as business<br/>
+                                            dimension properties to rules.
+                                        </em>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton not-match">
                                         <em>
@@ -163,7 +171,7 @@
             </section>
 
             <footer>
-                <a4j:commandButton id="copyModuleBtn" value="Save" action="#{projectBean.copyModule}"
+                <a4j:commandButton id="copyModuleBtn" value="Copy" action="#{projectBean.copyModule}"
                     styleClass="button-primary"
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('copyModulePopup');copyModuleDone();}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('copyModulePopup');" />
@@ -197,39 +205,36 @@
         function showCopyModuleDialog() {
             var module = currentModule;
 
-            $j("#copyModuleForm\\:copyModuleBtn").prop("disabled", true);
+            var copier = new ModuleCopier();
 
-            $j("#copyModuleForm\\:moduleIndex").val(module.index);
-            $j("#copyModuleForm\\:moduleNameOld").val(module.name);
-            $j("#copyModuleForm\\:moduleNameOldText").val(module.name);
-            $j("#copyModuleForm\\:moduleName").val(module.name);
-            $j("#copyModuleForm\\:modulePathOld").val($j('#modulePathOldText').val());
+            copier.fields.getModuleNameOld().val(module.name);
+            copier.fields.getModuleNameOldText().val(module.name);
+            copier.fields.getModuleName().val(module.name);
+            copier.fields.getModulePathOld().val($j('#modulePathOldText').val());
 
             $j("#copyModuleForm span.error").remove();
 
-            initExpandableLink('#from-panel-short', '#from-panel-full');
-            initExpandableLink('.new-file-name-setting-short', '.new-file-name-setting-full');
-            initListeners(module);
+            copier.initExpandableLink('#from-panel-short', '#from-panel-full');
+            copier.initExpandableLink('.new-file-name-setting-short', '.new-file-name-setting-full');
+            copier.initListeners(module);
+
+            copier.fields.getCopyModuleBtn().prop("disabled", true);
 
             if (module.isModuleWithWildcard) {
-                $j("#moduleNameLink").text('Select Module');
+                copier.fields.getModuleNameLink().text('Select Module');
 
-                $j("#modulePathOldText").prop('disabled', false);
-                $j("#newFileNameLink").addClass('disabled-link');
+                copier.fields.getModulePathOldText().prop('disabled', false);
+                copier.fields.getNewFileNameLink().addClass('disabled-link');
+                copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
-                $j("#copyModuleForm\\:moduleName").addClass("with-button");
                 $j("#copyModuleForm\\:validationIcon").show();
-
-                var newModuleName = getFileName($j("#copyModuleForm\\:modulePathPattern").val()).replace('*', '').replace('?', '');
-                $j("#copyModuleForm\\:moduleName").val(newModuleName).change();
-                $j("#modulePathOldText").change();
             } else {
-                $j("#moduleNameLink").text(module.name);
+                copier.fields.getModuleNameLink().text(module.name);
 
-                $j("#modulePathOldText").prop('disabled', true);
-                $j("#newFileNameLink").removeClass('disabled-link');
+                copier.fields.getModulePathOldText().prop('disabled', true);
+                copier.fields.getNewFileNameLink().removeClass('disabled-link');
+                copier.fields.getModuleName().removeClass("with-button");
                 $j(".module-with-wildcard").addClass("hidden");
-                $j("#copyModuleForm\\:moduleName").removeClass("with-button");
                 $j("#copyModuleForm\\:validationIcon").hide();
             }
 
@@ -240,8 +245,9 @@
             ws.nav.reload(true);
         }
 
+    var ModuleCopier = function () {
         function replaceSlash(path) {
-            return path.replace('\\', '/');
+            return path.replace(/\\/g, '/');
         }
 
         function getFolder(path) {
@@ -264,66 +270,157 @@
             return index < 0 ? '' : path.substring(index + 1);
         }
 
-        function initListeners(module) {
-            $j("#modulePathOldText").off().change(function () {
+        var fields = {
+            getModulePathOldText : function() {
+                return $j("#modulePathOldText");
+            },
+
+            getModulePathOld : function() {
+                return $j("#copyModuleForm\\:modulePathOld");
+            },
+
+            getModuleNameOld : function() {
+                return $j("#copyModuleForm\\:moduleNameOld");
+            },
+
+            getModuleNameOldText : function() {
+                return $j("#copyModuleForm\\:moduleNameOldText");
+            },
+
+            getModuleName : function () {
+                return $j("#copyModuleForm\\:moduleName");
+            },
+
+            getModuleNameLink : function () {
+                return $j("#moduleNameLink");
+            },
+
+            getNewFolder : function () {
+                return $j("#copyModuleForm\\:newFileFolder");
+            },
+
+            getNewFileName : function () {
+                return $j("#copyModuleForm\\:newFileName");
+            },
+
+            getNewFileNameLink : function () {
+                return $j("#newFileNameLink");
+            },
+
+            getModulePath : function () {
+                return $j("#copyModuleForm\\:modulePath");
+            },
+
+            getFromPanelFull : function () {
+                return $j("#from-panel-full");
+            },
+
+            getCopyModuleBtn : function () {
+                return $j("#copyModuleForm\\:copyModuleBtn");
+            }
+        };
+
+        function Listeners(module) {
+            var newFileNameChangedManually = false;
+            var moduleNameChangedManually = false;
+
+            var onModulePathOldTextChanged = function () {
                 if (module.isModuleWithWildcard) {
-                    var path = $j(this).val();
-                    $j("#copyModuleForm\\:modulePathOld").val(path);
+                    var target = fields.getModulePathOldText();
+                    var path = target.val();
+                    fields.getModulePathOld().val(path);
 
                     var name = getFileName(path);
-                    $j("#copyModuleForm\\:moduleNameOld").val(name);
-                    $j("#copyModuleForm\\:moduleNameOldText").val(name);
-                }
-            });
+                    fields.getModuleNameOld().val(name);
+                    fields.getModuleNameOldText().val(name);
 
-            var newFileNameChangedManually = false;
-            $j("#copyModuleForm\\:moduleName").off().on("keyup change", function () {
+                    if (!moduleNameChangedManually) {
+                        fields.getModuleName().val(name);
+                        onModuleNameChanged();
+                    }
+                }
+            };
+
+            var onModuleNameChanged = function (event) {
+                if (event) {
+                    // User manually entered value
+                    moduleNameChangedManually = true;
+                }
                 var extension = getExtension(module.path);
                 var folder = getFolder(module.path) + '/';
-                var moduleName = $j(this).val();
+                var target = fields.getModuleName();
+                var moduleName = target.val();
 
-                $j("#copyModuleForm\\:newFileFolder").val(folder);
+                fields.getNewFolder().val(folder);
                 if (!newFileNameChangedManually) {
-                    $j("#copyModuleForm\\:newFileName").val(moduleName + '.' + extension)
+                    fields.getNewFileName().val(moduleName + '.' + extension)
                 }
-                var fileWithExtension = $j("#copyModuleForm\\:newFileName").val();
-                $j("#newFileNameLink").text(folder + fileWithExtension);
-                $j("#copyModuleForm\\:modulePath").val(folder + fileWithExtension);
+                var fileWithExtension = fields.getNewFileName().val();
+                fields.getNewFileNameLink().text(folder + fileWithExtension);
+                fields.getModulePath().val(folder + fileWithExtension);
 
                 if (module.isModuleWithWildcard) {
                     checkFileMatch(folder + fileWithExtension);
                 }
-            }).change();
-
-            $j("#copyModuleForm\\:newFileName").off().on("keyup change", function () {
-                newFileNameChangedManually = true;
-                var folder = getFolder(module.path) + '/';
-                $j("#copyModuleForm\\:modulePath").val(folder + $j(this).val());
-            });
-
-            var checkForModification = function () {
-                var changed = (module.name != $j("#copyModuleForm\\:moduleName").val())
-                        && module.path != $j("#copyModuleForm\\:modulePath").val()
-                        && (!module.isModuleWithWildcard || $j("#from-panel-full").is(":visible"));
-
-                $j("#copyModuleForm\\:copyModuleBtn").prop("disabled", !changed);
             };
 
-            $j("#copyModuleForm .properties :input").on("keyup change", checkForModification);
-            $j('.expandable-link').click(checkForModification);
-        }
-
-        function initExpandableLink(divWithLink, divToShow) {
-            $j(divWithLink).show();
-            $j(divToShow).hide();
-
-            $j(divWithLink).find('.expandable-link').off().click(function() {
-                if (!$j(this).hasClass('disabled-link')) {
-                    $j(divToShow).show();
-                    $j(divWithLink).hide();
+            var onNewFileNameChanged = function (event) {
+                if (event) {
+                    // User manually entered value
+                    newFileNameChangedManually = true;
                 }
-            })
+
+                var folder = getFolder(module.path) + '/';
+                var target = fields.getNewFileName();
+                fields.getModulePath().val(folder + target.val());
+            };
+
+            var checkForModification = function () {
+                var changed = (module.name != fields.getModuleName().val())
+                        && module.path != fields.getModulePath().val()
+                        && (!module.isModuleWithWildcard || fields.getFromPanelFull().is(":visible"));
+
+                fields.getCopyModuleBtn().prop("disabled", !changed);
+            };
+
+            (function initListeners() {
+                fields.getModulePathOldText().off().change(onModulePathOldTextChanged);
+                if (module.isModuleWithWildcard) onModulePathOldTextChanged();
+
+                fields.getModuleName().off().on("keyup change", onModuleNameChanged);
+                onModuleNameChanged();
+                fields.getNewFileName().off().on("keyup change", onNewFileNameChanged);
+
+                $j("#copyModuleForm .properties :input").on("keyup change", checkForModification);
+                $j('.expandable-link').click(checkForModification);
+            })();
+
         }
+
+        var listeners;
+
+        // Public members
+
+        return {
+            fields: fields,
+
+            initListeners: function (module) {
+                listeners = new Listeners(module);
+            },
+
+            initExpandableLink: function (divWithLink, divToShow) {
+                $j(divWithLink).show();
+                $j(divToShow).hide();
+
+                $j(divWithLink).find('.expandable-link').off().click(function () {
+                    if (!$j(this).hasClass('disabled-link')) {
+                        $j(divToShow).show();
+                        $j(divWithLink).hide();
+                    }
+                })
+            }
+        };
+    };
 
     //]]>
     </script>
