@@ -356,6 +356,13 @@ var TableEditor = Class.create({
                 case this.Modes.VIEW:
                 default: {
                     if (this.editable) {
+                        $$('.te-meta-info').each(function(item) {
+                            $(item).addClassName('te_hidden');
+                        });
+                        $$('.te-actual-value').each(function(item) {
+                            $(item).removeClassName('te_hidden');
+                        });
+
                         this.toEditMode(cell);
                     }
                     break;
