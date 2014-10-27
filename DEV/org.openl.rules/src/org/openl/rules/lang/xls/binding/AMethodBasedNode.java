@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
@@ -167,7 +168,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             if (metaInfo != null && typeLocation != null) {
                 int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
                 int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl(),
+                nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                         NodeType.DATATYPE));
             }
 
@@ -186,7 +187,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                         ILocation sourceLocation = paramTypeLocations[i];
                         int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                         int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                        nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(0), metaInfo.getSourceUrl(),
+                        nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                                 NodeType.DATATYPE));
                     }
                 }
