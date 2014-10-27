@@ -13,6 +13,7 @@
 
         .disabled-link {
             cursor: default;
+            border-bottom: none;
         }
 
         #copyModuleForm table td:first-child {
@@ -30,7 +31,8 @@
         }
 
         #from-panel-short td,
-        tr.new-file-name-setting-short td {
+        tr.new-file-name-setting-short td,
+        tr.info td {
             padding-top: 6px;
         }
 
@@ -42,7 +44,7 @@
             background: url("webresource/images/ok.png") no-repeat;
         }
         .not-match {
-            background: url("webresource/images/error.png") no-repeat;
+            background: url("webresource/images/warning16.png") no-repeat;
         }
 
     </style>
@@ -94,7 +96,12 @@
 
                                     <select id="modulePathOldText" style="width:100%">
                                         <ui:repeat value="#{projectBean.modulePathsForPathPattern}" var="modulePath">
-                                            <option value="#{modulePath}"><h:outputText value="#{modulePath}"/></option>
+                                            <h:panelGroup rendered="#{projectBean.currentModuleMatchesSomePathPattern and projectBean.isCurrentModuleHasPath(modulePath)}">
+                                                <option value="#{modulePath}" selected="selected"><h:outputText value="#{modulePath}"/></option>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{!(projectBean.currentModuleMatchesSomePathPattern and projectBean.isCurrentModuleHasPath(modulePath))}">
+                                                <option value="#{modulePath}"><h:outputText value="#{modulePath}"/></option>
+                                            </h:panelGroup>
                                         </ui:repeat>
                                     </select>
                                 </h:panelGroup>
@@ -141,8 +148,8 @@
                             <td>New File Name</td>
                             <td>
                                 <h:inputHidden id="modulePath"/>
-                            <span id="newFileNameLink" class="expandable-link">
-                            </span>
+                                <span id="newFileNameLink" class="expandable-link">
+                                </span>
                             </td>
                         </tr>
                         <tr class="new-file-name-setting-short">
@@ -166,6 +173,11 @@
                                 <h:message for="newFileName" styleClass="error" />
                             </a4j:outputPanel></td>
                         </tr>
+
+                        <tr class="module-with-wildcard info">
+                            <td>Properties pattern for a file name</td>
+                            <td><h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}" /></td>
+                        </tr>
                     </table>
                 </div>
             </section>
@@ -177,7 +189,7 @@
                 <input type="button" value="Cancel" onclick="ws.ui.hide('copyModulePopup');" />
             </footer>
 
-            <a4j:jsFunction name="rerenderCopyModuleDialog" render="modulePathPattern modulePathOldPanel" oncomplete="showCopyModuleDialog();">
+            <a4j:jsFunction name="rerenderCopyModuleDialog" render="modulePathPattern modulePathOldPanel propertiesFileNamePattern" oncomplete="showCopyModuleDialog();">
                 <a4j:param name="moduleName" assignTo="#{projectBean.currentModuleName}" />
             </a4j:jsFunction>
 
@@ -210,7 +222,7 @@
             copier.fields.getModuleNameOld().val(module.name);
             copier.fields.getModuleNameOldText().val(module.name);
             copier.fields.getModuleName().val(module.name);
-            copier.fields.getModulePathOld().val($j('#modulePathOldText').val());
+            copier.fields.getModulePathOld().val(copier.fields.getModulePathOldText().val());
 
             $j("#copyModuleForm span.error").remove();
 
@@ -224,6 +236,13 @@
                 copier.fields.getModuleNameLink().text('Select Module');
 
                 copier.fields.getModulePathOldText().prop('disabled', false);
+                copier.fields.getNewFileNameLink().addClass('disabled-link');
+                copier.fields.getModuleName().addClass("with-button");
+                $j(".module-with-wildcard").removeClass("hidden");
+                $j("#copyModuleForm\\:validationIcon").show();
+            } else if (module.includedInWildcard) {
+                copier.fields.getModuleNameLink().text(module.name);
+
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
                 copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
@@ -325,7 +344,7 @@
             var moduleNameChangedManually = false;
 
             var onModulePathOldTextChanged = function () {
-                if (module.isModuleWithWildcard) {
+                if (module.isModuleWithWildcard || module.includedInWildcard) {
                     var target = fields.getModulePathOldText();
                     var path = target.val();
                     fields.getModulePathOld().val(path);
@@ -347,7 +366,7 @@
                     moduleNameChangedManually = true;
                 }
                 var extension = getExtension(module.path);
-                var folder = getFolder(module.path) + '/';
+                var folder = getFolder(fields.getModulePathOldText().val()) + '/';
                 var target = fields.getModuleName();
                 var moduleName = target.val();
 
@@ -359,7 +378,7 @@
                 fields.getNewFileNameLink().text(folder + fileWithExtension);
                 fields.getModulePath().val(folder + fileWithExtension);
 
-                if (module.isModuleWithWildcard) {
+                if (module.isModuleWithWildcard || module.includedInWildcard) {
                     checkFileMatch(folder + fileWithExtension);
                 }
             };
@@ -370,7 +389,7 @@
                     newFileNameChangedManually = true;
                 }
 
-                var folder = getFolder(module.path) + '/';
+                var folder = getFolder(fields.getModulePathOldText().val()) + '/';
                 var target = fields.getNewFileName();
                 fields.getModulePath().val(folder + target.val());
             };
@@ -385,7 +404,7 @@
 
             (function initListeners() {
                 fields.getModulePathOldText().off().change(onModulePathOldTextChanged);
-                if (module.isModuleWithWildcard) onModulePathOldTextChanged();
+                if (module.isModuleWithWildcard || module.includedInWildcard) onModulePathOldTextChanged();
 
                 fields.getModuleName().off().on("keyup change", onModuleNameChanged);
                 onModuleNameChanged();
