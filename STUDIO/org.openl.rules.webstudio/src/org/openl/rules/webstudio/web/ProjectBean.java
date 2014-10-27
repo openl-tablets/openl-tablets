@@ -635,6 +635,24 @@ public class ProjectBean {
         return getModulePath(module);
     }
 
+    public boolean isCurrentModuleMatchesSomePathPattern() {
+        if (currentModuleName == null) {
+            return false;
+        }
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        Module module = studio.getModule(projectDescriptor, currentModuleName);
+        return module != null && isModuleMatchesSomePathPattern(module);
+    }
+
+    public boolean isCurrentModuleHasPath(String path) {
+        if (currentModuleName == null || path == null) {
+            return false;
+        }
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        Module module = studio.getModule(projectDescriptor, currentModuleName);
+        return module != null && path.equals(getModulePath(module));
+    }
+
     public List<String> getModulePathsForPathPattern() {
         if (currentModuleName == null) {
             return Collections.emptyList();
@@ -735,6 +753,10 @@ public class ProjectBean {
         }
 
         return true;
+    }
+
+    public String getPropertiesFileNamePattern() {
+        return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {
