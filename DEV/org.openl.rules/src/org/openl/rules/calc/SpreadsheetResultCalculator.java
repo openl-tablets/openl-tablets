@@ -154,11 +154,10 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
 
         SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheet, spreadsheetCell);
-        Tracer.begin(spreadsheetTraceLeaf);
-
         Object result = null;
 
         try {
+            Tracer.begin(spreadsheetTraceLeaf);
             if (cacheResult) {
 
                 result = results[row][column];
