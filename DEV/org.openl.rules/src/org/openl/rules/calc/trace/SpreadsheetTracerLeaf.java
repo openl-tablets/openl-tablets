@@ -19,12 +19,13 @@ import java.util.List;
  * @author PUdalau
  */
 public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
-    private Spreadsheet spreadsheet;
+    private static final String SPREADSHEET_CELL_TYPE = "spreadsheetCell";
+    private SpreadsheetTraceObject spreadsheetTraceObject;
     private SpreadsheetCell spreadsheetCell;
 
-    public SpreadsheetTracerLeaf(Spreadsheet spreadsheet, SpreadsheetCell spreadsheetCell) {
+    public SpreadsheetTracerLeaf(SpreadsheetTraceObject spreadsheetTraceObject, SpreadsheetCell spreadsheetCell) {
         super("spreadsheetCell");
-        this.spreadsheet = spreadsheet;
+        this.spreadsheetTraceObject = spreadsheetTraceObject;
         this.spreadsheetCell = spreadsheetCell;
     }
 
@@ -48,15 +49,18 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
-        return spreadsheet.getSyntaxNode();
+        return spreadsheetTraceObject.getTableSyntaxNode();
+    }
+
+    public String getType() {
+        return SPREADSHEET_CELL_TYPE;
     }
 
     public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                .append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()])
-                .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                .append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
+        Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
+        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
+        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
 
         if (!JavaOpenClass.isVoid(spreadsheetCell.getType())) {
             /** write result for all cells, excluding void type*/
