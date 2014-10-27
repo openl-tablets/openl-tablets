@@ -14,6 +14,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.util.IConvertor;
 import org.openl.util.print.Formatter;
 
 /**
@@ -26,11 +27,25 @@ public class MethodUtil {
         return printMethod(method.getName(), method.getSignature(), buf);
     }
 
-    public static String printMethod(IOpenMethodHeader methodHeader, int mode, boolean printType) {
+    public static String printMethod(IOpenMethodHeader methodHeader, final int mode, boolean printType) {
         StringBuilder buf = new StringBuilder(100);
+        IConvertor<IOpenClass, String> typeConverter = new IConvertor<IOpenClass, String>() {
+            @Override public String convert(IOpenClass type) {
+                return type.getDisplayName(mode);
+            }
+        };
 
+        printMethod(methodHeader, printType, buf, typeConverter);
+
+        return buf.toString();
+    }
+
+    public static void printMethod(IOpenMethodHeader methodHeader,
+            boolean printType,
+            StringBuilder buf,
+            IConvertor<IOpenClass, String> typeConverter) {
         if (printType) {
-            buf.append(methodHeader.getType().getDisplayName(mode)).append(' ');
+            buf.append(typeConverter.convert(methodHeader.getType())).append(' ');
         }
 
         startPrintingMethodName(methodHeader.getName(), buf);
@@ -38,12 +53,10 @@ public class MethodUtil {
         IMethodSignature signature = methodHeader.getSignature();
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            printParameterInfo(signature.getParameterType(i).getDisplayName(mode), signature.getParameterName(i), i == 0, buf);
+            printParameterInfo(typeConverter.convert(signature.getParameterType(i)), signature.getParameterName(i), i == 0, buf);
         }
-        
-        endPrintingMethodName(buf);
 
-        return buf.toString();
+        endPrintingMethodName(buf);
     }
 
     public static String printMethod(String name, Class<?>[] params) {

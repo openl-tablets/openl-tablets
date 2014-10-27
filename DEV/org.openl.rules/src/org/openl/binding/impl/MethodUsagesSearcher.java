@@ -24,6 +24,8 @@ import org.openl.util.text.TextInfo;
 public class MethodUsagesSearcher {
 
     public static class MethodUsage implements NodeUsage {
+        private static final SimpleTypeConverter TYPE_CONVERTER = new SimpleTypeConverter();
+
         private int startPos;
         private int endPos;
         private IOpenMethod method;
@@ -97,9 +99,10 @@ public class MethodUsagesSearcher {
         @Override
         public String getDescription() {
             StringBuilder buff = new StringBuilder();
-            MethodUtil.printMethod(method, buff);
+            MethodUtil.printMethod(method, false, buff, TYPE_CONVERTER);
             return buff.toString();
         }
+
     }
 
     /**
@@ -153,4 +156,5 @@ public class MethodUsagesSearcher {
             }
         }
     }
+
 }
