@@ -16,6 +16,7 @@
                  styleClass="view-header-link view-header-link-inactive" style="margin-left: 3px" />
 
             <a4j:commandLink id="designRepoRefresh" title="Refresh" action="#{repositoryTreeController.refreshTree}"
+                 immediate="true"
                  render="projectTree nodeView uploadPrjFromLocalDiv uploadPrjFromLocalTable uploadPrjFromLocalDiv uploadPrjFromLocalMessageDiv localUploadButtonPanel" process="@this"
                  style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" styleClass="imageButton" />
             <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshInitTree}"
