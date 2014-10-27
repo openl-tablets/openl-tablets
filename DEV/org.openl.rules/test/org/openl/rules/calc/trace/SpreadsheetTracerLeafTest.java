@@ -42,11 +42,14 @@ public class SpreadsheetTracerLeafTest {
         return cell;
     }
 
-    protected Spreadsheet createNodeMock() {
+    protected SpreadsheetTraceObject createNodeMock() {
         Spreadsheet spreadsheet = mock(Spreadsheet.class);
         when(spreadsheet.getColumnNames()).thenReturn(new String[] { "Value" });
         when(spreadsheet.getRowNames()).thenReturn(new String[] { "Vehicle_Premiums" });
-        return spreadsheet;
+
+        SpreadsheetTraceObject node = mock(SpreadsheetTraceObject.class);
+        when(node.getSpreadsheet()).thenReturn(spreadsheet);
+        return node;
     }
 
 }

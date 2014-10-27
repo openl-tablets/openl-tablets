@@ -1,9 +1,12 @@
 package org.openl.rules.calc;
 
+import java.util.Map;
+
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -11,15 +14,14 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
-import java.util.Map;
-
 public class SpreadsheetResultCalculator implements IDynamicObject {
 
-    public static final Object NEED_TO_CALCULATE_VALUE = new Object();
+	public static final Object NEED_TO_CALCULATE_VALUE = new Object();
 
-    private Spreadsheet spreadsheet;
+	private Spreadsheet spreadsheet;
 
     private boolean cacheResult = true;
+    private SpreadsheetTraceObject spreadsheetTraceObject;
     /**
      * OpenL module
      */
@@ -27,7 +29,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     /**
      * Copy of the spreadsheet call parameters.
      */
-    protected Object[] params;
+    protected Object[] params; 
     /**
      * Copy of the call environment.
      */
@@ -36,25 +38,38 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     private Object[][] results;
 
     public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
-                                       IRuntimeEnv env, Object[][] preCalculatedResult) {
+            IRuntimeEnv env, Object[][] preCalculatedResult) {
+        super();
+
         this.spreadsheet = spreadsheet;
         this.targetModule = targetModule;
         this.params = params;
         this.env = env;
-        if (preCalculatedResult == null) {
-            this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
-        } else {
-            this.results = clonePrecalculatedResults(preCalculatedResult);
-        }
+        if (preCalculatedResult == null)
+        	this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
+        else 
+    		this.results = clonePrecalculatedResults(preCalculatedResult);
     }
 
     private Object[][] clonePrecalculatedResults(Object[][] preCalculatedResult) {
-        Object[][] res = preCalculatedResult.clone();
-        for (int i = 0; i < res.length; i++) {
-            res[i] = preCalculatedResult[i].clone();
-        }
+    	Object[][] res = preCalculatedResult.clone();
+    	for (int i = 0; i < res.length; i++) {
+			res[i] = preCalculatedResult[i].clone();
+		}
+    	
+		return res;
+	}
 
-        return res;
+	public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
+            IRuntimeEnv env, SpreadsheetTraceObject spreadsheetTraceObject) {
+        super();
+
+        this.spreadsheet = spreadsheet;
+        this.targetModule = targetModule;
+        this.params = params;
+        this.env = env;
+        this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
+        this.spreadsheetTraceObject = spreadsheetTraceObject;
     }
 
     public String getColumnName(int column) {
@@ -90,31 +105,31 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     public int getRowIndex(String name) {
-
+        
         String[] names = spreadsheet.getRowNames();
-
+        
         for (int i = 0; i < names.length; i++) {
             if (name.equals(names[i]))
                 return i;
         }
-
+        
         throw new OpenLRuntimeException("Row name <" + name + "> not found", spreadsheet.getBoundNode());
     }
 
 
     public int getColumnIndex(String name) {
-
+        
         String[] names = spreadsheet.getColumnNames();
-
+        
         for (int i = 0; i < names.length; i++) {
             if (name.equals(names[i]))
                 return i;
         }
-
+        
         throw new OpenLRuntimeException("Column name <" + name + "> not found", spreadsheet.getBoundNode());
     }
-
-
+    
+    
     public Spreadsheet getSpreadsheet() {
         return spreadsheet;
     }
@@ -122,45 +137,62 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public IOpenClass getType() {
         return spreadsheet.getSpreadsheetType();
     }
+    
+    private boolean isTraceOn(){
+        return spreadsheetTraceObject != null;
+    }
 
     public Object getValue(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
-        if (Tracer.isTracerOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
-            getValueTraced(row, column);
+        if (isTraceOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
+            getValueTraced(row, column);        
         } else {
-            Object result;
-
+        	Object result = null;
+            
             if (cacheResult) {
 
                 result = results[row][column];
-
+            
                 if (result != NEED_TO_CALCULATE_VALUE) {
                     return result;
                 }
             }
 
             result = spreadsheetCell.calculate(this, targetModule, params, env);
-            results[row][column] = result;
+            results[row][column] = result;            
         }
         return results[row][column];
     }
-
-    public void setValue(int row, int column, Object res) {
-        results[row][column] = res;
-    }
-
+    
+	public void setValue(int row, int column, Object res) {
+		results[row][column] = res;
+	}
+   
+    
 
     public Object getValueTraced(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
 
-        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheet, spreadsheetCell);
+        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetTraceObject, spreadsheetCell);
+        Object result = null;
+        
         try {
             Tracer.begin(spreadsheetTraceLeaf);
-            Object result = spreadsheetCell.calculate(this, targetModule, params, env);
-            results[row][column] = result;
-
-            spreadsheetTraceLeaf.setValue(result);
-            return result;
+	        if (cacheResult) {
+	
+	            result = results[row][column];
+	        
+	            if (result != null) {
+	                spreadsheetTraceLeaf.setValue(result);
+	                return result;
+	            }
+	        }
+	
+	        result = spreadsheetCell.calculate(this, targetModule, params, env);
+	        results[row][column] = result;
+	
+	        spreadsheetTraceLeaf.setValue(result);
+	        return result;
         } finally {
             Tracer.end();
         }

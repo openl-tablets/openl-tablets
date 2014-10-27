@@ -13,6 +13,10 @@ public class SpreadsheetTraceObject extends ATableTracerNode {
         super("spreadsheet", "SpreadSheet", spreadsheet, params);
     }
 
+    public Spreadsheet getSpreadsheet() {
+        return (Spreadsheet) getTraceObject();
+    }
+    
     /**
      * Is overriden to provide functionality not to write a result when it is represented as
      * SpreadsheetResult
