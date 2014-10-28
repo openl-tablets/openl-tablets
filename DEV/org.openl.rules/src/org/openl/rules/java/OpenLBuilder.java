@@ -17,10 +17,20 @@ public class OpenLBuilder extends AOpenLBuilder {
     private static final String[] JAVA_LIBRARY_NAMES = new String[]{
         org.openl.rules.helpers.RulesUtils.class.getName(),
         org.openl.ctr.CtrUtils.class.getName(),
-        org.openl.meta.ByteValue.class.getName(), // don`t change the order of elements!
-        org.openl.meta.ShortValue.class.getName(), // as lower types can be casted to upper ones.
-        org.openl.meta.IntValue.class.getName(),  // appropriate methods should be looking for from
-        org.openl.meta.LongValue.class.getName(), // lower to upper hierarchy level.
+        org.openl.meta.ByteValue.class.getName(), 
+        org.openl.meta.ShortValue.class.getName(),
+        org.openl.meta.IntValue.class.getName(),  
+        org.openl.meta.LongValue.class.getName(), 
+        org.openl.meta.FloatValue.class.getName(),
+        org.openl.meta.DoubleValue.class.getName(),
+        org.openl.meta.BigIntegerValue.class.getName(),
+        org.openl.meta.BigDecimalValue.class.getName()};
+    
+    private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
+        org.openl.meta.ByteValue.class.getName(), 
+        org.openl.meta.ShortValue.class.getName(),
+        org.openl.meta.IntValue.class.getName(),  
+        org.openl.meta.LongValue.class.getName(), 
         org.openl.meta.FloatValue.class.getName(),
         org.openl.meta.DoubleValue.class.getName(),
         org.openl.meta.BigIntegerValue.class.getName(),
@@ -52,6 +62,18 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         libraries.addConfiguredLibrary(library);
 
+        NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
+        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
+        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
+        javalib1.setClassName(org.openl.binding.impl.Operators.class.getName());
+        nslc.addJavalib(javalib1);
+        for (String className : JAVA_OPERATORS_CLASSES){
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
+            javalib.setClassName(className);
+            nslc.addJavalib(javalib);
+        }
+        libraries.addConfiguredLibrary(nslc);
+        
         /**
          * <libraries>
          *

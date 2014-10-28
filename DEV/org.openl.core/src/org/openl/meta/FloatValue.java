@@ -32,8 +32,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -87,7 +88,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
@@ -537,15 +540,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(float x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from double to org.openl.meta.FloatValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.FloatValue
-     */
-    public static org.openl.meta.FloatValue autocast(double x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
 
