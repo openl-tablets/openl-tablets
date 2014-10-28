@@ -52,8 +52,8 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         op.setExtendsCategory(extendsCategory);
         op.setCategory(category);
 
+        LibraryFactoryConfiguration libraries = op.createLibraries();
         if (libName != null) {
-            LibraryFactoryConfiguration libraries = op.createLibraries();
             NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
             library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
             JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
@@ -61,7 +61,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             library.addJavalib(javalib);
             libraries.addConfiguredLibrary(library);
         }
-
+        
         /**
          * <libraries>
          * 
