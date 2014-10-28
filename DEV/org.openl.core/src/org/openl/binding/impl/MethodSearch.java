@@ -129,7 +129,19 @@ public class MethodSearch {
             case 1:
                 return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
             default:
-                return findMostSpecificMethod(name, params, matchingMethods, casts);
+                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
+                boolean f = true;
+                for (int i = 0; i < params.length; i++) {
+                    if (!params[i].equals(mostSecificMethod.getSignature().getParameterType(i))){
+                        f = false;
+                    }
+                    bestCastHolder[i] = casts.getCast(params[i], mostSecificMethod.getSignature().getParameterType(i));
+                }
+                if (f){
+                    return mostSecificMethod;
+                }else{
+                    return new CastingMethodCaller(mostSecificMethod, bestCastHolder);
+                }
         }
 
     }

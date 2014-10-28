@@ -59,10 +59,14 @@ public class GenNumberValueFunctions extends GenRulesCode {
     }
 
     public void run() throws Exception {
-        init();
-        generateFunctions();
+        
+        //VALUE TYPES HAS BEEN CHANGES MANUALLY!!!!! GENERATOR INVALID!!
+        
+        //init();
+        //generateFunctions();
     }
 
+    @SuppressWarnings("unused")
     private void init() {
         MATH_FUNCTIONS1[0] = NumberOperations.AVG;
         MATH_FUNCTIONS1[1] = NumberOperations.SUM;
@@ -84,6 +88,7 @@ public class GenNumberValueFunctions extends GenRulesCode {
         types.put(BigDecimalValue.class, BigDecimal.class);
     }
 
+    @SuppressWarnings("unused")
     private void generateFunctions() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();

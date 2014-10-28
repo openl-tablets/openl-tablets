@@ -32,8 +32,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -87,7 +88,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
@@ -528,24 +531,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from float to org.openl.meta.LongValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.LongValue
-     */
-    public static org.openl.meta.LongValue autocast(float x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from double to org.openl.meta.LongValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.LongValue
-     */
-    public static org.openl.meta.LongValue autocast(double x, org.openl.meta.LongValue y) {
         return new org.openl.meta.LongValue((long) x);
     }
 

@@ -129,8 +129,6 @@ public class OpenLBuilder extends AOpenLBuilder {
         TypeFactoryConfiguration types = op.createTypes();
         NameSpacedTypeConfiguration nstc = new NameSpacedTypeConfiguration();
         nstc.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-
-        
         
         JavaTypeConfiguration javatype = new JavaTypeConfiguration();
         javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
