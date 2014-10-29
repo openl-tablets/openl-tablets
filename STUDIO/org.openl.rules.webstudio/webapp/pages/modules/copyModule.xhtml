@@ -366,7 +366,7 @@
                     moduleNameChangedManually = true;
                 }
                 var extension = getExtension(module.path);
-                var folder = getFolder(fields.getModulePathOldText().val()) + '/';
+                var folder = getFolder(fields.getModulePathOldText().val());
                 var target = fields.getModuleName();
                 var moduleName = target.val();
 
@@ -375,11 +375,12 @@
                     fields.getNewFileName().val(moduleName + '.' + extension)
                 }
                 var fileWithExtension = fields.getNewFileName().val();
-                fields.getNewFileNameLink().text(folder + fileWithExtension);
-                fields.getModulePath().val(folder + fileWithExtension);
+                var fullPath = folder ? folder + '/' + fileWithExtension : fileWithExtension;
+                fields.getNewFileNameLink().text(fullPath);
+                fields.getModulePath().val(fullPath);
 
                 if (module.isModuleWithWildcard || module.includedInWildcard) {
-                    checkFileMatch(folder + fileWithExtension);
+                    checkFileMatch(fullPath);
                 }
             };
 
@@ -389,9 +390,10 @@
                     newFileNameChangedManually = true;
                 }
 
-                var folder = getFolder(fields.getModulePathOldText().val()) + '/';
+                var folder = getFolder(fields.getModulePathOldText().val());
                 var target = fields.getNewFileName();
-                fields.getModulePath().val(folder + target.val());
+                var fullPath = folder ? folder + '/' + target.val() : target.val();
+                fields.getModulePath().val(fullPath);
             };
 
             var checkForModification = function () {
