@@ -166,8 +166,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public CompiledOpenClass compile() throws RulesInstantiationException {
     	return compileInternal(getEngineFactory());
     }
-
-    
     
     protected abstract AEngineFactory getEngineFactory() throws RulesInstantiationException;
 

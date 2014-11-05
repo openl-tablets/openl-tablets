@@ -1,9 +1,12 @@
 package org.openl.rules.calc;
 
 import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestHelper;
 
 public class TestAutoType1 {
@@ -11,6 +14,12 @@ public class TestAutoType1 {
         SpreadsheetResult calc3();
     }
 
+    @Before
+    public void before() {
+        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
+    }
+
+    
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc/autotype/autotype-1.xls");
