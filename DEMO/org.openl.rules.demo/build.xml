@@ -32,29 +32,14 @@
         </copy>
     </target>
 
-    <target name="jackrabbit_configure" depends="unzip_tomcat">
-        <property name="openl.basedir" value="${tomcat.dir}/bin"/>
-        <property name="jackrabbit.conf.dir" value="${tomcat.dir}/bin/jackrabbit"/>
-        <mkdir dir="${jackrabbit.conf.dir}"/>
-        <copy todir="${jackrabbit.conf.dir}">
-            <fileset dir="jackrabbit/conf">
-                <include name="**/*.*"/>
-            </fileset>
-        </copy>
-        <unzip src="${data.location}" dest="${openl.basedir}"/>
-    </target>
-
     <target name="set_rootapp" depends="unzip_tomcat">
-        <property name="root.dir" value="${tomcat.webapps.dir}/ROOT"/>
-        <delete dir="${root.dir}"/>
-        <mkdir dir="${root.dir}"/>
-        <copy todir="${root.dir}">
+        <copy todir="${tomcat.webapps.dir}/ROOT">
             <fileset dir="ROOT">
                 <include name="**/*"/>
             </fileset>
         </copy>
-        <unzip src="${data.location}" dest="${openl.basedir}"/>
+        <unzip src="${data.location}" dest="${tomcat.dir}/bin"/>
     </target>
 
-    <target name="install" depends="conf_tomcat, jackrabbit_configure, set_rootapp"/>
+    <target name="install" depends="conf_tomcat, set_rootapp"/>
 </project>
