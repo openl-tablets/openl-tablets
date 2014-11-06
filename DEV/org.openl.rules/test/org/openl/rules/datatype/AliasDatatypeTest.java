@@ -19,6 +19,8 @@ public class AliasDatatypeTest {
 		int method1();
 		int method2();
 		boolean method3(int z);
+        String method4(String x);
+        String method5(String x);
 		
 		int testStringAliasType(String state);
         int testAliasTypeAsArrays(String state);
@@ -139,6 +141,20 @@ public class AliasDatatypeTest {
 
         res = instance.method3(-1);
         assertEquals(false, res);
+    }
+    
+    @Test
+    public void test8() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
+                ITest.class);
+
+        ITest instance = testHelper.getInstance();
+        String res = instance.method4("New York");
+        assertEquals("New York", res);
+
+        String res2 = instance.method5("New York");
+        assertEquals("New York", res2);
     }
 
     @Test
