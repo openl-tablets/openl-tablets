@@ -643,7 +643,7 @@
 
         function onError(data) {
             ws.ui.hideLoader();
-            ws.ui.message(data.message, 7000);
+            ws.ui.info(data.message);
         }
 
         function isAnyTestSelected() {
@@ -658,7 +658,7 @@
             }
             // Validate on empty value of a range of IDs
             if (testRangesParam === "") {
-                ws.ui.message("No tests selected", 3000);
+                ws.ui.error("No tests selected");
                 return false;
             }
 
@@ -669,7 +669,7 @@
                     .get();
             for (var i = 0; i < ids.length; i++) {
                 if ($j.inArray( ids[i], allowed ) === -1) {
-                    ws.ui.message("Wrong [" + ids[i] + "] ID in the Range of IDs", 3000);
+                    ws.ui.error("Wrong [" + ids[i] + "] ID in the Range of IDs");
                     return false;
                 }
             }
