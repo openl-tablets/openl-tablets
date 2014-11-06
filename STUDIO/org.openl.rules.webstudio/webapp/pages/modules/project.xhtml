@@ -374,7 +374,7 @@
             <footer>
                 <a4j:commandButton value="Remove" action="#{projectBean.removeModule}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);ws.ui.message('Module was removed successfully!', 7000);}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('removeModulePopup');ws.nav.reload(true);ws.ui.success('Module was removed successfully!');}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('removeModulePopup');" />
             </footer>
         </h:form>
