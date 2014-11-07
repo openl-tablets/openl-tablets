@@ -2,7 +2,7 @@ package org.openl.binding.impl.cast;
 
 import org.openl.types.IOpenClass;
 
-public class JavaUpCast implements IOpenCast {
+public class JavaNoCast implements IOpenCast {
 
     public Object convert(Object from) {
         return from;
@@ -17,11 +17,7 @@ public class JavaUpCast implements IOpenCast {
 
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        if (from.getInstanceClass() == null) {
-            return 0;
-        }
-
-        return 7;
+        return 0;
     }
 
     /*

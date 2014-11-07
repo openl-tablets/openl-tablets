@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.junit.Test;
 import org.openl.binding.ICastFactory;
@@ -21,7 +20,7 @@ public class MethodSearchTest {
         public void method1(int arg1, double arg2) {
         };
 
-        public void method1(int arg1, BigDecimal arg2) {
+        public void method1(int arg1, byte arg2) {
         };
 
         public void method2(int arg1, double arg2) {
