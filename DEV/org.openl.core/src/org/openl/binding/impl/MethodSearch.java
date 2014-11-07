@@ -175,8 +175,6 @@ public class MethodSearch {
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
             ICastFactory casts, int distance) throws AmbiguousMethodException {
-        if (NullOpenClass.isAnyNull(params))
-            return null;
         Iterator<IOpenMethod> iterator = matchingMethods.iterator();
         while (iterator.hasNext()) {
             IOpenMethod res = iterator.next();
