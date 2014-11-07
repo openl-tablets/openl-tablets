@@ -17,7 +17,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
@@ -129,7 +128,7 @@ public class MethodSearch {
             case 1:
                 return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
             default:
-                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts, bestMatch);
+                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
                 boolean f = true;
                 for (int i = 0; i < params.length; i++) {
                     if (!params[i].equals(mostSecificMethod.getSignature().getParameterType(i))) {
@@ -174,7 +173,7 @@ public class MethodSearch {
     public static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
-            ICastFactory casts, int distance) throws AmbiguousMethodException {
+            ICastFactory casts) throws AmbiguousMethodException {
         Iterator<IOpenMethod> iterator = matchingMethods.iterator();
         while (iterator.hasNext()) {
             IOpenMethod res = iterator.next();
@@ -182,7 +181,7 @@ public class MethodSearch {
             boolean f = true;
             while (itr.hasNext()) {
                 IOpenMethod next = itr.next();
-                if (res != next && !isMoreSpecificMethod(res, next, casts, distance)) {
+                if (res != next && !isMoreSpecificMethod(res, next, casts)) {
                     f = false;
                     break;
                 }
@@ -195,7 +194,7 @@ public class MethodSearch {
         throw new AmbiguousMethodException(name, params, matchingMethods);
     }
 
-    private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts, int distance) {
+    private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts) {
         if (first.getSignature().getNumberOfParameters() != second.getSignature().getNumberOfParameters()) {
             return false;
         }
@@ -207,7 +206,7 @@ public class MethodSearch {
             if (!firstArgType.equals(secondArgType)) {
                 differenceInArgTypes = true;
                 IOpenCast cast = casts.getCast(firstArgType, secondArgType);
-                if (cast == null || cast.getDistance(firstArgType, secondArgType) > distance) {
+                if (cast == null || !cast.isImplicit()) {
                     return false;
                 }
             }
