@@ -14,6 +14,9 @@ public class JavaDownCast implements IOpenCast {
     }
 
     public Object convert(Object from) {
+        if (from == null){
+            return null;
+        }
         if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
             return from;
         } else {
