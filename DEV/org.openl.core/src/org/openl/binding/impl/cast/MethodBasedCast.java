@@ -23,8 +23,10 @@ public class MethodBasedCast implements IOpenCast {
      * @see org.openl.types.IOpenCast#convert(java.lang.Object)
      */
     public Object convert(Object from) {
+        if (from == null){
+            return null;
+        }
         Object[] params = new Object[] { from, nullObject };
-        
         return caller.invoke(null, params, null);
     }
 
@@ -37,7 +39,9 @@ public class MethodBasedCast implements IOpenCast {
     public int getDistance(IOpenClass from, IOpenClass to) {
         return distance;
     }
-
+    
+    
+    
     /*
      * (non-Javadoc)
      *

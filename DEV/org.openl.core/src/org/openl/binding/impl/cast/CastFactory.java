@@ -35,7 +35,8 @@ public class CastFactory implements ICastFactory {
      * The several predefined cast operations what are used for type conversion
      * operations.
      */
-    private static final JavaDownCast JAVA_DOWN_CAST = new JavaDownCast();
+    
+    private static final JavaNoCast JAVA_NO_CAST = new JavaNoCast();
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
@@ -95,6 +96,10 @@ public class CastFactory implements ICastFactory {
      */
     public IOpenCast findCast(IOpenClass from, IOpenClass to) {
 
+        if (from.equals(to)){
+            return JAVA_NO_CAST;
+        }
+
         if (to == NullOpenClass.the) {
             return null;
         }
@@ -107,43 +112,34 @@ public class CastFactory implements ICastFactory {
             return JAVA_UP_CAST;
         }
 
-        if (from == JavaOpenClass.OBJECT && isPrimitive(to)) {
-            return null;
-        }
-
-        if (from == JavaOpenClass.OBJECT && !isPrimitive(to)) {
-            return JAVA_DOWN_CAST;
-        }
-
-        if (to == JavaOpenClass.OBJECT && !isPrimitive(from)) {
-            return JAVA_UP_CAST;
-        }
-
         IOpenCast typeCast = findAliasCast(from, to);
 
-        if (typeCast != null) {
-            return typeCast;
-        }
-
-        typeCast = findJavaCast(from, to);
-
-        if (typeCast != null) {
-            return typeCast;
-        }
-
-        typeCast = findMethodBasedCast(from, to, methodFactory);
-
-        if (typeCast != null) {
-            return typeCast;
+        IOpenCast javaCast = findJavaCast(from, to);
+        // Select minimum between alias cast and java cast
+        if (typeCast == null) {
+            typeCast = javaCast;
+        } else {
+            if (javaCast != null && typeCast.getDistance(from, to) > javaCast.getDistance(from, to)) {
+                typeCast = javaCast;
+            }
         }
         
-        
+        IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
 
-        return null;
+        // Select minimum between alias cast and java cast
+        if (typeCast == null) {
+            typeCast = methodBasedCast;
+        } else {
+            if (methodBasedCast != null && typeCast.getDistance(from, to) > methodBasedCast.getDistance(from,
+                to)) {
+                typeCast = methodBasedCast;
+            }
+        }
+
+        return typeCast;
     }
-
-
-	/**
+    
+    /**
      * Checks that instance class of open class is primitive.
      * 
      * @param openClass type to check
@@ -164,7 +160,7 @@ public class CastFactory implements ICastFactory {
      */
     private IOpenCast findJavaCast(IOpenClass from, IOpenClass to) {
 
-        IOpenCast typeCast = findAutoBoxingCast(from, to);
+        IOpenCast typeCast = findBoxingCast(from, to);
 
         if (typeCast != null) {
             return typeCast;
@@ -177,7 +173,7 @@ public class CastFactory implements ICastFactory {
         }
 
         // Try to find cast using instance classes.
-        // 
+        //
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
@@ -186,7 +182,7 @@ public class CastFactory implements ICastFactory {
         }
 
         if (isAllowJavaDowncast(fromClass, toClass)) {
-            return JAVA_DOWN_CAST;
+            return new JavaDownCast(to);
         }
 
         return null;
@@ -201,7 +197,7 @@ public class CastFactory implements ICastFactory {
      * @return auto boxing cast operation if conversion is found; null -
      *         otherwise
      */
-    private IOpenCast findAutoBoxingCast(IOpenClass from, IOpenClass to) {
+    private IOpenCast findBoxingCast(IOpenClass from, IOpenClass to) {
 
         if (from == null || to == null || !isPrimitive(from) || isPrimitive(to)) {
             return null;
@@ -213,12 +209,12 @@ public class CastFactory implements ICastFactory {
         if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
             return JAVA_BOXING_CAST;
         }
-        
-        
-        //Apache ClassUtils has error in 2.6
-        if (fromClass == void.class && toClass == Void.class)
-        	return JAVA_BOXING_CAST;
 
+        // Apache ClassUtils has error in 2.6
+        if (fromClass == void.class && toClass == Void.class) {
+            return JAVA_BOXING_CAST;
+        }
+        
         return null;
     }
 
@@ -242,9 +238,9 @@ public class CastFactory implements ICastFactory {
             return JAVA_UNBOXING_CAST;
         }
 
-        //Apache ClassUtils has error in 2.6
+        // Apache ClassUtils has error in 2.6
         if (fromClass == Void.class && toClass == void.class)
-        	return JAVA_UNBOXING_CAST;
+            return JAVA_UNBOXING_CAST;
 
         return null;
     }
@@ -315,7 +311,11 @@ public class CastFactory implements ICastFactory {
      * @return cast operation
      */
     private IOpenCast findMethodCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
-
+        
+        if (methodFactory == null){
+            return null;
+        }
+        
         // Is auto cast ?
         boolean auto = true;
 
@@ -324,17 +324,17 @@ public class CastFactory implements ICastFactory {
 
         // Matching method
         IMethodCaller castCaller = null;
-        
+
         // To object null value
         Object toNullObject = to.nullObject();
 
         try {
             // Try to find matching auto cast method
             castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
+            Class<?> primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
+            Class<?> primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
 
             if (castCaller == null) {
-                Class<?> primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
-
                 // If from parameter is wrapper for primitive type try to find
                 // auto cast method using 'from' as primitive type. In this case
                 // we are emulate 2 operations: 1) unboxing operation 2)
@@ -348,18 +348,16 @@ public class CastFactory implements ICastFactory {
                 // primitive type for our case to simplify understanding type
                 // operations in
                 // engine by end-user.
-                // 
+                //
                 if (primitiveClassFrom != null) {
                     distance = 6;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] {
-                            wrapperOpenClassFrom, to });
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
+                        new IOpenClass[] { wrapperOpenClassFrom, to });
                 }
             }
-            
-            if (castCaller == null) {
-                Class<?> primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
 
+            if (castCaller == null) {
                 // If to parameter is wrapper for primitive type try to find
                 // auto cast method using 'to' as primitive type. In this case
                 // we are emulate 2 operations: 1) autocast operation,
@@ -373,18 +371,28 @@ public class CastFactory implements ICastFactory {
                 // primitive type for our case to simplify understanding type
                 // operations in
                 // engine by end-user.
-                // 
+                //
                 if (primitiveClassTo != null) {
                     distance = 6;
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] {
-                            from, wrapperOpenClassTo });
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from,
+                            wrapperOpenClassTo });
                     toNullObject = wrapperOpenClassTo.nullObject();
+                }
+            }
+            
+            if (castCaller == null) {
+                if (primitiveClassFrom != null && primitiveClassTo != null) {
+                    distance = 6;
+                    IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                    IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
+                        new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
                 }
             }
         } catch (AmbiguousMethodException ex) {
             // Ignore exception.
-            // 
+            //
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -392,7 +400,7 @@ public class CastFactory implements ICastFactory {
         //
         if (castCaller == null) {
             auto = false;
-            distance = 8;
+            distance = 9;
             try {
                 castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
             } catch (AmbiguousMethodException ex) {
@@ -413,8 +421,7 @@ public class CastFactory implements ICastFactory {
         }
 
         if (distanceCaller != null) {
-            distance = ((Integer) distanceCaller
-                .invoke(null, new Object[] { from.nullObject(), to.nullObject() }, null)).intValue();
+            distance = ((Integer) distanceCaller.invoke(null, new Object[] { from.nullObject(), to.nullObject() }, null)).intValue();
         }
 
         return new MethodBasedCast(castCaller, auto, distance, toNullObject);
