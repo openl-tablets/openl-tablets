@@ -24,7 +24,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     // <<< INSERT Functions >>>
     private byte value;
 
-
     /**
      * Compares two values
      * @param value1
@@ -32,8 +31,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -87,7 +87,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
@@ -501,51 +503,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the casted value to org.openl.meta.ByteValue
      */
     public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from short to org.openl.meta.ByteValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ByteValue
-     */
-    public static org.openl.meta.ByteValue autocast(short x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from int to org.openl.meta.ByteValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ByteValue
-     */
-    public static org.openl.meta.ByteValue autocast(int x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from long to org.openl.meta.ByteValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ByteValue
-     */
-    public static org.openl.meta.ByteValue autocast(long x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from float to org.openl.meta.ByteValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ByteValue
-     */
-    public static org.openl.meta.ByteValue autocast(float x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from double to org.openl.meta.ByteValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ByteValue
-     */
-    public static org.openl.meta.ByteValue autocast(double x, org.openl.meta.ByteValue y) {
         return new org.openl.meta.ByteValue((byte) x);
     }
 

@@ -8,13 +8,6 @@ public class OutsideOfValidDomainException extends RuntimeException {
         super();
     }
 
-    public OutsideOfValidDomainException(String message,
-            Throwable cause,
-            boolean enableSuppression,
-            boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
     public OutsideOfValidDomainException(String message, Throwable cause) {
         super(message, cause);
     }

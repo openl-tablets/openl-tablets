@@ -28,6 +28,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.ParameterMethodCaller;
+import org.openl.types.impl.SourceCodeMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -103,25 +104,34 @@ public class Condition extends FunctionalRow implements ICondition {
 
         IOpenClass methodType = ((CompositeMethod) getMethod()).getBodyType();
 
-        if (isDependentOnAnyParams()) { 
+        if (isDependentOnAnyParams()) {
             if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
                 throw SyntaxNodeExceptionUtils.createError("Condition must have boolean type if it depends on it's parameters",
                     source);
             }
 
-            conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this, signature, bindingContextDelegator);
+            conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this,
+                signature,
+                bindingContextDelegator);
 
             if (conditionEvaluator != null) {
                 evaluator = makeOptimizedConditionMethodEvaluator(signature,
                     conditionEvaluator.getOptimizedSourceCode());
+                if (evaluator == null) {
+                    evaluator = makeDependentParamsIndexedConditionMethodEvaluator(signature,
+                        conditionEvaluator.getOptimizedSourceCode());
+                }
                 return conditionEvaluator;
             }
 
             return conditionEvaluator = new DefaultConditionEvaluator();
         }
 
+        IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm.makeEvaluator(this,
+            methodType,
+            bindingContextDelegator);
+
         evaluator = makeOptimizedConditionMethodEvaluator(signature);
-        IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm.makeEvaluator(this, methodType);
 
         return conditionEvaluator = dtcev;
     }
@@ -139,7 +149,8 @@ public class Condition extends FunctionalRow implements ICondition {
         }
 
         Object[] params = mergeParams(target, dtParams, env, (Object[]) value);
-        Boolean res = (Boolean) getMethod().invoke(target, params, env);
+        Object result = getMethod().invoke(target, params, env);
+        Boolean res = (Boolean) result;
 
         // Check that condition expression has returned the not null value.
         //
@@ -203,15 +214,20 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
-        String parameter = code;
-        if (parameter.indexOf(".") > 0){
-            parameter = parameter.substring(0, parameter.indexOf("."));
-        }
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
-            if (pname.equals(parameter)) {
-                return new ParameterMethodCaller(getMethod(), i, code);
+            if (pname.equals(code)) {
+                return new ParameterMethodCaller(getMethod(), i);
             }
+        }
+        return null;
+    }
+
+    private IMethodCaller makeDependentParamsIndexedConditionMethodEvaluator(IMethodSignature signature,
+            String optimizedCode) {
+        String v = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+        if (optimizedCode != null && !optimizedCode.equals(v)) {
+            return new SourceCodeMethodCaller(signature, getParams()[0].getType(), optimizedCode);
         }
         return null;
     }

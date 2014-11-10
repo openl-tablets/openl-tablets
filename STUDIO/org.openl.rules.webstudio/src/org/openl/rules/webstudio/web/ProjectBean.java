@@ -635,6 +635,24 @@ public class ProjectBean {
         return getModulePath(module);
     }
 
+    public boolean isCurrentModuleMatchesSomePathPattern() {
+        if (currentModuleName == null) {
+            return false;
+        }
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        Module module = studio.getModule(projectDescriptor, currentModuleName);
+        return module != null && isModuleMatchesSomePathPattern(module);
+    }
+
+    public boolean isCurrentModuleHasPath(String path) {
+        if (currentModuleName == null || path == null) {
+            return false;
+        }
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        Module module = studio.getModule(projectDescriptor, currentModuleName);
+        return module != null && path.equals(getModulePath(module));
+    }
+
     public List<String> getModulePathsForPathPattern() {
         if (currentModuleName == null) {
             return Collections.emptyList();
@@ -671,14 +689,17 @@ public class ProjectBean {
     public void setNewFileName(String newFileName) {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
+
         Module module = new Module();
+        int indexOfSlash = newFileName.lastIndexOf("/");
+        module.setName(indexOfSlash <0 ? newFileName : newFileName.substring(indexOfSlash + 1));
         module.setRulesRootPath(new PathEntry(newFileName));
+
         fileNameMatched = null;
         try {
-            PropertiesFileNameProcessor processor = builder.build(projectDescriptor);
             String pattern = projectDescriptor.getPropertiesFileNamePattern();
             if (pattern != null) {
-                processor.process(module, pattern);
+                builder.build(projectDescriptor).process(module, pattern);
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException ignored) {
@@ -732,6 +753,10 @@ public class ProjectBean {
         }
 
         return true;
+    }
+
+    public String getPropertiesFileNamePattern() {
+        return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {

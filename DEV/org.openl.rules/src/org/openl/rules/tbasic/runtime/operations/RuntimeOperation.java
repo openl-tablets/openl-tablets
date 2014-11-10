@@ -47,18 +47,14 @@ public abstract class RuntimeOperation {
             operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
             Tracer.begin(operationTracer);
         }
-
         try {
-
             result = execute(environment, param);
-
         } finally {
             if (debugMode && significantForDebug) {
                 operationTracer.setResult(result);
                 Tracer.end();
             }
         }
-
         return result;
     }
 

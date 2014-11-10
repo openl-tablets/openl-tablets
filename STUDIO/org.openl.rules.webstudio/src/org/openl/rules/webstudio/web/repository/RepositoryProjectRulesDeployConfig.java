@@ -141,7 +141,7 @@ public class RepositoryProjectRulesDeployConfig {
 
         if (!StringUtils.isBlank(name)) {
             String message = "Invalid service name: only latin letters, numbers and _ are allowed, name must begin with a letter";
-            FacesUtils.validateAndAddErrorMessage(name.matches("[a-zA-Z][a-zA-Z_\\d]*"), message);
+            FacesUtils.validateAndAddErrorMessage(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
         }
     }
 

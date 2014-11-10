@@ -14,11 +14,13 @@ public class JavaUpCast implements IOpenCast {
      * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass,
      * org.openl.types.IOpenClass)
      */
+
+
     public int getDistance(IOpenClass from, IOpenClass to) {
         if (from.getInstanceClass() == null) {
             return 0;
         }
-        
+
         return 7;
     }
 

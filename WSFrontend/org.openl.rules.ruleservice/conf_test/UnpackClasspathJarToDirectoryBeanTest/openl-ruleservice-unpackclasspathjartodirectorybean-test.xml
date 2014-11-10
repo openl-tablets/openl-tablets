@@ -5,5 +5,6 @@
 
 	<bean name="unpackClasspathJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean">
 		<property name="destinationDirectory" value="target/unpackClasspathJarToDirectoryBeanTest"/>
+		<property name="unpackAllJarsInOneDeployment" value="true"/>
 	</bean>
 </beans>

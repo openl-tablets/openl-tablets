@@ -130,6 +130,10 @@
 .te_menu a:hover {
     text-decoration: underline;
     color: rgb(215,125,0);
+}
+
+.te_hidden {
+    display: none;
 }/* Tooltip skins */
 .tooltip_skin-default {
     background: #fff;

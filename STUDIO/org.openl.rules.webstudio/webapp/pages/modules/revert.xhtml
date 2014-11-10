@@ -75,7 +75,7 @@
                 <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
                 <a4j:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
                     onclick="if(!confirm('#{msg['ws.revert.confirm']}'))return false;"
-                    oncomplete="ws.ui.message('#{msg['ws.revert.successful']}', 4000); ws.nav.reload(true)"
+                    oncomplete="ws.ui.success('#{msg['ws.revert.successful']}'); ws.nav.reload(true)"
                     styleClass="button-primary" />
                 <a4j:commandButton id="compareBtn" value="#{msg['ws.revert.compare']}" action="#{revertProjectChangesBean.compare}"
                     oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.revert.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
@@ -126,7 +126,7 @@
                     // Check
                     if (checkbox.checked) {
                         if (versionsToCompare.length >= 2) {
-                            ws.ui.message("#{msg['ws.revert.compare.max']}", 4000);
+                            ws.ui.info("#{msg['ws.revert.compare.max']}");
                             return false;
                         }
                         versionsToCompare.push(version);

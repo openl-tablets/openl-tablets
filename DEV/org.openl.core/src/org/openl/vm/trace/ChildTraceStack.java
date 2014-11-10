@@ -14,6 +14,10 @@ public class ChildTraceStack implements TraceStack {
     public ChildTraceStack(TraceStack tracer) {
         this.tracer = tracer;
     }
+    
+    public int getPushed() {
+        return pushed;
+    }
 
     @Override
     public void push(ITracerObject tracerObject) {

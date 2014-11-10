@@ -16,7 +16,7 @@ public class TestAutoType3 {
     
     @Before
     public void before() {
-        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "true");
+        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
     }
 
 
