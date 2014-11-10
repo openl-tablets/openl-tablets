@@ -16,12 +16,8 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>jackrabbit</directory>
-            <outputDirectory>jackrabbit</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>repository</directory>
-            <outputDirectory>repository</outputDirectory>
+            <directory>deployment-repository</directory>
+            <outputDirectory>deployment-repository</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
