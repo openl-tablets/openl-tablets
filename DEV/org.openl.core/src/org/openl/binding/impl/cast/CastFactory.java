@@ -327,12 +327,16 @@ public class CastFactory implements ICastFactory {
 
         // To object null value
         Object toNullObject = to.nullObject();
+        
+        IOpenClass fromOpenClass = from;
+        IOpenClass toOpenClass = to;
+
+        Class<?> primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
+        Class<?> primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
 
         try {
             // Try to find matching auto cast method
             castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
-            Class<?> primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
-            Class<?> primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
 
             if (castCaller == null) {
                 // If from parameter is wrapper for primitive type try to find
@@ -352,6 +356,8 @@ public class CastFactory implements ICastFactory {
                 if (primitiveClassFrom != null) {
                     distance = 6;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                    fromOpenClass = wrapperOpenClassFrom;
+                    toOpenClass = to;
                     castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { wrapperOpenClassFrom, to });
                 }
@@ -377,6 +383,8 @@ public class CastFactory implements ICastFactory {
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from,
                             wrapperOpenClassTo });
+                    fromOpenClass = from;
+                    toOpenClass = wrapperOpenClassTo;
                     toNullObject = wrapperOpenClassTo.nullObject();
                 }
             }
@@ -386,6 +394,8 @@ public class CastFactory implements ICastFactory {
                     distance = 6;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                    fromOpenClass = wrapperOpenClassFrom;
+                    toOpenClass = wrapperOpenClassTo;
                     castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
                 }
@@ -400,9 +410,44 @@ public class CastFactory implements ICastFactory {
         //
         if (castCaller == null) {
             auto = false;
-            distance = 9;
             try {
                 castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
+                distance = 9;
+                if (castCaller == null) {
+                    if (primitiveClassFrom != null) {
+                        distance = 9;
+                        IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                        fromOpenClass = wrapperOpenClassFrom;
+                        toOpenClass = to;
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME,
+                            new IOpenClass[] { wrapperOpenClassFrom, to });
+                    }
+                }
+
+                if (castCaller == null) {
+                    if (primitiveClassTo != null) {
+                        distance = 9;
+                        IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME, new IOpenClass[] { from,
+                                wrapperOpenClassTo });
+                        fromOpenClass = from;
+                        toOpenClass = wrapperOpenClassTo;
+                        toNullObject = wrapperOpenClassTo.nullObject();
+                    }
+                }
+                
+                if (castCaller == null) {
+                    if (primitiveClassFrom != null && primitiveClassTo != null) {
+                        distance = 9;
+                        IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                        IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                        fromOpenClass = wrapperOpenClassFrom;
+                        toOpenClass = wrapperOpenClassTo;
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME,
+                            new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
+                    }
+                }
+
             } catch (AmbiguousMethodException ex) {
                 // Ignore exception.
                 //
@@ -416,12 +461,12 @@ public class CastFactory implements ICastFactory {
         IMethodCaller distanceCaller = null;
 
         try {
-            distanceCaller = methodFactory.getMatchingMethod(DISTANCE_METHOD_NAME, new IOpenClass[] { from, to });
+            distanceCaller = methodFactory.getMatchingMethod(DISTANCE_METHOD_NAME, new IOpenClass[] { fromOpenClass, toOpenClass });
         } catch (AmbiguousMethodException ex) {
         }
 
         if (distanceCaller != null) {
-            distance = ((Integer) distanceCaller.invoke(null, new Object[] { from.nullObject(), to.nullObject() }, null)).intValue();
+            distance = ((Integer) distanceCaller.invoke(null, new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() }, null)).intValue();
         }
 
         return new MethodBasedCast(castCaller, auto, distance, toNullObject);
