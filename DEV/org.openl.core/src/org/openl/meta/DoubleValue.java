@@ -272,6 +272,36 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     //ADD
+    public static DoubleValue add(DoubleValue value1, String value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 == null) {
+            return new DoubleValue(Double.valueOf(value2));
+        }
+        
+        double v = Double.valueOf(value2);
+
+        return new org.openl.meta.DoubleValue(value1, new DoubleValue(v), Operators.add(value1.getValue(), v),
+            Formulas.ADD);
+    }
+    
+    public static DoubleValue add(String value1, DoubleValue value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return new DoubleValue(Double.valueOf(value1));
+        }
+        
+        double v = Double.valueOf(value1);
+        
+        return new org.openl.meta.DoubleValue(new DoubleValue(v), value2, Operators.add(v, value2.getValue()),
+            Formulas.ADD);
+    } 
+    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.DoubleValue
@@ -696,6 +726,28 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
+    }
+    
+    public static String autocast(DoubleValue x, String y) {
+        if (x == null) {
+            return null;
+        }
+        return x.toString();
+    }
+    
+    public static Integer distance(DoubleValue x, String y) {
+        return 11;
+    }
+
+    public static DoubleValue autocast(String x, DoubleValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new DoubleValue(Double.valueOf(x));
+    }
+    
+    public static Integer distance(String x, DoubleValue y) {
+        return 10;
     }
 
     // ******* Casts *************

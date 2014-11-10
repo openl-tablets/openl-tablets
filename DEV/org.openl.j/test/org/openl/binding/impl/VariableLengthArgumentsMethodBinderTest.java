@@ -58,15 +58,15 @@ public class VariableLengthArgumentsMethodBinderTest {
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, double.class, double.class), cf).build();
         assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(String[].class), varArgs.getModifiedMethodArguments());
+        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, double.class, int.class, double.class), cf).build();
         assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(String[].class), varArgs.getModifiedMethodArguments());
+        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, int.class, double.class, int.class), cf).build();
         assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(String[].class), varArgs.getModifiedMethodArguments());
+        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(BigDecimal.class, int.class, Double.class, double.class, Integer.class), cf).build();
         assertEquals(0, varArgs.getFirstVarArgIndex());
