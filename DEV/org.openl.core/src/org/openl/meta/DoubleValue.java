@@ -68,8 +68,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -123,7 +124,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }

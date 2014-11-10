@@ -10,14 +10,13 @@ package org.openl.rules.calculation.result.convertor;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * The example of flat spreadsheet result structure.
@@ -42,11 +41,9 @@ import java.util.List;
  *            compound results.
  * @author DLiauchuk
  */
-public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends CompoundStep> {
+public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q extends CompoundStep> {
 
     private final Logger log = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
-
-    private NestedDataRowExtractorsFactory<T, Q> rowExtractorsFactory;
 
     private NestedSpreadsheetConfiguration<T, Q> conf;
 
@@ -54,9 +51,9 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
 
     /**
      * @param currentNestingLevel the number of the current nesting level
-     * @param configuration       configuration that is used for extracting rows on
-     *                            this and further levels, connat be null. In that case will
-     *                            throw {@link IllegalArgumentException}
+     * @param configuration configuration that is used for extracting rows on
+     *            this and further levels, connat be null. In that case will
+     *            throw {@link IllegalArgumentException}
      */
     public NestedSpreadsheetResultConverter(int currentNestingLevel, NestedSpreadsheetConfiguration<T, Q> configuration) {
         if (configuration == null) {
@@ -64,94 +61,71 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
         }
         this.conf = configuration;
         this.currentNestingLevel = currentNestingLevel;
-        this.rowExtractorsFactory = configuration.getRowExtractorsFactory(currentNestingLevel);
     }
 
     /**
      * Converts the spreadsheet result to flat structure.
      *
      * @param spreadsheetResult {@link SpreadsheetResult} that is going to be
-     *                          converted.
+     *            converted.
      * @return converted result, represented in flat structure.
      */
-    public List<CodeStep> process(SpreadsheetResult spreadsheetResult) {
-        List<CodeStep> steps = new ArrayList<CodeStep>();
+    public List<CalculationStep> process(SpreadsheetResult spreadsheetResult) {
+        List<CalculationStep> steps = new ArrayList<CalculationStep>();
         if (spreadsheetResult != null) {
             int height = spreadsheetResult.getHeight();
 
             for (int row = 0; row < height; row++) {
-                CodeStep step = processRow(spreadsheetResult, row);
-                steps.add(step);
+                CalculationStep step = processRow(spreadsheetResult, row);
+                if (step != null){
+                    steps.add(step);
+                }
             }
             return steps;
         }
-        log.warn("Spreadsheet result is null");
+        if (log.isWarnEnabled()){
+            log.warn("Spreadsheet result is null");
+        }
         return steps;
     }
 
-    private CodeStep processRow(SpreadsheetResult spreadsheetResult, int row) {
-        // Object valueConsiderToBeNested =
-        // getValueConsideredToBeNested(spreadsheetResult, row);
+    @SuppressWarnings("unchecked")
+    private CalculationStep processRow(SpreadsheetResult spreadsheetResult, int row) {
+        T step = null;
+        List<ColumnToExtract> compoundColumns = conf.getColumnsToExtract(currentNestingLevel);
+        List<SpreadsheetColumnExtractor<Q>> extractors = new ArrayList<SpreadsheetColumnExtractor<Q>>();
+        boolean isNestedRow = false;
+        for (ColumnToExtract column : compoundColumns) {
+            int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(),
+                spreadsheetResult.getColumnNames());
+            Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
+            if (valueIsNested(valueInColumn)) {
+                extractors.add((SpreadsheetColumnExtractor<Q>) conf.initCompoundColumnExtractor(currentNestingLevel,
+                    column));
+                isNestedRow = true;
+            } else {
+                extractors.add(new SpreadsheetColumnExtractor<Q>(column));
+            }
+        }
+        RowExtractor<? extends CalculationStep> rowExtractor = null;
+        if (isNestedRow) {
+            rowExtractor = conf.initCompoundRowExtractor(extractors);
+        } else {
+            List<SpreadsheetColumnExtractor<T>> simpleExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
+            for (ColumnToExtract column : compoundColumns) {
+                simpleExtractors.add(new SpreadsheetColumnExtractor<T>(column));
+            }
+            rowExtractor = conf.initSimpleRowExtractor(simpleExtractors);
+        }
 
-        CodeStep step = null;
-
-        // RowExtractor<?> rowExtractor =
-        // rowExtractorsFactory.getRowExtractor(conf.containsNested(currentNestingLevel));
-        RowExtractor<?> rowExtractor = rowExtractorsFactory
-                .getRowExtractor(anyNestedValueInRow(spreadsheetResult, row));
-        step = rowExtractor.extract(spreadsheetResult, row);
-
-        step.setStepName(spreadsheetResult.getRowName(row));
+        step = (T) rowExtractor.extract(spreadsheetResult, row);
+        if (step != null){
+            step.setStepName(spreadsheetResult.getRowName(row));
+        }
         return step;
     }
 
-    private boolean anyNestedValueInRow(SpreadsheetResult spreadsheetResult, int row) {
-        List<ColumnToExtract> compoundColumns = conf.getCompoundColumnsToExtract(currentNestingLevel);
-
-        for (ColumnToExtract column : compoundColumns) {
-            int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(),
-                    spreadsheetResult.getColumnNames());
-            Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
-            if (containsNested(valueInColumn)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Get the value from the given row and the column that is considered to
-     * have nested SpreadsheetResults.
-     *
-     * @param spreadsheetResult current result
-     * @param row               current row
-     * @return
-     */
-    // private Object getValueConsideredToBeNested(SpreadsheetResult
-    // spreadsheetResult, int row) {
-    // List<ColumnToExtract> compoundColumns =
-    // conf.getColumnsToExtract(currentNestingLevel);
-    //
-    // for (ColumnToExtract column : compoundColumns) {
-    // int columnIndex =
-    // SpreadsheetResultUtils.getColumnIndexByName(column.getColumnName(),
-    // spreadsheetResult.getColumnNames());
-    // Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
-    // if (containsNested(valueInColumn)) {
-    // return true;
-    // }
-    // }
-    //
-    //
-    // String typeResolvingColumnName = getColumnNameConsiderToBeNested();
-    // int columnIndex =
-    // SpreadsheetResultUtils.getColumnIndexByName(typeResolvingColumnName,
-    // spreadsheetResult.getColumnNames());
-    //
-    // return spreadsheetResult.getValue(row, columnIndex);
-    // }
-    private boolean containsNested(Object value) {
-        // TODO: fix me
+    private static boolean valueIsNested(Object value) {
         if ((value instanceof SpreadsheetResult) || (value instanceof SpreadsheetResult[])) {
             return true;
         }

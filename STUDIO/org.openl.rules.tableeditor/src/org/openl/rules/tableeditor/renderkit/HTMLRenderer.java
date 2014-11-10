@@ -82,7 +82,8 @@ public class HTMLRenderer {
             IGridFilter[] filters = editor.getFilters();
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder());
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder(),
+                    mode);
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);

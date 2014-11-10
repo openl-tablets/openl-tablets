@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -408,7 +409,7 @@ public class RuleRowHelper {
             IMetaInfo metaInfo,
             NodeType nodeType) {
         if (metaInfo != null) {
-            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier, metaInfo.getDisplayName(0), metaInfo.getSourceUrl(),
+            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                     nodeType);
             CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
             ICell cell = logicalCell.getSource().getCell(0, 0);

@@ -32,8 +32,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -87,7 +88,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
@@ -510,42 +513,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the casted value to org.openl.meta.ShortValue
      */
     public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from int to org.openl.meta.ShortValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ShortValue
-     */
-    public static org.openl.meta.ShortValue autocast(int x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from long to org.openl.meta.ShortValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ShortValue
-     */
-    public static org.openl.meta.ShortValue autocast(long x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from float to org.openl.meta.ShortValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ShortValue
-     */
-    public static org.openl.meta.ShortValue autocast(float x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from double to org.openl.meta.ShortValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.ShortValue
-     */
-    public static org.openl.meta.ShortValue autocast(double x, org.openl.meta.ShortValue y) {
         return new org.openl.meta.ShortValue((short) x);
     }
 

@@ -61,7 +61,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             library.addJavalib(javalib);
             libraries.addConfiguredLibrary(library);
         }
-
+        
         /**
          * <libraries>
          * 

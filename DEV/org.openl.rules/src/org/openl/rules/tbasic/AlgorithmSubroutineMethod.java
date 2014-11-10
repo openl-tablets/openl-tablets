@@ -81,16 +81,13 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 
         if (Tracer.isTracerOn()) {
             debugMode = true;
-
             methodTracer = new TBasicMethodTraceObject(this);
             Tracer.begin(methodTracer);
         }
 
         Object resultValue = null;
         try {
-
             resultValue = vm.run(algorithmSteps, labels, environment, debugMode);
-
         } finally {
             if (debugMode) {
                 methodTracer.setResult(resultValue);

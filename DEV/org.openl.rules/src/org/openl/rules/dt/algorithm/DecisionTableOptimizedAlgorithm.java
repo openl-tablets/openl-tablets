@@ -10,6 +10,8 @@ import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -280,7 +282,9 @@ public class DecisionTableOptimizedAlgorithm {
     // TODO to do - fix _NO_PARAM_ issue
 
     @SuppressWarnings("unchecked")
-    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType) throws SyntaxNodeException {
+    public static IConditionEvaluator makeEvaluator(ICondition condition,
+            IOpenClass methodType,
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         IParameterDeclaration[] params = condition.getParams();
 
@@ -289,19 +293,16 @@ public class DecisionTableOptimizedAlgorithm {
             case 1:
                 IOpenClass paramType = params[0].getType();
 
-                if (methodType.equals(paramType) || methodType.getInstanceClass().equals(paramType.getInstanceClass())) {
-                    return new EqualsIndexedEvaluator();
-                }
-
-                if (methodType instanceof JavaOpenClass && ((JavaOpenClass) methodType).equalsAsPrimitive(paramType)) {
-                    return new EqualsIndexedEvaluator();
+                IOpenCast openCast = bindingContext.getCast(paramType, methodType);
+                
+                if (openCast != null) {
+                    return new EqualsIndexedEvaluator(openCast);
                 }
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
                 if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
                     .isAssignableFrom(methodType)) {
-
                     return new ContainsInArrayIndexedEvaluator();
                 }
 
@@ -329,10 +330,8 @@ public class DecisionTableOptimizedAlgorithm {
 
                     Class<?> clazz = methodType.getInstanceClass();
 
-                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class && !Comparable.class.isAssignableFrom(clazz)) {
-
+                    if (clazz != short.class && clazz != byte.class && clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class && !Comparable.class.isAssignableFrom(clazz)) {
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
-
                         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
                     }
 
@@ -348,6 +347,11 @@ public class DecisionTableOptimizedAlgorithm {
                     if (booleanTypeAdaptor != null) {
                         return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
                     }
+                }
+
+                if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
+                    .equals(methodType)) {
+                    return new DefaultConditionEvaluator();
                 }
 
                 break;

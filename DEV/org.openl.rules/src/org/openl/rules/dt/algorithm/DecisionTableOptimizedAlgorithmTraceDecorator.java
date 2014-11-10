@@ -60,8 +60,6 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
 
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
         return algorithmDelegate.checkedRules(target, params, env, new DefaultAlgorithmDecoratorFactory() {
-            private ChildTraceStack notIndexedConditionsStack = new ChildTraceStack(conditionsStack);
-
             @Override
             public ARuleIndex create(ARuleIndex index, ICondition condition) {
                 if (index instanceof RangeIndex) {
@@ -75,7 +73,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
 
             @Override
             public IIntSelector create(IIntSelector selector, ICondition condition) {
-                return new SelectorTracer(selector, condition, baseTraceObject, notIndexedConditionsStack);
+                return new SelectorTracer(selector, condition, baseTraceObject, new ChildTraceStack(conditionsStack));
             }
         });
     }

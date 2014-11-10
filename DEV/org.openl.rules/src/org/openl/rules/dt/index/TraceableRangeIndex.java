@@ -35,7 +35,7 @@ public class TraceableRangeIndex extends RangeIndex {
     public DecisionTableRuleNode findNode(Object value) {
         cachingTraceStack.reset();
 
-        DecisionTableRuleNode result = super.findNode(value != null ? new ComparableValueTraceDecorator(value) : null);
+        DecisionTableRuleNode result = super.findNode(value != null ? new ComparableValueTraceDecorator(value) : null); 
 
         if (result == emptyOrFormulaNodes) {
             if (result.getRules() != null && result.getRules().length > 0) {

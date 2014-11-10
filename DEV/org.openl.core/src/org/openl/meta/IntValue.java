@@ -24,7 +24,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     // <<< INSERT Functions >>>
     private int value;
 
-
     /**
      * Compares two values
      * @param value1
@@ -32,8 +31,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return true if  value1 equal value2
      */
     public static boolean eq(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
-
+        if (value1 == null || value2 == null){
+            return value1 == value2;
+        }
         return Operators.eq(value1.getValue(), value2.getValue());
     }
     /**
@@ -87,7 +87,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return true if  value1 not equal value2
      */
     public static boolean ne(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
+        if (value1 == null || value2 == null){
+            return value1 != value2;
+        }
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
@@ -519,33 +521,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the casted value to org.openl.meta.IntValue
      */
     public static org.openl.meta.IntValue autocast(int x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from long to org.openl.meta.IntValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.IntValue
-     */
-    public static org.openl.meta.IntValue autocast(long x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from float to org.openl.meta.IntValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.IntValue
-     */
-    public static org.openl.meta.IntValue autocast(float x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
-    }
-    /**
-     * Is used to overload implicit cast operators from double to org.openl.meta.IntValue
-     * @param x
-     * @param y is needed to avoid ambiguity in Java method resolution
-     * @return the casted value to org.openl.meta.IntValue
-     */
-    public static org.openl.meta.IntValue autocast(double x, org.openl.meta.IntValue y) {
         return new org.openl.meta.IntValue((int) x);
     }
 

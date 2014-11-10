@@ -695,6 +695,23 @@ form .formfields {
     transition: all .4s ease-out;
     word-wrap: break-word;
 }
+.message.success {
+    background-color: #380;
+}
+.message.error {
+    background-color: #c33;
+}
+.message.closable {
+    cursor: pointer;
+}
+.message.closable:after {
+    content: "×";
+    font-size: 1.5em;
+    font-weight: bold;
+    position: absolute;
+    right: 1px;
+    top: -2px;
+}
 
 .noEntries {
     display: inline-block;

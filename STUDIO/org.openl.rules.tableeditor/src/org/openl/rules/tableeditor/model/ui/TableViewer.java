@@ -11,6 +11,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.Log;
 
 public class TableViewer {
@@ -20,6 +21,8 @@ public class TableViewer {
     private IGridRegion reg;
 
     private LinkBuilder linkBuilder;
+
+    private String mode;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -81,11 +84,12 @@ public class TableViewer {
     /**
      * Two argument constructor
      */
-    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder) {
+    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder, String mode) {
         super();
         this.grid = grid;
         this.reg = reg;
         this.linkBuilder = linkBuilder;
+        this.mode = mode;
     }
 
     CellModel buildCell(ICell cell, CellModel cm) {
@@ -99,18 +103,19 @@ public class TableViewer {
         String formattedValue = cell.getFormattedValue();
         if (StringUtils.isNotBlank(formattedValue)) {
             String content;
-            // has Explanation link
-            //
-            if (link(formattedValue)) {
+            if (Constants.MODE_EDIT.equals(mode)) {
+                // In edit mode there should be no links: it's difficult to start cell editing.
+                content = escapeHtml4(formattedValue);
+            } else if (link(formattedValue)) {
+                // has Explanation link
                 content = formattedValue;
-                // has method call
-                //
             } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
+                // has method call
                 content = createFormulaCellWithLinks(cell, formattedValue);
-                // has image
             } else if (image(formattedValue)) {
+                // has image
                 content = formattedValue;
-            } else {            
+            } else {
                 content = escapeHtml4(formattedValue);
             }
             cm.setContent(content);
@@ -147,6 +152,7 @@ public class TableViewer {
                 buff.append("<span class=\"title")
                         .append(" title-")
                         .append(nodeUsage.getNodeType().toString().toLowerCase())
+                        .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                         .append("\">");
                 if (tableUri != null) {
                     buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
@@ -154,6 +160,9 @@ public class TableViewer {
                     buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
                 }
                 buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
+                buff.append("<span class='").append(Constants.TABLE_EDITOR_ACTUAL_VALUE_CLASS).append(" te_hidden'>");
+                buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                buff.append("</span>");
                 nextSymbolIndex = pend + 1;
             }
         }

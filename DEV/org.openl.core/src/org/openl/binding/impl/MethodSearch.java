@@ -17,7 +17,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
@@ -129,7 +128,19 @@ public class MethodSearch {
             case 1:
                 return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
             default:
-                return findMostSpecificMethod(name, params, matchingMethods, casts);
+                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
+                boolean f = true;
+                for (int i = 0; i < params.length; i++) {
+                    if (!params[i].equals(mostSecificMethod.getSignature().getParameterType(i))) {
+                        f = false;
+                    }
+                    bestCastHolder[i] = casts.getCast(params[i], mostSecificMethod.getSignature().getParameterType(i));
+                }
+                if (f) {
+                    return mostSecificMethod;
+                } else {
+                    return new CastingMethodCaller(mostSecificMethod, bestCastHolder);
+                }
         }
 
     }
@@ -164,20 +175,23 @@ public class MethodSearch {
             List<IOpenMethod> matchingMethods,
             ICastFactory casts) throws AmbiguousMethodException {
         Iterator<IOpenMethod> iterator = matchingMethods.iterator();
-        IOpenMethod res = iterator.next();
         while (iterator.hasNext()) {
-            IOpenMethod next = iterator.next();
-            if (!isMoreSpecificMethod(res, next, casts)) {
-                if (isMoreSpecificMethod(next, res, casts)) {
-                    res = next;
-                } else {
-                    if (NullOpenClass.isAnyNull(params))
-                        return null;
-                    throw new AmbiguousMethodException(name, params, matchingMethods);
+            IOpenMethod res = iterator.next();
+            Iterator<IOpenMethod> itr = matchingMethods.iterator();
+            boolean f = true;
+            while (itr.hasNext()) {
+                IOpenMethod next = itr.next();
+                if (res != next && !isMoreSpecificMethod(res, next, casts)) {
+                    f = false;
+                    break;
                 }
             }
+            if (f) {
+                return res;
+            }
         }
-        return res;
+
+        throw new AmbiguousMethodException(name, params, matchingMethods);
     }
 
     private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts) {
@@ -191,7 +205,8 @@ public class MethodSearch {
             IOpenClass secondArgType = second.getSignature().getParameterType(i);
             if (!firstArgType.equals(secondArgType)) {
                 differenceInArgTypes = true;
-                if (casts.getCast(firstArgType, secondArgType) == null) {
+                IOpenCast cast = casts.getCast(firstArgType, secondArgType);
+                if (cast == null || !cast.isImplicit()) {
                     return false;
                 }
             }

@@ -9,7 +9,7 @@
     <artifactId>org.openl.rules.demo.repository</artifactId>
     <packaging>war</packaging>
     <name>OpenL Tablets - DEMO - Remote repository</name>
-    <description>WebStudio for OpenL Tablets demo application</description>
+    <description>Jackrabbit JCR web application with a demo configuration for a production repository</description>
     <url>http://openl-tablets.sf.net/</url>
     <properties>
         <war.name>openl-tablets-remote-repository-server-${project.version}</war.name>
@@ -20,6 +20,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
+                    <warSourceDirectory>webapp</warSourceDirectory>
                     <warName>${war.name}</warName>
                     <overlays>
                         <overlay>

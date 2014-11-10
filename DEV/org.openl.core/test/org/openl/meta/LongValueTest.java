@@ -42,12 +42,6 @@ public class LongValueTest {
     }
     
     @Test
-    public void testAutocastDouble() {
-        LongValue result = LongValue.autocast((double)123.873434, null);
-        assertEquals(123, result.getValue());
-    }
-    
-    @Test
     public void testMin() {
         LongValue[] la = getTestArray();
         assertEquals(new LongValue(5), LongValue.min(la));
