@@ -21,8 +21,8 @@ public class ByteValueTest {
         assertEquals(bval2, ByteValue.add(zeroValue, bval2));
         assertEquals(bval1, ByteValue.add(bval1, zeroValue));
 
-        assertEquals("0", ByteValue.add(null, new ByteValue((byte) 0)).toString());
-        assertEquals("0", ByteValue.add(new ByteValue((byte) 0), null).toString());
+        assertEquals("0", ByteValue.add((ByteValue) null, new ByteValue((byte) 0)).toString());
+        assertEquals("0", ByteValue.add(new ByteValue((byte) 0), (ByteValue) null).toString());
     }
 
 }

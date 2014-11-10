@@ -1,10 +1,11 @@
 package org.openl.meta;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.openl.exception.OpenlNotCheckedException;
 
 public class LongValueTest {
     
@@ -31,8 +32,8 @@ public class LongValueTest {
         value2 = null;
         assertNull(LongValue.add(value1, value2));        
 
-        assertEquals("0", LongValue.add(null, new LongValue(0)).toString());
-        assertEquals("0", LongValue.add(new LongValue(0), null).toString());
+        assertEquals("0", LongValue.add((LongValue)null, new LongValue(0)).toString());
+        assertEquals("0", LongValue.add(new LongValue(0), (LongValue)null).toString());
     }
     
     @Test

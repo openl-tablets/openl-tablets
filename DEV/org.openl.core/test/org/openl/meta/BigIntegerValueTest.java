@@ -1,6 +1,5 @@
 package org.openl.meta;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class BigIntegerValueTest {
 
     @Test
     public void testAdd() {
-        assertEquals("0", BigIntegerValue.add(null, new BigIntegerValue("0")).toString());
-        assertEquals("0", BigIntegerValue.add(new BigIntegerValue("0"), null).toString());
+        assertEquals("0", BigIntegerValue.add((BigIntegerValue) null, new BigIntegerValue("0")).toString());
+        assertEquals("0", BigIntegerValue.add(new BigIntegerValue("0"), (BigIntegerValue) null).toString());
     }
 }

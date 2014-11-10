@@ -1,6 +1,9 @@
 package org.openl.meta;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
@@ -40,8 +43,8 @@ public class TestDoubleValue {
     	v2 = null;
     	assertNull(DoubleValue.add(v1, v2));
 
-        assertEquals("0.0", DoubleValue.add(null, DoubleValue.ZERO).toString());
-        assertEquals("0.0", DoubleValue.add(DoubleValue.ZERO, null).toString());
+        assertEquals("0.0", DoubleValue.add((DoubleValue) null, DoubleValue.ZERO).toString());
+        assertEquals("0.0", DoubleValue.add(DoubleValue.ZERO, (DoubleValue) null).toString());
     }
     
     @Test
