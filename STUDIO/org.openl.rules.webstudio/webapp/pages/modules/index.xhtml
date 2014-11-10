@@ -335,45 +335,58 @@
                             loadingPanel.hide();
                         }
                     },
-                    message: function(content, life, closable) {
-                        var messages = $(".message");
-
-                        function remove() {
-                            message.remove();
-
-                            var top = 33;
-                            $(".message").each(function() {
-                                $(this).css({"top" : top + "px"});
-                                top += ($(this).outerHeight() + 5);
-                            });
-                        }
-
-                        var message = $("<div />").addClass("message").html(content);
-
-                        if (closable !== false) {
-                            message.css({"cursor" : "pointer"})
-                            message.click(remove);
-                        }
-
-                        var top;
-                        if (messages.length) {
-                            var lastMessage = $(messages[messages.length - 1]);
-                            top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
-                        } else {
-                            top = "33px";
-                        }
-
-                        message.css({"top": top});
-                        $("body").append(message);
-
-                        if (life > -1) {
-                            setTimeout(remove, life);
-                        }
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
                     }
                 },
 
                 changes: new ChangesListener()
             };
+
+            // private
+            function message(content, life, closable, styleClass) {
+                var messages = $(".message");
+
+                function remove() {
+                    message.remove();
+
+                    var top = 33;
+                    $(".message").each(function() {
+                        $(this).css({"top" : top + "px"});
+                        top += ($(this).outerHeight() + 5);
+                    });
+                }
+
+                var message = $("<div />").addClass("message").html(content);
+
+                if (closable !== false) {
+                    message.addClass("closable").click(remove);
+                }
+                if (styleClass) {
+                    message.addClass(styleClass);
+                }
+
+                var top;
+                if (messages.length) {
+                    var lastMessage = $(messages[messages.length - 1]);
+                    top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
+                } else {
+                    top = "33px";
+                }
+
+                message.css({"top": top});
+                $("body").append(message);
+
+                if (life > -1) {
+                    setTimeout(remove, life);
+                }
+            }
 
             (function initUI() {
                 $(function () {
@@ -495,11 +508,11 @@
                     if (errorMessage) {
                         // TODO Create mechanism to disable editing in UI when Excel file is opened.
                         if (errorMessage.indexOf(".xls") > -1) {
-                            api.ui.message("#{msg['ws.common.error.save']}", 7000);
+                            api.ui.info("#{msg['ws.common.error.save']}");
                         } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                             api.nav.reload(true);
                         } else {
-                            api.ui.message(errorMessage, 7000);
+                            api.ui.info(errorMessage);
                         }
                         return;
                     }
@@ -606,9 +619,9 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else if (code == 404) { // File Not Found
-                    api.ui.message("#{msg['ws.common.error.404']}", 7000);
+                    api.ui.info("#{msg['ws.common.error.404']}");
                 } else {
-                    api.ui.message("#{msg['ws.common.error.500']}", 7000);
+                    api.ui.info("#{msg['ws.common.error.500']}");
                 }
             };
 
