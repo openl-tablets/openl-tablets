@@ -30,10 +30,30 @@ import java.util.jar.JarFile;
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
-
     private String destinationDirectory;
 
     private boolean createAndClearDirectory = true;
+
+    private boolean unpackAllJarsInOneDeployment = true;
+    private boolean supportDeploymentVersion = false;
+
+    private String deploymentVersionSuffix = "_v0.0.1";
+
+    public boolean isUnpackAllJarsInOneDeployment() {
+        return unpackAllJarsInOneDeployment;
+    }
+
+    public void setUnpackAllJarsInOneDeployment(boolean unpackAllJarsInOneDeployment) {
+        this.unpackAllJarsInOneDeployment = unpackAllJarsInOneDeployment;
+    }
+
+    public String getDeploymentVersionSuffix() {
+        return deploymentVersionSuffix;
+    }
+
+    public void setDeploymentVersionSuffix(String deploymentVersionSuffix) {
+        this.deploymentVersionSuffix = deploymentVersionSuffix;
+    }
 
     /**
      * This bean is used by spring context. DestinationDirectory property must
@@ -69,6 +89,14 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             throw new IllegalArgumentException("destinationDirectory argument can't be null");
         }
         this.destinationDirectory = destinationDirectory;
+    }
+
+    public boolean isSupportDeploymentVersion() {
+        return supportDeploymentVersion;
+    }
+
+    public void setSupportDeploymentVersion(boolean supportDeploymentVersion) {
+        this.supportDeploymentVersion = supportDeploymentVersion;
     }
 
     /*
@@ -132,10 +160,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     private void extractJarForJboss(URL resourceURL, File desFile) throws IOException,
-            NoSuchMethodException,
-            InvocationTargetException,
-            IllegalAccessException,
-            ClassNotFoundException {
+                                                                  NoSuchMethodException,
+                                                                  InvocationTargetException,
+                                                                  IllegalAccessException,
+                                                                  ClassNotFoundException {
         // This reflection implementation for JBoss vfs
         URLConnection conn = resourceURL.openConnection();
         Object content = conn.getContent();
@@ -149,13 +177,24 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             if (!children.isEmpty()) {
                 Method getNameMethod = clazz.getMethod("getName");
                 String name = (String) getNameMethod.invoke(jarFile);
-                File newProjectDir = new File(desFile, FilenameUtils.getBaseName(name));
+
+                File d = desFile;
+                if (!isUnpackAllJarsInOneDeployment()) {
+                    String folderName = FilenameUtils.getBaseName(name);
+                    if (isSupportDeploymentVersion()) {
+                        folderName = folderName + getDeploymentVersionSuffix();
+                    }
+                    d = new File(desFile, folderName);
+                    d.mkdirs();
+                }
+
+                File newProjectDir = new File(d, FilenameUtils.getBaseName(name));
                 Class<?> VFSUtilsClazz = Thread.currentThread()
-                        .getContextClassLoader()
-                        .loadClass("org.jboss.vfs.VFSUtils");
+                    .getContextClassLoader()
+                    .loadClass("org.jboss.vfs.VFSUtils");
                 java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
-                        clazz,
-                        File.class);
+                    clazz,
+                    File.class);
                 newProjectDir.mkdirs();
                 for (Object child : children) {
                     recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
@@ -220,7 +259,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 throw new IOException("File not found. File: " + file.getAbsolutePath());
             }
 
-            unpack(file, destDirectory);
+            File d = desFile;
+            if (!isUnpackAllJarsInOneDeployment()) {
+                String folderName = FilenameUtils.getBaseName(file.getCanonicalPath());
+                if (isSupportDeploymentVersion()) {
+                    folderName = folderName + getDeploymentVersionSuffix();
+                }
+                d = new File(desFile, folderName);
+                d.mkdirs();
+            }
+
+            unpack(file, d.getCanonicalPath());
 
             log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
         }
