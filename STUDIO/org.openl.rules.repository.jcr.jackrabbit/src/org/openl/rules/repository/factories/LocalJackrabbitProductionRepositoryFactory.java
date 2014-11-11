@@ -2,36 +2,39 @@ package org.openl.rules.repository.factories;
 
 import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
-import org.openl.rules.repository.*;
+import org.openl.rules.repository.RProductionRepository;
+import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.RTransactionManager;
+import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.RulesRepositoryFactoryAware;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import java.io.File;
-import java.io.IOException;
-
 public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory implements RulesRepositoryFactoryAware {
 
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitProductionRepositoryFactory.class);
 
-    private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
-            "production-repository.local.home", "../local-repository");
-    private final ConfigPropertyString confNodeTypeFile = new ConfigPropertyString(
-            "production-repository.jcr.nodetypes", DEFAULT_NODETYPE_FILE);
-    private final ConfigPropertyString confRepositoryName = new ConfigPropertyString(
-            "production-repository.name", "Local Jackrabbit");
-    private final ConfigPropertyString login = new ConfigPropertyString(
-            "production-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString(
-            "production-repository.password", "pass");
-    private final ConfigPropertyString repoConfigFile = new ConfigPropertyString(
-            "production-repository.config", "/jackrabbit-repository.xml");
+    private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString("production-repository.local.home",
+        "../local-repository");
+    private final ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("production-repository.jcr.nodetypes",
+        DEFAULT_NODETYPE_FILE);
+    private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("production-repository.name",
+        "Local Jackrabbit");
+    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", "user");
+    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", "pass");
+    private final ConfigPropertyString repoConfigFile = new ConfigPropertyString("production-repository.config",
+        "/jackrabbit-repository.xml");
 
     private RulesRepositoryFactory rulesRepositoryFactory;
 
@@ -42,25 +45,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         setLogin(login);
         setPassword(password);
         setRepoConfigFile(repoConfigFile);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RProductionRepository createRepository() throws RRepositoryException {
-        try {
-            if (convert) {
-                convert();
-                convert = false;
-            }
-            // FIXME: do not hardcode credential info
-            Session session = createSession();
-            RTransactionManager transactionManager = getTrasactionManager(session);
-            return new JcrProductionRepository(repositoryName, session, transactionManager);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Repository Instance", e);
-        }
+        setProductionRepositoryMode(true);
     }
 
     /**
@@ -68,7 +53,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
      * and design repositories simultaneously.
      *
      * @return <code>true</code> if repository is used by local design
-     * repository from current process.
+     *         repository from current process.
      */
     private boolean isUsedByMyLocalDesignRepository() {
         if (rulesRepositoryFactory == null) {
@@ -103,7 +88,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
-            //FIXME
+            // FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
             log.info("Converting production repository. Please, be patient.");
             repositoryConvertor.convert(repositoryInstance);

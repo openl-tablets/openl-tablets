@@ -1,0 +1,22 @@
+{
+    "name" : "OPENL",
+    "workspaces" : {
+        "predefined" : ["otherWorkspace"],
+        "default" : "default",
+        "allowCreation" : true
+    },
+    "security" : {
+        "anonymous" : {
+            "roles" : ["readonly","readwrite","admin"],
+            "useOnFailedLogin" : false
+        }
+    },
+    "storage" : {
+        "cacheName" : "persisted_repository",
+        "binaryStorage" : {
+            "type" : "file",
+            "directory": "modeshape-binaries",
+            "minimumBinarySizeInBytes" : 65536
+        }
+    }
+}
