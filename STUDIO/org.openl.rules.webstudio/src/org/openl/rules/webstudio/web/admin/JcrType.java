@@ -4,9 +4,11 @@ public enum JcrType {
     DESIGN_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory.class),
     DESIGN_RMI(org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory.class),
     DESIGN_WEBDAV(org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory.class),
+    DESIGN_DB(org.openl.rules.repository.factories.DBDesignRepositoryFactory.class),
     PRODUCTION_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory.class),
     PRODUCTION_RMI(org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory.class),
-    PRODUCTION_WEBDAV(org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory.class);
+    PRODUCTION_WEBDAV(org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory.class),
+    PRODUCTION_DB(org.openl.rules.repository.factories.DBProductionRepositoryFactory.class);
 
     public static JcrType findByAccessType(RepositoryType repositoryType, String accessType) {
         for (JcrType jcrType : values()) {
@@ -47,6 +49,8 @@ public enum JcrType {
             this.repositoryPathPropertyName = repositoryType + "-repository.remote.rmi.url";
         } else if ("webdav".equals(accessType)) {
             this.repositoryPathPropertyName = repositoryType + "-repository.remote.webdav.url";
+        } else if ("db".equals(accessType)) {
+            this.repositoryPathPropertyName = repositoryType + "-repository.db.url";
         } else {
             throw new IllegalArgumentException("Incorrect JCR type");
         }
