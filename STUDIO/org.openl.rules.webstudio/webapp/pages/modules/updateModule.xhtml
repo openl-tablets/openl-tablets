@@ -13,7 +13,7 @@
 
         <f:facet name="controls">
           <h:graphicImage value="/images/close.gif" class="close"
-            onclick="RichFaces.$('updateModule').hide();" alt="Close" />
+            onclick="closeUpdateModuleDialog();" alt="Close" />
         </f:facet>
 
         <h:form id="updateModuleForm">
@@ -22,6 +22,7 @@
                 <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
                                  acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1">
                     <a4j:ajax event="uploadcomplete" execute="@none"
+                              render="moduleChangedFormData"
                               oncomplete="disableUploadModuleButton(false);" />
                 </rich:fileUpload>
             </h:panelGrid>
@@ -29,15 +30,53 @@
             <footer>
                 <a4j:commandButton id="uploadModule" value="Update" action="#{studio.updateModule}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);ws.ui.message('Module was updated successfully!', 7000);" />
-                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('updateModule').hide();" />
+                <input class="restore-changed-state" type="button" value="Cancel" onclick="closeUpdateModuleDialog();" />
             </footer>
             <a4j:jsFunction name="initUpdateModuleDialog" action="#{studio.clearUploadedFiles}" render="updateModuleFormData" oncomplete="RichFaces.$('updateModule').show();" />
+            <a4j:jsFunction name="closeUpdateModuleDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateModule').hide();" />
         </h:form>
     </rich:popupPanel>
+
+        <rich:popupPanel id="moduleChanged" width="500" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Update module"/>
+            </f:facet>
+
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('moduleChanged');" alt="Close" />
+            </f:facet>
+
+            <h:form id="moduleChangedForm">
+                <h:panelGrid id="moduleChangedFormData">
+                    <h:panelGroup>
+                        Warning: You've uploaded a module which differs from the current one. Please, ensure you've chosen the correct module to update.
+                    </h:panelGroup>
+
+                    <h:panelGrid rendered="#{studio.uploadedModuleChanged}">
+                        <script>
+                            //<![CDATA[
+                            if (typeof(updateModuleDialogOpened) !== 'undefined' && updateModuleDialogOpened) {
+                                ws.ui.show('moduleChanged');
+                            }
+                            //]]>
+                        </script>
+                    </h:panelGrid>
+                </h:panelGrid>
+
+                <footer>
+                    <input type="button" value="OK" onclick="ws.ui.hide('moduleChanged');" />
+                </footer>
+            </h:form>
+        </rich:popupPanel>
+
     </f:view>
 
     <script>
+        var updateModuleDialogOpened = false;
+
     function openUpdateModuleDialog() {
+            updateModuleDialogOpened = true;
         disableUploadModuleButton(true);
         initUpdateModuleDialog();
     }

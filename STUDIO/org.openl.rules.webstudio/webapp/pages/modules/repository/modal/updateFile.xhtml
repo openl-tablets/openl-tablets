@@ -12,25 +12,71 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="RichFaces.$('modalUpdateFile').hide();" alt="Close" />
+        onclick="closeUpdateFileDialog();" alt="Close" />
     </f:facet>
 
     <h:form id="updateFileForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
-        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" />
+        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}">
+          <a4j:ajax event="uploadcomplete" execute="@none"
+                    render="fileChangedFormData"
+                    oncomplete="disableUploadFileButton(false);" />
+        </rich:fileUpload>
       </h:panelGrid>
 
       <footer>
-        <h:commandButton value="Update" action="#{repositoryTreeController.updateFile}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="RichFaces.$('modalUpdateFile').hide();" />
+        <h:commandButton id="updateFile" value="Update" action="#{repositoryTreeController.updateFile}" styleClass="button-primary" />
+        <input type="button" value="Cancel" onclick="closeUpdateFileDialog();" />
+      </footer>
+      <a4j:jsFunction name="initUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" render="file" oncomplete="RichFaces.$('modalUpdateFile').show();" />
+      <a4j:jsFunction name="closeUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="RichFaces.$('modalUpdateFile').hide();" />
+    </h:form>
+  </rich:popupPanel>
+
+  <rich:popupPanel id="fileChanged" width="500" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Update file"/>
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close"
+                      onclick="RichFaces.$('fileChanged').hide();" alt="Close" />
+    </f:facet>
+
+    <h:form id="fileChangedForm">
+      <h:panelGrid id="fileChangedFormData">
+        <h:panelGroup>
+          Warning: You've uploaded a file which differs from the current one. Please, ensure you've chosen the correct file to update.
+        </h:panelGroup>
+
+        <h:panelGrid rendered="#{repositoryTreeController.uploadedFileChanged}">
+          <script>
+            //<![CDATA[
+            if (typeof(updateFileDialogOpened) !== 'undefined' && updateFileDialogOpened) {
+              RichFaces.$('fileChanged').show()
+            }
+            //]]>
+          </script>
+        </h:panelGrid>
+      </h:panelGrid>
+
+      <footer>
+        <input type="button" value="OK" onclick="RichFaces.$('fileChanged').hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
 
   <script>
+    var updateFileDialogOpened = false;
+
     function openUpdateFileDialog() {
-      RichFaces.$('modalUpdateFile').show();
+      updateFileDialogOpened = true;
+      disableUploadFileButton(true);
+      initUpdateFileDialog();
+    }
+    function disableUploadFileButton(disable) {
+      #{rich:element('updateFileForm:updateFile')}.disabled = disable;
     }
   </script>
 </ui:composition>
