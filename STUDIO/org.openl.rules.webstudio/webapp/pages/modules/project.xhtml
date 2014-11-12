@@ -44,6 +44,24 @@
             padding-left: 5px;
             padding-top: 8px;
         }
+
+        #editProjectForm select {
+            width: 321px;
+        }
+
+        #editProjectForm table td:first-child {
+            width: 104px;
+        }
+
+        table.properties-form td.aligned-property {
+            padding-top: 6px;
+            vertical-align: middle;
+        }
+
+        .expandable-link {
+            cursor: pointer;
+            border-bottom: 1px dashed #777777;
+        }
     </style>
 
     <ui:param name="editable" value="#{studio.model.editable}" />
@@ -194,7 +212,7 @@
                 </div>
             </div>
 
-            <h:panelGroup rendered="#{!empty project.dependencies or editable}">
+            <h:panelGroup rendered="#{projectBean.projectDependenciesSupported and (!empty project.dependencies or editable)}">
             <div class="block editable">
                 <h3>
                     <span>Dependencies</span>
@@ -282,6 +300,33 @@
         <h:form prependId="false" id="editProjectForm">
             <table class="properties properties-form wide">
                 <tr>
+                    <td style="padding-top: 0">OpenL version compatibility</td>
+                    <td class="aligned-property" style="padding-top: 0">
+                        <span id="version-compatibility-short" class="expandable-link">
+                            <h:outputText value="#{projectBean.supportedVersion.version}+" />
+                            <h:panelGroup rendered="#{projectBean.supportedVersion.lastVersion}">
+                                (Latest version)
+                            </h:panelGroup>
+                        </span>
+
+                        <span id="version-compatibility-full">
+                            <h:selectOneMenu id="supportedVersion" value="#{projectBean.supportedVersion}">
+                                <f:selectItems value="#{projectBean.possibleVersions}" var="version"
+                                               itemLabel="#{version.version}+#{version.lastVersion ? ' (Latest version)' : ''}"
+                                               itemValue="#{version}"/>
+                                <a4j:ajax event="change" execute="@this" render="propertiesFileNamePatternSettings" oncomplete="onPropertiesFileNameProcessorCheckboxClick()" />
+                            </h:selectOneMenu>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="supportedVersion" styleClass="error" />
+                    </a4j:outputPanel></td>
+                </tr>
+
+                <tr>
                     <td class="required">Name</td>
                     <td><h:inputText id="projectName" value="#{project.name}"
                         validator="#{projectBean.validateProjectName}" /></td>
@@ -302,16 +347,20 @@
                         <h:message for="projectDescription" styleClass="error" />
                     </a4j:outputPanel></td>
                 </tr>
+            </table>
+
+            <h:panelGroup id="propertiesFileNamePatternSettings" styleClass="#{projectBean.propertiesFileNamePatternSupported ? '' : 'hidden'}">
+            <table class="properties properties-form wide">
                 <tr>
                     <td>Custom file name processor</td>
-                    <td>
+                    <td class="aligned-property">
                         <input id="customPropertiesFileNameProcessor" type="checkbox" checked="#{empty project.propertiesFileNameProcessor ? '' : 'checked'}"
                                onclick="$j('#propertiesFileNameProcessor').val(''); $j('.propertiesFileNameProcessorSettings').toggle(this.checked);"/>
                     </td>
                 </tr>
                 <tr class="propertiesFileNameProcessorSettings">
                     <td>File name processor class</td>
-                    <td><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
+                    <td class="aligned-property"><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
                                      binding="#{projectBean.propertiesFileNameProcessorInput}"
                                      validator="#{projectBean.validatePropertiesFileNameProcessor}" /></td>
                 </tr>
@@ -323,7 +372,7 @@
                 </tr>
                 <tr>
                     <td>Properties pattern for a file name</td>
-                    <td>
+                    <td class="aligned-property">
                         <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}" styleClass="with-button"
                                      validator="#{projectBean.validatePropertiesFileNamePattern}" />
                         <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());" title="Description" class="imageButton"
@@ -339,6 +388,7 @@
                     </td>
                 </tr>
             </table>
+            </h:panelGroup>
 
             <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
@@ -474,6 +524,12 @@
         var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
         var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
+        var initSupportedVersion = $j("#supportedVersion").val();
+
+        function onPropertiesFileNameProcessorCheckboxClick() {
+            $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'))
+        }
+
         function editProject() {
             $j("#editProjectForm")[0].reset();
             var btn = $j("#editProjectBtn");
@@ -484,7 +540,9 @@
             $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
             $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
             $j("#editProjectForm span.error").remove();
-            $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'));
+            onPropertiesFileNameProcessorCheckboxClick();
+
+            initExpandableLink('#version-compatibility-short', '#version-compatibility-full');
 
             ws.ui.show("editProjectPopup");
 
@@ -493,13 +551,16 @@
                 var description = $j("#projectDescription").val();
                 var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
                 var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
+                var supportedVersion = $j("#supportedVersion").val();
                 btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription &&
                         propertiesFileNamePattern == initPropertiesFileNamePattern &&
-                        propertiesFileNameProcessor == initPropertiesFileNameProcessor));
+                        propertiesFileNameProcessor == initPropertiesFileNameProcessor &&
+                        supportedVersion == initSupportedVersion));
             };
 
             $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("keyup", updateButtonState);
             $j("#customPropertiesFileNameProcessor").click(updateButtonState);
+            $j("#supportedVersion").change(updateButtonState);
         }
 
         function addModule() {
@@ -565,6 +626,18 @@
 
             $j("#sources").on("keyup", function() {
                 btn.prop("disabled", $j("#sources").val() == initSources);
+            })
+        }
+
+        function initExpandableLink(divWithLink, divToShow) {
+            $j(divWithLink).show();
+            $j(divToShow).hide();
+
+            $j(divWithLink).off().click(function () {
+                if (!$j(this).hasClass('disabled-link')) {
+                    $j(divToShow).show();
+                    $j(divWithLink).hide();
+                }
             })
         }
 
