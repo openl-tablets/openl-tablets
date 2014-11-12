@@ -7,7 +7,7 @@ import com.thoughtworks.xstream.converters.SingleValueConverter;
 public class ModuleTypeConverter implements SingleValueConverter {
 
     public String toString(Object obj) {
-        return ((ModuleType) obj).toString().toLowerCase();
+        return obj.toString().toLowerCase();
     }
 
     public Object fromString(String name) {
