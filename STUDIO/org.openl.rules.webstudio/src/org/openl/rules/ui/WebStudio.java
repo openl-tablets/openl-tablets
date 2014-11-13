@@ -608,6 +608,26 @@ public class WebStudio {
         return false;
     }
 
+    public boolean isUploadedModuleChanged() {
+        ProjectFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null) {
+            return false;
+        }
+
+        Module module = getCurrentModule();
+        if (module != null) {
+            String moduleFullPath = module.getRulesRootPath().getPath().replace('\\', '/');
+            String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
+
+            String moduleFileName = moduleFullPath.substring(moduleFullPath.lastIndexOf('/') + 1);
+            String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
+
+            return !lastUploadedFileName.equals(moduleFileName);
+        }
+
+        return false;
+    }
+
     private String validateUploadedFiles(ProjectFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
         ProjectDescriptor newProjectDescriptor;
         try {

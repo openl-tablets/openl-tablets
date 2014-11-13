@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -15,6 +16,8 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.*;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
@@ -40,9 +43,13 @@ import java.util.*;
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+    private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+
+    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -56,6 +63,8 @@ public class ProjectBean {
 
     private String currentModuleName;
     private Boolean fileNameMatched;
+
+    private SupportedVersion supportedVersion;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -432,13 +441,12 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
-    private static final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
         try {
             // validator.validate(descriptor);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            configureSerializer();
             projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
@@ -465,6 +473,19 @@ public class ProjectBean {
             throw new Message("Error while saving the project");
         }
         // postProcess(descriptor);
+    }
+
+    private void configureSerializer() throws IOException {
+        IProjectDescriptorSerializer serializer;
+        SupportedVersion version = supportedVersion;
+        if (version == null) {
+            version = getSupportedVersion();
+        }
+        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        projectDescriptorSerializerFactory.setSupportedVersion(projectFolder, version);
+
+        serializer = projectDescriptorSerializerFactory.getSerializer(version);
+        projectDescriptorManager.setSerializer(serializer);
     }
 
     private void clean(ProjectDescriptor descriptor) {
@@ -517,6 +538,10 @@ public class ProjectBean {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
+        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {
@@ -757,6 +782,31 @@ public class ProjectBean {
 
     public String getPropertiesFileNamePattern() {
         return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
+    }
+
+    public SupportedVersion getSupportedVersion() {
+        if (supportedVersion != null) {
+            return supportedVersion;
+        }
+
+        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+        return projectDescriptorSerializerFactory.getSupportedVersion(descriptor.getProjectFolder());
+    }
+
+    public void setSupportedVersion(SupportedVersion supportedVersion) {
+        this.supportedVersion = supportedVersion;
+    }
+
+    public boolean isPropertiesFileNamePatternSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+    }
+
+    public boolean isProjectDependenciesSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+    }
+
+    public SupportedVersion[] getPossibleVersions() {
+        return SupportedVersion.values();
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {
