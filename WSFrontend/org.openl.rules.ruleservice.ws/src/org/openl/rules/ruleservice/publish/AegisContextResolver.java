@@ -10,8 +10,8 @@ import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 
 @Provider
-@Consumes({ MediaType.APPLICATION_JSON, "application/xml", "application/*+xml", "text/xml" })
-@Produces({ MediaType.APPLICATION_JSON, "application/xml", "application/*+xml", "text/xml" })
+@Consumes({ MediaType.APPLICATION_JSON, "application/*+json", "application/xml", "application/*+xml", "text/xml" })
+@Produces({ MediaType.APPLICATION_JSON, "application/*+json", "application/xml", "application/*+xml", "text/xml" })
 public class AegisContextResolver implements ContextResolver<AegisContext> {
 
     @Override

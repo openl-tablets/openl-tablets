@@ -78,7 +78,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            if (service.getPublishers() != null && service.getPublishers().size() > 1) {
+            if (service.getPublishers() != null && service.getPublishers().size() > 1) {    
                 svrFactory.setAddress(getBaseAddress() + REST_PREFIX + service.getUrl());
             } else {
                 svrFactory.setAddress(getBaseAddress() + service.getUrl());

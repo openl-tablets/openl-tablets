@@ -9,29 +9,22 @@
 	<bean id="JAXRSserviceDescriptionConfigurationReadXsiTypesFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
-		<property name="propertyName" value="jaxrs.readXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.readXsiTypes}"/>
+		<property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
 	</bean>
 
 	<bean id="JAXRSserviceDescriptionConfigurationWriteXsiTypesFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
-		<property name="propertyName" value="jaxrs.writeXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.writeXsiTypes}"/>
+		<property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
 	</bean>
 
-	<bean id="JAXRSserviceDescriptionConfigurationIgnoredNamespaceFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationStringFactoryBean"
-		scope="prototype" >
-		<property name="propertyName" value="jaxrs.ignoredNamespace"/>
-		<property name="defaultValue" value="http://beans.generated.openl.org"/>
-	</bean>
-	
 	<bean id="JAXRSserviceDescriptionConfigurationIgnoreNamespacesFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
-		<property name="propertyName" value="jaxrs.ignoreNamespaces"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.jaxrs.ignoreNamespaces}"/>
+		<property name="propertyName" value="aegisdatabinding.ignoreNamespaces"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.ignoreNamespaces}"/>
 	</bean>
 	
 	<bean id="JAXRSaegisDatabindingFactoryBean"
@@ -49,33 +42,24 @@
 		<property name="singleton" value="false"/>
 	</bean>
  
-	<!-- Main description for the one RESTfulService  -->
-	<!-- All configurations for server (like a data binding type and interceptors) 
-		are represented there. ServerFactoryBean configuration is similar to a CXF 
-		simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
-		but without namespace "simple". -->
-
 	<bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
 		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
 	
 	<bean id="JAXRSNamespaceMapBean" class="org.openl.rules.ruleservice.databinding.JAXRSNamespaceMapFactoryBean" scope="prototype">
-		<property name="ignoredNamespace" ref="JAXRSserviceDescriptionConfigurationIgnoredNamespaceFactoryBean"/>
+		<property name="ignoredNamespace" ref="JAXRSserviceDescriptionConfigurationIgnoredNamespacesFactoryBean"/>
 	</bean>
 	
-	<bean id="JAXRSAegisJSONProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisJSONProvider" scope="prototype">
-		<property name="ignoreNamespaces" ref="JAXRSserviceDescriptionConfigurationIgnoreNamespacesFactoryBean"/>
-		<property name="namespaceMap" ref="JAXRSNamespaceMapBean"/>
-	</bean>
+	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype"/>
 	
-	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider"/>
+	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider" scope="prototype"/>
 	
 	<bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
 		<property name="addMessageToResponse" value="true"/>
 	</bean>
 	
 	<bean id="JAXRS200StatusOutInterceptor" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
-		<property name="enabled" value="${ruleservice.jaxrs.responseStatusIsOK}"/>
+		<property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
 	</bean>
 	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
@@ -98,7 +82,7 @@
 		</property>
 		<property name="providers">
 			<list>
-				<ref bean="JAXRSAegisJSONProvider"/>
+				<ref bean="JAXRSJSONProvider"/>
 				<ref bean="JAXRSAegisElementProvider"/>
 				<ref bean="JAXRSWebApplicationExceptionMapper"/>
 			</list>

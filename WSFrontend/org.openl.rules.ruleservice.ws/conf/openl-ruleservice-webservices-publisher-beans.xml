@@ -9,15 +9,15 @@
 	<bean id="serviceDescriptionConfigurationReadXsiTypesFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
-		<property name="propertyName" value="ws.readXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.ws.readXsiTypes}"/>
+		<property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
 	</bean>
 
 	<bean id="serviceDescriptionConfigurationWriteXsiTypesFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype">
-		<property name="propertyName" value="ws.writeXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.ws.writeXsiTypes}"/>
+		<property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
+		<property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
 	</bean>
 	
 	<bean id="aegisDatabindingFactoryBean"
