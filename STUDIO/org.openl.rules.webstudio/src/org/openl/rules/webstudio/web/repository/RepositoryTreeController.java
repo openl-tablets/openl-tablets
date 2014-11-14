@@ -1326,19 +1326,15 @@ public class RepositoryTreeController {
 
     public boolean isUploadedFileChanged() {
         ProjectFile lastUploadedFile = getLastUploadedFile();
-        if (lastUploadedFile == null) {
+        if (lastUploadedFile == null || !(repositoryTreeState.getSelectedNode().getData() instanceof AProjectResource)) {
             return false;
         }
 
         AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
-        if (node != null) {
-            String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
-            String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
+        String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
+        String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
 
-            return !lastUploadedFileName.equals(node.getName());
-        }
-
-        return false;
+        return !lastUploadedFileName.equals(node.getName());
     }
 
     public void setFileName(String fileName) {
