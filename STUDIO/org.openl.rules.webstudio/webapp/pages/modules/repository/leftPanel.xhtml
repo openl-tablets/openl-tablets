@@ -37,6 +37,23 @@
         }
 
         function filterRepoProjects(repo, pattern) {
+            var filterId;
+            var clearFilterId;
+            if (repo == "design") {
+                filterId = "#nameFilter";
+                clearFilterId = '#clearFilter';
+            } else {
+                filterId = "#prodNameFilter";
+                clearFilterId = '#clearProdFilter';
+            }
+            if (pattern && pattern.length) {
+                $j(filterId).addClass('withClearButton');
+                $j(clearFilterId).removeClass('hidden');
+            } else {
+                $j(filterId).removeClass('withClearButton');
+                $j(clearFilterId).addClass('hidden');
+            }
+
             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
 
             var treeId = (repo == "design" ? "#projectTree" : "#prodTree");
@@ -63,6 +80,16 @@
 
         function prodFilterProjects(pattern) {
             filterRepoProjects("production", pattern);
+        }
+
+        function clearProjectsFilter() {
+            $j("#nameFilter").val('');
+            filterProjects('');
+        }
+
+        function clearProdProjectsFilter() {
+            $j("#prodNameFilter").val('');
+            prodFilterProjects('');
         }
 
         initFilter();
