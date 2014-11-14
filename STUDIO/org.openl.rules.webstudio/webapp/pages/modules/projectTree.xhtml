@@ -52,6 +52,18 @@
             color: #29d;
             font-size: 110%;
         }
+
+        .input-container.withClearButton {
+            width: calc(100% - 26px)
+        }
+
+        .specificProject #projects > ul > li:hover {
+            padding-right: 15px;
+        }
+
+        .panel-body.specificProject {
+            top: 0;
+        }
     </style>
 
     <div class="panel">
@@ -60,6 +72,11 @@
                 <div class="filter-name">
                     <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
                         placeholder="#{msg['ws.projects.filter']}" class="input-container" />
+                    <span id="clearFilter" title="Clear filter" href="javascript:void(0)" class="imageButton clearButton hidden"
+                       onclick="clearFilter()">
+                        <!-- IE doesn't handle hover actions correctly on empty elements, that's why used to include empty image -->
+                        <img src="webresource/images/empty.gif"/>
+                    </span>
                 </div>
             </h:panelGroup>
         </div>
@@ -83,26 +100,49 @@
                     </ul>
 
                     <script>
-                      //<![CDATA[
+                        //<![CDATA[
                         var FILTER_PATTERN_ITEM = "filterPattern";
 
                         var projects = $j("#projects > ul > li");
 
                         var filterPattern = $j("#nameFilter").val()
-                            || sessionStorage.getItem(FILTER_PATTERN_ITEM);
+                                || sessionStorage.getItem(FILTER_PATTERN_ITEM);
                         if (filterPattern) {
                             $j("#nameFilter").val(filterPattern);
                             filterProjects(filterPattern);
                         }
 
                         function filterProjects(pattern) {
+                            if (pattern && pattern.length) {
+                                $j('#nameFilter').addClass('withClearButton');
+                                $j('#clearFilter').removeClass('hidden');
+                            } else {
+                                $j('#nameFilter').removeClass('withClearButton');
+                                $j('#clearFilter').addClass('hidden');
+                            }
+
                             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
-                            projects.each(function() {
+                            projects.each(function () {
                                 var projectName = $j(this).find(">a").text();
                                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
                             });
                         }
-                      //]]>
+
+                        function clearFilter() {
+                            $j("#nameFilter").val('');
+                            filterProjects('');
+                        }
+
+                        function filterSpecificProject(projectToSelect) {
+                            $j('.panel-header').addClass('hidden');
+                            $j('.panel-body').addClass('specificProject');
+
+                            projects.each(function () {
+                                var projectName = $j(this).find(">a").text();
+                                $j(this).toggle(projectName == projectToSelect);
+                            });
+                        }
+                        //]]>
                     </script>
                 </h:panelGroup>
 

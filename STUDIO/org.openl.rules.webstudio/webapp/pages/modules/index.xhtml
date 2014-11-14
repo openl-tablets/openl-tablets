@@ -778,8 +778,7 @@
                     var projectLink = $("#projects-tree a[href = '#" + projectName + "']");
                     if (projectLink.length) { // Firefox has bug with decoding url after refresh
                         // Select node
-                        $("#projects-tree li.sel").removeClass("sel");
-                        projectLink.closest("li").addClass("sel");
+                        filterSpecificProject(decodeURIComponent(projectName));
                     }
                 }
             };
@@ -807,8 +806,8 @@
 
     <div id="center">
         <div id="left" class="ui-layout-west">
-            <span id="west-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
             <div id="leftContent"></div>
+            <span id="west-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
         </div>
         <div class="ui-layout-center">
             <div id="content" class="ui-layout-center"></div>
