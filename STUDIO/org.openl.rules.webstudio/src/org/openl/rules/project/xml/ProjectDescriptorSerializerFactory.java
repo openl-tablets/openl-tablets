@@ -37,9 +37,10 @@ public class ProjectDescriptorSerializerFactory {
     public SupportedVersion getSupportedVersion(File projectFolder) {
         SupportedVersion version = null;
 
-        File file = new File(new File(projectFolder, FolderHelper.PROPERTIES_FOLDER), OPENL_PROJECT_PROPERTIES_FILE);
+        File folder = new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
+        File file = new File(folder, OPENL_PROJECT_PROPERTIES_FILE);
 
-        if (file.isFile()) {
+        if (folder.isDirectory() && file.isFile()) {
             Properties properties = new Properties();
             InputStream is = null;
             try {
@@ -68,7 +69,13 @@ public class ProjectDescriptorSerializerFactory {
 
         FileOutputStream os = null;
         try {
-            File file = new File(new File(projectFolder, FolderHelper.PROPERTIES_FOLDER), OPENL_PROJECT_PROPERTIES_FILE);
+            File folder = new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
+            if (!folder.exists()) {
+                if (!folder.mkdir() && !folder.isDirectory()) {
+                    throw new IOException("Can't create folder " + folder);
+                }
+            }
+            File file = new File(folder, OPENL_PROJECT_PROPERTIES_FILE);
             os = new FileOutputStream(file);
             properties.store(os, "Openl project properties");
             os.close();
