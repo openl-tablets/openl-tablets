@@ -18,9 +18,9 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
     private Comparator<IOpenMethod> methodsComparator;
     
-    public DefaultTablePropertiesSorter(){
+    public DefaultTablePropertiesSorter(){ 
         initTablesPriorityRules();
-        initMethodsCoparator();
+        initMethodsComparator();
     }
 
     private void initTablesPriorityRules() {
@@ -58,7 +58,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         tablesPriorityRules.add(new IntersectedPropertiesPriorityRule());
     }
 
-    private void initMethodsCoparator() {
+    private void initMethodsComparator() {
         methodsComparator = new Comparator<IOpenMethod>() {
 
             public int compare(IOpenMethod o1, IOpenMethod o2) {
