@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding;
  * #L%
  */
 
-
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -38,17 +37,37 @@ import org.openl.rules.ruleservice.databinding.jackson.org.openl.meta.ShortValue
 import org.openl.rules.ruleservice.databinding.jackson.org.openl.meta.ShortValueType.ShortValueSerializer;
 import org.openl.rules.ruleservice.databinding.jackson.org.openl.meta.StringValueType.StringValueDeserializer;
 import org.openl.rules.ruleservice.databinding.jackson.org.openl.meta.StringValueType.StringValueSerializer;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.ComplexVariationType;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.DeepCloningVariationType;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.JXPathVariationType;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.VariationsResultType;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.VariationType;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class JacksonObjectMapperFactoryBean {
-    public ObjectMapper createAegisDatabinding() {
+
+    private boolean supportVariations = false;
+
+    private boolean enableDefaultTyping = false;
+
+    private boolean smartDefaultTyping = true;
+
+    public ObjectMapper createJacksonDatabinding() {
         ObjectMapper mapper = new ObjectMapper();
-        
-        mapper.enableDefaultTyping();
-        
+
+        if (isEnableDefaultTyping()) {
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        } else {
+            if (isSmartDefaultTyping()) {
+                throw new IllegalStateException("Smart default typing not supporting!");
+            }
+        }
+
         SimpleModule valueTypesModule = new SimpleModule("OpenL Value Types", Version.unknownVersion());
         // Value Types binding configuration
         valueTypesModule.addSerializer(ByteValue.class, new ByteValueSerializer());
@@ -71,6 +90,67 @@ public class JacksonObjectMapperFactoryBean {
         valueTypesModule.addDeserializer(BigDecimalValue.class, new BigDecimalValueDeserializer());
         valueTypesModule.addDeserializer(StringValue.class, new StringValueDeserializer());
 
+        mapper.registerModule(valueTypesModule);
+
+        if (isSupportVariations()) {
+
+            if (loadClass("org.openl.rules.variation.Variation") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.Variation"), VariationType.class);
+            }
+            if (loadClass("org.openl.rules.variation.ArgumentReplacementVariation") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.ArgumentReplacementVariation"),
+                    ArgumentReplacementVariationType.class);
+            }
+            if (loadClass("org.openl.rules.variation.ComplexVariation") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.ComplexVariation"),
+                    ComplexVariationType.class);
+            }
+            if (loadClass("org.openl.rules.variation.DeepCloningVariation") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.DeepCloningVariation"),
+                    DeepCloningVariationType.class);
+            }
+            if (loadClass("org.openl.rules.variation.JXPathVariation") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.JXPathVariation"),
+                    JXPathVariationType.class);
+            }
+            if (loadClass("org.openl.rules.variation.VariationsResult") != null) {
+                mapper.addMixInAnnotations(loadClass("org.openl.rules.variation.VariationsResult"),
+                    VariationsResultType.class);
+            }
+
+        }
         return mapper;
+    }
+
+    private static Class<?> loadClass(String className) {
+        try {
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    public boolean isSupportVariations() {
+        return supportVariations;
+    }
+
+    public void setSupportVariations(boolean supportVariations) {
+        this.supportVariations = supportVariations;
+    }
+
+    public boolean isEnableDefaultTyping() {
+        return enableDefaultTyping;
+    }
+
+    public void setEnableDefaultTyping(boolean enableDefaultTyping) {
+        this.enableDefaultTyping = enableDefaultTyping;
+    }
+
+    public boolean isSmartDefaultTyping() {
+        return smartDefaultTyping;
+    }
+
+    public void setSmartDefaultTyping(boolean smartDefaultTyping) {
+        this.smartDefaultTyping = smartDefaultTyping;
     }
 }

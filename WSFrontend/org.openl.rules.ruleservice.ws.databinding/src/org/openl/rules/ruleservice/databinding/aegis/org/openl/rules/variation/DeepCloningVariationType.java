@@ -21,18 +21,18 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.Variation;
 
 /**
- * Custom mapping for {@link DeepCloningVariaion} due to it is not usual bean
+ * Custom mapping for {@link DeepCloningVariation} due to it is not usual bean
  * and should be initialized through non-default constructor.
  * 
  * @author PUdalau
  */
 public class DeepCloningVariationType extends BeanType {
 
-    public static final Class<?> TYPE_CLASS = DeepCloningVariaion.class;
+    public static final Class<?> TYPE_CLASS = DeepCloningVariation.class;
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
@@ -74,7 +74,7 @@ public class DeepCloningVariationType extends BeanType {
                 }
             }
 
-            return new DeepCloningVariaion(variationID, variation);
+            return new DeepCloningVariation(variationID, variation);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

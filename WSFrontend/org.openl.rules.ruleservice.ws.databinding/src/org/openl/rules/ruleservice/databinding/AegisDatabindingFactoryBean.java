@@ -204,7 +204,7 @@ public class AegisDatabindingFactoryBean {
             overrideTypes.add("org.openl.rules.variation.ComplexVariation");
             overrideTypes.add("org.openl.rules.variation.NoVariation");
             overrideTypes.add("org.openl.rules.variation.JXPathVariation");
-            overrideTypes.add("org.openl.rules.variation.DeepCloningVariaion");
+            overrideTypes.add("org.openl.rules.variation.DeepCloningVariation");
             overrideTypes.add("org.openl.rules.variation.ArgumentReplacementVariation");
         }
         return overrideTypes;
