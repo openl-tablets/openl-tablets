@@ -19,7 +19,7 @@ import com.rits.cloning.Cloner;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class DeepCloningVariaion extends Variation {
+public class DeepCloningVariation extends Variation {
     /**
      * Suffix for generated variation ID if it have not been specified.
      */
@@ -32,16 +32,16 @@ public class DeepCloningVariaion extends Variation {
     /**
      * Empty constructor required for WS data binding
      */
-    public DeepCloningVariaion() {
+    public DeepCloningVariation() {
     }
     
     /**
      * Constructs deep-cloning variation with the generated ID(ID of delegated
-     * variation + {@link DeepCloningVariaion.DEEP_CLONING_SUFFIX}).
+     * variation + {@link DeepCloningVariation.DEEP_CLONING_SUFFIX}).
      * 
      * @param variation Delegated variation.
      */
-    public DeepCloningVariaion(Variation variation) {
+    public DeepCloningVariation(Variation variation) {
         this(variation.getVariationID() + DEEP_CLONING_SUFFIX, variation);
     }
 
@@ -51,7 +51,7 @@ public class DeepCloningVariaion extends Variation {
      * @param variationID Unique variation ID.
      * @param variation Delegated variation.
      */
-    public DeepCloningVariaion(String variationID, Variation variation) {
+    public DeepCloningVariation(String variationID, Variation variation) {
         super(variationID);
         this.variation = variation;
     }

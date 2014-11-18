@@ -55,7 +55,7 @@ public abstract class VariationsFactory {
      *            variation.
      * @param valueToSet Value to set for modified field.
      * @param cloneArguments Flag that determines whether the created variation
-     *            should be wrapped by {@link DeepCloningVariaion}.
+     *            should be wrapped by {@link DeepCloningVariation}.
      * @return Variation that corresponds the specified path.
      */
     public static Variation getVariation(String vairationId,
@@ -71,7 +71,7 @@ public abstract class VariationsFactory {
             variation = new JXPathVariation(vairationId, argumentIndex, path, valueToSet);
         }
         if (cloneArguments) {
-            variation = new DeepCloningVariaion(variation);
+            variation = new DeepCloningVariation(variation);
         }
         return variation;
     }
