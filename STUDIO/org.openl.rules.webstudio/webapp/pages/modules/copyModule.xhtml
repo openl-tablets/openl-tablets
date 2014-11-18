@@ -371,6 +371,14 @@
                 var moduleName = target.val();
 
                 fields.getNewFolder().val(folder);
+                var newFolderRow = fields.getNewFolder().parent().parent();
+                if (folder) {
+                    newFolderRow.addClass('new-file-name-setting-full');
+                    newFolderRow.removeClass('hidden');
+                } else {
+                    newFolderRow.removeClass('new-file-name-setting-full');
+                    newFolderRow.addClass('hidden');
+                }
                 if (!newFileNameChangedManually) {
                     fields.getNewFileName().val(moduleName + '.' + extension)
                 }
