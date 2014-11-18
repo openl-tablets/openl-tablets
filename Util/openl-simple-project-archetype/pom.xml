@@ -4,13 +4,13 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
-    <version>5.12.1.2</version>
+    <version>5.12.2-SNAPSHOT</version>
 		<relativePath>../../BasePom/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-simple-project-archetype</artifactId>
-  <version>5.12.1.2</version>
+  <version>5.12.2-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
 
   <name>OpenL Simple Project</name>
