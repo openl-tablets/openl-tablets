@@ -26,7 +26,8 @@
             width: 295px;
         }
 
-        #copyModuleForm table input[type="text"].with-button {
+        #copyModuleForm table input[type="text"].with-button,
+        #copyModuleForm table span.with-button {
             width: 258px;
         }
 
@@ -36,16 +37,12 @@
             padding-top: 6px;
         }
 
-        #copyModuleForm .imageButton {
-            cursor: default;
-            /* Remove gradient. TODO consider removing it in common.css */
-            background-image: none;
-        }
-
         #copyModuleForm .match {
+            padding: 5px 16px;
             background: url("webresource/images/ok.png") no-repeat;
         }
         #copyModuleForm .not-match {
+            padding: 5px 16px;
             background: url("webresource/images/warning16.png") no-repeat;
         }
 
@@ -122,14 +119,14 @@
                             <td>New Module Name</td>
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
-                                <h:panelGroup id="validationIcon" styleClass="imageButton" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
-                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton match">
+                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
+                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom match">
                                         <em>
                                             Values from file name will be applied as business<br/>
                                             dimension properties to rules.
                                         </em>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton not-match">
+                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom not-match">
                                         <em>
                                             Values from file name won't be applied as business<br/>
                                             dimension properties to rules. The file name doesn't<br/>
@@ -176,9 +173,16 @@
                             </a4j:outputPanel></td>
                         </tr>
 
-                        <tr class="module-with-wildcard info">
+                        <tr class="project-with-properties-pattern info">
                             <td>Properties pattern for a file name</td>
-                            <td><h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}" /></td>
+                            <td>
+                                <h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}"
+                                              styleClass="with-button" style="display: inline-block" />
+                                <a id="patternInfo" onclick="showPatternInfo('#{projectBean.currentPropertiesFileNameProcessor}');"
+                                   title="Description" class="imageButton"
+                                   style="background:url('webresource/images/info.png');display: inline-block;" />
+
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -239,23 +243,27 @@
 
                 copier.fields.getModulePathOldText().prop('disabled', false);
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
-                copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
-                $j("#copyModuleForm\\:validationIcon").show();
             } else if (module.includedInWildcard) {
                 copier.fields.getModuleNameLink().text(module.name);
 
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
-                copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
-                $j("#copyModuleForm\\:validationIcon").show();
             } else {
                 copier.fields.getModuleNameLink().text(module.name);
 
                 copier.fields.getModulePathOldText().prop('disabled', true);
                 copier.fields.getNewFileNameLink().removeClass('disabled-link');
-                copier.fields.getModuleName().removeClass("with-button");
                 $j(".module-with-wildcard").addClass("hidden");
+            }
+
+            if (copier.fields.hasPropertiesFileNamePattern()) {
+                $j(".project-with-properties-pattern").removeClass("hidden");
+                copier.fields.getModuleName().addClass("with-button");
+                $j("#copyModuleForm\\:validationIcon").show();
+            } else {
+                $j(".project-with-properties-pattern").addClass("hidden");
+                copier.fields.getModuleName().removeClass("with-button");
                 $j("#copyModuleForm\\:validationIcon").hide();
             }
 
@@ -289,6 +297,11 @@
             path = replaceSlash(path);
             var index = path.lastIndexOf('.');
             return index < 0 ? '' : path.substring(index + 1);
+        }
+
+        function hasPropertiesFileNamePattern() {
+            var pattern = fields.getPropertiesFileNamePattern();
+            return pattern && pattern.length > 0;
         }
 
         var fields = {
@@ -338,6 +351,15 @@
 
             getCopyModuleBtn : function () {
                 return $j("#copyModuleForm\\:copyModuleBtn");
+            },
+
+            getPropertiesFileNamePattern : function() {
+                return $j("#copyModuleForm\\:propertiesFileNamePattern");
+            },
+
+            hasPropertiesFileNamePattern : function() {
+                var pattern = fields.getPropertiesFileNamePattern().text();
+                return pattern && pattern.length > 0;
             }
         };
 
@@ -389,7 +411,7 @@
                 fields.getNewFileNameLink().text(fullPath);
                 fields.getModulePath().val(fullPath);
 
-                if (module.isModuleWithWildcard || module.includedInWildcard) {
+                if (fields.hasPropertiesFileNamePattern()) {
                     checkFileMatch(fullPath);
                 }
             };

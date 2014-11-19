@@ -396,11 +396,6 @@
                     oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('##{jsffn:encodeURL(project.name)}', true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </footer>
-
-            <a4j:jsFunction name="showPatternInfo" render="showPropertiesFileNamePatternDescriptionData"
-                            oncomplete="ws.ui.show('showPropertiesFileNamePatternDescription');">
-                <a4j:param name="processorClass" assignTo="${projectBean.propertiesFileNameProcessor}" />
-            </a4j:jsFunction>
         </h:form>
     </rich:popupPanel>
 
@@ -509,6 +504,11 @@
             <footer>
                 <input type="button" value="Close" onclick="ws.ui.hide('showPropertiesFileNamePatternDescription');" />
             </footer>
+
+            <a4j:jsFunction name="showPatternInfo" render="showPropertiesFileNamePatternDescriptionData"
+                            oncomplete="ws.ui.show('showPropertiesFileNamePatternDescription');">
+                <a4j:param name="processorClass" assignTo="${projectBean.propertiesFileNameProcessor}" />
+            </a4j:jsFunction>
         </h:form>
     </rich:popupPanel>
 
