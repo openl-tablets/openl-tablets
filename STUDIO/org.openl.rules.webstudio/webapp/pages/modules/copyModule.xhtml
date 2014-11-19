@@ -444,8 +444,8 @@
             };
 
             var checkForModification = function () {
-                var changed = (module.name != fields.getModuleName().val())
-                        && module.path != fields.getModulePath().val()
+                var changed = fields.getModuleNameOld().val() != fields.getModuleName().val()
+                        && fields.getModulePathOld().val() != fields.getModulePath().val()
                         && (!module.isModuleWithWildcard || fields.getFromPanelFull().is(":visible"));
 
                 fields.getCopyModuleBtn().prop("disabled", !changed);
