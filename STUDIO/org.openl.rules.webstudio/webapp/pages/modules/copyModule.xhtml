@@ -34,7 +34,7 @@
         #from-panel-short td,
         tr.new-file-name-setting-short td,
         tr.info td {
-            padding-top: 6px;
+            padding-top: 7px;
         }
 
         #copyModuleForm .match {
@@ -44,6 +44,17 @@
         #copyModuleForm .not-match {
             padding: 5px 16px;
             background: url("webresource/images/warning16.png") no-repeat;
+        }
+
+        #modulePathOldText {
+            display: none;
+        }
+        .editable #modulePathOldText {
+            display: inline-block;
+        }
+
+        .editable #modulePathOldTextField {
+            display: none;
         }
 
     </style>
@@ -73,18 +84,18 @@
                     </table>
 
                     <table id="from-panel-full" class="properties properties-form wide" >
-                        <tr>
+                        <tr class="info">
                             <td>Module Name</td>
                             <td>
                                 <h:inputHidden id="moduleNameOld"/>
                                 <!-- Disabled items are not submitted-->
-                                <h:inputText id="moduleNameOldText"  disabled="true" />
+                                <h:panelGroup id="moduleNameOldText" />
                             </td>
                         </tr>
-                        <tr class="module-with-wildcard">
+                        <tr class="module-with-wildcard info">
                             <td>File Path Pattern</td>
                             <td>
-                                <h:inputText id="modulePathPattern" value="#{projectBean.modulePathPattern}" disabled="true"/>
+                                <h:outputText id="modulePathPattern" value="#{projectBean.modulePathPattern}"/>
                             </td>
                         </tr>
                         <tr>
@@ -92,6 +103,8 @@
                             <td>
                                 <h:panelGroup id="modulePathOldPanel">
                                     <h:inputHidden id="modulePathOld"/>
+
+                                    <span id="modulePathOldTextField"/>
 
                                     <select id="modulePathOldText" style="width:100%">
                                         <ui:repeat value="#{projectBean.modulePathsForPathPattern}" var="modulePath">
@@ -158,9 +171,9 @@
                             </a4j:outputPanel></td>
                         </tr>
 
-                        <tr class="new-file-name-setting-full">
+                        <tr class="new-file-name-setting-full info">
                             <td>New File Path</td>
-                            <td><h:inputText id="newFileFolder" disabled="true" /></td>
+                            <td><h:panelGroup id="newFileFolder" /></td>
                         </tr>
                         <tr class="new-file-name-setting-full">
                             <td>New File Name</td>
@@ -226,9 +239,10 @@
             var copier = new ModuleCopier();
 
             copier.fields.getModuleNameOld().val(module.name);
-            copier.fields.getModuleNameOldText().val(module.name);
+            copier.fields.getModuleNameOldText().text(module.name);
             copier.fields.getModuleName().val(module.name);
             copier.fields.getModulePathOld().val(copier.fields.getModulePathOldText().val());
+            copier.fields.getModulePathOldTextField().text(copier.fields.getModulePathOldText().val());
 
             $j("#copyModuleForm span.error").remove();
 
@@ -238,21 +252,24 @@
 
             copier.fields.getCopyModuleBtn().prop("disabled", true);
 
+            $j("#copyModuleForm\\:modulePathOldPanel").parent().parent().removeClass('info');
             if (module.isModuleWithWildcard) {
                 copier.fields.getModuleNameLink().text('Select Module');
 
-                copier.fields.getModulePathOldText().prop('disabled', false);
+                $j("#copyModuleForm\\:modulePathOldPanel").addClass('editable');
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
                 $j(".module-with-wildcard").removeClass("hidden");
             } else if (module.includedInWildcard) {
                 copier.fields.getModuleNameLink().text(module.name);
 
+                $j("#copyModuleForm\\:modulePathOldPanel").addClass('editable');
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
                 $j(".module-with-wildcard").removeClass("hidden");
             } else {
                 copier.fields.getModuleNameLink().text(module.name);
 
-                copier.fields.getModulePathOldText().prop('disabled', true);
+                $j("#copyModuleForm\\:modulePathOldPanel").removeClass('editable');
+                $j("#copyModuleForm\\:modulePathOldPanel").parent().parent().addClass('info');
                 copier.fields.getNewFileNameLink().removeClass('disabled-link');
                 $j(".module-with-wildcard").addClass("hidden");
             }
@@ -307,6 +324,10 @@
         var fields = {
             getModulePathOldText : function() {
                 return $j("#modulePathOldText");
+            },
+
+            getModulePathOldTextField : function() {
+                return $j("#modulePathOldTextField");
             },
 
             getModulePathOld : function() {
@@ -369,8 +390,7 @@
 
             var onModulePathOldTextChanged = function () {
                 if (module.isModuleWithWildcard || module.includedInWildcard) {
-                    var target = fields.getModulePathOldText();
-                    var path = target.val();
+                    var path = fields.getModulePathOldText().val();
                     fields.getModulePathOld().val(path);
 
                     var name = getFileName(path);
@@ -394,7 +414,7 @@
                 var target = fields.getModuleName();
                 var moduleName = target.val();
 
-                fields.getNewFolder().val(folder);
+                fields.getNewFolder().text(folder);
                 var newFolderRow = fields.getNewFolder().parent().parent();
                 if (folder) {
                     newFolderRow.addClass('new-file-name-setting-full');
