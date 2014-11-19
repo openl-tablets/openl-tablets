@@ -359,7 +359,8 @@ public class ProjectBean {
             save(newProjectDescriptor);
         } else {
             studio.reset(ReloadType.FORCED);
-            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject().getName());
+            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject()
+                    .getName());
             if (projectNode != null) {
                 // For example, repository wasn't refreshed yet
                 projectNode.refresh();
@@ -782,6 +783,10 @@ public class ProjectBean {
 
     public String getPropertiesFileNamePattern() {
         return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
+    }
+
+    public String getCurrentPropertiesFileNameProcessor() {
+        return studio.getCurrentProjectDescriptor().getPropertiesFileNameProcessor();
     }
 
     public SupportedVersion getSupportedVersion() {
