@@ -26,25 +26,35 @@
             width: 295px;
         }
 
-        #copyModuleForm table input[type="text"].with-button {
+        #copyModuleForm table input[type="text"].with-button,
+        #copyModuleForm table span.with-button {
             width: 258px;
         }
 
         #from-panel-short td,
         tr.new-file-name-setting-short td,
         tr.info td {
-            padding-top: 6px;
+            padding-top: 7px;
         }
 
-        #copyModuleForm .imageButton {
-            cursor: default;
-        }
-
-        .match {
+        #copyModuleForm .match {
+            padding: 5px 16px;
             background: url("webresource/images/ok.png") no-repeat;
         }
-        .not-match {
+        #copyModuleForm .not-match {
+            padding: 5px 16px;
             background: url("webresource/images/warning16.png") no-repeat;
+        }
+
+        #modulePathOldText {
+            display: none;
+        }
+        .editable #modulePathOldText {
+            display: inline-block;
+        }
+
+        .editable #modulePathOldTextField {
+            display: none;
         }
 
     </style>
@@ -74,18 +84,18 @@
                     </table>
 
                     <table id="from-panel-full" class="properties properties-form wide" >
-                        <tr>
+                        <tr class="info">
                             <td>Module Name</td>
                             <td>
                                 <h:inputHidden id="moduleNameOld"/>
                                 <!-- Disabled items are not submitted-->
-                                <h:inputText id="moduleNameOldText"  disabled="true" />
+                                <h:panelGroup id="moduleNameOldText" />
                             </td>
                         </tr>
-                        <tr class="module-with-wildcard">
+                        <tr class="module-with-wildcard info">
                             <td>File Path Pattern</td>
                             <td>
-                                <h:inputText id="modulePathPattern" value="#{projectBean.modulePathPattern}" disabled="true"/>
+                                <h:outputText id="modulePathPattern" value="#{projectBean.modulePathPattern}"/>
                             </td>
                         </tr>
                         <tr>
@@ -93,6 +103,8 @@
                             <td>
                                 <h:panelGroup id="modulePathOldPanel">
                                     <h:inputHidden id="modulePathOld"/>
+
+                                    <span id="modulePathOldTextField"/>
 
                                     <select id="modulePathOldText" style="width:100%">
                                         <ui:repeat value="#{projectBean.modulePathsForPathPattern}" var="modulePath">
@@ -120,14 +132,14 @@
                             <td>New Module Name</td>
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
-                                <h:panelGroup id="validationIcon" styleClass="imageButton" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
-                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton match">
+                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
+                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom match">
                                         <em>
                                             Values from file name will be applied as business<br/>
                                             dimension properties to rules.
                                         </em>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom imageButton not-match">
+                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom not-match">
                                         <em>
                                             Values from file name won't be applied as business<br/>
                                             dimension properties to rules. The file name doesn't<br/>
@@ -159,9 +171,9 @@
                             </a4j:outputPanel></td>
                         </tr>
 
-                        <tr class="new-file-name-setting-full">
+                        <tr class="new-file-name-setting-full info">
                             <td>New File Path</td>
-                            <td><h:inputText id="newFileFolder" disabled="true" /></td>
+                            <td><h:panelGroup id="newFileFolder" /></td>
                         </tr>
                         <tr class="new-file-name-setting-full">
                             <td>New File Name</td>
@@ -174,9 +186,16 @@
                             </a4j:outputPanel></td>
                         </tr>
 
-                        <tr class="module-with-wildcard info">
+                        <tr class="project-with-properties-pattern info">
                             <td>Properties pattern for a file name</td>
-                            <td><h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}" /></td>
+                            <td>
+                                <h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}"
+                                              styleClass="with-button" style="display: inline-block" />
+                                <a id="patternInfo" onclick="showPatternInfo('#{projectBean.currentPropertiesFileNameProcessor}');"
+                                   title="Description" class="imageButton"
+                                   style="background:url('webresource/images/info.png');display: inline-block;" />
+
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -220,9 +239,10 @@
             var copier = new ModuleCopier();
 
             copier.fields.getModuleNameOld().val(module.name);
-            copier.fields.getModuleNameOldText().val(module.name);
+            copier.fields.getModuleNameOldText().text(module.name);
             copier.fields.getModuleName().val(module.name);
             copier.fields.getModulePathOld().val(copier.fields.getModulePathOldText().val());
+            copier.fields.getModulePathOldTextField().text(copier.fields.getModulePathOldText().val());
 
             $j("#copyModuleForm span.error").remove();
 
@@ -232,28 +252,35 @@
 
             copier.fields.getCopyModuleBtn().prop("disabled", true);
 
+            $j("#copyModuleForm\\:modulePathOldPanel").parent().parent().removeClass('info');
             if (module.isModuleWithWildcard) {
                 copier.fields.getModuleNameLink().text('Select Module');
 
-                copier.fields.getModulePathOldText().prop('disabled', false);
+                $j("#copyModuleForm\\:modulePathOldPanel").addClass('editable');
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
-                copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
-                $j("#copyModuleForm\\:validationIcon").show();
             } else if (module.includedInWildcard) {
                 copier.fields.getModuleNameLink().text(module.name);
 
+                $j("#copyModuleForm\\:modulePathOldPanel").addClass('editable');
                 copier.fields.getNewFileNameLink().addClass('disabled-link');
-                copier.fields.getModuleName().addClass("with-button");
                 $j(".module-with-wildcard").removeClass("hidden");
-                $j("#copyModuleForm\\:validationIcon").show();
             } else {
                 copier.fields.getModuleNameLink().text(module.name);
 
-                copier.fields.getModulePathOldText().prop('disabled', true);
+                $j("#copyModuleForm\\:modulePathOldPanel").removeClass('editable');
+                $j("#copyModuleForm\\:modulePathOldPanel").parent().parent().addClass('info');
                 copier.fields.getNewFileNameLink().removeClass('disabled-link');
-                copier.fields.getModuleName().removeClass("with-button");
                 $j(".module-with-wildcard").addClass("hidden");
+            }
+
+            if (copier.fields.hasPropertiesFileNamePattern()) {
+                $j(".project-with-properties-pattern").removeClass("hidden");
+                copier.fields.getModuleName().addClass("with-button");
+                $j("#copyModuleForm\\:validationIcon").show();
+            } else {
+                $j(".project-with-properties-pattern").addClass("hidden");
+                copier.fields.getModuleName().removeClass("with-button");
                 $j("#copyModuleForm\\:validationIcon").hide();
             }
 
@@ -292,6 +319,10 @@
         var fields = {
             getModulePathOldText : function() {
                 return $j("#modulePathOldText");
+            },
+
+            getModulePathOldTextField : function() {
+                return $j("#modulePathOldTextField");
             },
 
             getModulePathOld : function() {
@@ -336,6 +367,15 @@
 
             getCopyModuleBtn : function () {
                 return $j("#copyModuleForm\\:copyModuleBtn");
+            },
+
+            getPropertiesFileNamePattern : function() {
+                return $j("#copyModuleForm\\:propertiesFileNamePattern");
+            },
+
+            hasPropertiesFileNamePattern : function() {
+                var pattern = fields.getPropertiesFileNamePattern().text();
+                return pattern && pattern.length > 0;
             }
         };
 
@@ -345,8 +385,7 @@
 
             var onModulePathOldTextChanged = function () {
                 if (module.isModuleWithWildcard || module.includedInWildcard) {
-                    var target = fields.getModulePathOldText();
-                    var path = target.val();
+                    var path = fields.getModulePathOldText().val();
                     fields.getModulePathOld().val(path);
 
                     var name = getFileName(path);
@@ -365,12 +404,20 @@
                     // User manually entered value
                     moduleNameChangedManually = true;
                 }
-                var extension = getExtension(module.path);
+                var extension = getExtension(fields.getModulePathOldText().val());
                 var folder = getFolder(fields.getModulePathOldText().val());
                 var target = fields.getModuleName();
                 var moduleName = target.val();
 
-                fields.getNewFolder().val(folder);
+                fields.getNewFolder().text(folder);
+                var newFolderRow = fields.getNewFolder().parent().parent();
+                if (folder) {
+                    newFolderRow.addClass('new-file-name-setting-full');
+                    newFolderRow.removeClass('hidden');
+                } else {
+                    newFolderRow.removeClass('new-file-name-setting-full');
+                    newFolderRow.addClass('hidden');
+                }
                 if (!newFileNameChangedManually) {
                     fields.getNewFileName().val(moduleName + '.' + extension)
                 }
@@ -379,7 +426,7 @@
                 fields.getNewFileNameLink().text(fullPath);
                 fields.getModulePath().val(fullPath);
 
-                if (module.isModuleWithWildcard || module.includedInWildcard) {
+                if (fields.hasPropertiesFileNamePattern()) {
                     checkFileMatch(fullPath);
                 }
             };
