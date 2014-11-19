@@ -1079,8 +1079,13 @@ form .formfields {
 }
 
 .rf-tab-hdr-act {
+    background: rgba(169, 212, 94, 0.25) !important;
     border-bottom: 1px solid #9c3 !important;
     color: #111111 !important;
+}
+
+.rf-tab-hdr-inact:hover {
+    background: #f5f5f5 !important;
 }
 
 .rf-tab-hdr-tabline-vis {
