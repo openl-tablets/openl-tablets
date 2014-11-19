@@ -404,7 +404,7 @@
                     // User manually entered value
                     moduleNameChangedManually = true;
                 }
-                var extension = getExtension(module.path);
+                var extension = getExtension(fields.getModulePathOldText().val());
                 var folder = getFolder(fields.getModulePathOldText().val());
                 var target = fields.getModuleName();
                 var moduleName = target.val();
