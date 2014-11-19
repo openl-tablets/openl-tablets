@@ -316,11 +316,6 @@
             return index < 0 ? '' : path.substring(index + 1);
         }
 
-        function hasPropertiesFileNamePattern() {
-            var pattern = fields.getPropertiesFileNamePattern();
-            return pattern && pattern.length > 0;
-        }
-
         var fields = {
             getModulePathOldText : function() {
                 return $j("#modulePathOldText");
