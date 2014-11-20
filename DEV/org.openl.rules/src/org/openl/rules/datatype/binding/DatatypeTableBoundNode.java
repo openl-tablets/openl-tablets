@@ -208,7 +208,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldDescription = fieldDescriptionFactory(field);
                 fields.put(fieldName, fieldDescription);
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), null, null, getCellSource(row, cxt, 1));
+                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), t, null, getCellSource(row, cxt, 1));
             }
 
             if (row.getWidth() > 2) {
@@ -222,7 +222,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     try {
                         RuleRowHelper.validateValue(value, fieldType);
                     } catch (Exception e) {
-                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), null, null, getCellSource(row, cxt, 2));
+                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
                     }
                 }
             }
