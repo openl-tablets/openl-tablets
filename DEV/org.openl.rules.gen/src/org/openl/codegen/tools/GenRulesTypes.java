@@ -72,7 +72,7 @@ public class GenRulesTypes {
                     + enumName + ".java";
             Map<String, Object> variables = new HashMap<String, Object>();
             variables.put("enumPackage", CodeGenConstants.ENUMS_PACKAGE);
-            generateEnumeration(descriptor, sourceFilePath, variables);
+            generateEnumeration(descriptor, sourceFilePath, variables, "rules-enum.vm");
         }
     }
 
@@ -84,19 +84,19 @@ public class GenRulesTypes {
                     + CodeGenConstants.RULESERVICE_ENUMS_PACKAGE_PATH + enumName + ".java";
             Map<String, Object> variables = new HashMap<String, Object>();
             variables.put("enumPackage", CodeGenConstants.RULESERVICE_ENUMS_PACKAGE);
-            generateEnumeration(descriptor, sourceFilePath, variables);
+            generateEnumeration(descriptor, sourceFilePath, variables, "RuleService-rules-enum.vm");
         }
     }
 
     private void generateEnumeration(EnumerationDescriptor descriptor, String sourceFilePath,
-            Map<String, Object> variables) throws Exception {
+            Map<String, Object> variables, String template) throws Exception {
         String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
 
         Map<String, Object> vars = new HashMap<String, Object>(variables);
         vars.put("enumName", enumName);
         vars.put("values", descriptor.getValues());
 
-        SourceGenerator.getInstance().generateSource(sourceFilePath, "rules-enum.vm", vars);
+        SourceGenerator.getInstance().generateSource(sourceFilePath, template, vars);
 
         System.out.println("Enumeration " + sourceFilePath + " was generated successfully.");
     }
