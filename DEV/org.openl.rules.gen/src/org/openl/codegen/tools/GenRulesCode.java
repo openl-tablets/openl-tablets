@@ -180,7 +180,7 @@ public class GenRulesCode {
         String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
                 + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_PACKAGE_PATH
                 + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_CLASSNAME + ".java";
-        processSourceCode(sourceFilePath, "RuleServices-IRulesContext-properties.vm", variables);
+        processSourceCode(sourceFilePath, "RuleService-IRulesContext-properties.vm", variables);
     }
 
     private void generateRulesCompileContextCode() throws IOException {
