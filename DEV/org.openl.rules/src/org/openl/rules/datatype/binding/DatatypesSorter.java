@@ -1,12 +1,11 @@
 package org.openl.rules.datatype.binding;
 
-import org.openl.binding.IBindingContext;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
-
 import java.util.*;
 
+import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Created by dl on 6/13/14.
@@ -29,7 +28,7 @@ public class DatatypesSorter {
                                                          IBindingContext bindingContext) {
         List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<TopoGraphNode<TableSyntaxNode>>();
         for (TableSyntaxNode datatype : datatypes.values()) {
-            toSort.add(wrap(datatype, datatypes, bindingContext));
+            toSort.add(wrap(datatype, datatypes, bindingContext, new HashMap<String, TopoGraphNode<TableSyntaxNode>>()));
         }
         return toSort;
     }
@@ -48,15 +47,14 @@ public class DatatypesSorter {
 
     private TopologicalSort.TopoGraphNode<TableSyntaxNode> wrap(
             TableSyntaxNode datatype, Map<String, TableSyntaxNode> datatypes,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext, Map<String, TopoGraphNode<TableSyntaxNode>> dependentQueue) {
 
         DependentTypesExtractor dependeciesExtractor = new DependentTypesExtractor();
         Set<String> dependencies = dependeciesExtractor.extract(datatype, bindingContext);
         TopoGraphNode<TableSyntaxNode> forSort = new TopoGraphNode<TableSyntaxNode>(datatype);
         if (dependencies.isEmpty()) {
             return forSort;
-        }
-        else {
+        } else {
             String currentName = null;
             try {
                 currentName = DatatypeHelper.getDatatypeName(datatype);
@@ -69,8 +67,17 @@ public class DatatypesSorter {
                         // Avoid recursive dependencies
                         //
                         && !dependency.equals(currentName)) {
-                    forSort.addDependency(
-                            wrap(datatypes.get(dependency), datatypes, bindingContext));
+                    if (dependentQueue.containsKey(dependency)) {
+                        // Avoid recursive dependencies
+                        forSort.addDependency(dependentQueue.get(dependency));
+                    } else {
+                        dependentQueue.put(currentName, forSort);
+                        forSort.addDependency(wrap(datatypes.get(dependency),
+                                datatypes,
+                                bindingContext,
+                                dependentQueue));
+                        dependentQueue.remove(currentName);
+                    }
                 }
             }
             return forSort;
