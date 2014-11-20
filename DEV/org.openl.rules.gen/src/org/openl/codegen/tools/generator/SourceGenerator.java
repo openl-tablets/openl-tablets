@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.Properties;
 
@@ -53,11 +54,12 @@ public class SourceGenerator {
 
         File file = new File(sourceFilePath);
         FileOutputStream os = new FileOutputStream(file, false);
-
+        OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8");
+        
         String codeSnippet = generateSource(templateName, variables);
-        os.write(codeSnippet.getBytes());
+        writer.write(codeSnippet);
 
-        os.close();
+        writer.close();
     }
 
     public String generateSource(String templateName, Map<String, Object> variables) throws Exception {
