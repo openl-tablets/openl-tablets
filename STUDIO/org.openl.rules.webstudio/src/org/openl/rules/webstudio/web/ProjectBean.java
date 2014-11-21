@@ -373,9 +373,35 @@ public class ProjectBean {
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
+        String leaveExcelFile = FacesUtils.getRequestParameter("leaveExcelFile");
 
         List<Module> modules = newProjectDescriptor.getModules();
-        modules.remove(Integer.parseInt(toRemove));
+        Module removed = modules.remove(Integer.parseInt(toRemove));
+
+        if (StringUtils.isEmpty(leaveExcelFile)) {
+            ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+            File projectFolder = currentProjectDescriptor.getProjectFolder();
+
+            if (projectDescriptorManager.isModuleWithWildcard(removed)) {
+                for (Module module : currentProjectDescriptor.getModules()) {
+                    if (module.getWildcardRulesRootPath() == null) {
+                        // Module not included in wildcard
+                        continue;
+                    }
+                    if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
+                        File file = new File(module.getRulesRootPath().getPath());
+                        if (!file.delete() && file.exists()) {
+                            throw new Message("Can't delete the file " + file.getName());
+                        }
+                    }
+                }
+            } else {
+                File file = new File(projectFolder, removed.getRulesRootPath().getPath());
+                if (!file.delete() && file.exists()) {
+                    throw new Message("Can't delete the file " + file.getName());
+                }
+            }
+        }
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
