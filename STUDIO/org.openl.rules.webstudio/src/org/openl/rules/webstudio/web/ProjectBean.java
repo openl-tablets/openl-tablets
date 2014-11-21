@@ -18,7 +18,6 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.*;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -29,6 +28,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.PathMatcher;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -62,9 +62,10 @@ public class ProjectBean {
     private String propertiesFileNameProcessor;
 
     private String currentModuleName;
-    private Boolean fileNameMatched;
 
     private SupportedVersion supportedVersion;
+    private String newFileName;
+    private String currentPathPattern;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -160,7 +161,7 @@ public class ProjectBean {
         String pattern = (String) value;
 
         if (!StringUtils.isBlank(pattern)) {
-            PropertiesFileNameProcessor processor = null;
+            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
@@ -739,15 +740,26 @@ public class ProjectBean {
     }
 
     public void setNewFileName(String newFileName) {
+        this.newFileName = newFileName;
+    }
+
+    public void setCurrentPathPattern(String currentPathPattern) {
+        this.currentPathPattern = currentPathPattern;
+    }
+
+    public Boolean getFileNameMatched() {
+        if (newFileName == null) {
+            return null;
+        }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
 
         Module module = new Module();
         int indexOfSlash = newFileName.lastIndexOf("/");
-        module.setName(indexOfSlash <0 ? newFileName : newFileName.substring(indexOfSlash + 1));
+        module.setName(indexOfSlash < 0 ? newFileName : newFileName.substring(indexOfSlash + 1));
         module.setRulesRootPath(new PathEntry(newFileName));
 
-        fileNameMatched = null;
+        Boolean fileNameMatched = null;
         try {
             String pattern = projectDescriptor.getPropertiesFileNamePattern();
             if (pattern != null) {
@@ -761,10 +773,32 @@ public class ProjectBean {
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
         }
+        return fileNameMatched;
     }
 
-    public Boolean getFileNameMatched() {
-        return fileNameMatched;
+    public String getChangedWildcardMatch() {
+        if (currentPathPattern == null) {
+            return null;
+        }
+
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
+
+        PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
+        for (Module m : projectDescriptor.getModules()) {
+            if (projectDescriptorManager.isModuleWithWildcard(m)) {
+                String path = m.getRulesRootPath().getPath();
+                if (pathMatcher.match(path, newFileName)) {
+                    if (!currentPathPattern.equals(path)) {
+                        // Module file name captured by another path pattern (not current one).
+                        // User should ensure that he didn't do that unintentionally.
+                        return path;
+                    }
+                    break;
+                }
+            }
+        }
+
+        return null;
     }
 
     public List<Module> getModulesMatchingPathPattern(Module module) {
