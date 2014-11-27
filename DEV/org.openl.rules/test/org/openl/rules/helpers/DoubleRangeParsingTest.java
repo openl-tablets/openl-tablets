@@ -23,6 +23,9 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange("[4;5]"), new DoubleRange(4, 5));
         assertEquals(new DoubleRange("( 1.0002; 6 ]"), new DoubleRange(1.0002, 6, BoundType.EXCLUDING,
                 BoundType.INCLUDING));
+
+        assertEquals(new DoubleRange("( 1.0002 - 6 ]"), new DoubleRange(1.0002, 6, BoundType.EXCLUDING,
+                BoundType.INCLUDING));
     }
 
     @Test
