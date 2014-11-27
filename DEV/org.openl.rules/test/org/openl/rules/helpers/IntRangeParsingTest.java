@@ -38,6 +38,8 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(3, 4), new IntRange("(2;4]"));
         assertEquals(new IntRange(10, 100), new IntRange("[10 .. 101)"));
         assertEquals(new IntRange(-10, -1), new IntRange("[-10;0)"));
+        assertEquals(new IntRange(-10, 1), new IntRange("[-10-2)"));
+        assertEquals(new IntRange(-9, 2), new IntRange("(-10 - 2]"));
     }
 
     @Test
