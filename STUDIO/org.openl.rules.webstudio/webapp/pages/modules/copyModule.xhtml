@@ -132,7 +132,7 @@
                             <td>New Module Name</td>
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
-                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: inline-block; ">
+                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: #{!empty projectBean.propertiesFileNamePattern ? 'inline-block' : 'none'}; ">
                                     <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom match">
                                         <em>
                                             Values from file name will be applied as business<br/>
@@ -151,9 +151,16 @@
                         </tr>
                         <tr>
                             <td></td>
-                            <td><a4j:outputPanel ajaxRendered="true">
-                                <h:message for="moduleName" styleClass="error" />
-                            </a4j:outputPanel></td>
+                            <td>
+                                <a4j:outputPanel ajaxRendered="true">
+                                    <h:message for="moduleName" styleClass="error"/>
+                                </a4j:outputPanel>
+                                <h:panelGroup id="wildcardChangedWarning" styleClass="success" layout="block">
+                                    <h:outputText
+                                            value="The file name matches path pattern: #{projectBean.changedWildcardMatch}"
+                                            rendered="#{!empty projectBean.changedWildcardMatch}"/>
+                                </h:panelGroup>
+                            </td>
                         </tr>
 
                         <tr class="new-file-name-setting-short">
@@ -212,8 +219,9 @@
                 <a4j:param name="moduleName" assignTo="#{projectBean.currentModuleName}" />
             </a4j:jsFunction>
 
-            <a4j:jsFunction name="checkFileMatch" render="validationIcon">
+            <a4j:jsFunction name="checkFileMatch" render="validationIcon wildcardChangedWarning">
                 <a4j:param name="newFileName" assignTo="#{projectBean.newFileName}" />
+                <a4j:param name="currentPathPattern" assignTo="#{projectBean.currentPathPattern}" />
             </a4j:jsFunction>
 
         </h:form>
@@ -337,6 +345,10 @@
                 return $j("#copyModuleForm\\:moduleNameOldText");
             },
 
+            getModulePathPattern : function() {
+                return $j("#copyModuleForm\\:modulePathPattern");
+            },
+
             getModuleName : function () {
                 return $j("#copyModuleForm\\:moduleName");
             },
@@ -426,9 +438,7 @@
                 fields.getNewFileNameLink().text(fullPath);
                 fields.getModulePath().val(fullPath);
 
-                if (fields.hasPropertiesFileNamePattern()) {
-                    checkFileMatch(fullPath);
-                }
+                checkFileMatch(fullPath, fields.getModulePathPattern().text());
             };
 
             var onNewFileNameChanged = function (event) {
@@ -441,6 +451,7 @@
                 var target = fields.getNewFileName();
                 var fullPath = folder ? folder + '/' + target.val() : target.val();
                 fields.getModulePath().val(fullPath);
+                checkFileMatch(fullPath, fields.getModulePathPattern().text());
             };
 
             var checkForModification = function () {

@@ -463,9 +463,10 @@ public class WebStudio {
 
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                     model.getHistoryManager());
-            historyListener.beforeSave(model.getCurrentModuleWorkbook());
-
             Module module = getCurrentModule();
+            File sourceFile = new File(module.getRulesRootPath().getPath());
+            historyListener.beforeSave(sourceFile);
+
             OutputStream outputStream = null;
             InputStream inputStream = null;
             try {
@@ -477,7 +478,7 @@ public class WebStudio {
                 IOUtils.closeQuietly(outputStream);
             }
 
-            historyListener.afterSave(model.getCurrentModuleWorkbook());
+            historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             // TODO Display message - e.getMessage()
