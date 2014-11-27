@@ -52,12 +52,38 @@ public class RangeNodeBinder extends ANodeBinder {
     }
 
     private RangeWithBounds bindBrackets(IBoundNode[] children, IBindingContext bindingContext) {
-        Number min = (Number) ((LiteralBoundNode) children[1]).getValue();
-        BoundType leftBoundType = ((LiteralBoundNode) children[0]).getValue().equals('(') ? BoundType.EXCLUDING
-                : BoundType.INCLUDING;
-        Number max = (Number) ((LiteralBoundNode) children[2]).getValue();
-        BoundType rightBoundType = ((LiteralBoundNode) children[3]).getValue().equals(')') ? BoundType.EXCLUDING
-                : BoundType.INCLUDING;
+        int minBoundIndex = -1;
+        int maxBoundIndex = -1;
+
+        Number firstNumber = null;
+        Number secondNumber = null;
+
+        BoundType leftBoundType = null;
+        BoundType rightBoundType = null;
+
+        for (int i = 0; i < children.length; i++) {
+            Object value = ((LiteralBoundNode) children[i]).getValue();
+            if (value instanceof Number) {
+                if (firstNumber == null) {
+                    firstNumber = (Number) value;
+                } else {
+                    secondNumber = (Number) value;
+                }
+            } else if (value.equals('[') || value.equals('(')) {
+                minBoundIndex = i;
+                leftBoundType = value.equals('(') ? BoundType.EXCLUDING : BoundType.INCLUDING;
+            } else if (value.equals(']') || value.equals(')')) {
+                maxBoundIndex = i;
+                rightBoundType = value.equals(')') ? BoundType.EXCLUDING : BoundType.INCLUDING;
+            }
+        }
+
+        if (minBoundIndex == maxBoundIndex || minBoundIndex < 0 || maxBoundIndex < 0) {
+            throw new OpenLRuntimeException("Incorrect range format");
+        }
+
+        Number min = minBoundIndex < 2 ? firstNumber : secondNumber;
+        Number max = maxBoundIndex < 2 ? firstNumber : secondNumber;
         return new RangeWithBounds(min, max, leftBoundType, rightBoundType);
     }
 
