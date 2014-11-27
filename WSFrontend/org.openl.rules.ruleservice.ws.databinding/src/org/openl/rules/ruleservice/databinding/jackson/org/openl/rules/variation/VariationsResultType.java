@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /*
@@ -18,6 +19,20 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Marat Kamalov
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-public class VariationsResultType {
+public class VariationsResultType<T> {
 
+    @JsonIgnore
+    public String[] getCalculatedVariationIDs() {
+        return null;
+    }
+
+    @JsonIgnore
+    public String[] getFailedVariationIDs() {
+        return null;
+    }
+    
+    @JsonIgnore
+    public String[] getAllProcessedVariationIDs() {
+        return null;
+    }
 }

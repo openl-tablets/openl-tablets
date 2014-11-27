@@ -43,7 +43,7 @@ public class SpreadSheetResultType extends BeanType {
 
     public SpreadSheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI(), Arrays.asList(new String[] { "height",
-                "width" })));
+                "width", "logicalTable" })));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

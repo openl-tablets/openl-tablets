@@ -64,8 +64,8 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         throw new IllegalArgumentException("serverFactory doesn't defined");
     }
 
-    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, true);
+    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
+        return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
     }
 
     protected Object createWrappedBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
@@ -83,7 +83,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
             } else {
                 svrFactory.setAddress(getBaseAddress() + service.getUrl());
             }
-            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass());
+            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
             svrFactory.setResourceClasses(serviceClass);
             Object target = createWrappedBean(service.getServiceBean(), serviceClass, service.getServiceClass());
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
