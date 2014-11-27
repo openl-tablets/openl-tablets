@@ -124,7 +124,7 @@ public class RunTest extends TestCase {
         _runNoError("<=33.3M", new RangeWithBounds(Double.NEGATIVE_INFINITY, 33300000.0), OpenL.OPENL_J_NAME,
                 SourceType.DOUBLE_RANGE, assertion);
         _runNoError("5.0-$10.0", new RangeWithBounds(5.0, 10.0), OpenL.OPENL_J_NAME, SourceType.DOUBLE_RANGE, assertion);
-        _runNoError("2B<", new RangeWithBounds(2000000000.0001, Double.POSITIVE_INFINITY), OpenL.OPENL_J_NAME,
+        _runNoError(">2B", new RangeWithBounds(2000000000.0001, Double.POSITIVE_INFINITY), OpenL.OPENL_J_NAME,
                 SourceType.DOUBLE_RANGE, assertion);
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Double.POSITIVE_INFINITY), OpenL.OPENL_J_NAME,
                 SourceType.DOUBLE_RANGE, assertion);
@@ -151,7 +151,7 @@ public class RunTest extends TestCase {
         _runNoError("< 10K", new RangeWithBounds(Integer.MIN_VALUE, 10000, BoundType.INCLUDING, BoundType.EXCLUDING), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
         _runNoError("<=33.3M", new RangeWithBounds(Integer.MIN_VALUE, 33300000), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
         _runNoError("5-$10", new RangeWithBounds(5, 10), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
-        _runNoError("2B<", new RangeWithBounds(2000000000, Integer.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
+        _runNoError(">2B", new RangeWithBounds(2000000000, Integer.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Integer.MAX_VALUE), OpenL.OPENL_J_NAME, SourceType.INT_RANGE);
 
         _runWithError("10-2", CompositeSyntaxNodeException.class, OpenL.OPENL_J_NAME, SourceType.INT_RANGE);

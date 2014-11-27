@@ -1389,13 +1389,9 @@ void RangeSuffix():
 	String op; 
 }
 {
-	(
-	  
-	  LiteralBI() | NegLiteralBI())
-	(x="<" {op="lt";} |
-	x = "<=" {op="le";} | x = "or less" {op="or.less";} |
-	x = ">" {op="gt";}  |
-	x =">=" {op="ge";} | x = "and more" {op="and.more";} |
+	(LiteralBI() | NegLiteralBI())
+	(x = "or less" {op="or.less";} |
+	x = "and more" {op="and.more";} |
 	x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }
@@ -1579,10 +1575,8 @@ void RangeSuffixFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x="<" {op="lt";} |
-	x = "<=" {op="le";} | x = "or less" {op="or.less";} |
-	x = ">" {op="gt";}  |
-	x =">=" {op="ge";} | x = "and more" {op="and.more";} |
+	(x = "or less" {op="or.less";} |
+	x = "and more" {op="and.more";} |
 	x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }
