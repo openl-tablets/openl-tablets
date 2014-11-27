@@ -82,6 +82,14 @@ public class IntRangeParsingTest {
     }
 
     @Test
+    public void testMoreLessFormatBothBounds() {
+        assertEquals(new IntRange(5, 11), new IntRange(">=5 <12"));
+        assertEquals(new IntRange(4, 7), new IntRange("<=7 >3"));
+        assertEquals(new IntRange(3, 8), new IntRange(" > 2   < 9 "));
+        assertEquals(new IntRange(2, 9), new IntRange(" >= 2   <=9 "));
+    }
+
+    @Test
     public void testPlusFormat() {
         assertEquals(new IntRange(0, Integer.MAX_VALUE), new IntRange("0+"));
     }
@@ -99,6 +107,13 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));
         assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+    }
+
+    @Test
+    public void testVerbalBothBounds() {
+        assertEquals(new IntRange(-100, 499), new IntRange("-100 and more and less than 500"));
+        assertEquals(new IntRange(3, 5), new IntRange("more than 2 and 5 or less"));
+        assertEquals(new IntRange(-19, -11), new IntRange("less than -10 more than -20"));
     }
 
     @Test
