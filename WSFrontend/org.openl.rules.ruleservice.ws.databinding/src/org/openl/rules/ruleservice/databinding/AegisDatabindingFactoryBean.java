@@ -99,7 +99,7 @@ public class AegisDatabindingFactoryBean {
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.RuleServiceRuntimeContextBeanType.class,
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
                 typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadSheetResultType.class, typeMapping);
         loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.table.PointType.class, typeMapping);

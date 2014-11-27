@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.databinding.aegis;
+package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.ruleservice.context;
 
 /*
  * #%L

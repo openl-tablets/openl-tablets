@@ -27,6 +27,13 @@
 		<property name="defaultValue" value="${ruleservice.aegisbinding.ignoreNamespaces}"/>
 	</bean>
 	
+	<bean id="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+		scope="prototype" >
+		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping"/>
+		<property name="defaultValue" value="${ruleservice.jacksondatabinding.enableDefaultTyping}"/>
+	</bean>
+	
 	<bean id="JAXRSaegisDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
 		scope="prototype">
@@ -49,8 +56,24 @@
 	<bean id="JAXRSNamespaceMapBean" class="org.openl.rules.ruleservice.databinding.JAXRSNamespaceMapFactoryBean" scope="prototype">
 		<property name="ignoredNamespace" ref="JAXRSserviceDescriptionConfigurationIgnoredNamespacesFactoryBean"/>
 	</bean>
+
+	<bean id="JAXRSJacksonDatabindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+		scope="prototype">
+		<property name="enableDefaultTyping" ref="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean" />
+		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
+		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+	</bean>
+
+	<bean id="JAXRSJacksonServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
+		<property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean"/>
+		<property name="targetMethod" value="createJacksonDatabinding"/>
+		<property name="singleton" value="false"/>
+	</bean>
 	
-	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype"/>
+	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
+		<constructor-arg ref="JAXRSJacksonServicesDataBinding"/>
+	</bean>
 	
 	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider" scope="prototype"/>
 	

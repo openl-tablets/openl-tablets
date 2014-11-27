@@ -20,6 +20,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.springframework.beans.factory.ObjectFactory;
@@ -67,7 +68,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (String s : parts) {
-            if (first) { 
+            if (first) {
                 first = false;
             } else {
                 sb.append("/");
@@ -87,6 +88,10 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         return ret;
     }
 
+    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
+        return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
+    }
+
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
@@ -94,11 +99,11 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         try {
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
-            try{
+            try {
                 String url = processURL(service.getUrl());
                 String serviceAddress = getBaseAddress() + url;
                 svrFactory.setAddress(serviceAddress);
-                svrFactory.setServiceClass(service.getServiceClass());
+                svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
 
                 svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
@@ -203,7 +208,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
     }
 
     private void removeServiceInfo(String serviceName) {
-        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext(); ) {
+        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
             ServiceInfo serviceInfo = iterator.next();
             if (serviceInfo.getName().equals(serviceName)) {
                 iterator.remove();

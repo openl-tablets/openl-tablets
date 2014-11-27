@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variatio
 
 import org.openl.rules.variation.Variation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -25,5 +26,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public class DeepCloningVariationType {
     public DeepCloningVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("variation") Variation variation) {
+    }
+    
+    @JsonIgnore
+    public Variation getDelegatedVariation() {
+        return null;
     }
 }
