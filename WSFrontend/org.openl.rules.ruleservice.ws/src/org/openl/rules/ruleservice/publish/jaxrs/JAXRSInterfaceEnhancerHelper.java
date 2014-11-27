@@ -24,8 +24,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.types.IOpenMethod;
 import org.openl.util.generation.InterfaceTransformer;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
@@ -35,9 +36,15 @@ import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
  */
 public class JAXRSInterfaceEnhancerHelper {
 
-    private static LocalVariableTableParameterNameDiscoverer DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
-
     private static boolean isPrimitive(Class<?> type) {
+        return type.isPrimitive();// || Integer.class == type || Boolean.class
+                                  // == type || Character.class == type ||
+                                  // String.class == type || Long.class == type
+                                  // || Short.class == type || Double.class ==
+                                  // type || Float.class == type;
+    }
+
+    private static boolean isNullablePrimitive(Class<?> type) {
         return type.isPrimitive() || Integer.class == type || Boolean.class == type || Character.class == type || String.class == type || Long.class == type || Short.class == type || Double.class == type || Float.class == type;
     }
 
@@ -45,14 +52,17 @@ public class JAXRSInterfaceEnhancerHelper {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
         private Class<?> originalClass;
+        private OpenLService service;
         private boolean changeReturnTypes = true;
 
         public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
+                OpenLService service,
                 boolean changeReturnTypes) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
             this.changeReturnTypes = changeReturnTypes;
+            this.service = service;
         }
 
         @Override
@@ -75,6 +85,38 @@ public class JAXRSInterfaceEnhancerHelper {
         private String changeReturnType(String signature) {
             int index = signature.lastIndexOf(')');
             return signature.substring(0, index + 1) + Type.getDescriptor(Response.class);
+        }
+
+        private String[] getParameterNames(Method method) {
+            if (service != null && service.getOpenClass() != null) {
+                for (IOpenMethod m : service.getOpenClass().getMethods()) {
+                    if (m.getName().equals(method.getName())) {
+                        if (method.getParameterTypes().length == m.getSignature().getNumberOfParameters()) {
+                            int i = 0;
+                            boolean f = true;
+                            for (Class<?> clazz : method.getParameterTypes()) {
+                                if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
+                                    f = false;
+                                    break;
+                                }
+                                i++;
+                            }
+                            if (f) {
+                                String[] parameterNames = new String[m.getSignature().getNumberOfParameters()];
+                                for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                                    parameterNames[i] = m.getSignature().getParameterName(i);
+                                }
+                                return parameterNames;
+                            }
+                        }
+                    }
+                }
+            }
+            String[] parameterNames = new String[method.getParameterTypes().length];
+            for (int i = 0; i < method.getParameterTypes().length; i++) {
+                parameterNames[i] = "arg" + i;
+            }
+            return parameterNames;
         }
 
         @Override
@@ -115,28 +157,26 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             if (!skip) {
-                boolean allPrimitives = true;
+                boolean allPrimitivesBeforeLastArgument = true;
+                int k = 0;
                 if (originalMethod.getParameterTypes().length < 4) {
                     for (Class<?> parameterType : originalMethod.getParameterTypes()) {
-                        if (!isPrimitive(parameterType)) {
-                            allPrimitives = false;
-                            break;
+                        if (k < originalMethod.getParameterTypes().length - 1) {
+                            if (!isPrimitive(parameterType)) {
+                                allPrimitivesBeforeLastArgument = false;
+                                break;
+                            }
                         }
+                        k++;
                     }
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.append("/" + methodName);
-                if (allPrimitives) {
-                    String[] parameterNames = DISCOVERER.getParameterNames(originalMethod);
-                    if (parameterNames == null) {
-                        parameterNames = new String[originalMethod.getParameterTypes().length];
-                        for (int i = 0; i < originalMethod.getParameterTypes().length; i++) {
-                            parameterNames[i] = "arg" + i;
-                        }
-                    }
+                if (allPrimitivesBeforeLastArgument && originalMethod.getParameterTypes().length > 0 && isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1])) {
+                    String[] parameterNames = getParameterNames(originalMethod);
                     int i = 0;
                     for (String paramName : parameterNames) {
-                        sb.append("/{" + paramName + "}");
+                        sb.append("/{" + paramName + ": .*}");
                         addPathParamAnnotation(mv, i, paramName);
                         i++;
                     }
@@ -226,7 +266,10 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, ClassLoader classLoader, boolean changeReturnTypes) throws Exception {
+    public static Class<?> decorateInterface(Class<?> originalClass,
+            ClassLoader classLoader,
+            OpenLService service,
+            boolean changeReturnTypes) throws Exception {
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
@@ -236,6 +279,7 @@ public class JAXRSInterfaceEnhancerHelper {
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
             originalClass,
+            service,
             changeReturnTypes);
         String enchancedClassName = originalClass.getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
@@ -250,12 +294,16 @@ public class JAXRSInterfaceEnhancerHelper {
     }
 
     public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {
-        return decorateInterface(originalClass, false);
+        return decorateInterface(originalClass, null, false);
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, boolean changeReturnTypes) throws Exception {
+    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
+        return decorateInterface(originalClass, service, false);
+    }
+
+    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service, boolean changeReturnTypes) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return decorateInterface(originalClass, classLoader, changeReturnTypes);
+        return decorateInterface(originalClass, classLoader, service, changeReturnTypes);
     }
 
     public static Object decorateBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {

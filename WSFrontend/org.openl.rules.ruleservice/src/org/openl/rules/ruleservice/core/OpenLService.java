@@ -10,6 +10,7 @@ import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.model.Module;
+import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -30,6 +31,7 @@ public final class OpenLService {
     private Class<?> serviceClass;
     private Class<?> instanceClass;
     private Object serviceBean;
+    private IOpenClass openClass;
     private boolean provideRuntimeContext = false;
     private boolean useRuleServiceRuntimeContext = false;
     private boolean provideVariations = false;
@@ -204,6 +206,14 @@ public final class OpenLService {
         this.serviceBean = serviceBean;
     }
 
+    public void setOpenClass(IOpenClass openClass) {
+        this.openClass = openClass;
+    }
+    
+    public IOpenClass getOpenClass() {
+        return openClass;
+    }
+    
     /** {@inheritDoc} */
     public int hashCode() {
         final int prime = 31;
