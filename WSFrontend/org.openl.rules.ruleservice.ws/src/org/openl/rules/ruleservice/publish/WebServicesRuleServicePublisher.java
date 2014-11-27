@@ -107,9 +107,6 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
                 svrFactory.setAddress(serviceAddress);
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
-                if (service.getServiceClassName() == null){
-                    svrFactory.setServiceName(new QName("http://DefaultNamespace",service.getName()));
-                }
 
                 svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
