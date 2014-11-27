@@ -1415,7 +1415,12 @@ public class ProjectModel {
     public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
         PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
 
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes == null) {
+            return null;
+        }
+
+        for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (rulesRootPath != null &&
                     module.getSourceFile().getName().equals(FilenameUtils.getName(rulesRootPath.getPath()))) {

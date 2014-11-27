@@ -36,7 +36,8 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
-
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.TextInterval;
 
 /**
  * Bound node for datatype table component.
@@ -177,6 +178,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
             }
 
+            if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
+                // For example type A depends on B and B depends on A. At this point B is not generated yet.
+                // TODO Implement circular datatype dependencies support like in Java.
+                GridCellSourceCodeModule cellSource = getCellSource(row, cxt, 0);
+                TextInterval location = new TextInterval(new AbsolutePosition(0),
+                        new AbsolutePosition(cellSource.getCode().length()));
+
+                String message = "Type " + getRootComponentClass(field.getType()).getName() + " isn't generated yet";
+                throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
+            }
+
             FieldDescription fieldDescription;
             try {
                 dataType.addField(field);
@@ -196,7 +208,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldDescription = fieldDescriptionFactory(field);
                 fields.put(fieldName, fieldDescription);
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), null, null, getCellSource(row, cxt, 1));
+                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), t, null, getCellSource(row, cxt, 1));
             }
 
             if (row.getWidth() > 2) {
@@ -210,7 +222,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     try {
                         RuleRowHelper.validateValue(value, fieldType);
                     } catch (Exception e) {
-                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), null, null, getCellSource(row, cxt, 2));
+                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
                     }
                 }
             }
