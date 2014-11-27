@@ -113,9 +113,10 @@ public class IntRangeParsingTest {
 
     @Test
     public void testVerbalBothBounds() {
-        assertEquals(new IntRange(-100, 499), new IntRange("-100 and more and less than 500"));
-        assertEquals(new IntRange(3, 5), new IntRange("more than 2 and 5 or less"));
+        assertEquals(new IntRange(-100, 499), new IntRange("-100 and more less than 500"));
+        assertEquals(new IntRange(3, 5), new IntRange("more than 2 5 or less"));
         assertEquals(new IntRange(-19, -11), new IntRange("less than -10 more than -20"));
+//        assertEquals(new IntRange(32, 41), new IntRange("41 or less and more than 31"));
     }
 
     @Test
