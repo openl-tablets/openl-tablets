@@ -1374,10 +1374,10 @@ void RangePrefix():
 }
 {
 	(
-	  x="<" {op="lt";} | x="less than" {op="lt";} |
-	  x = "<=" {op="le";} |
-	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
-	  x =">=" {op="ge";})
+	  x=<LT> {op="lt";} | x="less than" {op="lt";} |
+	  x = <LE> {op="le";} |
+	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
+	  x =<GE> {op="ge";})
 	(
 	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
@@ -1497,8 +1497,6 @@ void rangeBothBounds():
 
 void RangeLiteral() :
 {
-	Token x;
-	String op;
 }
 {
 	(
@@ -1566,10 +1564,10 @@ void RangePrefixFloat():
 	String op; 
 }
 {
-	( x="<" {op="lt";} | x="less than" {op="lt";} |
-	  x = "<=" {op="le";} |
-	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
-	  x =">=" {op="ge";} )
+	( x=<LT> {op="lt";} | x="less than" {op="lt";} |
+	  x = <LE> {op="le";} |
+	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
+	  x =<GE> {op="ge";} )
 	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
 }
@@ -1686,8 +1684,6 @@ void rangeBothBoundsFloat():
 
 void RangeLiteralFloat() :
 {
-	Token x;
-	String op;
 }
 {
 	(
