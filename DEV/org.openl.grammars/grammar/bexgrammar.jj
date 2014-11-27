@@ -1439,8 +1439,6 @@ void rangeVerboseBounds():
     )
     {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
 
-    [<AND>]
-
     (
         x="less than" {including = false;} ( LiteralBI() | NegLiteralBI() )
         |
@@ -1462,8 +1460,6 @@ void rangeInvertedVerboseBounds():
         ( LiteralBI() | NegLiteralBI() ) x="or less" {including = true;}
     )
     {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
-
-    [<AND>]
 
     (
         x="more than" {including = false;} ( LiteralBI() | NegLiteralBI() )
@@ -1624,8 +1620,6 @@ void rangeVerboseBoundsFloat():
     )
     {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
 
-    [<AND>]
-
     (
         x="less than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )
         |
@@ -1647,8 +1641,6 @@ void rangeInvertedVerboseBoundsFloat():
         ( LiteralFloat() | NegLiteralFloat() ) x="or less" {including = true;}
     )
     {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
-
-    [<AND>]
 
     (
         x="more than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )

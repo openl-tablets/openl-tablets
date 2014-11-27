@@ -105,8 +105,8 @@ public class DoubleRangeParsingTest {
 
     @Test
     public void testVerbalBothBounds() {
-        assertEquals(new DoubleRange(-100.1, 500.2, BoundType.INCLUDING, BoundType.EXCLUDING), new DoubleRange("-100.1 and more and less than 500.2"));
-        assertEquals(new DoubleRange(2, 5, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange("more than 2 and 5 or less"));
+        assertEquals(new DoubleRange(-100.1, 500.2, BoundType.INCLUDING, BoundType.EXCLUDING), new DoubleRange("-100.1 and more less than 500.2"));
+        assertEquals(new DoubleRange(2, 5, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange("more than 2 5 or less"));
         assertEquals(new DoubleRange(-20.5, -10.5, BoundType.EXCLUDING, BoundType.EXCLUDING), new DoubleRange("less than -10.5 more than -20.5"));
     }
 
