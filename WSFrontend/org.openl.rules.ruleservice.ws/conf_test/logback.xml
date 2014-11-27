@@ -7,16 +7,8 @@
     </encoder> 
   </appender>
 
-  <appender name="R" class="ch.qos.logback.core.FileAppender">
-    <file>../logs/ruleservice.log</file>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-    </encoder> 
-  </appender>
-   
   <root level="info">
     <appender-ref ref="STDOUT" />
-    <appender-ref ref="R" />
   </root>
 
   <logger name="org.openl.rules.ruleservice" level="DEBUG" />
