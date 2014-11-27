@@ -14,32 +14,64 @@
                             alt="Close"/>
         </f:facet>
 
-        <h:form id="copyFileForm">
+        <h:form id="copyFileForm" styleClass="fields">
             <h:panelGroup id="modalCopyFileData">
-                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label">
-                    <h:outputText value="File Name"/>
-                    <h:outputLabel id="copyingFileName" value="#{node.name}"/>
+                <section>
+                    <h3>From</h3>
 
-                    <ui:param name="hasVersions" value="#{!empty repositoryTreeState.selectedProject and !repositoryTreeState.localOnly and node.hasVersions()}"/>
+                    <div>
+                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label">
+                            <h:outputText value="File Name"/>
+                            <h:outputLabel id="copyingFileName" value="#{node.name}"/>
 
-                    <h:outputLabel for="currentRevision" value="Current Revision" rendered="#{hasVersions}"/>
-                    <h:selectBooleanCheckbox id="currentRevision" value="true" onchange="showFileRevision(!this.checked)"
-                                             rendered="#{hasVersions}"/>
-                </h:panelGrid>
+                            <ui:param name="hasVersions"
+                                      value="#{!empty repositoryTreeState.selectedProject and !repositoryTreeState.localOnly and node.hasVersions()}"/>
 
-                <h:panelGrid columns="2" styleClass="formfields file-revision hidden" cellspacing="1" columnClasses="label">
-                    <h:outputLabel for="fileVersion" value="File Revision" rendered="#{hasVersions}"/>
-                    <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}" required="true"
-                                     rendered="#{hasVersions}">
-                        <f:selectItems value="#{node.selectedFileVersions}"/>
-                    </h:selectOneMenu>
-                </h:panelGrid>
+                            <h:outputLabel for="currentRevision" value="Current Revision" rendered="#{hasVersions}"/>
+                            <h:selectBooleanCheckbox id="currentRevision" value="true"
+                                                     onchange="showFileRevision(!this.checked)"
+                                                     rendered="#{hasVersions}"/>
+                        </h:panelGrid>
 
-                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label">
-                    <ui:param name="path" value="#{repositoryTreeController.currentNodePath}"/>
-                    <h:outputLabel for="copyFileForm:filePath" styleClass="required" value="New File Path"/>
-                    <input type="text" id="copyFileForm:filePath" name="copyFileForm:filePath" value="#{path}"/>
-                </h:panelGrid>
+                        <h:panelGrid columns="2" styleClass="formfields file-revision hidden" cellspacing="1"
+                                     columnClasses="label">
+                            <h:outputLabel for="fileVersion" value="File Revision" rendered="#{hasVersions}"/>
+                            <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}"
+                                             required="true"
+                                             rendered="#{hasVersions}">
+                                <f:selectItems value="#{node.selectedFileVersions}"/>
+                            </h:selectOneMenu>
+                        </h:panelGrid>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>As</h3>
+
+                    <div>
+                        <ui:param name="path" value="#{repositoryTreeController.currentNodePath}"/>
+                        <input type="hidden" id="copyFileForm:filePath" name="copyFileForm:filePath" value="#{path}"/>
+
+                        <table class="formfields">
+                            <tr>
+                                <td class="label">
+                                    <label for="copyFileForm:filePath">New File Path</label>
+                                </td>
+                                <td>
+                                    <h:inputText id="newFileFolder"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">
+                                    <label for="copyFileForm:newFileName" class="required">New File Name</label>
+                                </td>
+                                <td>
+                                    <h:inputText id="newFileName"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </section>
             </h:panelGroup>
 
             <footer>
@@ -52,15 +84,29 @@
     </rich:popupPanel>
 
     <script>
+        //<![CDATA[
         function openCopyFileDialog() {
+            var path = $j('#copyFileForm\\:filePath').val();
+            $j('#copyFileForm\\:newFileFolder').val(getFolder(path));
+            $j('#copyFileForm\\:newFileName').val(getFileName(path) + '.' + getExtension(path));
+
+            var newFilePathChangeListener = function() {
+                var folder = $j('#copyFileForm\\:newFileFolder').val();
+                var fileName = $j('#copyFileForm\\:newFileName').val();
+                $j('#copyFileForm\\:filePath').val(folder + '/' + fileName);
+            };
+
+            $j('#copyFileForm\\:newFileFolder').off().on('keyup change', newFilePathChangeListener);
+            $j('#copyFileForm\\:newFileName').off().on('keyup change', newFilePathChangeListener);
+
             $j("#copyFileForm\\:currentRevision").attr('checked', true);
             showFileRevision(false);
             RichFaces.$('modalCopyFile').show();
-            focusElement('copyFileForm:fileVersion');
+            focusElement('copyFileForm:newFileName');
         }
 
         function showFileRevision(show) {
-            $j(".file-revision").each(function() {
+            $j(".file-revision").each(function () {
                 if (show) {
                     $j(this).removeClass("hidden");
                 } else {
@@ -68,5 +114,29 @@
                 }
             });
         }
+        function replaceSlash(path) {
+            return path ? path.replace(/\\/g, '/') : '';
+        }
+
+        function getFolder(path) {
+            path = replaceSlash(path);
+            var index = path.lastIndexOf('/');
+            return index < 0 ? '' : path.substring(0, index);
+        }
+
+        function getFileName(path) {
+            path = replaceSlash(path);
+            var from = path.lastIndexOf('/');
+            path = from < 0 ? path : path.substring(from + 1);
+            var to = path.lastIndexOf('.');
+            return to < 0 ? path : path.substring(0, to);
+        }
+
+        function getExtension(path) {
+            path = replaceSlash(path);
+            var index = path.lastIndexOf('.');
+            return index < 0 ? '' : path.substring(index + 1);
+        }
+        //]]>
     </script>
 </ui:composition>

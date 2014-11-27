@@ -29,4 +29,8 @@
         <constructor-arg value="#{configManager.properties}" />
     </bean>
 
+    <bean id="projectDescriptorSerializerFactory" class="org.openl.rules.project.xml.ProjectDescriptorSerializerFactory">
+        <constructor-arg value="#{systemConfig['default.openl.compatibility.version']}"/>
+    </bean>
+
 </beans>

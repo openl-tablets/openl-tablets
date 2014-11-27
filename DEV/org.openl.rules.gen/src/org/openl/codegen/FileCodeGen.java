@@ -2,9 +2,12 @@ package org.openl.codegen;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -98,7 +101,9 @@ public class FileCodeGen {
         BufferedWriter bw = null;
         ex = null;
         try {
-            bw = new BufferedWriter(new FileWriter(outFileLocation));
+            FileOutputStream fos = new FileOutputStream(outFileLocation);
+            OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
+            bw = new BufferedWriter(writer);
             bw.write(sb.toString());
         } catch (IOException e) {
             ex = e;

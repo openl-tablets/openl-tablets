@@ -66,6 +66,7 @@
         <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
     </scm>
     <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springsecurity.version>3.2.4.RELEASE</org.springsecurity.version>

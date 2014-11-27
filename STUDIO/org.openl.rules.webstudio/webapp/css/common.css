@@ -1075,12 +1075,17 @@ form .formfields {
     border-left: none !important;
     border-top: none !important;
     border-right: none !important;
-    padding: 0px 11px 5px 5px !important;
+    padding: 0px 11px !important;
 }
 
 .rf-tab-hdr-act {
+    background: rgba(169, 212, 94, 0.25) !important;
     border-bottom: 1px solid #9c3 !important;
     color: #111111 !important;
+}
+
+.rf-tab-hdr-inact:hover {
+    background: #f5f5f5 !important;
 }
 
 .rf-tab-hdr-tabline-vis {

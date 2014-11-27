@@ -144,3 +144,17 @@ html, body {
     background: url(webresource/images/a_down.png) no-repeat;
     left: 5px;
 }
+
+.clearButton {
+    background: no-repeat scroll 0 0 url('webresource/images/close.gif');
+    background-color: transparent !important;
+    border: 0;
+    -moz-margin-start: 3px;
+    margin: 0 3px 0 2px;
+    padding: 5px 11px;
+    opacity: 0.2;
+}
+
+.clearButton:hover {
+    opacity: 0.4;
+}
