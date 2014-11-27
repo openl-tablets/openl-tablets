@@ -172,7 +172,7 @@ public class JAXRSInterfaceEnhancerHelper {
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.append("/" + methodName);
-                if (allPrimitivesBeforeLastArgument && isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1])) {
+                if (allPrimitivesBeforeLastArgument && originalMethod.getParameterTypes().length > 0 && isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1])) {
                     String[] parameterNames = getParameterNames(originalMethod);
                     int i = 0;
                     for (String paramName : parameterNames) {
