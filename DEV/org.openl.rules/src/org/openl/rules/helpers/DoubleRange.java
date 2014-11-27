@@ -44,29 +44,8 @@ public class DoubleRange implements INumberRange {
     }
 
     public DoubleRange(String range) {
-        // TODO: Correct tokenizing in grammar.
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        
-        RangeWithBounds res;
-        
-     // Save current openl messages before range parser invocation to
-        // avoid populating messages list with errors what are not refer to
-        // appropriate table. Reason: input string doesn't contain required
-        // information about source. 
-        //
-        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
-        
-        try {
-            OpenLMessages.getCurrentInstance().clear();
-            res = (RangeWithBounds) OpenLManager
-                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.DOUBLE_RANGE);
-        } finally {
-            // Load old openl messages list. 
-            //
-            OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
-        }
-        
+        RangeWithBounds res = getRangeWithBounds(range);
+
         lowerBound = res.getMin().doubleValue();
         lowerBoundType = res.getLeftBoundType();
         upperBound = res.getMax().doubleValue();
@@ -80,6 +59,32 @@ public class DoubleRange implements INumberRange {
             // For example, is converted from BigDecimal to Double
             throw new IllegalArgumentException("upperBound value is truncated");
         }
+    }
+
+    public static RangeWithBounds getRangeWithBounds(String range) {
+        // TODO: Correct tokenizing in grammar.
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+
+        RangeWithBounds res;
+
+        // Save current openl messages before range parser invocation to
+        // avoid populating messages list with errors what are not refer to
+        // appropriate table. Reason: input string doesn't contain required
+        // information about source.
+        //
+        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
+
+        try {
+            OpenLMessages.getCurrentInstance().clear();
+            res = (RangeWithBounds) OpenLManager
+                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.DOUBLE_RANGE);
+        } finally {
+            // Load old openl messages list.
+            //
+            OpenLMessages.getCurrentInstance().clear();
+            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
+        }
+        return res;
     }
 
     /**
@@ -238,7 +243,7 @@ public class DoubleRange implements INumberRange {
         } else{
             builder.append('(');
         }
-        builder.append(lowerBound + "; " + upperBound);
+        builder.append(lowerBound).append("; ").append(upperBound);
         if(upperBoundType == BoundType.INCLUDING){
             builder.append(']');
         } else{

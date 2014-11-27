@@ -55,28 +55,8 @@ public class IntRange extends IntRangeDomain implements INumberRange {
      * @param range
      */
     public IntRange(String range) {
-        // TODO: Correct tokenizing in grammar.
         super(0, 0);
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        RangeWithBounds res;
-        
-        // Save current openl messages before range parser invocation to
-        // avoid populating messages list with errors what are not refer to
-        // appropriate table. Reason: input string doesn't contain required
-        // information about source. 
-        //
-        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
-        
-        try {
-            OpenLMessages.getCurrentInstance().clear();
-            res = (RangeWithBounds) OpenLManager
-                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
-        } finally {
-            // Load old openl messages list. 
-            //
-            OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
-        }
+        RangeWithBounds res = getRangeWithBounds(range);
 
         min = res.getMin().intValue();
         if (!res.getMin().equals(min)) {
@@ -98,5 +78,30 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         if (min > max) {
             throw new RuntimeException(max + " must be more or equal than " + min);
         }
+    }
+
+    public static RangeWithBounds getRangeWithBounds(String range) {
+        // TODO: Correct tokenizing in grammar.
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        RangeWithBounds res;
+
+        // Save current openl messages before range parser invocation to
+        // avoid populating messages list with errors what are not refer to
+        // appropriate table. Reason: input string doesn't contain required
+        // information about source.
+        //
+        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
+
+        try {
+            OpenLMessages.getCurrentInstance().clear();
+            res = (RangeWithBounds) OpenLManager
+                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
+        } finally {
+            // Load old openl messages list.
+            //
+            OpenLMessages.getCurrentInstance().clear();
+            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
+        }
+        return res;
     }
 }
