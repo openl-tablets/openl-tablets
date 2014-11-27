@@ -132,10 +132,7 @@ public class RangeNodeBinder extends ANodeBinder {
     private RangeWithBounds bindSuffix(IBoundNode[] children, String type, IBindingContext bindingContext) {
         Number val = (Number) ((LiteralBoundNode) children[0]).getValue();
 
-        if (type.endsWith("lt")) {
-            return new RangeWithBounds(val, getMax(val), BoundType.EXCLUDING, BoundType.INCLUDING);
-
-        } else if (type.endsWith("le") || type.endsWith("plus") || type.endsWith("and.more")) {
+        if (type.endsWith("plus") || type.endsWith("and.more")) {
             return new RangeWithBounds(val, getMax(val), BoundType.INCLUDING, BoundType.INCLUDING);
 
         } else if (type.endsWith("or.less")) {
