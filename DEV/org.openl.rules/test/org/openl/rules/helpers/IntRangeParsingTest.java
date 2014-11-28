@@ -72,6 +72,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(1, 2), new IntRange("1-2"));
         assertEquals(new IntRange(13, 200), new IntRange("13 .. 200"));
         assertEquals(new IntRange(14, 99), new IntRange("13 ... 100"));
+        assertEquals(new IntRange(14, 99), new IntRange("13 … 100"));
         assertEquals(new IntRange(13, 19), new IntRange("[13 .. 20)"));
         assertEquals(new IntRange(14, 19), new IntRange("(13 .. 20)"));
     }
