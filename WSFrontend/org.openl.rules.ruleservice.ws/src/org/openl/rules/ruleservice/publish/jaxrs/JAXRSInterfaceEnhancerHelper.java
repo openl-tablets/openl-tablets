@@ -69,16 +69,37 @@ public class JAXRSInterfaceEnhancerHelper {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             boolean requiredPathAnnotation = true;
+            boolean consumesAnnotationRequired = true;
+            boolean producesAnnotationRequired = true;
+
             for (Annotation annotation : originalClass.getAnnotations()) {
+
+                if (annotation.annotationType().equals(Produces.class)) {
+                    producesAnnotationRequired = false;
+                }
+                if (annotation.annotationType().equals(Consumes.class)) {
+                    consumesAnnotationRequired = false;
+                }
+
                 if (annotation.annotationType().equals(Path.class)) {
                     requiredPathAnnotation = false;
                     break;
                 }
             }
+
             if (requiredPathAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
+            }
+
+            // Consumes annotation
+            if (consumesAnnotationRequired) {
+                addConsumesAnnotation(this);
+            }
+            // Produces annotation
+            if (producesAnnotationRequired) {
+                addProducesAnnotation(this);
             }
         }
 
@@ -127,16 +148,8 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             Annotation[] annotations = originalMethod.getAnnotations();
-            boolean consumesAnnotationRequired = true;
-            boolean producesAnnotationRequired = true;
             boolean skip = false;
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType().equals(Produces.class)) {
-                    producesAnnotationRequired = false;
-                }
-                if (annotation.annotationType().equals(Consumes.class)) {
-                    consumesAnnotationRequired = false;
-                }
                 if (annotation.annotationType().equals(Path.class)) {
                     skip = true;
                 }
@@ -188,14 +201,6 @@ public class JAXRSInterfaceEnhancerHelper {
                 }
             }
 
-            // Consumes annotation
-            if (consumesAnnotationRequired) {
-                addConsumesAnnotation(mv);
-            }
-            // Produces annotation
-            if (producesAnnotationRequired) {
-                addProducesAnnotation(mv);
-            }
             return mv;
         }
 
@@ -243,8 +248,8 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addProducesAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
+        private void addProducesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visit(null, MediaType.APPLICATION_XML);
@@ -254,8 +259,8 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addConsumesAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
+        private void addConsumesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visit(null, MediaType.APPLICATION_XML);
