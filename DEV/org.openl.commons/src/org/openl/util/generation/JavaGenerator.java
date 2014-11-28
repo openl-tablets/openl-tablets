@@ -1,15 +1,15 @@
 package org.openl.util.generation;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class JavaGenerator {
 
@@ -113,8 +113,11 @@ public abstract class JavaGenerator {
     public void addGetter(StringBuilder buf, Method method, Set<String> allDatatypeFieldNames) {
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
-            buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(
-                    JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName));
+            String getter = JavaClassGeneratorHelper.getPublicGetterMethod(
+                    JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName);
+            if (StringUtils.isNotBlank(getter)) {
+                buf.append(getter);
+            }
         }
     }
 
