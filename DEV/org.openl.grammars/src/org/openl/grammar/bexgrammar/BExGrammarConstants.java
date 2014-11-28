@@ -135,137 +135,139 @@ public interface BExGrammarConstants {
   /** RegularExpression Id. */
   int TDOT = 67;
   /** RegularExpression Id. */
-  int ASSIGN = 68;
+  int TDOT_UNICODE = 68;
   /** RegularExpression Id. */
-  int GT = 69;
+  int ASSIGN = 69;
   /** RegularExpression Id. */
-  int STRICT_GT = 70;
+  int GT = 70;
   /** RegularExpression Id. */
-  int LT = 71;
+  int STRICT_GT = 71;
   /** RegularExpression Id. */
-  int STRICT_LT = 72;
+  int LT = 72;
   /** RegularExpression Id. */
-  int BANG = 73;
+  int STRICT_LT = 73;
   /** RegularExpression Id. */
-  int TILDE = 74;
+  int BANG = 74;
   /** RegularExpression Id. */
-  int HOOK = 75;
+  int TILDE = 75;
   /** RegularExpression Id. */
-  int COLON = 76;
+  int HOOK = 76;
   /** RegularExpression Id. */
-  int EQ = 77;
+  int COLON = 77;
   /** RegularExpression Id. */
-  int STRICT_EQ = 78;
+  int EQ = 78;
   /** RegularExpression Id. */
-  int LE = 79;
+  int STRICT_EQ = 79;
   /** RegularExpression Id. */
-  int STRICT_LE = 80;
+  int LE = 80;
   /** RegularExpression Id. */
-  int GE = 81;
+  int STRICT_LE = 81;
   /** RegularExpression Id. */
-  int STRICT_GE = 82;
+  int GE = 82;
   /** RegularExpression Id. */
-  int NE = 83;
+  int STRICT_GE = 83;
   /** RegularExpression Id. */
-  int STRICT_NE = 84;
+  int NE = 84;
   /** RegularExpression Id. */
-  int BOOL_OR = 85;
+  int STRICT_NE = 85;
   /** RegularExpression Id. */
-  int BOOL_AND = 86;
+  int BOOL_OR = 86;
   /** RegularExpression Id. */
-  int INCR = 87;
+  int BOOL_AND = 87;
   /** RegularExpression Id. */
-  int DECR = 88;
+  int INCR = 88;
   /** RegularExpression Id. */
-  int PLUS = 89;
+  int DECR = 89;
   /** RegularExpression Id. */
-  int MINUS = 90;
+  int PLUS = 90;
   /** RegularExpression Id. */
-  int STAR = 91;
+  int MINUS = 91;
   /** RegularExpression Id. */
-  int SLASH = 92;
+  int STAR = 92;
   /** RegularExpression Id. */
-  int BIT_AND = 93;
+  int SLASH = 93;
   /** RegularExpression Id. */
-  int BIT_OR = 94;
+  int BIT_AND = 94;
   /** RegularExpression Id. */
-  int BIT_XOR = 95;
+  int BIT_OR = 95;
   /** RegularExpression Id. */
-  int REM = 96;
+  int BIT_XOR = 96;
   /** RegularExpression Id. */
-  int LSHIFT = 97;
+  int REM = 97;
   /** RegularExpression Id. */
-  int RSIGNEDSHIFT = 98;
+  int LSHIFT = 98;
   /** RegularExpression Id. */
-  int RUNSIGNEDSHIFT = 99;
+  int RSIGNEDSHIFT = 99;
   /** RegularExpression Id. */
-  int PLUSASSIGN = 100;
+  int RUNSIGNEDSHIFT = 100;
   /** RegularExpression Id. */
-  int MINUSASSIGN = 101;
+  int PLUSASSIGN = 101;
   /** RegularExpression Id. */
-  int STARASSIGN = 102;
+  int MINUSASSIGN = 102;
   /** RegularExpression Id. */
-  int SLASHASSIGN = 103;
+  int STARASSIGN = 103;
   /** RegularExpression Id. */
-  int ANDASSIGN = 104;
+  int SLASHASSIGN = 104;
   /** RegularExpression Id. */
-  int ORASSIGN = 105;
+  int ANDASSIGN = 105;
   /** RegularExpression Id. */
-  int XORASSIGN = 106;
+  int ORASSIGN = 106;
   /** RegularExpression Id. */
-  int REMASSIGN = 107;
+  int XORASSIGN = 107;
   /** RegularExpression Id. */
-  int LSHIFTASSIGN = 108;
+  int REMASSIGN = 108;
   /** RegularExpression Id. */
-  int RSIGNEDSHIFTASSIGN = 109;
+  int LSHIFTASSIGN = 109;
   /** RegularExpression Id. */
-  int RUNSIGNEDSHIFTASSIGN = 110;
+  int RSIGNEDSHIFTASSIGN = 110;
   /** RegularExpression Id. */
-  int EXP = 111;
+  int RUNSIGNEDSHIFTASSIGN = 111;
   /** RegularExpression Id. */
-  int IMPL = 112;
+  int EXP = 112;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 113;
+  int IMPL = 113;
   /** RegularExpression Id. */
-  int DECIMAL_LITERAL = 114;
+  int INTEGER_LITERAL = 114;
   /** RegularExpression Id. */
-  int HEX_LITERAL = 115;
+  int DECIMAL_LITERAL = 115;
   /** RegularExpression Id. */
-  int OCTAL_LITERAL = 116;
+  int HEX_LITERAL = 116;
   /** RegularExpression Id. */
-  int FP_LITERAL1 = 117;
+  int OCTAL_LITERAL = 117;
   /** RegularExpression Id. */
-  int FP_LITERAL2 = 118;
+  int FP_LITERAL1 = 118;
   /** RegularExpression Id. */
-  int FLOATING_POINT_LITERAL = 119;
+  int FP_LITERAL2 = 119;
   /** RegularExpression Id. */
-  int BUSINESS_INTEGER_LITERAL = 120;
+  int FLOATING_POINT_LITERAL = 120;
   /** RegularExpression Id. */
-  int DATE_FORMAT_LITERAL_4_2_2 = 121;
+  int BUSINESS_INTEGER_LITERAL = 121;
   /** RegularExpression Id. */
-  int TIME_FORMAT_LITERAL = 122;
+  int DATE_FORMAT_LITERAL_4_2_2 = 122;
   /** RegularExpression Id. */
-  int PERCENT_LITERAL = 123;
+  int TIME_FORMAT_LITERAL = 123;
   /** RegularExpression Id. */
-  int EXPONENT = 124;
+  int PERCENT_LITERAL = 124;
   /** RegularExpression Id. */
-  int CHARACTER_LITERAL = 125;
+  int EXPONENT = 125;
   /** RegularExpression Id. */
-  int STRING_LITERAL = 126;
+  int CHARACTER_LITERAL = 126;
   /** RegularExpression Id. */
-  int IDENTIFIER = 127;
+  int STRING_LITERAL = 127;
   /** RegularExpression Id. */
-  int LETTER = 128;
+  int IDENTIFIER = 128;
   /** RegularExpression Id. */
-  int DIGIT = 129;
+  int LETTER = 129;
   /** RegularExpression Id. */
-  int RANGE_VARIABLE = 130;
+  int DIGIT = 130;
   /** RegularExpression Id. */
-  int SINGLE_LINE_COMMENT = 133;
+  int RANGE_VARIABLE = 131;
   /** RegularExpression Id. */
-  int FORMAL_COMMENT = 134;
+  int SINGLE_LINE_COMMENT = 134;
   /** RegularExpression Id. */
-  int MULTI_LINE_COMMENT = 135;
+  int FORMAL_COMMENT = 135;
+  /** RegularExpression Id. */
+  int MULTI_LINE_COMMENT = 136;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -344,6 +346,7 @@ public interface BExGrammarConstants {
     "\".\"",
     "\"..\"",
     "\"...\"",
+    "\"\\u2026\"",
     "\"=\"",
     "\">\"",
     "\">==\"",
@@ -407,12 +410,12 @@ public interface BExGrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "<RANGE_VARIABLE>",
-    "<token of kind 131>",
+    "<token of kind 132>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 136>",
+    "<token of kind 137>",
     "\"equals to\"",
     "\"is same as\"",
     "\"does not equal to\"",
