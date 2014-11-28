@@ -27,6 +27,9 @@ public class NumberRangeEditor implements ICellEditor {
     }
 
     private String parseValue(String input) {
+        if (input == null) {
+            return "";
+        }
         RangeWithBounds range;
         if (ICellEditor.CE_INTEGER.equals(entryEditor)) {
             try {
@@ -57,7 +60,8 @@ public class NumberRangeEditor implements ICellEditor {
         } else if (ICellEditor.CE_DOUBLE.equals(entryEditor)) {
             try {
                 range = DoubleRange.getRangeWithBounds(input);
-                if (range.getMax().equals(Double.POSITIVE_INFINITY) || range.getMin().equals(Double.NEGATIVE_INFINITY)) {
+                if (range.getMax().equals(Double.POSITIVE_INFINITY)
+                        || range.getMin().equals(Double.NEGATIVE_INFINITY)) {
                     return input;
                 }
                 if (range.getMax().equals(range.getMin())) {
