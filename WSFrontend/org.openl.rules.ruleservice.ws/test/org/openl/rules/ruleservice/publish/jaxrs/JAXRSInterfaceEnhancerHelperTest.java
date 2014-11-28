@@ -32,6 +32,9 @@ public class JAXRSInterfaceEnhancerHelperTest {
     public void testNoAnnotationMethod() throws Exception {
         Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestInterface.class);
         boolean f = false;
+        boolean producesAnnotationExists = false;
+        boolean consumesAnnotationExists = false;
+
         for (Annotation annotation : enchancedClass.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
                 Path path = (Path) annotation;
@@ -40,6 +43,23 @@ public class JAXRSInterfaceEnhancerHelperTest {
                     f = true;
                 }
             }
+            if (annotation.annotationType().equals(Produces.class)) {
+                producesAnnotationExists = true;
+                Produces produces = (Produces) annotation;
+                Assert.assertTrue("@Produces annotatoion requires values!", produces.value().length > 0);
+            }
+            if (annotation.annotationType().equals(Consumes.class)) {
+                consumesAnnotationExists = true;
+                Consumes consumes = (Consumes) annotation;
+                Assert.assertTrue("@Consumes annotatoion requires values!", consumes.value().length > 0);
+            }
+        }
+
+        if (!producesAnnotationExists) {
+            Assert.fail("@Produces annotation is required!");
+        }
+        if (!consumesAnnotationExists) {
+            Assert.fail("@Consumes annotation is required!");
         }
 
         if (!f) {
@@ -48,8 +68,6 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
         boolean pathAnnotationExists = false;
         boolean getAnnotationExists = false;
-        boolean producesAnnotationExists = false;
-        boolean consumesAnnotationExists = false;
         boolean pathParamAnnotationExists = false;
 
         Method someMethod = enchancedClass.getMethod("someMethod", String.class);
@@ -64,16 +82,6 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
             if (annotation.annotationType().equals(GET.class)) {
                 getAnnotationExists = true;
-            }
-            if (annotation.annotationType().equals(Produces.class)) {
-                producesAnnotationExists = true;
-                Produces produces = (Produces) annotation;
-                Assert.assertTrue("@Produces annotatoion requires values!", produces.value().length > 0);
-            }
-            if (annotation.annotationType().equals(Consumes.class)) {
-                consumesAnnotationExists = true;
-                Consumes consumes = (Consumes) annotation;
-                Assert.assertTrue("@Consumes annotatoion requires values!", consumes.value().length > 0);
             }
         }
         for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
@@ -93,12 +101,6 @@ public class JAXRSInterfaceEnhancerHelperTest {
         }
         if (!getAnnotationExists) {
             Assert.fail("@GET annotation is required!");
-        }
-        if (!producesAnnotationExists) {
-            Assert.fail("@Produces annotation is required!");
-        }
-        if (!consumesAnnotationExists) {
-            Assert.fail("@Consumes annotation is required!");
         }
     }
 

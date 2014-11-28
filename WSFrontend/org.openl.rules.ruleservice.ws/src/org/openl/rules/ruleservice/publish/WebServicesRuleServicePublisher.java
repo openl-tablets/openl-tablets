@@ -13,8 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -114,6 +112,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
+                
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
