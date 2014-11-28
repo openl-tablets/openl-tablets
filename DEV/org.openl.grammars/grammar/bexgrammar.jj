@@ -288,6 +288,7 @@ TOKEN :
 | < DOT: "." >
 | < DDOT: ".." >
 | < TDOT: "..." >
+| < TDOT_UNICODE: "\u2026" > //"…"
 }
 
 /* OPERATORS */
@@ -1351,7 +1352,7 @@ void RangeBinary():
 {
 	(
 	  LiteralBI() | NegLiteralBI())
-	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
+	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
 	(
 	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
@@ -1536,7 +1537,7 @@ void RangeBinaryFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
+	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
 	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
 }
