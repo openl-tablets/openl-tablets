@@ -136,6 +136,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         this.destroyed = false;
         // var value = this.input.value;
         var value = this.parsedValue;
+        if (value === null) {
+            value = this.input.value;
+        }
         var self = this;
         var values;
         self.stableSeparators.each(function(separator) {
