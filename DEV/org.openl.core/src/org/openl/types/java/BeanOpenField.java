@@ -6,18 +6,19 @@
 
 package org.openl.types.java;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ArrayTool;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * @author snshor
@@ -39,25 +40,41 @@ public class BeanOpenField implements IOpenField {
 
         try {
             BeanInfo info = Introspector.getBeanInfo(c);
-            PropertyDescriptor[] pd = info.getPropertyDescriptors();
-            for (int i = 0; i < pd.length; i++) {
-                if (pd[i].getPropertyType() == null) {
+            PropertyDescriptor[] pds = info.getPropertyDescriptors();
+            for (PropertyDescriptor pd : pds) {
+                if (pd.getPropertyType() == null) {
                     // (int) only method(s)
                     continue;
                 }
-                if (pd[i].getName().equals("class")) {
+                if (pd.getName().equals("class")) {
                     continue;
                 }
-                BeanOpenField bf = new BeanOpenField(pd[i]);
-                map.put(pd[i].getName(), bf);
+
+                String fieldName = pd.getName();
+
+                try {
+                    c.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException ex) {
+                    // Catch it
+                    // if there is no such field => it was
+                    // named with the first letter as upper case
+                    //
+                    Field f = c.getDeclaredField(fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
+                    // Reset the name
+                    fieldName = f.getName();
+                    pd.setName(fieldName);
+                }
+                BeanOpenField bf = new BeanOpenField(pd);
+
+                map.put(fieldName, bf);
                 if (getters != null) {
-                    if (pd[i].getReadMethod() != null) {
-                        getters.put(pd[i].getReadMethod(), bf);
+                    if (pd.getReadMethod() != null) {
+                        getters.put(pd.getReadMethod(), bf);
                     }
                 }
                 if (setters != null) {
-                    if (pd[i].getWriteMethod() != null) {
-                        setters.put(pd[i].getWriteMethod(), bf);
+                    if (pd.getWriteMethod() != null) {
+                        setters.put(pd.getWriteMethod(), bf);
                     }
                 }
             }
