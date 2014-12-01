@@ -9,6 +9,9 @@ import org.openl.util.StringTool;
 public class TableUtils {
 
     public static String makeTableId(String uri) {
+        if (uri == null) {
+            return null;
+        }
         String decodedUri = StringTool.decodeURL(uri);
         return DigestUtils.md5Hex(decodedUri);
     }

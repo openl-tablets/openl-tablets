@@ -23,6 +23,9 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange("[4;5]"), new DoubleRange(4, 5));
         assertEquals(new DoubleRange("( 1.0002; 6 ]"), new DoubleRange(1.0002, 6, BoundType.EXCLUDING,
                 BoundType.INCLUDING));
+
+        assertEquals(new DoubleRange("( 1.0002 - 6 ]"), new DoubleRange(1.0002, 6, BoundType.EXCLUDING,
+                BoundType.INCLUDING));
     }
 
     @Test
@@ -43,6 +46,7 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange(1, 2.3), new DoubleRange("1-2.3"));
         assertEquals(new DoubleRange(13.01, 200.7), new DoubleRange("13.01 .. 200.7"));
         assertEquals(new DoubleRange(10, 123, BoundType.EXCLUDING, BoundType.EXCLUDING), new DoubleRange("10 ... 123"));
+        assertEquals(new DoubleRange(10, 123, BoundType.EXCLUDING, BoundType.EXCLUDING), new DoubleRange("10 … 123"));
     }
 
     @Test
@@ -52,6 +56,17 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange(Double.NEGATIVE_INFINITY, 7), new DoubleRange("<=7"));
         assertEquals(new DoubleRange(0.0000001, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING),
                 new DoubleRange(">0.0000001"));
+    }
+
+    @Test
+    public void testMoreLessFormatBothBounds() {
+        assertEquals(new DoubleRange(5.12, 12.123, BoundType.INCLUDING, BoundType.EXCLUDING),
+                new DoubleRange(">=5.12 <12.123"));
+        assertEquals(new DoubleRange(3, 7, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange("<=7 >3"));
+        assertEquals(new DoubleRange(0.0000001, 9.0000001, BoundType.EXCLUDING, BoundType.EXCLUDING),
+                new DoubleRange(" > 0.0000001   < 9.0000001 "));
+        assertEquals(new DoubleRange(0.0000001, 9.0000001, BoundType.INCLUDING, BoundType.INCLUDING),
+                new DoubleRange(" >= 0.0000001   <=9.0000001 "));
     }
 
     @Test
@@ -88,11 +103,18 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange("10 and more"), new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
         assertEquals(new DoubleRange("5 and more"), new DoubleRange(">=5"));
     }
-    
+
+    @Test
+    public void testVerbalBothBounds() {
+        assertEquals(new DoubleRange(-100.1, 500.2, BoundType.INCLUDING, BoundType.EXCLUDING), new DoubleRange("-100.1 and more less than 500.2"));
+        assertEquals(new DoubleRange(2, 5, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange("more than 2 5 or less"));
+        assertEquals(new DoubleRange(-20.5, -10.5, BoundType.EXCLUDING, BoundType.EXCLUDING), new DoubleRange("less than -10.5 more than -20.5"));
+    }
+
     @Test
     public void testIsTruncated() {
-        assertFalse(DoubleRange.isTruncated(Float.valueOf(15.89f), 1.89));
-        assertFalse(DoubleRange.isTruncated(Double.valueOf(15.89d), 1.89));
+        assertFalse(DoubleRange.isTruncated(15.89f, 1.89));
+        assertFalse(DoubleRange.isTruncated(15.89d, 1.89));
         assertTrue(DoubleRange.isTruncated(new BigDecimal("2e+308"), new BigDecimal("2e+308").doubleValue()));
         assertFalse(DoubleRange.isTruncated(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
         assertFalse(DoubleRange.isTruncated(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY));

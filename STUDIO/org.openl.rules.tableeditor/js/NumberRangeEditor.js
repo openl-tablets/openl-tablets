@@ -4,6 +4,7 @@
  * @requires Prototype v1.6.1+ library
  * 
  * @author Anastasia Abramova
+ * TODO Most of the parsing was moved to server. Remove unused parsing from script.
  */
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
@@ -34,6 +35,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     destroyed: null,
     entryEditor: null,
+    parsedValue: null,
 
     equals: false,
     moreThan: false,
@@ -100,6 +102,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         if (param) {
             this.entryEditor = param.entryEditor;
+            this.parsedValue = param.parsedValue;
         }
 
         this.input.onclick = function () {
@@ -131,7 +134,11 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     open: function() {
         this.input.up().appendChild(this.rangePanel);
         this.destroyed = false;
-        var value = this.input.value;
+        // var value = this.input.value;
+        var value = this.parsedValue;
+        if (value === null) {
+            value = this.input.value;
+        }
         var self = this;
         var values;
         self.stableSeparators.each(function(separator) {
@@ -267,7 +274,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             } else if (!values[0] && !values[1] || values[0] && !self.isValid(values[0])){
                 // Empty cell || invalid character in the cell
                 if (values[0]) {
-                    self.input.value = null;
+                    //self.input.value = null;
+                    self.parsedValue = null;
                 }
                 self.currentSeparator = self.defaultSeparator;
                 self.values[0].value = "";

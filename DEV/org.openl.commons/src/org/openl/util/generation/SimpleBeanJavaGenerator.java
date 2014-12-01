@@ -43,6 +43,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(String.class, new StringInitializationWriter());
         initializationWriters.put(char.class, new CharInitializationWriter());
         initializationWriters.put(Character.class, new CharInitializationWriter());
+        initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
     }
 
     public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> declaredFields,
@@ -169,7 +170,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 // get the appropriate initialization writer for the type of
                 // field.
                 //
-                TypeInitializationWriter writer = getFieldValueWriter(fieldType);
+                TypeInitializationWriter writer = getFieldValueWriter(field);
                 if (writer == null) {
                     // error message if can`t process value of given type.
                     //
@@ -188,11 +189,15 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         }
     }
 
-    private TypeInitializationWriter getFieldValueWriter(Class<?> fieldValueClass) {
+    private TypeInitializationWriter getFieldValueWriter(Field field) {
+        Class<?> fieldValueClass = field.getType();
         TypeInitializationWriter writer = initializationWriters.get(fieldValueClass);
         if (writer == null) {
             if (ClassUtils.isAssignable(fieldValueClass, Number.class)) {
                 writer = initializationWriters.get(Number.class);
+            }
+            if (fieldValueClass.getSimpleName().equalsIgnoreCase(field.getName())) {
+                writer = initializationWriters.get(MarkerClass.class);
             }
         }
         return writer;
@@ -209,4 +214,6 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         }
         return fieldValue;
     }
+
+    private final class MarkerClass{}
 }
