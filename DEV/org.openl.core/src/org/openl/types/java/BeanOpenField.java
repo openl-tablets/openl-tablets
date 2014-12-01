@@ -59,10 +59,16 @@ public class BeanOpenField implements IOpenField {
                     // if there is no such field => it was
                     // named with the first letter as upper case
                     //
-                    Field f = c.getDeclaredField(fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
-                    // Reset the name
-                    fieldName = f.getName();
-                    pd.setName(fieldName);
+                    try {
+                        Field f = c.getDeclaredField(fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
+                        // Reset the name
+                        fieldName = f.getName();
+                        pd.setName(fieldName);
+                    } catch (NoSuchFieldException e1) {
+                        // It is possible that there is no such field at all
+                        //
+                    }
+
                 }
                 BeanOpenField bf = new BeanOpenField(pd);
 
