@@ -194,10 +194,10 @@ public class JAXWSInterfaceEnhancerHelper {
                             if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
                                 int i = 0;
                                 while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i].equals(o2.getParameterTypes()[i])) {
-                                    return o1.getParameterTypes()[i].getName()
-                                        .compareTo(o2.getParameterTypes()[i].getName());
+                                    i++;
                                 }
-                                throw new IllegalStateException("Invalid algorithm!");
+                                return o1.getParameterTypes()[i].getName()
+                                        .compareTo(o2.getParameterTypes()[i].getName());
                             } else {
                                 return o1.getParameterTypes().length - o2.getParameterTypes().length;
                             }
