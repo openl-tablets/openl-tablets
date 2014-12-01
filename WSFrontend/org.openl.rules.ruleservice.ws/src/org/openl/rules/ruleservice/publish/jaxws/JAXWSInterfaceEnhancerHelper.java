@@ -2,6 +2,14 @@ package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -17,6 +25,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -33,6 +42,8 @@ public class JAXWSInterfaceEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
+
+        private Map<Method, String> operationNames = null;
 
         public JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -68,23 +79,41 @@ public class JAXWSInterfaceEnhancerHelper {
             if (service != null && service.getOpenClass() != null) {
                 for (IOpenMethod m : service.getOpenClass().getMethods()) {
                     if (m.getName().equals(method.getName())) {
-                        if (method.getParameterTypes().length == m.getSignature().getNumberOfParameters()) {
-                            int i = 0;
-                            boolean f = true;
-                            for (Class<?> clazz : method.getParameterTypes()) {
-                                if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                                    f = false;
-                                    break;
-                                }
-                                i++;
+                        int i = 0;
+                        boolean f = true;
+                        boolean skipRuntimeContextParameter = false;
+                        boolean variationPackIsLastParameter = false;
+                        for (Class<?> clazz : method.getParameterTypes()) {
+                            if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
+                                skipRuntimeContextParameter = true;
+                                continue;
                             }
-                            if (f) {
-                                String[] parameterNames = new String[m.getSignature().getNumberOfParameters()];
-                                for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                                    parameterNames[i] = m.getSignature().getParameterName(i);
-                                }
-                                return parameterNames;
+                            if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
+                                variationPackIsLastParameter = true;
+                                continue;
                             }
+                            if (i >= m.getSignature().getNumberOfParameters()) {
+                                f = false;
+                                break;
+                            }
+                            if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
+                                f = false;
+                                break;
+                            }
+                            i++;
+                        }
+                        if (f) {
+                            List<String> parameterNames = new ArrayList<String>();
+                            if (service.isProvideRuntimeContext()) {
+                                parameterNames.add("runtimeContext");
+                            }
+                            for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                                parameterNames.add(m.getSignature().getParameterName(i));
+                            }
+                            if (variationPackIsLastParameter) {
+                                parameterNames.add("variationPack");
+                            }
+                            return parameterNames.toArray(new String[] {});
                         }
                     }
                 }
@@ -113,7 +142,9 @@ public class JAXWSInterfaceEnhancerHelper {
             }
 
             if (!foundWebMethodAnnotation) { // Add WebMethod annotation
+                String operationName = getOperationName(originalMethod);
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(WebMethod.class), true);
+                av.visit("operationName", operationName);
                 av.visitEnd();
             }
 
@@ -135,6 +166,59 @@ public class JAXWSInterfaceEnhancerHelper {
             }
 
             return mv;
+        }
+
+        private String getOperationName(Method method) {
+            if (operationNames == null) {
+                operationNames = new HashMap<Method, String>();
+                Set<String> operations = new HashSet<String>();
+                List<Method> methods = new ArrayList<Method>();
+
+                for (Method m : originalClass.getMethods()) {
+                    boolean f = false;
+                    for (Annotation annotation : m.getAnnotations()) {
+                        if (annotation.annotationType().equals(WebMethod.class)) {
+                            WebMethod webMethod = (WebMethod) annotation;
+                            operations.add(webMethod.operationName());
+                            f = true;
+                        }
+                    }
+                    if (!f) {
+                        methods.add(m);
+                    }
+                }
+
+                Collections.sort(methods, new Comparator<Method>() {
+                    public int compare(Method o1, Method o2) {
+                        if (o1.getName().equals(o2.getName())) {
+                            if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
+                                int i = 0;
+                                while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i].equals(o2.getParameterTypes()[i])) {
+                                    return o1.getParameterTypes()[i].getName()
+                                        .compareTo(o2.getParameterTypes()[i].getName());
+                                }
+                                throw new IllegalStateException("Invalid algorithm!");
+                            } else {
+                                return o1.getParameterTypes().length - o2.getParameterTypes().length;
+                            }
+                        } else {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    };
+                });
+
+                for (Method m : methods) {
+                    String s = m.getName();
+                    int i = 0;
+                    while (operations.contains(s)) {
+                        i++;
+                        s = m.getName() + String.valueOf(i);
+                    }
+                    operations.add(s);
+                    operationNames.put(m, s);
+                }
+            }
+            return operationNames.get(method);
         }
 
         private Method findOriginalMethod(String methodName, String argumentTypes) {
