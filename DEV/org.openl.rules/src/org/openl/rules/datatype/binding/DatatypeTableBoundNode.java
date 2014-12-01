@@ -24,6 +24,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -215,7 +217,31 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
 
-                Object value = fieldDescription.getDefaultValue();
+                Object value;
+                try {
+                    value = fieldDescription.getDefaultValue();
+                } catch (RuntimeException e) {
+                    String message = String.format("Cannot parse cell value '%s'", defaultValue);
+                    IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
+
+                    if (e instanceof CompositeSyntaxNodeException) {
+                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                            throw SyntaxNodeExceptionUtils.createError(message,
+                                    null,
+                                    syntaxNodeException.getLocation(),
+                                    cellSourceCodeModule);
+                        }
+                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                    } else {
+                        TextInterval location = defaultValue == null ?
+                                                null :
+                                                new TextInterval(new AbsolutePosition(0),
+                                                        new AbsolutePosition(defaultValue.length()));
+                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
+                    }
+                }
                 if (value != null) {
                     // Validate not null default value
                     // The null value is allowed for alias types
@@ -273,13 +299,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
-        GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);    
+        GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
         if (!DatatypeHelper.isCommented(defaultValueSrc.getCode())) {
             IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
             if (idn.length > 0) {
-            	// if there is any valid identifier, consider it is a default value
-            	//
-            	defaultValue = defaultValueSrc.getCode();            	
+                // if there is any valid identifier, consider it is a default value
+                //
+                defaultValue = defaultValueSrc.getCode();
             }          
         }
         return defaultValue;

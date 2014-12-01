@@ -288,6 +288,7 @@ TOKEN :
 | < DOT: "." >
 | < DDOT: ".." >
 | < TDOT: "..." >
+| < TDOT_UNICODE: "\u2026" > //"…"
 }
 
 /* OPERATORS */
@@ -1351,7 +1352,7 @@ void RangeBinary():
 {
 	(
 	  LiteralBI() | NegLiteralBI())
-	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
+	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
 	(
 	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
@@ -1374,10 +1375,10 @@ void RangePrefix():
 }
 {
 	(
-	  x="<" {op="lt";} | x="less than" {op="lt";} |
-	  x = "<=" {op="le";} |
-	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
-	  x =">=" {op="ge";})
+	  x=<LT> {op="lt";} | x="less than" {op="lt";} |
+	  x = <LE> {op="le";} |
+	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
+	  x =<GE> {op="ge";})
 	(
 	  LiteralBI() | NegLiteralBI())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
@@ -1389,22 +1390,106 @@ void RangeSuffix():
 	String op; 
 }
 {
-	(
-	  
-	  LiteralBI() | NegLiteralBI())
-	(x="<" {op="lt";} |
-	x = "<=" {op="le";} | x = "or less" {op="or.less";} | 
-	x = ">" {op="gt";}  |
-	x =">=" {op="ge";} | x = "and more" {op="and.more";} |
+	(LiteralBI() | NegLiteralBI())
+	(x = "or less" {op="or.less";} |
+	x = "and more" {op="and.more";} |
 	x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }
 
+void rangeComparisonBounds():
+{
+    Token x;
+    boolean including;
+}
+{
+    ( x = <GT> {including = false;} | x = <GE> {including = true;} )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    ( LiteralBI() | NegLiteralBI() )
+    ( x = <LT> {including = false;} | x = <LE> {including = true;} )
+    ( LiteralBI() | NegLiteralBI())
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeInvertedComparisonBounds():
+{
+    Token x;
+    boolean including;
+}
+{
+    ( x = <LT> {including = false;} | x = <LE> {including = true;} )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    ( LiteralBI() | NegLiteralBI() )
+    ( x = <GT> {including = false;} | x = <GE> {including = true;} )
+    ( LiteralBI() | NegLiteralBI())
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeVerboseBounds():
+{
+    Token x;
+    boolean including;
+}
+{
+    (
+        x="more than" {including = false;} ( LiteralBI() | NegLiteralBI() )
+        |
+        ( LiteralBI() | NegLiteralBI() ) x="and more" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+
+    (
+        x="less than" {including = false;} ( LiteralBI() | NegLiteralBI() )
+        |
+        ( LiteralBI() | NegLiteralBI() ) x="or less" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeInvertedVerboseBounds():
+{
+    Token x;
+    boolean including;
+}
+{
+    (
+        x="less than" {including = false;} ( LiteralBI() | NegLiteralBI() )
+        |
+        ( LiteralBI() | NegLiteralBI() ) x="or less" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+
+    (
+        x="more than" {including = false;} ( LiteralBI() | NegLiteralBI() )
+        |
+        ( LiteralBI() | NegLiteralBI() ) x="and more" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeBothBounds():
+{
+}
+{
+    LOOKAHEAD(rangeComparisonBounds())
+    rangeComparisonBounds()
+    |
+    LOOKAHEAD(rangeInvertedComparisonBounds())
+    rangeInvertedComparisonBounds()
+    |
+    LOOKAHEAD(rangeVerboseBounds())
+    rangeVerboseBounds()
+    |
+    LOOKAHEAD(rangeInvertedVerboseBounds())
+    rangeInvertedVerboseBounds()
+}
 
 void RangeLiteral() :
 {
-	Token x; 
-	String op;
 }
 {
 	(
@@ -1414,12 +1499,15 @@ void RangeLiteral() :
 	LOOKAHEAD(RangeBrackets())
 	RangeBrackets()
 	|
+	LOOKAHEAD(rangeBothBounds())
+	rangeBothBounds()
+	|
 	LOOKAHEAD(RangePrefix())
 	RangePrefix()
-	| 
+	|
 	LOOKAHEAD(RangeSuffix())
 	RangeSuffix()
-	| 
+	|
 	RangeNumber()
 	)
 	<EOF>
@@ -1449,7 +1537,7 @@ void RangeBinaryFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
+	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
 	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
 }
@@ -1469,10 +1557,10 @@ void RangePrefixFloat():
 	String op; 
 }
 {
-	( x="<" {op="lt";} | x="less than" {op="lt";} |
-	  x = "<=" {op="le";} |
-	  x = ">" {op="gt";} | x = "more than" {op="gt";} |
-	  x =">=" {op="ge";} )
+	( x=<LT> {op="lt";} | x="less than" {op="lt";} |
+	  x = <LE> {op="le";} |
+	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
+	  x =<GE> {op="ge";} )
 	(LiteralFloat() | NegLiteralFloat())
 	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
 }
@@ -1484,18 +1572,105 @@ void RangeSuffixFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x="<" {op="lt";} |
-	x = "<=" {op="le";} | x = "or less" {op="or.less";} | 
-	x = ">" {op="gt";}  |
-	x =">=" {op="ge";} | x = "and more" {op="and.more";} |
+	(x = "or less" {op="or.less";} |
+	x = "and more" {op="and.more";} |
 	x ="+" {op="plus";})
 	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
 }
 
+void rangeComparisonBoundsFloat():
+{
+    Token x;
+    boolean including;
+}
+{
+    ( x = <GT> {including = false;} | x = <GE> {including = true;} )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    ( LiteralFloat() | NegLiteralFloat() )
+    ( x = <LT> {including = false;} | x = <LE> {including = true;} )
+    ( LiteralFloat() | NegLiteralFloat())
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeInvertedComparisonBoundsFloat():
+{
+    Token x;
+    boolean including;
+}
+{
+    ( x = <LT> {including = false;} | x = <LE> {including = true;} )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    ( LiteralFloat() | NegLiteralFloat() )
+    ( x = <GT> {including = false;} | x = <GE> {including = true;} )
+    ( LiteralFloat() | NegLiteralFloat())
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeVerboseBoundsFloat():
+{
+    Token x;
+    boolean including;
+}
+{
+    (
+        x="more than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )
+        |
+        ( LiteralFloat() | NegLiteralFloat() ) x="and more" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+
+    (
+        x="less than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )
+        |
+        ( LiteralFloat() | NegLiteralFloat() ) x="or less" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeInvertedVerboseBoundsFloat():
+{
+    Token x;
+    boolean including;
+}
+{
+    (
+        x="less than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )
+        |
+        ( LiteralFloat() | NegLiteralFloat() ) x="or less" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")"); }
+
+    (
+        x="more than" {including = false;} ( LiteralFloat() | NegLiteralFloat() )
+        |
+        ( LiteralFloat() | NegLiteralFloat() ) x="and more" {including = true;}
+    )
+    {syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "("); }
+    {syntaxBuilder.nop("literal.range.brackets", null, 4);}
+}
+
+void rangeBothBoundsFloat():
+{
+}
+{
+    LOOKAHEAD(rangeComparisonBoundsFloat())
+    rangeComparisonBoundsFloat()
+    |
+    LOOKAHEAD(rangeInvertedComparisonBoundsFloat())
+    rangeInvertedComparisonBoundsFloat()
+    |
+    LOOKAHEAD(rangeVerboseBoundsFloat())
+    rangeVerboseBoundsFloat()
+    |
+    LOOKAHEAD(rangeInvertedVerboseBoundsFloat())
+    rangeInvertedVerboseBoundsFloat()
+}
+
 void RangeLiteralFloat() :
 {
-	Token x; 
-	String op;
 }
 {
 	(
@@ -1504,6 +1679,9 @@ void RangeLiteralFloat() :
 	|
 	LOOKAHEAD(RangeBinaryFloat())
 	RangeBinaryFloat()
+	|
+	LOOKAHEAD(rangeBothBoundsFloat())
+	rangeBothBoundsFloat()
 	|
 	LOOKAHEAD(RangePrefixFloat())
 	RangePrefixFloat()

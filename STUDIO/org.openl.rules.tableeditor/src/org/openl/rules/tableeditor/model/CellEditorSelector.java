@@ -25,11 +25,11 @@ public class CellEditorSelector {
             return factory.makeFormulaEditor();
         }
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
-        ICellEditor editor = selectEditor(cellMetaInfo);
+        ICellEditor editor = selectEditor(cellMetaInfo, cell.getStringValue());
         return editor == null ? defaultEditor(cell) : editor;
     }
 
-    private ICellEditor selectEditor(CellMetaInfo meta) {
+    private ICellEditor selectEditor(CellMetaInfo meta, String initialValue) {
         ICellEditor result = null;
         IOpenClass dataType = meta == null ? null : meta.getDataType();
         if (dataType != null) {
@@ -83,9 +83,9 @@ public class CellEditorSelector {
             // Range
             } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true) && (!instanceClass.equals(CharRange.class))) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class, true)) {
-                    result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER);
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
                 } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class, true)) {
-                    result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE);
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
                 }
             }
 

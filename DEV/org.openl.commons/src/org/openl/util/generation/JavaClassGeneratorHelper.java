@@ -1,17 +1,17 @@
 package org.openl.util.generation;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openl.util.ArrayTool;
+import org.openl.util.NumberUtils;
+import org.openl.util.StringTool;
+
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.openl.util.ArrayTool;
-import org.openl.util.NumberUtils;
-import org.openl.util.StringTool;
 
 public class JavaClassGeneratorHelper {
 
@@ -113,35 +113,45 @@ public class JavaClassGeneratorHelper {
     public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields,
             int numberOfParamsForSuperConstructor) {
         StringBuilder buf = new StringBuilder();
-        buf.append(String.format("\n  public %s(", simpleClassName));
-        Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
-        while (fieldsIterator.hasNext()) {
-            Entry<String, Class<?>> field = fieldsIterator.next();
-            buf.append(String.format("%s %s", ClassUtils.getShortClassName(field.getValue()), field.getKey()));
-            if (fieldsIterator.hasNext()) {
-                buf.append(", ");
+        if (fields.size() < 256 ) {
+            // Generate constructor with parameters only in case where there are less than 256 arguments.
+            // 255 arguments to the method is a Java limitation
+            //
+            buf.append(String.format("\n  public %s(", simpleClassName));
+            Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
+            while (fieldsIterator.hasNext()) {
+                Entry<String, Class<?>> field = fieldsIterator.next();
+                buf.append(String.format("%s %s", ClassUtils.getShortClassName(field.getValue()), field.getKey()));
+                if (fieldsIterator.hasNext()) {
+                    buf.append(", ");
+                }
             }
-        }
-        buf.append(") {\n");
-        buf.append("    super(");
-        fieldsIterator = fields.entrySet().iterator();
-        for (int i = 0; i < numberOfParamsForSuperConstructor; i++) {
-            if (i != 0) {
-                buf.append(", ");
+            buf.append(") {\n");
+            buf.append("    super(");
+            fieldsIterator = fields.entrySet().iterator();
+            for (int i = 0; i < numberOfParamsForSuperConstructor; i++) {
+                if (i != 0) {
+                    buf.append(", ");
+                }
+                buf.append(fieldsIterator.next().getKey());
             }
-            buf.append(fieldsIterator.next().getKey());
+            buf.append(");\n");
+            while (fieldsIterator.hasNext()) {
+                Entry<String, Class<?>> field = fieldsIterator.next();
+                buf.append(String.format("    this.%s = %s;\n", field.getKey(), field.getKey()));
+            }
+            buf.append("  }\n");
+
         }
-        buf.append(");\n");
-        while (fieldsIterator.hasNext()) {
-            Entry<String, Class<?>> field = fieldsIterator.next();
-            buf.append(String.format("    this.%s = %s;\n", field.getKey(), field.getKey()));
-        }
-        buf.append("  }\n");
         return buf.toString();
     }
 
     public static String getPublicGetterMethod(String fieldType, String fieldName) {
-        return String.format("\n  public %s %s() {\n    return %s;\n  }\n", fieldType, StringTool.getGetterName(fieldName),
+        String getterName = StringTool.getGetterName(fieldName);
+        if ("getClass".equals(getterName)) {
+            return null;
+        }
+        return String.format("\n  public %s %s() {\n    return %s;\n  }\n", fieldType, getterName,
                 fieldName);
     }
 
