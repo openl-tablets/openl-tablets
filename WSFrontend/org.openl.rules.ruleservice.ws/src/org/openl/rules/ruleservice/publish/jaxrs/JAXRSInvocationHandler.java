@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
+import java.beans.PropertyDescriptor;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationHandler;
@@ -14,16 +15,23 @@ public class JAXRSInvocationHandler implements InvocationHandler {
 
     private Object target;
     private Map<Method, Method> methodMap;
+    private Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors;
 
-    public JAXRSInvocationHandler(Object target, Map<Method, Method> methodMap) {
+    public JAXRSInvocationHandler(Object target,
+            Map<Method, Method> methodMap,
+            Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors) {
         if (target == null) {
             throw new IllegalArgumentException("target argument can't be null!");
         }
         if (methodMap == null) {
             throw new IllegalArgumentException("methodMap argument can't be null!");
         }
+        if (methodMapToPropertyDescriptors == null) {
+            throw new IllegalArgumentException("methodMapToPropertyDescriptors argument can't be null!");
+        }
         this.target = target;
         this.methodMap = methodMap;
+        this.methodMapToPropertyDescriptors = methodMapToPropertyDescriptors;
     }
 
     protected String buildErrorMessage(Throwable ex) {
@@ -58,6 +66,18 @@ public class JAXRSInvocationHandler implements InvocationHandler {
             throw new IllegalStateException("Method not found in methods map!");
         }
         try {
+            PropertyDescriptor[] propertyDescriptors = methodMapToPropertyDescriptors.get(method);
+            if (args.length == 1 && propertyDescriptors != null) {
+                // Wrapped argument process;
+                Object[] arguments = new Object[propertyDescriptors.length];
+                int i = 0;
+                for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+                    arguments[i] = propertyDescriptor.getReadMethod().invoke(args[0]);
+                    i++;
+                }
+                args = arguments;
+            }
+
             Object o = m.invoke(target, args);
             if (o instanceof Response) {
                 return o;

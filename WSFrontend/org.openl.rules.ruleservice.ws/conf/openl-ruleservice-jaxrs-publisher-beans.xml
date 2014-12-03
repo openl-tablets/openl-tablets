@@ -31,7 +31,7 @@
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
 		scope="prototype" >
 		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping"/>
-		<property name="defaultValue" value="${ruleservice.jacksondatabinding.enableDefaultTyping}"/>
+		<property name="defaultValue" value="false"/>
 	</bean>
 	
 	<bean id="JAXRSaegisDatabindingFactoryBean"
@@ -125,7 +125,7 @@
 		description and calls RuleServicePublisher to expose corresponding web service -->
 	<!-- Exposes web services. -->
 	<bean id="JAXRSServicesRuleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.JAXRSServicesRuleServicePublisher">
+		class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
 		<property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
 	</bean>

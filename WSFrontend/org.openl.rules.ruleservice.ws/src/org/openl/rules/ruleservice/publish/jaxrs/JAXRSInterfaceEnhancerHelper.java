@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,6 +28,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
+import org.openl.rules.ruleservice.publish.common.MethodSorter;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
 import org.openl.util.generation.InterfaceTransformer;
@@ -57,15 +60,20 @@ public class JAXRSInterfaceEnhancerHelper {
         private Class<?> originalClass;
         private OpenLService service;
         private boolean changeReturnTypes = true;
+        private ClassLoader classLoader;
+        private Map<Method, String> methodNames = null;
+        private Map<Method, String> paths = null;
 
         public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 OpenLService service,
-                boolean changeReturnTypes) {
+                boolean changeReturnTypes,
+                ClassLoader classLoader) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
             this.changeReturnTypes = changeReturnTypes;
             this.service = service;
+            this.classLoader = classLoader;
         }
 
         @Override
@@ -111,54 +119,70 @@ public class JAXRSInterfaceEnhancerHelper {
             return signature.substring(0, index + 1) + Type.getDescriptor(Response.class);
         }
 
-        private String[] getParameterNames(Method method) {
-            if (service != null && service.getOpenClass() != null) {
-                for (IOpenMethod m : service.getOpenClass().getMethods()) {
-                    if (m.getName().equals(method.getName())) {
-                        int i = 0;
-                        boolean f = true;
-                        boolean skipRuntimeContextParameter = false;
-                        boolean variationPackIsLastParameter = false;
-                        for (Class<?> clazz : method.getParameterTypes()) {
-                            if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
-                                skipRuntimeContextParameter = true;
-                                continue;
-                            }
-                            if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
-                                variationPackIsLastParameter = true;
-                                continue;
-                            }
-                            if (i >= m.getSignature().getNumberOfParameters()) {
-                                f = false;
-                                break;
-                            }
-                            if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                                f = false;
-                                break;
-                            }
-                            i++;
-                        }
-                        if (f) {
-                            List<String> parameterNames = new ArrayList<String>();
-                            if (service.isProvideRuntimeContext()) {
-                                parameterNames.add("runtimeContext");
-                            }
-                            for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                                parameterNames.add(m.getSignature().getParameterName(i));
-                            }
-                            if (variationPackIsLastParameter) {
-                                parameterNames.add("variationPack");
-                            }
-                            return parameterNames.toArray(new String[] {});
-                        }
+        private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
+            String[] parameterNames = getParameterNames(originalMethod, service);
+            int i = 0;
+            JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator();
+            for (Class<?> type : originalMethod.getParameterTypes()) {
+                generator.addProperty(parameterNames[i], type);
+                i++;
+            }
+            Class<?> argumentWrapperClass = generator.generateClass(classLoader);
+            int index = signature.lastIndexOf(')');
+            int indexb = signature.lastIndexOf('(');
+            return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
+        }
+
+        protected String getPath(Method method) {
+            if (paths == null) {
+                paths = new HashMap<Method, String>();
+                List<Method> methods = new ArrayList<Method>();
+                for (Method m : originalClass.getMethods()) {
+                    Annotation pathAnnotation = method.getAnnotation(Path.class);
+                    if (pathAnnotation != null) {
+                        paths.put(m, ((Path) pathAnnotation).value());
+                    } else {
+                        methods.add(m);
                     }
                 }
+
+                methods = MethodSorter.sort(methods);
+
+                for (Method m : methods) {
+                    String s = m.getName();
+                    int i = 1;
+                    while (paths.values().contains(s)) {
+                        s = m.getName() + i;
+                        i++;
+                    }
+                    paths.put(m, s);
+                }
             }
-            String[] parameterNames = new String[method.getParameterTypes().length];
-            for (int i = 0; i < method.getParameterTypes().length; i++) {
-                parameterNames[i] = "arg" + i;
+
+            return paths.get(method);
+        }
+
+        protected String getMethodName(Method method) {
+            if (methodNames == null) {
+                methodNames = new HashMap<Method, String>();
+                List<Method> methods = new ArrayList<Method>();
+                for (Method m : originalClass.getMethods()) {
+                    methods.add(m);
+                }
+
+                methods = MethodSorter.sort(methods);
+
+                for (Method m : methods) {
+                    String s = m.getName();
+                    int i = 1;
+                    while (methodNames.values().contains(s)) {
+                        s = m.getName() + i;
+                        i++;
+                    }
+                    methodNames.put(m, s);
+                }
             }
-            return parameterNames;
+            return methodNames.get(method);
         }
 
         @Override
@@ -168,28 +192,18 @@ public class JAXRSInterfaceEnhancerHelper {
                 throw new OpenLRuntimeException("Method not found in original class!");
             }
 
-            Annotation[] annotations = originalMethod.getAnnotations();
             boolean skip = false;
-            for (Annotation annotation : annotations) {
-                if (annotation.annotationType().equals(Path.class)) {
-                    skip = true;
-                }
-                if (annotation.annotationType().equals(POST.class)) {
-                    skip = true;
-                }
-                if (annotation.annotationType().equals(GET.class)) {
-                    skip = true;
-                }
+            if (originalMethod.getAnnotation(Path.class) != null) {
+                skip = true;
+            }
+            if (originalMethod.getAnnotation(POST.class) != null) {
+                skip = true;
+            }
+            if (originalMethod.getAnnotation(GET.class) != null) {
+                skip = true;
             }
 
             MethodVisitor mv = null;
-
-            if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                mv = super.visitMethod(arg0, methodName, changeReturnType(arg2), arg3, arg4);
-            } else {
-                mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-            }
-
             if (!skip) {
                 boolean allPrimitivesBeforeLastArgument = true;
                 int k = 0;
@@ -205,9 +219,14 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 StringBuilder sb = new StringBuilder();
-                sb.append("/" + methodName);
+                sb.append("/" + getPath(originalMethod));
                 if (allPrimitivesBeforeLastArgument && originalMethod.getParameterTypes().length > 0 && isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1])) {
-                    String[] parameterNames = getParameterNames(originalMethod);
+                    if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
+                        mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
+                    } else {
+                        mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
+                    }
+                    String[] parameterNames = getParameterNames(originalMethod, service);
                     int i = 0;
                     for (String paramName : parameterNames) {
                         sb.append("/{" + paramName + ": .*}");
@@ -217,11 +236,47 @@ public class JAXRSInterfaceEnhancerHelper {
                     addGetAnnotation(mv);
                     addPathAnnotation(mv, sb.toString());
                 } else {
-                    addPostAnnotation(mv);
-                    addPathAnnotation(mv, sb.toString());
+                    try {
+                        if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
+                            if (originalMethod.getParameterTypes().length > 1 && originalMethod.getParameterTypes().length != 0) {
+                                mv = super.visitMethod(arg0,
+                                    getMethodName(originalMethod),
+                                    changeArgumentTypes(changeReturnType(arg2), originalMethod),
+                                    arg3,
+                                    arg4);
+                            } else {
+                                mv = super.visitMethod(arg0,
+                                    getMethodName(originalMethod),
+                                    changeReturnType(arg2),
+                                    arg3,
+                                    arg4);
+                            }
+                        } else {
+                            if (originalMethod.getParameterTypes().length > 1 && originalMethod.getParameterTypes().length != 0) {
+                                mv = super.visitMethod(arg0,
+                                    getMethodName(originalMethod),
+                                    changeArgumentTypes(arg2, originalMethod),
+                                    arg3,
+                                    arg4);
+                            } else {
+                                mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
+                            }
+                        }
+                        addPostAnnotation(mv);
+                        addPathAnnotation(mv, sb.toString());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } else {
+                if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
+                    mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
+                } else {
+                    mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
                 }
             }
 
+            addJAXRSMethodAnnotation(mv, originalMethod.getName());
             return mv;
         }
 
@@ -263,6 +318,12 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visitEnd();
         }
 
+        private void addJAXRSMethodAnnotation(MethodVisitor mv, String methodName) {
+            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(JAXRSMethod.class), true);
+            av.visit("value", methodName);
+            av.visitEnd();
+        }
+
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
             AnnotationVisitor av = mv.visitParameterAnnotation(index, Type.getDescriptor(PathParam.class), true);
             av.visit("value", paramName);
@@ -292,6 +353,56 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
+    private static String[] getParameterNames(Method method, OpenLService service) {
+        if (service != null && service.getOpenClass() != null) {
+            for (IOpenMethod m : service.getOpenClass().getMethods()) {
+                if (m.getName().equals(method.getName())) {
+                    int i = 0;
+                    boolean f = true;
+                    boolean skipRuntimeContextParameter = false;
+                    boolean variationPackIsLastParameter = false;
+                    for (Class<?> clazz : method.getParameterTypes()) {
+                        if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
+                            skipRuntimeContextParameter = true;
+                            continue;
+                        }
+                        if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
+                            variationPackIsLastParameter = true;
+                            continue;
+                        }
+                        if (i >= m.getSignature().getNumberOfParameters()) {
+                            f = false;
+                            break;
+                        }
+                        if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
+                            f = false;
+                            break;
+                        }
+                        i++;
+                    }
+                    if (f) {
+                        List<String> parameterNames = new ArrayList<String>();
+                        if (service.isProvideRuntimeContext()) {
+                            parameterNames.add("runtimeContext");
+                        }
+                        for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                            parameterNames.add(m.getSignature().getParameterName(i));
+                        }
+                        if (variationPackIsLastParameter) {
+                            parameterNames.add("variationPack");
+                        }
+                        return parameterNames.toArray(new String[] {});
+                    }
+                }
+            }
+        }
+        String[] parameterNames = new String[method.getParameterTypes().length];
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            parameterNames[i] = "arg" + i;
+        }
+        return parameterNames;
+    }
+
     public static Class<?> decorateInterface(Class<?> originalClass,
             ClassLoader classLoader,
             OpenLService service,
@@ -306,7 +417,8 @@ public class JAXRSInterfaceEnhancerHelper {
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
             originalClass,
             service,
-            changeReturnTypes);
+            changeReturnTypes,
+            classLoader);
         String enchancedClassName = originalClass.getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
         if (originalClass.getPackage() == null) {
@@ -332,38 +444,96 @@ public class JAXRSInterfaceEnhancerHelper {
         return decorateInterface(originalClass, classLoader, service, changeReturnTypes);
     }
 
-    public static Object decorateBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
+    public static Object decorateBean(Object targetBean,
+            OpenLService service,
+            Class<?> proxyInterface,
+            Class<?> targetInterface) throws Exception {
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
+        Map<Method,  PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<Method,  PropertyDescriptor[]>();
         for (Method method : proxyInterface.getMethods()) {
-            boolean f = false;
+            Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
+            if (jaxRSMethod == null) {
+                throw new IllegalStateException("Proxy interface should contains JAXRSMethod annotation for each method!");
+            }
+            String methodName = ((JAXRSMethod) jaxRSMethod).value();
+            boolean found = false;
             for (Method targetMethod : targetInterface.getMethods()) {
-                if (targetMethod.getName().equals(method.getName())) {
+                if (targetMethod.getName().equals(methodName)) {
                     if (targetMethod.getParameterTypes().length == method.getParameterTypes().length) {
                         Class<?>[] targetParams = targetMethod.getParameterTypes();
-                        Class<?>[] params = targetMethod.getParameterTypes();
-                        boolean found = true;
+                        Class<?>[] params = method.getParameterTypes();
+                        boolean f = true;
                         for (int i = 0; i < targetParams.length; i++) {
                             if (!targetParams[i].equals(params[i])) {
-                                found = false;
+                                f = false;
                                 break;
                             }
                         }
-                        if (found) {
+                        if (f) {
                             methodMap.put(method, targetMethod);
-                            f = true;
+                            found = true;
                             break;
                         }
                     }
                 }
             }
-            if (!f) {
-                throw new IllegalStateException("Method doesn't exists in original interface!");
+            if (!found && method.getParameterTypes().length == 1) {
+                Class<?> methodArgument = method.getParameterTypes()[0];
+                PropertyDescriptor[] tmpPropertyDescriptors = (new org.apache.commons.beanutils.PropertyUtilsBean()).getPropertyDescriptors(methodArgument);
+                PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
+                int p = 0;
+                for (int i = 0; i < tmpPropertyDescriptors.length; i++) {
+                    if (!tmpPropertyDescriptors[i].getName().equals("class")) {
+                        propertyDescriptors[p] = tmpPropertyDescriptors[i];
+                        p++;
+                    }
+                }
+                mainloop: for (Method targetMethod : targetInterface.getMethods()) {
+                    if (targetMethod.getName().equals(methodName)) {
+                        if (targetMethod.getParameterTypes().length == propertyDescriptors.length) {
+                            Class<?>[] targetParams = targetMethod.getParameterTypes();
+                            String[] paramNames = getParameterNames(targetMethod, service);
+                            Class<?>[] params = new Class<?>[propertyDescriptors.length];
+                            PropertyDescriptor[] propertyDescriptorsForMap = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
+                            for (int j = 0; j < propertyDescriptors.length; j++) {
+                                int k = -1;
+                                for (int q = 0; q < paramNames.length; q++) {
+                                    if (paramNames[q].equals(propertyDescriptors[j].getName())) {
+                                        k = q;
+                                        break;
+                                    }
+                                }
+                                if (k >= 0) {
+                                    params[k] = propertyDescriptors[j].getPropertyType();
+                                    propertyDescriptorsForMap[k] = propertyDescriptors[j]; 
+                                } else {
+                                    continue mainloop;
+                                }
+                            }
+                            boolean f = true;
+                            for (int i = 0; i < targetParams.length; i++) {
+                                if (!targetParams[i].equals(params[i])) {
+                                    f = false;
+                                    break;
+                                }
+                            }
+                            if (f) {
+                                methodMap.put(method, targetMethod);
+                                methodMapToPropertyDescriptors.put(method, propertyDescriptorsForMap);
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!found) {
+                    throw new IllegalStateException("Method not found!");
+                }
             }
         }
 
         return Proxy.newProxyInstance(targetInterface.getClassLoader(),
             new Class<?>[] { proxyInterface },
-            new JAXRSInvocationHandler(targetBean, methodMap));
+            new JAXRSInvocationHandler(targetBean, methodMap, methodMapToPropertyDescriptors));
     }
-
 }

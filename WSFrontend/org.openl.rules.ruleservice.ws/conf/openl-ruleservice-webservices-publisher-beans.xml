@@ -77,7 +77,7 @@
 		description and calls DeploymentAdmin to expose corresponding web service -->
 	<!-- Exposes web services. -->
 	<bean id="webServiceRuleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher">
+		class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
 		<property name="serverFactory" ref="webServicesServerPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
 	</bean>

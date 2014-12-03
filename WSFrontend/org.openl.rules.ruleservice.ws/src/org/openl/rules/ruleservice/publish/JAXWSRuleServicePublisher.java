@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,33 +13,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
- * DeploymentAdmin to expose services via HTTP using JAXRS.
- *
- * @author Nail Samatov, Marat Kamalov
+ * DeploymentAdmin to expose services via HTTP.
+ * 
+ * @author PUdalau, Marat Kamalov
  */
-public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
-    private static final String REST_PREFIX = "REST/";
+public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
 
-    private final Logger log = LoggerFactory.getLogger(JAXRSServicesRuleServicePublisher.class);
+    // private final Log log =
+    // LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
-    private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
-    private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
+    private ObjectFactory<?> serverFactory;
+    private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
 
@@ -45,68 +44,91 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         return baseAddress;
     }
 
-    public void setBaseAddress(String baseAddress) {
-        this.baseAddress = baseAddress;
+    public void setBaseAddress(String address) {
+        this.baseAddress = address;
     }
 
     public ObjectFactory<?> getServerFactory() {
         return serverFactory;
     }
 
-    public void setServerFactory(ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory) {
+    public void setServerFactory(ObjectFactory<?> serverFactory) {
         this.serverFactory = serverFactory;
     }
 
-    /* internal for test */JAXRSServerFactoryBean getServerFactoryBean() {
+    /* internal for test */ServerFactoryBean getServerFactoryBean() {
         if (serverFactory != null) {
-            return serverFactory.getObject();
+            return (ServerFactoryBean) serverFactory.getObject();
         }
-        throw new IllegalArgumentException("serverFactory doesn't defined");
+        return new ServerFactoryBean();
     }
 
-    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
+    protected String processURL(String url) {
+        String[] parts = url.split("/");
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String s : parts) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append("/");
+            }
+            try {
+                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
+            } catch (UnsupportedEncodingException e) {
+                sb.append(s);
+            }
+        }
+
+        String ret = sb.toString();
+        while (ret.charAt(0) == '/') {
+            ret = ret.substring(1);
+        }
+
+        return ret;
     }
 
-    protected Object createWrappedBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateBean(targetBean, proxyInterface, targetInterface);
+    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
+        return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
     }
 
-    @Override
-    public void deploy(final OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+
         try {
-            JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            if (service.getPublishers() != null && service.getPublishers().size() > 1) {    
-                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + service.getUrl());
-            } else {
-                svrFactory.setAddress(getBaseAddress() + service.getUrl());
-            }
-            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
-            svrFactory.setResourceClasses(serviceClass);
-            Object target = createWrappedBean(service.getServiceBean(), serviceClass, service.getServiceClass());
-            svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
-            AegisContextResolver aegisContextResolver = new AegisContextResolver((AegisDatabinding) svrFactory.getDataBinding());
-            svrFactory.setProvider(aegisContextResolver);
+            ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
+                String url = processURL(service.getUrl());
+                String serviceAddress = getBaseAddress() + url;
+                svrFactory.setAddress(serviceAddress);
+                svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
+                svrFactory.setServiceBean(service.getServiceBean());
+
                 svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
-                runningServices.put(service, wsServer);
+
+                ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
+                runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service \"{}\" with URL \"{}{}\" succesfully deployed.",
-                    service.getName(),
-                    getBaseAddress(),
-                    service.getUrl());
+                
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    public DataBinding getDataBinding(String serviceName) {
+        OpenLService service = getServiceByName(serviceName);
+        if (service == null) {
+            return null;
+        }
+        return runningServices.get(service).getDatabinding();
     }
 
     public Collection<OpenLService> getServices() {
@@ -129,11 +151,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
                 serviceName));
         }
         try {
-            runningServices.get(service).destroy();
-            log.info("Service \"{}\" with URL \"{}{}\" succesfully undeployed.",
-                serviceName,
-                baseAddress,
-                service.getUrl());
+            runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
             removeServiceInfo(serviceName);
             service.destroy();
@@ -160,7 +178,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
 
     @Override
     public String getGroupName() {
-        return "RESTful";
+        return "SOAP";
     }
 
     @Override
@@ -186,11 +204,8 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = service.getUrl() + "?_wadl";
-        if (service.getPublishers() != null && service.getPublishers().size() > 1) {
-            url = REST_PREFIX + url;
-        }
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
+        String url = service.getUrl() + "?wsdl";
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
     }
 
     private void removeServiceInfo(String serviceName) {
@@ -200,6 +215,28 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
                 iterator.remove();
                 break;
             }
+        }
+    }
+
+    private static class ServiceServer {
+        private Server server;
+        private DataBinding databinding;
+
+        public ServiceServer(Server server, DataBinding dataBinding) {
+            if (server == null) {
+                throw new IllegalArgumentException("server arg can't be null!");
+            }
+
+            this.server = server;
+            this.databinding = dataBinding;
+        }
+
+        public DataBinding getDatabinding() {
+            return databinding;
+        }
+
+        public Server getServer() {
+            return server;
         }
     }
 }

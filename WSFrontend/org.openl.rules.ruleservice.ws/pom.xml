@@ -108,7 +108,7 @@
         </testResources>
     </build>
     <dependencies>
-	<!-- CORE -->
+	    <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
@@ -199,6 +199,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
         </dependency>
     </dependencies>
 </project>
