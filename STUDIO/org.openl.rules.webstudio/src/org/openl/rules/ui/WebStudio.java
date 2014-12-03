@@ -463,9 +463,10 @@ public class WebStudio {
 
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                     model.getHistoryManager());
-            historyListener.beforeSave(model.getCurrentModuleWorkbook());
-
             Module module = getCurrentModule();
+            File sourceFile = new File(module.getRulesRootPath().getPath());
+            historyListener.beforeSave(sourceFile);
+
             OutputStream outputStream = null;
             InputStream inputStream = null;
             try {
@@ -477,7 +478,7 @@ public class WebStudio {
                 IOUtils.closeQuietly(outputStream);
             }
 
-            historyListener.afterSave(model.getCurrentModuleWorkbook());
+            historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             // TODO Display message - e.getMessage()
@@ -603,6 +604,26 @@ public class WebStudio {
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+        }
+
+        return false;
+    }
+
+    public boolean isUploadedModuleChanged() {
+        ProjectFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null) {
+            return false;
+        }
+
+        Module module = getCurrentModule();
+        if (module != null) {
+            String moduleFullPath = module.getRulesRootPath().getPath().replace('\\', '/');
+            String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
+
+            String moduleFileName = moduleFullPath.substring(moduleFullPath.lastIndexOf('/') + 1);
+            String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
+
+            return !lastUploadedFileName.equals(moduleFileName);
         }
 
         return false;

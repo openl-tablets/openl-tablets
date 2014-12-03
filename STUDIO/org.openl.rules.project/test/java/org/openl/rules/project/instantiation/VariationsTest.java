@@ -19,7 +19,7 @@ import org.openl.rules.project.instantiation.variation.VariationInstantiationStr
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
@@ -85,9 +85,9 @@ public class VariationsTest {
         assertTrue(jxpathVariation instanceof JXPathVariation);
         assertEquals(((JXPathVariation) jxpathVariation).getPath(), path);
         Variation cloningVariation = VariationsFactory.getVariation("clone", 1, path, new Object(), true);
-        assertTrue(((DeepCloningVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
-        assertTrue(cloningVariation instanceof DeepCloningVariaion);
-        assertTrue(((DeepCloningVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
+        assertTrue(((DeepCloningVariation) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
+        assertTrue(cloningVariation instanceof DeepCloningVariation);
+        assertTrue(((DeepCloningVariation) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
     }
 
     @Test

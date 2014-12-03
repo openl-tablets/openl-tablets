@@ -354,7 +354,7 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassFrom != null) {
-                    distance = 6;
+                    //distance = 6;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = wrapperOpenClassFrom;
                     toOpenClass = to;
@@ -379,7 +379,7 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassTo != null) {
-                    distance = 6;
+                    //distance = 6;
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from,
                             wrapperOpenClassTo });
@@ -391,7 +391,7 @@ public class CastFactory implements ICastFactory {
             
             if (castCaller == null) {
                 if (primitiveClassFrom != null && primitiveClassTo != null) {
-                    distance = 6;
+                    //distance = 6;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     fromOpenClass = wrapperOpenClassFrom;

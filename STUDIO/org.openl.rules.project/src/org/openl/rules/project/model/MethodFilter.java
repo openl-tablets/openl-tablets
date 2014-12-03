@@ -1,6 +1,7 @@
 package org.openl.rules.project.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,9 +30,7 @@ public class MethodFilter{
             if (includes == null) {
                 includes = new HashSet<String>();
             }
-            for (String pattern : patterns) {
-                includes.add(pattern);
-            }
+            Collections.addAll(includes, patterns);
         }
     }
 
@@ -40,9 +39,7 @@ public class MethodFilter{
             if (excludes == null) {
                 excludes = new HashSet<String>();
             }
-            for (String pattern : patterns) {
-                excludes.add(pattern);
-            }
+            Collections.addAll(excludes, patterns);
         }
     }
 

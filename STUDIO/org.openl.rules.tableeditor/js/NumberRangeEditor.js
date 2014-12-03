@@ -4,6 +4,7 @@
  * @requires Prototype v1.6.1+ library
  * 
  * @author Anastasia Abramova
+ * TODO Most of the parsing was moved to server. Remove unused parsing from script.
  */
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
@@ -23,6 +24,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     // Default separator; <, <=, >, >= also concern to default separators
     defaultSeparator: " .. ",
+    // TODO merge everywhere in code " - " and "-". Trim separators (excluding " .. ") and numbers.
     // Separator changed to default separator only if user change separator's logic
     stableSeparators: ["more than ", "less than ", " and more", " - "],
     // Separator usually changed to default separator
@@ -33,6 +35,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     destroyed: null,
     entryEditor: null,
+    parsedValue: null,
 
     equals: false,
     moreThan: false,
@@ -99,6 +102,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         if (param) {
             this.entryEditor = param.entryEditor;
+            this.parsedValue = param.parsedValue;
         }
 
         this.input.onclick = function () {
@@ -130,22 +134,41 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     open: function() {
         this.input.up().appendChild(this.rangePanel);
         this.destroyed = false;
-        var value = this.input.value;
+        // var value = this.input.value;
+        var value = this.parsedValue;
+        if (value === null) {
+            value = this.input.value;
+        }
         var self = this;
         var values;
         self.stableSeparators.each(function(separator) {
             if (value.indexOf(separator) !== -1) {
                 self.currentSeparator = separator;
-                values = self.splitValue(value, separator);
                 if (separator == " - ") {
                     // Separator == " - "
+                    var leftIncluding = true;
+                    var rightIncluding = true;
+
+                    if ((value.charAt(0) == "[") || (value.charAt(0) == "(")) {
+                        leftIncluding = value.charAt(0) == "[";
+                        rightIncluding = value.charAt(value.length - 1) == "]";
+                        value = value.substring(1, value.length - 1);
+                    }
+
+                    values = self.splitValue(value, separator);
+
                     self.createIntervalBorders(2);
                     self.values[0].value = values[0];
                     self.values[1].value = values[1];
-                    self.checkboxes[0].setAttribute("checked", "checked");
-                    self.checkboxes[1].setAttribute("checked", "checked");
+                    if (leftIncluding) {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (rightIncluding) {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
                 } else {
                     // Separator == "less than " || "more than " || " and more"
+                    values = self.splitValue(value, separator);
                     if (separator == "less than ") {
                         self.createIntervalBorders(1);
                     } else {
@@ -228,6 +251,13 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             }
         }
         if (!self.currentSeparator) {
+            var leftIncluding = true;
+            var rightIncluding = true;
+            if ((value.charAt(0) == "[") || (value.charAt(0) == "(")) {
+                leftIncluding = value.charAt(0) == "[";
+                rightIncluding = value.charAt(value.length - 1) == "]";
+                value = value.substring(1, value.length - 1);
+            }
             self.currentSeparator = self.dashSeparator;
             values = self.splitValue(value, self.currentSeparator);
             if (values[0] && values[1]) {
@@ -235,19 +265,28 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.createIntervalBorders(2);
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
-                self.checkboxes[0].setAttribute("checked", "checked");
-                self.checkboxes[1].setAttribute("checked", "checked");
+                if (leftIncluding) {
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                }
+                if (rightIncluding) {
+                    self.checkboxes[1].setAttribute("checked", "checked");
+                }
             } else if (!values[0] && !values[1] || values[0] && !self.isValid(values[0])){
                 // Empty cell || invalid character in the cell
                 if (values[0]) {
-                    self.input.value = null;
+                    //self.input.value = null;
+                    self.parsedValue = null;
                 }
                 self.currentSeparator = self.defaultSeparator;
                 self.values[0].value = "";
                 self.values[1].value = "";
                 self.createIntervalBorders(2);
-                self.checkboxes[0].setAttribute("checked", "checked");
-                self.checkboxes[1].setAttribute("checked", "checked");
+                if (leftIncluding) {
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                }
+                if (rightIncluding) {
+                    self.checkboxes[1].setAttribute("checked", "checked");
+                }
                 self.btnDone.setAttribute("disabled", "disabled");
             } else {
                 // Constant in the cell
@@ -273,7 +312,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             content = this.currentSeparator + this.values[1].value;
         } else if (this.values[1].value && this.currentSeparator == " and more") {
             content = this.values[1].value + this.currentSeparator;
-        } else if (this.currentSeparator == " - " || this.currentSeparator == "-") {
+        } else if ((this.currentSeparator == " - " || this.currentSeparator == "-")
+            && this.checkboxes[0].checked && this.checkboxes[1].checked) {
             content = this.values[0].value + " - " + this.values[1].value;
         } else if (this.range && this.values[0].value != "") {
             // Current separator == " .. "
@@ -405,7 +445,12 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     close: function() {
         if (!this.destroyed) {
             ///Event.stopObserving(document, 'click', this.documentClickListener);
-            Element.remove(this.rangePanel);
+            var el = $(this.rangePanel);
+            // If switch to formula editor, error in browser console is shown because el.parentNode is null.
+            if (el.parentNode) {
+                Element.remove(this.rangePanel);
+            }
+
             this.destroyed = true;
 
             if (this.onBlur) {
@@ -439,6 +484,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     finishEdit: function() {
+        // FIXME WTF? If is not valid, at least, we must show error message. Don't just suppress save.
         if (this.isValid(this.values[0].value) && this.isValid(this.values[1].value)) {
             this.setValue(this.createFinalResult());
             this.handleF3();
@@ -471,6 +517,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 values.splice(1, 1);
             }
             values.each(function(v) {
+                v = v.trim(); // For cases like containing spaces like "[12; 15)"
                 if (self.entryEditor == "integer") {
                     var matchInt = v.match(/^-?[0-9]+$/);
                     if (!matchInt) {
@@ -503,7 +550,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         } else {
             result = values.join("");
         }
-        if ((this.currentSeparator == this.defaultSeparator) && (values[0] != values[1])) {
+        if ((this.currentSeparator == this.defaultSeparator || this.currentSeparator.trim() == '-') && (values[0] != values[1])) {
             var prefix = "";
             var suffix = "";
             if (values[0] && values[1]){

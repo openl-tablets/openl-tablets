@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -66,7 +67,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void instantiateServiceBean(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
                                                                                                                ClassNotFoundException {
         Class<?> serviceClass = service.getServiceClass();
+        CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
+        service.setOpenClass(compiledOpenClass.getOpenClass());
         Object serviceBean = instantiationStrategy.instantiate();
+        
         ProxyFactory factory = new ProxyFactory();
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {

@@ -24,6 +24,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -36,7 +38,8 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
-
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.TextInterval;
 
 /**
  * Bound node for datatype table component.
@@ -177,6 +180,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
             }
 
+            if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
+                // For example type A depends on B and B depends on A. At this point B is not generated yet.
+                // TODO Implement circular datatype dependencies support like in Java.
+                GridCellSourceCodeModule cellSource = getCellSource(row, cxt, 0);
+                TextInterval location = new TextInterval(new AbsolutePosition(0),
+                        new AbsolutePosition(cellSource.getCode().length()));
+
+                String message = "Type " + getRootComponentClass(field.getType()).getName() + " isn't generated yet";
+                throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
+            }
+
             FieldDescription fieldDescription;
             try {
                 dataType.addField(field);
@@ -196,21 +210,45 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldDescription = fieldDescriptionFactory(field);
                 fields.put(fieldName, fieldDescription);
             } catch (Throwable t) {
-                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), null, null, getCellSource(row, cxt, 1));
+                throw SyntaxNodeExceptionUtils.createError(t.getMessage(), t, null, getCellSource(row, cxt, 1));
             }
 
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
 
-                Object value = fieldDescription.getDefaultValue();
+                Object value;
+                try {
+                    value = fieldDescription.getDefaultValue();
+                } catch (RuntimeException e) {
+                    String message = String.format("Cannot parse cell value '%s'", defaultValue);
+                    IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
+
+                    if (e instanceof CompositeSyntaxNodeException) {
+                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                            throw SyntaxNodeExceptionUtils.createError(message,
+                                    null,
+                                    syntaxNodeException.getLocation(),
+                                    cellSourceCodeModule);
+                        }
+                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                    } else {
+                        TextInterval location = defaultValue == null ?
+                                                null :
+                                                new TextInterval(new AbsolutePosition(0),
+                                                        new AbsolutePosition(defaultValue.length()));
+                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
+                    }
+                }
                 if (value != null) {
                     // Validate not null default value
                     // The null value is allowed for alias types
                     try {
                         RuleRowHelper.validateValue(value, fieldType);
                     } catch (Exception e) {
-                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), null, null, getCellSource(row, cxt, 2));
+                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
                     }
                 }
             }
@@ -261,13 +299,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
-        GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);    
+        GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
         if (!DatatypeHelper.isCommented(defaultValueSrc.getCode())) {
             IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
             if (idn.length > 0) {
-            	// if there is any valid identifier, consider it is a default value
-            	//
-            	defaultValue = defaultValueSrc.getCode();            	
+                // if there is any valid identifier, consider it is a default value
+                //
+                defaultValue = defaultValueSrc.getCode();
             }          
         }
         return defaultValue;

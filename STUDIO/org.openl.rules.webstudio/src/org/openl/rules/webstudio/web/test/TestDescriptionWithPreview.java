@@ -48,6 +48,9 @@ public class TestDescriptionWithPreview extends TestDescription {
         ColumnDescriptor[] columnDescriptors = getColumnDescriptors();
         if (columnDescriptors != null) {
             for (ColumnDescriptor columnDescriptor : columnDescriptors) {
+                if (columnDescriptor == null) {
+                    continue;
+                }
                 IdentifierNode[] fieldChainTokens = columnDescriptor.getFieldChainTokens();
                 if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
                     // Found first column descriptor for needed parameter

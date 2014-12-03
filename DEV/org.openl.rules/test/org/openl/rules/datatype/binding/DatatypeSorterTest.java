@@ -149,6 +149,42 @@ public class DatatypeSorterTest {
         assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
     }
 
+    @Test(timeout = 100000)
+    public void testOrderDatatypes_fieldsDependency_RecursionInInheritance() {
+        String[][] tableParent = new String[3][2];
+        tableParent[0][0] = "Datatype TypeParent";
+        tableParent[0][1] = null;
+        tableParent[1][0] = "String";
+        tableParent[1][1] = "name";
+        // Added Recursion dependency
+        tableParent[2][0] = "TypeChild";
+        tableParent[2][1] = "typeChild";
+
+        GridTable gridTableParent = new GridTable(tableParent);
+        gridTableParent.setGrid(new TestGrid(gridTableParent));
+
+        String[][] tableChild = new String[3][2];
+        tableChild[0][0] = "Datatype TypeChild extends TypeParent";
+        tableChild[0][1] = null;
+        tableChild[1][0] = "Integer";
+        tableChild[1][1] = "num";
+        tableChild[2][0] = "Boolean";
+        tableChild[2][1] = "flag";
+        GridTable gridTableChild = new GridTable(tableChild);
+        gridTableChild.setGrid(new TestGrid(gridTableChild));
+
+        // Shouldn't throw StackOverflowError
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+                DatatypeHelper.createTypesMap(
+                        new TableSyntaxNode[]{
+                                getTableSyntaxNode(gridTableParent, gridTableParent.getRow(0)),
+                                getTableSyntaxNode(gridTableChild, gridTableChild.getRow(0))}),
+                null);
+        assertEquals(2, ordered.length);
+        assertEquals("Datatype TypeParent", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype TypeChild extends TypeParent", ordered[1].getHeader().getModule().getCode());
+    }
+
     @Test
     public void testOrderDatatypes_arrayFieldsDependency() {
         String[][] table1 = new String[3][2];

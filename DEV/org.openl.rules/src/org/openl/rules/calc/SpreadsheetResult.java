@@ -35,6 +35,8 @@ public class SpreadsheetResult implements Serializable {
     public SpreadsheetResult(int height, int width) {
         this.height = height;
         this.width = width;
+        this.columnNames = new String[height];
+        this.rowNames = new String[width];
         this.results = new Object[height][width];        
         this.fieldsCoordinates = new HashMap<String, Point>();  
     }
@@ -94,7 +96,10 @@ public class SpreadsheetResult implements Serializable {
         this.width = width;
     }
 
-    public String[] getColumnNames() {        
+    public String[] getColumnNames() {
+        if (columnNames == null){
+            return null;
+        }
         return columnNames.clone();
     }
 
@@ -103,7 +108,10 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public String[] getRowNames() {
-        return rowNames;
+        if (columnNames == null){
+            return null;
+        }
+        return rowNames.clone();
     }
 
     public void setRowNames(String[] rowNames) {

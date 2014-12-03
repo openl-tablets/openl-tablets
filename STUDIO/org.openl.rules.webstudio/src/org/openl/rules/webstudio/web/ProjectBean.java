@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -15,7 +16,8 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.*;
-import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
@@ -26,6 +28,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.PathMatcher;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -40,9 +43,13 @@ import java.util.*;
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+    private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+
+    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -55,7 +62,10 @@ public class ProjectBean {
     private String propertiesFileNameProcessor;
 
     private String currentModuleName;
-    private Boolean fileNameMatched;
+
+    private SupportedVersion supportedVersion;
+    private String newFileName;
+    private String currentPathPattern;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -151,7 +161,7 @@ public class ProjectBean {
         String pattern = (String) value;
 
         if (!StringUtils.isBlank(pattern)) {
-            PropertiesFileNameProcessor processor = null;
+            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
@@ -350,7 +360,8 @@ public class ProjectBean {
             save(newProjectDescriptor);
         } else {
             studio.reset(ReloadType.FORCED);
-            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject().getName());
+            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject()
+                    .getName());
             if (projectNode != null) {
                 // For example, repository wasn't refreshed yet
                 projectNode.refresh();
@@ -363,9 +374,35 @@ public class ProjectBean {
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String toRemove = FacesUtils.getRequestParameter("moduleToRemove");
+        String leaveExcelFile = FacesUtils.getRequestParameter("leaveExcelFile");
 
         List<Module> modules = newProjectDescriptor.getModules();
-        modules.remove(Integer.parseInt(toRemove));
+        Module removed = modules.remove(Integer.parseInt(toRemove));
+
+        if (StringUtils.isEmpty(leaveExcelFile)) {
+            ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+            File projectFolder = currentProjectDescriptor.getProjectFolder();
+
+            if (projectDescriptorManager.isModuleWithWildcard(removed)) {
+                for (Module module : currentProjectDescriptor.getModules()) {
+                    if (module.getWildcardRulesRootPath() == null) {
+                        // Module not included in wildcard
+                        continue;
+                    }
+                    if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
+                        File file = new File(module.getRulesRootPath().getPath());
+                        if (!file.delete() && file.exists()) {
+                            throw new Message("Can't delete the file " + file.getName());
+                        }
+                    }
+                }
+            } else {
+                File file = new File(projectFolder, removed.getRulesRootPath().getPath());
+                if (!file.delete() && file.exists()) {
+                    throw new Message("Can't delete the file " + file.getName());
+                }
+            }
+        }
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
@@ -432,13 +469,12 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
-    private static final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
         try {
             // validator.validate(descriptor);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            configureSerializer();
             projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
@@ -465,6 +501,19 @@ public class ProjectBean {
             throw new Message("Error while saving the project");
         }
         // postProcess(descriptor);
+    }
+
+    private void configureSerializer() throws IOException {
+        IProjectDescriptorSerializer serializer;
+        SupportedVersion version = supportedVersion;
+        if (version == null) {
+            version = getSupportedVersion();
+        }
+        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        projectDescriptorSerializerFactory.setSupportedVersion(projectFolder, version);
+
+        serializer = projectDescriptorSerializerFactory.getSerializer(version);
+        projectDescriptorManager.setSerializer(serializer);
     }
 
     private void clean(ProjectDescriptor descriptor) {
@@ -517,6 +566,10 @@ public class ProjectBean {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
+        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {
@@ -687,15 +740,26 @@ public class ProjectBean {
     }
 
     public void setNewFileName(String newFileName) {
+        this.newFileName = newFileName;
+    }
+
+    public void setCurrentPathPattern(String currentPathPattern) {
+        this.currentPathPattern = currentPathPattern;
+    }
+
+    public Boolean getFileNameMatched() {
+        if (newFileName == null) {
+            return null;
+        }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
 
         Module module = new Module();
         int indexOfSlash = newFileName.lastIndexOf("/");
-        module.setName(indexOfSlash <0 ? newFileName : newFileName.substring(indexOfSlash + 1));
+        module.setName(indexOfSlash < 0 ? newFileName : newFileName.substring(indexOfSlash + 1));
         module.setRulesRootPath(new PathEntry(newFileName));
 
-        fileNameMatched = null;
+        Boolean fileNameMatched = null;
         try {
             String pattern = projectDescriptor.getPropertiesFileNamePattern();
             if (pattern != null) {
@@ -709,10 +773,32 @@ public class ProjectBean {
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
         }
+        return fileNameMatched;
     }
 
-    public Boolean getFileNameMatched() {
-        return fileNameMatched;
+    public String getChangedWildcardMatch() {
+        if (currentPathPattern == null) {
+            return null;
+        }
+
+        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
+
+        PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
+        for (Module m : projectDescriptor.getModules()) {
+            if (projectDescriptorManager.isModuleWithWildcard(m)) {
+                String path = m.getRulesRootPath().getPath();
+                if (pathMatcher.match(path, newFileName)) {
+                    if (!currentPathPattern.equals(path)) {
+                        // Module file name captured by another path pattern (not current one).
+                        // User should ensure that he didn't do that unintentionally.
+                        return path;
+                    }
+                    break;
+                }
+            }
+        }
+
+        return null;
     }
 
     public List<Module> getModulesMatchingPathPattern(Module module) {
@@ -757,6 +843,35 @@ public class ProjectBean {
 
     public String getPropertiesFileNamePattern() {
         return studio.getCurrentProjectDescriptor().getPropertiesFileNamePattern();
+    }
+
+    public String getCurrentPropertiesFileNameProcessor() {
+        return studio.getCurrentProjectDescriptor().getPropertiesFileNameProcessor();
+    }
+
+    public SupportedVersion getSupportedVersion() {
+        if (supportedVersion != null) {
+            return supportedVersion;
+        }
+
+        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+        return projectDescriptorSerializerFactory.getSupportedVersion(descriptor.getProjectFolder());
+    }
+
+    public void setSupportedVersion(SupportedVersion supportedVersion) {
+        this.supportedVersion = supportedVersion;
+    }
+
+    public boolean isPropertiesFileNamePatternSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+    }
+
+    public boolean isProjectDependenciesSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+    }
+
+    public SupportedVersion[] getPossibleVersions() {
+        return SupportedVersion.values();
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {

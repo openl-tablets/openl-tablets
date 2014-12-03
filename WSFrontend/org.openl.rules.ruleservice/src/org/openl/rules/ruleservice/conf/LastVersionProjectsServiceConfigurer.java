@@ -149,7 +149,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             }
                         }
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     log.error(
                             "Project loading from repository was failed! Project with name \"{}\" in deployment \"{}\" was skipped!",
                             project.getName(),

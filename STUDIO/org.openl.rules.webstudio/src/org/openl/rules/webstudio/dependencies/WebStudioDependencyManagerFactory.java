@@ -46,8 +46,10 @@ public class WebStudioDependencyManagerFactory {
                 boolean found = false;
                 for (ProjectDescriptor projectDescriptor : studio.getAllProjects()) {
                     if (dependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        projectDescriptors.add(projectDescriptor);
-                        addDependentProjects(projectDescriptors, projectDescriptor);
+                        if (!projectDescriptors.contains(projectDescriptor)) {
+                            projectDescriptors.add(projectDescriptor);
+                            addDependentProjects(projectDescriptors, projectDescriptor);
+                        }
                         found = true;
                         break;
                     }

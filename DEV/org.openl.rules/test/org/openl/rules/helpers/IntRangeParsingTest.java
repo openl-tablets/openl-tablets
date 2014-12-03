@@ -38,6 +38,8 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(3, 4), new IntRange("(2;4]"));
         assertEquals(new IntRange(10, 100), new IntRange("[10 .. 101)"));
         assertEquals(new IntRange(-10, -1), new IntRange("[-10;0)"));
+        assertEquals(new IntRange(-10, 1), new IntRange("[-10-2)"));
+        assertEquals(new IntRange(-9, 2), new IntRange("(-10 - 2]"));
     }
 
     @Test
@@ -70,6 +72,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(1, 2), new IntRange("1-2"));
         assertEquals(new IntRange(13, 200), new IntRange("13 .. 200"));
         assertEquals(new IntRange(14, 99), new IntRange("13 ... 100"));
+        assertEquals(new IntRange(14, 99), new IntRange("13 … 100"));
         assertEquals(new IntRange(13, 19), new IntRange("[13 .. 20)"));
         assertEquals(new IntRange(14, 19), new IntRange("(13 .. 20)"));
     }
@@ -79,6 +82,14 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(Integer.MIN_VALUE, 11), new IntRange("<12"));
         assertEquals(new IntRange(Integer.MIN_VALUE, 7), new IntRange("<=7"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
+    }
+
+    @Test
+    public void testMoreLessFormatBothBounds() {
+        assertEquals(new IntRange(5, 11), new IntRange(">=5 <12"));
+        assertEquals(new IntRange(4, 7), new IntRange("<=7 >3"));
+        assertEquals(new IntRange(3, 8), new IntRange(" > 2   < 9 "));
+        assertEquals(new IntRange(2, 9), new IntRange(" >= 2   <=9 "));
     }
 
     @Test
@@ -99,6 +110,14 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));
         assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+    }
+
+    @Test
+    public void testVerbalBothBounds() {
+        assertEquals(new IntRange(-100, 499), new IntRange("-100 and more less than 500"));
+        assertEquals(new IntRange(3, 5), new IntRange("more than 2 5 or less"));
+        assertEquals(new IntRange(-19, -11), new IntRange("less than -10 more than -20"));
+//        assertEquals(new IntRange(32, 41), new IntRange("41 or less and more than 31"));
     }
 
     @Test
