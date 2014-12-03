@@ -49,6 +49,6 @@ public interface ICellEditorFactory {
 
     ICellEditor makeArrayEditor(String separator, String entryEditor);
     
-    ICellEditor makeNumberRangeEditor(String entryEditor);
+    ICellEditor makeNumberRangeEditor(String entryEditor, String initialValue);
 
 }

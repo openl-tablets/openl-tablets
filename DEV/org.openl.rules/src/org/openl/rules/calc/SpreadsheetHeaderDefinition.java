@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.types.IOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetHeaderDefinition {
 

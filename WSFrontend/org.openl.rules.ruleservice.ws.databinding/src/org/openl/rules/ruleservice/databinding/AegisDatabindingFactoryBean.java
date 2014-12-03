@@ -29,14 +29,14 @@ import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.ruleservice.databinding.aegis.custom.BigDecimalType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.BigIntegerType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.ByteType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.DoubleType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.FloatType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.IntType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.LongType;
-import org.openl.rules.ruleservice.databinding.aegis.custom.ShortType;
+import org.openl.rules.ruleservice.databinding.aegis.java.BigDecimalType;
+import org.openl.rules.ruleservice.databinding.aegis.java.BigIntegerType;
+import org.openl.rules.ruleservice.databinding.aegis.java.ByteType;
+import org.openl.rules.ruleservice.databinding.aegis.java.DoubleType;
+import org.openl.rules.ruleservice.databinding.aegis.java.FloatType;
+import org.openl.rules.ruleservice.databinding.aegis.java.IntType;
+import org.openl.rules.ruleservice.databinding.aegis.java.LongType;
+import org.openl.rules.ruleservice.databinding.aegis.java.ShortType;
 import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,23 +98,23 @@ public class AegisDatabindingFactoryBean {
         }
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuntimeContextBeanType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
                 typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.calc.SpreadSheetResultType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.table.PointType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadSheetResultType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.table.PointType.class, typeMapping);
 
         if (supportVariations) {
-            loadAegisTypeClassAndRegister(org.openl.rules.variation.VariationsResultType.class, typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.variation.JXPathVariationType.class, typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.variation.ArgumentReplacementVariationType.class,
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.VariationsResultType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.JXPathVariationType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ArgumentReplacementVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.variation.DeepCloningVariationType.class,
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.DeepCloningVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(org.openl.rules.variation.ComplexVariationType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ComplexVariationType.class, typeMapping);
         }
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.IntRangeBeanType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.IntRangeBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.DoubleRangeBeanType.class, typeMapping);
 
         //CUSTOM JAVA TYPES REGISTER
         loadAegisTypeClassAndRegister(Double.class.getCanonicalName(),
@@ -136,23 +136,23 @@ public class AegisDatabindingFactoryBean {
         //END
         
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
-                org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-                org.openl.meta.ShortValueType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.ShortValueType.class, W3CConstants.NT_SCHEMA_SHORT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
-                org.openl.meta.LongValueType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.LongValueType.class, W3CConstants.NT_SCHEMA_LONG, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
-                org.openl.meta.IntValueType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.IntValueType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-                org.openl.meta.FloatValueType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.FloatValueType.class, W3CConstants.NT_SCHEMA_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-                org.openl.meta.DoubleValueType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.DoubleValueType.class, W3CConstants.NT_SCHEMA_DOUBLE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
-                org.openl.meta.ByteValueType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.ByteValueType.class, W3CConstants.NT_SCHEMA_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-                org.openl.meta.BigIntegerValueType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.BigIntegerValueType.class, W3CConstants.NT_SCHEMA_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-                org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
+                org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
 
         return aegisDatabinding;
     }
@@ -204,7 +204,7 @@ public class AegisDatabindingFactoryBean {
             overrideTypes.add("org.openl.rules.variation.ComplexVariation");
             overrideTypes.add("org.openl.rules.variation.NoVariation");
             overrideTypes.add("org.openl.rules.variation.JXPathVariation");
-            overrideTypes.add("org.openl.rules.variation.DeepCloningVariaion");
+            overrideTypes.add("org.openl.rules.variation.DeepCloningVariation");
             overrideTypes.add("org.openl.rules.variation.ArgumentReplacementVariation");
         }
         return overrideTypes;

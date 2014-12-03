@@ -24,6 +24,9 @@
             padding: 5px 7px;
             opacity: 0.5;
         }
+        .input-container.withClearButton {
+            width: calc(100% - 26px)
+        }
     </style>
 
     <div class="panel">
@@ -31,6 +34,11 @@
             <div class="filter-name">
                 <input type="text" id="nameFilter" onkeyup="filterProjects(this.value)"
                        placeholder="#{msg['ws.projects.filter']}" class="input-container" />
+                <span id="clearFilter" title="Clear filter" class="imageButton clearButton hidden"
+                      onclick="clearProjectsFilter()">
+                    <!-- IE doesn't handle hover actions correctly on empty elements, that's why used to include empty image -->
+                    <img src="webresource/images/empty.gif"/>
+                </span>
             </div>
             <a id="filterButton" title="Advanced Filter" class="imageButton"
                 onclick="showRepFilterDialog();return false;" />

@@ -1394,6 +1394,19 @@ public class RepositoryTreeController {
         }
     }
 
+    public boolean isUploadedFileChanged() {
+        ProjectFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null || !(repositoryTreeState.getSelectedNode().getData() instanceof AProjectResource)) {
+            return false;
+        }
+
+        AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
+        String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
+        String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
+
+        return !lastUploadedFileName.equals(node.getName());
+    }
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -1692,7 +1705,7 @@ public class RepositoryTreeController {
         return errorMessage;
     }
 
-    private void clearUploadedFiles() {
+    public void clearUploadedFiles() {
         uploadedFiles.clear();
     }
 
