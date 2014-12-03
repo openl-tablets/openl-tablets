@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -25,6 +27,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -69,16 +72,37 @@ public class JAXRSInterfaceEnhancerHelper {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             boolean requiredPathAnnotation = true;
+            boolean consumesAnnotationRequired = true;
+            boolean producesAnnotationRequired = true;
+
             for (Annotation annotation : originalClass.getAnnotations()) {
+
+                if (annotation.annotationType().equals(Produces.class)) {
+                    producesAnnotationRequired = false;
+                }
+                if (annotation.annotationType().equals(Consumes.class)) {
+                    consumesAnnotationRequired = false;
+                }
+
                 if (annotation.annotationType().equals(Path.class)) {
                     requiredPathAnnotation = false;
                     break;
                 }
             }
+
             if (requiredPathAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
+            }
+
+            // Consumes annotation
+            if (consumesAnnotationRequired) {
+                addConsumesAnnotation(this);
+            }
+            // Produces annotation
+            if (producesAnnotationRequired) {
+                addProducesAnnotation(this);
             }
         }
 
@@ -91,23 +115,41 @@ public class JAXRSInterfaceEnhancerHelper {
             if (service != null && service.getOpenClass() != null) {
                 for (IOpenMethod m : service.getOpenClass().getMethods()) {
                     if (m.getName().equals(method.getName())) {
-                        if (method.getParameterTypes().length == m.getSignature().getNumberOfParameters()) {
-                            int i = 0;
-                            boolean f = true;
-                            for (Class<?> clazz : method.getParameterTypes()) {
-                                if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                                    f = false;
-                                    break;
-                                }
-                                i++;
+                        int i = 0;
+                        boolean f = true;
+                        boolean skipRuntimeContextParameter = false;
+                        boolean variationPackIsLastParameter = false;
+                        for (Class<?> clazz : method.getParameterTypes()) {
+                            if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
+                                skipRuntimeContextParameter = true;
+                                continue;
                             }
-                            if (f) {
-                                String[] parameterNames = new String[m.getSignature().getNumberOfParameters()];
-                                for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                                    parameterNames[i] = m.getSignature().getParameterName(i);
-                                }
-                                return parameterNames;
+                            if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
+                                variationPackIsLastParameter = true;
+                                continue;
                             }
+                            if (i >= m.getSignature().getNumberOfParameters()) {
+                                f = false;
+                                break;
+                            }
+                            if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
+                                f = false;
+                                break;
+                            }
+                            i++;
+                        }
+                        if (f) {
+                            List<String> parameterNames = new ArrayList<String>();
+                            if (service.isProvideRuntimeContext()) {
+                                parameterNames.add("runtimeContext");
+                            }
+                            for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
+                                parameterNames.add(m.getSignature().getParameterName(i));
+                            }
+                            if (variationPackIsLastParameter) {
+                                parameterNames.add("variationPack");
+                            }
+                            return parameterNames.toArray(new String[] {});
                         }
                     }
                 }
@@ -127,16 +169,8 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             Annotation[] annotations = originalMethod.getAnnotations();
-            boolean consumesAnnotationRequired = true;
-            boolean producesAnnotationRequired = true;
             boolean skip = false;
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType().equals(Produces.class)) {
-                    producesAnnotationRequired = false;
-                }
-                if (annotation.annotationType().equals(Consumes.class)) {
-                    consumesAnnotationRequired = false;
-                }
                 if (annotation.annotationType().equals(Path.class)) {
                     skip = true;
                 }
@@ -188,14 +222,6 @@ public class JAXRSInterfaceEnhancerHelper {
                 }
             }
 
-            // Consumes annotation
-            if (consumesAnnotationRequired) {
-                addConsumesAnnotation(mv);
-            }
-            // Produces annotation
-            if (producesAnnotationRequired) {
-                addProducesAnnotation(mv);
-            }
             return mv;
         }
 
@@ -243,8 +269,8 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addProducesAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
+        private void addProducesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visit(null, MediaType.APPLICATION_XML);
@@ -254,8 +280,8 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addConsumesAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
+        private void addConsumesAnnotation(ClassVisitor cv) {
+            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visit(null, MediaType.APPLICATION_XML);
