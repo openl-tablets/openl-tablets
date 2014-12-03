@@ -3,8 +3,6 @@ package org.openl.rules.ruleservice.publish.jaxws;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +23,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.common.MethodSorter;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
 import org.openl.util.generation.InterfaceTransformer;
@@ -135,10 +134,8 @@ public class JAXWSInterfaceEnhancerHelper {
             MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
 
             boolean foundWebMethodAnnotation = false;
-            for (Annotation annotation : originalMethod.getAnnotations()) {
-                if (annotation.annotationType().equals(WebMethod.class)) {
-                    foundWebMethodAnnotation = true;
-                }
+            if (originalMethod.getAnnotation(WebMethod.class) != null) {
+                foundWebMethodAnnotation = true;
             }
 
             if (!foundWebMethodAnnotation) { // Add WebMethod annotation
@@ -175,37 +172,15 @@ public class JAXWSInterfaceEnhancerHelper {
                 List<Method> methods = new ArrayList<Method>();
 
                 for (Method m : originalClass.getMethods()) {
-                    boolean f = false;
-                    for (Annotation annotation : m.getAnnotations()) {
-                        if (annotation.annotationType().equals(WebMethod.class)) {
-                            WebMethod webMethod = (WebMethod) annotation;
-                            operations.add(webMethod.operationName());
-                            f = true;
-                        }
-                    }
-                    if (!f) {
+                    Annotation webMethod = m.getAnnotation(WebMethod.class);
+                    if (webMethod != null) {
+                        operations.add(((WebMethod) webMethod).operationName());
+                    } else {
                         methods.add(m);
                     }
                 }
 
-                Collections.sort(methods, new Comparator<Method>() {
-                    public int compare(Method o1, Method o2) {
-                        if (o1.getName().equals(o2.getName())) {
-                            if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
-                                int i = 0;
-                                while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i].equals(o2.getParameterTypes()[i])) {
-                                    i++;
-                                }
-                                return o1.getParameterTypes()[i].getName()
-                                        .compareTo(o2.getParameterTypes()[i].getName());
-                            } else {
-                                return o1.getParameterTypes().length - o2.getParameterTypes().length;
-                            }
-                        } else {
-                            return o1.getName().compareTo(o2.getName());
-                        }
-                    };
-                });
+                methods = MethodSorter.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();

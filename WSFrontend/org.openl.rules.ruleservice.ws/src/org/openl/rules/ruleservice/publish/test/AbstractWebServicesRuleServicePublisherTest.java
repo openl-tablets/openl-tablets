@@ -9,7 +9,7 @@ import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.junit.Before;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher;
+import org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -55,8 +55,8 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * 
      * @return WebServicesRuleServicePublisher
      */
-    protected WebServicesRuleServicePublisher getRuleServicePublisher() {
-        return getApplicationContext().getBean(WebServicesRuleServicePublisher.class);
+    protected JAXWSRuleServicePublisher getRuleServicePublisher() {
+        return getApplicationContext().getBean(JAXWSRuleServicePublisher.class);
     }
     
     /**
