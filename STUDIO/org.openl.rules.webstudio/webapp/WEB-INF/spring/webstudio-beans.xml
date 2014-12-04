@@ -98,4 +98,20 @@
     </constructor-arg>
     </bean>
 
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
+        <property name="address" value=""/>
+        <property name="serviceBeans" ref="repositoryService" />
+        <property name="providers">
+            <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
+                <property name="dropRootElement" value="true"/>
+                <property name="serializeAsArray" value="true"/>
+                <property name="writeXsiType" value="false"/>
+                <property name="readXsiType" value="false"/>
+                <property name="dropCollectionWrapperElement" value="true"/>
+            </bean>
+        </property>
+    </bean>
+    <bean class="org.openl.rules.rest.RepositoryService" id="repositoryService"/>
 </beans>

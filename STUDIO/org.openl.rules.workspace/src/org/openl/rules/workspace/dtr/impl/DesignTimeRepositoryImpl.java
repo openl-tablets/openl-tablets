@@ -35,7 +35,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     /**
      * Project Cache
      */
-    private HashMap<String, AProject> projects;
+    private HashMap<String, AProject> projects = new HashMap<String, AProject>();
 
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
 
@@ -65,8 +65,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
 
         rulesRepository.addRepositoryListener(this);
-
-        projects = new HashMap<String, AProject>();
     }
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
@@ -326,5 +324,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             rulesRepository.release();
             rulesRepository = null;
         }
+        projects.clear();
     }
 }
