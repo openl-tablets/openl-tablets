@@ -55,6 +55,8 @@ public class JAXRSInterfaceEnhancerHelper {
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
+        private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
+
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
         private Class<?> originalClass;
@@ -207,7 +209,7 @@ public class JAXRSInterfaceEnhancerHelper {
             if (!skip) {
                 boolean allPrimitivesBeforeLastArgument = true;
                 int k = 0;
-                if (originalMethod.getParameterTypes().length < 4) {
+                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET) {
                     for (Class<?> parameterType : originalMethod.getParameterTypes()) {
                         if (k < originalMethod.getParameterTypes().length - 1) {
                             if (!isPrimitive(parameterType)) {
@@ -220,7 +222,7 @@ public class JAXRSInterfaceEnhancerHelper {
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.append("/" + getPath(originalMethod));
-                if (allPrimitivesBeforeLastArgument && originalMethod.getParameterTypes().length > 0 && isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1])) {
+                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET && allPrimitivesBeforeLastArgument && (originalMethod.getParameterTypes().length == 0 || isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1]))) {
                     if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
                         mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
                     } else {
