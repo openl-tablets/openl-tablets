@@ -58,6 +58,12 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
                     }
                     log.info("Service \"{}\" uses root class names for binding. Classes: {}", serviceDescription.getName(), classes);
                     return Collections.unmodifiableSet(ret);
+                }else{
+                    if (value != null){
+                        if (log.isErrorEnabled()) {
+                            log.error("Service \"{}\" error. Unsupports value for " + ROOT_CLASS_NAMES_BINDING + " configuration! Used default value!", serviceDescription.getName());
+                        }
+                    }
                 }
             }
             return ret;

@@ -47,9 +47,11 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFa
                 Object value = serviceDescription.getConfiguration().get(getPropertyName().trim());
                 if (value instanceof String) {
                     return (String) value;
-                }else{
-                    if (log.isErrorEnabled()) {
-                        log.error("Service \"{}\" error. Supports only string values for " + getPropertyName().trim() + " configuration! Used default value!");
+                } else {
+                    if (value != null) {
+                        if (log.isErrorEnabled()) {
+                            log.error("Service \"{}\" error. Supports only string values for " + getPropertyName().trim() + " configuration! Used default value!");
+                        }
                     }
                 }
             }

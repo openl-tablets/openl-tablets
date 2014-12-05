@@ -57,12 +57,14 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
                         return Boolean.FALSE;
                     }
                     if (log.isErrorEnabled()) {
-                        log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration!");
+                        log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration!", serviceDescription.getName());
                     }
                     return getDefaultValue();
                 }else{
-                    if (log.isErrorEnabled()) {
-                        log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration! Used default value!");
+                    if (value != null){
+                        if (log.isErrorEnabled()) {
+                            log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration! Used default value!", serviceDescription.getName());
+                        }
                     }
                 }
             }
