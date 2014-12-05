@@ -65,9 +65,13 @@ public class JAXWSInterfaceEnhancerHelper {
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service.getServiceClassName() != null) {
-                    annotationVisitor.visit("serviceName", service.getServiceClassName());
+                    annotationVisitor.visit("serviceName", originalClass.getSimpleName());
+                    annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
+                    annotationVisitor.visit("portName", originalClass.getSimpleName() + "PortType");
                 } else {
                     annotationVisitor.visit("serviceName", service.getName());
+                    annotationVisitor.visit("name", service.getName() + "PortType");
+                    annotationVisitor.visit("portName", service.getName() + "PortType");
                     annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
                 }
                 annotationVisitor.visitEnd();
