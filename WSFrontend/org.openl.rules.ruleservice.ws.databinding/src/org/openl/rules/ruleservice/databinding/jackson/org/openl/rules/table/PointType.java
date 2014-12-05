@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.table;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /*
  * #%L
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * 
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class PointType {
     @JsonCreator
     public PointType(@JsonProperty("column") int column, @JsonProperty("row") int row) {

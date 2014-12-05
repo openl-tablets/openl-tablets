@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.ruleservice.context;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.ruleservice.context.DefaultRulesRuntimeContext;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /*
  * #%L
@@ -20,10 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * 
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonDeserialize(as=DefaultRulesRuntimeContext.class)
 public class IRulesRuntimeContextType {
-    @JsonCreator
-    public static org.openl.rules.ruleservice.context.IRulesRuntimeContext makeInstanceIRulesRuntimeContext() {
-        return new org.openl.rules.ruleservice.context.DefaultRulesRuntimeContext();
-    }
+   
 }
