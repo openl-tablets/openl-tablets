@@ -155,7 +155,7 @@ public class JacksonObjectMapperFactoryBean {
 
         mapper.addMixInAnnotations(IRulesRuntimeContext.class, IRulesRuntimeContextType.class);
         mapper.addMixInAnnotations(org.openl.rules.ruleservice.context.IRulesRuntimeContext.class,
-            IRulesRuntimeContextType.class);
+            org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.ruleservice.context.IRulesRuntimeContextType.class);
 
         return mapper;
     }
