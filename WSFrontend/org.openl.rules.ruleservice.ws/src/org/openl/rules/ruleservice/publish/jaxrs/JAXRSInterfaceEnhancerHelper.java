@@ -29,9 +29,7 @@ import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
-import org.openl.rules.ruleservice.publish.common.MethodSorter;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.types.IOpenMethod;
+import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -122,7 +120,7 @@ public class JAXRSInterfaceEnhancerHelper {
         }
 
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
-            String[] parameterNames = getParameterNames(originalMethod, service);
+            String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             int i = 0;
             JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator();
             for (Class<?> type : originalMethod.getParameterTypes()) {
@@ -140,15 +138,25 @@ public class JAXRSInterfaceEnhancerHelper {
                 paths = new HashMap<Method, String>();
                 List<Method> methods = new ArrayList<Method>();
                 for (Method m : originalClass.getMethods()) {
-                    Annotation pathAnnotation = method.getAnnotation(Path.class);
+                    Annotation pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
-                        paths.put(m, ((Path) pathAnnotation).value());
+                        String value = ((Path) pathAnnotation).value();
+                        
+                        while (value.charAt(0) == '/'){
+                            value = value.substring(1);
+                        }
+                        
+                        if (value.indexOf('/') > 0){
+                            value = value.substring(0, value.indexOf('/'));
+                        }
+                        
+                        paths.put(m, value);
                     } else {
                         methods.add(m);
                     }
                 }
 
-                methods = MethodSorter.sort(methods);
+                methods = MethodUtil.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -172,7 +180,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     methods.add(m);
                 }
 
-                methods = MethodSorter.sort(methods);
+                methods = MethodUtil.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -228,7 +236,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     } else {
                         mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
                     }
-                    String[] parameterNames = getParameterNames(originalMethod, service);
+                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                     int i = 0;
                     for (String paramName : parameterNames) {
                         sb.append("/{" + paramName + ": .*}");
@@ -355,55 +363,7 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    private static String[] getParameterNames(Method method, OpenLService service) {
-        if (service != null && service.getOpenClass() != null) {
-            for (IOpenMethod m : service.getOpenClass().getMethods()) {
-                if (m.getName().equals(method.getName())) {
-                    int i = 0;
-                    boolean f = true;
-                    boolean skipRuntimeContextParameter = false;
-                    boolean variationPackIsLastParameter = false;
-                    for (Class<?> clazz : method.getParameterTypes()) {
-                        if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
-                            skipRuntimeContextParameter = true;
-                            continue;
-                        }
-                        if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
-                            variationPackIsLastParameter = true;
-                            continue;
-                        }
-                        if (i >= m.getSignature().getNumberOfParameters()) {
-                            f = false;
-                            break;
-                        }
-                        if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                            f = false;
-                            break;
-                        }
-                        i++;
-                    }
-                    if (f) {
-                        List<String> parameterNames = new ArrayList<String>();
-                        if (service.isProvideRuntimeContext()) {
-                            parameterNames.add("runtimeContext");
-                        }
-                        for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                            parameterNames.add(m.getSignature().getParameterName(i));
-                        }
-                        if (variationPackIsLastParameter) {
-                            parameterNames.add("variationPack");
-                        }
-                        return parameterNames.toArray(new String[] {});
-                    }
-                }
-            }
-        }
-        String[] parameterNames = new String[method.getParameterTypes().length];
-        for (int i = 0; i < method.getParameterTypes().length; i++) {
-            parameterNames[i] = "arg" + i;
-        }
-        return parameterNames;
-    }
+    
 
     public static Class<?> decorateInterface(Class<?> originalClass,
             ClassLoader classLoader,
@@ -494,7 +454,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     if (targetMethod.getName().equals(methodName)) {
                         if (targetMethod.getParameterTypes().length == propertyDescriptors.length) {
                             Class<?>[] targetParams = targetMethod.getParameterTypes();
-                            String[] paramNames = getParameterNames(targetMethod, service);
+                            String[] paramNames = MethodUtil.getParameterNames(targetMethod, service);
                             Class<?>[] params = new Class<?>[propertyDescriptors.length];
                             PropertyDescriptor[] propertyDescriptorsForMap = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
                             for (int j = 0; j < propertyDescriptors.length; j++) {

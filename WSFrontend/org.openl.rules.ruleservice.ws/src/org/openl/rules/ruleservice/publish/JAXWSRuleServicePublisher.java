@@ -1,8 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,31 +61,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         return new ServerFactoryBean();
     }
 
-    protected String processURL(String url) {
-        String[] parts = url.split("/");
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (String s : parts) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append("/");
-            }
-            try {
-                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
-            } catch (UnsupportedEncodingException e) {
-                sb.append(s);
-            }
-        }
-
-        String ret = sb.toString();
-        while (ret.charAt(0) == '/') {
-            ret = ret.substring(1);
-        }
-
-        return ret;
-    }
-
     protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
         return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
     }
@@ -100,7 +73,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                String url = processURL(service.getUrl());
+                String url = URLHelper.processURL(service.getUrl());
                 String serviceAddress = getBaseAddress() + url;
                 svrFactory.setAddress(serviceAddress);
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
