@@ -23,9 +23,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.common.MethodSorter;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.types.IOpenMethod;
+import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -64,68 +62,20 @@ public class JAXWSInterfaceEnhancerHelper {
             }
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
-                if (service.getServiceClassName() != null) {
-                    annotationVisitor.visit("serviceName", originalClass.getSimpleName());
-                    annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
-                    annotationVisitor.visit("portName", originalClass.getSimpleName() + "PortType");
-                } else {
-                    annotationVisitor.visit("serviceName", service.getName());
-                    annotationVisitor.visit("name", service.getName() + "PortType");
-                    annotationVisitor.visit("portName", service.getName() + "PortType");
-                    annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
+                if (service != null) {
+                    if (service.getServiceClassName() != null) {
+                        annotationVisitor.visit("serviceName", originalClass.getSimpleName());
+                        annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
+                        annotationVisitor.visit("portName", originalClass.getSimpleName() + "PortType");
+                    } else {
+                        annotationVisitor.visit("serviceName", service.getName());
+                        annotationVisitor.visit("name", service.getName() + "PortType");
+                        annotationVisitor.visit("portName", service.getName() + "PortType");
+                        annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
+                    }
                 }
                 annotationVisitor.visitEnd();
             }
-        }
-
-        private String[] getParameterNames(Method method) {
-            if (service != null && service.getOpenClass() != null) {
-                for (IOpenMethod m : service.getOpenClass().getMethods()) {
-                    if (m.getName().equals(method.getName())) {
-                        int i = 0;
-                        boolean f = true;
-                        boolean skipRuntimeContextParameter = false;
-                        boolean variationPackIsLastParameter = false;
-                        for (Class<?> clazz : method.getParameterTypes()) {
-                            if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
-                                skipRuntimeContextParameter = true;
-                                continue;
-                            }
-                            if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
-                                variationPackIsLastParameter = true;
-                                continue;
-                            }
-                            if (i >= m.getSignature().getNumberOfParameters()) {
-                                f = false;
-                                break;
-                            }
-                            if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                                f = false;
-                                break;
-                            }
-                            i++;
-                        }
-                        if (f) {
-                            List<String> parameterNames = new ArrayList<String>();
-                            if (service.isProvideRuntimeContext()) {
-                                parameterNames.add("runtimeContext");
-                            }
-                            for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                                parameterNames.add(m.getSignature().getParameterName(i));
-                            }
-                            if (variationPackIsLastParameter) {
-                                parameterNames.add("variationPack");
-                            }
-                            return parameterNames.toArray(new String[] {});
-                        }
-                    }
-                }
-            }
-            String[] parameterNames = new String[method.getParameterTypes().length];
-            for (int i = 0; i < method.getParameterTypes().length; i++) {
-                parameterNames[i] = "arg" + i;
-            }
-            return parameterNames;
         }
 
         @Override
@@ -149,7 +99,7 @@ public class JAXWSInterfaceEnhancerHelper {
                 av.visitEnd();
             }
 
-            String[] parameterNames = getParameterNames(originalMethod);
+            String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             int i = 0;
             for (String paramName : parameterNames) {
                 Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
@@ -184,7 +134,7 @@ public class JAXWSInterfaceEnhancerHelper {
                     }
                 }
 
-                methods = MethodSorter.sort(methods);
+                methods = MethodUtil.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -250,5 +200,9 @@ public class JAXWSInterfaceEnhancerHelper {
 
     public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
         return decorateInterface(originalClass, Thread.currentThread().getContextClassLoader(), service);
+    }
+
+    public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {
+        return decorateInterface(originalClass, null);
     }
 }

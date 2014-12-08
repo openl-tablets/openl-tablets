@@ -56,7 +56,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     public void setServerFactory(ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory) {
         this.serverFactory = serverFactory;
     }
-
+    
     /* internal for test */JAXRSServerFactoryBean getServerFactoryBean() {
         if (serverFactory != null) {
             return serverFactory.getObject();
@@ -78,10 +78,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
+            String url = URLHelper.processURL(service.getUrl());
             if (service.getPublishers() != null && service.getPublishers().size() > 1) {    
-                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + service.getUrl());
+                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + url);
             } else {
-                svrFactory.setAddress(getBaseAddress() + service.getUrl());
+                svrFactory.setAddress(getBaseAddress() + url);
             }
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
             svrFactory.setResourceClasses(serviceClass);
