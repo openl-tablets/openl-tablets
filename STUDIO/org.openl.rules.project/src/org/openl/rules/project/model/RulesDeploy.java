@@ -5,8 +5,8 @@ import java.util.Map;
 public class RulesDeploy {
 
     public enum PublisherType {
-        RESTFUL,
-        WEBSERVICE
+        WEBSERVICE,
+        RESTFUL
     }
 
     private Boolean isProvideRuntimeContext;
