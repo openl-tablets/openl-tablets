@@ -7,6 +7,17 @@
 
   <ui:param name="openedForEditing" value="#{artefact.project.openedForEditing}" />
   <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}" />
+    <h:outputStylesheet>
+        #publishers {
+            border-spacing: 0;
+        }
+        #publishers td:first-child {
+            padding-left: 0;
+        }
+        #publishers label {
+            padding-right: 15px;
+        }
+    </h:outputStylesheet>
 
   <h:panelGroup rendered="#{!hasRulesDeploy}">
     <a4j:commandButton value="Create rules deploy configuration" action="#{repositoryProjectRulesDeployConfig.createRulesDeploy}"
@@ -23,6 +34,15 @@
 
       <h:outputLabel for="#{prefix}provideVariations" value="Provide variations"/>
       <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}" disabled="#{!openedForEditing}"/>
+
+      <h:outputLabel for="#{prefix}publishers" value="Create services"/>
+      <h:panelGroup>
+        <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
+        <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
+                              required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
+          <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
+        </h:selectManyCheckbox>
+      </h:panelGroup>
 
       <h:outputLabel for="#{prefix}serviceName" value="Service name"/>
       <h:panelGroup>

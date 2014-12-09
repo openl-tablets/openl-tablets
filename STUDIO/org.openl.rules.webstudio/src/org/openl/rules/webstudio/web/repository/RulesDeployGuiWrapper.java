@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
+
+import javax.validation.constraints.Size;
 
 public class RulesDeployGuiWrapper {
     private final RulesDeploy rulesDeploy;
@@ -62,5 +65,17 @@ public class RulesDeployGuiWrapper {
 
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
+    }
+
+    public void setPublishers(PublisherType[] publishers) {
+        rulesDeploy.setPublishers(publishers);
+    }
+
+    public PublisherType[] getPublishers() {
+        return rulesDeploy.getPublishers();
+    }
+
+    public PublisherType[] getAvailablePublishers() {
+        return PublisherType.values();
     }
 }
