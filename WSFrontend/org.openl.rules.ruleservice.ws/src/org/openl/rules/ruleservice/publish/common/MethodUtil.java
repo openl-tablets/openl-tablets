@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
@@ -70,7 +71,7 @@ public final class MethodUtil {
                             parameterNames.add("runtimeContext");
                         }
                         for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                            parameterNames.add(m.getSignature().getParameterName(i));
+                            parameterNames.add(WordUtils.uncapitalize(m.getSignature().getParameterName(i)));
                         }
                         if (variationPackIsLastParameter) {
                             parameterNames.add("variationPack");
