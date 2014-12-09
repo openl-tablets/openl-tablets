@@ -26,7 +26,12 @@
 	</bean>
 
 	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
-		<property name="defaultRuleServicePublisher" ref="webServiceRuleServicePublisher"/>
+		<property name="defaultRuleServicePublishers">
+			<list>
+				<ref bean="webServiceRuleServicePublisher"/>
+				<ref bean="JAXRSServicesRuleServicePublisher"/> 
+			</list>
+		</property>
 		<property name="supportedPublishers">
 			<map>
 				<entry key="WEBSERVICE" value-ref="webServiceRuleServicePublisher"/>

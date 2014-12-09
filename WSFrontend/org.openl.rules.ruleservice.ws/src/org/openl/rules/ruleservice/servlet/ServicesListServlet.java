@@ -54,8 +54,11 @@ public class ServicesListServlet extends HttpServlet {
 
         if (publisher instanceof MultipleRuleServicePublisher) {
             MultipleRuleServicePublisher multiplePublisher = (MultipleRuleServicePublisher) publisher;
-            addServicesGroup(services, multiplePublisher.getDefaultRuleServicePublisher());
 
+            for (RuleServicePublisher p : multiplePublisher.getDefaultRuleServicePublishers()) {
+                addServicesGroup(services, p);
+            }
+            
             for (RuleServicePublisher p : multiplePublisher.getSupportedPublishers().values()) {
                 addServicesGroup(services, p);
             }

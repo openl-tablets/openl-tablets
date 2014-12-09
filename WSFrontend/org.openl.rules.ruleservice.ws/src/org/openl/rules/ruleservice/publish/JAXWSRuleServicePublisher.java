@@ -177,7 +177,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = service.getUrl() + "?wsdl";
+        String url = URLHelper.processURL(service.getUrl());
+        url = url + "?wsdl";
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
     }
 

@@ -25,7 +25,12 @@
 
 	<bean id="ruleServicePublisher"
 		class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
-		<property name="defaultRuleServicePublisher" ref="javaClassRuleServicePublisher" />
+		<property name="defaultRuleServicePublishers">
+			<list>
+				<ref bean="javaClassRuleServicePublisher"/> 
+			</list>
+		</property>
+		
 		<property name="supportedPublishers">
 			<map>
 				<entry key="OTHER" value-ref="otherJavaClassRuleServicePublisher"/>
