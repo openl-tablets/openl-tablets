@@ -79,7 +79,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
             String url = URLHelper.processURL(service.getUrl());
-            if (service.getPublishers() != null && service.getPublishers().size() > 1) {    
+            if (service.getPublishers().size() != 1) {    
                 svrFactory.setAddress(getBaseAddress() + REST_PREFIX + url);
             } else {
                 svrFactory.setAddress(getBaseAddress() + url);
@@ -187,8 +187,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = service.getUrl() + "?_wadl";
-        if (service.getPublishers() != null && service.getPublishers().size() > 1) {
+        String url = URLHelper.processURL(service.getUrl());
+        url = url + "?_wadl";
+        if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
