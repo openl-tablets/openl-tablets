@@ -2,6 +2,8 @@ package org.openl.meta;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
 
@@ -196,7 +198,10 @@ public class TestDoubleValue {
         
         value1 = new DoubleValue(12.6466667);
         assertEquals("12.65", DoubleValue.round(value1, 2).toString());
- 
+
+        assertNull(DoubleValue.round(null));
+        assertNull(DoubleValue.round(null, 2));
+        assertNull(DoubleValue.round(null, 2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Test
