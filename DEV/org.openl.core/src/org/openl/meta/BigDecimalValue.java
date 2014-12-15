@@ -751,6 +751,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
+        if (value == null) {
+            return null;
+        }
+
         return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMethod)),
             NumberOperations.ROUND,
             new BigDecimalValue[] { value });

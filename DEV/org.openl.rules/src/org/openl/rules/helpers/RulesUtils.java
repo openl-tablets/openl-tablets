@@ -2799,6 +2799,10 @@ public class RulesUtils {
     // added for BA`s, who don`t know about the possibilities of
     // BigDecimal
     public static BigDecimal round(BigDecimal value, int scale, int roundingMethod) {
+        if (value == null) {
+            return null;
+        }
+
         return value.setScale(scale, roundingMethod);
     }
 

@@ -3559,6 +3559,8 @@ public class RulesUtilsTest {
                 instance.testBigDecimalRound(BigDecimal.valueOf(5.3)));
         assertEquals(BigDecimal.valueOf(-6),
                 instance.testBigDecimalRound(BigDecimal.valueOf(-5.9)));
+
+        assertNull(instance.testBigDecimalRound(null));
     }
 
     @Test
