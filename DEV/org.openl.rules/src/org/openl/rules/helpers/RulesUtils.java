@@ -1761,7 +1761,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param objectToFind the object to find
+     * @param obj the object to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(Object[] array, Object obj) {
@@ -1779,7 +1779,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(int[] array, int elem) {
@@ -1797,7 +1797,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(long[] array, long elem) {
@@ -1815,7 +1815,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(byte[] array, byte elem) {
@@ -1833,7 +1833,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(short[] array, short elem) {
@@ -1851,7 +1851,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      * @since 2.1
      */
@@ -1870,7 +1870,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(float[] array, float elem) {
@@ -1888,7 +1888,7 @@ public class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param valueToFind the value to find
+     * @param elem the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(double[] array, double elem) {
@@ -2085,7 +2085,7 @@ public class RulesUtils {
      * </pre>
      *
      * @param str the String to check, may be null
-     * @param searchChars the chars to search for, may be null
+     * @param chars the chars to search for, may be null
      * @return the <code>true</code> if any of the chars are found,
      *         <code>false</code> if no match or null input
      */
@@ -2130,15 +2130,15 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param objectToFind the object to find, may be <code>null</code>
+     * @param obj the object to find, may be <code>null</code>
      * @return the index of the object within the array,
-     *         {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found or
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found or
      *         <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object obj) {
@@ -2151,14 +2151,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(int[] array, int elem) {
@@ -2171,14 +2171,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(long[] array, long elem) {
@@ -2191,14 +2191,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(byte[] array, byte elem) {
@@ -2211,14 +2211,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(short[] array, short elem) {
@@ -2231,14 +2231,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      * @since 2.1
      */
@@ -2252,14 +2252,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(float[] array, float elem) {
@@ -2272,14 +2272,14 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} (<code>-1</code>) for a
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
      * <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
-     * @param valueToFind the value to find
-     * @return the index of the value within the array, {@link #INDEX_NOT_FOUND}
+     * @param elem the value to find
+     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
      *         (<code>-1</code>) if not found or <code>null</code> array input
      */
     public static int indexOf(double[] array, double elem) {
@@ -2379,9 +2379,9 @@ public class RulesUtils {
     /**
      * converts a date to the String according dateFormat
      *
-     * @param date
+     * @param date date to format
      * @return String formated date value
-     * @see DateTool.dateToString();
+     * @see DateTool#dateToString;
      */
     public static String dateToString(Date date) {
         String stringDate = "Incorrect date format";
@@ -2672,7 +2672,7 @@ public class RulesUtils {
      * value of {@code Long.MAX_VALUE}.
      * </ul>
      *
-     * @param a a floating-point value to be rounded to a {@code long}.
+     * @param value a floating-point value to be rounded to a {@code long}.
      * @return the value of the argument rounded to the nearest {@code long}
      *         value.
      */
@@ -2695,7 +2695,7 @@ public class RulesUtils {
      * the value of {@code Integer.MAX_VALUE}.
      * </ul>
      *
-     * @param a a floating-point value to be rounded to an integer.
+     * @param value a floating-point value to be rounded to an integer.
      * @return the value of the argument rounded to the nearest {@code int}
      *         value.
      */
@@ -2707,7 +2707,7 @@ public class RulesUtils {
      * Round the given value to the specified number of decimal places. The
      * value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
      *
-     * @param x the value to round.
+     * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @return the rounded value.
      */
@@ -2719,7 +2719,7 @@ public class RulesUtils {
      * Round the given value to the specified number of decimal places. The
      * value is rounding using the {@link BigDecimal#ROUND_HALF_UP} method.
      *
-     * @param x the value to round.
+     * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @return the rounded value.
      */
@@ -2732,7 +2732,7 @@ public class RulesUtils {
      * value is rounded using the given method which is any method defined in
      * {@link BigDecimal}.
      *
-     * @param x the value to round.
+     * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @param roundingMethod the rounding method as defined in
      *            {@link BigDecimal}.
@@ -2747,7 +2747,7 @@ public class RulesUtils {
      * value is rounded using the given method which is any method defined in
      * {@link BigDecimal}.
      *
-     * @param x the value to round.
+     * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
      * @param roundingMethod the rounding method as defined in
      *            {@link BigDecimal}.
@@ -2786,11 +2786,11 @@ public class RulesUtils {
      * the proper scale; the returned object may or may not be newly allocated.
      * <p/>
      * <p/>
-     * The new {@link #setScale(int, RoundingMode)} method should be used in
+     * The new {@link BigDecimal#setScale(int, RoundingMode)} method should be used in
      * preference to this legacy method.
      *
-     * @param newScale scale of the {@code BigDecimal} value to be returned.
-     * @param roundingMode The rounding mode to apply.
+     * @param scale scale of the {@code BigDecimal} value to be returned.
+     * @param roundingMethod The rounding mode to apply.
      * @return a {@code BigDecimal} whose scale is the specified value, and
      *         whose unscaled value is determined by multiplying or dividing
      *         this {@code BigDecimal}'s unscaled value by the appropriate power

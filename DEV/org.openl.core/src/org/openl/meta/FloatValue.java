@@ -345,8 +345,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.FloatValue
-     * @param value2 org.openl.meta.FloatValue
+     * @param number org.openl.meta.FloatValue
+     * @param divisor org.openl.meta.FloatValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {

@@ -346,8 +346,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.BigDecimalValue
-     * @param value2 org.openl.meta.BigDecimalValue
+     * @param number org.openl.meta.BigDecimalValue
+     * @param divisor org.openl.meta.BigDecimalValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {

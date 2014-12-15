@@ -381,8 +381,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.DoubleValue
-     * @param value2 org.openl.meta.DoubleValue
+     * @param number org.openl.meta.DoubleValue
+     * @param divisor org.openl.meta.DoubleValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
