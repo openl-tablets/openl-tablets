@@ -10,99 +10,96 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField {
 
-	protected SpreadsheetCell cell;
-	private SpreadsheetStructureBuilder spreadsheetBuilder;
+    protected SpreadsheetCell cell;
+    private SpreadsheetStructureBuilder spreadsheetBuilder;
 
-	public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder, IOpenMethodHeader spreadsheetHeader,
-			IOpenClass declaringClass, String name, SpreadsheetCell cell) {
-		if (cell.getKind() == SpreadsheetCellType.METHOD)
-			return new SpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
-		return new ConstSpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
-	}
+    public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder,
+            IOpenMethodHeader spreadsheetHeader,
+            IOpenClass declaringClass,
+            String name,
+            SpreadsheetCell cell) {
+        if (cell.getKind() == SpreadsheetCellType.METHOD)
+            return new SpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+        return new ConstSpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+    }
 
-	SpreadsheetCellField(SpreadsheetStructureBuilder spreadsheetBuilder, IOpenMethodHeader spreadsheetHeader, IOpenClass declaringClass, String name,
-			SpreadsheetCell cell) {
-		super(declaringClass, name, cell.getType());
+    SpreadsheetCellField(SpreadsheetStructureBuilder spreadsheetBuilder,
+            IOpenMethodHeader spreadsheetHeader,
+            IOpenClass declaringClass,
+            String name,
+            SpreadsheetCell cell) {
+        super(declaringClass, name, cell.getType());
 
-		this.cell = cell;
-		this.spreadsheetBuilder = spreadsheetBuilder;
-	}
+        this.cell = cell;
+        this.spreadsheetBuilder = spreadsheetBuilder;
+    }
 
-	@Override
-	public Object get(Object target, IRuntimeEnv env) {
+    @Override
+    public Object get(Object target, IRuntimeEnv env) {
 
-//		if (cell.getKind() == SpreadsheetCellType.METHOD) {
-			SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
+        // if (cell.getKind() == SpreadsheetCellType.METHOD) {
+        SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
 
-			return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
-//		}
-//
-//		return cell.getValue();
+        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+        // }
+        //
+        // return cell.getValue();
 
-	}
+    }
 
-	public SpreadsheetCell getCell() {
-		return cell;
-	}
+    public SpreadsheetCell getCell() {
+        return cell;
+    }
 
-	@Override
-	public IOpenClass getType() {
-		
-		IOpenClass type = cell.getType();
-		if (type == null)
-		{
-			type = spreadsheetBuilder.makeType(cell);
-			if (type == null)
-			{
-				spreadsheetBuilder.makeType(cell);
-				throw new RuntimeException("Type cannot be defined");
+    @Override
+    public IOpenClass getType() {
+        IOpenClass t = cell.getType();
+        if (t == null) {
+            t = spreadsheetBuilder.makeType(cell);
+        }
+        spreadsheetBuilder = null;
+        return t;
+    }
 
-			}	
-			spreadsheetBuilder = null;
-			
-		}	
-		
-		return cell.getType();
-	}
+    @Override
+    public boolean isWritable() {
+        return false;
+    }
 
-	@Override
-	public boolean isWritable() {
-		return false;
-	}
+    @Override
+    public void set(Object target, Object value, IRuntimeEnv env) {
+        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
+    }
 
-	@Override
-	public void set(Object target, Object value, IRuntimeEnv env) {
-		throw new UnsupportedOperationException(
-				"Can not write to spreadsheet cell result");
-	}
+    public Point getRelativeCoordinates() {
+        return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
+    }
 
-	public Point getRelativeCoordinates() {
-		return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
-	}
+    public Point getAbsoluteCoordinates() {
+        return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
+    }
 
-	public Point getAbsoluteCoordinates() {
-		return new Point(getCell().getSourceCell().getAbsoluteColumn(),
-				getCell().getSourceCell().getAbsoluteRow());
-	}
+    static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
-	static class ConstSpreadsheetCellField extends SpreadsheetCellField {
+        Object value;
 
-		Object value;
+        ConstSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder,
+                IOpenMethodHeader spreadsheetHeader,
+                IOpenClass declaringClass,
+                String name,
+                SpreadsheetCell cell) {
+            super(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+            this.value = cell.getValue();
+        }
 
-		ConstSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder, IOpenMethodHeader spreadsheetHeader, IOpenClass declaringClass, String name,
-				SpreadsheetCell cell) {
-			super(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
-			this.value = cell.getValue();
-		}
+        @Override
+        public Object get(Object target, IRuntimeEnv env) {
+            // if (cell.getKind() == SpreadsheetCellType.METHOD)
+            // return super.get(target, env);
 
-		@Override
-		public Object get(Object target, IRuntimeEnv env) {
-//			if (cell.getKind() == SpreadsheetCellType.METHOD)
-//				return super.get(target, env);
+            return cell.getValue();
+        }
 
-			return cell.getValue();
-		}
-
-	}
+    }
 
 }
