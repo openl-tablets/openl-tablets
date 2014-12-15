@@ -726,9 +726,13 @@
             ws.nav.go(link + getTestQuery());
         }
 
-      function getCurrentTable() {
+        function getCurrentTable() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
-            return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
+            if (typeof _tet_te != 'undefined') {
+                return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
+            }
+
+            return {hasChanges: false};
         }
 
         function setTableHasChanges(hasChanges) {
