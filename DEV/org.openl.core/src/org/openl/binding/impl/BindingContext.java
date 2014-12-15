@@ -64,7 +64,6 @@ public class BindingContext implements IBindingContext {
      */
     public synchronized void addAlias(String name, String value) {
         aliases.put(name, value);
-
     }
 
     public void addError(SyntaxNodeException error) {
