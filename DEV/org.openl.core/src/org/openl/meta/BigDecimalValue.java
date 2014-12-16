@@ -346,8 +346,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.BigDecimalValue
-     * @param value2 org.openl.meta.BigDecimalValue
+     * @param number org.openl.meta.BigDecimalValue
+     * @param divisor org.openl.meta.BigDecimalValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
@@ -751,6 +751,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
+        if (value == null) {
+            return null;
+        }
+
         return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMethod)),
             NumberOperations.ROUND,
             new BigDecimalValue[] { value });

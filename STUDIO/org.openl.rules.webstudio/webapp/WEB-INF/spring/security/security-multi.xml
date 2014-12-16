@@ -33,6 +33,7 @@
       <security:filter-chain pattern="/images/**" filters="none" />
       <security:filter-chain pattern="/javascript/**" filters="none" />
       <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
+      <security:filter-chain pattern="/rest/**" filters="basicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
       <security:filter-chain pattern="/**"
         filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
     </security:filter-chain-map>
@@ -104,7 +105,13 @@
     <property name="rememberMeServices" ref="rememberMeServices" />
   </bean>
 
-  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <bean id="restExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+        <constructor-arg name="authenticationEntryPoint">
+            <bean class="org.openl.rules.rest.RestAuthenticationEntryPoint"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
       <constructor-arg name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint"/>
       <constructor-arg name="requestCache" ref="httpSessionRequestCache"/>
   </bean>
