@@ -2,11 +2,12 @@ package org.openl.rules.demo.webservice.client;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
-import org.openl.rules.calculation.result.convertor.CompoundStep;
-import org.openl.rules.calculation.result.convertor.SimpleStep;
+import org.openl.rules.calculation.result.convertor2.CompoundStep;
+import org.openl.rules.calculation.result.convertor2.SimpleStep;
 import org.openl.rules.demo.AutoPolicyCalculation;
 import org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean;
 

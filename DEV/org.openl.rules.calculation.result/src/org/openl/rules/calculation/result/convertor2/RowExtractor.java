@@ -1,4 +1,4 @@
-package org.openl.rules.calculation.result.convertor;
+package org.openl.rules.calculation.result.convertor2;
 
 /*
  * #%L
@@ -10,12 +10,9 @@ package org.openl.rules.calculation.result.convertor;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.meta.DoubleValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
@@ -26,14 +23,17 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
  * 
  * @param <T>
  */
-@Deprecated
-public abstract class RowExtractor<T extends CodeStep> {
+public abstract class RowExtractor<T extends CalculationStep> {
 
     /** extractors for columns */
     private List<SpreadsheetColumnExtractor<T>> columnExtractors;
 
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {
-        this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
+        if (columnExtractors == null) {
+            this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
+        } else {
+            this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
+        }
     }
 
     /**
@@ -48,7 +48,7 @@ public abstract class RowExtractor<T extends CodeStep> {
      * 
      * @param step
      */
-    protected abstract void afterExtract(T step);
+    protected abstract T afterExtract(T step);
 
     /**
      * Extract the given row from the given spreadsheet result and populates the
@@ -64,29 +64,14 @@ public abstract class RowExtractor<T extends CodeStep> {
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName,
-                    spreadsheetResult.getColumnNames());
+                spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
-            if (isSuitableValue(columnValue)) {
-                extractor.convertAndStoreData(columnValue, rowInstance);
-            }
+            extractor.convertAndStoreData(columnValue, rowInstance);
         }
 
         // additional processing for the extracted row
         //
-        afterExtract(rowInstance);
+        rowInstance = afterExtract(rowInstance);
         return rowInstance;
     }
-
-    // TODO: delete
-    private boolean isSuitableValue(Object columnValue) {
-        if (columnValue != null) {
-            if (columnValue instanceof String || columnValue instanceof StringValue
-                    || columnValue instanceof DoubleValue || columnValue instanceof SpreadsheetResult
-                    || columnValue instanceof SpreadsheetResult[]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

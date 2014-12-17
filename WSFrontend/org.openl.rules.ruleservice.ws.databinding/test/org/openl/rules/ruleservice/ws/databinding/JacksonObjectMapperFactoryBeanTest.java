@@ -19,7 +19,7 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calculation.result.convertor.CompoundStep;
+import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
