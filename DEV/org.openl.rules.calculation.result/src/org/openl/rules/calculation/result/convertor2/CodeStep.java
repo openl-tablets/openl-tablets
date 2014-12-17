@@ -1,4 +1,4 @@
-package org.openl.rules.calculation.result.convertor;
+package org.openl.rules.calculation.result.convertor2;
 
 /*
  * #%L
@@ -14,15 +14,16 @@ package org.openl.rules.calculation.result.convertor;
 /**
  * Spreadsheet step(row) that has the code value.
  * 
- * @author DLiauchuk
+ * @author DLiauchuk, Marat Kamalov
  * 
  */
-@Deprecated
 public class CodeStep extends CalculationStep {
 
     private static final long serialVersionUID = 7372598798002605558L;
 
     private String code;
+    
+    private Double value;
 
     public String getCode() {
         return code;
@@ -30,6 +31,14 @@ public class CodeStep extends CalculationStep {
 
     public void setCode(String code) {
         this.code = code;
+    }
+    
+    public Double getValue() {
+        return value;
+    }
+    
+    public void setValue(Double value) {
+        this.value = value;
     }
 
     @Override
