@@ -76,10 +76,13 @@ public class ProblemsBean {
         return null;
     }
 
+    public boolean isHasProblems() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        return studio.getCurrentProject() != null && !studio.getModel().getModuleMessages().isEmpty();
+    }
+
     private TreeNode createMessagesRoot(String rootName, int messagesNumber) {
-        TreeNode messagesRoot = new TreeNode(
-                rootName, rootName, null, 0, messagesNumber, rootName.toLowerCase(), true);
-        return messagesRoot;
+        return new TreeNode(rootName, rootName, null, 0, messagesNumber, rootName.toLowerCase(), true);
     }
 
     private void addMessageNodes(TreeNode parent, String nodeName, List<OpenLMessage> messages, ProjectModel model) {
