@@ -343,6 +343,15 @@
                     },
                     info: function(content) {
                         message(content, 8000, true);
+                    },
+
+                    problems: {
+                        show: function() {
+                            centerLayout.show("south");
+                        },
+                        hide: function() {
+                            centerLayout.hide("south");
+                        }
                     }
                 },
 
