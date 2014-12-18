@@ -1,9 +1,14 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.StrBuilder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -48,7 +53,10 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
 
         SubTextSourceCodeModule headerSource = new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
-            .getHeaderToken().getSourceLocation().getEnd().getAbsolutePosition(new TextInfo(source.getCode())));
+            .getHeaderToken()
+            .getSourceLocation()
+            .getEnd()
+            .getAbsolutePosition(new TextInfo(source.getCode())));
         IBindingContextDelegator bindingContextDelegator = (IBindingContextDelegator) bindingContext;
 
         return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContextDelegator);
@@ -104,9 +112,48 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
             values.add(tableProperties.getPropertyValue(property));
         }
 
-        builder.append("[").append(StringUtils.join(values, ", ")).append(tableProperties.getVersion()).append("]");
+        builder.append("[").append(join(values, ", ")).append(tableProperties.getVersion()).append("]");
 
         return builder.toString();
+    }
+
+    static String join(Collection collection, String separator) {
+
+        // handle null, zero and one elements before building a buffer
+        if (collection == null) {
+            return null;
+        }
+        Iterator iterator = collection.iterator();
+
+        if (!iterator.hasNext()) {
+            return StringUtils.EMPTY;
+        }
+        Object first = iterator.next();
+        if (!iterator.hasNext()) {
+            return ObjectUtils.toString(first);
+        }
+
+        // two or more elements
+        StrBuilder buf = new StrBuilder(256); // Java default is 16, probably
+                                              // too small
+        if (first != null) {
+            buf.append(first);
+        }
+
+        while (iterator.hasNext()) {
+            if (separator != null) {
+                buf.append(separator);
+            }
+            Object obj = iterator.next();
+            if (obj != null) {
+                if (obj.getClass().isArray()) {
+                    buf.append(Arrays.toString((Object[]) obj));
+                } else {
+                    buf.append(obj);
+                }
+            }
+        }
+        return buf.toString();
     }
 
 }

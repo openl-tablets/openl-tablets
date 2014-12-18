@@ -19,6 +19,7 @@ import org.openl.rules.calculation.result.convertor.RowExtractor;
 import org.openl.rules.calculation.result.convertor.SimpleStep;
 import org.openl.rules.calculation.result.convertor.SpreadsheetColumnExtractor;
 
+@Deprecated
 public class MultiNestedSpreadsheetResultTest {
 
     private static final String RES1_COLUMN = "Result_1";
@@ -29,9 +30,9 @@ public class MultiNestedSpreadsheetResultTest {
 
     public static NestedSpreadsheetConfiguration<CodeStep, CompoundStep> conf;
     static {
-        ColumnToExtract c1 = new ColumnToExtract(CODE_COLUMN, String.class);
-        ColumnToExtract c2 = new ColumnToExtract(RES_COLUMN);
-        ColumnToExtract c3 = new ColumnToExtract(RES1_COLUMN);
+        ColumnToExtract c1 = new ColumnToExtract(CODE_COLUMN, String.class, false);
+        ColumnToExtract c2 = new ColumnToExtract(RES_COLUMN, SpreadsheetResult.class, true);
+        ColumnToExtract c3 = new ColumnToExtract(RES1_COLUMN, SpreadsheetResult.class, true);
 
         Map<Integer, List<ColumnToExtract>> columnsToExtract = new HashMap<Integer, List<ColumnToExtract>>();
 
@@ -50,7 +51,8 @@ public class MultiNestedSpreadsheetResultTest {
         conf = new NestedSpreadsheetConfiguration<CodeStep, CompoundStep>(columnsToExtract) {
 
             @Override
-            protected RowExtractor<CodeStep> initSimpleRowExtractor(List<SpreadsheetColumnExtractor<CodeStep>> simpleExtractors) {
+            protected RowExtractor<CodeStep> initSimpleRowExtractor(
+                    List<SpreadsheetColumnExtractor<CodeStep>> simpleExtractors) {
 
                 return new RowExtractor<CodeStep>(simpleExtractors) {
 
@@ -61,15 +63,15 @@ public class MultiNestedSpreadsheetResultTest {
                     }
 
                     @Override
-                    protected CodeStep afterExtract(CodeStep step) {
+                    protected void afterExtract(CodeStep step) {
                         // Do nothing
-                        return step;
                     }
                 };
             }
 
             @Override
-            protected RowExtractor<CompoundStep> initCompoundRowExtractor(List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
+            protected RowExtractor<CompoundStep> initCompoundRowExtractor(
+                    List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
 
                 return new RowExtractor<CompoundStep>(compoundExtractors) {
 
@@ -79,9 +81,8 @@ public class MultiNestedSpreadsheetResultTest {
                     }
 
                     @Override
-                    protected CompoundStep afterExtract(CompoundStep step) {
-                        // Do nothing                        
-                        return step;
+                    protected void afterExtract(CompoundStep step) {
+                        // Do nothing
                     }
                 };
             }
@@ -92,39 +93,39 @@ public class MultiNestedSpreadsheetResultTest {
     public void test() {
         SpreadsheetResult res = getMockSpreadsheetResult();
 
-        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(1,
-            conf);
-        List<CalculationStep> result = conv.process(res);
+        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(
+                1, conf);
+        List<CodeStep> result = conv.process(res);
 
-        assertEquals("firstNested", ((CodeStep) result.get(0)).getCode());
+        assertEquals("firstNested", result.get(0).getCode());
         assertEquals(CompoundStep.class, result.get(0).getClass());
         // step is simple because doesn`t contain columns for extraction
         //
         assertEquals(SimpleStep.class, ((CompoundStep) result.get(0)).getSteps().get(0).getClass());
-        assertEquals("nestedColumn1", ((SimpleStep) ((CompoundStep) result.get(0)).getSteps().get(0)).getCode());
+        assertEquals("nestedColumn1", ((CompoundStep) result.get(0)).getSteps().get(0).getCode());
 
-        assertEquals("secondNested", ((CodeStep) result.get(1)).getCode());
+        assertEquals("secondNested", result.get(1).getCode());
         assertEquals(CompoundStep.class, result.get(1).getClass());
         // step is compound because contains column for extraction
         //
         assertEquals(SimpleStep.class, ((CompoundStep) result.get(1)).getSteps().get(0).getClass());
-        assertEquals("nestedColumn2", ((SimpleStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getCode());
+        assertEquals("nestedColumn2", ((CompoundStep) result.get(1)).getSteps().get(0).getCode());
     }
 
     @Test
     public void testArraySpr() {
         SpreadsheetResult upperSpr = getMockArraySpreadsheetResult();
-        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> converter = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(1,
-            conf);
-        List<CalculationStep> result = converter.process(upperSpr);
+        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> converter = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(
+                1, conf);
+        List<CodeStep> result = converter.process(upperSpr);
 
         assertNotNull(result);
-        assertEquals("firstNested", ((CodeStep) result.get(0)).getCode());
+        assertEquals("firstNested", result.get(0).getCode());
         assertEquals(2, ((CompoundStep) result.get(1)).getSteps().size());
-        assertEquals("nestedColumn2_1",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps().get(0)).getCode());
-        assertEquals("nestedColumn2_2",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps().get(0)).getCode());
+        assertEquals("nestedColumn2_1", ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps()
+                .get(0).getCode());
+        assertEquals("nestedColumn2_2", ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps()
+                .get(0).getCode());
     }
 
     private SpreadsheetResult getMockSpreadsheetResult() {

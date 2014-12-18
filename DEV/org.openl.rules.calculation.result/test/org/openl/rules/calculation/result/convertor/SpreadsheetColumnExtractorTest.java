@@ -1,16 +1,22 @@
 package org.openl.rules.calculation.result.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.rules.calculation.result.convertor.CalculationStep;
+import org.openl.rules.calculation.result.convertor.CodeStep;
+import org.openl.rules.calculation.result.convertor.ColumnToExtract;
+import org.openl.rules.calculation.result.convertor.SimpleStep;
+import org.openl.rules.calculation.result.convertor.SpreadsheetColumnExtractor;
 
+@Deprecated
 public class SpreadsheetColumnExtractorTest {
 
     @Test
     public void testSetterName() {
         String ecpectedName1 = "setId";
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(null);
+        SpreadsheetColumnExtractor<CalculationStep> extractor = new SpreadsheetColumnExtractor<CalculationStep>(null,
+                true);
         assertEquals(ecpectedName1, extractor.getSetterName("id"));
         assertEquals(ecpectedName1, extractor.getSetterName("ID"));
         assertEquals(ecpectedName1, extractor.getSetterName("Id"));
@@ -23,8 +29,8 @@ public class SpreadsheetColumnExtractorTest {
     @Test
     public void testColumnExtractor() {
         String testedValue = "valueToExtract";
-        ColumnToExtract columnToExtract = new ColumnToExtract("Code", String.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract);
+        ColumnToExtract columnToExtract = new ColumnToExtract("Code", String.class, false);
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract, true);
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
@@ -41,8 +47,8 @@ public class SpreadsheetColumnExtractorTest {
     @Test
     public void testNotExistingColumn() {
         String testedValue = "valueToExtract";
-        ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract);
+        ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class, false);
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract, true);
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
@@ -52,8 +58,8 @@ public class SpreadsheetColumnExtractorTest {
 
     @Test
     public void testExtractingValueOfNotAppropriateType() {
-        ColumnToExtract columnToExtract = new ColumnToExtract("Value", Double.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract);
+        ColumnToExtract columnToExtract = new ColumnToExtract("Value", Double.class, false);
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract, true);
 
         SimpleStep instanceToPopulate = new SimpleStep();
 
