@@ -5,10 +5,12 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.*;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
@@ -202,23 +204,47 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                         //
                         modules.add(((IMethodModuleInfo) existedMethod).getModuleName());
                     }
-                    if (modules.isEmpty()) {
-                        // Case module names where not set to the methods
-                        //
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
-                            existedMethod.getName()),
-                            existedMethod);
-                    } else {
-                        // Case when the module names where set to the methods
-                        //
-                        String modulesString = modules.get(0);
-                        if (modules.size() > 1) {
-                            modulesString = modulesString + ", " + modules.get(1);
+                    try{
+                        if (modules.isEmpty()) {
+                            // Case module names where not set to the methods
+                            //
+                            
+                            throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                                existedMethod.getName()),
+                                existedMethod);
+                        } else {
+                            // Case when the module names where set to the methods
+                            //
+                            String modulesString = modules.get(0);
+                            if (modules.size() > 1) {
+                                modulesString = modulesString + ", " + modules.get(1);
+                            }
+                            throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, properties set and different method body!",
+                                existedMethod.getName(),
+                                modulesString),
+                                existedMethod);
                         }
-                        throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in modules \"%s\" with the same version, active status, properties set and different method body!",
-                            existedMethod.getName(),
-                            modulesString),
-                            existedMethod);
+                    }catch(DuplicatedMethodException e){
+                        
+                        if (existedMethod instanceof IMemberMetaInfo){
+                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
+                            if (memberMetaInfo.getSyntaxNode() != null){
+                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode){
+                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode()));
+                                }
+                            }
+                        }
+
+                        if (newMethod instanceof IMemberMetaInfo){
+                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) newMethod;
+                            if (memberMetaInfo.getSyntaxNode() != null){
+                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode){
+                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode()));
+                                }
+                            }
+                        }
+                        
+                        throw e;
                     }
                 }
             } else {
