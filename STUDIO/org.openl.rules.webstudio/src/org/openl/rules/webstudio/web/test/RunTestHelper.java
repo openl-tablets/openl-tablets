@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
@@ -7,13 +10,9 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 
 @ManagedBean
 @SessionScoped
