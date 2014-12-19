@@ -85,7 +85,9 @@ public final class Tracer implements TraceStack {
 
     @Override
     public void pop() {
-        current = current.getParent();
+        if (current != null) {
+            current = current.getParent();
+        }
     }
 
     @Override
