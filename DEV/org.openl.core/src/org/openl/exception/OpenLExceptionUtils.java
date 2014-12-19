@@ -116,7 +116,11 @@ public class OpenLExceptionUtils {
         ILocation location = error.getLocation();
         IOpenSourceCodeModule sourceModule = error.getSourceModule();
 
-        String code = null;
+        return getErrorCode(location, sourceModule);
+    }
+
+    public static String[] getErrorCode(ILocation location, IOpenSourceCodeModule sourceModule) {
+        String code = StringUtils.EMPTY;
         if (sourceModule != null) {
             code = sourceModule.getCode();
             if (StringUtils.isBlank(code)) {
