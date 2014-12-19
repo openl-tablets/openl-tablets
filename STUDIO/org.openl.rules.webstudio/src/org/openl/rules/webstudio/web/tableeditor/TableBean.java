@@ -14,6 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -27,6 +28,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -185,6 +188,14 @@ public class TableBean {
                 if (syntaxNode instanceof TableSyntaxNode
                         && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
                     warnings.add(warning);
+                } else if (syntaxNode != null) {
+                    String warnUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
+
+                    XlsUrlParser uriParser = new XlsUrlParser();
+                    uriParser.parse(warnUri);
+                    if (XlsUrlUtils.intersects(uriParser, table.getUri())) {
+                        warnings.add(warning);
+                    }
                 }
             }
         }
