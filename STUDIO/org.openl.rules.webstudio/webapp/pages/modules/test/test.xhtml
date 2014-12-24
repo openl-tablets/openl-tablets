@@ -234,15 +234,20 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{complexResult and testBean.isComplexResult(testCase)}">
                                     <h:panelGroup rendered="#{helper.isSpreadsheetResult(testCase.actualResult)}">
-                                        <td><h:outputText value="#{testBean.getFormattedSpreadsheetResultFromTestUnit(testCase)}"
-                                            escape="false" />
+                                        <td>
+                                            <div class="case-result #{!test.runmethod ? (compareResult == 0 ? 'case-success' : 'case-error') : ''}">
+                                                <h:outputText escape="false"
+                                                              value="#{testBean.getFormattedSpreadsheetResultFromTestUnit(testCase)}"/>
+                                            </div>
                                         </td>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!helper.isSpreadsheetResult(testCase.actualResult)}">
                                         <td>
-                                            <ui:include src="/pages/modules/test/parameter.xhtml">
-                                                <ui:param name="parameter" value="#{testCase.actualParam}" />
-                                            </ui:include>
+                                            <div class="case-result #{!test.runmethod ? (compareResult == 0 ? 'case-success' : 'case-error') : ''}">
+                                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                                    <ui:param name="parameter" value="#{testCase.actualParam}"/>
+                                                </ui:include>
+                                            </div>
                                         </td>
                                     </h:panelGroup>
                                 </h:panelGroup>

@@ -529,6 +529,10 @@ public class ProjectBean {
             descriptor.setPropertiesFileNameProcessor(null);
         }
 
+        if (CollectionUtils.isEmpty(descriptor.getDependencies())) {
+            descriptor.setDependencies(null);
+        }
+
         List<Module> modules = descriptor.getModules();
         if (CollectionUtils.isEmpty(modules)) {
             descriptor.setModules(null);
