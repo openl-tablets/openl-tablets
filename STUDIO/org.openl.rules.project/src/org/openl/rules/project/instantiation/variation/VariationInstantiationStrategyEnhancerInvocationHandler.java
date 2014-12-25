@@ -1,24 +1,42 @@
 package org.openl.rules.project.instantiation.variation;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.variation.*;
+import org.openl.rules.project.SafeCloner;
+import org.openl.rules.runtime.OpenLRulesInvocationHandler;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationDescription;
+import org.openl.rules.variation.VariationsFactory;
+import org.openl.rules.variation.VariationsFromRules;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.
@@ -31,6 +49,25 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
 
     private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
 
+    private final static String VARIATION_CORE_POOL_SIZE = "variationCorePoolSize";
+    private final static String VARIATION_MAX_POOL_SIZE = "variationMaximumPoolSize";
+
+    final ExecutorService executorService = new ThreadPoolExecutor(getSystemParam(VARIATION_CORE_POOL_SIZE, 8),
+        getSystemParam(VARIATION_MAX_POOL_SIZE, 16),
+        60L,
+        TimeUnit.SECONDS,
+        new LinkedBlockingQueue<Runnable>());
+
+    SafeCloner cloner = new SafeCloner(); 
+    
+    private static int getSystemParam(String name, int defaultValue) {
+        try {
+            return Integer.parseInt(System.getProperty(name));
+        } catch (NumberFormatException ex) {
+            return defaultValue;
+        }
+    }
+
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
@@ -38,30 +75,29 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
     private Object serviceClassInstance;
 
     public VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
-                                                                   Object serviceClassInstance) throws OpenLCompilationException {
+            Object serviceClassInstance) throws OpenLCompilationException {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
         initVariationFromRules(methodsMap, serviceClassInstance);
     }
 
-    private void initVariationFromRules(Map<Method, Method> methodsMap, Object serviceClassInstance)
-            throws OpenLCompilationException {
+    private void initVariationFromRules(Map<Method, Method> methodsMap, Object serviceClassInstance) throws OpenLCompilationException {
         variationsFromRules = new HashMap<Method, Method>();
         for (Method method : methodsMap.keySet()) {
             VariationsFromRules annotation = method.getAnnotation(VariationsFromRules.class);
             if (annotation != null) {
                 String ruleName = annotation.ruleName();
                 Class<?>[] parameterTypes = Arrays.copyOf(method.getParameterTypes(),
-                        method.getParameterTypes().length - 1);
+                    method.getParameterTypes().length - 1);
                 Method variationsGetter = MethodUtils.getMatchingAccessibleMethod(serviceClassInstance.getClass(),
-                        ruleName, parameterTypes);
+                    ruleName,
+                    parameterTypes);
                 if (variationsGetter != null) {
                     variationsFromRules.put(method, variationsGetter);
                 } else {
-                    throw new OpenLCompilationException("Can't find variation from rules getter for method "
-                            + MethodUtil.printMethod(method.getName(), method.getParameterTypes())
-                            + ". Make sure you have method " + MethodUtil.printMethod(ruleName, parameterTypes)
-                            + " in service class.");
+                    throw new OpenLCompilationException("Can't find variation from rules getter for method " + MethodUtil.printMethod(method.getName(),
+                        method.getParameterTypes()) + ". Make sure you have method " + MethodUtil.printMethod(ruleName,
+                        parameterTypes) + " in service class.");
                 }
             }
         }
@@ -91,10 +127,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
     /**
      * Calculate with variations.
      */
-    @SuppressWarnings("rawtypes")
     public Object calculateWithVariations(Method method, Object[] args, Method member) throws Exception {
         VariationsPack variationsPack = getVariationsPack(method, args);
-        VariationsResult variationsResults = new VariationsResult();
+        VariationsResult<Object> variationsResults = new VariationsResult<Object>();
 
         Object[] arguments = Arrays.copyOf(args, args.length - 1);
 
@@ -103,8 +138,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             if (serviceClassInstance instanceof IEngineWrapper) {
                 runtimeEnv = ((IEngineWrapper) serviceClassInstance).getRuntimeEnv();
             } else {
-                runtimeEnv = (IRuntimeEnv) serviceClassInstance.getClass().getMethod(GET_RUNTIME_ENVIRONMENT_METHOD)
-                        .invoke(serviceClassInstance);
+                runtimeEnv = (IRuntimeEnv) serviceClassInstance.getClass()
+                    .getMethod(GET_RUNTIME_ENVIRONMENT_METHOD)
+                    .invoke(serviceClassInstance);
             }
 
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
@@ -118,21 +154,23 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             } else {
                 log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
             }
-            calculateSingleVariation(member, variationsResults, arguments, new NoVariation());
             try {
-                if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
-                    simpleRulesRuntimeEnv.setOriginalCalculation(false);
-                }
+                final Collection<VariationsResult<Object>> results = new ArrayList<VariationsResult<Object>>();
+                results.add(calculateSingleVariation(member, arguments, new NoVariation()));
                 if (variationsPack != null) {
-                    for (Variation variation : variationsPack.getVariations()) {
-                        if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                            ((SimpleRulesRuntimeEnv) runtimeEnv).initCurrentStep();
+                    final Collection<VariationCalculationTask> tasks = createTasks(member,
+                        variationsPack,
+                        arguments,
+                        runtimeEnv);
+                    if (!tasks.isEmpty()) {
+                        final List<Future<VariationsResult<Object>>> futures = executorService.invokeAll(tasks);
+                        for (Future<VariationsResult<Object>> item : futures) {
+                            results.add(item.get());
                         }
-                        calculateSingleVariation(member, variationsResults, arguments, variation);
+
                     }
                 }
+                mergeResults(variationsResults, results);
                 return variationsResults;
             } finally {
                 if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
@@ -149,6 +187,17 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             throw new OpenLRuntimeException("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
         }
     }
+    
+    private void mergeResults(VariationsResult<Object> variationsResults, Collection<VariationsResult<Object>> results) {
+        for (VariationsResult<Object> item : results) {
+            for (Map.Entry<String, Object> entry : item.getVariationResults().entrySet()) {
+                variationsResults.registerResult(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String, String> entry : item.getVariationFailures().entrySet()) {
+                variationsResults.registerFailure(entry.getKey(), entry.getValue());
+            }
+        }
+    }
 
     private VariationsPack getVariationsPack(Method method, Object[] args) throws Exception {
         VariationsPack variationsPack = (VariationsPack) args[args.length - 1];
@@ -162,7 +211,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 try {
                     variationsPack.addVariation(VariationsFactory.getVariation(description));
                 } catch (Exception e) {
-                    log.error("Failed to create variation defined in rules with id: {}", description.getVariationID(), e);
+                    log.error("Failed to create variation defined in rules with id: {}",
+                        description.getVariationID(),
+                        e);
                 }
             }
         }
@@ -178,9 +229,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void calculateSingleVariation(Method member, VariationsResult variationsResults, Object[] arguments,
-                                          Variation variation) {
+    private VariationsResult<Object> calculateSingleVariation(Method member,
+            Object[] arguments,
+            Variation variation) {
+        VariationsResult<Object> variationsResults = new VariationsResult<Object>();
         Object[] modifiedArguments = null;
         Object currentValue = null;
         try {
@@ -204,6 +256,78 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 } catch (Exception e) {
                     log.error("Failed to revert modifications in variation \"{}\"", variation.getVariationID());
                 }
+            }
+        }
+        return variationsResults;
+    }
+    
+    private Collection<VariationCalculationTask> createTasks(Method member,
+            VariationsPack variationsPack,
+            Object[] arguments,
+            IRuntimeEnv parentRuntimeEnv) {
+        final Collection<VariationCalculationTask> tasks = new ArrayList<VariationCalculationTask>(variationsPack.getVariations()
+            .size());
+        
+        for (Variation variation : variationsPack.getVariations()) {
+            final IRuntimeEnv runtimeEnv = parentRuntimeEnv.cloneEnvForMT();
+
+            if (parentRuntimeEnv instanceof SimpleRulesRuntimeEnv) {
+                final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy.getInvocationHandler(serviceClassInstance);
+                handler.setRuntimeEnv(runtimeEnv);
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                simpleRulesRuntimeEnv.setOriginalCalculation(false);
+                simpleRulesRuntimeEnv.initCurrentStep();
+            }
+
+            final VariationCalculationTask item = new VariationCalculationTask(
+                member,
+                cloner.deepClone(arguments),
+                variation,
+                runtimeEnv);
+            tasks.add(item);
+
+        }
+        return tasks;
+    }
+
+    private class VariationCalculationTask implements Callable<VariationsResult<Object>> {
+        private final Method member;
+        private final Object[] arguments;
+        private final Variation variation;
+        private final IRuntimeEnv runtimeEnv;
+        
+        private VariationCalculationTask(
+                Method member,
+                Object[] arguments,
+                Variation variation,
+                IRuntimeEnv runtimeEnv) {
+            this.member = member;
+            this.arguments = arguments;
+            this.variation = variation;
+            this.runtimeEnv = runtimeEnv;
+        }
+
+        @Override
+        public VariationsResult<Object> call() throws Exception {
+            OpenLRulesInvocationHandler handler = null;
+            try {
+                if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
+                    handler = (OpenLRulesInvocationHandler) Proxy.getInvocationHandler(serviceClassInstance);
+                    handler.setRuntimeEnv(runtimeEnv);
+                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.setOriginalCalculation(false);
+                    simpleRulesRuntimeEnv.initCurrentStep();
+                }
+
+                return calculateSingleVariation(member, arguments, variation);
+            } catch (Exception e) {
+                log.error("Cannot calculate variation", e);
+                throw e;
+            } finally {
+                if (handler != null)
+                    handler.release();
             }
         }
     }
