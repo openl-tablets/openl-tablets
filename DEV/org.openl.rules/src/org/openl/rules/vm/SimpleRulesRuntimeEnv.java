@@ -3,8 +3,6 @@ package org.openl.rules.vm;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -26,7 +24,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         super(env);
         this.methodArgumentsCacheEnable = env.isMethodArgumentsCacheEnable();
         this.cacheMode = env.getCacheMode();
-        this.storage = cloner.deepClone(env.storage);
+        this.storage = env.storage;
     }
 
     @Override
@@ -119,7 +117,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         storage.clear();
     }
 
-    private Map<Object, Data> storage = new WeakHashMap<Object, Data>();
+    private Storage storage = new Storage();
 
     public Object findInCache(Object member, Object... params) throws ResultNotFoundException {
         Data data = storage.get(member);
