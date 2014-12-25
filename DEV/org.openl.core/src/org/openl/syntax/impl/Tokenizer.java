@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.ILocation;
+import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -104,8 +104,7 @@ public class Tokenizer {
                     if (value.isEmpty()) {
                         buffer = null;
                     } else {
-                        TextInterval location = new TextInterval(new AbsolutePosition(startToken),
-                                new AbsolutePosition(position));
+                        TextInterval location = LocationUtils.createTextInterval(startToken, position);
 
                         return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
@@ -122,7 +121,7 @@ public class Tokenizer {
 
             } while (character != EOF);
 
-            return new IdentifierNode(TOKEN_TYPE, new TextInterval(new AbsolutePosition(0), new AbsolutePosition(0)),
+            return new IdentifierNode(TOKEN_TYPE, LocationUtils.createTextInterval(0, 0),
                     StringUtils.EMPTY, source);
 
         } catch (IOException e) {
@@ -150,7 +149,7 @@ public class Tokenizer {
 
             int character;
             StringBuilder buffer = null;
-            boolean continueLooping = false;
+            boolean continueLooping;
 
             do {
                 character = reader.read();
@@ -160,8 +159,7 @@ public class Tokenizer {
                     if (buffer != null) {
                         String value = buffer.toString().trim();
                         if (!value.isEmpty()) {
-                            TextInterval location = new TextInterval(new AbsolutePosition(startToken),
-                                    new AbsolutePosition(position));
+                            TextInterval location = LocationUtils.createTextInterval(startToken, position);
                             IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
                             nodes.add(node);
                         }
@@ -185,8 +183,7 @@ public class Tokenizer {
                         if (buffer != null) {
                             String value = buffer.toString().trim();
                             if (!value.isEmpty()) {
-                                TextInterval location = new TextInterval(new AbsolutePosition(startToken),
-                                        new AbsolutePosition(position));
+                                TextInterval location = LocationUtils.createTextInterval(startToken, position);
                                 IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
                                 nodes.add(node);
                             }

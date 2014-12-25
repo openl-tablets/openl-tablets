@@ -33,8 +33,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
-import org.openl.util.text.AbsolutePosition;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,7 +221,7 @@ public class XlsLoader {
                 dependency = dependency.trim();
 
                 IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
-                        new TextInterval(new AbsolutePosition(0), new AbsolutePosition(dependency.length())),
+                        LocationUtils.createTextInterval(dependency),
                         dependency,
                         new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
@@ -302,7 +301,7 @@ public class XlsLoader {
                                       Throwable t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                 t,
-                new TextInterval(new AbsolutePosition(0), new AbsolutePosition(include.length())),
+                LocationUtils.createTextInterval(include),
                 new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
         tableSyntaxNode.addError(se);
