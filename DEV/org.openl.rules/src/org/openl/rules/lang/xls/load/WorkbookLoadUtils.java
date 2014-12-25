@@ -4,7 +4,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +29,7 @@ final class WorkbookLoadUtils {
 
             String message = "Can't open source file or file is corrupted: " +
                     ExceptionUtils.getRootCause(e).getMessage();
-            OpenLRuntimeException error = new OpenLRuntimeException(message, e);
-            OpenLMessagesUtils.addError(error);
-
-            throw error;
+            throw new OpenLRuntimeException(message, e);
         } finally {
             try {
                 if (is != null) {

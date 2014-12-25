@@ -33,6 +33,8 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +176,7 @@ public class XlsLoader {
             } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
                 // process module dependency
                 //
-                preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource().getSource());
+                preprocessDependency(tableSyntaxNode, row.getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
@@ -209,9 +211,7 @@ public class XlsLoader {
         }
     }
 
-    private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
-                                      IGridTable gridTable,
-                                      IOpenSourceCodeModule moduleSource) {
+    private void preprocessDependency(TableSyntaxNode tableSyntaxNode, IGridTable gridTable) {
 
         int height = gridTable.getHeight();
 
@@ -221,8 +221,12 @@ public class XlsLoader {
             if (StringUtils.isNotBlank(dependency)) {
                 dependency = dependency.trim();
 
-                Dependency moduleDependency = new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency, moduleSource));
+                IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
+                        new TextInterval(new AbsolutePosition(0), new AbsolutePosition(dependency.length())),
+                        dependency,
+                        new GridCellSourceCodeModule(gridTable, 1, i, null));
+                node.setParent(tableSyntaxNode);
+                Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
             }
         }
@@ -298,11 +302,11 @@ public class XlsLoader {
                                       Throwable t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                 t,
-                null,
-                new GridCellSourceCodeModule(table.getSubtable(1, i, 1, 1)));
+                new TextInterval(new AbsolutePosition(0), new AbsolutePosition(include.length())),
+                new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
         tableSyntaxNode.addError(se);
-        OpenLMessagesUtils.addError(se.getMessage());
+        OpenLMessagesUtils.addError(se);
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
