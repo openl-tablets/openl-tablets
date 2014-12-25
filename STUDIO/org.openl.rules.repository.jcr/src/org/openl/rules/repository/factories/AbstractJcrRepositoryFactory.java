@@ -1,5 +1,6 @@
 package org.openl.rules.repository.factories;
 
+import javax.jcr.Credentials;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -19,6 +20,7 @@ import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
+import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.jcr.JcrRepository;
 import org.xml.sax.InputSource;
 
@@ -42,15 +44,16 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
             "design-repository.deployments.path", "/deployments");
 
-    private Repository repository;
+    protected Repository repository;
     protected String repositoryName;
     private RRepository rulesRepository;
 
-    private SimpleCredentials credencials;
 
-    private ConfigPropertyString login;
-    private ConfigPropertyString password;
+    protected ConfigPropertyString login;
+    protected ConfigPropertyString password;
     private ConfigPropertyString repoConfigFile;
+    private boolean productionRepositoryMode = false;
+
 
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
@@ -69,7 +72,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             try {
                 // Does JCR know anything about OpenL?
                 ntm.getNodeType(JcrNT.NT_REPOSITORY);
-            } catch (NoSuchNodeTypeException e) {
+            } catch (Exception e) {
                 // No, it doesn't.
                 initNodeTypes = true;
             }
@@ -111,6 +114,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if fails or user credentials are not correct
      */
     protected Session createSession() throws RepositoryException {
+        Credentials credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());
         return repository.login(credencials);
     }
 
@@ -182,14 +186,24 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         return rulesRepository;
     }
 
+    protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
+        this.productionRepositoryMode = productionRepositoryMode;
+    }
+
     public RRepository createRepository() throws RRepositoryException {
         Session session = null;
         try {
             session = createSession();
 
             RTransactionManager transactionManager = getTrasactionManager(session);
-            return new JcrRepository(repositoryName, session, transactionManager,
-                    confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
+            RRepository theRepository;
+            if (productionRepositoryMode) {
+                theRepository = new JcrProductionRepository(repositoryName, session, transactionManager);
+            } else {
+                theRepository = new JcrRepository(repositoryName, session, transactionManager,
+                        confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
+            }
+            return theRepository;
         } catch (RepositoryException e) {
             if (session != null){
                 session.logout();
@@ -207,7 +221,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         confSet.updatePasswordProperty(password);
         confSet.updateProperty(repoConfigFile);
 
-        this.credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());
         // TODO: add default path support
         // 1. check path -- create if absent
         // 2. pass as parameter or property to JcrRepository
