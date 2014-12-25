@@ -8,10 +8,7 @@ package org.openl.syntax.impl;
 
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.util.text.AbsolutePosition;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.*;
 
 /**
  * @author sam
@@ -79,7 +76,7 @@ public class SourceLocator {
 
         bbox = calcBbox(error.getSyntaxNode(), bbox);
 
-        return bbox != null ? new TextInterval(new AbsolutePosition(bbox[0]), new AbsolutePosition(bbox[1])) : null;
+        return bbox != null ? LocationUtils.createTextInterval(bbox[0], bbox[1]) : null;
     }
 
     /**
@@ -88,12 +85,9 @@ public class SourceLocator {
     public TextInterval getSourceLocation(ISyntaxNode node) {
         int[] bbox = calcBbox(node, null);
 
-        return bbox != null ? new TextInterval(new AbsolutePosition(bbox[0]), new AbsolutePosition(bbox[1])) : null;
+        return bbox != null ? LocationUtils.createTextInterval(bbox[0], bbox[1]) : null;
     }
 
-    /**
-     * @return
-     */
     public TextInfo getTextInfo() {
         return textInfo;
     }
