@@ -49,7 +49,7 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
         return env.get();
     }
 
-    private void setRuntimeEnv(IRuntimeEnv runtimeEnv) {
+    public void setRuntimeEnv(IRuntimeEnv runtimeEnv) {
         if (runtimeEnv != null) {
             env.set(runtimeEnv);
         }
