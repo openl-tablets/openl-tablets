@@ -77,8 +77,8 @@ public class XlsLoader {
         if (tableHeaders == null) {
             tableHeaders = new HashMap<String, String>();
 
-            for (int i = 0; i < headerMapping.length; i++) {
-                tableHeaders.put(headerMapping[i][0], headerMapping[i][1]);
+            for (String[] aHeaderMapping : headerMapping) {
+                tableHeaders.put(aHeaderMapping[0], aHeaderMapping[1]);
             }
         }
     }
@@ -144,7 +144,7 @@ public class XlsLoader {
 
         addInnerImports();
 
-        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
+        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[workbookNodes.size()]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                 source,
                 openl,
@@ -180,7 +180,7 @@ public class XlsLoader {
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
-                preprocessImportTable(row.getSource(), source);
+                preprocessImportTable(row.getSource());
 
                 // NOTE: A temporary implementation of multi-module feature.
                 // } else if (IXlsTableNames.IMPORT_MODULE.equals(name)) {
@@ -194,7 +194,7 @@ public class XlsLoader {
                 // extract
                 // common
                 // methods
-                ;// ignore comment
+                // ignore comment
             } else {
                 // TODO: why do we consider everything else an extension?
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
@@ -232,7 +232,7 @@ public class XlsLoader {
         }
     }
 
-    private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
+    private void preprocessImportTable(IGridTable table) {
         int height = table.getHeight();
 
         for (int i = 0; i < height; i++) {
@@ -266,7 +266,7 @@ public class XlsLoader {
 
             if (StringUtils.isNotBlank(include)) {
                 include = include.trim();
-                IOpenSourceCodeModule src = null;
+                IOpenSourceCodeModule src;
 
                 if (include.startsWith("<")) {
                     src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
@@ -384,19 +384,19 @@ public class XlsLoader {
             IGridTable[] tables = getAllGridTables(sheetSource);
             List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
-            for (int j = 0; j < tables.length; j++) {
+            for (IGridTable table : tables) {
 
                 TableSyntaxNode tsn;
 
                 try {
-                    tsn = preprocessTable(tables[j], sheetSource, tablePartProcessor);
+                    tsn = preprocessTable(table, sheetSource, tablePartProcessor);
                     tableNodes.add(tsn);
                 } catch (OpenLCompilationException e) {
                     OpenLMessagesUtils.addError(e);
                 }
             }
 
-            sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[0]), sheetSource);
+            sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
         }
 
         TableSyntaxNode[] mergedNodes = {};
@@ -421,16 +421,12 @@ public class XlsLoader {
 
     /**
      * Gets all grid tables from the sheet.
-     *
-     * @param sheetSource
-     * @return
      */
     private IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource) {
 
         XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
-        IGridTable[] tables = xlsGrid.getTables();
 
-        return tables;
+        return xlsGrid.getTables();
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {
