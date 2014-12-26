@@ -28,3 +28,41 @@ function changeItemStatus(element, areaId, selectAllElemId) {
         $(selectAllElemId).checked = true;
     }
 }
+
+function message(content, life, closable, styleClass) {
+    var messages = $(".message");
+
+    function remove() {
+        message.remove();
+
+        var top = 33;
+        $(".message").each(function() {
+            $(this).css({"top" : top + "px"});
+            top += ($(this).outerHeight() + 5);
+        });
+    }
+
+    var message = $("<div />").addClass("message").html(content);
+
+    if (closable !== false) {
+        message.addClass("closable").click(remove);
+    }
+    if (styleClass) {
+        message.addClass(styleClass);
+    }
+
+    var top;
+    if (messages.length) {
+        var lastMessage = $(messages[messages.length - 1]);
+        top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
+    } else {
+        top = "33px";
+    }
+
+    message.css({"top": top});
+    $("body").append(message);
+
+    if (life > -1) {
+        setTimeout(remove, life);
+    }
+}
