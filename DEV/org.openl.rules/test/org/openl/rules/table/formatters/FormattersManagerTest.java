@@ -3,6 +3,7 @@ package org.openl.rules.table.formatters;
 import org.junit.Test;
 import org.openl.util.formatters.*;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,12 +15,12 @@ public class FormattersManagerTest {
 
     private enum TestValues {
         FIRST_VALUE,
-        SECOND_VALUE;
+        SECOND_VALUE
     }
 
     @Test
     public void testDouble() {
-        Double dd = Double.valueOf(12.345);
+        Double dd = 12.345;
         IFormatter formatter = FormattersManager.getFormatter(dd);
         assertTrue(formatter instanceof SmartNumberFormatter);
     }
@@ -74,6 +75,7 @@ public class FormattersManagerTest {
         assertEquals("Str", FormattersManager.format("Str"));
         assertEquals("1", FormattersManager.format(1));
         assertEquals("0.1", FormattersManager.format(0.1));
+        assertEquals("2", FormattersManager.format(BigDecimal.valueOf(2)));
         assertEquals("true", FormattersManager.format(true));
         assertEquals("1.2105263157894737", FormattersManager.format(23d / 19d));
         assertEquals("07/12/1980", FormattersManager.format(new Date(332222444400L)));
