@@ -24,7 +24,7 @@ public class FormattersManager {
      * Gets the formatter for appropriate value. Formatters supports formatting
      * of <code>null</code> objects, see {@link DefaultFormat}.
      *
-     * @param value
+     * @param value value to format
      * @return xls formatter for appropriate value class (if the value isn`t
      * <code>null</code>). If value is <code>null</code> or there is no
      * formatter for it`s class, returns {@link FormatterAdapter}
@@ -78,12 +78,12 @@ public class FormattersManager {
      *
      * @param clazz  formatter will be returned for this {@link Class}.
      * @param format format for number, date formatters. If <code>null</code>
-     *               default format will be used {@link DEFAULT_NUMBER_FORMAT} and
-     *               {@link DEFAULT_DATE_FORMAT} accordingly.
+     *               default format will be used {@link #DEFAULT_NUMBER_FORMAT} and
+     *               {@link #DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
     public static IFormatter getFormatter(Class<?> clazz, Object value, String format) {
-        IFormatter formatter = null;
+        IFormatter formatter;
 
         // Numeric
         if (ClassUtils.isAssignable(clazz, Number.class, true)) {
@@ -132,9 +132,13 @@ public class FormattersManager {
             int scale = NumberUtils.getScale((Number) value);
 
             StringBuilder buf = new StringBuilder();
-            buf.append("#.");
-            for (int i = 0; i < scale; i++) {
-                buf.append("#");
+            buf.append("#");
+            if (scale > 0) {
+                buf.append(".");
+
+                for (int i = 0; i < scale; i++) {
+                    buf.append("#");
+                }
             }
             return buf.toString();
         }
