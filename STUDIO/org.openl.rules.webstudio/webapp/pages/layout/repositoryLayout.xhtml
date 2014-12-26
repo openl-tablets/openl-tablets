@@ -63,8 +63,20 @@
                     set: function(name, value) {
                         localStorage.setItem(name, JSON.stringify(value));
                     }
+                },
+
+                ui: {
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
+                    }
                 }
-            }
+            };
 
             $j(function () {
                 setLayoutDimensions();
