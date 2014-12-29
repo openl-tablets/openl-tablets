@@ -19,6 +19,7 @@
 
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
+        <script src="#{contextPath}/javascript/common.js"></script>
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script src="#{contextPath}/javascript/vendor/jquery.easytabs.min.js"></script>
@@ -106,6 +107,20 @@
                 }
             }
 
+            var ws = {
+                ui: {
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
+                    }
+                }
+            };
+
             $j(function () {
                 loadingPanel = $j("#loadingPanel");
 
@@ -124,41 +139,6 @@
                 }
             }
 
-            function message(content, life, closable) {
-                var messages = $j(".message");
-
-                function remove() {
-                    message.remove();
-
-                    var top = 33;
-                    $j(".message").each(function() {
-                        $j(this).css({"top" : top + "px"});
-                        top += ($j(this).outerHeight() + 5);
-                    });
-                }
-
-                var message = $j("<div />").addClass("message").html(content);
-
-                if (closable !== false) {
-                    message.css({"cursor" : "pointer"})
-                    message.click(remove);
-                }
-
-                var top;
-                if (messages.length) {
-                    var lastMessage = $j(messages[messages.length - 1]);
-                    top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
-                } else {
-                    top = "33px";
-                }
-
-                message.css({"top": top});
-                $j("body").append(message);
-
-                if (life > -1) {
-                    setTimeout(remove, life);
-                }
-            }
             //]]>
         </script>
 
