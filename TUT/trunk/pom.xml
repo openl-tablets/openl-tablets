@@ -6,7 +6,7 @@
 	<groupId>org.openl.rules</groupId>
 	<artifactId>openl-dev-svn-pom</artifactId>
 	<packaging>pom</packaging>
-	<version>5.11.4-SNAPSHOT</version>
+	<version>5.11.5-SNAPSHOT</version>
 	<name>OpenL TUT SVN root pom</name>
 	<url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
