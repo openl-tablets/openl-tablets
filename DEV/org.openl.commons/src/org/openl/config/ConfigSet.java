@@ -79,7 +79,7 @@ public class ConfigSet {
 
         String pass = objectValue.toString();
         String passKey = this.getPassKey();
-        if (StringUtils.isEmpty(passKey)) {
+        if (!StringUtils.isEmpty(passKey)) {
             try {
                 prop.setTextValue(PassCoder.decode(pass, passKey));
             } catch (Exception e) {
