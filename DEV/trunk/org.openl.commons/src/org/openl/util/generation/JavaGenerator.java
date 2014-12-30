@@ -1,5 +1,6 @@
 package org.openl.util.generation;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -87,6 +88,7 @@ public abstract class JavaGenerator {
         if (superClass != Object.class) {
             importsSet.add(filterTypeNameForImport(superClass));
         }
+        importsSet.add(filterTypeNameForImport(Serializable.class));
         return importsSet;
     }
 
@@ -106,6 +108,7 @@ public abstract class JavaGenerator {
             buf.append(" extends ");
             buf.append(superClass);
         }
+        buf.append(" implements Serializable ");
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
     }
 
