@@ -209,8 +209,9 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
                 "com.ibm.db2.jcc.DB2Driver",
                 "oracle.jdbc.OracleDriver",
                 "org.postgresql.Driver",
+                "org.hsqldb.jdbcDriver",
                 "org.h2.Driver",
-                "com.microsoft.jdbc.sqlserver.SQLServerDriver" };
+                "com.microsoft.sqlserver.jdbc.SQLServerDriver" };
         registerDrivers(drivers);
         drivers = StringUtils.split(System.getProperty("jdbc.drivers"), ':');
         registerDrivers(drivers);
