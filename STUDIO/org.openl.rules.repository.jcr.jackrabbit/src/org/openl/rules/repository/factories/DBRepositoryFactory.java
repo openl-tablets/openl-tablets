@@ -126,16 +126,16 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
         // Verify the configuration for the repository ...
         Problems problems = config.validate();
         if (problems.hasErrors()) {
-            System.err.println("Problems starting the engine.");
-            System.err.println(problems);
-            System.exit(-1);
+            String message = "Problems starting the engine.";
+            log.error(message);
+            log.error(problems.toString());
+            throw new IllegalArgumentException(message);
         }
 
         // Deploy the repository ...
         Repository repository = engine.deploy(config);
 
         setRepository(repository, config.getName() + "_" + url.getValue());
-        System.out.println();
     }
 
     /**
