@@ -183,6 +183,7 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             RepositoryValidators.validate(designRepositoryConfiguration);
+            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration);
 
             productionRepositoryEditor.validate();
             productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
