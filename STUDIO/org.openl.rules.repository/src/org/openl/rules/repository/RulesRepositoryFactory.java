@@ -73,7 +73,7 @@ public class RulesRepositoryFactory {
             throw new RRepositoryException(MSG_FAILED, e);
         } catch (UnsupportedClassVersionError e) {
             isFailed = true;
-            String message = "Library was compiled using newer version of JDKa";
+            String message = "Library was compiled using newer version of JDK";
             log.error(message, e);
             throw new RRepositoryException(message, e);
         }
