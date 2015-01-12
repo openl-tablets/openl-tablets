@@ -15,7 +15,9 @@ import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 public final class RepositoryValidators {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
@@ -79,12 +81,20 @@ public final class RepositoryValidators {
         }
     }
 
-    public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
+    public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig, DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
         RulesRepositoryFactory factory = new RulesRepositoryFactory();
         try {
+            // Close connection to jcr before checking connection
+            if (designTimeRepository instanceof DisposableBean) {
+                ((DisposableBean) designTimeRepository).destroy();
+            }
+
             factory.setConfig(repoConfig.getProperties());
-            factory.getRulesRepositoryInstance();
-        } catch (RRepositoryException e) {
+            RRepository rulesRepositoryInstance = factory.getRulesRepositoryInstance();
+
+            // Close repo connection after validation
+            rulesRepositoryInstance.release();
+        } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
                 resultException = e;
