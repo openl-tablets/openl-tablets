@@ -18,9 +18,9 @@ import java.io.File;
  * @author sam
  */
 public class ExcelLauncher {
-    private static final int LOCK_DETECT_TIMEOUT = 10000;
+    private static final int LOCK_DETECT_TIMEOUT = 20000;
 
-    private final Logger log = LoggerFactory.getLogger(ExcelLauncher.class);
+    private Logger log = LoggerFactory.getLogger(ExcelLauncher.class);
 
     private String scriptPath;
 
@@ -48,7 +48,7 @@ public class ExcelLauncher {
 
             fixEnvironmentForExcel();
             Process process = Runtime.getRuntime().exec(cmdarray);
-            Thread lockDetector = createLockDetector(process);
+            Thread lockDetector = createLockDetectorThread(process);
 
             lockDetector.start();
             process.waitFor();
@@ -92,7 +92,7 @@ public class ExcelLauncher {
         return new File(path).exists();
     }
 
-    private Thread createLockDetector(final Process excelLaunchProcess) {
+    private Thread createLockDetectorThread(final Process excelLaunchProcess) {
         return new Thread(new Runnable() {
             @Override
             public void run() {
@@ -101,13 +101,12 @@ public class ExcelLauncher {
                     try {
                         excelLaunchProcess.exitValue();
                     } catch (IllegalThreadStateException e) {
-                        log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
+                        log.error("ExcelLauncher is locked. Allow GUI interaction for service."); 
                         excelLaunchProcess.destroy();
                     }
                 } catch (InterruptedException e) {
                     // do nothing
                 }
-
             }
         });
     }
