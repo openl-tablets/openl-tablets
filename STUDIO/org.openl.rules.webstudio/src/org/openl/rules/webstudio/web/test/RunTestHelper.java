@@ -52,6 +52,10 @@ public final class RunTestHelper {
                 testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
             }
         } else {
+            if (method.getSignature().getNumberOfParameters() > params.length) {
+                // View expired
+                return null;
+            }
             TestDescription testDescription = new TestDescription(method, params);
             testSuite = new TestSuiteWithPreview(testDescription);
         }
