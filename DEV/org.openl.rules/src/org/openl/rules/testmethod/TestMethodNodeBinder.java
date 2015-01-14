@@ -138,9 +138,9 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         if (bestCaseTestMethodBoundNode != null) {
             tableSyntaxNode.crearErrors();
-            for (SyntaxNodeException error : bestCaseErrors) {
+            /*for (SyntaxNodeException error : bestCaseErrors) {
                 bestCaseTestMethodBoundNode.getTableSyntaxNode().addError(error);
-            }
+            }*/
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : bestCaseMessages){
                 OpenLMessages.getCurrentInstance().addMessage(message);
