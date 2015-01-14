@@ -39,9 +39,11 @@ public class RunBean {
     @PostConstruct
     public void init() {
         testSuite = runTestHelper.getTestSuite();
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        results = model.runTest(testSuite);
         id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        if (testSuite != null) {
+            ProjectModel model = WebStudioUtils.getProjectModel();
+            results = model.runTest(testSuite);
+        }
     }
 
     public void setRunTestHelper(RunTestHelper runTestHelper) {
