@@ -30,19 +30,19 @@ function changeItemStatus(element, areaId, selectAllElemId) {
 }
 
 function message(content, life, closable, styleClass) {
-    var messages = $(".message");
+    var messages = $j(".message");
 
     function remove() {
         message.remove();
 
         var top = 33;
-        $(".message").each(function() {
-            $(this).css({"top" : top + "px"});
-            top += ($(this).outerHeight() + 5);
+        $j(".message").each(function() {
+            $j(this).css({"top" : top + "px"});
+            top += ($j(this).outerHeight() + 5);
         });
     }
 
-    var message = $("<div />").addClass("message").html(content);
+    var message = $j("<div />").addClass("message").html(content);
 
     if (closable !== false) {
         message.addClass("closable").click(remove);
@@ -53,14 +53,14 @@ function message(content, life, closable, styleClass) {
 
     var top;
     if (messages.length) {
-        var lastMessage = $(messages[messages.length - 1]);
+        var lastMessage = $j(messages[messages.length - 1]);
         top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
     } else {
         top = "33px";
     }
 
     message.css({"top": top});
-    $("body").append(message);
+    $j("body").append(message);
 
     if (life > -1) {
         setTimeout(remove, life);
