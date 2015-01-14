@@ -63,7 +63,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IOpenSchema;
-import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenMethod;
@@ -269,7 +268,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             @Override
             public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
                 if ("invoke".equals(method.getName())) {
-                    IOpenClass typeClass;
+                    IOpenClass typeClass = null;
                     if (args[0] instanceof IDynamicObject) {
                         IDynamicObject dynamicObject = (IDynamicObject) args[0];
                         typeClass = dynamicObject.getType();
@@ -437,12 +436,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             return;
         }
         IOpenMethod m = decorateForMultimoduleDispatching(method);
-        // Workaround for set module name in method while compile
-        if (m instanceof AMethod) {
-            if (((AMethod) m).getModuleName() == null) {
-                ((AMethod) m).setModuleName(getName());
-            }
-        }
 
         // Get method key.
         //
@@ -450,7 +443,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         Map<MethodKey, IOpenMethod> methods = methodMap();
 
-        // Checks that method already exists in method map. If it already
+        // Checks that method aleready exists in method map. If it already
         // exists then "overload" it using decorator; otherwise - just add to
         // method map.
         //
