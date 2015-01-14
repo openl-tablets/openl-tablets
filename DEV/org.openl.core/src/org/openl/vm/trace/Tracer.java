@@ -3,12 +3,17 @@
  */
 package org.openl.vm.trace;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Yury Molchan
  */
 public final class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
+
+    private final Logger log = LoggerFactory.getLogger(Tracer.class);
 
     private ITracerObject root;
     private ITracerObject current;
@@ -87,6 +92,8 @@ public final class Tracer implements TraceStack {
     public void pop() {
         if (current != null) {
             current = current.getParent();
+        } else {
+            log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
         }
     }
 
