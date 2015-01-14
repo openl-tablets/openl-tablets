@@ -17,7 +17,6 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodModuleInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -195,69 +194,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 String newMethodHashUrl = ((TableUriMethod) newMethod).getTableUri();
                 String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
 
-                if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
-                    // Modules to which methods belongs to
-                    //
-                    List<String> modules = new ArrayList<String>();
-                    if (newMethod instanceof IMethodModuleInfo) {
-                        // Get the name of the module for the newMethod
-                        //
-                        modules.add(((IMethodModuleInfo) newMethod).getModuleName());
-                    }
-                    if (existedMethod instanceof IMethodModuleInfo) {
-                        // Get the name of the module for the existedMethod
-                        //
-                        modules.add(((IMethodModuleInfo) existedMethod).getModuleName());
-                    }
-                    try {
-                        if (modules.isEmpty()) {
-                            // Case module names where not set to the methods
-                            //
-                            
-                            throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
-                                existedMethod.getName()),
-                                existedMethod);
-                        } else {
-                            // Case when the module names where set to the methods
-                            //
-                            String modulesString = modules.get(0);
-                            if (modules.size() > 1){
-	                            throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in module \"%s\" and \"%s\" with the same version, active status, properties set and different method body!",
-	                                existedMethod.getName(),
-	                                modulesString, modules.get(1)),
-	                                existedMethod);
-                            }else{
-                            	throw new DuplicatedMethodException(String.format("Method \"%s\" has already been used in module \"%s\" with the same version, active status, properties set and different method body!",
-    	                                existedMethod.getName(),
-    	                                modulesString),
-    	                                existedMethod);
-                            }
-                        }
-                    } catch(DuplicatedMethodException e) {
-                        if (!candidateMethodKeys.contains(key)){
-	                        if (existedMethod instanceof IMemberMetaInfo){
-	                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
-	                            if (memberMetaInfo.getSyntaxNode() != null){
-	                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode){
-	                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode()));
-	                                }
-	                            }
-	                        }
-	                        candidateMethodKeys.add(key);
-                        }
-                        
-                        if (newMethod instanceof IMemberMetaInfo){
-                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) newMethod;
-                            if (memberMetaInfo.getSyntaxNode() != null){
-                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode){
-                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode()));
-                                }
-                            }
-                        }
-
-                        throw e;
-                    }
-                }
+				if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
+					throw new DuplicatedMethodException(
+							String.format(
+									"Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+									existedMethod.getName()), existedMethod);
+				}
             } else {
                 throw new IllegalStateException("Implementation supports only TableUriMethod!");
             }
@@ -280,7 +222,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return -1;
     }
     
-    private Set<MethodKey> candidateMethodKeys = new HashSet<MethodKey>();
+    private Set<MethodKey> candidateKeys = new HashSet<MethodKey>();
 
     /**
      * Try to add method as overloaded version of decorated method.
@@ -299,14 +241,35 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // methods and delegate cannot be overloaded by candidate.
         //
         if (delegateKey.equals(candidateKey)) {
-            int i = searchTheSameMethod(candidate);
-            if (i < 0) {
-                candidates.add(candidate);
-            } else {
-                IOpenMethod existedMethod = candidates.get(i);
-                candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
-                candidates.set(i, candidate);
-            }
+			int i = searchTheSameMethod(candidate);
+			if (i < 0) {
+				candidates.add(candidate);
+			} else {
+				IOpenMethod existedMethod = candidates.get(i);
+				try {
+					candidate = useActiveOrNewerVersion(existedMethod,
+							candidate, candidateKey);
+					candidates.set(i, candidate);
+					candidateKeys.remove(candidateKey);
+				} catch (DuplicatedMethodException e) {
+					if (!candidateKeys.contains(candidateKey)){
+						if (existedMethod instanceof IMemberMetaInfo) {
+							IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
+							if (memberMetaInfo.getSyntaxNode() != null) {
+								if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+									((TableSyntaxNode) memberMetaInfo
+											.getSyntaxNode())
+											.addError(new SyntaxNodeException(e
+													.getMessage(), e,
+													memberMetaInfo.getSyntaxNode()));
+								}
+							}
+						}
+						candidateKeys.add(candidateKey);
+					}
+					throw e;
+				}
+			}
         } else {
             // Throw appropriate exception.
             //
