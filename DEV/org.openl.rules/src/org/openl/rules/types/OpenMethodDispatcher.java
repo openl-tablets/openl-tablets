@@ -233,6 +233,15 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                                 }
                             }
                         }
+                        
+                        if (newMethod instanceof IMemberMetaInfo){
+                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) newMethod;
+                            if (memberMetaInfo.getSyntaxNode() != null){
+                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode){
+                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode()));
+                                }
+                            }
+                        }
 
                         throw e;
                     }
