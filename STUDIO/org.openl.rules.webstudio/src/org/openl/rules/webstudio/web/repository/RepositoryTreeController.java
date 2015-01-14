@@ -1653,8 +1653,8 @@ public class RepositoryTreeController {
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
-                if (log.isErrorEnabled()) {
-                    log.error(ex.getMessage(), ex);
+                if (log.isDebugEnabled()) {
+                    log.debug(ex.getMessage(), ex);
                 }
             }
         }
