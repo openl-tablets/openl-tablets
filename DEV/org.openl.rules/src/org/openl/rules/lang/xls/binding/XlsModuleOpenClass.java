@@ -28,6 +28,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -37,6 +38,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
@@ -55,6 +57,7 @@ import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -466,14 +469,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            if (existedMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                decorator.addMethod(m);
-            } else {
-                if (m != existedMethod) {
-                    OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
-                    dispatcher.addMethod(m);
-                }
+            try{
+	            if (existedMethod instanceof OpenMethodDispatcher) {
+	                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
+	                decorator.addMethod(m);
+	            } else {
+	                if (m != existedMethod) {
+	                    OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
+	                    dispatcher.addMethod(m);
+	                }
+	            }
+            } catch (DuplicatedMethodException e){
+            	SyntaxNodeException error = new SyntaxNodeException(null, e, m.getInfo().getSyntaxNode());
+            	((TableSyntaxNode) m.getInfo().getSyntaxNode()).addError(error);
+                OpenLMessagesUtils.addError(error);
             }
         } else {
             // Just wrap original method with dispatcher functionality.
