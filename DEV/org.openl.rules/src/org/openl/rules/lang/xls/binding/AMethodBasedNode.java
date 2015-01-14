@@ -77,15 +77,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     public void addTo(ModuleOpenClass openClass) {
-
         method = createMethodShell();
-        try{
-            openClass.addMethod(method);
-        }catch (DuplicatedMethodException e) {
-            SyntaxNodeException error = new SyntaxNodeException(null, e, getTableSyntaxNode());
-            getTableSyntaxNode().addError(error);
-            OpenLMessagesUtils.addError(error);
-        }
+        openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
         if(hasServiceName()){
             addServiceMethod(openClass, method);
