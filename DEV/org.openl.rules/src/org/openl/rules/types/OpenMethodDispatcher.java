@@ -8,6 +8,7 @@ import java.util.Set;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -257,11 +258,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 							IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
 							if (memberMetaInfo.getSyntaxNode() != null) {
 								if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+									SyntaxNodeException error = new SyntaxNodeException(e
+											.getMessage(), e,
+											memberMetaInfo.getSyntaxNode());
 									((TableSyntaxNode) memberMetaInfo
 											.getSyntaxNode())
-											.addError(new SyntaxNodeException(e
-													.getMessage(), e,
-													memberMetaInfo.getSyntaxNode()));
+											.addError(error);
+									OpenLMessagesUtils.addError(error);
 								}
 							}
 						}
