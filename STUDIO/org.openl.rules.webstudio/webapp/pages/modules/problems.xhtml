@@ -42,7 +42,7 @@
                 //<![CDATA[
                 $j(function () {
                     var hasProblems = #{problemsBean.hasProblems ? 'true' : 'false'};
-                    if (ws) {
+                    if (ws && ws.nav.isProjectChanged()) {
                         if (hasProblems) {
                             ws.ui.problems.show();
                         } else {
