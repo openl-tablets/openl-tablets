@@ -52,6 +52,7 @@
             var reqs = 0;
             var lastSavedHash = $location.getHash();
             var fullreload = false;
+            var projectPageChanged = false;
 
             var urlRewrite = {
                 prefix: "#{pathRoot}/"
@@ -66,6 +67,7 @@
             };
 
             var WS_PANEL_STATE_VAR = "WS_PANEL_STATE";
+            var WS_PREVIOUS_PAGE_STATE_VAR = "WS_PREVIOUS_PAGE_STATE";
 
             var current  = {
                 project: 0,
@@ -282,6 +284,9 @@
                         }
 
                         api.nav.go(prefixPage + "search" + (query ? "?" + query : ""));
+                    },
+                    isProjectChanged: function () {
+                        return projectPageChanged;
                     }
                 },
 
@@ -519,12 +524,29 @@
             })();
 
             (function initRouter() {
+                var determineIfModuleChanged = function (project, module) {
+                    var previousPageState = ws.storage.get(WS_PREVIOUS_PAGE_STATE_VAR);
+                    if (!previousPageState) {
+                        previousPageState = {
+                            project: "",
+                            module: ""
+                        };
+                    }
+                    projectPageChanged = previousPageState.project != project || previousPageState.module != module;
+                    var pageState = {
+                        project: project,
+                        module: module
+                    };
+                    ws.storage.set(WS_PREVIOUS_PAGE_STATE_VAR, pageState);
+                };
+
                 crossroads.ignoreState = true;
 
                 // Home page
                 crossroads.addRoute("/", function(reload) {
                     var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
+                    determineIfModuleChanged("", "");
                     render("home.xhtml", 0, toReload, toOpen);
                 });
                 // Project page
@@ -534,6 +556,7 @@
                     var leftReload = reload == "true" || !$("#projects-tree").length;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
+                    determineIfModuleChanged(project, "");
                     render(url, { project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Module page
@@ -545,6 +568,7 @@
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
+                    determineIfModuleChanged(project, module);
                     render(url, { project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
@@ -561,6 +585,7 @@
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
                     var toOpen = { bottom: 1, right: 1 };
+                    determineIfModuleChanged(project, module);
                     render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
@@ -578,6 +603,7 @@
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
+                    determineIfModuleChanged(project, module);
                     render(url, { project: project, module: module }, toReload, toOpen);
                 });
             })();
