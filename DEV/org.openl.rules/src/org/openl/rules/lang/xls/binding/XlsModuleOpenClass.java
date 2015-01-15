@@ -28,7 +28,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -469,20 +468,29 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            try{
-	            if (existedMethod instanceof OpenMethodDispatcher) {
-	                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-	                decorator.addMethod(m);
-	            } else {
-	                if (m != existedMethod) {
-	                    OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
-	                    dispatcher.addMethod(m);
-	                }
-	            }
-            } catch (DuplicatedMethodException e){
-            	SyntaxNodeException error = new SyntaxNodeException(null, e, m.getInfo().getSyntaxNode());
-            	((TableSyntaxNode) m.getInfo().getSyntaxNode()).addError(error);
-                OpenLMessagesUtils.addError(error);
+            try {
+                if (existedMethod instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
+                    decorator.addMethod(m);
+                } else {
+                    if (m != existedMethod) {
+                        OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
+                        dispatcher.addMethod(m);
+                    }
+                }
+            } catch (DuplicatedMethodException e) {
+                if (m instanceof IMemberMetaInfo) {
+                    IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
+                    if (memberMetaInfo.getSyntaxNode() != null) {
+                        if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+                            SyntaxNodeException error = new SyntaxNodeException(e.getMessage(),
+                                e,
+                                memberMetaInfo.getSyntaxNode());
+                            ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
+                        }
+                    }
+                }
+                throw e;
             }
         } else {
             // Just wrap original method with dispatcher functionality.
