@@ -160,7 +160,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
                             .next(), isExecutionMode(), dependencyManager);
                 default:
-                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
+                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, isExecutionMode());
             }
         }
         return rulesInstantiationStrategy;

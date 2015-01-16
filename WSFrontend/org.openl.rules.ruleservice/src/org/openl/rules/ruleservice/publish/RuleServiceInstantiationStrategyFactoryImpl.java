@@ -54,7 +54,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
                 if (isLazy()) {
                     return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
                 } else {
-                    return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
+                    return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
                 }
         }
     }

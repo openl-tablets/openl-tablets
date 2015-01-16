@@ -94,7 +94,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                     if (modules.size() > 1) {
                         rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
                                 dependencyManager,
-                                classLoader);
+                                classLoader, executionMode);
                     } else {
                         throw new IllegalStateException("Modules collection can't be empty");
                     }
