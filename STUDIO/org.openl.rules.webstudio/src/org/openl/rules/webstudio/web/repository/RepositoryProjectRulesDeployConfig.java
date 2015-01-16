@@ -141,14 +141,14 @@ public class RepositoryProjectRulesDeployConfig {
 
         if (!StringUtils.isBlank(name)) {
             String message = "Invalid service name: only latin letters, numbers and _ are allowed, name must begin with a letter";
-            FacesUtils.validateAndAddErrorMessage(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
+            FacesUtils.validate(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
         }
     }
 
     public void validateServiceClass(FacesContext context, UIComponent toValidate, Object value) {
         String className = (String) value;
         if (!StringUtils.isBlank(className)) {
-            FacesUtils.validateAndAddErrorMessage(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
+            FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
         }
     }
 }
