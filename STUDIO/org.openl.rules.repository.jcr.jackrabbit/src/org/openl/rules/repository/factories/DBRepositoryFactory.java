@@ -14,7 +14,7 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.persistence.jdbc.configuration.JdbcStringBasedStoreConfigurationBuilder;
+import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfigurationBuilder;
 import org.infinispan.transaction.TransactionMode;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.JcrNodeTypeManager;
@@ -85,9 +85,9 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
             .enable()
             .clustering()
             .cacheMode(CacheMode.REPL_SYNC)
-            .persistence()
-            .addStore(JdbcStringBasedStoreConfigurationBuilder.class)
+            .loaders()
             .shared(true)
+            .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
             .table()
             .dropOnExit(false)
             .createOnStart(true)
