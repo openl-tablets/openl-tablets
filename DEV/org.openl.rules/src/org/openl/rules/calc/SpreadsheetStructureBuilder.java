@@ -22,6 +22,7 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
+import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.ICell;
@@ -60,7 +61,13 @@ public class SpreadsheetStructureBuilder {
     private IOpenMethodHeader spreadsheetHeader;
 
     private Boolean autoType;
-
+    
+    private SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(this);
+    
+    public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
+        return spreadsheetStructureBuilderHolder;
+    }
+    
     public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder rowColumnExtractor,
             IOpenMethodHeader spreadsheetHeader,
             Boolean autoType) {
@@ -320,7 +327,7 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
                 /** create spreadsheet cell field */
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(this,
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
                     spreadsheetHeader,
                     spreadsheetHeader.getType(),
                     fieldname,
@@ -477,7 +484,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(this,
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
                     spreadsheetHeader,
                     columnOpenClass,
                     fieldName,
@@ -522,7 +529,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(this,
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
                     spreadsheetHeader,
                     rowOpenClass,
                     fieldName,

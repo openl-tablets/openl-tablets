@@ -35,14 +35,14 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
 
     private Collection<Module> modules;
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager) {
-        this(modules, dependencyManager, null);
+    public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager, boolean executionMode) {
+        this(modules, dependencyManager, null, executionMode);
     }
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager,
-                                            ClassLoader classLoader) {
+                                            ClassLoader classLoader, boolean executionMode) {
         // multimodule is only available for execution(execution mode == true)
-        super(true, dependencyManager != null ? dependencyManager : createDependencyManager(modules), classLoader);
+        super(executionMode, dependencyManager != null ? dependencyManager : createDependencyManager(modules), classLoader);
         this.modules = modules;
     }
 
