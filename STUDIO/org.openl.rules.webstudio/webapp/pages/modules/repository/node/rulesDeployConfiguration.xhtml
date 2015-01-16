@@ -37,11 +37,11 @@
 
       <h:outputLabel for="#{prefix}publishers" value="Create services"/>
       <h:panelGroup>
-        <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
         <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
                               required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
           <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
         </h:selectManyCheckbox>
+        <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}serviceName" value="Service name"/>
@@ -50,6 +50,7 @@
                        rendered="#{openedForEditing}"
                        validator="#{repositoryProjectRulesDeployConfig.validateServiceName}"/>
           <h:outputText value="#{rulesDeploy.serviceName}" rendered="#{!openedForEditing}"/>
+          <h:message for="#{prefix}serviceName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}serviceClass" value="Service class"/>
@@ -58,6 +59,7 @@
                        rendered="#{openedForEditing}"
                        validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
           <h:outputText value="#{rulesDeploy.serviceClass}" rendered="#{!openedForEditing}"/>
+          <h:message for="#{prefix}serviceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}url" value="URL"/>
