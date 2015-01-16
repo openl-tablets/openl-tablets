@@ -1089,23 +1089,23 @@
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-jcr-api</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-jcr</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-common</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-cachestore-jdbc</artifactId>
-                <version>6.0.2.Final</version>
+                <version>5.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>c3p0</groupId>
