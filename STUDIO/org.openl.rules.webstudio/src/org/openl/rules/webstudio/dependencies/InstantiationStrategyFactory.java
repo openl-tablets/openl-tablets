@@ -165,7 +165,7 @@ public class InstantiationStrategyFactory {
             externalParameters = studio.getSystemConfigManager().getProperties();
         } else {
             List<Module> modules = module.getProject().getModules();
-            strategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
+            strategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, false);
 
             externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(studio.getSystemConfigManager()
                 .getProperties(),
