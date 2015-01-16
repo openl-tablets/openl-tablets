@@ -80,7 +80,7 @@ public class MultiModuleInstantiationTest {
             modules.addAll(project.getModules());
         }
 
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 
@@ -115,7 +115,7 @@ public class MultiModuleInstantiationTest {
         File root = new File("test/resources/multi-module-support/test2");
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModulesInFolder(root), null);
+                listModulesInFolder(root), null, true);
 
         Class<?> serviceClass = strategy.getInstanceClass();
         Object instance = strategy.instantiate();
@@ -148,7 +148,7 @@ public class MultiModuleInstantiationTest {
         File root = new File("test/resources/multi-module-support/test2");
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModulesInFolder(root), null);
+                listModulesInFolder(root), null, true);
         strategy.setServiceClass(MultimoduleInterface.class);
         Object instantiate = strategy.instantiate();
         assertNotNull(instantiate);
@@ -207,7 +207,7 @@ public class MultiModuleInstantiationTest {
             modules.addAll(project.getModules());
         }
 
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 

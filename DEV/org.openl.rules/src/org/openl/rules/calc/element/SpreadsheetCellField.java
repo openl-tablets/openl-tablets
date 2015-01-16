@@ -2,7 +2,6 @@ package org.openl.rules.calc.element;
 
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
-import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -11,19 +10,19 @@ import org.openl.vm.IRuntimeEnv;
 public class SpreadsheetCellField extends ASpreadsheetField {
 
     protected SpreadsheetCell cell;
-    private SpreadsheetStructureBuilder spreadsheetBuilder;
+    private SpreadsheetStructureBuilderHolder structureBuilderContainer;
 
-    public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder,
+    public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenMethodHeader spreadsheetHeader,
             IOpenClass declaringClass,
             String name,
             SpreadsheetCell cell) {
         if (cell.getKind() == SpreadsheetCellType.METHOD)
-            return new SpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
-        return new ConstSpreadsheetCellField(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+            return new SpreadsheetCellField(structureBuilderContainer, spreadsheetHeader, declaringClass, name, cell);
+        return new ConstSpreadsheetCellField(structureBuilderContainer, spreadsheetHeader, declaringClass, name, cell);
     }
 
-    SpreadsheetCellField(SpreadsheetStructureBuilder spreadsheetBuilder,
+    SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenMethodHeader spreadsheetHeader,
             IOpenClass declaringClass,
             String name,
@@ -31,7 +30,7 @@ public class SpreadsheetCellField extends ASpreadsheetField {
         super(declaringClass, name, cell.getType());
 
         this.cell = cell;
-        this.spreadsheetBuilder = spreadsheetBuilder;
+        this.structureBuilderContainer = structureBuilderContainer;
     }
 
     @Override
@@ -55,9 +54,8 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     public IOpenClass getType() {
         IOpenClass t = cell.getType();
         if (t == null) {
-            t = spreadsheetBuilder.makeType(cell);
+            t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
         }
-        spreadsheetBuilder = null;
         return t;
     }
 
@@ -78,17 +76,17 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     public Point getAbsoluteCoordinates() {
         return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
     }
-
+    
     static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
         Object value;
 
-        ConstSpreadsheetCellField(SpreadsheetStructureBuilder structureBuilder,
+        ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
                 IOpenMethodHeader spreadsheetHeader,
                 IOpenClass declaringClass,
                 String name,
                 SpreadsheetCell cell) {
-            super(structureBuilder, spreadsheetHeader, declaringClass, name, cell);
+            super(structureBuilderContainer, spreadsheetHeader, declaringClass, name, cell);
             this.value = cell.getValue();
         }
 

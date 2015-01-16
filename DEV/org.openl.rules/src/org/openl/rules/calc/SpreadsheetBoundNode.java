@@ -27,9 +27,9 @@ import org.openl.types.impl.CompositeMethod;
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
-    
+
     private SpreadsheetBuilder builder;
-    
+
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             IOpenMethodHeader header,
@@ -37,19 +37,22 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         super(tableSyntaxNode, openl, header, module);
     }
-    
+
     /**
-     * {@link Spreadsheet} is being created after {@link #preBind(IBindingContext)} phase.
-     * See {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)} method
+     * {@link Spreadsheet} is being created after
+     * {@link #preBind(IBindingContext)} phase. See
+     * {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)}
+     * method
      */
 
-    protected Spreadsheet createSpreadsheet()
-    {
+    protected Spreadsheet createSpreadsheet() {
         /*
-         * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
-         * and the customspreadsheet property is true
-         * */
-        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext().getExternalParams());
+         * We need to generate a customSpreadsheet class only if return type of
+         * the spreadsheet is SpreadsheetResult and the customspreadsheet
+         * property is true
+         */
+        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext()
+            .getExternalParams());
 
         return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
     }
@@ -58,9 +61,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet = createSpreadsheet();
         spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
-        
+
         // As custom spreadsheet result is being generated at runtime,
-        // call this method to ensure that CSR will be generated during the compilation.
+        // call this method to ensure that CSR will be generated during the
+        // compilation.
         // Add generated type to be accessible through binding context.
         //
         if (spreadsheet.isCustomSpreadsheetType()) {
@@ -69,37 +73,39 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 type = spreadsheet.getType(); // Can throw RuntimeException
                 builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, type);
             } catch (Exception e) {
-                String message = String.format("Cannot add type %s to the binding context", type != null ? type.getName() : spreadsheet.getName());
+                String message = String.format("Cannot add type %s to the binding context",
+                    type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);
                 BindHelper.processError(exception, builder.getBindingContext());
             }
         }
-        
-        
+
         return spreadsheet;
     }
-    
+
     private void initSpreadsheetBuilder(IBindingContext bindingContext) throws SyntaxNodeException {
         validateTableBody(getTableSyntaxNode().getTableBody());
-        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode(), getHeader()));
+        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext,
+            getTableSyntaxNode(),
+            getHeader()));
     }
-     
+
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
         initSpreadsheetBuilder(bindingContext);
         builder.populateSpreadsheetOpenClass();
     }
-    
+
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
-        
+
         builder.finalizeBuild(getSpreadsheet());
     }
-    
+
     private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",
@@ -121,17 +127,17 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     public Spreadsheet getSpreadsheet() {
         return (Spreadsheet) getMethod();
     }
-    
+
     public SpreadsheetBuilder getSpreadsheetBuilder() {
         return builder;
     }
-    
+
     public void setSpreadsheetBuilder(SpreadsheetBuilder spreadsheetBuilder) {
         this.builder = spreadsheetBuilder;
     }
-    
+
     @Override
-    public void updateDependency(BindingDependencies dependencies) {   
+    public void updateDependency(BindingDependencies dependencies) {
         if (getSpreadsheet().getCells() != null) {
             for (SpreadsheetCell[] cellArray : getSpreadsheet().getCells()) {
                 if (cellArray != null) {
@@ -147,13 +153,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             }
         }
     }
-    
+
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         if (cxt.isExecutionMode()) {
             super.removeDebugInformation(cxt);
             // clean the builder, that was used for creating spreadsheet
             //
+            getSpreadsheetBuilder().removeDebugInformation();
+            
             setSpreadsheetBuilder(null);
         }
     }
