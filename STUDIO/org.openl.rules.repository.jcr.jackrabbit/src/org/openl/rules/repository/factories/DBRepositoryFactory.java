@@ -2,7 +2,12 @@ package org.openl.rules.repository.factories;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -14,7 +19,7 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.persistence.jdbc.configuration.JdbcStringBasedStoreConfigurationBuilder;
+import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfigurationBuilder;
 import org.infinispan.transaction.TransactionMode;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.JcrNodeTypeManager;
@@ -70,13 +75,8 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
      */
     private void init() throws Exception {
         registerDrivers();
-        // Create and start the engine ...
-        engine = new ModeShapeEngine();
-        engine.start();
 
-        // Register shut down hook
-        ShutDownHook shutDownHook = new ShutDownHook(this);
-        Runtime.getRuntime().addShutdownHook(shutDownHook);
+        String[] types = determineDBDataTypes();
 
         // Infinispan's configuration
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -85,19 +85,19 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
             .enable()
             .clustering()
             .cacheMode(CacheMode.REPL_SYNC)
-            .persistence()
-            .addStore(JdbcStringBasedStoreConfigurationBuilder.class)
+            .loaders()
             .shared(true)
+            .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
             .table()
             .dropOnExit(false)
             .createOnStart(true)
             .tableNamePrefix("OPENL")
             .idColumnName("ID")
-            .idColumnType("VARCHAR(255)")
+            .idColumnType(types[0])
             .dataColumnName("DATA")
-            .dataColumnType("BLOB")
+            .dataColumnType(types[1])
             .timestampColumnName("TIMESTAMP")
-            .timestampColumnType("BIGINT")
+            .timestampColumnType(types[2])
             .connectionPool()
             .connectionUrl(url.getValue())
             .username(login.getValue())
@@ -132,10 +132,71 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
             throw new IllegalArgumentException(message);
         }
 
+        // Register shut down hook
+        ShutDownHook shutDownHook = new ShutDownHook(this);
+        Runtime.getRuntime().addShutdownHook(shutDownHook);
+
+        // Create and start the engine ...
+        engine = new ModeShapeEngine();
+        engine.start();
         // Deploy the repository ...
         Repository repository = engine.deploy(config);
 
         setRepository(repository, config.getName() + "_" + url.getValue());
+    }
+
+    private String[] determineDBDataTypes() throws SQLException {
+        log.info("Determine SQL types by url '{}')", url.getValue());
+        Connection conn = DriverManager.getConnection(url.getValue(), login.getValue(), password.getValue());
+        DatabaseMetaData metaData = conn.getMetaData();
+        ResultSet rs = metaData.getTypeInfo();
+
+        String[] types = new String[3];
+        while (rs.next()) {
+            // Get the database-specific type name
+            String typeName = rs.getString("TYPE_NAME");
+            // Get the java.sql.Types type to which this
+            // database-specific type is mapped
+            int dataType = rs.getInt("DATA_TYPE");
+            switch (dataType) {
+                case Types.VARCHAR:
+                    if (types[0] != null) {
+                        break;
+                    }
+                    int prec = rs.getInt("PRECISION");
+                    if (prec > 1000) {
+                        prec = 1000;
+                    }
+                    types[0] = typeName + '(' + prec + ')';
+                    break;
+                case Types.LONGVARBINARY:
+                    if (types[1] == null) {
+                        types[1] = typeName;
+                    }
+                    break;
+                case Types.BIGINT:
+                    if (types[2] == null) {
+                        types[2] = typeName;
+                    }
+                    break;
+            }
+        }
+        conn.close();
+
+        log.info("Determined SQL types ('{}', '{}', '{}')", types[0], types[1], types[2]);
+        // Set defaults
+        if (types[0] == null) {
+            types[0] = "VARCHAR(1000)";
+        }
+        if (types[1] == null) {
+            types[1] = "BLOB";
+        }
+        if (types[2] == null) {
+            types[2] = "BIGINT";
+        }
+        log.info("Used SQL types ('{}', '{}', '{}')", types[0], types[1], types[2]);
+
+        return types;
     }
 
     /**

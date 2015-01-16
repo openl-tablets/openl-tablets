@@ -3,7 +3,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.14.0-SNAPSHOT</version>
+    <version>5.14.0-RC2-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>http://openl-tablets.sourceforge.net</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -64,7 +64,8 @@
         <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
         <developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
         <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
     <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl/</staging.hg.repo.url>
@@ -77,12 +78,12 @@
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <jacococ.argLine/>
+        <jacococ.argLine />
         <!-- Empty for building without JaCoCo agent -->
         <!-- By default empty mercurial revision hash -->
-        <changeSet/>
+        <changeSet />
         <!-- By default empty mercurial revision url -->
-        <changeSetUrlPrefix/>
+        <changeSetUrlPrefix />
     </properties>
     <modules>
         <module>POI</module>
@@ -1089,23 +1090,23 @@
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-jcr-api</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-jcr</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-common</artifactId>
-                <version>4.1.0.Final</version>
+                <version>3.8.1.Final</version>
             </dependency>
             <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-cachestore-jdbc</artifactId>
-                <version>6.0.2.Final</version>
+                <version>5.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>c3p0</groupId>
