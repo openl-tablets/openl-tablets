@@ -118,6 +118,9 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
+            if (moduleContext.isExecutionMode()){
+                decisionTable.setBoundNode(null);
+            }
 
             loadCreatedTable(decisionTable, tsn);
         }
@@ -345,15 +348,44 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     public static final String AUXILIARY_METHOD_DELIMETER = "$";
 
+    private static class InternalMethodDelegator extends MethodDelegator {
+        String auxiliaryMethodName;
+        
+        public InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
+            super(methodCaller);
+            this.auxiliaryMethodName = auxiliaryMethodName;
+        }
+        
+        @Override
+        public String getName() {
+            return auxiliaryMethodName;
+        }
+    }
+    
     private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
         final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
-        IOpenMethod auxiliaryMethod = new MethodDelegator(originalMethod) {
-            @Override
-            public String getName() {
-                return auxiliaryMethodName;
-            }
-        };
+        IOpenMethod auxiliaryMethod = new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
         return auxiliaryMethod;
+    }
+    
+    private static class InternalBindingContextDelegator extends BindingContextDelegator{
+        
+        private Map<MethodKey, IOpenMethod> auxiliaryMethods;
+        
+        public InternalBindingContextDelegator(RulesModuleBindingContext context, Map<MethodKey, IOpenMethod> auxiliaryMethods) {
+            super(context);
+            this.auxiliaryMethods = auxiliaryMethods;
+        }
+        
+        @Override
+        public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
+            IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
+            if (auxiliaryMethod == null) {
+                return super.findMethodCaller(namespace, name, parTypes);
+            } else {
+                return auxiliaryMethod;
+            }
+        }
     }
 
     private IBindingContextDelegator createContextWithAuxiliaryMethods() {
@@ -363,17 +395,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
         }
-        IBindingContextDelegator context = new BindingContextDelegator(moduleContext) {
-            @Override
-            public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
-                IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
-                if (auxiliaryMethod == null) {
-                    return super.findMethodCaller(namespace, name, parTypes);
-                } else {
-                    return auxiliaryMethod;
-                }
-            }
-        };
+        IBindingContextDelegator context = new InternalBindingContextDelegator(moduleContext, auxiliaryMethods);
         return context;
     }
 

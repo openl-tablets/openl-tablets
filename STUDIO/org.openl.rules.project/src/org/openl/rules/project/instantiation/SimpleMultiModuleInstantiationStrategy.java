@@ -1,6 +1,8 @@
 package org.openl.rules.project.instantiation;
 
-import org.openl.CompiledOpenClass;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -9,9 +11,6 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * The simplest way of multimodule instantiation strategy. There will be created
@@ -27,16 +26,16 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
                                                   IDependencyManager dependencyManager,
-                                                  ClassLoader classLoader) {
-        super(modules, dependencyManager, classLoader);
+                                                  ClassLoader classLoader, boolean executionMode) {
+        super(modules, dependencyManager, classLoader, executionMode);
     }
 
-    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
-        super(modules, dependencyManager);
+    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager, boolean executionMode) {
+        super(modules, dependencyManager, executionMode);
     }
 
-    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules) {
-        this(modules, null);
+    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode) {
+        this(modules, null, executionMode);
     }
 
     @Override
@@ -94,6 +93,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
             engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
                     AOpenLEngineFactory.DEFAULT_USER_HOME,
                     (Class<Object>) serviceClass);// FIXME
+            engineFactory.setExecutionMode(isExecutionMode());
 
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();

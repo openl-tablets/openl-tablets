@@ -83,7 +83,7 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping, true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : modules) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
@@ -100,7 +100,7 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules2"));
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules6"));
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping, true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : modules) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
