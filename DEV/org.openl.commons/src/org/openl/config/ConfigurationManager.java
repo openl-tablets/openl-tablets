@@ -1,6 +1,7 @@
 package org.openl.config;
 
 import org.apache.commons.configuration.*;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.util.PassCoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +242,8 @@ public class ConfigurationManager {
 
     public void setPassword(String key, String pass) {
         try {
-            setProperty(key, PassCoder.encode(pass, getRepoPassKey()));
+            String repoPassKey = getRepoPassKey();
+            setProperty(key, StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.encode(pass, repoPassKey));
         } catch (Exception e) {
             log.error("Error when setting password property: {}", key, e);
         }
@@ -249,7 +251,9 @@ public class ConfigurationManager {
 
     public String getPassword(String key) {
         try {
-            return PassCoder.decode(this.getStringProperty(key), getRepoPassKey());
+            String repoPassKey = getRepoPassKey();
+            String pass = getStringProperty(key);
+            return StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.decode(pass, repoPassKey);
         } catch (Exception e) {
             log.error("Error when getting password property: {}", key, e);
             return "";
