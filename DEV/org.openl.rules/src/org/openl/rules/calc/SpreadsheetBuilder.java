@@ -43,7 +43,11 @@ public class SpreadsheetBuilder {
 
         spreadsheet.setCells(structureBuilder.getCells());
         
-        spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));        
+        spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet)); 
+    }
+    
+    public void removeDebugInformation() throws Exception{
+        structureBuilder.getSpreadsheetStructureBuilderHolder().clear();
     }
     
     public SpreadsheetOpenClass getPopulatedSpreadsheetOpenClass() {
