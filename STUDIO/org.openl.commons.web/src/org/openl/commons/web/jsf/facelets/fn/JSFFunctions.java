@@ -51,6 +51,10 @@ public final class JSFFunctions {
         return (map != null) && map.containsKey(key);
     }
 
+    public static boolean hasGlobalMessages() {
+        return FacesUtils.getFacesContext().getMessages(null).hasNext();
+    }
+
     public static Date currentDate() {
         return new Date();
     }
