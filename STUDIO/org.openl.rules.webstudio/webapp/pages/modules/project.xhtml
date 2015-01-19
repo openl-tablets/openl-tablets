@@ -289,6 +289,7 @@
     <c:if test="#{editable}">
         <ui:include src="/pages/modules/editModule.xhtml" />
         <ui:include src="/pages/modules/copyModule.xhtml" />
+        <ui:include src="/pages/modules/propertiesFileNamePatternDescription.xhtml" />
     </c:if>
 
     <h:panelGroup rendered="#{editable}">
@@ -497,36 +498,6 @@
                     oncomplete="ws.ui.hide('manageSourcesPopup');ws.nav.reload()" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('manageSourcesPopup');" />
             </footer>
-        </h:form>
-    </rich:popupPanel>
-
-    <rich:popupPanel id="showPropertiesFileNamePatternDescription" width="510" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Properties file name pattern description" />
-        </f:facet>
-
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                            onclick="ws.ui.hide('showPropertiesFileNamePatternDescription')" alt="Close" />
-        </f:facet>
-
-        <h:form prependId="false" id="showPropertiesFileNamePatternDescriptionForm">
-            <h:panelGroup id="showPropertiesFileNamePatternDescriptionData">
-                <h:outputText escape="false" value="#{projectBean.propertiesFileNamePatternDescription}" />
-
-                <div>
-                    <h:outputText value="#{projectBean.propertiesPatternWarnings}" />
-                </div>
-            </h:panelGroup>
-
-            <footer>
-                <input type="button" value="Close" onclick="ws.ui.hide('showPropertiesFileNamePatternDescription');" />
-            </footer>
-
-            <a4j:jsFunction name="showPatternInfo" render="showPropertiesFileNamePatternDescriptionData"
-                            oncomplete="ws.ui.show('showPropertiesFileNamePatternDescription');">
-                <a4j:param name="processorClass" assignTo="${projectBean.propertiesFileNameProcessor}" />
-            </a4j:jsFunction>
         </h:form>
     </rich:popupPanel>
 
