@@ -21,7 +21,6 @@ public class OpenLMessagesUtils {
     }
 
     public static void addError(OpenLCompilationException error) {
-
         OpenLErrorMessage message = new OpenLErrorMessage(error);
         addMessage(message);
     }
@@ -35,6 +34,7 @@ public class OpenLMessagesUtils {
                 errorMessage = cause.getMessage();
             }
         }
+        
         addError(errorMessage);
     }
 
