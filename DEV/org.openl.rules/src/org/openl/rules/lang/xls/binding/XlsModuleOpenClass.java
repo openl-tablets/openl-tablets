@@ -28,6 +28,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -479,41 +480,57 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     }
                 }
             } catch (DuplicatedMethodException e) {
+                SyntaxNodeException error = null;
                 if (m instanceof IMemberMetaInfo) {
                     IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
                     if (memberMetaInfo.getSyntaxNode() != null) {
                         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                            SyntaxNodeException error = new SyntaxNodeException(e.getMessage(),
+                            error = new SyntaxNodeException(e.getMessage(),
                                 e,
                                 memberMetaInfo.getSyntaxNode());
                             ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
                         }
                     }
                 }
-                throw e;
+                boolean f = false;
+                for (Throwable t : getErrors()){
+                    if (t instanceof DuplicatedMethodException){
+                        if (t.getMessage().equals(e.getMessage())){
+                            f = true;
+                            break;
+                        }
+                    }
+                }
+                if (!f){
+                    addError(e);
+                    if (error != null){
+                        OpenLMessagesUtils.addError(error);
+                    }else{
+                        OpenLMessagesUtils.addError(e);
+                    }
+                }
             }
         } else {
             // Just wrap original method with dispatcher functionality.
             //
-            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod){
+            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod) {
                 methodMap().put(key, m);
-            }else{
+            } else {
                 createDispatcherMethod(m, key);
             }
         }
     }
-    
-    private boolean dimensionalPropertyPresented(IOpenMethod m){
-            List<TablePropertyDefinition> dimensionalPropertiesDef =
-                    TablePropertyDefinitionUtils.getDimensionalTableProperties();
-            ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
-            for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-                String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
-                if (StringUtils.isNotEmpty(propertyValue)) {
-                    return true;
-                }
+
+    private boolean dimensionalPropertyPresented(IOpenMethod m) {
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
+        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
+            if (StringUtils.isNotEmpty(propertyValue)) {
+                return true;
             }
-            return false;
+        }
+        return false;
     }
 
     /**
@@ -549,7 +566,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
 
         methodMap().put(key, openMethod);
-        
+
         return decorator;
     }
 

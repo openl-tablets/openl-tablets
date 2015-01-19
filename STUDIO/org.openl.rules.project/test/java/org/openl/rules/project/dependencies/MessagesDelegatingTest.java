@@ -113,10 +113,12 @@ public class MessagesDelegatingTest {
     private boolean hasDuplicatedMethodException(CompiledOpenClass compiledMultiModule) {
         boolean hasDuplicatedMethodException = false;
         for (OpenLMessage error : OpenLMessagesUtils.filterMessagesBySeverity(compiledMultiModule.getMessages(), Severity.ERROR)) {
-            Throwable cause = ((OpenLErrorMessage) error).getError().getCause();
-            if (cause instanceof DuplicatedMethodException) {
-                hasDuplicatedMethodException = true;
-                break;
+            if (error instanceof OpenLErrorMessage){
+                Throwable cause = ((OpenLErrorMessage) error).getError().getCause();
+                if (cause instanceof DuplicatedMethodException) {
+                    hasDuplicatedMethodException = true;
+                    break;
+                }
             }
         }
         return hasDuplicatedMethodException;
