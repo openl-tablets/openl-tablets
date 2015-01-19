@@ -18,5 +18,8 @@
             "directory": "modeshape-binaries",
             "minimumBinarySizeInBytes" : 65536
         }
+    },
+    "clustering" : {
+        "clusterName" : "OPENL_CLUSTER"
     }
 }
