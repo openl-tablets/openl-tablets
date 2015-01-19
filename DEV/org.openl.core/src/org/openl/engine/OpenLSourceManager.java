@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -136,6 +135,7 @@ public class OpenLSourceManager extends OpenLHolder {
                                                                        // messages
                                                                        // from
                                                                        // dependency
+                            
                         } catch (Exception e) {
                             messagesRelatedToDependencies.addAll(OpenLMessagesUtils.newMessages(e));
                         }
