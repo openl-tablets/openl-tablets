@@ -550,7 +550,7 @@ ul.enum li {
 .editable-inner .editable-link-inner {
     visibility: hidden;
     opacity: 0;
-    padding-left: 4px;
+    /*padding-left: 4px;*/
     padding-right: 4px;
     transition: visibility 0.1s linear, opacity 0.2s ease-out;
 }
