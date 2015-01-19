@@ -1,5 +1,6 @@
 package org.openl.rules.repository.factories;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -20,6 +21,7 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfigurationBuilder;
+import org.infinispan.schematic.document.ParsingException;
 import org.infinispan.transaction.TransactionMode;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.jcr.JcrNodeTypeManager;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
  * repository.
  *
- * @author Aleh Bykhavets
+ * @author Yury Molchan
  */
 public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
@@ -76,7 +78,65 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
     private void init() throws Exception {
         registerDrivers();
 
-        String[] types = determineDBDataTypes();
+        String dbUrl = url.getValue();
+        String user = login.getValue();
+        String pwd = password.getValue();
+
+        RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd);
+
+        // Register shut down hook
+        ShutDownHook shutDownHook = new ShutDownHook(this);
+        Runtime.getRuntime().addShutdownHook(shutDownHook);
+
+        // Create and start the engine ...
+        engine = new ModeShapeEngine();
+        engine.start();
+        // Deploy the repository ...
+        Repository repository = engine.deploy(config);
+
+        setRepository(repository, config.getName());
+    }
+
+    private RepositoryConfiguration getModeshapeConfiguration(String url, String user, String password) throws SQLException,
+                                                                                                       ParsingException,
+                                                                                                       FileNotFoundException {
+        final String repoName = ("OPENL_" + url).replace('"', '_').replace('\'', '_').replace(':', '_');
+        // Create a local environment that we'll set up to own the external
+        // components ModeShape needs ...
+        LocalEnvironment environment = new LocalEnvironment() {
+            @Override
+            protected GlobalConfigurationBuilder createGlobalConfigurationBuilder() {
+                GlobalConfigurationBuilder global = new GlobalConfigurationBuilder();
+                global.globalJmxStatistics().enable().allowDuplicateDomains(true);
+                global.transport().defaultTransport().clusterName(repoName);
+                return global;
+            }
+        };
+
+        // Infinispan cache declaration
+        Configuration ispnConfig = getInfinispanConfiguration(url, user, password);
+        environment.defineCache("OPENL_repository", ispnConfig);
+        environment.defineCache("OPENL_BinaryData", ispnConfig);
+        environment.defineCache("OPENL_MetaData", ispnConfig);
+
+        // Modeshape's configuration
+        RepositoryConfiguration config = RepositoryConfiguration.read("{'name':'" + repoName + "','storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
+        config = config.with(environment);
+
+        // Verify the configuration for the repository ...
+        Problems problems = config.validate();
+        if (problems.hasErrors()) {
+            String message = "Problems in the Modeshape configuration";
+            log.error(message);
+            log.error(problems.toString());
+            throw new IllegalArgumentException(message);
+        }
+        return config;
+    }
+
+    private Configuration getInfinispanConfiguration(String url, String user, String password) throws SQLException {
+        String driverClass = DriverManager.getDriver(url).getClass().getName();
+        String[] types = determineDBDataTypes(url, user, password);
 
         // Infinispan's configuration
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -89,9 +149,7 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
             .shared(true)
             .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
             .table()
-            .dropOnExit(false)
-            .createOnStart(true)
-            .tableNamePrefix("OPENL")
+            .tableNamePrefix("CACHE")
             .idColumnName("ID")
             .idColumnType(types[0])
             .dataColumnName("DATA")
@@ -99,55 +157,17 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
             .timestampColumnName("TIMESTAMP")
             .timestampColumnType(types[2])
             .connectionPool()
-            .connectionUrl(url.getValue())
-            .username(login.getValue())
-            .password(password.getValue())
+            .connectionUrl(url)
+            .username(user)
+            .password(password)
             // Get a driver by url
-            .driverClass(DriverManager.getDriver(url.getValue()).getClass().getName());
-        Configuration ispnConfig = configurationBuilder.build();
-
-        // Create a local environment that we'll set up to own the external
-        // components ModeShape needs ...
-        LocalEnvironment environment = new LocalEnvironment() {
-            @Override
-            protected GlobalConfigurationBuilder createGlobalConfigurationBuilder() {
-                GlobalConfigurationBuilder global = new GlobalConfigurationBuilder();
-                global.globalJmxStatistics().enable().allowDuplicateDomains(true);
-                global.transport().defaultTransport().clusterName("OPENL_CLUSTER_" + url.getValue());
-                return global;
-            }
-        };
-        environment.defineCache("persisted_repository", ispnConfig);
-
-        // Modeshape's configuration
-        RepositoryConfiguration config = RepositoryConfiguration.read("my-repository-config.json");
-        config = config.with(environment);
-
-        // Verify the configuration for the repository ...
-        Problems problems = config.validate();
-        if (problems.hasErrors()) {
-            String message = "Problems starting the engine.";
-            log.error(message);
-            log.error(problems.toString());
-            throw new IllegalArgumentException(message);
-        }
-
-        // Register shut down hook
-        ShutDownHook shutDownHook = new ShutDownHook(this);
-        Runtime.getRuntime().addShutdownHook(shutDownHook);
-
-        // Create and start the engine ...
-        engine = new ModeShapeEngine();
-        engine.start();
-        // Deploy the repository ...
-        Repository repository = engine.deploy(config);
-
-        setRepository(repository, config.getName() + "_" + url.getValue());
+            .driverClass(driverClass);
+        return configurationBuilder.build();
     }
 
-    private String[] determineDBDataTypes() throws SQLException {
-        log.info("Determine SQL types by url '{}')", url.getValue());
-        Connection conn = DriverManager.getConnection(url.getValue(), login.getValue(), password.getValue());
+    private String[] determineDBDataTypes(String url, String user, String password) throws SQLException {
+        log.info("Determine SQL types by url '{}')", url);
+        Connection conn = DriverManager.getConnection(url, user, password);
         DatabaseMetaData metaData = conn.getMetaData();
         ResultSet rs = metaData.getTypeInfo();
 

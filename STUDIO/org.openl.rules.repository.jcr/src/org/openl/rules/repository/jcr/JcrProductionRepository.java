@@ -306,10 +306,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     public void notifyChanges() throws RRepositoryException {
         synchronized (lock) {
             try {
-                if (deployLocation.hasProperty(JcrProductionRepository.PROPERTY_NOTIFICATION)) {
-                    deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
-                }
-                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
+                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, System.currentTimeMillis());
                 deployLocation.save();
             } catch (RepositoryException e) {
                 throw new RRepositoryException("Failed to notify changes", e);

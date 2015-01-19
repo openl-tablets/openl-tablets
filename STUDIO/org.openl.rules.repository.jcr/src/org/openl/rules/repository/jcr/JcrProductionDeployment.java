@@ -87,9 +87,8 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
     private void repositoryNotify() throws RepositoryException {
         synchronized (lock) {
             Node root = node.getParent();
-            root.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
-            root.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
-            node.getParent().save();
+            root.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, System.currentTimeMillis());
+            root.save();
         }
     }
 
