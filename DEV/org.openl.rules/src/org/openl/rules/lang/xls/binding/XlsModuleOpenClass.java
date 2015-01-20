@@ -322,20 +322,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                         cachedMatchedMethod.set(matchedMethod);
                                     }
                                     if (matchedMethod != EmptyMethod.getInstance()) {
-                                        cachedMatchedMethod.set(matchedMethod);
                                         Object target = args[0];
                                         Object[] params = (Object[]) args[1];
                                         IRuntimeEnv env = (IRuntimeEnv) args[2];
-                                        Tracer.disableTrace();
                                         return matchedMethod.invoke(target, params, env);
                                     }
                                 } finally {
                                     invockedFromTop.remove();
-                                    Tracer.enableTrace();
                                 }
                             } else {
                                 invockedFromTop.remove();
-                                Tracer.enableTrace();
                             }
                         }
                     }
