@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.ruleservice.ws.lib
 Bundle-SymbolicName: org.openl.rules.ruleservice.ws.lib
-Bundle-Version: 5.11.5
+Bundle-Version: 5.11.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: lib/annox-0.5.0.jar,
