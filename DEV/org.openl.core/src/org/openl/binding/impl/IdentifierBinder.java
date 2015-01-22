@@ -21,33 +21,24 @@ public class IdentifierBinder extends ANodeBinder {
 
         boolean strictMatch = isStrictMatch(node);
         String fieldName = ((IdentifierNode) node).getIdentifier();
-        char first = fieldName.charAt(0);
 
-        if (Character.isLetter(first) && Character.isUpperCase(first)) {
+        // According to "6.4.2. Obscuring" of Java Language Specification:
+        // A simple name may occur in contexts where it may potentially be interpreted as the name of a variable,
+        // a type, or a package. In these situations, the rules of §6.5 specify that a variable will be chosen
+        // in preference to a type, and that a type will be chosen in preference to a package.
+        // See http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.4.2 for details
+        // Implementation below tries to follow that specification.
 
-            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
+        IOpenField field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
 
-            if (type != null) {
-                return new TypeBoundNode(node, type);
-            }
+        if (field != null) {
+            return new FieldBoundNode(node, field);
+        }
 
-            IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
-            if (om != null) {
-                return new FieldBoundNode(node, om);
-            }
-        } else {
-            IOpenField field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
-
-            if (field != null) {
-                return new FieldBoundNode(node, field);
-            }
-
-            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
-
-            if (type != null) {
-                return new TypeBoundNode(node, type);
-            }
+        if (type != null) {
+            return new TypeBoundNode(node, type);
         }
 
         String message = String.format("Field not found: '%s'", fieldName);
@@ -61,7 +52,7 @@ public class IdentifierBinder extends ANodeBinder {
 
         try {
             String fieldName = ((IdentifierNode) node).getIdentifier();
-            
+
             return BindHelper.bindAsField(fieldName, node, bindingContext, target);
         } catch (Throwable t) {
             BindHelper.processError(node, t, bindingContext);
