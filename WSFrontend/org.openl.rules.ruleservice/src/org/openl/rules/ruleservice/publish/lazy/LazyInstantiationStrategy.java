@@ -41,7 +41,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             {
                 add(module);
             }
-        }, dependencyManager);
+        }, dependencyManager, true);
         if (deployment == null) {
             throw new IllegalArgumentException("deployment can't be null");
         }
@@ -51,7 +51,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
                                      Collection<Module> modules,
                                      IDependencyManager dependencyManager) {
-        super(modules, dependencyManager);
+        super(modules, dependencyManager, true);
         if (deployment == null) {
             throw new IllegalArgumentException("deployment can't be null");
         }
@@ -62,7 +62,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                                      Collection<Module> modules,
                                      IDependencyManager dependencyManager,
                                      ClassLoader classLoader) {
-        super(modules, dependencyManager, classLoader);
+        super(modules, dependencyManager, classLoader, true);
         if (deployment == null) {
             throw new IllegalArgumentException("deployment can't be null");
         }
@@ -135,7 +135,6 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                     getDependencyManager(),
                     serviceClass,
                     getExternalParameters());
-
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();
             Collection<String> allExcludes = new HashSet<String>();

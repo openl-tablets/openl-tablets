@@ -19,6 +19,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
@@ -79,15 +80,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
 
-    // Properties values from methods in group that will be used
-    // to build dispatcher table by dimensional properties.
-    //
-    private List<ITableProperties> propertiesFromMethods;
-
-    // Store the Dimension property definitions, to avoid several time calculation
-    //
-    private List<TablePropertyDefinition> dimensionPropertiesDef;
-
     public TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext,
                                             XlsModuleOpenClass moduleOpenClass, MatchingOpenMethodDispatcher dispatcher) {
         if (moduleContext == null || moduleOpenClass == null || dispatcher == null) {
@@ -96,9 +88,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;
         this.dispatcher = dispatcher;
-        this.propertiesFromMethods = getMethodsProperties(this.dispatcher.getCandidates());
-        this.dimensionPropertiesDef =
-                TablePropertyDefinitionUtils.getDimensionalTableProperties();
     }
 
     public static String getDispatcherParameterNameForOriginalParameter(String parameterName) {
@@ -108,23 +97,30 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     /**
      * Build dispatcher table for dimensional properties for particular overloaded method group.
      *
+     * @param methodsGroup group of overloaded tables.
      */
     public TableSyntaxNode build() {
         TableSyntaxNode tsn = null;
         if (needToBuild()) {
-            // Build the source of the decision table
+            // build source of decision table
             //
-            XlsSheetGridModel sheetWithTable = (XlsSheetGridModel) initDecisionTableSourceBuilder().build();
+            Builder<IWritableGrid> dtSourceBuilder = initDecisionTableSourceBuilder();
+            XlsSheetGridModel sheetWithTable = (XlsSheetGridModel) dtSourceBuilder.build();
+            IGridTable decisionTableSource = sheetWithTable.getTables()[0];
 
-            // Build the TableSyntaxNode
+            // build TableSyntaxNode
             //
-            tsn = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable.getSheetSource(),
-                        sheetWithTable.getTables()[0])
-                    .build();
+            Builder<TableSyntaxNode> tsnBuilder = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable.getSheetSource(),
+                    decisionTableSource);
+            tsn = tsnBuilder.build();
 
-            // Build the Openl decision table
+            // build Openl decision table
             //
-            DecisionTable decisionTable = initDecisionTableOpenlBuilder(tsn).build();
+            Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
+            DecisionTable decisionTable = dtOpenLBuilder.build();
+            if (moduleContext.isExecutionMode()){
+                decisionTable.setBoundNode(null);
+            }
 
             loadCreatedTable(decisionTable, tsn);
         }
@@ -132,14 +128,18 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     }
 
     /**
-     * Build the table only if there is any dimension property value for any table.
+     * Build the table only if there is any property value for any table.
      *
      * @return flag if it is needed to build the table for given methods properties
      */
     public boolean needToBuild() {
-        for (TablePropertyDefinition dimensionProperty : dimensionPropertiesDef) {
-            String name = dimensionProperty.getName();
-            if (isSuitable(name)) {
+        List<TablePropertyDefinition> dimensionalPropertiesDef =
+                TablePropertyDefinitionUtils.getDimensionalTableProperties();
+
+        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+
+        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
                 return true;
             }
         }
@@ -147,13 +147,13 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     }
 
     private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
-        int allLocalParameters = 0;
+        int numberOfAllLocalParameters = 0;
         for (int i = 0; i < conditions.size(); i++) {
             if (conditions.get(i).getNumberOfLocalParameters() > 0) {
-                allLocalParameters += conditions.get(i).getNumberOfLocalParameters();
+                numberOfAllLocalParameters += conditions.get(i).getNumberOfLocalParameters();
             }
         }
-        return allLocalParameters;
+        return numberOfAllLocalParameters;
     }
 
     private DecisionTableOpenlBuilder initDecisionTableOpenlBuilder(TableSyntaxNode tsn) {
@@ -170,9 +170,14 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     }
 
     private DecisionTableBuilder initDecisionTableSourceBuilder() {
+        // properties values from methods in group that will be used
+        // to build dispatcher table by dimensional properties.
+        //
+        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+
         DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
 
-        List<IDecisionTableColumn> conditions = getConditions(rules);
+        List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
 
         int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
 
@@ -181,11 +186,10 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, sheetName,
                 numberOfColumns);
 
-        DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher, incomeParams);
+        DispatcherTableReturnColumn returnColumn = getReturnColumn();
 
-        // Init the Decision Table Builder
-        //
         DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
+
         decisionTableBuilder.setConditionsBuilder(new ConditionsBuilder(conditions));
         decisionTableBuilder.setReturnBuilder(new ReturnColumnBuilder(returnColumn));
         decisionTableBuilder.setHeaderBuilder(new TableHeaderBuilder(buildMethodHeader(getDispatcherTableName(),
@@ -207,30 +211,34 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         return strBuf.toString();
     }
 
-    private List<IDecisionTableColumn> getConditions(DispatcherTableRules rules) {
+    private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods,
+                                                     DispatcherTableRules rules) {
+
+        List<TablePropertyDefinition> dimensionalPropertiesDef =
+                TablePropertyDefinitionUtils.getDimensionalTableProperties();
+
         List<IDecisionTableColumn> conditions = new ArrayList<IDecisionTableColumn>();
 
         // get only dimensional properties from methods properties
         //
-        for (TablePropertyDefinition dimensionProperty : dimensionPropertiesDef) {
-            String name = dimensionProperty.getName();
-            if (isSuitable(name)) {
+        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
                 conditions.add(DispatcherTableColumnMaker.makeColumn(dimensionProperty, rules));
             }
         }
         return conditions;
     }
 
-    private boolean isSuitable(String dimensionPropertyName) {
-        return isPropertyPresented(dimensionPropertyName) && !"origin".equals(dimensionPropertyName);
+    private DispatcherTableReturnColumn getReturnColumn() {
+        return new DispatcherTableReturnColumn(dispatcher, incomeParams);
     }
 
     /**
      * Checks if there is any value of particular property represented in collection, that will be used as rules.
      * If no, we don`t need to create column for this property.
      */
-    private boolean isPropertyPresented(String propertyName) {
-        for (ITableProperties properties : propertiesFromMethods) {
+    private boolean isPropertyPresented(String propertyName, List<ITableProperties> methodsProperties) {
+        for (ITableProperties properties : methodsProperties) {
             if (StringUtils.isNotEmpty(properties.getPropertyValueAsString(propertyName))) {
                 return true;
             }
@@ -270,6 +278,20 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     }
 
     /**
+     * Gets properties values from methods in group that will be
+     * used to build dispatcher table by dimensional properties.
+     *
+     * @return properties values from tables in group.
+     */
+    private List<ITableProperties> getMethodsProperties() {
+        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        for (IOpenMethod method : dispatcher.getCandidates()) {
+            propertiesValues.add(PropertiesHelper.getTableProperties(method));
+        }
+        return propertiesValues;
+    }
+
+    /**
      * As all methods in group have the similar name, so it is possible do get any member and get it`s name.
      *
      * @return name of the method in group.
@@ -305,7 +327,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private TableSyntaxNode loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
-        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, moduleOpenClass);
+        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, (XlsModuleOpenClass) moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
 
         setTableProperties(tsn);
@@ -322,15 +344,44 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     public static final String AUXILIARY_METHOD_DELIMETER = "$";
 
+    private static class InternalMethodDelegator extends MethodDelegator {
+        String auxiliaryMethodName;
+        
+        public InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
+            super(methodCaller);
+            this.auxiliaryMethodName = auxiliaryMethodName;
+        }
+        
+        @Override
+        public String getName() {
+            return auxiliaryMethodName;
+        }
+    }
+    
     private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
         final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
-        IOpenMethod auxiliaryMethod = new MethodDelegator(originalMethod) {
-            @Override
-            public String getName() {
-                return auxiliaryMethodName;
-            }
-        };
+        IOpenMethod auxiliaryMethod = new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
         return auxiliaryMethod;
+    }
+    
+    private static class InternalBindingContextDelegator extends BindingContextDelegator{
+        
+        private Map<MethodKey, IOpenMethod> auxiliaryMethods;
+        
+        public InternalBindingContextDelegator(RulesModuleBindingContext context, Map<MethodKey, IOpenMethod> auxiliaryMethods) {
+            super(context);
+            this.auxiliaryMethods = auxiliaryMethods;
+        }
+        
+        @Override
+        public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
+            IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
+            if (auxiliaryMethod == null) {
+                return super.findMethodCaller(namespace, name, parTypes);
+            } else {
+                return auxiliaryMethod;
+            }
+        }
     }
 
     private IBindingContextDelegator createContextWithAuxiliaryMethods() {
@@ -340,17 +391,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
         }
-        IBindingContextDelegator context = new BindingContextDelegator(moduleContext) {
-            @Override
-            public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
-                IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
-                if (auxiliaryMethod == null) {
-                    return super.findMethodCaller(namespace, name, parTypes);
-                } else {
-                    return auxiliaryMethod;
-                }
-            }
-        };
+        IBindingContextDelegator context = new InternalBindingContextDelegator(moduleContext, auxiliaryMethods);
         return context;
     }
 
@@ -380,18 +421,8 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         return result;
     }
 
-    /**
-     * Gets properties values from methods in group that will be
-     * used to build dispatcher table by dimensional properties.
-     *
-     * @return properties values from tables in group.
-     */
-    private static List<ITableProperties> getMethodsProperties(List<IOpenMethod> candidates) {
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
-        for (IOpenMethod method : candidates) {
-            propertiesValues.add(PropertiesHelper.getTableProperties(method));
-        }
-        return propertiesValues;
+    private boolean isSuitable(String dimensionPropertyName, List<ITableProperties> methodsProperties) {
+        return isPropertyPresented(dimensionPropertyName, methodsProperties) && !"origin".equals(dimensionPropertyName);
     }
 
 }

@@ -411,8 +411,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.DoubleValue
-     * @param value2 org.openl.meta.DoubleValue
+     * @param number org.openl.meta.DoubleValue
+     * @param divisor org.openl.meta.DoubleValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
@@ -824,7 +824,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {
-        validate(value, NumberOperations.ROUND);
+        if (value == null) {
+            return null;
+        }
 
         // ULP is used for fix imprecise operations of double values
         double ulp = Math.ulp(value.getValue());
@@ -834,17 +836,25 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue round(DoubleValue value, int scale) {
+        if (value == null) {
+            return null;
+        }
+
         // ULP is used for fix imprecise operations of double values
         double ulp = Math.ulp(value.getValue());
         DoubleValue returnValue = new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue() + ulp,
-            scale)),
-            NumberOperations.ROUND,
-            new DoubleValue[] { value, new DoubleValue(scale) });
+                scale)),
+                NumberOperations.ROUND,
+                new DoubleValue[] { value, new DoubleValue(scale) });
 
         return returnValue;
     }
 
     public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
+        if (value == null) {
+            return null;
+        }
+
         return new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue(),
             scale,
             roundingMethod)), NumberOperations.ROUND, new DoubleValue[] { value, new DoubleValue(scale) });

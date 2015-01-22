@@ -38,7 +38,7 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
-import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -184,8 +184,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 // For example type A depends on B and B depends on A. At this point B is not generated yet.
                 // TODO Implement circular datatype dependencies support like in Java.
                 GridCellSourceCodeModule cellSource = getCellSource(row, cxt, 0);
-                TextInterval location = new TextInterval(new AbsolutePosition(0),
-                        new AbsolutePosition(cellSource.getCode().length()));
+                TextInterval location = LocationUtils.createTextInterval(cellSource.getCode());
 
                 String message = "Type " + getRootComponentClass(field.getType()).getName() + " isn't generated yet";
                 throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
@@ -237,8 +236,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     } else {
                         TextInterval location = defaultValue == null ?
                                                 null :
-                                                new TextInterval(new AbsolutePosition(0),
-                                                        new AbsolutePosition(defaultValue.length()));
+                                                LocationUtils.createTextInterval(defaultValue);
                         throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }

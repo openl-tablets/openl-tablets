@@ -706,14 +706,14 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = selectedNode.getData();
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
-            if (UiConst.TYPE_PROJECT.equals(selectedNode.getType()) && projectArtefact.equals(studio.getModel()
+            String nodeType = selectedNode.getType();
+            if (UiConst.TYPE_PROJECT.equals(nodeType) && projectArtefact.equals(studio.getModel()
                     .getProject())) {
                 studio.setCurrentModule(null);
             }
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
-                String nodeType = selectedNode.getType();
                 boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
                 if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                     repositoryTreeState.refreshSelectedNode();
@@ -729,7 +729,17 @@ public class RepositoryTreeController {
             activeProjectNode = null;
             resetStudioModel();
 
-            FacesUtils.addInfoMessage("File was deleted successfully.");
+            String nodeTypeName;
+            if (UiConst.TYPE_PROJECT.equals(nodeType)) {
+                nodeTypeName = "Project";
+            } else if (UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)) {
+                nodeTypeName = "Deploy configuration";
+            } else if (UiConst.TYPE_FOLDER.equals(nodeType)) {
+                nodeTypeName = "Folder";
+            } else {
+                nodeTypeName = "File";
+            }
+            FacesUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
@@ -1643,8 +1653,8 @@ public class RepositoryTreeController {
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
-                if (log.isErrorEnabled()) {
-                    log.error(ex.getMessage(), ex);
+                if (log.isDebugEnabled()) {
+                    log.debug(ex.getMessage(), ex);
                 }
             }
         }

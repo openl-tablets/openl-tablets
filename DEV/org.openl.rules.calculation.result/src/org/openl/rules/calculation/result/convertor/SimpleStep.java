@@ -17,12 +17,22 @@ package org.openl.rules.calculation.result.convertor;
  * @author DLiauchuk
  * 
  */
+@Deprecated
 public class SimpleStep extends CodeStep {
 
     private static final long serialVersionUID = 3906469763279262117L;
 
+    private Double formula;
     private Double value;
     private String text;
+
+    public Double getFormula() {
+        return formula;
+    }
+
+    public void setFormula(Double formula) {
+        this.formula = formula;
+    }
 
     public Double getValue() {
         return value;

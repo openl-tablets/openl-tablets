@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -23,7 +24,7 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
         }
     });
 
-    private RuleServicePublisher defaultRuleServicePublisher;
+    private List<RuleServicePublisher> defaultRuleServicePublishers;
 
     private Map<String, OpenLService> services = new HashMap<String, OpenLService>();
 
@@ -44,7 +45,7 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
     protected Collection<RuleServicePublisher> dispatch(OpenLService service) {
         Collection<RuleServicePublisher> publishers = new ArrayList<RuleServicePublisher>();
         if (service.getPublishers() == null || service.getPublishers().isEmpty()) {
-            publishers.add(getDefaultRuleServicePublisher());
+            publishers.addAll(getDefaultRuleServicePublishers());
             return publishers;
         }
         if (getSupportedPublishers() != null) {
@@ -55,18 +56,18 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
                 }
             }
             if (publishers.isEmpty()) {
-                publishers.add(getDefaultRuleServicePublisher());
+                publishers.addAll(getDefaultRuleServicePublishers());
             }
         }
         return publishers;
     }
 
-    public RuleServicePublisher getDefaultRuleServicePublisher() {
-        return defaultRuleServicePublisher;
+    public List<RuleServicePublisher> getDefaultRuleServicePublishers() {
+        return defaultRuleServicePublishers;
     }
-
-    public void setDefaultRuleServicePublisher(RuleServicePublisher defaultRuleServicePublisher) {
-        this.defaultRuleServicePublisher = defaultRuleServicePublisher;
+    
+    public void setDefaultRuleServicePublishers(List<RuleServicePublisher> defaultRuleServicePublishers) {
+        this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
     @Override
@@ -114,8 +115,8 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (getDefaultRuleServicePublisher() == null) {
-            throw new BeanInitializationException("You should define default publisher");
+        if (getDefaultRuleServicePublishers() == null || getDefaultRuleServicePublishers().isEmpty()) {
+            throw new BeanInitializationException("You should define at least one default publisher");
         }
     }
 }

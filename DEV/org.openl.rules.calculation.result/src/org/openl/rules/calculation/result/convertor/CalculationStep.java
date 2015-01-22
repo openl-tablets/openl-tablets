@@ -17,14 +17,12 @@ import java.io.Serializable;
  * The base abstraction for the spreadsheet step, each step is a spreadsheet
  * row.
  * 
- * @author DLiauchuk, Marat Kamalov
  */
+@Deprecated
 public class CalculationStep implements Serializable {
 
     private static final long serialVersionUID = 4067908093788043935L;
 
-    private Double formula;
-    
     /** step name */
     private String stepName;
 
@@ -34,14 +32,6 @@ public class CalculationStep implements Serializable {
 
     public void setStepName(String stepName) {
         this.stepName = stepName;
-    }
-    
-    public Double getFormula() {
-        return formula;
-    }
-    
-    public void setFormula(Double formula) {
-        this.formula = formula;
     }
 
 }

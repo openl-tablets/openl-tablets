@@ -54,11 +54,10 @@ public class SmartNumberFormatter implements IFormatter{
             /**
              * Process as float point value
              */
-            double d = NumberUtils.convertToDouble(value).doubleValue();
+            double d = NumberUtils.convertToDouble(value);
             double d1 = d;
             double d2 = d;
             int scale = NumberUtils.getScale(d);
-            int originalScale = scale;
             int bestScale = scale;
             double best = d;
             for (int i = 0; i < 2; i++) {
@@ -75,7 +74,7 @@ public class SmartNumberFormatter implements IFormatter{
                     best = d2;
                 }
             }
-            if (originalScale - bestScale > 1){
+            if (scale - bestScale > 1){
                 return best;    
             }else{
                 return d;
@@ -108,11 +107,10 @@ public class SmartNumberFormatter implements IFormatter{
             /**
              * Process as float point value
              */
-            double d = NumberUtils.convertToDouble(value).doubleValue();
+            double d = NumberUtils.convertToDouble(value);
             double d1 = d;
             double d2 = d;
             int scale = NumberUtils.getScale(d);
-            int originalScale = scale;
             int bestScale = scale;
             for (int i = 0; i < 2; i++) {
                 d1 = d1 - Math.ulp(d1);
@@ -126,10 +124,10 @@ public class SmartNumberFormatter implements IFormatter{
                     bestScale = s;
                 }
             }
-            if (originalScale - bestScale > 1){
+            if (scale - bestScale > 1){
                 return bestScale;    
             }else{
-                return originalScale;
+                return scale;
             }
         } else {
             /**
@@ -143,9 +141,13 @@ public class SmartNumberFormatter implements IFormatter{
         if (value != null) {
             int scale = getScale(value);
             StringBuilder buf = new StringBuilder();
-            buf.append("#.");
-            for (int i = 0; i < scale; i++) {
-                buf.append("#");
+            buf.append("#");
+            if (scale > 0) {
+                buf.append(".");
+
+                for (int i = 0; i < scale; i++) {
+                    buf.append("#");
+                }
             }
             return buf.toString();
         }

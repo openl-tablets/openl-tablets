@@ -1,8 +1,8 @@
 package org.openl.meta;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+
+import java.math.BigDecimal;
 
 import org.junit.Test;
 
@@ -211,6 +211,9 @@ public class BigDecimalvalueTest {
         BigDecimalValue value1 = BigDecimalValue.multiply(new BigDecimalValue("0.7"), new BigDecimalValue("0.75"));
         assertEquals("0.53", BigDecimalValue.round(value1, 2).toString());
 
+        assertNull(BigDecimalValue.round(null));
+        assertNull(BigDecimalValue.round(null, 2));
+        assertNull(BigDecimalValue.round(null, 2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Test

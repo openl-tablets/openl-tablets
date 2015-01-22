@@ -72,7 +72,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         TestMethodBoundNode bestCaseTestMethodBoundNode = null;
         IOpenMethod bestCaseOpenMethod = null;
         SyntaxNodeException[] bestCaseErrors = null;
-        List<OpenLMessage> bestCaseMessages = null;
+        TestMethodOpenClass bestTestMethodOpenClass = null;
+        
         boolean hasNoErrorBinding = false;
         List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         for (IOpenMethod testedMethod : testedMethods) {
@@ -105,13 +106,13 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     bestCaseErrors = testMethodBoundNode.getTableSyntaxNode().getErrors();
                     bestCaseTestMethodBoundNode = testMethodBoundNode;
                     bestCaseOpenMethod = testedMethod;
-                    bestCaseMessages = OpenLMessages.getCurrentInstance().getMessages();
+                    bestTestMethodOpenClass = testMethodOpenClass;
                 } else {
                     if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()){
                         if (!hasNoErrorBinding) {
                             bestCaseTestMethodBoundNode = testMethodBoundNode;
                             bestCaseOpenMethod = testedMethod;
-                            bestCaseMessages = OpenLMessages.getCurrentInstance().getMessages();
+                            bestTestMethodOpenClass = testMethodOpenClass;
                             hasNoErrorBinding = true;
                         } else {
                             List<IOpenMethod> list = new ArrayList<IOpenMethod>();
@@ -134,13 +135,19 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         if (bestCaseTestMethodBoundNode != null) {
             tableSyntaxNode.crearErrors();
-            for (SyntaxNodeException error : bestCaseErrors) {
-                bestCaseTestMethodBoundNode.getTableSyntaxNode().addError(error);
-            }
             OpenLMessages.getCurrentInstance().clear();
-            for (OpenLMessage message : bestCaseMessages){
+            for (OpenLMessage message : messages){
                 OpenLMessages.getCurrentInstance().addMessage(message);
             }
+            
+            ITable dataTable = makeTable(module,
+                tableSyntaxNode,
+                tableName,
+                bestTestMethodOpenClass,
+                bindingContext,
+                openl);
+            bestCaseTestMethodBoundNode.setTable(dataTable);
+            
             return bestCaseTestMethodBoundNode;
         }
 

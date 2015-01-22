@@ -1,5 +1,9 @@
 package org.openl.binding.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -38,10 +42,9 @@ public class BindHelper {
 	public static void processError(CompositeSyntaxNodeException error,
 			IBindingContext bindingContext) {
 		SyntaxNodeException[] errors = error.getErrors();
-		for (int i = 0; i < errors.length; i++) {
-			processError(errors[i], bindingContext);
+		for (SyntaxNodeException e : errors) {
+			processError(e, bindingContext);
 		}
-
 	}
 
 	public static void processError(SyntaxNodeException error,
@@ -104,10 +107,26 @@ public class BindHelper {
 	}
 
 	public static final String CONDITION_TYPE_MESSAGE = "Condition must have boolean type";
+	private static final Collection<String> EQUAL_OPERATORS = Collections.unmodifiableCollection(Arrays.asList(
+			"op.binary.eq",
+			"op.binary.strict_eq",
+			"op.binary.le",
+			"op.binary.strict_le",
+			"op.binary.ge",
+			"op.binary.strict_ge"
+	));
+	private static final Collection<String> NOT_EQUAL_OPERATORS = Collections.unmodifiableCollection(Arrays.asList(
+			"op.binary.ne",
+			"op.binary.strict_ne",
+			"op.binary.lt",
+			"op.binary.strict_lt",
+			"op.binary.gt",
+			"op.binary.strict_gt"
+	));
 
 	/**
 	 * Checks the condition expression.
-	 * 
+	 *
 	 * @param conditionNode
 	 *            Bound node that represents condition expression.
 	 * @param bindingContext
@@ -125,7 +144,33 @@ public class BindHelper {
 			}
 			return new ErrorBoundNode(conditionNode.getSyntaxNode());
 		} else {
+			if (conditionNode != null) {
+				checkForSameLeftAndRightExpression(conditionNode, bindingContext);
+			}
+
 			return conditionNode;
+		}
+	}
+
+	private static void checkForSameLeftAndRightExpression(IBoundNode conditionNode, IBindingContext bindingContext) {
+		IBoundNode[] children = conditionNode.getChildren();
+		if (children.length == 2) {
+			IBoundNode left = children[0];
+			IBoundNode right = children[1];
+			if (left instanceof FieldBoundNode && right instanceof FieldBoundNode
+					&& ((FieldBoundNode) left).getBoundField() == ((FieldBoundNode) right).getBoundField()) {
+				String type = conditionNode.getSyntaxNode().getType();
+
+				if (EQUAL_OPERATORS.contains(type)) {
+					BindHelper.processWarn("Condition is always true",
+							conditionNode.getSyntaxNode(),
+							bindingContext);
+				} else if (NOT_EQUAL_OPERATORS.contains(type)) {
+					BindHelper.processWarn("Condition is always false",
+							conditionNode.getSyntaxNode(),
+							bindingContext);
+				}
+			}
 		}
 	}
 

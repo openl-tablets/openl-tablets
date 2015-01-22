@@ -30,7 +30,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.generation.JavaClassGeneratorHelper;
-import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -203,7 +203,7 @@ public class SpreadsheetComponentsBuilder {
                 if (nodes.length > 2) {
                     throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
                 } else {
-                    TextInterval location = new TextInterval(new AbsolutePosition(0), new AbsolutePosition(value.length()));
+                    TextInterval location = LocationUtils.createTextInterval(value);
                     throw SyntaxNodeExceptionUtils.createError(message, null, location, source);
                 }
         }

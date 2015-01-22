@@ -375,8 +375,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.FloatValue
-     * @param value2 org.openl.meta.FloatValue
+     * @param number org.openl.meta.FloatValue
+     * @param divisor org.openl.meta.FloatValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
@@ -780,18 +780,29 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static org.openl.meta.FloatValue round(org.openl.meta.FloatValue value) {
-        validate(value, NumberOperations.ROUND);
+        if (value == null) {
+            return null;
+        }
+
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue((float) Math.round(value.getValue())),
             NumberOperations.ROUND,
             new org.openl.meta.FloatValue[] { value });
     }
 
     public static FloatValue round(FloatValue value, int scale) {
+        if (value == null) {
+            return null;
+        }
+
         return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
                 scale)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
     }
 
     public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
+        if (value == null) {
+            return null;
+        }
+
         return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
                     scale,
                     roundingMethod)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });

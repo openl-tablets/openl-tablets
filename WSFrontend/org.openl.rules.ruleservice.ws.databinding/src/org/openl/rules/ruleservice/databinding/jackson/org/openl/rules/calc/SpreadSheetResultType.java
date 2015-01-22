@@ -8,7 +8,6 @@ import org.openl.rules.table.Point;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /*
  * #%L
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * 
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class SpreadSheetResultType {
 
     @JsonCreator

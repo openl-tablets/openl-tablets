@@ -37,6 +37,21 @@
                     </h:outputLink>
                 </rich:treeNode>
             </rich:tree>
+
+            <script>
+                //<![CDATA[
+                $j(function () {
+                    var hasProblems = #{problemsBean.hasProblems ? 'true' : 'false'};
+                    if (ws && ws.nav.isProjectChanged()) {
+                        if (hasProblems) {
+                            ws.ui.problems.show();
+                        } else {
+                            ws.ui.problems.hide();
+                        }
+                    }
+                });
+                //]]>
+            </script>
         </div>
     </div>
 

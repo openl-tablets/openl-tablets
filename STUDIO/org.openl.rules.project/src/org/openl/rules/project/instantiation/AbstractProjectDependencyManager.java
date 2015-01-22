@@ -12,10 +12,13 @@ import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 
 public abstract class AbstractProjectDependencyManager extends DependencyManager {
 
@@ -27,15 +30,28 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (compiledDependency == null) {
             if (ProjectExternalDependenciesHelper.isProject(dependencyName)) {
                 String projectName = ProjectExternalDependenciesHelper.getProjectName(dependencyName);
-                throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", projectName),
-                    null,
-                    dependency.getNode().getSourceLocation());
+                return throwCompilationError(dependency, projectName);
             } else {
-                throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found",
-                    dependencyName), null, dependency.getNode().getSourceLocation());
+                throwCompilationError(dependency, dependencyName);
             }
         }
         return compiledDependency;
+    }
+
+    private CompiledDependency throwCompilationError(IDependency dependency, String dependencyName) throws OpenLCompilationException {
+        IdentifierNode node = dependency.getNode();
+        OpenLCompilationException exception = new OpenLCompilationException(
+                String.format("Dependency with name '%s' wasn't found", dependencyName),
+                null,
+                node.getSourceLocation(),
+                node.getModule()
+        );
+
+        if (node.getParent() instanceof TableSyntaxNode) {
+            ((TableSyntaxNode) node.getParent()).addError(SyntaxNodeExceptionUtils.createError(exception, node));
+        }
+
+        throw exception;
     }
 
     private Deque<String> moduleCompilationStack = new ArrayDeque<String>();

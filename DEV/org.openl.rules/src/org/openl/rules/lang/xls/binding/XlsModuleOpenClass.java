@@ -28,6 +28,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -37,6 +38,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableBoundNode;
 import org.openl.rules.method.table.TableMethod;
@@ -55,6 +57,7 @@ import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -319,20 +322,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                         cachedMatchedMethod.set(matchedMethod);
                                     }
                                     if (matchedMethod != EmptyMethod.getInstance()) {
-                                        cachedMatchedMethod.set(matchedMethod);
                                         Object target = args[0];
                                         Object[] params = (Object[]) args[1];
                                         IRuntimeEnv env = (IRuntimeEnv) args[2];
-                                        Tracer.disableTrace();
                                         return matchedMethod.invoke(target, params, env);
                                     }
                                 } finally {
                                     invockedFromTop.remove();
-                                    Tracer.enableTrace();
                                 }
                             } else {
                                 invockedFromTop.remove();
-                                Tracer.enableTrace();
                             }
                         }
                     }
@@ -466,37 +465,68 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            if (existedMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                decorator.addMethod(m);
-            } else {
-                if (m != existedMethod) {
-                    OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
-                    dispatcher.addMethod(m);
+            try {
+                if (existedMethod instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
+                    decorator.addMethod(m);
+                } else {
+                    if (m != existedMethod) {
+                        OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
+                        dispatcher.addMethod(m);
+                    }
+                }
+            } catch (DuplicatedMethodException e) {
+                SyntaxNodeException error = null;
+                if (m instanceof IMemberMetaInfo) {
+                    IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
+                    if (memberMetaInfo.getSyntaxNode() != null) {
+                        if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+                            error = new SyntaxNodeException(e.getMessage(),
+                                e,
+                                memberMetaInfo.getSyntaxNode());
+                            ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
+                        }
+                    }
+                }
+                boolean f = false;
+                for (Throwable t : getErrors()){
+                    if (t instanceof DuplicatedMethodException){
+                        if (t.getMessage().equals(e.getMessage())){
+                            f = true;
+                            break;
+                        }
+                    }
+                }
+                if (!f){
+                    addError(e);
+                    if (error != null){
+                        OpenLMessagesUtils.addError(error);
+                    }else{
+                        OpenLMessagesUtils.addError(e);
+                    }
                 }
             }
         } else {
             // Just wrap original method with dispatcher functionality.
             //
-            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod){
+            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod) {
                 methodMap().put(key, m);
-            }else{
+            } else {
                 createDispatcherMethod(m, key);
             }
         }
     }
-    
-    private boolean dimensionalPropertyPresented(IOpenMethod m){
-            List<TablePropertyDefinition> dimensionalPropertiesDef =
-                    TablePropertyDefinitionUtils.getDimensionalTableProperties();
-            ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
-            for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-                String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
-                if (StringUtils.isNotEmpty(propertyValue)) {
-                    return true;
-                }
+
+    private boolean dimensionalPropertyPresented(IOpenMethod m) {
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
+        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
+            if (StringUtils.isNotEmpty(propertyValue)) {
+                return true;
             }
-            return false;
+        }
+        return false;
     }
 
     /**
@@ -532,7 +562,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
 
         methodMap().put(key, openMethod);
-        
+
         return decorator;
     }
 

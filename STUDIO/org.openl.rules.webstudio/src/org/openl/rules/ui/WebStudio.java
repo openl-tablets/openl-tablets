@@ -935,13 +935,23 @@ public class WebStudio {
             Module module = CollectionUtils.find(project.getModules(), new Predicate<Module>() {
                 @Override
                 public boolean evaluate(Module module) {
+                    if (module.getRulesRootPath() == null) {
+                        // Eclipse project
+                        return false;
+                    }
                     String moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
                     return tableURI.startsWith(moduleURI);
                 }
             });
 
-            projectName = project.getName();
-            moduleName = module.getName();
+            if (module != null) {
+                projectName = project.getName();
+                moduleName = module.getName();
+            } else {
+                // Eclipse project
+                moduleName = getCurrentModule().getName();
+                projectName = getCurrentProjectDescriptor().getName();
+            }
         }
         if (StringUtils.isBlank(pageUrl)) {
             pageUrl = StringUtils.EMPTY;

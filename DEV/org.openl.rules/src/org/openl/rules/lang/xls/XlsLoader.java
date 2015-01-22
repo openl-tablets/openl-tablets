@@ -33,6 +33,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
+import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,8 @@ public class XlsLoader {
         if (tableHeaders == null) {
             tableHeaders = new HashMap<String, String>();
 
-            for (int i = 0; i < headerMapping.length; i++) {
-                tableHeaders.put(headerMapping[i][0], headerMapping[i][1]);
+            for (String[] aHeaderMapping : headerMapping) {
+                tableHeaders.put(aHeaderMapping[0], aHeaderMapping[1]);
             }
         }
     }
@@ -142,7 +143,7 @@ public class XlsLoader {
 
         addInnerImports();
 
-        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
+        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[workbookNodes.size()]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                 source,
                 openl,
@@ -174,11 +175,11 @@ public class XlsLoader {
             } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
                 // process module dependency
                 //
-                preprocessDependency(tableSyntaxNode, row.getSource(), source.getWorkbookSource().getSource());
+                preprocessDependency(tableSyntaxNode, row.getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
-                preprocessImportTable(row.getSource(), source);
+                preprocessImportTable(row.getSource());
 
                 // NOTE: A temporary implementation of multi-module feature.
                 // } else if (IXlsTableNames.IMPORT_MODULE.equals(name)) {
@@ -192,7 +193,7 @@ public class XlsLoader {
                 // extract
                 // common
                 // methods
-                ;// ignore comment
+                // ignore comment
             } else {
                 // TODO: why do we consider everything else an extension?
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
@@ -209,9 +210,7 @@ public class XlsLoader {
         }
     }
 
-    private void preprocessDependency(TableSyntaxNode tableSyntaxNode,
-                                      IGridTable gridTable,
-                                      IOpenSourceCodeModule moduleSource) {
+    private void preprocessDependency(TableSyntaxNode tableSyntaxNode, IGridTable gridTable) {
 
         int height = gridTable.getHeight();
 
@@ -221,14 +220,18 @@ public class XlsLoader {
             if (StringUtils.isNotBlank(dependency)) {
                 dependency = dependency.trim();
 
-                Dependency moduleDependency = new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(IXlsTableNames.DEPENDENCY, new GridLocation(gridTable), dependency, moduleSource));
+                IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
+                        LocationUtils.createTextInterval(dependency),
+                        dependency,
+                        new GridCellSourceCodeModule(gridTable, 1, i, null));
+                node.setParent(tableSyntaxNode);
+                Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
             }
         }
     }
 
-    private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
+    private void preprocessImportTable(IGridTable table) {
         int height = table.getHeight();
 
         for (int i = 0; i < height; i++) {
@@ -262,7 +265,7 @@ public class XlsLoader {
 
             if (StringUtils.isNotBlank(include)) {
                 include = include.trim();
-                IOpenSourceCodeModule src = null;
+                IOpenSourceCodeModule src;
 
                 if (include.startsWith("<")) {
                     src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
@@ -298,11 +301,11 @@ public class XlsLoader {
                                       Throwable t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include " + include + " not found",
                 t,
-                null,
-                new GridCellSourceCodeModule(table.getSubtable(1, i, 1, 1)));
+                LocationUtils.createTextInterval(include),
+                new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
         tableSyntaxNode.addError(se);
-        OpenLMessagesUtils.addError(se.getMessage());
+        OpenLMessagesUtils.addError(se);
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
@@ -380,19 +383,19 @@ public class XlsLoader {
             IGridTable[] tables = getAllGridTables(sheetSource);
             List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
-            for (int j = 0; j < tables.length; j++) {
+            for (IGridTable table : tables) {
 
                 TableSyntaxNode tsn;
 
                 try {
-                    tsn = preprocessTable(tables[j], sheetSource, tablePartProcessor);
+                    tsn = preprocessTable(table, sheetSource, tablePartProcessor);
                     tableNodes.add(tsn);
                 } catch (OpenLCompilationException e) {
                     OpenLMessagesUtils.addError(e);
                 }
             }
 
-            sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[0]), sheetSource);
+            sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
         }
 
         TableSyntaxNode[] mergedNodes = {};
@@ -417,16 +420,12 @@ public class XlsLoader {
 
     /**
      * Gets all grid tables from the sheet.
-     *
-     * @param sheetSource
-     * @return
      */
     private IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource) {
 
         XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
-        IGridTable[] tables = xlsGrid.getTables();
 
-        return tables;
+        return xlsGrid.getTables();
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {

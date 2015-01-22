@@ -21,10 +21,25 @@ import java.util.List;
  * @author DLiauchuk
  * 
  */
+@Deprecated
 public class CompoundStep extends CodeStep {
 
     private static final long serialVersionUID = -7072660266573768559L;
+    /**
+     * These 2 fields currently added for Chartis case. In future any
+     * customizations of {@link CompoundStep} and {@link SimpleStep} will be
+     * done by generated datatypes. And fields formula, and id will be removed.
+     */
+    private Double formula;
     private String id;
+
+    public Double getFormula() {
+        return formula;
+    }
+
+    public void setFormula(Double formula) {
+        this.formula = formula;
+    }
 
     public String getId() {
         return id;
@@ -34,38 +49,23 @@ public class CompoundStep extends CodeStep {
         this.id = id;
     }
 
-    private List<CalculationStep> steps = new ArrayList<CalculationStep>();
+    private List<CodeStep> steps = new ArrayList<CodeStep>();
 
     public CompoundStep() {
     }
-    
-    /**
-     * Add a step
-     * 
-     * @param step
-     */
-    public void addStep(CalculationStep step) {
+
+    public void addStep(CodeStep step) {
         if (step != null) {
             steps.add(step);
         }
     }
 
-    /**
-     * Returns steps
-     * 
-     * @return
-     */
-    public List<CalculationStep> getSteps() {
-        return new ArrayList<CalculationStep>(steps);
+    public List<CodeStep> getSteps() {
+        return new ArrayList<CodeStep>(steps);
     }
 
-    /**
-     * Sets steps
-     * 
-     * @param steps
-     */
-    public void setSteps(List<CalculationStep> steps) {
-        this.steps = new ArrayList<CalculationStep>(steps);
+    public void setSteps(List<CodeStep> steps) {
+        this.steps = new ArrayList<CodeStep>(steps);
     }
 
 }

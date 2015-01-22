@@ -38,8 +38,8 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
         serviceManager.start();
-        WebServicesRuleServicePublisher webServicesRuleServicePublisher = applicationContext.getBean(
-                WebServicesRuleServicePublisher.class);
+        JAXWSRuleServicePublisher webServicesRuleServicePublisher = applicationContext.getBean(
+                JAXWSRuleServicePublisher.class);
         ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
         ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
         assertTrue(firstServer != secondServer);
@@ -66,7 +66,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 break;
             }
         }
-        assertEquals(2, applicationContext.getBean(WebServicesRuleServicePublisher.class).getServices()
+        assertEquals(2, applicationContext.getBean(JAXWSRuleServicePublisher.class).getServices()
                 .size());
         assertNotSame(multimoduleService, serviceManager.getRuleService().getServiceByName("multimodule"));
     }

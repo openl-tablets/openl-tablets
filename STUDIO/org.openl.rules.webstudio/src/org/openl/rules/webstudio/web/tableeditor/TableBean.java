@@ -14,6 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -27,6 +28,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -73,6 +76,8 @@ public class TableBean {
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
+    private boolean targetTablesHasErrors;
+    
     public TableBean() {
         id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
@@ -157,11 +162,16 @@ public class TableBean {
         warnings = new ArrayList<OpenLMessage>();
         
         if (targetTables != null) {
+            boolean warningWasAdded = false;
             for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
-                    warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY, Severity.WARN));
-                    // one warning is enough.
-                    break;
+                    if (!warningWasAdded){
+                        warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY, Severity.WARN));
+                        warningWasAdded = true;
+                    }
+                    if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR).isEmpty()){
+                        targetTablesHasErrors = true;
+                    }
                 }
             }
         }
@@ -178,6 +188,14 @@ public class TableBean {
                 if (syntaxNode instanceof TableSyntaxNode
                         && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
                     warnings.add(warning);
+                } else if (syntaxNode != null) {
+                    String warnUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
+
+                    XlsUrlParser uriParser = new XlsUrlParser();
+                    uriParser.parse(warnUri);
+                    if (XlsUrlUtils.intersects(uriParser, table.getUri())) {
+                        warnings.add(warning);
+                    }
                 }
             }
         }
@@ -398,17 +416,21 @@ public class TableBean {
     public boolean getCanRemove() {
         return isEditable() && isGranted(PRIVILEGE_REMOVE_TABLES);
     }
+    
+    public boolean hasErrorsInTargetTables(){
+        return targetTablesHasErrors;
+    }
 
     public boolean getCanRun() {
-        return isGranted(PRIVILEGE_RUN);
+        return isGranted(PRIVILEGE_RUN) && !hasErrorsInTargetTables();
     }
 
     public boolean getCanTrace() {
-        return isGranted(PRIVILEGE_TRACE);
+        return isGranted(PRIVILEGE_TRACE) && !hasErrorsInTargetTables();
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(PRIVILEGE_BENCHMARK);
+        return isGranted(PRIVILEGE_BENCHMARK) && !hasErrorsInTargetTables();
     }
 
     public Integer getRowIndex() {

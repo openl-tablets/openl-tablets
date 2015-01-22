@@ -5,7 +5,6 @@ import org.openl.util.RangeWithBounds.BoundType;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /*
  * #%L
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * 
  * @author Marat Kamalov
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class DoubleRangeType {
     @JsonCreator
     public DoubleRangeType(@JsonProperty("lowerBound") double lowerBound,

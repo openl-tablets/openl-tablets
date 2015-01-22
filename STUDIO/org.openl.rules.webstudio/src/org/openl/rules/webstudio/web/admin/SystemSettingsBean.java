@@ -24,6 +24,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -50,6 +51,9 @@ public class SystemSettingsBean {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
+
+    @ManagedProperty(value = "#{designTimeRepository}")
+    private DesignTimeRepository designTimeRepository;
 
     private ConfigurationManager configManager;
     private RepositoryConfiguration designRepositoryConfiguration;
@@ -183,6 +187,7 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             RepositoryValidators.validate(designRepositoryConfiguration);
+            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration, designTimeRepository);
 
             productionRepositoryEditor.validate();
             productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
@@ -238,6 +243,10 @@ public class SystemSettingsBean {
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
+    }
+
+    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
+        this.designTimeRepository = designTimeRepository;
     }
 
     public void deleteProductionRepository(String configName) {

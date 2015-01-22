@@ -1,8 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 public class RulesDeployGuiWrapper {
+    private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.WEBSERVICE,
+            PublisherType.RESTFUL };
     private final RulesDeploy rulesDeploy;
     private String configuration;
 
@@ -62,5 +65,22 @@ public class RulesDeployGuiWrapper {
 
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
+    }
+
+    public void setPublishers(PublisherType[] publishers) {
+        rulesDeploy.setPublishers(publishers);
+    }
+
+    public PublisherType[] getPublishers() {
+        PublisherType[] publishers = rulesDeploy.getPublishers();
+        if (publishers == null || publishers.length == 0) {
+            // Set both services by default
+            publishers = DEFAULT_PUBLISHERS;
+        }
+        return publishers;
+    }
+
+    public PublisherType[] getAvailablePublishers() {
+        return PublisherType.values();
     }
 }

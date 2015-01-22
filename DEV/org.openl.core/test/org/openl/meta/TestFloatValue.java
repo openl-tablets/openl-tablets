@@ -2,6 +2,8 @@ package org.openl.meta;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+
 import org.junit.Test;
 
 public class TestFloatValue {
@@ -36,7 +38,10 @@ public class TestFloatValue {
         
         value1 = new FloatValue(12.6466667f);
         assertEquals("12.65", FloatValue.round(value1, 2).toString());
- 
+
+        assertNull(FloatValue.round(null));
+        assertNull(FloatValue.round(null, 2));
+        assertNull(FloatValue.round(null, 2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Test

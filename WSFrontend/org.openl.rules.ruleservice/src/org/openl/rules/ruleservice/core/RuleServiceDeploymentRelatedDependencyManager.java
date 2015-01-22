@@ -51,12 +51,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             boolean requiredSemophore = SemaphoreHolder.threadsMarker.get() == null;
             try {
                 if (requiredSemophore) {
+                    SemaphoreHolder.threadsMarker.set(Thread.currentThread());
                     SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
                 }
                 return super.loadDependency(dependency);
             } finally {
-                SemaphoreHolder.threadsMarker.remove();
                 if (requiredSemophore) {
+                    SemaphoreHolder.threadsMarker.remove();
                     SemaphoreHolder.limitCompilationThreadsSemaphore.release();
                 }
             }

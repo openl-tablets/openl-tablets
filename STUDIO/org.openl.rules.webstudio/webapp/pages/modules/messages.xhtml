@@ -44,6 +44,29 @@
                 </h:panelGroup>
 
             </h:panelGroup>
+
+            <h:panelGroup rendered="#{message.severity == 'WARN' and not empty messagesBean.errorCode}">
+                <br />
+                <br />
+
+                <span class="code">
+                    <h:outputText value="#{messagesBean.errorCode[0]}" />
+                    <h:outputText value=" #{messagesBean.errorCode[1]}" styleClass="codeerror" />
+                    <h:outputText value=" #{messagesBean.errorCode[2]}" />
+                </span>
+
+                <h:panelGroup rendered="#{editable}">
+                    <h:outputLink title="#{msg['ws.table.warning.edit']}" value="#{studio.url('table')}"
+                        onclick="ws.nav.go(this.href.replace(/^.+#/, '')); return false;">
+                        <!-- If not use go(), we can't press "edit cell" repeatedly, only once -->
+                        <f:param name="id" value="#{messagesBean.tableId}" />
+                        <f:param name="cell" value="#{messagesBean.errorCell}" />
+                        <f:param name="mode" value="edit" />
+                        <h:graphicImage url="/webresource/images/edit2.gif" />
+                    </h:outputLink>
+                </h:panelGroup>
+
+            </h:panelGroup>
         </div>
         </td></tr></table>
 

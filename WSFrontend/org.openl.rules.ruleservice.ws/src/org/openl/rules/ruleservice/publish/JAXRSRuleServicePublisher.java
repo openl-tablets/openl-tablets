@@ -31,10 +31,10 @@ import org.springframework.beans.factory.ObjectFactory;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
     private static final String REST_PREFIX = "REST/";
 
-    private final Logger log = LoggerFactory.getLogger(JAXRSServicesRuleServicePublisher.class);
+    private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
@@ -56,7 +56,7 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
     public void setServerFactory(ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory) {
         this.serverFactory = serverFactory;
     }
-
+    
     /* internal for test */JAXRSServerFactoryBean getServerFactoryBean() {
         if (serverFactory != null) {
             return serverFactory.getObject();
@@ -68,8 +68,8 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
     }
 
-    protected Object createWrappedBean(Object targetBean, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateBean(targetBean, proxyInterface, targetInterface);
+    protected Object createWrappedBean(Object targetBean, OpenLService service, Class<?> proxyInterface, Class<?> targetInterface) throws Exception {
+        return JAXRSInterfaceEnhancerHelper.decorateBean(targetBean, service, proxyInterface, targetInterface);
     }
 
     @Override
@@ -78,14 +78,15 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            if (service.getPublishers() != null && service.getPublishers().size() > 1) {    
-                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + service.getUrl());
+            String url = URLHelper.processURL(service.getUrl());
+            if (service.getPublishers().size() != 1) {    
+                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + url);
             } else {
-                svrFactory.setAddress(getBaseAddress() + service.getUrl());
+                svrFactory.setAddress(getBaseAddress() + url);
             }
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
             svrFactory.setResourceClasses(serviceClass);
-            Object target = createWrappedBean(service.getServiceBean(), serviceClass, service.getServiceClass());
+            Object target = createWrappedBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
             AegisContextResolver aegisContextResolver = new AegisContextResolver((AegisDatabinding) svrFactory.getDataBinding());
             svrFactory.setProvider(aegisContextResolver);
@@ -186,8 +187,9 @@ public class JAXRSServicesRuleServicePublisher implements RuleServicePublisher, 
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = service.getUrl() + "?_wadl";
-        if (service.getPublishers() != null && service.getPublishers().size() > 1) {
+        String url = URLHelper.processURL(service.getUrl());
+        url = url + "?_wadl";
+        if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");

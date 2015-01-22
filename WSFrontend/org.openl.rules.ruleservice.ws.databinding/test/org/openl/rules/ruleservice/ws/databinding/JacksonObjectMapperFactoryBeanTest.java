@@ -19,12 +19,13 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calculation.result.convertor.CompoundStep;
+import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.ruleservice.context.IRulesRuntimeContextType;
 import org.openl.rules.table.Point;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
@@ -34,6 +35,7 @@ import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.RangeWithBounds.BoundType;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -239,6 +241,10 @@ public class JacksonObjectMapperFactoryBeanTest {
     
     @Test
     public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
+        
+        Assert.assertNull("Not use this annotation for simple JSON!", IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
+        Assert.assertNull("Not use this annotation for simple JSON!", org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.context.IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
+        
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         Date date = new Date();
         context.setCurrentDate(date);

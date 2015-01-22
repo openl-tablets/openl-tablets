@@ -63,8 +63,20 @@
                     set: function(name, value) {
                         localStorage.setItem(name, JSON.stringify(value));
                     }
+                },
+
+                ui: {
+                    success: function(content) {
+                        message(content, 4000, true, "success");
+                    },
+                    error: function(content) {
+                        message(content, -1, true, "error");
+                    },
+                    info: function(content) {
+                        message(content, 8000, true);
+                    }
                 }
-            }
+            };
 
             $j(function () {
                 setLayoutDimensions();
@@ -148,7 +160,7 @@
                 <ui:insert name="top">
                     <a4j:outputPanel ajaxRendered="true">
                         <h:panelGroup styleClass="messages" layout="block"
-                            rendered="#{!empty facesContext.maximumSeverity}">
+                            rendered="#{!empty facesContext.maximumSeverity and jsffn:hasGlobalMessages()}">
                             <h:messages infoClass="success" errorClass="error" showDetail="true"
                                 showSummary="false" tooltip="true" globalOnly="true"/>
                         </h:panelGroup>
