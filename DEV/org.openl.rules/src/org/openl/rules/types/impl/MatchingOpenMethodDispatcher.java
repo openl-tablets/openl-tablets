@@ -1,12 +1,5 @@
 package org.openl.rules.types.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -25,6 +18,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
+
+import java.util.*;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
@@ -366,5 +361,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-    // <<< END INSERT MatchingProperties >>>
+// <<< END INSERT MatchingProperties >>>
 }

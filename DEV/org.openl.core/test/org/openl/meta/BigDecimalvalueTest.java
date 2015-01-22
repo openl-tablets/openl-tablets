@@ -105,7 +105,8 @@ public class BigDecimalvalueTest {
     }
 
     private BigDecimalValue[] getTestArray() {
-        return new BigDecimalValue[] { new BigDecimalValue("10.24"), new BigDecimalValue("100.56"),
+        return new BigDecimalValue[] { new BigDecimalValue("10.24"),
+                new BigDecimalValue("100.56"),
                 new BigDecimalValue("5.23") };
     }
 
@@ -170,7 +171,7 @@ public class BigDecimalvalueTest {
     @Test
     public void testQuaotient() {
         assertEquals(new LongValue(5),
-                BigDecimalValue.quotient(new BigDecimalValue("26.77"), new BigDecimalValue("5.13")));
+            BigDecimalValue.quotient(new BigDecimalValue("26.77"), new BigDecimalValue("5.13")));
 
         BigDecimalValue nullObj = null;
         assertEquals(null, BigDecimalValue.quotient(nullObj, new BigDecimalValue("5")));
@@ -188,7 +189,7 @@ public class BigDecimalvalueTest {
     @Test
     public void testMod() {
         assertEquals(new BigDecimalValue("2.54"),
-                BigDecimalValue.mod(new BigDecimalValue("55.24"), new BigDecimalValue("3.1")));
+            BigDecimalValue.mod(new BigDecimalValue("55.24"), new BigDecimalValue("3.1")));
 
         BigDecimalValue nullObj = null;
         assertEquals(null, BigDecimalValue.mod(nullObj, new BigDecimalValue("5")));
@@ -197,7 +198,7 @@ public class BigDecimalvalueTest {
 
         try {
             assertEquals(new BigDecimalValue("0"),
-                    BigDecimalValue.mod(new BigDecimalValue("5"), new BigDecimalValue("0")));
+                BigDecimalValue.mod(new BigDecimalValue("5"), new BigDecimalValue("0")));
             fail();
         } catch (ArithmeticException e) {
             assertTrue(true);
@@ -217,7 +218,7 @@ public class BigDecimalvalueTest {
 
     @Test
     public void testAdd() {
-        assertEquals("0", BigDecimalValue.add(null, new BigDecimalValue("0")).toString());
-        assertEquals("0", BigDecimalValue.add(new BigDecimalValue("0"), null).toString());
+        assertEquals("0", BigDecimalValue.add((BigDecimalValue) null, new BigDecimalValue("0")).toString());
+        assertEquals("0", BigDecimalValue.add(new BigDecimalValue("0"), (BigDecimalValue) null).toString());
     }
 }

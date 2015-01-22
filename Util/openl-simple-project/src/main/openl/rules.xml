@@ -3,9 +3,8 @@
   <modules>
     <module>
       <name>Template Rules</name>
-      <type>dynamic</type>
       <classname>template.Wrapper</classname>
-      <rules-root path="rules/TemplateRules.xls"/>
+      <rules-root path="rules/OPENL-Base-DS-CA-04012013-V01.xlsx"/>
     </module>
   </modules>
   <classpath>

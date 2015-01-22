@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -38,6 +39,7 @@ public class IndexTest {
     }
 
     @Test
+    @Ignore
     public void testFail1() throws NoSuchMethodException{
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/index/test2.xlsx");
         engineFactory.setExecutionMode(false);
