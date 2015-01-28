@@ -4,14 +4,10 @@ import java.util.Collections;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
-import org.openl.meta.number.NumberValue;
-import org.openl.meta.number.NumberValue.ValueType;
-import org.openl.util.AOpenIterator;
 import org.openl.util.tree.ITreeElement;
 
 /**
- * Explanation implementation for number values that are of type {@link ValueType#SINGLE_VALUE}, see also
- * {@link NumberValue#getValueType()}.
+ * Explanation implementation for number values.
  * 
  * @author DLiauchuk
  *
@@ -92,7 +88,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     public String getType() {
-        return ValueType.SINGLE_VALUE.toString();
+        return "value";
     }
 
     /**

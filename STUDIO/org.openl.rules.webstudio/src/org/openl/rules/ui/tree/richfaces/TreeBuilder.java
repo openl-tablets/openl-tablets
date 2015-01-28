@@ -3,7 +3,6 @@ package org.openl.rules.ui.tree.richfaces;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
-import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.tree.ITreeElement;
@@ -118,7 +117,7 @@ abstract class TreeBuilder {
         dest.setName("null");
         dest.setTitle("null");
         dest.setUrl(getUrl(null));
-        dest.setType(ValueType.SINGLE_VALUE.toString());
+        dest.setType("value");
         return dest;
     }
 }

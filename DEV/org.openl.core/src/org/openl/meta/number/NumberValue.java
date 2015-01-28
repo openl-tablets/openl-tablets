@@ -21,35 +21,28 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
     
     private NumberCast cast;
 
-    private ValueType valueType;
-    
     /** Single value constructor **/
     public NumberValue() { 
-        this.valueType = ValueType.SINGLE_VALUE;
     }
     
     /** Formula value constructor **/ 
     public NumberValue(NumberFormula<T> formula) {
-        this.valueType = ValueType.FORMULA;
         this.formula = formula;
     }
     
     /** Function value constructor **/
     public NumberValue(NumberFunction<T> function) {
-        this.valueType = ValueType.FUNCTION;
         this.function = function;
     }
     
     /** Casting operation constructor **/ 
     public NumberValue(NumberCast cast) {
-        this.valueType = ValueType.CAST;
         this.cast = cast;
     }
 
     /**
      * 
-     * @return formula for current value if {@link #getValueType()} returns {@link ValueType#FORMULA}.
-     * in other case null.
+     * @return formula for current value.
      */
     public NumberFormula<T> getFormula() {
         return formula;
@@ -57,8 +50,7 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
     
     /**
      * 
-     * @return function for current value if {@link #getValueType()} returns {@link ValueType#FUNCTION}.
-     * in other case null.
+     * @return function for current value.
      */
     public NumberFunction<T> getFunction() {
         return function;
@@ -66,37 +58,5 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
     
     public NumberCast getCast() {
         return cast;
-    }
-
-    /**
-     * 
-     * @return type of current value.
-     */
-    public ValueType getValueType() {
-        return valueType;
-    }
-    
-    /**
-     * Enum of possible number values types.
-     * 
-     * @author DLiauchuk
-     *
-     */
-    public enum ValueType {
-        SINGLE_VALUE("value"),
-        FORMULA("formula"),
-        FUNCTION("function"),
-        CAST("cast");
-        
-        private String name;
-        
-        private ValueType(String name) {
-            this.name = name;
-        }
-        
-        @Override
-        public String toString() {        
-            return name;
-        }
     }
 }

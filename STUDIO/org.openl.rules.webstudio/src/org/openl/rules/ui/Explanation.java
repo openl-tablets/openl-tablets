@@ -11,7 +11,6 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberFormula;
-import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
@@ -76,17 +75,18 @@ public class Explanation {
         }
 
         String url = findUrl(value, parentUrl);
-        if (value.getValueType().equals(ValueType.FORMULA)) {
+        if (value.isFormula()) {
             NumberFormula<?> formula = value.getFormula();
             if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
                 return expandFormula(value, url, level + 1);
             }
-
-        } else if (value.getValueType().equals(ValueType.CAST)) {
+            return expandValue(value);
+        } else if (value.isCast()) {
             return expandCast(value, isMultiplicative, url, level);
+        } else if (value.isFunction()) {
+            return expandValue(value);
         }
-
-        return isExpandable(value) ? expandValue(value) : resultValue(value);
+        return resultValue(value);
     }
 
     protected String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
@@ -186,16 +186,13 @@ public class Explanation {
     }
 
     public String htmlString(ExplanationNumberValue<?> value) {
-        if (ValueType.FORMULA.equals(value.getValueType())) {
+        if (value.isFormula()) {
             return expandFormula(value, null, 0);
-
-        } else if (ValueType.FUNCTION.equals(value.getValueType())) {
+        } else if (value.isFunction()) {
             return expandFunction(value);
-
-        } else if (ValueType.CAST.equals(value.getValueType())) {
+        } else if (value.isCast()) {
             return expandCast(value, false, null, 0);
         }
-
         return resultValue(value);
     }
 
@@ -212,17 +209,6 @@ public class Explanation {
         }
 
         return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
-    }
-
-    protected boolean isExpandable(ExplanationNumberValue<?> value) {
-        switch (value.getValueType()) {
-            case FORMULA:
-            case FUNCTION:
-            case CAST:
-                return true;
-            default:
-                return false;
-        }
     }
 
     protected String makeBasicUrl() {
