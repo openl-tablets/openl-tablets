@@ -25,9 +25,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     
     /** 
      * Explanator for current value.
-     * Its implementation depends on the {@link #getValueType()}, for each value type there is it`s own 
-     * explanator. 
-     */    
+     */
     private transient ExplanationForNumber<T> explanation;
 
     public ExplanationNumberValue() {        
@@ -65,6 +63,18 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         
         /** initialize explanation for cast value */ 
         this.explanation = new CastExplanationValue(getCast());
+    }
+
+    public boolean isFormula() {
+        return explanation instanceof FormulaExplanationValue;
+    }
+
+    public boolean isFunction() {
+        return explanation instanceof FunctionExplanationValue;
+    }
+
+    public boolean isCast() {
+        return explanation instanceof CastExplanationValue;
     }
 
     public abstract T copy(String name);
