@@ -3,6 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
