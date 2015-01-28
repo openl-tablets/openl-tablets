@@ -1,5 +1,10 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -10,35 +15,12 @@ import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.util.AOpenIterator;
-import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
-import org.openl.util.tree.TreeIterator;
-
-import java.util.*;
 
 public class Explanation {
-    static class ExplanationValueIterator implements TreeIterator.TreeAdaptor {
 
-        public Iterator<?> children(Object node) { // node.getType == NumberValueTypes.Formula
-            if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.FORMULA)) {
-                return ((ExplanationNumberValue<?>) node).getFormula().getArguments().iterator();
-            } else if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.FUNCTION)) {
-                return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFunction().getParams());
-            } else if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.CAST)) {
-                @SuppressWarnings("unchecked")
-                List<?> list = Arrays.asList(((ExplanationNumberValue<?>) node).getCast().getValue());
-                return list.iterator();
-            } else {
-                return AOpenIterator.EMPTY;
-            }
-        }
-    }
-
-    private static final int MAX_LEVEL = 2; // Maximum expansion level for formulas
+    private static final int MAX_LEVEL = 2; // Maximum expansion level for
+                                            // formulas
 
     private ExplanationNumberValue<?> root;
 
@@ -84,8 +66,10 @@ public class Explanation {
         return false;
     }
 
-    protected String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl,
-                                    int level) {
+    protected String expandArgument(ExplanationNumberValue<?> value,
+            boolean isMultiplicative,
+            String parentUrl,
+            int level) {
 
         if (value == null) {
             return null;
@@ -158,10 +142,11 @@ public class Explanation {
         String url = findUrl(explanationValue, null);
 
         if (url != null && name != null) {
-            value = HTMLHelper.urlLink(
-                    WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
-                            + StringTool.encodeURL(url) + "&text=" + name,
-                    "Show in table", value, "mainFrame", "open");
+            value = HTMLHelper.urlLink(WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool.encodeURL(url) + "&text=" + name,
+                "Show in table",
+                value,
+                "mainFrame",
+                "open");
         }
 
         return value;
@@ -226,7 +211,7 @@ public class Explanation {
             level = 0;
         }
 
-        return new String[]{String.valueOf(id), level.toString(), value, htmlString(explanationValue)};
+        return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
     }
 
     protected boolean isExpandable(ExplanationNumberValue<?> value) {
