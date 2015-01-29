@@ -1,17 +1,19 @@
 package org.openl.meta.number;
 
+import org.openl.meta.explanation.ExplanationNumberValue;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
- * Generic implementation for functions over {@link NumberValue} objects.
+ * Generic implementation for functions over {@link ExplanationNumberValue} objects.
  * 
  * @author DLiauchuk
  *
- * @param <T> type that extends {@link NumberValue}
+ * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public class NumberFunction<T extends NumberValue<T>> {
+public class NumberFunction<T extends ExplanationNumberValue<T>> {
 
     private NumberOperations function;
     private T[] params;

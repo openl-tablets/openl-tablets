@@ -3,8 +3,8 @@ package org.openl.meta.explanation;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
-import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.Formulas;
+import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberFunction;
 import org.openl.meta.number.NumberOperations;
@@ -42,27 +42,50 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     
     /** Formula constructor */
     public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {   
-        super(new NumberFormula<T>(dv1, dv2, operand));
-        
-        /** initialize explanation for formula value */ 
-        this.explanation = new FormulaExplanationValue<T>(getFormula());
+        this.formula = new NumberFormula<T>(dv1, dv2, operand);
+        /** initialize explanation for formula value */
+        this.explanation = new FormulaExplanationValue<T>(this.formula);
     }
     
     /** Function constructor */
     public ExplanationNumberValue(NumberOperations function, T[] params) {        
-        super(new NumberFunction<T>(function, params));
-        
+        this.function = new NumberFunction<T>(function, params);
         /** initialize explanation for function value */
-        this.explanation = new FunctionExplanationValue<T>(getFunction());
+        this.explanation = new FunctionExplanationValue<T>(this.function);
     }
     
     /** Casting constructor */
     @SuppressWarnings("unchecked")
     public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {   
-        super(new NumberCast(previousValue, operand));
-        
-        /** initialize explanation for cast value */ 
-        this.explanation = new CastExplanationValue(getCast());
+        this.cast = new NumberCast(previousValue, operand);
+        /** initialize explanation for cast value */
+        this.explanation = new CastExplanationValue(this.cast);
+    }
+
+    private NumberFormula<T> formula;
+
+    /**
+     *
+     * @return formula for current value.
+     */
+    public NumberFormula<T> getFormula() {
+        return formula;
+    }
+
+    private NumberFunction<T> function;
+
+    /**
+     *
+     * @return function for current value.
+     */
+    public NumberFunction<T> getFunction() {
+        return function;
+    }
+
+    private NumberCast cast;
+
+    public NumberCast getCast() {
+        return cast;
     }
 
     public boolean isFormula() {
