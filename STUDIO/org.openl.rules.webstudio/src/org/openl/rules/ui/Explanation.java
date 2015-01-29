@@ -99,8 +99,8 @@ public class Explanation {
         return String.format("%s %s %s", arg1, operand, arg2);
     }
 
-    private String expandFunction(ExplanationNumberValue<?> value, String parentUrl) {
-        String url = findUrl(value, parentUrl);
+    private String expandFunction(ExplanationNumberValue<?> value) {
+        String url = findUrl(value, null);
         StringBuilder ret = new StringBuilder(value.getFunction().getFunctionName().toUpperCase()).append(" (");
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
@@ -190,7 +190,7 @@ public class Explanation {
             return expandFormula(value, null, 0);
 
         } else if (ValueType.FUNCTION.equals(value.getValueType())) {
-            return expandFunction(value, null);
+            return expandFunction(value);
 
         } else if (ValueType.CAST.equals(value.getValueType())) {
             return expandCast(value, false, null, 0);
