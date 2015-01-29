@@ -862,7 +862,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     /** Function constructor **/
     public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.doubleValue();
     }
 
