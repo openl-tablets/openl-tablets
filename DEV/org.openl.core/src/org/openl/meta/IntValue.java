@@ -723,7 +723,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     /**Function constructor**/
     public IntValue(IntValue result, NumberOperations function, IntValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.intValue();
     }
     

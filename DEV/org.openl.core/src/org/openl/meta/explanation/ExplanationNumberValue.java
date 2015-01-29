@@ -51,8 +51,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
     
     /** Function constructor */
-    public ExplanationNumberValue(T result, NumberOperations function, T[] params) {        
-        super(new NumberFunction<T>(function, params, result));
+    public ExplanationNumberValue(NumberOperations function, T[] params) {        
+        super(new NumberFunction<T>(function, params));
         
         /** initialize explanation for function value */
         this.explanation = new FunctionExplanationValue<T>(getFunction());
