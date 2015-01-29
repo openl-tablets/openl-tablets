@@ -31,13 +31,12 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ObjectValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
-import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
 import org.openl.util.ArrayTool;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
- * {@link NumberValue} are visible and executed from excel.
+ * {@link org.openl.meta.explanation.ExplanationNumberValue} are visible and executed from excel.
  *
  * @author DLiauchuk
  *         <p/>

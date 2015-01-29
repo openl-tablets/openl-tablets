@@ -1,5 +1,7 @@
 package org.openl.meta.number;
 
+import org.openl.meta.explanation.ExplanationNumberValue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +12,9 @@ import java.util.List;
  * 
  * @author DLiauchuk
  *
- * @param <T> type that extends {@link NumberValue}
+ * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public class NumberFormula<T extends NumberValue<T>> {
+public class NumberFormula<T extends ExplanationNumberValue<T>> {
     
     private Formulas operand;
     
