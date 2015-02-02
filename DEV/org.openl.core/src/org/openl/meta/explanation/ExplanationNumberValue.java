@@ -5,7 +5,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberCast;
-import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberOperations;
 import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
@@ -41,9 +40,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     
     /** Formula constructor */
     public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {   
-        this.formula = new NumberFormula<T>(dv1, dv2, operand);
         /** initialize explanation for formula value */
-        this.explanation = new FormulaExplanationValue<T>(this.formula);
+        this.explanation = new FormulaExplanationValue<T>(dv1, dv2, operand);
     }
     
     /** Function constructor */
@@ -60,14 +58,11 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         this.explanation = new CastExplanationValue(this.cast);
     }
 
-    private NumberFormula<T> formula;
-
     /**
-     *
-     * @return formula for current value.
+     * @return explanation for a formula value.
      */
-    public NumberFormula<T> getFormula() {
-        return formula;
+    public FormulaExplanationValue<T> getFormula() {
+        return (FormulaExplanationValue<T>) explanation;
     }
 
     /**
