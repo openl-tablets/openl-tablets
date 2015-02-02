@@ -6,7 +6,6 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberFormula;
-import org.openl.meta.number.NumberFunction;
 import org.openl.meta.number.NumberOperations;
 import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
@@ -48,10 +47,9 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
     
     /** Function constructor */
-    public ExplanationNumberValue(NumberOperations function, T[] params) {        
-        this.function = new NumberFunction<T>(function, params);
+    public ExplanationNumberValue(NumberOperations function, T[] params) {
         /** initialize explanation for function value */
-        this.explanation = new FunctionExplanationValue<T>(this.function);
+        this.explanation = new FunctionExplanationValue<T>(function, params);
     }
     
     /** Casting constructor */
@@ -72,14 +70,11 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         return formula;
     }
 
-    private NumberFunction<T> function;
-
     /**
-     *
-     * @return function for current value.
+     * @return explanation for a function value.
      */
-    public NumberFunction<T> getFunction() {
-        return function;
+    public FunctionExplanationValue<T> getFunction() {
+        return (FunctionExplanationValue<T>) explanation;
     }
 
     private NumberCast cast;
@@ -137,7 +132,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     public String getType() {
         return explanation.getType();
     }
-    
+
     @SuppressWarnings("unchecked")
     public T getObject() {    
         return (T) this;
