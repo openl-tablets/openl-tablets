@@ -5,7 +5,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
-import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
 
 /**
@@ -15,7 +14,7 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends NumberValue<T> implements
+public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements Comparable<Number>,
     ExplanationForNumber<T> {
     
     private static final long serialVersionUID = -5461468496220613277L;
@@ -143,8 +142,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      * @param result
      * @return
      */
-    protected static <T extends NumberValue<T>> NumberValue<T> getAppropriateValue(NumberValue<T>[] values, NumberValue<?> result) {
-        for (NumberValue<T> value : values) {
+    protected static <T extends ExplanationNumberValue<T>> ExplanationNumberValue<T> getAppropriateValue(ExplanationNumberValue<T>[] values, ExplanationNumberValue<?> result) {
+        for (ExplanationNumberValue<T> value : values) {
             if (value == result || value != null && value.equals(result)) {
                 return value;
             }
