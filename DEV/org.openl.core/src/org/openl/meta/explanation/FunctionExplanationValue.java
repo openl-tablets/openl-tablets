@@ -2,7 +2,7 @@ package org.openl.meta.explanation;
 
 import java.util.Arrays;
 
-import org.openl.meta.number.NumberFunction;
+import org.openl.meta.number.NumberOperations;
 
 /**
  * Explanation implementation for functions.
@@ -13,15 +13,33 @@ import org.openl.meta.number.NumberFunction;
  */
 public class FunctionExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
-    private NumberFunction<T> functionHolder;
+    private NumberOperations function;
+    private T[] params;
 
-    public FunctionExplanationValue(NumberFunction<T> functionHolder) {
-        this.functionHolder = functionHolder;
+    public FunctionExplanationValue(NumberOperations function, T[] params) {
+        this.function = function;
+        if (params != null) {
+            this.params = params.clone();
+        }
     }
 
     @Override
     public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
-        return Arrays.asList(functionHolder.getParams());
+        return Arrays.asList(params);
+    }
+
+    /**
+     * @return name of the function.
+     */
+    public String getFunctionName() {
+        return function.toString();
+    }
+
+    /**
+     * @return the array of function parameters.
+     */
+    public T[] getParams() {
+        return params;
     }
 
     @Override
