@@ -4,7 +4,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberOperations;
 import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
@@ -53,9 +52,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     /** Casting constructor */
     @SuppressWarnings("unchecked")
     public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {   
-        this.cast = new NumberCast(previousValue, operand);
         /** initialize explanation for cast value */
-        this.explanation = new CastExplanationValue(this.cast);
+        this.explanation = new CastExplanationValue(previousValue, operand);
     }
 
     /**
@@ -72,10 +70,11 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         return (FunctionExplanationValue<T>) explanation;
     }
 
-    private NumberCast cast;
-
-    public NumberCast getCast() {
-        return cast;
+    /**
+     * @return explanation for a cast value.
+     */
+    public CastExplanationValue getCast() {
+        return (CastExplanationValue) explanation;
     }
 
     public boolean isFormula() {

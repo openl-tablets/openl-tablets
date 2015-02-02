@@ -9,7 +9,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
-import org.openl.meta.number.NumberCast;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
@@ -114,10 +113,9 @@ public class Explanation {
     protected String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
         String url = findUrl(value, parentUrl);
 
-        NumberCast cast = value.getCast();
-        CastOperand operand = cast.getOperand();
+        CastOperand operand = value.getCast().getOperand();
 
-        String argument = expandArgument(cast.getValue(), operand.isAutocast() && isMultiplicative, url, level);
+        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, url, level);
 
         return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
