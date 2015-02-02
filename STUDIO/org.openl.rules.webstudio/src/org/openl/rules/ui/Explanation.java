@@ -10,7 +10,6 @@ import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.NumberCast;
-import org.openl.meta.number.NumberFormula;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
@@ -76,8 +75,7 @@ public class Explanation {
 
         String url = findUrl(value, parentUrl);
         if (value.isFormula()) {
-            NumberFormula<?> formula = value.getFormula();
-            if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
+            if (value.getFormula().isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
                 return expandFormula(value, url, level + 1);
             }
             return expandValue(value);
