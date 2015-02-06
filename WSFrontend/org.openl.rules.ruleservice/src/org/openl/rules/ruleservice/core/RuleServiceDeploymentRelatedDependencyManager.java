@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -126,22 +127,10 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                 if (isLazy()) {
                                     moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
                                             m.getName(),
-                                            new ArrayList<Module>() {
-                                                private static final long serialVersionUID = 9044645178042342374L;
-
-                                                {
-                                                    add(m);
-                                                }
-                                            });
+                                            new ArrayList<Module>(Arrays.asList(m)));
                                 } else {
                                     moduleLoader = new RuleServiceDependencyLoader(m.getName(),
-                                            new ArrayList<Module>() {
-                                                private static final long serialVersionUID = 9044645178042342374L;
-
-                                                {
-                                                    add(m);
-                                                }
-                                            });
+                                            new ArrayList<Module>(Arrays.asList(m)));
                                 }
                                 dependencyLoaders.add(moduleLoader);
                             }

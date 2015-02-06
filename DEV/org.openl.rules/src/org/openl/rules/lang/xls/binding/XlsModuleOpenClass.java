@@ -258,17 +258,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         enhancer.setInterfaces(openMethod.getClass().getInterfaces());
         enhancer.setCallback(new MethodInterceptor() {
             private ThreadLocal<IOpenMethod> cachedMatchedMethod = new ThreadLocal<IOpenMethod>();
-            private ThreadLocal<Boolean> invockedFromTop = new ThreadLocal<Boolean>() {
-                @Override
-                protected Boolean initialValue() {
-                    return Boolean.FALSE;
-                }
-            };
+            private ThreadLocal<Boolean> invockedFromTop = new BooleanThreadLocal();
 
             @Override
             public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
                 if ("invoke".equals(method.getName())) {
-                    IOpenClass typeClass = null;
+                    IOpenClass typeClass;
                     if (args[0] instanceof IDynamicObject) {
                         IDynamicObject dynamicObject = (IDynamicObject) args[0];
                         typeClass = dynamicObject.getType();
@@ -550,4 +545,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         dataBase = null;
     }
 
+    private static class BooleanThreadLocal extends ThreadLocal<Boolean> {
+        @Override
+        protected Boolean initialValue() {
+            return Boolean.FALSE;
+        }
+    }
 }
