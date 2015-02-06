@@ -18,11 +18,11 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
 
     @Override
     public Class<?> parse(String data, String format) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
-	@Override
-	public Class<?> parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public Class<?> parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
 
         String typeName;
@@ -44,5 +44,5 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
             clazz = Array.newInstance(clazz, 0).getClass();
         }
         return clazz;
-	}
+    }
 }
