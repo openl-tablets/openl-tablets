@@ -67,6 +67,10 @@ public abstract class ABoundNode implements IBoundNode {
         return syntaxNode;
     }
 
+    public void setSyntaxNode(ISyntaxNode syntaxNode) {
+        this.syntaxNode = syntaxNode;
+    }
+
     public IBoundNode getTargetNode() {
         return null;
     }
