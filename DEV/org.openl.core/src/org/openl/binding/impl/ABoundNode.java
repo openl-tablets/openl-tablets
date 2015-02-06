@@ -19,13 +19,14 @@ import org.openl.vm.IRuntimeEnv;
  */
 @SuppressWarnings("deprecation")
 public abstract class ABoundNode implements IBoundNode {
+    private static final IBoundNode[] EMPTY = new IBoundNode[0];
 
     protected ISyntaxNode syntaxNode;
     protected IBoundNode[] children;
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;
-        this.children = children;
+        this.children = children != null && children.length == 0 ? EMPTY : children;
     }
 
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
