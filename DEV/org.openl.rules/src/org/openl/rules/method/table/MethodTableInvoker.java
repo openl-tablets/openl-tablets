@@ -34,7 +34,7 @@ public class MethodTableInvoker extends RulesMethodInvoker {
         MethodTableTraceObject traceObject = (MethodTableTraceObject) getTraceObject(params);
         tracer.push(traceObject);
 
-        Object result = null;
+        Object result;
 
         try {
             result = getInvokableMethod().getCompositeMethod().invoke(target, params, env);
@@ -51,7 +51,7 @@ public class MethodTableInvoker extends RulesMethodInvoker {
     }
 
     public boolean canInvoke() {
-        return getInvokableMethod().getCompositeMethod().getMethodBodyBoundNode() != null;
+        return getInvokableMethod().getCompositeMethod().isInvokable();
     }
 
 }

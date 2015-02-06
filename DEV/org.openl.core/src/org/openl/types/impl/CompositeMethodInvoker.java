@@ -3,6 +3,7 @@ package org.openl.types.impl;
 import org.openl.IOpenRunner;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.ABoundNode;
 import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.types.Invokable;
@@ -34,12 +35,33 @@ public class CompositeMethodInvoker implements Invokable {
 			if (mbb.getChildren().length == 1 && mbb.getLocalFrameSize() == method.getSignature().getNumberOfParameters())
 			{
 				expressionNode = mbb.getChildren()[0];
-			}	
+			}
 		}
-    	
-    	
-    	
-	}
+        if (expressionNode != null) {
+            this.methodBodyBoundNode = null;
+        }
+
+    }
+
+    public void removeDebugInformation() {
+        if (expressionNode != null) {
+            clearSyntaxNodes(expressionNode);
+        }
+        if (methodBodyBoundNode != null) {
+            clearSyntaxNodes(methodBodyBoundNode);
+        }
+    }
+    private void clearSyntaxNodes(IBoundNode boundNode) {
+        if (boundNode instanceof ABoundNode) {
+            ((ABoundNode) boundNode).setSyntaxNode(null);
+        }
+        IBoundNode[] children = boundNode.getChildren();
+        if (children != null) {
+            for (IBoundNode child : children) {
+                clearSyntaxNodes(child);
+            }
+        }
+    }
 
 	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
@@ -54,7 +76,4 @@ public class CompositeMethodInvoker implements Invokable {
         }
     }
 
-    protected Object getMethodBodyBoundNode() {        
-        return methodBodyBoundNode;
-    }
 }

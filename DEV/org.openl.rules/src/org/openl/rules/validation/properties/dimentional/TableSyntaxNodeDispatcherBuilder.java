@@ -5,16 +5,21 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
+import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -34,6 +39,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -52,7 +58,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
     public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
-    private static String VIRTUAL_EXCEL_FILE = "/VIRTUAL_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
+    private static final String VIRTUAL_EXCEL_FILE = "/VIRTUAL_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
 
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
 
@@ -96,8 +102,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     /**
      * Build dispatcher table for dimensional properties for particular overloaded method group.
-     *
-     * @param methodsGroup group of overloaded tables.
      */
     public TableSyntaxNode build() {
         TableSyntaxNode tsn = null;
@@ -118,13 +122,58 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
-            if (moduleContext.isExecutionMode()){
-                decisionTable.setBoundNode(null);
-            }
 
             loadCreatedTable(decisionTable, tsn);
+
+            if (moduleContext.isExecutionMode()){
+                removeDebugInformation(decisionTable, tsn);
+            }
         }
         return tsn;
+    }
+
+    private void removeDebugInformation(DecisionTable decisionTable, TableSyntaxNode tsn) {
+        decisionTable.setBoundNode(null);
+
+        DecisionTableOptimizedAlgorithm algorithm = decisionTable.getAlgorithm();
+        if (algorithm != null) {
+            algorithm.removeParamValuesForIndexedConditions();
+        }
+
+        clearCompositeMethods(decisionTable);
+
+        if (!OpenLSystemProperties.isDTDispatchingMode(moduleContext.getExternalParams())) {
+            tsn.setMember(null);
+        }
+    }
+
+    private void clearCompositeMethods(DecisionTable decisionTable) {
+        // TODO consider more understandable implementation
+        for (ICondition condition : decisionTable.getConditionRows()) {
+            clearDecisionRow(condition);
+        }
+
+        for (IAction action : decisionTable.getActionRows()) {
+            clearDecisionRow(action);
+
+            Object[][] paramValues = action.getParamValues();
+            if (paramValues != null) {
+                for (Object[] paramValueColumn : paramValues) {
+                    for (Object paramValue : paramValueColumn) {
+                        if (paramValue instanceof CompositeMethod) {
+                            ((CompositeMethod) paramValue).removeDebugInformation();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void clearDecisionRow(IDecisionRow decisionRow) {
+        IOpenMethod method = decisionRow.getMethod();
+        if (method instanceof CompositeMethod) {
+            ((CompositeMethod) method).removeDebugInformation();
+        }
     }
 
     /**
@@ -331,7 +380,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private TableSyntaxNode loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
-        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, (XlsModuleOpenClass) moduleOpenClass);
+        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
 
         setTableProperties(tsn);
@@ -364,8 +413,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     
     private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
         final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
-        IOpenMethod auxiliaryMethod = new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
-        return auxiliaryMethod;
+        return new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
     }
     
     private static class InternalBindingContextDelegator extends BindingContextDelegator{
@@ -395,8 +443,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
         }
-        IBindingContextDelegator context = new InternalBindingContextDelegator(moduleContext, auxiliaryMethods);
-        return context;
+        return new InternalBindingContextDelegator(moduleContext, auxiliaryMethods);
     }
 
     /**
@@ -413,9 +460,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     /**
      * Exclude those methods, that are not used as context variables.
-     *
-     * @param methodName
-     * @return
      */
     private static boolean belongsToExcluded(String methodName) {
         boolean result = false;

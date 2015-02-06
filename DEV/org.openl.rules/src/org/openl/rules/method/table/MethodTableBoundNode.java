@@ -85,4 +85,9 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         return (TableMethod) getMethod();
     }
 
+    @Override
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        super.removeDebugInformation(cxt);
+        getTableMethod().getCompositeMethod().removeDebugInformation();
+    }
 }
