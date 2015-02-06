@@ -47,7 +47,6 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
-import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -91,7 +90,8 @@ public class XlsBinder implements IOpenBinder {
 
     private static final String[][] BINDERS = {{XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName()},
-            {XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT.toString(), org.openl.rules.dt.DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT2.toString(), org.openl.rules.dt2.DecisionTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName()},
