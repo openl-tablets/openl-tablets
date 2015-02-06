@@ -33,9 +33,12 @@ import org.openl.vm.trace.Tracer;
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
-    private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
-    private DefaultTablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
-    private DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
+    // The fields below hold only algorithms and they don't change during application lifetime. There is no need
+    // to hold a new instance of that objects for every of thousands of MatchingOpenMethodDispatchers. That's why
+    // they were made static.
+    private static final IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
+    private static final DefaultTablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
+    private static final DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
 
     private XlsModuleOpenClass moduleOpenClass;
 
