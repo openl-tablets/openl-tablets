@@ -69,9 +69,7 @@ public class String2DataConvertorFactory {
         // Share binding context to the String2ClassConvertor and String2OpenClassConvertor
         threadBindingContext.set(bindingContext);
         IString2DataConvertor<T> convertor = getConvertor(clazz);
-        T parsedValue = convertor.parse(data, null);
-        threadBindingContext.remove();
-        return parsedValue;
+        return convertor.parse(data, null);
     }
 
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
