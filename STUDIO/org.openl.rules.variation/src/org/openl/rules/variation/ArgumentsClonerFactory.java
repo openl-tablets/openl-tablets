@@ -19,7 +19,7 @@ final class ArgumentsClonerFactory {
 
     public static Cloner getCloner() {
         try {
-            return (Cloner) Class.forName("org.openl.rules.table.InputArgumentsCloner").newInstance();
+            return (Cloner) Class.forName("org.openl.rules.table.OpenLArgumentsCloner").newInstance();
         } catch (Exception e) {
             return new Cloner();
         }
