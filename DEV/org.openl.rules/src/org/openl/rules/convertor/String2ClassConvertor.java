@@ -32,7 +32,6 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
             typeName = data;
         }
 
-//        IBindingContext cxt = String2DataConvertorFactory.threadBindingContext.get();
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {

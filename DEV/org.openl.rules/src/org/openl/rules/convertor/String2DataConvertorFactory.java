@@ -29,7 +29,6 @@ public class String2DataConvertorFactory {
 
     @SuppressWarnings("rawtypes")
     private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
-//    static ThreadLocal<IBindingContext> threadBindingContext = new ThreadLocal<IBindingContext>();
 
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor<?>>();
@@ -68,8 +67,6 @@ public class String2DataConvertorFactory {
 
     @SuppressWarnings("unchecked")
     public static synchronized <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
-        // Share binding context to the String2ClassConvertor and String2OpenClassConvertor
-//        threadBindingContext.set(bindingContext);
         IString2DataConvertor<T> convertor = getConvertor(clazz);
         if (convertor instanceof IString2DataConverterWithContext) {
             IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
@@ -139,13 +136,4 @@ public class String2DataConvertorFactory {
             unregisterConvertorForClass(clazz);
         }
     }
-    
-    /**
-     * To help GC
-     */
-    
-//    public static void resetContext()
-//    {
-//    	threadBindingContext.set(null);
-//    }
 }
