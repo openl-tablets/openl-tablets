@@ -6,7 +6,7 @@ import org.openl.types.IOpenClass;
 
 import java.lang.reflect.Array;
 
-class String2ClassConvertor implements IString2DataConvertor<Class<?>> {
+class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2DataConverterWithContext<Class<?>> {
 
     public static final String ARRAY_SUFIX = "[]";
 
@@ -18,6 +18,11 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>> {
 
     @Override
     public Class<?> parse(String data, String format) {
+    	throw new UnsupportedOperationException();
+    }
+
+	@Override
+	public Class<?> parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
 
         String typeName;
@@ -27,7 +32,7 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>> {
             typeName = data;
         }
 
-        IBindingContext cxt = String2DataConvertorFactory.threadBindingContext.get();
+//        IBindingContext cxt = String2DataConvertorFactory.threadBindingContext.get();
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {
@@ -39,5 +44,5 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>> {
             clazz = Array.newInstance(clazz, 0).getClass();
         }
         return clazz;
-    }
+	}
 }

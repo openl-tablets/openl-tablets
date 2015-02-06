@@ -4,7 +4,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 
-class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass> {
+class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IString2DataConverterWithContext<IOpenClass> {
 
     public static final String ARRAY_SUFFIX = "[]";
 
@@ -16,6 +16,11 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass> {
 
     @Override
     public IOpenClass parse(String data, String format) {
+    	throw new UnsupportedOperationException();
+    }
+
+	@Override
+	public IOpenClass parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
 
         String typeName;
@@ -25,7 +30,7 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass> {
             typeName = data;
         }
 
-        IBindingContext cxt = String2DataConvertorFactory.threadBindingContext.get();
+//        IBindingContext cxt = String2DataConvertorFactory.threadBindingContext.get();
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {
@@ -36,5 +41,5 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass> {
             openClass = openClass.getAggregateInfo().getIndexedAggregateType(openClass, 1);
         }
         return openClass;
-    }
+	}
 }
