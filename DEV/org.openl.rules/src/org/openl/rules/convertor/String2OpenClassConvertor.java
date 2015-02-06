@@ -16,11 +16,11 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
 
     @Override
     public IOpenClass parse(String data, String format) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
-	@Override
-	public IOpenClass parse(String data, String format, IBindingContext cxt) {
+    @Override
+    public IOpenClass parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
 
         String typeName;
@@ -41,5 +41,5 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
             openClass = openClass.getAggregateInfo().getIndexedAggregateType(openClass, 1);
         }
         return openClass;
-	}
+    }
 }
