@@ -63,7 +63,7 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public T[] parse(String data, String format) {
         if (data == null) return null;
         if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
