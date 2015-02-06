@@ -65,10 +65,10 @@ public class String2DataConvertorFactory {
         convertorsCache.putAll(convertors);
     }
 
-    @SuppressWarnings("unchecked")
     public static synchronized <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
         IString2DataConvertor<T> convertor = getConvertor(clazz);
         if (convertor instanceof IString2DataConverterWithContext) {
+            @SuppressWarnings("unchecked")
             IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
             return convertorCxt.parse(data, null, bindingContext);
         }
