@@ -49,10 +49,11 @@ public class OpenClassHelper {
     }
 
     public static synchronized IOpenClass[] getOpenClasses(IOpenClass moduleOpenClass, Class<?>[] classesToFind) {
-        List<IOpenClass> openClassList = new ArrayList<IOpenClass>();
         if (classesToFind.length == 0) {
             return IOpenClass.EMPTY;
         }
+
+        List<IOpenClass> openClassList = new ArrayList<IOpenClass>();
 
         for (Class<?> classToFind : classesToFind) {
             openClassList.add(getOpenClass(moduleOpenClass, classToFind));
