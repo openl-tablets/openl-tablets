@@ -56,6 +56,10 @@ public class ComponentBindingContext extends BindingContextDelegator {
         Map<String, IOpenClass> map = initInternalTypes();
         
         if (map.containsKey(nameWithNamespace)) {
+            IOpenClass openClass = map.get(nameWithNamespace);
+            if (openClass == type){
+                return;
+            }
             throw new OpenLCompilationException("Type " + nameWithNamespace + " has been defined already");
         }
 
