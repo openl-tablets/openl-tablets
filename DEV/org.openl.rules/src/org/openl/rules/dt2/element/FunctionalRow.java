@@ -298,7 +298,13 @@ public abstract class FunctionalRow implements IDecisionRow {
         IGridTable paramGridColumn = getValueCell(ruleN).getSource();        
 
         int fromHeight = 0;        
-        String ruleName = ruleRow == null ? ("R" + (ruleN + 1)).intern() : ruleRow.getRuleName(ruleN);
+        
+        
+        boolean executionMode = ota.getBindingContext().isExecutionMode();
+        
+        String ruleName = null;
+        if (!executionMode)
+        	ruleName = ruleRow == null ? ("R" + (ruleN + 1)) : ruleRow.getRuleName(ruleN);
         
         
         for (int j = 0; j < paramDecl.length; j++) {

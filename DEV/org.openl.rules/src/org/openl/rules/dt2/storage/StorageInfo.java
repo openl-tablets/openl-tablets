@@ -6,7 +6,6 @@ import java.util.Map;
 public class StorageInfo {
 
 	int firstFormulaIndex = -1, firstSpaceIndex = -1;
-	int numberOfUniqueValues = 0;
 	int numberOfSpaces = 0;
 	Object min, max;
 	int numberOfFormulas = 0;
@@ -31,13 +30,6 @@ public class StorageInfo {
 		this.firstSpaceIndex = firstSpaceindex;
 	}
 
-	public int getNumberOfUniqueValues() {
-		return numberOfUniqueValues;
-	}
-
-	public void setNumberOfUniqueValues(int numberOfUniqueValues) {
-		this.numberOfUniqueValues = numberOfUniqueValues;
-	}
 
 	public int getNumberOfSpaces() {
 		return numberOfSpaces;
@@ -82,7 +74,7 @@ public class StorageInfo {
 	
 	public int getTotalNumberOfUniqueValues()
 	{
-		return (uniqueIndex == null ? numberOfUniqueValues : uniqueIndex.size()  ) + numberOfFormulas + (numberOfSpaces > 0 ? 1 : 0) + (numberOfElses  > 0 ? 1 : 0);
+		return  uniqueIndex.size()   + numberOfFormulas + (numberOfSpaces > 0 ? 1 : 0) + (numberOfElses  > 0 ? 1 : 0);
 	}
 
 	public int getNumberOfElses() {

@@ -6,6 +6,7 @@ import java.util.Map;
 public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
 	
+	private static final int MIN_MAPPED_SIZE = 16;
 	ObjectStorage storage;
 	
 	public ObjectStorageBuilder(int size) {
@@ -86,10 +87,16 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 		}
 		
 		
-		return new MappedStorage(map, uniqueValues);
+		return MappedStorage.makeNewStorage(map, uniqueValues);
 	}
 
 	protected boolean shouldUseMappedStorage() {
+
+		
+		if (size() < MIN_MAPPED_SIZE)
+			return false;
+
+		
 		double uniqueValues = info.getTotalNumberOfUniqueValues();
 		
 		return (uniqueValues / size() < 0.7);
