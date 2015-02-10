@@ -707,7 +707,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     /** Function constructor **/
     public ByteValue(ByteValue result, NumberOperations function, ByteValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.byteValue();
     }
 

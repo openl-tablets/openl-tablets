@@ -6,7 +6,6 @@
 
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
 
 /**
  * A converter to parse and to format data from/to String.

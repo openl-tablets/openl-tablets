@@ -732,7 +732,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     /** Function constructor **/
     public LongValue(LongValue result, NumberOperations function, LongValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.longValue();
     }
 

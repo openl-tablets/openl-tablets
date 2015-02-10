@@ -776,7 +776,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     /** Function constructor **/
     public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.getValue();
     }
 

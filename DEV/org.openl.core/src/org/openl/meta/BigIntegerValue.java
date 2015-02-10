@@ -742,7 +742,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     /** Function constructor **/
     public BigIntegerValue(BigIntegerValue result, NumberOperations function, BigIntegerValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.getValue();
     }
 

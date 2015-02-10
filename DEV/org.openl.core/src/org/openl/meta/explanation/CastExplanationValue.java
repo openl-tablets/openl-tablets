@@ -1,29 +1,35 @@
 package org.openl.meta.explanation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
-import org.openl.meta.number.NumberCast;
-import org.openl.meta.number.NumberValue.ValueType;
+import org.openl.meta.number.CastOperand;
 
 @SuppressWarnings("rawtypes")
 public class CastExplanationValue extends SingleValueExplanation {
-    private NumberCast castHolder;
-    
-    public CastExplanationValue(NumberCast castHolder) {
-        this.castHolder = castHolder;
+    private ExplanationNumberValue<?> value;
+    private CastOperand operand;
+
+    public CastExplanationValue(ExplanationNumberValue<?> value, CastOperand operand) {
+        this.value = value;
+        this.operand = operand;
     }
-    
+
+    public ExplanationNumberValue<?> getValue() {
+        return value;
+    }
+
+    public CastOperand getOperand() {
+        return operand;
+    }
+
     @Override
     public Iterable<? extends org.openl.util.tree.ITreeElement> getChildren() {
-        List<ExplanationNumberValue<?>> list = new ArrayList<ExplanationNumberValue<?>>();
-        list.add(castHolder.getValue());
-        return list;
+        return Arrays.asList(value);
     }
-    
+
     @Override
     public String getType() {
-        return String.format("%s.%s", ValueType.CAST, castHolder.getOperand().getType());
+        return String.format("cast.%s", operand.getType());
     }
 
     @Override

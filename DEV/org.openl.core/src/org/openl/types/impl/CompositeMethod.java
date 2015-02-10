@@ -19,6 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 public class CompositeMethod extends ExecutableMethod {
     
     private IBoundMethodNode methodBodyBoundNode;
+    private Boolean invokable;
     
     /**
      * Invoker for current method.
@@ -38,12 +39,29 @@ public class CompositeMethod extends ExecutableMethod {
         return methodBodyBoundNode;
     }
 
+    public boolean isInvokable() {
+        return invokable != null ? invokable : methodBodyBoundNode != null;
+    }
+
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        initInvoker();
+        return invoker.invoke(target, params, env);
+    }
+
+    private void initInvoker() {
         if (invoker == null) {
             // create new instance of invoker.
             invoker = new CompositeMethodInvoker(methodBodyBoundNode, this);
-        } 
-        return invoker.invoke(target, params, env);
+        }
+    }
+
+    public void removeDebugInformation() {
+        if (methodBodyBoundNode != null) {
+            initInvoker();
+            ((CompositeMethodInvoker) invoker).removeDebugInformation();
+            invokable = methodBodyBoundNode != null;
+            methodBodyBoundNode = null;
+        }
     }
 
     public void setMethodBodyBoundNode(IBoundMethodNode node) {

@@ -20,10 +20,9 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
-import org.openl.meta.number.NumberValue;
 
 /**
- * Generates common functions for children of {@link NumberValue}.
+ * Generates common functions for children of {@link org.openl.meta.explanation.ExplanationNumberValue}.
  * 
  * @author DLiauchuk
  * 

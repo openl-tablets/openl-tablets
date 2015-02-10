@@ -716,7 +716,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     /** Function constructor **/
     public ShortValue(ShortValue result, NumberOperations function, ShortValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.shortValue();
     }   
     
