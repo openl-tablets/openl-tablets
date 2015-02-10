@@ -1,7 +1,7 @@
 package org.openl.meta.number;
 
 /**
- * Operations with descriptions for {@link NumberValue}.<br>
+ * Operations with descriptions for {@link org.openl.meta.explanation.ExplanationNumberValue}.<br>
  * Including formulas and functions.
  * 
  * @author DLiauchuk

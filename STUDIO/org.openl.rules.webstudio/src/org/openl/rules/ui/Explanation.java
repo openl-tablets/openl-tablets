@@ -1,44 +1,23 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
-import org.openl.meta.number.NumberCast;
-import org.openl.meta.number.NumberFormula;
-import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
-import org.openl.util.AOpenIterator;
-import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
-import org.openl.util.tree.TreeIterator;
-
-import java.util.*;
 
 public class Explanation {
-    static class ExplanationValueIterator implements TreeIterator.TreeAdaptor {
 
-        public Iterator<?> children(Object node) { // node.getType == NumberValueTypes.Formula
-            if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.FORMULA)) {
-                return ((ExplanationNumberValue<?>) node).getFormula().getArguments().iterator();
-            } else if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.FUNCTION)) {
-                return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFunction().getParams());
-            } else if (node.getClass() == ExplanationNumberValue.class
-                    && ((ExplanationNumberValue<?>) node).getValueType().equals(ValueType.CAST)) {
-                @SuppressWarnings("unchecked")
-                List<?> list = Arrays.asList(((ExplanationNumberValue<?>) node).getCast().getValue());
-                return list.iterator();
-            } else {
-                return AOpenIterator.EMPTY;
-            }
-        }
-    }
-
-    private static final int MAX_LEVEL = 2; // Maximum expansion level for formulas
+    private static final int MAX_LEVEL = 2; // Maximum expansion level for
+                                            // formulas
 
     private ExplanationNumberValue<?> root;
 
@@ -84,25 +63,27 @@ public class Explanation {
         return false;
     }
 
-    protected String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl,
-                                    int level) {
+    protected String expandArgument(ExplanationNumberValue<?> value,
+            boolean isMultiplicative,
+            String parentUrl,
+            int level) {
 
         if (value == null) {
             return null;
         }
 
         String url = findUrl(value, parentUrl);
-        if (value.getValueType().equals(ValueType.FORMULA)) {
-            NumberFormula<?> formula = value.getFormula();
-            if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
+        if (value.isFormula()) {
+            if (value.getFormula().isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
                 return expandFormula(value, url, level + 1);
             }
-
-        } else if (value.getValueType().equals(ValueType.CAST)) {
+            return expandValue(value);
+        } else if (value.isCast()) {
             return expandCast(value, isMultiplicative, url, level);
+        } else if (value.isFunction()) {
+            return expandValue(value);
         }
-
-        return isExpandable(value) ? expandValue(value) : resultValue(value);
+        return resultValue(value);
     }
 
     protected String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
@@ -115,8 +96,8 @@ public class Explanation {
         return String.format("%s %s %s", arg1, operand, arg2);
     }
 
-    private String expandFunction(ExplanationNumberValue<?> value, String parentUrl) {
-        String url = findUrl(value, parentUrl);
+    private String expandFunction(ExplanationNumberValue<?> value) {
+        String url = findUrl(value, null);
         StringBuilder ret = new StringBuilder(value.getFunction().getFunctionName().toUpperCase()).append(" (");
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
@@ -132,10 +113,9 @@ public class Explanation {
     protected String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
         String url = findUrl(value, parentUrl);
 
-        NumberCast cast = value.getCast();
-        CastOperand operand = cast.getOperand();
+        CastOperand operand = value.getCast().getOperand();
 
-        String argument = expandArgument(cast.getValue(), operand.isAutocast() && isMultiplicative, url, level);
+        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, url, level);
 
         return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
@@ -158,10 +138,11 @@ public class Explanation {
         String url = findUrl(explanationValue, null);
 
         if (url != null && name != null) {
-            value = HTMLHelper.urlLink(
-                    WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
-                            + StringTool.encodeURL(url) + "&text=" + name,
-                    "Show in table", value, "mainFrame", "open");
+            value = HTMLHelper.urlLink(WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool.encodeURL(url) + "&text=" + name,
+                "Show in table",
+                value,
+                "mainFrame",
+                "open");
         }
 
         return value;
@@ -201,16 +182,13 @@ public class Explanation {
     }
 
     public String htmlString(ExplanationNumberValue<?> value) {
-        if (ValueType.FORMULA.equals(value.getValueType())) {
+        if (value.isFormula()) {
             return expandFormula(value, null, 0);
-
-        } else if (ValueType.FUNCTION.equals(value.getValueType())) {
-            return expandFunction(value, null);
-
-        } else if (ValueType.CAST.equals(value.getValueType())) {
+        } else if (value.isFunction()) {
+            return expandFunction(value);
+        } else if (value.isCast()) {
             return expandCast(value, false, null, 0);
         }
-
         return resultValue(value);
     }
 
@@ -226,18 +204,7 @@ public class Explanation {
             level = 0;
         }
 
-        return new String[]{String.valueOf(id), level.toString(), value, htmlString(explanationValue)};
-    }
-
-    protected boolean isExpandable(ExplanationNumberValue<?> value) {
-        switch (value.getValueType()) {
-            case FORMULA:
-            case FUNCTION:
-            case CAST:
-                return true;
-            default:
-                return false;
-        }
+        return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
     }
 
     protected String makeBasicUrl() {

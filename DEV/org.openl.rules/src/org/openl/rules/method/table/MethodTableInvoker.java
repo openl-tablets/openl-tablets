@@ -21,6 +21,6 @@ public class MethodTableInvoker extends RulesMethodInvoker<TableMethod> {
 
     @Override
     public boolean canInvoke() {
-        return getInvokableMethod().getCompositeMethod().getMethodBodyBoundNode() != null;
+        return getInvokableMethod().getCompositeMethod().isInvokable();
     }
 }

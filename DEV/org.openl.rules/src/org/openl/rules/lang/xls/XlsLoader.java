@@ -46,20 +46,35 @@ import java.util.*;
 public class XlsLoader {
 
     private final Logger log = LoggerFactory.getLogger(XlsLoader.class);
+    
 
-    private static final String[][] headerMapping = {{IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
+    private static final String[][] headerMapping = {
+
+    		{IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
             {IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString()},
             {IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
             {IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString()},
+
+            //new dt2 implementation
+    		{IXlsTableNames.DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString()},
+            {IXlsTableNames.DECISION_TABLE2_2, XlsNodeTypes.XLS_DT2.toString()},
+            {IXlsTableNames.SIMPLE_DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString()},
+            {IXlsTableNames.SIMPLE_DECISION_LOOKUP_2, XlsNodeTypes.XLS_DT2.toString()},
+            
+            
             {IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString()},
             {IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString()},
+
             {IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString()},
             {IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString()},
+
             {IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString()},
             {IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString()},
             {IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString()},
+
             {IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString()},
             {IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString()},
+
             {IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString()},
             {IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},
             {IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},

@@ -25,13 +25,13 @@ public class String2DataConvertorFactory {
     /**
      * Strong reference to common converters
      */
-    private static HashMap<Class<?>, IString2DataConvertor> convertors;
+    private static HashMap<Class<?>, IString2DataConvertor<?>> convertors;
 
+    @SuppressWarnings("rawtypes")
     private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
-    static ThreadLocal<IBindingContext> threadBindingContext = new ThreadLocal<IBindingContext>();
 
     static {
-        convertors = new HashMap<Class<?>, IString2DataConvertor>();
+        convertors = new HashMap<Class<?>, IString2DataConvertor<?>>();
         convertors.put(Object.class, new String2StringConvertor());
         convertors.put(int.class, new String2IntConvertor());
         convertors.put(double.class, new String2DoubleConvertor());
@@ -66,12 +66,17 @@ public class String2DataConvertorFactory {
     }
 
     public static synchronized <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
-        // Share binding context to the String2ClassConvertor and String2OpenClassConvertor
-        threadBindingContext.set(bindingContext);
         IString2DataConvertor<T> convertor = getConvertor(clazz);
+        if (convertor instanceof IString2DataConverterWithContext) {
+            @SuppressWarnings("unchecked")
+            IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
+            return convertorCxt.parse(data, null, bindingContext);
+        }
+        
         return convertor.parse(data, null);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
         IString2DataConvertor<T> convertor = convertorsCache.get(clazz);

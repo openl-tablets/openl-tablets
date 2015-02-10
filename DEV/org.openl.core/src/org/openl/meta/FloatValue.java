@@ -762,7 +762,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     /** Function constructor **/
     public FloatValue(FloatValue result, NumberOperations function, FloatValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.floatValue();
     }
 

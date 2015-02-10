@@ -234,7 +234,9 @@ public class RuleRowHelper {
         // don`t move it up, as this call will convert native values such as numbers and dates to strings, it 
         // has negative performance implication
         String src = theCell.getStringValue();
-        if (src != null) src = src.intern();
+// TODO review our using of intern()        
+// @see http://java-performance.info/string-intern-in-java-6-7-8/        
+//        if (src != null) src = src.intern();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
     }
 
