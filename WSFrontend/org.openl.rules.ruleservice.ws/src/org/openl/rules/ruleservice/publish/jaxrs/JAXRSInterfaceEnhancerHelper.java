@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import net.sf.cglib.core.ReflectUtils;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -460,7 +461,7 @@ public class JAXRSInterfaceEnhancerHelper {
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q].equals(propertyDescriptors[j].getName())) {
+                                    if (paramNames[q].equals(WordUtils.uncapitalize(propertyDescriptors[j].getName()))) {
                                         k = q;
                                         break;
                                     }
@@ -489,7 +490,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 if (!found) {
-                    throw new IllegalStateException("Method not found!");
+                    throw new IllegalStateException("Method not found!"); 
                 }
             }
         }
