@@ -75,7 +75,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(service.getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
             String url = URLHelper.processURL(service.getUrl());
@@ -92,7 +92,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
             svrFactory.setProvider(aegisContextResolver);
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
+                svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));

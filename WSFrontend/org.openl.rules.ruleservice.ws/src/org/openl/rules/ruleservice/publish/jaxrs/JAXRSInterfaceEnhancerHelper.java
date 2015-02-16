@@ -61,20 +61,17 @@ public class JAXRSInterfaceEnhancerHelper {
         private Class<?> originalClass;
         private OpenLService service;
         private boolean changeReturnTypes = true;
-        private ClassLoader classLoader;
         private Map<Method, String> methodNames = null;
         private Map<Method, String> paths = null;
 
         public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 OpenLService service,
-                boolean changeReturnTypes,
-                ClassLoader classLoader) {
+                boolean changeReturnTypes) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
             this.changeReturnTypes = changeReturnTypes;
             this.service = service;
-            this.classLoader = classLoader;
         }
 
         @Override
@@ -128,10 +125,22 @@ public class JAXRSInterfaceEnhancerHelper {
                 generator.addProperty(parameterNames[i], type);
                 i++;
             }
+            ClassLoader classLoader = getClassLoader();
             Class<?> argumentWrapperClass = generator.generateClass(classLoader);
             int index = signature.lastIndexOf(')');
             int indexb = signature.lastIndexOf('(');
             return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
+        }
+
+        private ClassLoader getClassLoader() {
+            ClassLoader classLoader = null;
+            if (service != null){
+                classLoader = service.getClassLoader();
+            }
+            if (classLoader == null){
+                classLoader = Thread.currentThread().getContextClassLoader();
+            }
+            return classLoader;
         }
 
         protected String getPath(Method method) {
@@ -142,15 +151,15 @@ public class JAXRSInterfaceEnhancerHelper {
                     Annotation pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
                         String value = ((Path) pathAnnotation).value();
-                        
-                        while (value.charAt(0) == '/'){
+
+                        while (value.charAt(0) == '/') {
                             value = value.substring(1);
                         }
-                        
-                        if (value.indexOf('/') > 0){
+
+                        if (value.indexOf('/') > 0) {
                             value = value.substring(0, value.indexOf('/'));
                         }
-                        
+
                         paths.put(m, value);
                     } else {
                         methods.add(m);
@@ -364,12 +373,7 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    
-
-    public static Class<?> decorateInterface(Class<?> originalClass,
-            ClassLoader classLoader,
-            OpenLService service,
-            boolean changeReturnTypes) throws Exception {
+    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service, boolean changeReturnTypes) throws Exception {
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
@@ -380,8 +384,7 @@ public class JAXRSInterfaceEnhancerHelper {
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
             originalClass,
             service,
-            changeReturnTypes,
-            classLoader);
+            changeReturnTypes);
         String enchancedClassName = originalClass.getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
         if (originalClass.getPackage() == null) {
@@ -390,8 +393,22 @@ public class JAXRSInterfaceEnhancerHelper {
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        ClassLoader classLoader = getClassLoader(service);
+        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName,
+            cw.toByteArray(),
+            classLoader);
         return enchancedClass;
+    }
+
+    private static ClassLoader getClassLoader(OpenLService service) {
+        ClassLoader classLoader = null;
+        if (service != null){
+            classLoader = service.getClassLoader();
+        }
+        if (classLoader == null){
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        return classLoader;
     }
 
     public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {
@@ -402,17 +419,12 @@ public class JAXRSInterfaceEnhancerHelper {
         return decorateInterface(originalClass, service, false);
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service, boolean changeReturnTypes) throws Exception {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return decorateInterface(originalClass, classLoader, service, changeReturnTypes);
-    }
-
     public static Object decorateBean(Object targetBean,
             OpenLService service,
             Class<?> proxyInterface,
             Class<?> targetInterface) throws Exception {
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
-        Map<Method,  PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<Method,  PropertyDescriptor[]>();
+        Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<Method, PropertyDescriptor[]>();
         for (Method method : proxyInterface.getMethods()) {
             Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
             if (jaxRSMethod == null) {
@@ -468,7 +480,7 @@ public class JAXRSInterfaceEnhancerHelper {
                                 }
                                 if (k >= 0) {
                                     params[k] = propertyDescriptors[j].getPropertyType();
-                                    propertyDescriptorsForMap[k] = propertyDescriptors[j]; 
+                                    propertyDescriptorsForMap[k] = propertyDescriptors[j];
                                 } else {
                                     continue mainloop;
                                 }
@@ -490,12 +502,14 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 if (!found) {
-                    throw new IllegalStateException("Method not found!"); 
+                    throw new IllegalStateException("Method not found!");
                 }
             }
         }
 
-        return Proxy.newProxyInstance(targetInterface.getClassLoader(),
+        ClassLoader classLoader = getClassLoader(service);
+        
+        return Proxy.newProxyInstance(classLoader,
             new Class<?>[] { proxyInterface },
             new JAXRSInvocationHandler(targetBean, methodMap, methodMapToPropertyDescriptors));
     }
