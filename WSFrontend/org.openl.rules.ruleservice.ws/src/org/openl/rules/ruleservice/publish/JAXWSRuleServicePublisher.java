@@ -67,7 +67,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(service.getClassLoader());
 
         try {
             ServerFactoryBean svrFactory = getServerFactoryBean();
@@ -79,7 +79,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
 
-                svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
+                svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
