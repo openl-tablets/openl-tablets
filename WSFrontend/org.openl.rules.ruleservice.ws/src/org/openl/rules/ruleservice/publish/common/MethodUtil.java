@@ -46,12 +46,14 @@ public final class MethodUtil {
                     boolean f = true;
                     boolean skipRuntimeContextParameter = false;
                     boolean variationPackIsLastParameter = false;
+                    int j = 0;
                     for (Class<?> clazz : method.getParameterTypes()) {
+                        j++;
                         if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
                             skipRuntimeContextParameter = true;
                             continue;
                         }
-                        if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
+                        if (j == method.getParameterTypes().length && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
                             variationPackIsLastParameter = true;
                             continue;
                         }
