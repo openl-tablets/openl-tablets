@@ -9,7 +9,7 @@ import org.openl.util.RangeWithBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DoubleRangeParser {
+public final class DoubleRangeParser {
     private static final BExGrammarParser FALLBACK_PARSER = new BExGrammarParser(SourceType.DOUBLE_RANGE);
 
     private static final RangeParser PARSERS[] = {
@@ -21,6 +21,9 @@ public class DoubleRangeParser {
             new RangeWithMoreLessSymbolsParser(),
             new VerboseRangeParser()
     };
+
+    private DoubleRangeParser() {
+    }
 
     public static RangeWithBounds parse(String range) {
         try {
