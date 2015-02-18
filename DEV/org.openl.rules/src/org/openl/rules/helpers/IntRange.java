@@ -3,16 +3,8 @@
  */
 package org.openl.rules.helpers;
 
-import java.util.List;
-
-import org.openl.OpenL;
 import org.openl.domain.IntRangeDomain;
-import org.openl.engine.OpenLManager;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.meta.IntValue;
-import org.openl.source.SourceType;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
@@ -26,9 +18,6 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     /**
      * Constructor for <code>IntRange</code> with provided <code>min</code>
      * and <code>max</code> values.
-     *
-     * @param min
-     * @param max
      */
     public IntRange(int min, int max) {
         super(min, max);
@@ -40,7 +29,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     public IntRange(Integer number) {
         super(number, number);
     }
-    
+
     public boolean contains(IntValue value) {
         return contains(value.intValue());
     }
@@ -51,8 +40,6 @@ public class IntRange extends IntRangeDomain implements INumberRange {
      * number>" or "[<, <=, >, >=]<number>" or "<number>+" Also numbers can
      * be enhanced with $ sign and K,M,B, e.g. $1K = 1000 Any symbols at the end
      * are allowed to support expressions like ">=2 barrels", "6-8 km^2"
-     *
-     * @param range
      */
     public IntRange(String range) {
         super(0, 0);
@@ -66,7 +53,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         if(res.getLeftBoundType() == BoundType.EXCLUDING){
             min++;
         }
-        
+
         max = res.getMax().intValue();
         if (!res.getMax().equals(max)) {
             // For example, is converted from Long to Integer
@@ -81,27 +68,6 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     }
 
     public static RangeWithBounds getRangeWithBounds(String range) {
-        // TODO: Correct tokenizing in grammar.
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        RangeWithBounds res;
-
-        // Save current openl messages before range parser invocation to
-        // avoid populating messages list with errors what are not refer to
-        // appropriate table. Reason: input string doesn't contain required
-        // information about source.
-        //
-        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
-
-        try {
-            OpenLMessages.getCurrentInstance().clear();
-            res = (RangeWithBounds) OpenLManager
-                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.INT_RANGE);
-        } finally {
-            // Load old openl messages list.
-            //
-            OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
-        }
-        return res;
+        return IntRangeParser.parse(range);
     }
 }
