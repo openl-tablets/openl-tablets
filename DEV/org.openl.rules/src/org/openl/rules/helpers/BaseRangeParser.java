@@ -1,0 +1,104 @@
+package org.openl.rules.helpers;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openl.util.RangeWithBounds;
+
+public abstract class BaseRangeParser implements RangeParser {
+    protected int parseMultiplier(String suffix) {
+        int multiplier;
+        if ("K".equals(suffix)) {
+            multiplier = 1000;
+        } else if ("M".equals(suffix)) {
+            multiplier = 1000000;
+        } else if ("B".equals(suffix)) {
+            multiplier = 1000000000;
+        } else {
+            throw new IllegalArgumentException("Suffix " + suffix + " is not supported in ranges");
+        }
+        return multiplier;
+    }
+
+    protected int parseIntWithMultiplier(String number, String suffix) {
+        int result = Integer.parseInt(number.replace(",", ""));
+
+        if (!StringUtils.isEmpty(suffix)) {
+            result *= parseMultiplier(suffix);
+        }
+
+        return result;
+    }
+
+    protected double parseDoubleWithMultiplier(String number, String suffix) {
+        double result = Double.parseDouble(number.replace(",", ""));
+
+        if (!StringUtils.isEmpty(suffix)) {
+            result *= parseMultiplier(suffix);
+        }
+
+        return result;
+    }
+
+    protected Number getMax(Number number) {
+        if (number.getClass() == Double.class) {
+            return Double.POSITIVE_INFINITY;
+        } else if (number.getClass() == Long.class) {
+            return Long.MAX_VALUE;
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    protected Number getMin(Number number) {
+        if (number.getClass() == Double.class) {
+            return Double.NEGATIVE_INFINITY;
+        } else if (number.getClass() == Long.class) {
+            return Long.MIN_VALUE;
+        } else {
+            return Integer.MIN_VALUE;
+        }
+    }
+
+    /**
+     * Determine, which number is min, which is max and what bounds are.
+     *
+     * @param first       first number in the parsing sequence
+     * @param second      second number in the parsing sequence
+     * @param firstBound  one of "&lt;", "&lt;=", "&gt;", "&gt;="
+     * @param secondBound one of "&lt;", "&lt;=", "&gt;", "&gt;="
+     * @return Parsed range
+     */
+    protected RangeWithBounds getRangeWithBounds(Number first, Number second, String firstBound, String secondBound) {
+        Number min;
+        Number max;
+        RangeWithBounds.BoundType minBound;
+        RangeWithBounds.BoundType maxBound;
+
+        if (firstBound.startsWith("<")) {
+            if (secondBound.startsWith("<")) {
+                return null;
+            }
+            min = second;
+            max = first;
+            minBound = secondBound.equals(">") ?
+                       RangeWithBounds.BoundType.EXCLUDING :
+                       RangeWithBounds.BoundType.INCLUDING;
+            maxBound = firstBound.equals("<") ?
+                       RangeWithBounds.BoundType.EXCLUDING :
+                       RangeWithBounds.BoundType.INCLUDING;
+        } else {
+            if (secondBound.startsWith(">")) {
+                return null;
+            }
+            min = first;
+            max = second;
+            minBound = firstBound.equals(">") ?
+                       RangeWithBounds.BoundType.EXCLUDING :
+                       RangeWithBounds.BoundType.INCLUDING;
+            maxBound = secondBound.equals("<") ?
+                       RangeWithBounds.BoundType.EXCLUDING :
+                       RangeWithBounds.BoundType.INCLUDING;
+        }
+
+        return new RangeWithBounds(min, max, minBound, maxBound);
+    }
+}
