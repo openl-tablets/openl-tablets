@@ -9,7 +9,7 @@ import org.openl.util.RangeWithBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IntRangeParser {
+public final class IntRangeParser {
     private static final BExGrammarParser FALLBACK_PARSER = new BExGrammarParser(SourceType.INT_RANGE);
 
     private static final RangeParser PARSERS[] = {
@@ -21,6 +21,9 @@ public class IntRangeParser {
             new RangeWithMoreLessSymbolsParser(),
             new VerboseRangeParser()
     };
+
+    private IntRangeParser() {
+    }
 
     public static RangeWithBounds parse(String range) {
         try {
