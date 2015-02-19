@@ -6,6 +6,7 @@ import static org.openl.rules.dt2.storage.IStorage.StorageType.*;
 public class ObjectStorage implements IStorage<Object>{
 
 	Object[] values;
+	StorageInfo info;
 	
 	public ObjectStorage(int size) {
 		values = new Object[size];
@@ -56,6 +57,18 @@ public class ObjectStorage implements IStorage<Object>{
 	@Override
 	public void setFormula(int index, Object formula) {
 		values[index] = formula;
+	}
+
+	public StorageInfo getInfo() {
+		return info;
+	}
+
+	public void setInfo(StorageInfo info) {
+		this.info = info;
+	}
+
+	public Object[] getValues() {
+		return values;
 	}
 
 	

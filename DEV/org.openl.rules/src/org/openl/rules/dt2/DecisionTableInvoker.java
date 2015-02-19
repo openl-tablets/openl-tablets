@@ -4,14 +4,12 @@ import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.dt2.algorithm.DecisionTableOptimizedAlgorithm;
-import org.openl.rules.dt2.algorithm.DecisionTableOptimizedAlgorithmTraceDecorator;
 import org.openl.rules.dt2.algorithm.FailOnMissException;
+import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt2.element.IAction;
 import org.openl.rules.dt2.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt2.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ChildTraceStack;
 import org.openl.vm.trace.TraceStack;
@@ -70,13 +68,14 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         Tracer.begin(traceObject);
 
-        DecisionTableOptimizedAlgorithm algorithm = null;
+        IDecisionTableAlgorithm algorithm = null;
         TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
 
         try {
             algorithm = getInvokableMethod().getAlgorithm();
-            DecisionTableOptimizedAlgorithmTraceDecorator algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
-            algorithmDelegator.buildIndex(); // Rebuild index with rules meta info
+            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator(conditionsStack, traceObject); 
+            		//new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
+//            algorithmDelegator.buildIndex(); // Rebuild index with rules meta info
 
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
@@ -104,13 +103,13 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
             Tracer.end();
 
             // Restore index without rules meta info (memory optimization)
-            if (algorithm != null) {
-                try {
-                    algorithm.buildIndex();
-                } catch (SyntaxNodeException e) {
-                    addErrorToTrace(traceObject, e);
-                }
-            }
+//            if (algorithm != null) {
+//                try {
+//                    algorithm.buildIndex();
+//                } catch (SyntaxNodeException e) {
+//                    addErrorToTrace(traceObject, e);
+//                }
+//            }
         }
 
         return null;

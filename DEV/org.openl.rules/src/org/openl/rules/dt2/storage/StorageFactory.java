@@ -5,9 +5,11 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.openl.rules.dt2.DTScale;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
+@SuppressWarnings("rawtypes")
 public class StorageFactory {
 	
 	private static final Class[] integerTypes = {int.class, Integer.class,  byte.class, Byte.class, char.class, Character.class, short.class, Short.class, long.class, Long.class, BigInteger.class, Date.class};
@@ -38,7 +40,22 @@ public class StorageFactory {
 		return ArrayUtils.contains(integerTypes, c) ;
 	}
 
-	public static StorageBuilder makeStorageBuilder(
+
+	public static IStorageBuilder makeStorageBuilder(
+			IParameterDeclaration iParameterDeclaration, int size, DTScale.RowScale scale) {
+		
+		int newSize = scale.getActualSize(size);
+		
+		StorageBuilder sb =  makeStorageBuilder(iParameterDeclaration, newSize);
+		
+		if (newSize == size)
+			return sb;
+		
+		return new ScaleStorageBuilder(scale, sb);
+	}
+	
+	
+	private static StorageBuilder makeStorageBuilder(
 			IParameterDeclaration iParameterDeclaration, int size) {
 		return new ObjectStorageBuilder(size);
 	}

@@ -150,22 +150,7 @@ public class DecisionTableHelper {
      * @return true if there is is any horizontal condition header in the table.
      */
     public static boolean hasHConditions(ILogicalTable table) {
-        int width = table.getWidth();
-
-        for (int i = 0; i < width; i++) {
-
-            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
-
-            if (value != null) {
-                value = value.toUpperCase();
-
-                if (isValidHConditionHeader(value)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    	return countHConditions(table) > 0;
     }
     
     public static boolean isValidHConditionHeader(String headerStr) {
@@ -469,4 +454,47 @@ public class DecisionTableHelper {
             return false;
         }
     }
+
+	public static int countHConditions(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+
+        for (int i = 0; i < width; i++) {
+
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                value = value.toUpperCase();
+
+                if (isValidHConditionHeader(value)) {
+                    ++cnt;
+                }
+            }
+        }
+
+        return cnt;
+	}
+
+
+	public static int countVConditions(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+
+        for (int i = 0; i < width; i++) {
+
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                value = value.toUpperCase();
+
+                if (isValidConditionHeader(value)) {
+                    ++cnt;
+                }
+            }
+        }
+
+        return cnt;
+	}
+
+
 }

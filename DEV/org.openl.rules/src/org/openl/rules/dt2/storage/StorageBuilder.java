@@ -6,7 +6,7 @@ import static org.openl.rules.dt2.storage.StorageUtils.isFormula;
 
 import java.util.Map;
 
-public abstract class StorageBuilder<T> {
+public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 	
 	
 	StorageInfo info = new StorageInfo();
@@ -22,12 +22,20 @@ public abstract class StorageBuilder<T> {
 	public abstract void writeElse(int index);
 	public abstract void writeFormula(Object formula, int index);
 
+	/* (non-Javadoc)
+	 * @see org.openl.rules.dt2.storage.IStorageBuilder#optimizeAndBuild()
+	 */
+	@Override
 	public abstract IStorage<T> optimizeAndBuild();
 
 	
 	protected abstract void checkMinMax(Object loadedValue);
 	
 	
+	/* (non-Javadoc)
+	 * @see org.openl.rules.dt2.storage.IStorageBuilder#writeObject(java.lang.Object, int)
+	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public void writeObject(Object loadedValue, int index) {
 		if (loadedValue == null || loadedValue == SPACE)
@@ -82,7 +90,14 @@ public abstract class StorageBuilder<T> {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.openl.rules.dt2.storage.IStorageBuilder#size()
+	 */
+	@Override
 	public abstract int size();
+	public StorageInfo getInfo() {
+		return info;
+	}
 	
 	
 	
