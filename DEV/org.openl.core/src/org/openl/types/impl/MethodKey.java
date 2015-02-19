@@ -79,13 +79,16 @@ public final class MethodKey {
 			.isEquals();
 	}
 
+	int hashCode = 0;
+	
 	@Override
 	public int hashCode() {
-		int hashCode = new HashCodeBuilder()
+	    if (hashCode == 0){
+	         hashCode = new HashCodeBuilder()
 			.append(name)
 			.append(internalParameters)
 			.toHashCode();
-		
+	    }
 		return hashCode;
 	}
 
