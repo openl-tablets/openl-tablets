@@ -110,7 +110,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         step = -step;
         to = newFrom + s * step;
-        from = newFrom;
+        current = from = newFrom;
     }
 
     @Override
