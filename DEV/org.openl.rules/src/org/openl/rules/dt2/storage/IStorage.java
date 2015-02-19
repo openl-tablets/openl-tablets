@@ -7,6 +7,7 @@ public interface IStorage<T> {
 	}
 
 	int size();
+	StorageInfo getInfo();
 
 	Object getValue(int index);
 

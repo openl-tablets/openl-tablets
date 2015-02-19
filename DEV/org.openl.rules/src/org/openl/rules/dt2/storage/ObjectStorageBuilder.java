@@ -35,6 +35,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
 	@Override
 	public IStorage<Object> optimizeAndBuild() {
+		storage.setInfo(info);
 		return shouldUseMappedStorage() ? makeMappedStorage() : storage;
 	}
 
@@ -87,7 +88,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 		}
 		
 		
-		return MappedStorage.makeNewStorage(map, uniqueValues);
+		return MappedStorage.makeNewStorage(map, uniqueValues, info);
 	}
 
 	protected boolean shouldUseMappedStorage() {

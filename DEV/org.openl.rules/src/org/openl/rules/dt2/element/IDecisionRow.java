@@ -47,6 +47,9 @@ public interface IDecisionRow {
 	void loadValues(Object[] dest, int offset, int ruleN, Object target,
 			Object[] tableParams, IRuntimeEnv env);
 
+	
+	boolean hasFormulasInStorage();
+
 
     
     

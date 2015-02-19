@@ -54,7 +54,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         return true;
     }
 
-    public ARuleIndex makeIndex(Object[][] indexedParams, IIntIterator iterator) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
             return null;
@@ -69,7 +69,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
             int i = iterator.nextInt();
 
-            if (indexedParams[i] == null || indexedParams[i][0] == null) {
+            if (condition.isEmpty(i)) {
 
                 emptyBuilder.addRule(i);
                 if (map != null) {
@@ -82,7 +82,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 continue;
             }
 
-            Object values = indexedParams[i][0];
+            Object values = condition.getParamValue(0, i);
 
             int length = Array.getLength(values);
 

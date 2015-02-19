@@ -4,6 +4,7 @@ package org.openl.rules.dt2.storage;
 @SuppressWarnings("rawtypes")
 public class SimpleIntStorage implements IStorage {
 	
+	StorageInfo info;
 	
 	static interface Convertor<From,To>
 	{
@@ -99,6 +100,16 @@ public class SimpleIntStorage implements IStorage {
 	@Override
 	public void setFormula(int index, Object formula) {
 		throw new UnsupportedOperationException();
+	}
+
+
+	public StorageInfo getInfo() {
+		return info;
+	}
+
+
+	public void setInfo(StorageInfo info) {
+		this.info = info;
 	}
 
 }

@@ -13,15 +13,15 @@ import org.openl.rules.dt2.DecisionTableRuleNode;
  */
 public abstract class ARuleIndex {
 	
-	boolean hasMetaInfo = false;
-
-    public boolean isHasMetaInfo() {
-		return hasMetaInfo;
-	}
-
-	public void setHasMetaInfo(boolean hasMetaInfo) {
-		this.hasMetaInfo = hasMetaInfo;
-	}
+//	boolean hasMetaInfo = false;
+//
+//    public boolean isHasMetaInfo() {
+//		return hasMetaInfo;
+//	}
+//
+//	public void setHasMetaInfo(boolean hasMetaInfo) {
+//		this.hasMetaInfo = hasMetaInfo;
+//	}
 
 	protected DecisionTableRuleNode emptyOrFormulaNodes;
 

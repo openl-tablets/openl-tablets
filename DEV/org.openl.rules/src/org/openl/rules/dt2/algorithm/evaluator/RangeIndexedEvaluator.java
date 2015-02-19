@@ -70,7 +70,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     @SuppressWarnings("unchecked")
-    public ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator iterator) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
             return null;
@@ -88,7 +88,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
             int i = iterator.nextInt();
 
-            if (isEmptyParameter(indexedparams, i)) {
+            if (condition.isEmpty(i)) {
                 emptyBuilder.addRule(i);
                 continue;
             }
@@ -98,22 +98,22 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
             if (nparams == 2) {
                 if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) indexedparams[i][0];
-                    vTo = (Comparable<Object>) indexedparams[i][1];
+                    vFrom = (Comparable<Object>) condition.getParamValue(0, i);
+                    vTo = (Comparable<Object>) condition.getParamValue(1, i);
                 } else {
-                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
-                    vTo = rangeAdaptor.getMax(indexedparams[i][1]);
+                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, i));
+                    vTo = rangeAdaptor.getMax(condition.getParamValue(1, i));
                 }
             } else {
                 // adapt border values for usage in IntervalMap
                 // see IntervalMap description
                 //
                 if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) indexedparams[i][0];
-                    vTo = (Comparable<Object>) indexedparams[i][0];
+                    vFrom = (Comparable<Object>) condition.getParamValue(0, i);
+                    vTo = (Comparable<Object>) condition.getParamValue(0, i);
                 } else {
-                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
-                    vTo = rangeAdaptor.getMax(indexedparams[i][0]);
+                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, i));
+                    vTo = rangeAdaptor.getMax(condition.getParamValue(0, i));
                 }
             }
             Integer v = Integer.valueOf(i);
@@ -217,9 +217,6 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return rulesIndexesArray;
     }
 
-    private boolean isEmptyParameter(Object[][] indexedparams, int i) {
-        return indexedparams[i] == null || indexedparams[i][0] == null;
-    }
 
     private int[] merge(Collection<Integer> collection, int[] rules) {
         if (collection.isEmpty()) {

@@ -14,6 +14,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.dt2.DTScale.RowScale;
 import org.openl.rules.dt2.element.Action;
 import org.openl.rules.dt2.element.Condition;
 import org.openl.rules.dt2.element.IAction;
@@ -42,20 +43,29 @@ public class DecisionTableLoader {
     private int columnsNumber;
 
     private RuleRow ruleRow;
+    
+   DTInfo info;
+    
 
     private List<ICondition> conditions = new ArrayList<ICondition>();
     private List<IAction> actions = new ArrayList<IAction>();
 
     private void addAction(String name, int row, ILogicalTable table) {
-        actions.add(new Action(name, row, table, false));
+        actions.add(new Action(name, row, table, false, DTScale.getStandardScale()));
     }
 
     private void addCondition(String name, int row, ILogicalTable table) {
-        conditions.add(new Condition(name, row, table));
+        conditions.add(new Condition(name, row, table, getConditionScale(name)));
     }
 
-    private void addReturnAction(String name, int row, ILogicalTable table) {
-        actions.add(new Action(name, row, table, true));
+    private RowScale getConditionScale(String name) {
+    	if (DecisionTableHelper.isValidHConditionHeader(name.toUpperCase()) )
+    		return info.getScale().getHScale();
+		return info.getScale().getVScale();
+	}
+
+	private void addReturnAction(String name, int row, ILogicalTable table) {
+        actions.add(new Action(name, row, table, true, DTScale.getStandardScale()));
     }
 
     private void addRule(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
@@ -109,11 +119,18 @@ public class DecisionTableLoader {
         
         // process lookup decision table.
         //
-        if (hasHConditions(tableBody)) {
+        
+        int nHConditions = countHConditions(tableBody);
+        int nVConditions = countVConditions(tableBody);
+        if (nHConditions > 0) {
             try {
-                IGridTable convertedTable = new DecisionTableLookupConvertor().convertTable(tableBody);
+            	DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
+            	
+                IGridTable convertedTable = dtlc.convertTable(tableBody);
                 ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
+                info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
+                
             } catch (Exception e) {
                 throw new SyntaxNodeException("Cannot convert table", e, tableSyntaxNode);
             }
@@ -123,6 +140,11 @@ public class DecisionTableLoader {
             //
             toParse = tableBody.transpose();
         }
+        
+        if (info == null)
+        	info = new DTInfo(nHConditions, nVConditions);
+        decisionTable.setDtInfo(info);
+        
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             throw new SyntaxNodeException("Invalid structure of decision table", null, tableSyntaxNode);
@@ -190,10 +212,15 @@ public class DecisionTableLoader {
         return tableBody;
     }
 
-    private boolean hasHConditions(ILogicalTable tableBody) {
-        return DecisionTableHelper.hasHConditions(tableBody);
+    private int countHConditions(ILogicalTable tableBody) {
+        return DecisionTableHelper.countHConditions(tableBody);
     }
 
+    private int countVConditions(ILogicalTable tableBody) {
+        return DecisionTableHelper.countVConditions(tableBody);
+    }
+    
+    
     private void loadRow(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
         String headerStr = table.getRow(row)
             .getSource()

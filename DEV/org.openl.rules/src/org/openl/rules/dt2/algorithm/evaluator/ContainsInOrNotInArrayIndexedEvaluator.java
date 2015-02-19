@@ -58,7 +58,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return true;
     }
 
-    public ARuleIndex makeIndex(Object[][] indexedParams, IIntIterator iterator) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
             return null;
@@ -77,13 +77,13 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             int i = iterator.nextInt();
             copyRules.addRule(i);
 
-            if (indexedParams[i] == null || indexedParams[i].length < 2 || indexedParams[i][1] == null) {
+            if (condition.isEmpty(i)) {
                 valueSets.add(Collections.EMPTY_SET);
                 continue;
             }
 
             Set<Object> values = null;
-            Object valuesArray = indexedParams[i][1];
+            Object valuesArray = condition.getParamValue(1, i);
 
             int length = Array.getLength(valuesArray);
             boolean comparatorBasedSet = false;
@@ -150,7 +150,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
             int i = iterator.nextInt();
 
-            if (indexedParams[i] == null || indexedParams[i].length < 2 || indexedParams[i][1] == null) {
+            if (condition.isEmpty(i)) {
 
                 emptyBuilder.addRule(i);
                 if (map != null) {
@@ -163,7 +163,8 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 continue;
             }
 
-            boolean isIn = indexedParams[i][0] == null || adaptor.extractBooleanValue(indexedParams[i][0]);
+            Object isInObject = condition.getParamValue(0, i);
+            boolean isIn = isInObject == null || adaptor.extractBooleanValue(isInObject);
 
             Set<?> values = valueSets.get(i);
 
