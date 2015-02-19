@@ -38,6 +38,13 @@ public class OpenIteratorTest extends TestCase {
         Assert.assertEquals(6, it.count());
     }
 
+    
+    public void testCount2() {
+        IOpenIterator<String> it = OpenIterator.fromArray(ary1).reverse();
+        Assert.assertEquals(3, it.count());
+    }
+    
+    
     public void testIsEmpty() {
         Assert.assertTrue(AOpenIterator.isEmpty(OpenIterator.fromArray(null)));
     }
