@@ -145,75 +145,76 @@ public class DependentParametersOptimizedAlgorithm {
             IOpenClass paramType,
             IOpenCast openCast) {
 
-        if (paramType.getInstanceClass().equals(String.class)) {
+        Class<?> typeClass = paramType.getInstanceClass();
+        if (typeClass.equals(String.class)) {
             return new RelationRangeAdaptor<String>(evaluatorFactory, ITypeAdaptor.STRING, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(byte.class) || paramType.getInstanceClass().equals(Byte.class)) {
+        if (typeClass.equals(byte.class) || typeClass.equals(Byte.class)) {
             return new RelationRangeAdaptor<Byte>(evaluatorFactory, ITypeAdaptor.BYTE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(ByteValue.class)) {
+        if (typeClass.equals(ByteValue.class)) {
             return new RelationRangeAdaptor<Byte>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(short.class) || paramType.getInstanceClass().equals(Short.class)) {
+        if (typeClass.equals(short.class) || typeClass.equals(Short.class)) {
             return new RelationRangeAdaptor<Short>(evaluatorFactory, ITypeAdaptor.SHORT, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(ShortValue.class)) {
+        if (typeClass.equals(ShortValue.class)) {
             return new RelationRangeAdaptor<Short>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(int.class) || paramType.getInstanceClass().equals(Integer.class)) {
+        if (typeClass.equals(int.class) || typeClass.equals(Integer.class)) {
             return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.INT, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(IntValue.class)) {
+        if (typeClass.equals(IntValue.class)) {
             return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.INT_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(long.class) || paramType.getInstanceClass().equals(Long.class)) {
+        if (typeClass.equals(long.class) || typeClass.equals(Long.class)) {
             return new RelationRangeAdaptor<Long>(evaluatorFactory, ITypeAdaptor.LONG, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(LongValue.class)) {
+        if (typeClass.equals(LongValue.class)) {
             return new RelationRangeAdaptor<Long>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(double.class) || paramType.getInstanceClass().equals(Double.class)) {
+        if (typeClass.equals(double.class) || typeClass.equals(Double.class)) {
             return new RelationRangeAdaptor<Double>(evaluatorFactory, ITypeAdaptor.DOUBLE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(DoubleValue.class)) {
+        if (typeClass.equals(DoubleValue.class)) {
             return new RelationRangeAdaptor<Double>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(float.class) || paramType.getInstanceClass().equals(Float.class)) {
+        if (typeClass.equals(float.class) || typeClass.equals(Float.class)) {
             return new RelationRangeAdaptor<Float>(evaluatorFactory, ITypeAdaptor.FLOAT, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(FloatValue.class)) {
+        if (typeClass.equals(FloatValue.class)) {
             return new RelationRangeAdaptor<Float>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(BigInteger.class)) {
+        if (typeClass.equals(BigInteger.class)) {
             return new RelationRangeAdaptor<BigInteger>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(BigIntegerValue.class)) {
+        if (typeClass.equals(BigIntegerValue.class)) {
             return new RelationRangeAdaptor<BigInteger>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(BigDecimal.class)) {
+        if (typeClass.equals(BigDecimal.class)) {
             return new RelationRangeAdaptor<BigDecimal>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(BigDecimalValue.class)) {
+        if (typeClass.equals(BigDecimalValue.class)) {
             return new RelationRangeAdaptor<BigDecimal>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, openCast);
         }
 
-        if (paramType.getInstanceClass().equals(Date.class)) {
+        if (typeClass.equals(Date.class)) {
             return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.DATE, openCast);
         }
 
