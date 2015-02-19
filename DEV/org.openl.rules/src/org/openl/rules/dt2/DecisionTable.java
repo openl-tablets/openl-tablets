@@ -15,7 +15,9 @@ import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt2.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.dt2.algorithm.DecisionTableAlgorithmBuilder;
+import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
+import org.openl.rules.dt2.algorithm.IndexInfo;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt2.data.DecisionTableDataType;
 import org.openl.rules.dt2.element.ArrayHolder;
@@ -54,12 +56,17 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     private int columns;
 
-    private DecisionTableOptimizedAlgorithm algorithm;
+    private IDecisionTableAlgorithm algorithm;
 
     /**
      * Object to invoke current method.
      */
     private Invokable invoker;
+    
+    private DTInfo dtInfo;
+    
+    
+    
 
     public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
@@ -70,7 +77,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         return actionRows;
     }
 
-    public DecisionTableOptimizedAlgorithm getAlgorithm() {
+    public IDecisionTableAlgorithm getAlgorithm() {
         return algorithm;
     }
 
@@ -188,8 +195,8 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
 
-        algorithm = new DecisionTableOptimizedAlgorithm(evs, this);
-        algorithm.buildIndex();
+        algorithm = new DecisionTableAlgorithmBuilder(new IndexInfo().withTable(this), evs).buildAlgorithm();
+        
     }
 
     private void prepare(IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
@@ -306,5 +313,14 @@ public class DecisionTable extends ExecutableRulesMethod {
         }
         return ruleExecutionType;
     }
+
+	public DTInfo getDtInfo() {
+		return dtInfo;
+	}
+
+	public void setDtInfo(DTInfo dtInfo) {
+		this.dtInfo = dtInfo;
+	}
+
 
 }

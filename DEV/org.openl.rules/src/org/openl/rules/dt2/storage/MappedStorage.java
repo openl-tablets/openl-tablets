@@ -7,8 +7,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	
 	
 	
-	public MappedStorage(Object[] uniqueValues) {
-		super();
+	public MappedStorage(Object[] uniqueValues, StorageInfo info) {
+		super(info);
 		this.uniqueValues = uniqueValues;
 	}
 	
@@ -46,23 +46,23 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	 * @return
 	 */
 	public static IStorage<Object> makeNewStorage(int[] map,
-			Object[] uniqueValues) {
+			Object[] uniqueValues, StorageInfo info) {
 		
 		int mapMaxValue = uniqueValues.length - 1;
 		
 		if (mapMaxValue <= Byte.MAX_VALUE)
-			return new ByteMappedStorage(map, uniqueValues);
+			return new ByteMappedStorage(map, uniqueValues, info);
 		
 		if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE)
-			return new ByteExtMappedStorage(map, uniqueValues);
+			return new ByteExtMappedStorage(map, uniqueValues, info);
 		
 		if (mapMaxValue <= Short.MAX_VALUE)
-			return new ShortMappedStorage(map, uniqueValues);
+			return new ShortMappedStorage(map, uniqueValues, info);
 		
 		if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE)
-			return new ShortExtMappedStorage(map, uniqueValues);
+			return new ShortExtMappedStorage(map, uniqueValues, info);
 		
-		return new IntMappedStorage(map, uniqueValues);
+		return new IntMappedStorage(map, uniqueValues, info);
 	}
 	
 	
@@ -71,8 +71,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 		byte[] bmap;
 		
-		public ByteMappedStorage(int[] map,  Object[] uniqueValues) {
-			super(uniqueValues);
+		public ByteMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
+			super(uniqueValues, info);
 			initMap(map);
 		}
 
@@ -99,8 +99,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 		byte[] bmap;
 		
-		public ByteExtMappedStorage(int[] map,  Object[] uniqueValues) {
-			super(uniqueValues);
+		public ByteExtMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
+			super(uniqueValues, info);
 			initMap(map);
 		}
 
@@ -129,8 +129,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 		short[] bmap;
 		
-		public ShortMappedStorage(int[] map,  Object[] uniqueValues) {
-			super(uniqueValues);
+		public ShortMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
+			super(uniqueValues, info);
 			initMap(map);
 		}
 
@@ -158,8 +158,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 		short[] bmap;
 		
-		public ShortExtMappedStorage(int[] map,  Object[] uniqueValues) {
-			super(uniqueValues);
+		public ShortExtMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
+			super(uniqueValues, info);
 			initMap(map);
 		}
 
@@ -187,8 +187,8 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 		int[] map;
 		
-		public IntMappedStorage(int[] map,  Object[] uniqueValues) {
-			super(uniqueValues);
+		public IntMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
+			super(uniqueValues, info);
 			this.map = map;
 		}
 

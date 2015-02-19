@@ -102,4 +102,8 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     public int getWidth() {
         return conditionsWidth + hConditionsCount + retTableWidth;
     }
+    
+    
+    
+    
 }

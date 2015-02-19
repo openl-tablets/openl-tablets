@@ -76,7 +76,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     public ILocation getLocation() {
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
-            return syntaxNode.getSourceLocation();
+            if (syntaxNode != null) {
+                return syntaxNode.getSourceLocation();
+            }
         }
         return null;
     }
@@ -84,7 +86,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     public IOpenSourceCodeModule getSourceModule() {
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
-            return syntaxNode.getModule();
+            if (syntaxNode != null) {
+                return syntaxNode.getModule();
+            }
         }
         return null;
     }

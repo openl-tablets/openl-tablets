@@ -394,24 +394,49 @@ public class SpreadsheetStructureBuilder {
         } else if (rowHeader != null && rowHeader.getType() != null) {
             return rowHeader.getType();
         } else {
+            return spreadsheetBindingContext.isExecutionMode() ? getJavaClass(cellValue) : getOpenClass(cellValue);
 
-            // Try to derive cell type as double.
-            //
-            try {
-                if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
-                    return autoType ? null : JavaOpenClass.getOpenClass(DoubleValue.class);
-                }
+        }
+    }
 
-                // Try to parse cell value.
-                // If parse process will be finished with success then return
-                // double type else string type.
-                //
-                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
-
-                return JavaOpenClass.getOpenClass(DoubleValue.class);
-            } catch (Throwable t) {
-                return JavaOpenClass.getOpenClass(StringValue.class);
+    // TODO: *Value
+    private IOpenClass getOpenClass(String cellValue) {
+        // Try to derive cell type as double.
+        //
+        try {
+            if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
+                return autoType ? null : JavaOpenClass.getOpenClass(DoubleValue.class);
             }
+
+            // Try to parse cell value.
+            // If parse process will be finished with success then return
+            // double type else string type.
+            //
+            String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
+
+            return JavaOpenClass.getOpenClass(DoubleValue.class);
+        } catch (Throwable t) {
+            return JavaOpenClass.getOpenClass(StringValue.class);
+        }
+    }
+
+    private IOpenClass getJavaClass(String cellValue) {
+        // Try to derive cell type as double.
+        //
+        try {
+            if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
+                return autoType ? null : JavaOpenClass.getOpenClass(Double.class);
+            }
+
+            // Try to parse cell value.
+            // If parse process will be finished with success then return
+            // double type else string type.
+            //
+            String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
+
+            return JavaOpenClass.getOpenClass(Double.class);
+        } catch (Throwable t) {
+            return JavaOpenClass.getOpenClass(String.class);
         }
     }
 

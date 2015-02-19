@@ -12,6 +12,7 @@ import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.dt2.DTScale;
 import org.openl.rules.dt2.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt2.algorithm.DependentParametersOptimizedAlgorithm;
 import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
@@ -37,8 +38,8 @@ public class Condition extends FunctionalRow implements ICondition {
     private IMethodCaller evaluator;
     private IConditionEvaluator conditionEvaluator;
 
-    public Condition(String name, int row, ILogicalTable decisionTable) {
-        super(name, row, decisionTable);
+    public Condition(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
+        super(name, row, decisionTable, scale);
     }
 
     public IConditionEvaluator getConditionEvaluator() {

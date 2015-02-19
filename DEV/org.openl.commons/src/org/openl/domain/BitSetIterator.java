@@ -71,4 +71,15 @@ public class BitSetIterator extends AIntIterator {
         return nextBit + min;
     }
 
+	@Override
+	public boolean isResetable() {
+		return true;
+	}
+
+	@Override
+	public void reset() {
+	    nextBit = -1;
+	    isNextReady = false;
+	}
+
 }

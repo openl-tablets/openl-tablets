@@ -4,16 +4,9 @@
 package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.openl.OpenL;
-import org.openl.engine.OpenLManager;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.meta.DoubleValue;
-import org.openl.source.SourceType;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
@@ -50,7 +43,7 @@ public class DoubleRange implements INumberRange {
         lowerBoundType = res.getLeftBoundType();
         upperBound = res.getMax().doubleValue();
         upperBoundType = res.getRightBoundType();
-        
+
         if (isTruncated(res.getMin(), lowerBound)) {
             // For example, is converted from BigDecimal to Double
             throw new IllegalArgumentException("lowerBound value is truncated");
@@ -62,34 +55,12 @@ public class DoubleRange implements INumberRange {
     }
 
     public static RangeWithBounds getRangeWithBounds(String range) {
-        // TODO: Correct tokenizing in grammar.
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-
-        RangeWithBounds res;
-
-        // Save current openl messages before range parser invocation to
-        // avoid populating messages list with errors what are not refer to
-        // appropriate table. Reason: input string doesn't contain required
-        // information about source.
-        //
-        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
-
-        try {
-            OpenLMessages.getCurrentInstance().clear();
-            res = (RangeWithBounds) OpenLManager
-                    .run(openl, new StringSourceCodeModule(range, ""), SourceType.DOUBLE_RANGE);
-        } finally {
-            // Load old openl messages list.
-            //
-            OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
-        }
-        return res;
+        return DoubleRangeParser.parse(range);
     }
 
     /**
      * Returns true if converted value is truncated
-     * 
+     *
      * @param from converting number
      * @param to converted double value
      * @return true if converted value is truncated
@@ -100,7 +71,7 @@ public class DoubleRange implements INumberRange {
 
     /**
      * Compares lower bounds.
-     * 
+     *
      * @param range the DoubleRange to be compared
      * @return a negative integer, zero, or a positive integer as lower bound of
      *         this range is less than, equal to, or greater than the lower
@@ -118,10 +89,10 @@ public class DoubleRange implements INumberRange {
         }
         return 1;
     }
-    
+
     /**
      * Compares upper bounds.
-     * 
+     *
      * @param range the DoubleRange to be compared
      * @return a negative integer, zero, or a positive integer as upper bound of
      *         this range is less than, equal to, or greater than the upper
@@ -139,7 +110,7 @@ public class DoubleRange implements INumberRange {
         }
         return 1;
     }
-    
+
     public boolean contains(double x) {
         if (lowerBound < x && x < upperBound) {
             return true;
@@ -150,7 +121,7 @@ public class DoubleRange implements INumberRange {
         }
         return false;
     }
-    
+
     public boolean contains(DoubleValue value) {
         return contains(value.doubleValue());
     }
@@ -197,7 +168,7 @@ public class DoubleRange implements INumberRange {
     public DoubleRange intersect(DoubleRange range) {
         int lowerBoundComaring = compareLowerBound(range);
         int upperBoundComaring = compareUpperBound(range);
-        
+
         double lowerBound = lowerBoundComaring > 0 ? this.lowerBound : range.lowerBound;
         BoundType lowerBoundType = lowerBoundComaring > 0 ? this.lowerBoundType : range.lowerBoundType;
         double upperBound = upperBoundComaring < 0 ? this.upperBound : range.upperBound;

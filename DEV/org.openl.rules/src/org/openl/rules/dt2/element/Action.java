@@ -6,6 +6,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.dt2.DTScale;
 import org.openl.rules.dt2.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -25,8 +26,8 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam = false;
     private IOpenClass ruleExecutionType;
 
-    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction) {
-        super(name, row, decisionTable);
+    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction, DTScale.RowScale scale) {
+        super(name, row, decisionTable, scale);
         this.isReturnAction = isReturnAction;
     }
 
