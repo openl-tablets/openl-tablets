@@ -33,7 +33,7 @@ public class DecisionTableAlgorithmBuilder {
         int first = info.fromCondition;
         ICondition[] cc = table.getConditionRows();
         
-        if (cc.length <= first)
+        if (cc.length <= first || first >= info.toCondition)
         	return null;
         
         ICondition firstCondition =  cc[first];
