@@ -18,8 +18,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
@@ -395,35 +393,4 @@ public abstract class AOpenClass implements IOpenClass {
         }
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
-    
-    
-    public void addField(IOpenField field) {
-        Map<String, IOpenField> fields = fieldMap();
-        if (fields.containsKey(field.getName())) {
-            IOpenField existedField = fields.get(field.getName());
-            if (existedField != field) {
-                throw new DuplicatedVarException("", field.getName());
-            }else {
-                return;
-            }
-        }
-
-        fieldMap().put(field.getName(), field);
-
-        addFieldToLowerCaseMap(field);
-    }
-    
-    public void addMethod(IOpenMethod method) {
-        MethodKey key = new MethodKey(method);
-
-        Map<MethodKey, IOpenMethod> methods = methodMap();
-        if (methods.containsKey(key)) {
-            throw new DuplicatedMethodException(String.format("Method '%s' have bean already defined for class '%s'",
-                    key.toString(), getName()), method);
-        }
-
-        methodMap().put(key, method);
-    }
-    
-    
 }
