@@ -22,7 +22,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -95,32 +94,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     public IOpenClass findType(String namespace, String typeName) {
-        // TODO: *Value
-        if (isExecutionMode() && ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
-            if ("DoubleValue".equals(typeName)) {
-                typeName = "Double";
-            } else if ("IntValue".equals(typeName)) {
-                typeName = "Integer";
-            } else if ("LongValue".equals(typeName)) {
-                typeName = "Long";
-            } else if ("BigDecimalValue".equals(typeName)) {
-                typeName = "BigDecimal";
-            } else if ("BigIntegerValue".equals(typeName)) {
-                typeName = "BigInteger";
-            } else if ("ByteValue".equals(typeName)) {
-                typeName = "Byte";
-            } else if ("FloatValue".equals(typeName)) {
-                typeName = "Float";
-            } else if ("ShortValue".equals(typeName)) {
-                typeName = "Short";
-            } else if ("DoubleValuePercent".equals(typeName)) {
-                typeName = "Double";
-            } else if ("StringValue".equals(typeName)) {
-                typeName = "String";
-            } else if ("ObjectValue".equals(typeName)) {
-                typeName = "Object";
-            }
-        }
         return delegate.findType(namespace, typeName);
     }
 

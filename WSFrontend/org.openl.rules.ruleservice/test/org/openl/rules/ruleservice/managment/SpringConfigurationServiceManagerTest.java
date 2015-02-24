@@ -38,9 +38,9 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
                 "vehicleEligibilityScore", new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional" });
-        assertTrue(object instanceof Double);
-        Double value = (Double) object;
-        assertEquals(50.0, value, 0.01);
+        assertTrue(object instanceof org.openl.meta.DoubleValue);
+        org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
+        assertEquals(50.0, value.getValue(), 0.01);
     }
 
     @Test(expected = MethodInvocationException.class)

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.model.Module;
@@ -92,7 +93,7 @@ public class MultiModuleInstantiationTest {
                 String.class });
         Object result = method.invoke(instance, new Object[] { context, "High Risk Driver" });
 
-        assertEquals(new Double(400), result);
+        assertEquals(new DoubleValue(400), result);
     }
 
     private List<Module> listModulesInFolder(File folder) {

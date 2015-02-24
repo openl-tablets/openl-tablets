@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -35,7 +36,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) throws Exception {
-            return (Double) result;
+            return ((DoubleValue) result).doubleValue();
         }
 
     }
