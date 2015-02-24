@@ -16,11 +16,11 @@ import org.openl.rules.runtime.RulesEngineFactory;
 
 public class RulesPrioritySortingTest {
     public interface ITestI extends IRulesRuntimeContextProvider {
-        Double driverRiskScoreOverloadTest(String driverRisk);
-        Double driverRiskScoreOverloadTest2(String driverRisk);
-        Double driverRiskScoreOverloadTest3(String driverRisk);
+        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
+        DoubleValue driverRiskScoreOverloadTest2(String driverRisk);
+        DoubleValue driverRiskScoreOverloadTest3(String driverRisk);
 
-        Double driverRiskScoreNoOverloadTest(String driverRisk);
+        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class RulesPrioritySortingTest {
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest("High Risk Driver");
+            DoubleValue res = instance.driverRiskScoreOverloadTest("High Risk Driver");
             assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
         }
     }
@@ -75,7 +75,7 @@ public class RulesPrioritySortingTest {
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
+            DoubleValue res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
             assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
         }
     }
@@ -101,7 +101,7 @@ public class RulesPrioritySortingTest {
             String lob = (String) data[1];
             context.setCurrentDate(currentDate);
             context.setLob(lob);
-            Double res = instance.driverRiskScoreOverloadTest3("High Risk Driver");
+            DoubleValue res = instance.driverRiskScoreOverloadTest3("High Risk Driver");
             assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
         }
     }
