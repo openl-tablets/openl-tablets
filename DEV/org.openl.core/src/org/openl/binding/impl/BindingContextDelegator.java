@@ -26,7 +26,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
@@ -98,7 +97,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public IOpenClass findType(String namespace, String typeName) {
         // TODO: *Value
         if (isExecutionMode() && ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
-        	JavaOpenClass.enhance();
             if ("DoubleValue".equals(typeName)) {
                 typeName = "Double";
             } else if ("IntValue".equals(typeName)) {

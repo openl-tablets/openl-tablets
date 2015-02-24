@@ -41,12 +41,10 @@ import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
 import org.openl.meta.DoubleValue;
-import org.openl.meta.DoubleValueCompatibility;
 import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
-import org.openl.meta.compat.OpenClassEnhancer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -124,7 +122,6 @@ public class JavaOpenClass extends AOpenClass {
                     javaClassCache.put(long.class, LONG);
                     javaClassCache.put(Long.class, new JavaOpenClass(Long.class, null, true));
                     javaClassCache.put(double.class, DOUBLE);
-                    
                     javaClassCache.put(Double.class, new JavaOpenClass(Double.class, null, true));
                     javaClassCache.put(float.class, FLOAT);
                     javaClassCache.put(Float.class, new JavaOpenClass(Float.class, null, true));
@@ -723,20 +720,5 @@ public class JavaOpenClass extends AOpenClass {
         }
 
     }
-    
-    
-    private static boolean enhanced = false;
-    
-    public static synchronized void enhance()
-    {
-    	if (enhanced)
-    		return;
-    	
-        OpenClassEnhancer.enhance( JavaOpenClass.getOpenClass(Double.class),
-				                  JavaOpenClass.getOpenClass(DoubleValueCompatibility.class) , OpenClassEnhancer.Options.ALL);
-   	
-    	enhanced = true;
-    }
-    
 
 }
