@@ -25,6 +25,7 @@ import org.openl.rules.dt2.IDecisionTableConstants;
 import org.openl.rules.dt2.storage.IStorage;
 import org.openl.rules.dt2.storage.IStorageBuilder;
 import org.openl.rules.dt2.storage.StorageFactory;
+import org.openl.rules.dtx.IDecisionTableParameterInfo;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -108,7 +109,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 		storage = null;
 	}
 
-	public DecisionTableParameterInfo getParameterInfo(int i) {
+	public IDecisionTableParameterInfo getParameterInfo(int i) {
 		return new DecisionTableParameterInfo(i, this);
 	}
 
@@ -600,10 +601,6 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	}
 
-	@Override
-	public int numberOfParams() {
-		return params.length;
-	}
 
 	@Override
 	public boolean hasFormulasInStorage() {

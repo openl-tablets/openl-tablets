@@ -11,18 +11,18 @@ import org.openl.rules.dt2.index.RangeIndex;
 import org.openl.rules.dt2.index.TraceableEqualsIndex;
 import org.openl.rules.dt2.index.TraceableRangeIndex;
 import org.openl.rules.dt2.trace.DTConditionTraceObject;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ChildTraceStack;
 import org.openl.vm.trace.TraceStack;
 
 public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTableOptimizedAlgorithm {
     private final DecisionTableOptimizedAlgorithm algorithmDelegate;
-    private final DecisionTableTraceObject baseTraceObject;
+    private final IDecisionTableTraceObject baseTraceObject;
     private final TraceStack conditionsStack;
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
-            TraceStack conditionsStack, DecisionTableTraceObject baseTraceObject, IndexInfo info) {
+            TraceStack conditionsStack, IDecisionTableTraceObject baseTraceObject, IndexInfo info) {
         super(delegate.getEvaluators(), delegate.getTable(), info, delegate.getIndexRoot());
         this.algorithmDelegate = delegate;
         this.baseTraceObject = baseTraceObject;
@@ -75,12 +75,12 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
     }
 
     private static class SelectorTracer implements IIntSelector {
-        private final DecisionTableTraceObject baseTraceObject;
+        private final IDecisionTableTraceObject baseTraceObject;
         private final IIntSelector delegate;
         private final ICondition condition;
         private final TraceStack conditionsStack;
 
-        public SelectorTracer(IIntSelector delegate, ICondition condition, DecisionTableTraceObject baseTraceObject,
+        public SelectorTracer(IIntSelector delegate, ICondition condition, IDecisionTableTraceObject baseTraceObject,
                 TraceStack conditionsStack) {
             this.baseTraceObject = baseTraceObject;
             this.delegate = delegate;

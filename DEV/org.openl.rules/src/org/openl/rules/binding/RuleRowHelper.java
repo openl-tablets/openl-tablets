@@ -202,7 +202,7 @@ public class RuleRowHelper {
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
-            if (src != null) src = src.intern();
+            if (src != null) src = src.length() <=4 ? src.intern() : src;
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
         }
         

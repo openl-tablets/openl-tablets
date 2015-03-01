@@ -47,10 +47,28 @@ public final class MethodKey {
 		if (originalParams == null) {
 			return null;
 		}
+		
+		
+		
+		int firstParamToConvert = -1;
+		for (int i = 0; i < originalParams.length; i++) {
+			if (originalParams[i] instanceof JavaOpenClass)
+				continue;
+			firstParamToConvert = i;
+			break;
+		}
+		
+		if (firstParamToConvert == -1)
+			return originalParams;
+		
 
 		IOpenClass[] normalizedParams = new IOpenClass[originalParams.length];
+		if (firstParamToConvert > 0)
+			System.arraycopy(originalParams, 0, normalizedParams, 0, firstParamToConvert);
+		
+		
 
-		for (int i = 0; i < originalParams.length; i++) {
+		for (int i = firstParamToConvert; i < originalParams.length; i++) {
 			IOpenClass param = originalParams[i];
 			IOpenClass normParam = param;
 

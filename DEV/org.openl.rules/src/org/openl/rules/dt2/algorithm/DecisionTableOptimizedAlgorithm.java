@@ -20,19 +20,20 @@ import org.openl.rules.dt2.DecisionTableRuleNode;
 import org.openl.rules.dt2.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
-import org.openl.rules.dt2.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt2.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt2.data.ConditionOrActionParameterField;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.index.ARuleIndex;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
 import org.openl.rules.dt2.type.BooleanAdaptorFactory;
 import org.openl.rules.dt2.type.BooleanTypeAdaptor;
 import org.openl.rules.dt2.type.DoubleRangeAdaptor;
 import org.openl.rules.dt2.type.IRangeAdaptor;
 import org.openl.rules.dt2.type.IntRangeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -410,7 +411,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         @Override
-        public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+        public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined  {
             return decorate.getRuleParameterDomain(condition);
         }
 
@@ -420,12 +421,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         @Override
-        public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return decorate.getFormalSourceCode(condition);
         }
 
         @Override
-        public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+        public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
             return decorate.getConditionParameterDomain(paramIdx, condition);
         }
     };
@@ -439,8 +440,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     public void removeParamValuesForIndexedConditions() {
         for (int i = info.fromRule; i <= info.toCondition; i++) {
             if (evaluators[i].isIndexed()) {
-                if (!isDependecyOnConditionExists(table.getConditionRows()[i])) {
-                    table.getConditionRows()[i].clearParamValues();
+                if (!isDependecyOnConditionExists(table.getCondition(i))) {
+                    table.getCondition(i).clearParamValues();
                 }
             } else {
                 final IConditionEvaluator evaluator = evaluators[i];
@@ -507,7 +508,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         // Select rules set using indexed mode
         //
-        ICondition[] conditions = table.getConditionRows();
+//        ICondition[] conditions = table.getConditionRows();
 
         IIntIterator iterator = null;
         int conditionNumber = info.fromCondition;
@@ -519,9 +520,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             ARuleIndex index = indexRoot;
 
             for (; conditionNumber <= info.toCondition; conditionNumber++) {
-                index = decoratorFactory.create(index, conditions[conditionNumber]);
+                index = decoratorFactory.create(index, table.getCondition(conditionNumber));
 
-                Object testValue = evaluateTestValue(conditions[conditionNumber], target, params, env);
+                Object testValue = evaluateTestValue(table.getCondition(conditionNumber), target, params, env);
 
                 DecisionTableRuleNode node = index.findNode(testValue);
 
@@ -537,7 +538,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         for (; conditionNumber <= info.toCondition; conditionNumber++) {
 
-            ICondition condition = conditions[conditionNumber];
+            ICondition condition = table.getCondition(conditionNumber);
             IConditionEvaluator evaluator = evaluators[conditionNumber];
 
             IIntSelector sel = evaluator.getSelector(condition, target, params, env);
@@ -587,7 +588,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
 	@Override
 	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			DecisionTableTraceObject traceObject) {
+			IDecisionTableTraceObject traceObject) {
 		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, conditionsStack, traceObject, info);
 	}
 
@@ -595,8 +596,5 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 		return indexRoot;
 	}
 
-	public void setIndexRoot(ARuleIndex indexRoot) {
-		this.indexRoot = indexRoot;
-	}
 
 }

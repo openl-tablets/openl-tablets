@@ -1,8 +1,9 @@
 package org.openl.rules.dt2.element;
 
+import org.openl.rules.dtx.IDecisionTableParameterInfo;
 import org.openl.types.IParameterDeclaration;
 
-public class DecisionTableParameterInfo {
+public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
 
     private int index;
     private IDecisionRow row;

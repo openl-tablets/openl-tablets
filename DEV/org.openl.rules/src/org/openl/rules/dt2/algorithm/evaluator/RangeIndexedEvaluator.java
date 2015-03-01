@@ -21,6 +21,8 @@ import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.index.ARuleIndex;
 import org.openl.rules.dt2.index.RangeIndex;
 import org.openl.rules.dt2.type.IRangeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.helpers.IntRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -41,7 +43,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         this.nparams = nparams;
     }
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         if (rangeAdaptor != null && rangeAdaptor.useOriginalSource())
             return condition.getSourceCodeModule();
 
@@ -262,7 +264,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return null;
     }
 
-    protected IDomain<? extends Object> indexedDomain(ICondition condition) throws DomainCanNotBeDefined {
+    protected IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 

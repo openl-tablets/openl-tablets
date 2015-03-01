@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
@@ -26,7 +25,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Binding context for xls rules.
@@ -83,7 +85,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public IMethodCaller findMethodCaller(String namespace, String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller method = super.findMethodCaller(namespace, methodName, parTypes);
         if(method == null){
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, internalMethods.iterator());
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, 
+            		
+            	OpenIterator.select(internalMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
         }
         return method;
     }

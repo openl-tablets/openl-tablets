@@ -25,6 +25,9 @@ import org.openl.rules.dt2.element.FunctionalRow;
 import org.openl.rules.dt2.element.IAction;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.element.RuleRow;
+import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -45,10 +48,10 @@ import org.openl.vm.IRuntimeEnv;
  * 
  */
 @Executable
-public class DecisionTable extends ExecutableRulesMethod {
+public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
 
-    private ICondition[] conditionRows;
-    private IAction[] actionRows;
+    private IBaseCondition[] conditionRows;
+    private IBaseAction[] actionRows;
     /**
      * Optional non-functional row with rule indexes.
      */
@@ -73,7 +76,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         initProperties(getSyntaxNode().getTableProperties());
     }
 
-    public IAction[] getActionRows() {
+    public IBaseAction[] getActionRows() {
         return actionRows;
     }
 
@@ -85,7 +88,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         return columns;
     }
 
-    public ICondition[] getConditionRows() {
+    public IBaseCondition[] getConditionRows() {
         return conditionRows;
     }
 
@@ -144,7 +147,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.columns = columns;
     }
 
-    public void setConditionRows(ICondition[] conditionRows) {
+    public void setConditionRows(IBaseCondition[] conditionRows) {
         this.conditionRows = conditionRows;
     }
 
@@ -152,7 +155,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.ruleRow = ruleRow;
     }
 
-    public void bindTable(ICondition[] conditionRows, IAction[] actionRows, RuleRow ruleRow, OpenL openl,
+    public void bindTable(IBaseCondition[] conditionRows, IBaseAction[] actionRows, RuleRow ruleRow, OpenL openl,
             ComponentOpenClass componentOpenClass, IBindingContextDelegator cxtd, int columns) throws Exception {
 
         this.conditionRows = conditionRows;
@@ -219,7 +222,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
         for (int i = 0; i < actionRows.length; i++) {
             IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, componentOpenClass,
+            getAction(i).prepareAction(methodType, signature, openl, componentOpenClass,
                     actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
         }
     }
@@ -232,7 +235,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
         for (int i = 0; i < conditionRows.length; i++) {
             try {
-                evaluators[i] = conditionRows[i].prepareCondition(signature, openl, componentOpenClass,
+                evaluators[i] = getCondition(i).prepareCondition(signature, openl, componentOpenClass,
                         bindingContextDelegator, ruleRow);
             } catch (SyntaxNodeException e) {
                 errors.add(e);
@@ -257,7 +260,7 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
-            for (ICondition condition : conditionRows) {
+            for (IBaseCondition condition : conditionRows) {
                 CompositeMethod method = (CompositeMethod) condition.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
@@ -268,7 +271,7 @@ public class DecisionTable extends ExecutableRulesMethod {
         }
 
         if (actionRows != null) {
-            for (IAction action : actionRows) {
+            for (IBaseAction action : actionRows) {
                 CompositeMethod method = (CompositeMethod) action.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
@@ -305,6 +308,18 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     }
 
+    
+    public ICondition getCondition(int n)
+    {
+    	return (ICondition)conditionRows[n];
+    }
+
+    public IAction getAction(int n)
+    {
+    	return (IAction)actionRows[n];
+    }
+    
+    
     IOpenClass ruleExecutionType;
 
     private synchronized IOpenClass getRuleExecutionType(OpenL openl) {
@@ -320,6 +335,12 @@ public class DecisionTable extends ExecutableRulesMethod {
 
 	public void setDtInfo(DTInfo dtInfo) {
 		this.dtInfo = dtInfo;
+	}
+
+	@Override
+	public int getNumberOfConditions() {
+		
+		return conditionRows.length;
 	}
 
 

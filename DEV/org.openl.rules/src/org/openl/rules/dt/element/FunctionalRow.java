@@ -33,6 +33,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
@@ -115,7 +116,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return null;
     }
 
-    public int numberOfParams() {
+    public int getNumberOfParams() {
         return params.length;
     }
 
@@ -514,4 +515,53 @@ public abstract class FunctionalRow implements IDecisionRow {
     public String toString() {    	 
     	return String.format("%s : %s", name, codeTable.toString());
     }
+
+	@Override
+	public int getNumberOfRules() {
+		
+		return  paramValues == null ? 0 : params.length;
+	}
+
+	@Override
+	public boolean isEmpty(int ruleN) {
+		if (paramValues == null || paramValues.length <= ruleN)
+			return true;
+		Object[] values = paramValues[ruleN];
+		if (values == null)
+			return true;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] != null)
+				return false;
+		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean hasFormula(int ruleN) {
+		if (paramValues == null || paramValues.length <= ruleN)
+			return false;
+		Object[] values = paramValues[ruleN];
+		if (values == null)
+			return false;
+		
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] instanceof IOpenMethod)
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public Object getParamValue(int paramIdx, int ruleN) {
+		if (paramValues == null || paramValues.length <= ruleN)
+			return null;
+		
+		Object[] values = paramValues[ruleN];
+		if (values == null)
+			return null;
+		
+		return values[paramIdx];
+	}
 }

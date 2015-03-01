@@ -107,9 +107,12 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
         return getParameterTypes()[i];
     }
 
-    public synchronized IOpenClass[] getParameterTypes() {
+    public IOpenClass[] getParameterTypes() {
         if (parameterTypes == null) {
-            parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+        	synchronized(this){
+            	parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+        	}	
+        	
         }
 
         return parameterTypes;

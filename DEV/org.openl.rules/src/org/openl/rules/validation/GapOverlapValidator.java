@@ -8,14 +8,13 @@ import org.openl.OpenL;
 import org.openl.domain.IDomain;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
-import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.validator.DecisionTableAnalyzer;
-import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.type.domains.DomainAdaptorFactory;
+import org.openl.rules.dtx.type.domains.IDomainAdaptor;
+import org.openl.rules.dtx.validator.DecisionTableAnalyzer;
+import org.openl.rules.dtx.validator.DecisionTableValidator;
+import org.openl.rules.dtx.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
@@ -50,7 +49,7 @@ public class GapOverlapValidator extends TablesValidator {
                     // can cast to DecisionTable, as validateDT property belongs
                     // only to DT.
                     //
-                    DecisionTable decisionTable = (DecisionTable) executableMethod;
+                    IDecisionTable decisionTable = (IDecisionTable) executableMethod;
                     DesionTableValidationResult dtValidResult = validate(openClass, decisionTable);
                     if (dtValidResult != null && dtValidResult.hasProblems()) {
                         decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
@@ -68,7 +67,7 @@ public class GapOverlapValidator extends TablesValidator {
         return ValidationUtils.validationSuccess();
     }
 
-    private DesionTableValidationResult validate(IOpenClass openClass, DecisionTable decisionTable) {
+    private DesionTableValidationResult validate(IOpenClass openClass, IDecisionTable decisionTable) {
         DesionTableValidationResult dtValidResult = null;
         try {
             Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
@@ -81,11 +80,11 @@ public class GapOverlapValidator extends TablesValidator {
         return dtValidResult;
     }
 
-    private Map<String, IDomainAdaptor> gatherDomains(DecisionTable dt) throws DomainCanNotBeDefined {
+    private Map<String, IDomainAdaptor> gatherDomains(IDecisionTable dt) throws Exception {
         Map<String, IDomainAdaptor> domainsMap = new HashMap<String, IDomainAdaptor>();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(dt);
 
-        for (ICondition condition : dt.getConditionRows()) {
+        for (IBaseCondition condition : dt.getConditionRows()) {
             // List<IParameterDeclaration> parameters =
             // getAllParameters(condition, analyzer);
 

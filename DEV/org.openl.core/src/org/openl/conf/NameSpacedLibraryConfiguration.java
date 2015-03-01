@@ -60,7 +60,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         
         List<IOpenMethod> methods = new LinkedList<IOpenMethod>();
         for (int i = 0; i < factories.length; i++) {
-            Iterator<IOpenMethod> itr = factories[i].getLibrary(cxt).methods();
+            Iterator<IOpenMethod> itr = factories[i].getLibrary(cxt).methods(name);
             while (itr.hasNext()){
                 methods.add(itr.next());
             }

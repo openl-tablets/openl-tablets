@@ -1,24 +1,24 @@
 package org.openl.rules.dt2.index;
 
-import org.openl.rules.dt2.DecisionTableRuleNode;
-import org.openl.rules.dt2.element.ICondition;
-import org.openl.rules.dt2.trace.DTIndexedTraceObject;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
-import org.openl.vm.trace.TraceStack;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.openl.rules.dt2.DecisionTableRuleNode;
+import org.openl.rules.dt2.element.ICondition;
+import org.openl.rules.dt2.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.vm.trace.TraceStack;
+
 public class TraceableEqualsIndex extends EqualsIndex {
     private final ICondition condition;
-    private final DecisionTableTraceObject baseTraceObject;
+    private final IDecisionTableTraceObject baseTraceObject;
     private final TraceStack traceStack;
 
     public TraceableEqualsIndex(EqualsIndex delegate,
                                 ICondition condition,
-                                DecisionTableTraceObject baseTraceObject,
+                                IDecisionTableTraceObject baseTraceObject,
                                 TraceStack traceStack) {
         super(delegate.emptyOrFormulaNodes, null);
         this.condition = condition;

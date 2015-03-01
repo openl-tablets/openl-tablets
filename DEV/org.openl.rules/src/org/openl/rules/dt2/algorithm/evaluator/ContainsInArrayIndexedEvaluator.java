@@ -21,6 +21,7 @@ import org.openl.rules.dt2.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.index.ARuleIndex;
 import org.openl.rules.dt2.index.EqualsIndex;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -33,7 +34,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IParameterDeclaration[] cparams = condition.getParams();
 
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
@@ -132,7 +133,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
-    protected IDomain<Object> indexedDomain(ICondition condition) {
+    protected IDomain<Object> indexedDomain(IBaseCondition condition) {
 //        Object[][] params = condition.getParamValues();
         int len = condition.getNumberOfRules();
         ArrayList<Object> list = new ArrayList<Object>(len);

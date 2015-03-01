@@ -6,6 +6,7 @@
 
 package org.openl.conf;
 
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -68,11 +69,17 @@ public final class UserContext extends AUserContext {
 
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
         this.userClassLoader = userClassLoader;
-        this.userHome = userHome;
+        this.userHome = normalizeUserHome(userHome);
         this.userProperties = userProperties;
     }
 
-    public Object execute(IExecutable exe) {
+    public static String normalizeUserHome(String userHome) {
+        String currentWorkDirectory = new File(userHome).getAbsolutePath();
+
+        return currentWorkDirectory;
+	}
+
+	public Object execute(IExecutable exe) {
         try {
             pushCurrentContext(this);
             return exe.execute();

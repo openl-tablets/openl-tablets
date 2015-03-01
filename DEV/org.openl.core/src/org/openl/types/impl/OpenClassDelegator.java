@@ -216,4 +216,8 @@ public class OpenClassDelegator implements IOpenClass {
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 
+	public Iterator<IOpenMethod> methods(String name) {
+		return baseClass.methods(name);
+	}
+
 }

@@ -5,6 +5,8 @@ import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 
@@ -18,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DefaultConditionEvaluator implements IConditionEvaluator {
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         return condition.getSourceCodeModule();
     }
 
@@ -37,11 +39,11 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
         throw new UnsupportedOperationException("The evaluator does not support indexing");
     }
 
-    public IDomain<?> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+    public IDomain<?> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         throw new DomainCanNotBeDefined("Non-indexed Evaluator", getFormalSourceCode(condition).getCode());
     }
 
-    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+    public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
         throw new DomainCanNotBeDefined("Non-indexed Evaluator", getFormalSourceCode(condition).getCode());
     }
 

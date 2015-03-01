@@ -9,7 +9,7 @@ import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithmTraceDecorato
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;

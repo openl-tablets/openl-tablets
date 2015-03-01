@@ -1,21 +1,21 @@
 package org.openl.rules.dt2.index;
 
+import java.util.Iterator;
+
 import org.openl.rules.dt2.DecisionTableRuleNode;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.trace.DTIndexedTraceObject;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.TraceStack;
 
-import java.util.Iterator;
-
 public class TraceableRangeIndex extends RangeIndex {
     private final ICondition condition;
-    private final DecisionTableTraceObject baseTraceObject;
+    private final IDecisionTableTraceObject baseTraceObject;
     private CachingTraceStack cachingTraceStack;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public TraceableRangeIndex(RangeIndex delegate, ICondition condition, DecisionTableTraceObject baseTraceObject,
+    public TraceableRangeIndex(RangeIndex delegate, ICondition condition, IDecisionTableTraceObject baseTraceObject,
                                TraceStack traceStack) {
         super(delegate.emptyOrFormulaNodes, null, delegate.rules, delegate.adaptor);
         this.condition = condition;
