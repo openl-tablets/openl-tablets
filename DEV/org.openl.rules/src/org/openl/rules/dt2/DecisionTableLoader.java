@@ -20,6 +20,8 @@ import org.openl.rules.dt2.element.Condition;
 import org.openl.rules.dt2.element.IAction;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.element.RuleRow;
+import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -47,8 +49,8 @@ public class DecisionTableLoader {
    DTInfo info;
     
 
-    private List<ICondition> conditions = new ArrayList<ICondition>();
-    private List<IAction> actions = new ArrayList<IAction>();
+    private List<IBaseCondition> conditions = new ArrayList<IBaseCondition>();
+    private List<IBaseAction> actions = new ArrayList<IBaseAction>();
 
     private void addAction(String name, int row, ILogicalTable table) {
         actions.add(new Action(name, row, table, false, DTScale.getStandardScale()));

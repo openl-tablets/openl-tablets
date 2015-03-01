@@ -38,7 +38,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
 
     private void initFileds() {
         for (int i = 0; i < dtable.getConditionRows().length; i++) {
-            addDecisionRow(dtable.getConditionRows()[i]);
+            addDecisionRow(dtable.getCondition(i));
         }
     }
 

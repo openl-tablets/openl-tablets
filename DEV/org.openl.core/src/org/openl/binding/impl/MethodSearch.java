@@ -36,30 +36,14 @@ public class MethodSearch {
             this.nParams = nParams;
         }
 
-        @Override
-        protected boolean equalsSelector(ASelector<IOpenMethod> sel) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.openl.util.ASelector#redefinedHashCode()
-         */
-        @Override
-        protected int redefinedHashCode() {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.openl.util.ISelector#select(java.lang.Object)
-         */
-        public boolean select(IOpenMethod method) {
+        public boolean select2(IOpenMethod method) {
             return method.getName().equals(name) && method.getSignature().getParameterTypes().length == nParams;
+        }
+
+        
+        //name is not needed
+        public boolean select(IOpenMethod method) {
+            return method.getSignature().getParameterTypes().length == nParams;
         }
     }
 
@@ -149,7 +133,7 @@ public class MethodSearch {
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory) throws AmbiguousMethodException {
-        return getCastingMethodCaller(name, params, casts, factory.methods());
+        return getCastingMethodCaller(name, params, casts, factory.methods(name));
     }
 
     /**

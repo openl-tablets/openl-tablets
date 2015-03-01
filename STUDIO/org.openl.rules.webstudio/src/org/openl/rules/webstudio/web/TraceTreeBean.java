@@ -1,8 +1,12 @@
 package org.openl.rules.webstudio.web;
 
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
@@ -14,11 +18,6 @@ import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.Tracer;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.

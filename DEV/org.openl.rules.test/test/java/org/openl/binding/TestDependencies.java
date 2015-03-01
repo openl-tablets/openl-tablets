@@ -3,19 +3,20 @@
  */
 package org.openl.binding;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import junit.framework.TestCase;
+
 import org.openl.base.INamedThing;
 import org.openl.main.SourceCodeURLConstants;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.test.Tools;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
-
-import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
  * @author snshor
@@ -31,8 +32,8 @@ public class TestDependencies extends TestCase {
         for (IOpenMethod m : xmo.getMethods()) {
             BindingDependencies bd = new BindingDependencies();
 
-            if (m instanceof DecisionTable) {
-                DecisionTable dt = (DecisionTable) m;
+            if (m instanceof IDecisionTable) {
+                IDecisionTable dt = (IDecisionTable) m;
                 dt.updateDependency(bd);
 
             } else if (m instanceof CompositeMethod) {

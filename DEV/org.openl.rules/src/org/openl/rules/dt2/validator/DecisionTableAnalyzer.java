@@ -39,10 +39,12 @@ public class DecisionTableAnalyzer {
 
     private void init(DecisionTable decisionTable) {
 
-        ICondition[] conditionRows = decisionTable.getConditionRows();
+        int n = decisionTable.getNumberOfConditions();
+        
+       
 
-        for (ICondition conditionRow : conditionRows) {
-            conditionAnalyzers.put(conditionRow, new ConditionAnalyzer(conditionRow));
+        for (int i = 0; i < n; ++i) {
+            conditionAnalyzers.put(decisionTable.getCondition(i), new ConditionAnalyzer(decisionTable.getCondition(i)));
         }
     }
 

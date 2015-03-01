@@ -10,13 +10,12 @@ import java.util.Set;
 import org.junit.Test;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 
 public class TestRulesDependencies extends BaseOpenlBuilderHelper {
@@ -32,7 +31,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         String tableName = "Rules String test1(int age)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((DecisionTable) tsn.getMember()).getDependencies();
+            BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is only one rules dependency", 1, rulesMethods.size());
 
@@ -54,7 +53,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         String tableName = "Rules int getCalcAge(int constant)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
-            BindingDependencies bindDep = ((DecisionTable) tsn.getMember()).getDependencies();
+            BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is no dependencies to other rules methods", 0, rulesMethods.size());
         } else {

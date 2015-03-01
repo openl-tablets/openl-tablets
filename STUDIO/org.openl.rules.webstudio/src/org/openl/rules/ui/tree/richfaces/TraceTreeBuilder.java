@@ -3,7 +3,7 @@ package org.openl.rules.ui.tree.richfaces;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.dt.trace.DTConditionTraceObject;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;

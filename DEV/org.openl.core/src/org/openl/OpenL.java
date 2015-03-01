@@ -47,7 +47,6 @@ public class OpenL {
     private static OpenLConfigurator config = new OpenLConfigurator();
 
     // Soft references to values are used to prevent memory leak
-    @SuppressWarnings("unchecked")
     private static Map<Object, OpenL> openLCache = new ReferenceMap<Object, OpenL>();
 
     private IOpenParser parser;
@@ -169,8 +168,11 @@ public class OpenL {
      * @return new instance of OpenL
      */
     private static OpenL createInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+    	
+//    	System.out.println("!!!!!!!!!!!!!!!!!!!  Creating instance " + name + "    ----------------------------");
+    	
         OpenL openl = builder.build(name);
-        openl.setName(name);
+//        openl.setName(name);
 
         return openl;
     }
@@ -323,4 +325,9 @@ public class OpenL {
     public void setCompileContext(ICompileContext compileContext) {
         this.compileContext = compileContext;
     }
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

@@ -1,12 +1,13 @@
 package org.openl.rules.dt2.trace;
 
+import java.util.List;
+
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
-
-import java.util.List;
 
 /**
  * Tracer leaf for the Decision Table Rule.
@@ -16,9 +17,9 @@ import java.util.List;
 public class DTRuleTracerLeaf extends ATableTracerLeaf {
 
     private int ruleIndex;
-    private DecisionTableTraceObject decisionTableTraceObject;
+    private IDecisionTableTraceObject decisionTableTraceObject;
 
-    public DTRuleTracerLeaf(DecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
+    public DTRuleTracerLeaf(IDecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
         super("rule");
         this.ruleIndex = ruleIdx;
         this.decisionTableTraceObject = decisionTableTraceObject;
@@ -32,7 +33,7 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
         return getRuleTable().getSource().getRegion();
     }
 
-    public DecisionTableTraceObject getParentTraceObject() {
+    public IDecisionTableTraceObject getParentTraceObject() {
         return decisionTableTraceObject;
     }
 

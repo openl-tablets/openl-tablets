@@ -8,8 +8,8 @@ import org.openl.rules.cmatch.algorithm.ColumnMatchTraceObject;
 import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WColumnMatchTraceObject;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.table.MethodTableTraceObject;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.table.ATableTracerNode;
@@ -30,8 +30,8 @@ public class TracedObjectFactory {
             } else {
                 return new ColumnMatchTraceObject(columnMatch, params);
             }
-        } else if (method instanceof DecisionTable) {
-            return new DecisionTableTraceObject((DecisionTable) method, params);
+        } else if (method instanceof IDecisionTable) {
+            return new DecisionTableTraceObject((IDecisionTable) method, params);
         } else if (method instanceof TableMethod) {
             return new MethodTableTraceObject((TableMethod) method, params);
         } else if (method instanceof Spreadsheet) {

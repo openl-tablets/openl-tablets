@@ -29,6 +29,21 @@ public class TestHelper<T> {
         XlsMetaInfo xlsMI = (XlsMetaInfo) dObj.getType().getMetaInfo();
         tableSyntaxNode =  xlsMI.getXlsModuleNode().getXlsTableSyntaxNodes()[0];
     }
+    
+    public TestHelper(File file, Class<T> tClass, boolean executionMode) {
+        engineFactory = new RulesEngineFactory<T>(file, tClass);
+        engineFactory.setExecutionMode(executionMode);
+
+        instance = engineFactory.newEngineInstance();
+
+        IEngineWrapper ew = (IEngineWrapper) instance;
+        DynamicObject dObj = (DynamicObject) ew.getInstance();
+        XlsMetaInfo xlsMI = (XlsMetaInfo) dObj.getType().getMetaInfo();
+        if (!executionMode)
+        	tableSyntaxNode =  xlsMI.getXlsModuleNode().getXlsTableSyntaxNodes()[0];
+    }
+    
+    
 
     public TestHelper(URL url, Class<T> tClass) {
         engineFactory = new RulesEngineFactory<T>(new URLSourceCodeModule(url), tClass);
