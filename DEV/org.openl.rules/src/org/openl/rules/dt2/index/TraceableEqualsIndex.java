@@ -1,5 +1,6 @@
 package org.openl.rules.dt2.index;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.SortedMap;
@@ -20,7 +21,7 @@ public class TraceableEqualsIndex extends EqualsIndex {
                                 ICondition condition,
                                 IDecisionTableTraceObject baseTraceObject,
                                 TraceStack traceStack) {
-        super(delegate.emptyOrFormulaNodes, null);
+        super(delegate.emptyOrFormulaNodes);
         this.condition = condition;
         this.baseTraceObject = baseTraceObject;
         this.traceStack = traceStack;

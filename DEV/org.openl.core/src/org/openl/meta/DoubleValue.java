@@ -593,16 +593,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = value;
     }
 
-    public DoubleValue(double value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public DoubleValue(double value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public DoubleValue(org.openl.meta.DoubleValue lv1, org.openl.meta.DoubleValue lv2, double value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -844,15 +834,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     @Deprecated
     public DoubleValue() {
         super();
-    }
-
-    @Deprecated
-    /**
-     * @deprecated format is not used inside Double value
-     */
-    public DoubleValue(double value, IMetaInfo metaInfo, String format) {
-        super(metaInfo);
-        this.value = value;
     }
 
     public DoubleValue(String valueString) {
