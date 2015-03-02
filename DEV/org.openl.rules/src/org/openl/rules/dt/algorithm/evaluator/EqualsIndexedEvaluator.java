@@ -5,6 +5,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,7 +119,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
                 nodeMap.put(element.getKey(), element.getValue().makeNode());
             }
         } else {
-            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+            nodeMap = Collections.emptyMap();
         }
 
         EqualsIndex index = new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
