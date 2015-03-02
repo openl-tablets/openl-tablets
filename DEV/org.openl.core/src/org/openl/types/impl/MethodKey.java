@@ -16,18 +16,17 @@ import org.openl.types.java.JavaOpenClass;
  */
 public final class MethodKey {
 	private String name;
-	private IOpenClass[] pars;
 	private IOpenClass[] internalParameters;
+    int hashCode = 0;
 
 	public MethodKey(IOpenMethod om) {
 		this.name = om.getName();
-		this.pars = om.getSignature().getParameterTypes();
+        IOpenClass[] pars = om.getSignature().getParameterTypes();
 		this.internalParameters = getNormalizedParams(pars);
 	}
 
 	public MethodKey(String name, IOpenClass[] pars) {
 		this.name = name;
-		this.pars = pars;
 		this.internalParameters = getNormalizedParams(pars);
 	}
 
@@ -97,8 +96,7 @@ public final class MethodKey {
 			.isEquals();
 	}
 
-	int hashCode = 0;
-	
+
 	@Override
 	public int hashCode() {
 	    if (hashCode == 0){
