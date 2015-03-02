@@ -230,7 +230,6 @@ public class SpreadsheetStructureBuilder {
         String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getFirstname(),
             rowHeaders.get(rowIndex).getFirstname());
 
-        IMetaInfo meta = new ValueMetaInfo(name, null, source);
 
         IOpenClass type = spreadsheetCell.getType();
 
@@ -246,10 +245,7 @@ public class SpreadsheetStructureBuilder {
             IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
             IMethodSignature signature = spreadsheetHeader.getSignature();
             IOpenClass declaringClass = spreadsheetHeader.getDeclaringClass();
-            IOpenMethodHeader header = new OpenMethodHeader(meta.getDisplayName(INamedThing.SHORT),
-                type,
-                signature,
-                declaringClass);
+            IOpenMethodHeader header = new OpenMethodHeader(name, type, signature, declaringClass);
             IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
             OpenL openl = columnBindingContext.getOpenL();
             // columnBindingContext - is never null
@@ -283,7 +279,9 @@ public class SpreadsheetStructureBuilder {
                 IBindingContext bindingContext = getColumnContext(columnIndex, rowBindingContext);
                 Object result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
 
-                if (result instanceof IMetaHolder) {
+
+                if (bindingContext.isExecutionMode() && result instanceof IMetaHolder) {
+                    IMetaInfo meta = new ValueMetaInfo(name, null, source);
                     ((IMetaHolder) result).setMetaInfo(meta);
                 }
 
