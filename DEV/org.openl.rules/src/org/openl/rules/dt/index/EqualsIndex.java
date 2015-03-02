@@ -1,6 +1,5 @@
 package org.openl.rules.dt.index;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -12,11 +11,15 @@ public class EqualsIndex extends ARuleIndex {
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes, Map<Object, DecisionTableRuleNode> valueNodes) {
         super(emptyOrFormulaNodes);
-        if (valueNodes == null){
-            this.valueNodes = new HashMap<Object, DecisionTableRuleNode>();
-        }else{
-            this.valueNodes = valueNodes;
-        }
+        this.valueNodes = valueNodes;
+        assert valueNodes != null;
+    }
+
+    /**
+     * For traceable purposes. See {@link TraceableEqualsIndex}.
+     */
+    EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
+        super(emptyOrFormulaNodes);
     }
 
     @Override
@@ -26,7 +29,7 @@ public class EqualsIndex extends ARuleIndex {
         }
         return null;
     }
-    
+
     @Override
     public Iterator<DecisionTableRuleNode> nodes() {
         return valueNodes.values().iterator();

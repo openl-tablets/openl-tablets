@@ -6,6 +6,7 @@ package org.openl.rules.dt2.algorithm.evaluator;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -127,7 +128,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode());
             }
         } else {
-            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+            nodeMap = Collections.emptyMap();
         }
 
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
