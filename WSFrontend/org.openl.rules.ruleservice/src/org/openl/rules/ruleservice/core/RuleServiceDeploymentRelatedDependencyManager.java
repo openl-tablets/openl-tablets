@@ -1,5 +1,11 @@
 package org.openl.rules.ruleservice.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
@@ -14,12 +20,6 @@ import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Semaphore;
-
 public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
@@ -28,7 +28,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     private DeploymentDescription deploymentDescription;
 
-    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    private Collection<ProjectDescriptor> projectDescriptors = null;
+    List<IDependencyLoader> dependencyLoaders = null;
 
     private boolean lazy;
 
@@ -67,13 +68,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
-                                                         RuleServiceLoader ruleServiceLoader) {
+            RuleServiceLoader ruleServiceLoader) {
         this(deploymentDescription, ruleServiceLoader, false);
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
-                                                         RuleServiceLoader ruleServiceLoader,
-                                                         boolean lazy) {
+            RuleServiceLoader ruleServiceLoader,
+            boolean lazy) {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
         }
@@ -103,57 +104,74 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     @Override
     public Collection<ProjectDescriptor> getProjectDescriptors() {
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
+        }
         return projectDescriptors;
     }
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
-        Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
-        for (Deployment deployment : deployments) {
-            String deploymentName = deployment.getDeploymentName();
-            if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
+        }
+        return dependencyLoaders;
+    }
+
+    private synchronized void initDependencyLoaders() {
+        if (projectDescriptors == null && dependencyLoaders == null) {
+            dependencyLoaders = new ArrayList<IDependencyLoader>();
+            projectDescriptors = new ArrayList<ProjectDescriptor>();
+            Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
+            for (Deployment deployment : deployments) {
+                String deploymentName = deployment.getDeploymentName();
+                if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
                     .equals(deployment.getCommonVersion())) {
-                for (AProject project : deployment.getProjects()) {
-                    try {
-                        Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(deployment.getDeploymentName(),
+                    for (AProject project : deployment.getProjects()) {
+                        try {
+                            Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(deployment.getDeploymentName(),
                                 deployment.getCommonVersion(),
                                 project.getName());
-                        ProjectDescriptor projectDescriptor = null;
-                        if (!modulesOfProject.isEmpty()) {
-                            Module firstModule = modulesOfProject.iterator().next();
-                            projectDescriptor = firstModule.getProject();
-                            for (Module m : modulesOfProject) {
-                                IDependencyLoader moduleLoader;
-                                String moduleName = m.getName();
-                                List<Module> module = Arrays.asList(m);
-                                if (isLazy()) {
-                                    moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription, moduleName, module);
-                                } else {
-                                    moduleLoader = new RuleServiceDependencyLoader(moduleName, module);
+                            ProjectDescriptor projectDescriptor = null;
+                            if (!modulesOfProject.isEmpty()) {
+                                Module firstModule = modulesOfProject.iterator().next();
+                                projectDescriptor = firstModule.getProject();
+                                for (Module m : modulesOfProject) {
+                                    IDependencyLoader moduleLoader;
+                                    String moduleName = m.getName();
+                                    List<Module> module = Arrays.asList(m);
+                                    if (isLazy()) {
+                                        moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
+                                            moduleName,
+                                            module);
+                                    } else {
+                                        moduleLoader = new RuleServiceDependencyLoader(moduleName, module);
+                                    }
+                                    dependencyLoaders.add(moduleLoader);
                                 }
-                                dependencyLoaders.add(moduleLoader);
                             }
-                        }
-                        if (projectDescriptor != null) {
-                            IDependencyLoader projectLoader;
-                            if (isLazy()) {
-                                projectLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
+                            if (projectDescriptor != null) {
+                                IDependencyLoader projectLoader;
+                                if (isLazy()) {
+                                    projectLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
                                         ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
                                         projectDescriptor.getModules());
-                            } else {
-                                projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
+                                } else {
+                                    projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectDescriptor.getName()),
                                         projectDescriptor.getModules());
+                                }
+                                projectDescriptors.add(projectDescriptor);
+                                dependencyLoaders.add(projectLoader);
                             }
-                            projectDescriptors.add(projectDescriptor);
-                            dependencyLoaders.add(projectLoader);
+                        } catch (Exception e) {
+                            log.error("Build dependency manager loaders for project \"{}\" from deployment \"{}\" was failed!",
+                                project.getName(),
+                                deploymentName,
+                                e);
                         }
-                    } catch (Exception e) {
-                        log.error("Build dependency manager loaders for project \"{}\" from deployment \"{}\" was failed!", project.getName(), deploymentName, e);
                     }
                 }
             }
         }
-        return dependencyLoaders;
     }
 }

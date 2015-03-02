@@ -21,7 +21,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     private Collection<ProjectDescriptor> projects;
 
-    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    private Collection<ProjectDescriptor> projectDescriptors;
 
     private boolean singleModuleMode = false;
     private boolean executionMode = true;
@@ -42,43 +42,51 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects, boolean singleModuleMode) {
         this(projects, singleModuleMode, true);
     }
-
+    
     @Override
-    protected Collection<ProjectDescriptor> getProjectDescriptors() {
+    public Collection<ProjectDescriptor> getProjectDescriptors() {
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
+        }
         return projectDescriptors;
     }
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders != null) {
-            return dependencyLoaders;
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
         }
-        dependencyLoaders = new ArrayList<IDependencyLoader>();
-        for (ProjectDescriptor project : projects) {
-            try {
-                Collection<Module> modulesOfProject = project.getModules();
-                if (!modulesOfProject.isEmpty()) {
-                    for (final Module m : modulesOfProject) {
-                        dependencyLoaders.add(new SimpleProjectDependencyLoader(m.getName(),
+        return dependencyLoaders;
+    }
+
+    private synchronized void initDependencyLoaders() {
+        if (projectDescriptors == null && dependencyLoaders == null) {
+            dependencyLoaders = new ArrayList<IDependencyLoader>();
+            projectDescriptors = new ArrayList<ProjectDescriptor>();
+            for (ProjectDescriptor project : projects) {
+                try {
+                    Collection<Module> modulesOfProject = project.getModules();
+                    if (!modulesOfProject.isEmpty()) {
+                        for (final Module m : modulesOfProject) {
+                            dependencyLoaders.add(new SimpleProjectDependencyLoader(m.getName(),
                                 Arrays.asList(m),
                                 singleModuleMode,
                                 executionMode));
+                        }
                     }
-                }
 
-                String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
-                IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
+                    String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
+                    IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
                         project.getModules(),
                         singleModuleMode,
                         executionMode);
-                projectDescriptors.add(project);
-                dependencyLoaders.add(projectLoader);
-            } catch (Exception e) {
-                log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                    projectDescriptors.add(project);
+                    dependencyLoaders.add(projectLoader);
+                } catch (Exception e) {
+                    log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                }
             }
         }
-
-        return dependencyLoaders;
     }
 
     @Override
