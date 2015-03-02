@@ -548,16 +548,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         this.value = value;
     }
 
-    public FloatValue(float value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public FloatValue(float value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);

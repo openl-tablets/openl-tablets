@@ -529,16 +529,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         this.value = value;
     }
 
-    public IntValue(int value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public IntValue(int value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public IntValue(org.openl.meta.IntValue lv1, org.openl.meta.IntValue lv2, int value, Formulas operand) {
         super(lv1, lv2, operand);

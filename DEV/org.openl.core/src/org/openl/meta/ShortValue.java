@@ -521,16 +521,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         this.value = value;
     }
 
-    public ShortValue(short value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public ShortValue(short value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public ShortValue(org.openl.meta.ShortValue lv1, org.openl.meta.ShortValue lv2, short value, Formulas operand) {
         super(lv1, lv2, operand);

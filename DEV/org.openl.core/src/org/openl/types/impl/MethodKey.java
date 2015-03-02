@@ -15,119 +15,104 @@ import org.openl.types.java.JavaOpenClass;
  * 
  */
 public final class MethodKey {
-	private String name;
-	private IOpenClass[] pars;
-	private IOpenClass[] internalParameters;
+    private String name;
+    private IOpenClass[] internalParameters;
+    int hashCode = 0;
 
-	public MethodKey(IOpenMethod om) {
-		this.name = om.getName();
-		this.pars = om.getSignature().getParameterTypes();
-		this.internalParameters = getNormalizedParams(pars);
-	}
+    public MethodKey(IOpenMethod om) {
+        this.name = om.getName();
+        IOpenClass[] pars = om.getSignature().getParameterTypes();
+        this.internalParameters = getNormalizedParams(pars);
+    }
 
-	public MethodKey(String name, IOpenClass[] pars) {
-		this.name = name;
-		this.pars = pars;
-		this.internalParameters = getNormalizedParams(pars);
-	}
+    public MethodKey(String name, IOpenClass[] pars) {
+        this.name = name;
+        this.internalParameters = getNormalizedParams(pars);
+    }
 
-	/**
-	 * Normalizes types of method parameters. OpenL engine uses alias data types
-	 * as internal types and they are used only in OpenL. For java users alias
-	 * data types are represented as appropriate java type. While method key
-	 * usage we should use underlying type of alias data type parameter as real
-	 * type of parameter.
-	 * 
-	 * @param originalParams
-	 *            parameters of method
-	 * @return normalized parameters
-	 */
-	private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
+    /**
+     * Normalizes types of method parameters. OpenL engine uses alias data types
+     * as internal types and they are used only in OpenL. For java users alias
+     * data types are represented as appropriate java type. While method key
+     * usage we should use underlying type of alias data type parameter as real
+     * type of parameter.
+     * 
+     * @param originalParams parameters of method
+     * @return normalized parameters
+     */
+    private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
 
-		if (originalParams == null) {
-			return null;
-		}
-		
-		
-		
-		int firstParamToConvert = -1;
-		for (int i = 0; i < originalParams.length; i++) {
-			if (originalParams[i] instanceof JavaOpenClass)
-				continue;
-			firstParamToConvert = i;
-			break;
-		}
-		
-		if (firstParamToConvert == -1)
-			return originalParams;
-		
+        if (originalParams == null) {
+            return null;
+        }
 
-		IOpenClass[] normalizedParams = new IOpenClass[originalParams.length];
-		if (firstParamToConvert > 0)
-			System.arraycopy(originalParams, 0, normalizedParams, 0, firstParamToConvert);
-		
-		
+        int firstParamToConvert = -1;
+        for (int i = 0; i < originalParams.length; i++) {
+            if (originalParams[i] instanceof JavaOpenClass)
+                continue;
+            firstParamToConvert = i;
+            break;
+        }
 
-		for (int i = firstParamToConvert; i < originalParams.length; i++) {
-			IOpenClass param = originalParams[i];
-			IOpenClass normParam = param;
+        if (firstParamToConvert == -1)
+            return originalParams;
 
-			if (param instanceof DomainOpenClass || (param instanceof AOpenClass && param.getInstanceClass() != null)) {
-				normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
-			}
+        IOpenClass[] normalizedParams = new IOpenClass[originalParams.length];
+        if (firstParamToConvert > 0)
+            System.arraycopy(originalParams, 0, normalizedParams, 0, firstParamToConvert);
 
-			normalizedParams[i] = normParam;
-		}
+        for (int i = firstParamToConvert; i < originalParams.length; i++) {
+            IOpenClass param = originalParams[i];
+            IOpenClass normParam = param;
 
-		return normalizedParams;
-	}
+            if (param instanceof DomainOpenClass || (param instanceof AOpenClass && param.getInstanceClass() != null)) {
+                normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+            }
 
-	@Override
-	public boolean equals(Object obj) {
-		
-		if (!(obj instanceof MethodKey)) {
-			return false;
-		}
-		
-		MethodKey mk = (MethodKey) obj;
+            normalizedParams[i] = normParam;
+        }
 
-		return new EqualsBuilder()
-			.append(name, mk.name)
-			.append(internalParameters, mk.internalParameters)
-			.isEquals();
-	}
+        return normalizedParams;
+    }
 
-	int hashCode = 0;
-	
-	@Override
-	public int hashCode() {
-	    if (hashCode == 0){
-	         hashCode = new HashCodeBuilder()
-			.append(name)
-			.append(internalParameters)
-			.toHashCode();
-	    }
-		return hashCode;
-	}
+    @Override
+    public boolean equals(Object obj) {
 
-	@Override
-	public String toString() {
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(name).append("(");
-	
-		boolean first = true;
-		
-		for (IOpenClass c : internalParameters) {
-			if (!first) {
-				sb.append(",");
-			}
-			sb.append(c.getName());
-			first = false;
-		}
-		sb.append(")");
-	
-		return sb.toString();
-	}
+        if (!(obj instanceof MethodKey)) {
+            return false;
+        }
+
+        MethodKey mk = (MethodKey) obj;
+
+        return new EqualsBuilder().append(name, mk.name).append(internalParameters, mk.internalParameters).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        if (hashCode == 0) {
+            hashCode = new HashCodeBuilder().append(name).append(internalParameters).toHashCode();
+        }
+        return hashCode;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append("(");
+
+        boolean first = true;
+
+        for (IOpenClass c : internalParameters) {
+            if (!first) {
+                sb.append(",");
+            }
+            sb.append(c.getName());
+            first = false;
+        }
+        sb.append(")");
+
+        return sb.toString();
+    }
 
 }
