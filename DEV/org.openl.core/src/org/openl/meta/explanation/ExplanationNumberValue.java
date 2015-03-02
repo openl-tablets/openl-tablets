@@ -28,14 +28,6 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         this.explanation = new SingleValueExplanation<T>();
     }
     
-    public ExplanationNumberValue(IMetaInfo metaInfo) {
-        this.explanation = new SingleValueExplanation<T>(metaInfo);
-    }
-
-    public ExplanationNumberValue(String name) {
-        this.explanation = new SingleValueExplanation<T>(name);
-    }
-    
     /** Formula constructor */
     public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {   
         /** initialize explanation for formula value */

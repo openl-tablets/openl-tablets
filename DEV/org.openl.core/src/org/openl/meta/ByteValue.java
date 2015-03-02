@@ -511,16 +511,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         this.value = value;
     }
 
-    public ByteValue(byte value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public ByteValue(byte value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public ByteValue(org.openl.meta.ByteValue lv1, org.openl.meta.ByteValue lv2, byte value, Formulas operand) {
         super(lv1, lv2, operand);

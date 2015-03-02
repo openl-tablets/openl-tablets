@@ -10,8 +10,8 @@ import org.openl.exception.OpenlNotCheckedException;
 public class TestDoubleValue {
     @Test
     public void testEquals() {
-        DoubleValue value1 = new DoubleValue(10.2, new ValueMetaInfo("shortName", "fullName", null), "");
-        DoubleValue value2 = new DoubleValue(10.2, new ValueMetaInfo("shortName2", "fullName2", null), "");
+        DoubleValue value1 = new DoubleValue(10.2);
+        DoubleValue value2 = new DoubleValue(10.2);
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);

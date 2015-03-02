@@ -539,16 +539,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         this.value = value;
     }
 
-    public LongValue(long value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public LongValue(long value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public LongValue(org.openl.meta.LongValue lv1, org.openl.meta.LongValue lv2, long value, Formulas operand) {
         super(lv1, lv2, operand);

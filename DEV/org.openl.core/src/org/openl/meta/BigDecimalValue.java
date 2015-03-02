@@ -558,16 +558,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         this.value = value;
     }
 
-    public BigDecimalValue(java.math.BigDecimal value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public BigDecimalValue(java.math.BigDecimal value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public BigDecimalValue(org.openl.meta.BigDecimalValue lv1, org.openl.meta.BigDecimalValue lv2, java.math.BigDecimal value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -762,16 +752,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     public BigDecimalValue(String valueString) {
         value = new BigDecimal(valueString);
-    }
-
-    public BigDecimalValue(String value, String name) {
-        super(name);
-        this.value = new BigDecimal(value);
-    }
-
-    public BigDecimalValue(String value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = new BigDecimal(value);
     }
 
     /** Function constructor **/
