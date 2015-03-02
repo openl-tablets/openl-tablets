@@ -10,8 +10,8 @@ public class BigIntegerValueTest {
     
     @Test
     public void testEquals() {
-        BigIntegerValue value1 = new BigIntegerValue("1234", new ValueMetaInfo("shortName", "fullName", null));
-        BigIntegerValue value2 = new BigIntegerValue("1234", new ValueMetaInfo("shortName2", "fullName2", null));
+        BigIntegerValue value1 = new BigIntegerValue("1234");
+        BigIntegerValue value2 = new BigIntegerValue("1234");
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
@@ -19,12 +19,12 @@ public class BigIntegerValueTest {
     
     @Test
     public void testEq() {
-        BigIntegerValue value1 = new BigIntegerValue("1234", new ValueMetaInfo("shortName", "fullName", null));
-        BigIntegerValue value2 = new BigIntegerValue("1234", new ValueMetaInfo("shortName2", "fullName2", null));
+        BigIntegerValue value1 = new BigIntegerValue("1234");
+        BigIntegerValue value2 = new BigIntegerValue("1234");
         boolean result = BigIntegerValue.eq(value1, value2);
         assertTrue(result);
         
-        value1 = new BigIntegerValue("34", new ValueMetaInfo("shortName", "fullName", null));
+        value1 = new BigIntegerValue("34");
         result = BigIntegerValue.eq(value1, value2);
         assertFalse(result);        
         
@@ -39,15 +39,15 @@ public class BigIntegerValueTest {
     
     @Test
     public void testMax() {
-        BigIntegerValue value1 = new BigIntegerValue("1234", new ValueMetaInfo("shortName", "fullName", null));
-        BigIntegerValue value2 = new BigIntegerValue("12345", new ValueMetaInfo("shortName2", "fullName2", null));
+        BigIntegerValue value1 = new BigIntegerValue("1234");
+        BigIntegerValue value2 = new BigIntegerValue("12345");
         assertEquals(value2, BigIntegerValue.max(value1, value2));
         
         value1 = null;
-        value2 = new BigIntegerValue("12345", new ValueMetaInfo("shortName2", "fullName2", null));
+        value2 = new BigIntegerValue("12345");
         assertEquals(value2, BigIntegerValue.max(value1, value2));
         
-        value1 = new BigIntegerValue("12345", new ValueMetaInfo("shortName2", "fullName2", null));
+        value1 = new BigIntegerValue("12345");
         value2 = null;
         assertEquals(value1, BigIntegerValue.max(value1, value2));
         
@@ -58,16 +58,16 @@ public class BigIntegerValueTest {
     
     @Test
     public void testMin() {
-        BigIntegerValue value1 = new BigIntegerValue("12", new ValueMetaInfo("shortName", "fullName", null));
-        BigIntegerValue value2 = new BigIntegerValue("12345", new ValueMetaInfo("shortName2", "fullName2", null));
+        BigIntegerValue value1 = new BigIntegerValue("12");
+        BigIntegerValue value2 = new BigIntegerValue("12345");
         assertEquals(value1, BigIntegerValue.min(value1, value2));
         
         value1 = null;
-        value2 = new BigIntegerValue("12345", new ValueMetaInfo("shortName2", "fullName2", null));
+        value2 = new BigIntegerValue("12345");
         
         assertEquals(value2, BigIntegerValue.min(value1, value2));
         
-        value1 = new BigIntegerValue("12", new ValueMetaInfo("shortName", "fullName", null));
+        value1 = new BigIntegerValue("12");
         value2 = null;
         assertEquals(value1, BigIntegerValue.min(value1, value2));
         

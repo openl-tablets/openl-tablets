@@ -541,16 +541,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         this.value = value;
     }
 
-    public BigIntegerValue(java.math.BigInteger value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public BigIntegerValue(java.math.BigInteger value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public BigIntegerValue(org.openl.meta.BigIntegerValue lv1, org.openl.meta.BigIntegerValue lv2, java.math.BigInteger value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -728,16 +718,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     public BigIntegerValue(String valueString) {
         value = new BigInteger(valueString);
-    }
-
-    public BigIntegerValue(String value, String name) {
-        super(name);
-        this.value = new BigInteger(value);
-    }
-
-    public BigIntegerValue(String value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = new BigInteger(value);
     }
 
     /** Function constructor **/
