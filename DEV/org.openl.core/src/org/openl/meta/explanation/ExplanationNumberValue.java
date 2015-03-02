@@ -24,12 +24,11 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      */
     private transient ExplanationForNumber<T> explanation;
 
-    public ExplanationNumberValue() {        
-        this.explanation = new SingleValueExplanation<T>();
+    public ExplanationNumberValue() {
     }
     
     /** Formula constructor */
-    public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {   
+    public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {
         /** initialize explanation for formula value */
         this.explanation = new FormulaExplanationValue<T>(dv1, dv2, operand);
     }
@@ -42,7 +41,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     
     /** Casting constructor */
     @SuppressWarnings("unchecked")
-    public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {   
+    public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {
         /** initialize explanation for cast value */
         this.explanation = new CastExplanationValue(previousValue, operand);
     }
@@ -82,40 +81,50 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
 
     public abstract T copy(String name);
 
+    /**
+     * Lazy initialization of explanation to reduce memory usage in executionMode=true
+     */
+    private ExplanationForNumber<T> getExplanation() {
+        if (explanation == null) {
+            explanation = new SingleValueExplanation<T>();
+        }
+        return explanation;
+    }
+
     public IMetaInfo getMetaInfo() {
-        return explanation.getMetaInfo();
+        return getExplanation().getMetaInfo();
     }
     
     public void setMetaInfo(IMetaInfo metaInfo) {
-        explanation.setMetaInfo(metaInfo);
+        getExplanation().setMetaInfo(metaInfo);
     }
     
     public String getName() {
-        return explanation.getName();
+        return getExplanation().getName();
     }
     
     public String getDisplayName(int mode) {
-        return explanation.getDisplayName(mode);
+        return getExplanation().getDisplayName(mode);
     }
 
     public void setFullName(String name) {
-        explanation.setFullName(name);
+        getExplanation().setFullName(name);
     }
 
     public void setName(String name) {
-        explanation.setName(name);
+        getExplanation().setName(name);
     }
 
     public Iterable<? extends ITreeElement<T>> getChildren() {
-        return explanation.getChildren();
+        return getExplanation().getChildren();
     }
 
     public boolean isLeaf() {
-        return explanation.isLeaf();
+        return getExplanation().isLeaf();
     }
 
     public String getType() {
-        return explanation.getType();
+        return getExplanation().getType();
     }
 
     @SuppressWarnings("unchecked")
