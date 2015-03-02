@@ -17,7 +17,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
-    private List<IDependencyLoader> dependencyLoaders;
+    private List<IDependencyLoader> dependencyLoaders = null;
 
     private List<ProjectDescriptor> projects;
 
@@ -25,7 +25,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private final List<String> moduleNames = new ArrayList<String>();
 
-    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    private Collection<ProjectDescriptor> projectDescriptors = null;
 
     private boolean singleModuleMode = false;
 
@@ -54,40 +54,48 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     }
 
     @Override
-    protected Collection<ProjectDescriptor> getProjectDescriptors() {
+    public Collection<ProjectDescriptor> getProjectDescriptors() {
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
+        }
         return projectDescriptors;
     }
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders != null) {
-            return dependencyLoaders;
+        if (dependencyLoaders == null){
+            initDependencyLoaders();
         }
-        dependencyLoaders = new ArrayList<IDependencyLoader>();
-        for (ProjectDescriptor project : projects) {
-            try {
-                Collection<Module> modulesOfProject = project.getModules();
-                if (!modulesOfProject.isEmpty()) {
-                    for (final Module m : modulesOfProject) {
-                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
+        return dependencyLoaders;
+    }
+
+    private synchronized void initDependencyLoaders() {
+        if (projectDescriptors == null && dependencyLoaders == null) {
+            dependencyLoaders = new ArrayList<IDependencyLoader>();
+            projectDescriptors = new ArrayList<ProjectDescriptor>();
+            for (ProjectDescriptor project : projects) {
+                try {
+                    Collection<Module> modulesOfProject = project.getModules();
+                    if (!modulesOfProject.isEmpty()) {
+                        for (final Module m : modulesOfProject) {
+                            dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
                                 Arrays.asList(m),
                                 singleModuleMode));
-                        moduleNames.add(m.getName());
+                            moduleNames.add(m.getName());
+                        }
                     }
-                }
 
-                String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
-                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
+                    String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
+                    IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
                         project.getModules(),
                         singleModuleMode);
-                projectDescriptors.add(project);
-                dependencyLoaders.add(projectLoader);
-            } catch (Exception e) {
-                log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                    projectDescriptors.add(project);
+                    dependencyLoaders.add(projectLoader);
+                } catch (Exception e) {
+                    log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                }
             }
         }
-
-        return dependencyLoaders;
     }
 
     @Override

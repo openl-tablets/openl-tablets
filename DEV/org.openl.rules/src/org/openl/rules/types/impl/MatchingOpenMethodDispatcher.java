@@ -3,10 +3,8 @@ package org.openl.rules.types.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -222,21 +220,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             for (IOpenMethod candidate : selected) {
                 if (mostPriority == null) {
                     mostPriority = candidate;
-                    mostPriorityProperties = tablePropertiesCache.get(mostPriority);
-                    if (mostPriorityProperties == null){
-                        mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
-                        tablePropertiesCache.put(mostPriority, mostPriorityProperties);
-                    }
+                    mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
                 } else {
                     boolean nested = false;
                     boolean contains = false;
 
-                    ITableProperties candidateProperties = tablePropertiesCache.get(candidate);
-                    if (candidateProperties == null){
-                        candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                        tablePropertiesCache.put(candidate, candidateProperties);
-                    }
-                    
+                    ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
                     int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
                     if (cmp < 0) {
                         nested = true;
@@ -271,11 +260,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     if (nested && !contains) {
                         notPriorMethods.add(mostPriority);
                         mostPriority = candidate;
-                        mostPriorityProperties = tablePropertiesCache.get(mostPriority);
-                        if (mostPriorityProperties == null){
-                            mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
-                            tablePropertiesCache.put(mostPriority, mostPriorityProperties);
-                        }
+                        mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
                     } else if (contains && !nested) {
                         notPriorMethods.add(candidate);
                     }
@@ -295,19 +280,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return 0;
     }
 
-    private Map<IOpenMethod, ITableProperties> tablePropertiesCache = new HashMap<IOpenMethod, ITableProperties>();
-    
     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
 
         List<String> notNullPropertyNames = getNotNullPropertyNames(context);
 
         for (IOpenMethod method : selected) {
-            ITableProperties props = tablePropertiesCache.get(method);
-            if (props == null){
-                props = PropertiesHelper.getTableProperties(method);
-                tablePropertiesCache.put(method, props);
-            }
+            ITableProperties props = PropertiesHelper.getTableProperties(method);
+
             propsLoop: {
                 for (String propName : notNullPropertyNames) {
                     MatchingResult res = matcher.match(propName, props, context);
