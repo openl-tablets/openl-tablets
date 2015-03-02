@@ -20,7 +20,12 @@ public class JavaDownCast implements IOpenCast {
         if (from.getClass().isAssignableFrom(to.getInstanceClass())) {
             return from;
         } else {
-            throw new ClassCastException("Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
+            //Allow upcast if posible
+            if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
+                return from;    
+            }else{
+                throw new ClassCastException("Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
+            }
         }
     }
 
