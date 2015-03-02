@@ -21,6 +21,7 @@ import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -41,7 +42,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         this.openCast = openCast;
     }
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
             condSource.getUri(0));
@@ -126,8 +127,8 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
 
     }
 
-    protected IDomain<Object> indexedDomain(ICondition condition) {
-        Object[][] params = condition.getParamValues();
+    protected IDomain<Object> indexedDomain(IBaseCondition condition) {
+        Object[][] params = ((ICondition)condition).getParamValues();
         int len = params.length;
         ArrayList<Object> list = new ArrayList<Object>(len);
         HashSet<Object> set = new HashSet<Object>(len);

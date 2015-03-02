@@ -22,6 +22,7 @@ import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -42,7 +43,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  */
 @Executable
-public class DecisionTable extends ExecutableRulesMethod {
+public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable{
 
     private ICondition[] conditionRows;
     private IAction[] actionRows;
@@ -299,5 +300,10 @@ public class DecisionTable extends ExecutableRulesMethod {
         }
         return ruleExecutionType;
     }
+
+	@Override
+	public int getNumberOfConditions() {
+		return conditionRows.length;
+	}
 
 }

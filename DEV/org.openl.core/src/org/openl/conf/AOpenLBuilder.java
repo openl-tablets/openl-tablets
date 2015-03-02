@@ -52,6 +52,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     public OpenL build(String openl) throws OpenConfigurationException {
         OpenL op = new OpenL();
+        op.setName(openl);
         boolean changedClassLoader = false;
         ClassLoader oldClassLoader = null;
 

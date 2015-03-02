@@ -8,7 +8,7 @@ import org.openl.rules.dt2.algorithm.FailOnMissException;
 import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt2.element.IAction;
 import org.openl.rules.dt2.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ChildTraceStack;
@@ -65,7 +65,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
 
-        DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
+    	DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         Tracer.begin(traceObject);
 
         IDecisionTableAlgorithm algorithm = null;
@@ -118,7 +118,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     protected Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {
         Object returnValue = null;
         for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
-            IAction action = getInvokableMethod().getActionRows()[j];
+            IAction action = getInvokableMethod().getAction(j);
 
             Object actionResult = action.executeAction(ruleN, target, params, env);
 

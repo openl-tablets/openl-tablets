@@ -17,12 +17,11 @@ import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
@@ -34,6 +33,8 @@ import org.openl.rules.dt.type.BooleanTypeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -442,7 +443,7 @@ public class DecisionTableOptimizedAlgorithm {
         }
 
         @Override
-        public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+        public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
             return decorate.getRuleParameterDomain(condition);
         }
 
@@ -452,12 +453,12 @@ public class DecisionTableOptimizedAlgorithm {
         }
 
         @Override
-        public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return decorate.getFormalSourceCode(condition);
         }
 
         @Override
-        public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+        public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
             return decorate.getConditionParameterDomain(paramIdx, condition);
         }
     };

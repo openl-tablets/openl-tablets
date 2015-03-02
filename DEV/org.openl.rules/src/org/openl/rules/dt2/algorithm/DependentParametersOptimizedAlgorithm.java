@@ -29,6 +29,7 @@ import org.openl.rules.dt2.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.type.IRangeAdaptor;
 import org.openl.rules.dt2.type.ITypeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
@@ -645,7 +646,7 @@ public class DependentParametersOptimizedAlgorithm {
         }
 
         @Override
-        public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return condition.getSourceCodeModule();
         }
     }

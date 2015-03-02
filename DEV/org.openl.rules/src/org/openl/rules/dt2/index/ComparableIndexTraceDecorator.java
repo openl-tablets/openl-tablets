@@ -3,18 +3,18 @@ package org.openl.rules.dt2.index;
 import org.openl.rules.dt2.DecisionTableRuleNode;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.trace.DTIndexedTraceObject;
-import org.openl.rules.dt2.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.trace.TraceStack;
 
 public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
     protected final Comparable<T> delegate;
     protected final DecisionTableRuleNode linkedRule;
     protected final ICondition condition;
-    protected final DecisionTableTraceObject baseTraceObject;
+    protected final IDecisionTableTraceObject baseTraceObject;
     protected final TraceStack traceStack;
 
     public ComparableIndexTraceDecorator(Comparable<T> delegate, DecisionTableRuleNode linkedRule,
-            ICondition condition, DecisionTableTraceObject baseTraceObject, TraceStack traceStack) {
+            ICondition condition, IDecisionTableTraceObject baseTraceObject, TraceStack traceStack) {
         this.delegate = delegate;
         this.linkedRule = linkedRule;
         this.condition = condition;
@@ -64,7 +64,7 @@ public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
     }
 
     public void traceComparisonResult(boolean successful) {
-        if (!linkedRule.getRulesIterator().hasNext()) {
+        if (false && !linkedRule.getRulesIterator().hasNext()) {
             // Do not trace index value that is not mapped to any rule. This can
             // be an excluding boundary for example.
             return;

@@ -7,6 +7,7 @@ import org.openl.rules.dt2.DecisionTableRuleNode;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dt2.index.ARuleIndex;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 public class DecisionTableAlgorithmBuilder {
@@ -31,12 +32,12 @@ public class DecisionTableAlgorithmBuilder {
     protected ARuleIndex buildIndex(IndexInfo info) throws SyntaxNodeException {
 
         int first = info.fromCondition;
-        ICondition[] cc = table.getConditionRows();
+        IBaseCondition[] cc = table.getConditionRows();
         
-        if (cc.length <= first || first >= info.toCondition)
+        if (cc.length <= first || first > info.toCondition)
         	return null;
         
-        ICondition firstCondition =  cc[first];
+        ICondition firstCondition =  (ICondition)cc[first];
 
         if (!canIndex(evaluators[first], firstCondition))
         	return null; 
@@ -59,7 +60,7 @@ public class DecisionTableAlgorithmBuilder {
     	if (index == null || condN > info.toCondition)
     		return;
     	
-        if (!canIndex(evaluators[condN], table.getConditionRows()[condN])) {
+        if (!canIndex(evaluators[condN], table.getCondition(condN))) {
             return;
         }
         
@@ -73,7 +74,7 @@ public class DecisionTableAlgorithmBuilder {
 
     private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
 
-        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getConditionRows()[condN], node.getRulesIterator());
+        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getCondition(condN), node.getRulesIterator());
 //        node.setSaveRulesMetaInfo(saveRulesMetaInfo);
         node.setNextIndex(nodeIndex);
 

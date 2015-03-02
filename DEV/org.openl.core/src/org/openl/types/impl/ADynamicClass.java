@@ -82,6 +82,7 @@ public abstract class ADynamicClass extends AOpenClass {
         }
 
         methodMap().put(key, method);
+        methodList = null;
     }
 
     @Override

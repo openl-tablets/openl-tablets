@@ -1,9 +1,13 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.openl.rules.dt.trace.DTConditionTraceObject;
 import org.openl.rules.dt.trace.DTIndexedTraceObject;
 import org.openl.rules.dt.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ICellStyle;
@@ -15,10 +19,6 @@ import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class DecisionTableTraceFilterFactory {
     private static final int SELECTED_ITEM_INCREMENT_SIZE = 1;

@@ -222,4 +222,10 @@ public class NullOpenClass implements IOpenClass {
         // Default implementation
         return Collections.emptyList();
     }
+
+
+	@Override
+	public Iterator<IOpenMethod> methods(String name) {
+		return null;
+	}
 }

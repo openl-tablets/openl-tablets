@@ -8,11 +8,11 @@ import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
-import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.type.domains.DimensionPropertiesDomainsCollector;
+import org.openl.rules.dtx.type.domains.IDomainAdaptor;
+import org.openl.rules.dtx.validator.DecisionTableValidator;
+import org.openl.rules.dtx.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
@@ -27,7 +27,8 @@ public class DimensionPropertiesValidator extends TablesValidator {
     
     private static final String VALIDATION_FAILED = "Validation failed for dispatcher table";
     
-    @Override
+    @SuppressWarnings("unused")
+	@Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {        
         ValidationResult validationResult = null;  
         
@@ -68,7 +69,8 @@ public class DimensionPropertiesValidator extends TablesValidator {
      * @param openClass Open class for whole module.
      * @return message, explaining validation result
      */
-    private OpenLMessage validateDecisionTable(TableSyntaxNode tsn, Map<String, IDomainAdaptor> propertiesDomains, 
+    @SuppressWarnings("unused")
+	private OpenLMessage validateDecisionTable(TableSyntaxNode tsn, Map<String, IDomainAdaptor> propertiesDomains, 
             IOpenClass openClass) {
         
         DesionTableValidationResult tableValidationResult = validate(tsn, propertiesDomains, openClass);
@@ -89,7 +91,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
             IOpenClass openClass) {
         DesionTableValidationResult tableValidationResult = null;
         try {
-            tableValidationResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), 
+            tableValidationResult = DecisionTableValidator.validateTable((IDecisionTable)tsn.getMember(), 
                     propertiesDomains, openClass);     
         } catch (Exception t) {
             throw new OpenlNotCheckedException(VALIDATION_FAILED, t);
@@ -121,7 +123,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     private boolean isDimensionPropertiesDispatcherTable(TableSyntaxNode tsn) {
         return tsn.getDisplayName() != null && 
         tsn.getDisplayName().contains(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) && 
-        tsn.getMember() instanceof DecisionTable;
+        tsn.getMember() instanceof IDecisionTable;
     }
     
     private Map<String, IDomainAdaptor> getDomainsForDimensionalProperties(List<IOpenMethod> methods) {

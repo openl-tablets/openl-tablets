@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -312,7 +314,18 @@ public abstract class AOpenClass implements IOpenClass {
         return methods == null ? null : methods.iterator();
     }
     
-    public List<IOpenMethod> getMethods() {
+    
+    protected List<IOpenMethod> methodList = null;
+    
+    public synchronized List<IOpenMethod> getMethods() {
+    	if (methodList == null)
+    		methodList = collectMethods();
+    	return methodList;
+    }
+    
+    
+    
+    protected List<IOpenMethod> collectMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
         Iterator<IOpenClass> superClasses = superClasses();
         while (superClasses.hasNext()) {
@@ -393,4 +406,45 @@ public abstract class AOpenClass implements IOpenClass {
         }
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
+
+    
+    Map<String, List<IOpenMethod>> methodNameMap = null;
+    
+	@SuppressWarnings("unchecked")
+	@Override
+	public Iterator<IOpenMethod> methods(String name) {
+		if (methodNameMap == null)
+		{
+			synchronized(this)
+			{
+				methodNameMap = buildMethodNameMap(methods());
+			}
+		}	
+		
+		List<IOpenMethod> found = methodNameMap.get(name);
+		
+		return found == null ? (Iterator<IOpenMethod>)OpenIterator.EMPTY : found.iterator();
+	}
+
+	static public  Map<String, List<IOpenMethod>> buildMethodNameMap(
+			Iterator<IOpenMethod> methods) {
+		
+		Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
+
+		for (; methods.hasNext();) {
+			IOpenMethod m = (IOpenMethod) methods.next();
+			String name = m.getName();
+			
+			List<IOpenMethod> list = res.get(name);
+			if (list == null)
+			{	
+				list = new LinkedList<IOpenMethod>();
+				res.put(name, list);
+			}
+			list.add(m);
+		}
+		
+		
+		return res;
+	}
 }

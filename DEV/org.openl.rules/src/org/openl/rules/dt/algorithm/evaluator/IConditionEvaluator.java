@@ -3,21 +3,19 @@
  */
 package org.openl.rules.dt.algorithm.evaluator;
 
-import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.source.IOpenSourceCodeModule;
+import org.openl.rules.dtx.IBaseConditionEvaluator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
  *
  */
-public interface IConditionEvaluator {
+public interface IConditionEvaluator extends IBaseConditionEvaluator {
 
-    IOpenSourceCodeModule getFormalSourceCode(ICondition condition);
 
     IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env);
 
@@ -25,9 +23,6 @@ public interface IConditionEvaluator {
 
     boolean isIndexed();
     
-    IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined;
-    
-    IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined;
 
     //Added to support dependent parameters
 	String getOptimizedSourceCode();

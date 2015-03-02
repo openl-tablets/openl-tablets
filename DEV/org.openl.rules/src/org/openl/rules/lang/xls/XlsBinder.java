@@ -87,7 +87,7 @@ public class XlsBinder implements IOpenBinder {
 	//set this flag to true if you want to test all the rules with new DT2 implementation
 	//If set to false the new implementation will affect only  Rules2, DT2, SimpleRules2, SimpleLookup2 keywords
 	
-    public static final boolean USE_DT2_ONLY = false;
+    public static final boolean USE_DT2_ONLY = true;
     
 	
 	private final Logger log = LoggerFactory.getLogger(XlsBinder.class);

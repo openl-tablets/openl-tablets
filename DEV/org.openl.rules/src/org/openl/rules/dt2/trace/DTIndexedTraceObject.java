@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.dt2.DecisionTableRuleNode;
 import org.openl.rules.dt2.element.ICondition;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
@@ -15,15 +16,20 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableIndex";
     private final DecisionTableRuleNode linkedRule;
 
-    public DTIndexedTraceObject(DecisionTableTraceObject baseTraceObject, ICondition condition, DecisionTableRuleNode linkedRule, boolean successful) {
+    public DTIndexedTraceObject(IDecisionTableTraceObject baseTraceObject, ICondition condition, DecisionTableRuleNode linkedRule, boolean successful) {
         super(baseTraceObject, condition, -1, successful);
         this.linkedRule = linkedRule;
     }
 
     @Override
     public String getDisplayName(int mode) {
+
+        return String.format("Indexed condition: %s", condition.getName());
+    }
+
+    public String getDisplayNameOld(int mode) {
         int[] rules = linkedRule.getRules();
-        DecisionTable decisionTable = getDecisionTable();
+        IDecisionTable decisionTable = getDecisionTable();
 
         String[] ruleNames = new String[rules.length];
         for (int i = 0; i < ruleNames.length; i++) {
@@ -32,7 +38,8 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
 
         return String.format("Indexed condition: %s, Rules: %s", condition.getName(), Arrays.toString(ruleNames));
     }
-
+    
+    
     @Override
     public String getType() {
         return TRACE_OBJECT_TYPE;

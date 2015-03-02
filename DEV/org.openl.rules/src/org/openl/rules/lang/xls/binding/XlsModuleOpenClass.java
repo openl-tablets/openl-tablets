@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -37,7 +36,7 @@ import org.openl.rules.cmatch.ColumnMatchBoundNode;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -334,7 +333,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openMethod instanceof AlgorithmSubroutineMethod) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class }, new Object[] { null });
         }
-        if (openMethod instanceof DecisionTable) {
+        if (openMethod instanceof IDecisionTable) {
             return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AMethodBasedNode.class },
                 new Object[] { null, null });
         }
@@ -377,6 +376,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      */
     @Override
     public void addMethod(IOpenMethod method) {
+    	methodList = null;
         if (method instanceof OpenMethodDispatcher) {
             addDispatcherMethod((OpenMethodDispatcher) method);
             return;
