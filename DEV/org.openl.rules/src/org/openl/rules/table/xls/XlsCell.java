@@ -215,8 +215,10 @@ public class XlsCell implements ICell {
         if (cell != null) {
             int type = cell.getCellType();
             if (type == Cell.CELL_TYPE_FORMULA) {
+                // Replace Cell.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
             }
+            // There Cell.CELL_TYPE_FORMULA should never be at this step
             switch (type) {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
@@ -230,13 +232,6 @@ public class XlsCell implements ICell {
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
                     return cell.getStringCellValue();
-                case Cell.CELL_TYPE_FORMULA:
-                    try {
-                        PoiExcelHelper.evaluateFormula(cell);
-                    } catch (Exception e) {
-                    }
-                    // Extract new calculated value or previously cached value if calculation failed.
-                    return extractCellValue();
                 default:
                     return "unknown type: " + cell.getCellType();
             }
