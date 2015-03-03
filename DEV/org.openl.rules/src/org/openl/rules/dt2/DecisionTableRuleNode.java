@@ -1,34 +1,34 @@
 package org.openl.rules.dt2;
 
-
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt2.index.ARuleIndex;
 
 public class DecisionTableRuleNode {
 
+    public static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
 
     private ARuleIndex nextIndex;
-    
-//    private boolean saveRulesMetaInfo;
+
+    // private boolean saveRulesMetaInfo;
 
     public DecisionTableRuleNode(int[] rules) {
         this.rules = rules;
     }
 
-//    public boolean isSaveRulesMetaInfo() {
-//        return saveRulesMetaInfo;
-//    }
-//
-//    public void setSaveRulesMetaInfo(boolean saveRulesMetaInfo) {
-//        this.saveRulesMetaInfo = saveRulesMetaInfo;
-//    }
+    // public boolean isSaveRulesMetaInfo() {
+    // return saveRulesMetaInfo;
+    // }
+    //
+    // public void setSaveRulesMetaInfo(boolean saveRulesMetaInfo) {
+    // this.saveRulesMetaInfo = saveRulesMetaInfo;
+    // }
 
     public ARuleIndex getNextIndex() {
         return nextIndex;
     }
-    
+
     public void setNextIndex(ARuleIndex nextIndex) {
         this.nextIndex = nextIndex;
         if (nextIndex != null) {

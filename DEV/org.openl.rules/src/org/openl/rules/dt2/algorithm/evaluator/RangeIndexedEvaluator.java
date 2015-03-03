@@ -210,6 +210,9 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
+        if (rulesIndexesCollection.isEmpty()) {
+            return DecisionTableRuleNode.ZERO_ARRAY;
+        }
         int[] rulesIndexesArray = new int[rulesIndexesCollection.size()];
         int i = 0;
         for (Integer value : rulesIndexesCollection) {
