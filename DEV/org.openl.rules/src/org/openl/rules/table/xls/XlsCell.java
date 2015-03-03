@@ -113,7 +113,7 @@ public class XlsCell implements ICell {
         } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.
             return extractValueFromRegion();
         } else {
-            return extractCellValue(true);
+            return extractCellValue();
         }
     }
 
@@ -203,19 +203,20 @@ public class XlsCell implements ICell {
         // If the top left cell is the current cell instance, we just extract it`s value.
         // In other case get string value of top left cell of the region.
         if (isCurrentCellATopLeftCellInRegion()) {
-            return extractCellValue(true);
+            return extractCellValue();
         } else {
             ICell topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getObjectValue();
         }
     }
 
-    private Object extractCellValue(boolean useCachedValue) {
+    private Object extractCellValue() {
         Cell cell = getCell();
         if (cell != null) {
             int type = cell.getCellType();
-            if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
+            if (type == Cell.CELL_TYPE_FORMULA) {
                 type = cell.getCachedFormulaResultType();
+            }
             switch (type) {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
@@ -235,7 +236,7 @@ public class XlsCell implements ICell {
                     } catch (Exception e) {
                     }
                     // Extract new calculated value or previously cached value if calculation failed.
-                    return extractCellValue(true);
+                    return extractCellValue();
                 default:
                     return "unknown type: " + cell.getCellType();
             }
