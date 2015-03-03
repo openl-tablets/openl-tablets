@@ -39,21 +39,16 @@ public class XlsCell implements ICell {
      * Usually there is a parameter duplication: the same column and row exist in cell object.
      * But sometimes cell is null, so we will have just the coordinates of the cell.
      */
-    private XlsCell(int column, int row, IGridRegion region, CellLoader cellLoader) {
+    public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
         this.column = column;
         this.row = row;
-        this.region = region;
-        this.cellLoader = cellLoader;
+        this.region = gridModel.getRegionContaining(column, row);
+        this.cellLoader = gridModel.getSheetSource().getSheetLoader().getCellLoader(column, row);
 
         if (region != null && region.getLeft() == column && region.getTop() == row) {
             this.width = region.getRight() - region.getLeft() + 1;
             this.height = region.getBottom() - region.getTop() + 1;
         }
-    }
-
-    public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
-        this(column, row, gridModel.getRegionContaining(column, row),
-                gridModel.getSheetSource().getSheetLoader().getCellLoader(column, row));
         this.gridModel = gridModel;
     }
 
