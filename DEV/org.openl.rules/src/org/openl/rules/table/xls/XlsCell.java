@@ -107,13 +107,11 @@ public class XlsCell implements ICell {
     }
 
     public Object getObjectValue() {
-        Cell cell = getCell();
-        if (cell == null && region == null) {
-            return null;
-        } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.
-            return extractValueFromRegion();
-        } else {
+        if (region == null) {
             return extractCellValue();
+        } else {
+            // If cell belongs to some merged region, we try to get merged value from it.
+            return extractValueFromRegion();
         }
     }
 
