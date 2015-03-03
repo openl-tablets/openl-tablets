@@ -195,10 +195,8 @@ public class XlsCell implements ICell {
 
     private boolean isCurrentCellATopLeftCellInRegion() {
         ICell topLeftCell = getTopLeftCellFromRegion();
-        if (topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row) {
-            return true;
-        }
-        return false;
+        boolean isTopLeft = topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
+        return isTopLeft;
     }
 
     private Object extractValueFromRegion() {
