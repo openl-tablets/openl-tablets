@@ -40,6 +40,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
+import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
@@ -107,13 +108,8 @@ public class RuleRowHelper {
 
             for (String token : tokens) {
 
-                Object res = RuleRowHelper.loadSingleParam(paramType,
-                    paramName,
-                    ruleName,
-                    cell,
-                    openlAdaptor,
-                    token,
-                        true);
+                String str = StringPool.intern(token);
+                Object res = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, str, true);
 
                 if (res == null) {
                     res = paramType.nullObject();
