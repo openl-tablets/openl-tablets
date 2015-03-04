@@ -21,6 +21,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringPool;
 import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {
@@ -224,7 +225,8 @@ public class XlsCell implements ICell {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
+                    String str = cell.getStringCellValue();
+                    return StringPool.intern(str);
                 default:
                     return "unknown type: " + cell.getCellType();
             }
