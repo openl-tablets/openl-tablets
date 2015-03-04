@@ -1,6 +1,5 @@
 package org.openl.rules.table;
 
-
 /**
  * Logical table model that delegate original table and access to original table
  * through coordinates transformation.
@@ -8,7 +7,7 @@ package org.openl.rules.table;
  * @author PUdalau
  */
 public class TransformedGridTable extends AGridTableDecorator {
-    
+
     private CoordinatesTransformer transformer;
 
     public TransformedGridTable(IGridTable gridTable, CoordinatesTransformer transformer) {
@@ -25,8 +24,7 @@ public class TransformedGridTable extends AGridTableDecorator {
 
     @Override
     public ICell getCell(int column, int row) {
-        Point point = getCoordinates(column, row);
-        return table.getCell(point.getColumn(), point.getRow());
+        return table.getCell(getColumn(column, row), getRow(column, row));
     }
 
     @Override
@@ -34,30 +32,31 @@ public class TransformedGridTable extends AGridTableDecorator {
         return table.getGrid().getUri();
     }
 
-    private Point getCoordinates(int col, int row) {
-        Point point = transformer.calculateCoordinates(col, row);
-        return point;
+    private int getRow(int col, int row) {
+        return transformer.getRow(col, row);
+    }
+
+    private int getColumn(int col, int row) {
+        return transformer.getColumn(col, row);
     }
 
     public int getWidth() {
         return transformer.getWidth();
     }
 
-    public int getHeight() {        
+    public int getHeight() {
         return transformer.getHeight();
     }
 
     public int getGridRow(int column, int row) {
-        Point point = getCoordinates(column, row);
-        return table.getGridRow(point.getColumn(), point.getRow());
+        return table.getGridRow(getColumn(column, row), getRow(column, row));
     }
 
-    public int getGridColumn(int column, int row) {        
-        Point point = getCoordinates(column, row);
-        return table.getGridColumn(point.getColumn(), point.getRow());
+    public int getGridColumn(int column, int row) {
+        return table.getGridColumn(getColumn(column, row), getRow(column, row));
     }
 
-    public boolean isNormalOrientation() {        
+    public boolean isNormalOrientation() {
         return table.isNormalOrientation();
     }
 

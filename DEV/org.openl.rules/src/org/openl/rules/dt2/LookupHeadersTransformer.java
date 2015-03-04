@@ -1,7 +1,6 @@
 package org.openl.rules.dt2;
 
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.Point;
 
 /**
  * Transformer for lookup table headers values. The common case is that the RET
@@ -19,8 +18,8 @@ import org.openl.rules.table.Point;
  * </tr>
  * </table>
  * <br>
- * For users convenience it is possible to define RET section in any place of lookup header after vertical conditions.
- * Example: 
+ * For users convenience it is possible to define RET section in any place of
+ * lookup header after vertical conditions. Example:
  * <table cellspacing="2">
  * <tr>
  * <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
@@ -38,32 +37,50 @@ import org.openl.rules.table.Point;
  * 
  */
 public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranformer {
-    
-    // physical index in grid table, indicating the beginning of return section 
+
+    // physical index in grid table, indicating the beginning of return section
     private int retStartIndex = 0;
-    
-    // physical index in grid table, indicating the beginning of the first HC column after return section
+
+    // physical index in grid table, indicating the beginning of the first HC
+    // column after return section
     private int hcColumnStartAfterRet = 0;
-    
-    // physical index in grid table, indicating the first empty cell after all headers
+
+    // physical index in grid table, indicating the first empty cell after all
+    // headers
     private int firstEmptyCell = 0;
-    
-    public LookupHeadersTransformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth, int retColumnStartIndex, int firstEmptyCell) {
-        super(entireTable, lookupValuesTable, retTableWidth);         
+
+    public LookupHeadersTransformer(IGridTable entireTable,
+            IGridTable lookupValuesTable,
+            int retTableWidth,
+            int retColumnStartIndex,
+            int firstEmptyCell) {
+        super(entireTable, lookupValuesTable, retTableWidth);
         this.retStartIndex = retColumnStartIndex;
         this.firstEmptyCell = firstEmptyCell;
         this.hcColumnStartAfterRet = retStartIndex + getRetTableWidth();
     }
-    
+
     @Override
-    protected Point getCoordinatesFromConditionHeaders(int column, int row) {
-        if (column < retStartIndex) {
-            return super.getCoordinatesFromConditionHeaders(column, row);
-        } else if (retStartIndex <= column && column < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
-            return new Point(column + getRetTableWidth(), row);
-        } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= column && column < firstEmptyCell) {
-            return new Point(column - (firstEmptyCell - hcColumnStartAfterRet), row);
+    public int getColumn(int col, int row) {
+        if (col < retStartIndex) {
+            return super.getColumn(col, row);
+        } else if (retStartIndex <= col && col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
+            return col + getRetTableWidth();
+        } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
+            return col - (firstEmptyCell - hcColumnStartAfterRet);
         }
-        return super.getCoordinatesFromConditionHeaders(column, row);
+        return super.getColumn(col, row);
+    }
+
+    @Override
+    public int getRow(int col, int row) {
+        if (col < retStartIndex) {
+            return super.getRow(col, row);
+        } else if (retStartIndex <= col && col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
+            return row;
+        } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
+            return row;
+        }
+        return super.getRow(col, row);
     }
 }
