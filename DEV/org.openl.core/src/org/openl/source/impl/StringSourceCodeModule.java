@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
@@ -41,7 +42,7 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     public Reader getCharacterStream() {
-        return new StringReader(code);
+        return new FastStringReader(code);
     }
 
     public String getCode() {

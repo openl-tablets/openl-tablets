@@ -8,7 +8,6 @@ package org.openl.rules.table.openl;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +17,7 @@ import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
@@ -86,7 +86,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public Reader getCharacterStream() {
 
-        return new StringReader(getCode());
+        return new FastStringReader(getCode());
     }
 
     public String getCode() {
