@@ -8,10 +8,10 @@ package org.openl.source.impl;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
@@ -58,7 +58,7 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     public Reader getCharacterStream() {
-        return new StringReader(source);
+        return new FastStringReader(source);
     }
 
     public String getCode() {

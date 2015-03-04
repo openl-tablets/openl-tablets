@@ -4,6 +4,9 @@
 
 package org.openl.binding.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -19,6 +22,7 @@ import org.openl.binding.INodeBinderFactory;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -124,5 +128,10 @@ public class Binder implements IOpenBinder {
 
         return nodeBinder.bind(syntaxNode, bindingContext);
     }
+    
+    
+    
+    Map<MethodKey, Object> methodCache = new HashMap<MethodKey, Object>();
+    
 
 }
