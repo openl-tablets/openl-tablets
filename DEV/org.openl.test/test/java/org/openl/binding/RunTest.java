@@ -230,9 +230,6 @@ public class RunTest extends TestCase {
         _runNoError("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
         _runNoError("BigDecimal x = 5.0; x ** 7 ", new BigDecimal(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
 
-
-
-    
     }
     
     
@@ -278,6 +275,9 @@ public class RunTest extends TestCase {
 
         _runWithError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.getDay() < 5]",   CompositeSyntaxNodeException.class, null, OpenL.OPENL_J_NAME);
         _runWithError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(Date d) !@ d.getDay() < 5]",     CompositeSyntaxNodeException.class, null, OpenL.OPENL_J_NAME);
+
+        
+        _runNoError("String[] ary = {\"a\", \"b\",\"c\" ,\"a\",\"d\",\"b\",}; ary[(x)~@ x][(str)*@str[0]].length", 4, OpenL.OPENL_J_NAME);
 
         
         //test lists

@@ -21,6 +21,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringPool;
 import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {
@@ -39,21 +40,16 @@ public class XlsCell implements ICell {
      * Usually there is a parameter duplication: the same column and row exist in cell object.
      * But sometimes cell is null, so we will have just the coordinates of the cell.
      */
-    private XlsCell(int column, int row, IGridRegion region, CellLoader cellLoader) {
+    public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
         this.column = column;
         this.row = row;
-        this.region = region;
-        this.cellLoader = cellLoader;
+        this.region = gridModel.getRegionContaining(column, row);
+        this.cellLoader = gridModel.getSheetSource().getSheetLoader().getCellLoader(column, row);
 
         if (region != null && region.getLeft() == column && region.getTop() == row) {
             this.width = region.getRight() - region.getLeft() + 1;
             this.height = region.getBottom() - region.getTop() + 1;
         }
-    }
-
-    public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
-        this(column, row, gridModel.getRegionContaining(column, row),
-                gridModel.getSheetSource().getSheetLoader().getCellLoader(column, row));
         this.gridModel = gridModel;
     }
 
@@ -107,13 +103,11 @@ public class XlsCell implements ICell {
     }
 
     public Object getObjectValue() {
-        Cell cell = getCell();
-        if (cell == null && region == null) {
-            return null;
-        } else if (region != null) { // If cell belongs to some merged region, we try to get merged value from it.
-            return extractValueFromRegion();
+        if (region == null) {
+            return extractCellValue();
         } else {
-            return extractCellValue(true);
+            // If cell belongs to some merged region, we try to get merged value from it.
+            return extractValueFromRegion();
         }
     }
 
@@ -195,29 +189,30 @@ public class XlsCell implements ICell {
 
     private boolean isCurrentCellATopLeftCellInRegion() {
         ICell topLeftCell = getTopLeftCellFromRegion();
-        if (topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row) {
-            return true;
-        }
-        return false;
+        boolean isTopLeft = topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
+        return isTopLeft;
     }
 
     private Object extractValueFromRegion() {
         // If the top left cell is the current cell instance, we just extract it`s value.
         // In other case get string value of top left cell of the region.
         if (isCurrentCellATopLeftCellInRegion()) {
-            return extractCellValue(true);
+            return extractCellValue();
         } else {
             ICell topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getObjectValue();
         }
     }
 
-    private Object extractCellValue(boolean useCachedValue) {
+    private Object extractCellValue() {
         Cell cell = getCell();
         if (cell != null) {
             int type = cell.getCellType();
-            if (useCachedValue && type == Cell.CELL_TYPE_FORMULA)
+            if (type == Cell.CELL_TYPE_FORMULA) {
+                // Replace Cell.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
+            }
+            // There Cell.CELL_TYPE_FORMULA should never be at this step
             switch (type) {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
@@ -230,14 +225,8 @@ public class XlsCell implements ICell {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
-                case Cell.CELL_TYPE_FORMULA:
-                    try {
-                        PoiExcelHelper.evaluateFormula(cell);
-                    } catch (Exception e) {
-                    }
-                    // Extract new calculated value or previously cached value if calculation failed.
-                    return extractCellValue(true);
+                    String str = cell.getStringCellValue();
+                    return StringPool.intern(str);
                 default:
                     return "unknown type: " + cell.getCellType();
             }

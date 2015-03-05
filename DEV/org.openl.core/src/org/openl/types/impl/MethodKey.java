@@ -30,7 +30,12 @@ public final class MethodKey {
         this.internalParameters = getNormalizedParams(pars);
     }
 
-    /**
+    public MethodKey(String name, IOpenClass[] parTypes, boolean doNotNormalizeParams) {
+    	this.name = name;
+    	this.internalParameters = doNotNormalizeParams ? parTypes : getNormalizedParams(parTypes);
+	}
+
+	/**
      * Normalizes types of method parameters. OpenL engine uses alias data types
      * as internal types and they are used only in OpenL. For java users alias
      * data types are represented as appropriate java type. While method key
