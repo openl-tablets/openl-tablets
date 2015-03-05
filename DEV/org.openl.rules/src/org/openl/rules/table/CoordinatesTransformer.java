@@ -9,12 +9,6 @@ package org.openl.rules.table;
  * @author PUdalau
  */
 public interface CoordinatesTransformer {
-    /**
-     * @param column The column of logical table.
-     * @param row The row of logical table.
-     * @return Coordinates inside the source table.
-     */
-    Point calculateCoordinates(int column, int row);
 
     /**
      * @return The height of logical table.
@@ -25,4 +19,18 @@ public interface CoordinatesTransformer {
      * @return The width of logical table.
      */
     int getWidth();
+
+    /**
+     * @param col The column of logical table.
+     * @param row The row of logical table.
+     * @return Coordinates inside the source table.
+     */
+    int getColumn(int col, int row);
+
+    /**
+     * @param col The column of logical table.
+     * @param row The row of logical table.
+     * @return Coordinates inside the source table.
+     */
+    int getRow(int col, int row);
 }
