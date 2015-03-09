@@ -8,16 +8,20 @@ import static java.lang.Math.min;
 
 public class IntRangeParser2 {
     public static final String ERROR_OUT_RANGE  = "Integer value is out of possible range";
-    static final int RANGE = 1000000, LE = RANGE + 1, GE = LE + 1, ID = GE + 1, KW = ID + 1, INT_VALUE = KW + 1, ILLEGAL = Integer.MAX_VALUE - 1, EOS = Integer.MAX_VALUE;
-    static final int KW_AND = 1, KW_LESS = 2, KW_MORE = 3, KW_OR = 4, KW_THAN = 5;
+    static final int RANGE = 1000000, LE = RANGE + 1, GE = LE + 1, ID = GE + 1, KEYWORD = ID + 1, INT_VALUE = KEYWORD + 1, ILLEGAL = Integer.MAX_VALUE - 1, EOS = Integer.MAX_VALUE;
+    static final int KW_AND = 1000, KW_LESS = 1001, KW_MORE = 1002, KW_OR = 1003, KW_THAN = 1004;
     static final Map<String, Integer> keywords;
     static {
-        keywords = new HashMap<String, Integer>();
+        keywords = new HashMap<String, Integer>(60);
         keywords.put("and", KW_AND);
         keywords.put("less", KW_LESS);
         keywords.put("more", KW_MORE);
         keywords.put("or", KW_OR);
         keywords.put("than", KW_THAN);
+        String[] NUMBERS = new String[] {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"};
+        for (int i=0; i<NUMBERS.length; i++) {
+            keywords.put(NUMBERS[i], i);
+        }
     }
 
     char[] s;
@@ -148,11 +152,9 @@ public class IntRangeParser2 {
                 if (pos == from) return ILLEGAL;
                 id = new String(s, from, pos - from).toLowerCase();
                 final Integer keyword = keywords.get(id);
-                if (keyword != null) {
-                    intValue = keyword;
-                    return KW;
-                }
-                return ID;
+                if (keyword == null) return ID;
+                intValue = keyword;
+                return keyword < KW_AND ? INT_VALUE : KEYWORD;
         }
     }
 
@@ -185,7 +187,7 @@ public class IntRangeParser2 {
                     }
                     switch (nextToken(false)) {
                         case EOS: return newRange(low, hi);
-                        case KW:  if (intValue == KW_AND) break;
+                        case KEYWORD:  if (intValue == KW_AND) break;
                         default:  pos = prevPos; // return error("\"and\" or end of input expected");
                     }
                     break;
@@ -197,7 +199,7 @@ public class IntRangeParser2 {
                             low = max(intValue, low);
                             switch (nextToken(false)) {
                                 case EOS: return newRange(low, hi);
-                                case KW:
+                                case KEYWORD:
                                     if (intValue == KW_AND) {
                                         atLeastOnePartParsed = true;
                                         continue;
@@ -214,18 +216,18 @@ public class IntRangeParser2 {
                             low = max(number, low);
                             hi = min(intValue, hi);
                             break;
-                        case KW:
+                        case KEYWORD:
                             switch (intValue) {
                                 case KW_AND: // NUMBER and more
                                     token = nextToken(false);
                                     if (token == EOS) return error("Unexpected end of input. Is it unfinished \"and more\"?");
-                                    if (token != KW || intValue != KW_MORE) return error("Unexpected input. Is it unfinished \"and more\"?");
+                                    if (token != KEYWORD || intValue != KW_MORE) return error("Unexpected input. Is it unfinished \"and more\"?");
                                     low = max(low, number);
                                     break;
                                 case KW_OR: // NUMBER or less
                                     token = nextToken(false);
                                     if (token == EOS) return error("Unexpected end of input. Is it unfinished \"or less\"?");
-                                    if (token != KW || intValue != KW_LESS) return error("Unexpected input. Is it unfinished \"or less\"?");
+                                    if (token != KEYWORD || intValue != KW_LESS) return error("Unexpected input. Is it unfinished \"or less\"?");
                                     hi = min(hi, number);
                                     break;
                                 default: return error("Unexpected keyword");
@@ -236,30 +238,30 @@ public class IntRangeParser2 {
                     }
                     switch (nextToken(false)) {
                         case EOS: return newRange(low, hi);
-                        case KW:  if (intValue == KW_AND) break;
+                        case KEYWORD:  if (intValue == KW_AND) break;
                         default:  pos = prevPos; // return error("Unexpected input");
                     }
                     break;
-                case KW:
+                case KEYWORD:
                     switch (intValue) {
                         case KW_MORE:
                             token = nextToken(false);
                             if (token == EOS) return error("Unexpected end of input. Should it be \"more than <NUMBER>\"?");
-                            if (token != KW || intValue != KW_THAN) return error("Unexpected input. Should it be \"more than <NUMBER>\"?");
+                            if (token != KEYWORD || intValue != KW_THAN) return error("Unexpected input. Should it be \"more than <NUMBER>\"?");
                             if (nextToken(false) != INT_VALUE) return error("Number expected");
                             low = max(low, intValue + 1);
                             break;
                         case KW_LESS:
                             token = nextToken(false);
                             if (token == EOS) return error("Unexpected end of input. Should it be \"less than <NUMBER>\"?");
-                            if (token != KW || intValue != KW_THAN) return error("Unexpected input. Should it be \"less than <NUMBER>\"?");
+                            if (token != KEYWORD || intValue != KW_THAN) return error("Unexpected input. Should it be \"less than <NUMBER>\"?");
                             if (nextToken(false) != INT_VALUE) return error("Number expected");
                             hi = min(hi, intValue - 1);
                             break;
                         default:
                             return error("Unexpected keyword");
                     }
-                    if (nextToken(false) != KW || intValue != KW_AND) pos = prevPos;
+                    if (nextToken(false) != KEYWORD || intValue != KW_AND) pos = prevPos;
                     break;
                 case '[': case '(':
                     if (nextToken(false) != INT_VALUE) return error("Number expected");
