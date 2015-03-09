@@ -104,6 +104,11 @@ public class IntRangeParser2Test {
             "-2147483649",                      null,
             "-10000000 K",                      null,
 
+            // numeral adjectives
+            "zero",                             0, 0,
+            "one .. fourteen",                  1, 14,
+            "twenty+",                          20, MAX_VALUE,
+
             // empty input test
             "",                                 null,
             " ",                                null,
