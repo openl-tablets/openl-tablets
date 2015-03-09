@@ -98,7 +98,7 @@ public class IntRangeParser2 {
         return INT_VALUE;
     }
 
-    private int nextToken(boolean allowMinusAsRange) {
+    private int nextToken(boolean allowPlusMinusAsRange) {
         final int n = s.length;
         prevPos = pos;
         while (pos < n && Character.isSpaceChar((s[pos]))) pos++;
@@ -111,13 +111,13 @@ public class IntRangeParser2 {
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                 return parseNumber(); //TODO optimize it little bit
             case '-':
-                if (allowMinusAsRange) {
+                if (allowPlusMinusAsRange) {
                     pos++;
                     return RANGE;
                 }
                 return parseNumber();
-            case '+': //TODO
-                return parseNumber();
+            case '+':
+                return allowPlusMinusAsRange ? s[pos++]: parseNumber();
             case '[': case '(': case ']': case ')':
                 return s[pos++];
             case '…': case ';':
@@ -193,6 +193,18 @@ public class IntRangeParser2 {
                     int number = intValue;
                     switch (nextToken(true)) {
                         case EOS: return newRange(intValue, intValue);  //TODO
+                        case '+':
+                            low = max(intValue, low);
+                            switch (nextToken(false)) {
+                                case EOS: return newRange(low, hi);
+                                case KW:
+                                    if (intValue == KW_AND) {
+                                        atLeastOnePartParsed = true;
+                                        continue;
+                                    }
+                                default:
+                                    return error("Unexpected input");
+                            }
                         case '>': hi = min(intValue - 1, hi) ; break;
                         case '<': low = max(intValue + 1, low); break;
                         case GE:  low = max(intValue, low); break;
