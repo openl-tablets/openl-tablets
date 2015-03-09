@@ -144,7 +144,7 @@ public class IntRangeParser2 {
                 return s[pos++];
             default:
                 int from = pos;
-                while (pos < n && Character.isAlphabetic(s[pos])) pos++;
+                while (pos < n && Character.isLetterOrDigit(s[pos])) pos++;
                 if (pos == from) return ILLEGAL;
                 id = new String(s, from, pos - from).toLowerCase();
                 final Integer keyword = keywords.get(id);
