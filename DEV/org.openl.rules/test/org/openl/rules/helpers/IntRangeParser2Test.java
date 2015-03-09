@@ -30,6 +30,13 @@ public class IntRangeParser2Test {
             "999M",                             999000000, 999000000,
             "-1 B",                             -1000000000, -1000000000,
 
+            // currency symbol
+            "$13",                              13, 13,
+            "$13 - 200",                        13, 200,
+            "[$11; $32)",                       11, 31,
+            ">$2",                              3,  MAX_VALUE,
+            "$2 +",                             2,  MAX_VALUE,
+
             // ranges
             "[-100;100]",                       -100, 100,
             "(-100;100]",                       -99, 100,
@@ -99,12 +106,6 @@ public class IntRangeParser2Test {
             " ",                                null,
             "  ",                               null
         );
-    }
-
-    @Test
-    public void testSingleNumbers() {
-        for (int i = 0; i < NUMBERS_STR.length; i++)
-            assertEquals(new IntRange(NUMBERS_VALUES[i], NUMBERS_VALUES[i]), parse(NUMBERS_STR[i]));
     }
 
     @Test
