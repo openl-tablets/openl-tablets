@@ -49,6 +49,14 @@ public class IntRangeParser2Test {
             "[7-8]",                            7, 8,
             "-15 - -8",                         -15, -8,
             "6-8",                              6, 8,
+            "-7-6",                             -7, 6,
+
+            // spaces
+            "-7 -6",                            -7, 6,
+            "-7 - 6",                           -7, 6,
+            "-7- 6",                            -7, 6,
+            " - 7 - 6 ",                        -7, 6,
+
 
             // plus and minus
             "1+",                               1, MAX_VALUE,
@@ -56,6 +64,7 @@ public class IntRangeParser2Test {
             "18  +",                            18, MAX_VALUE,
             "1M+",                              1000000, MAX_VALUE,
             "1+ and 10 or less",                1, 10,
+            "-7-+6",                            -7, 6,
 
             // one less/greater condition
             "0>",                               MIN_VALUE, -1,
