@@ -1,10 +1,7 @@
 package org.openl.meta;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -12,6 +9,8 @@ import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
+
+import java.util.Arrays;
 
 public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
@@ -401,7 +400,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+
+//            throw new OpenlNotCheckedException("Division by zero");
+            // FIXME: temporary commented the throwing exception
+            // Is needed for ISO
+            //
+            return new org.openl.meta.DoubleValue(value1, value2, DoubleValue.ZERO.doubleValue(), Formulas.DIVIDE);
         }
 
         return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
@@ -685,7 +689,38 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return Operators.eq(getValue(), secondObj.getValue());
         }
 
+        // FIXME: Temporary fix for the ISO to support
+        // var == "0" where var is of type DoubleValue
+        // In this case autocast should work, need investigation
+        //
+        if (obj instanceof String) {
+            double d;
+            try
+            {
+                d = Double.parseDouble((String)obj);
+            }
+            catch(NumberFormatException nfe)
+            {
+                return false;
+            }
+
+            return Operators.eq(getValue(), d);
+        }
+
         return false;
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 
     // sort
@@ -732,6 +767,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (x == null) {
             return null;
         }
+
         return x.toString();
     }
     
@@ -740,7 +776,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue autocast(String x, DoubleValue y) {
-        if (x == null) {
+        if (x == null || "".equals(x)) {
             return null;
         }
         return new DoubleValue(Double.valueOf(x));
