@@ -8,7 +8,7 @@ import static java.lang.Math.min;
 
 public class IntRangeParser2 {
     public static final String ERROR_OUT_RANGE  = "Integer value is out of possible range";
-    static final int RANGE = 1000000, LE = RANGE + 1, GE = LE + 1, ID = GE + 1, KEYWORD = ID + 1, INT_VALUE = KEYWORD + 1, ILLEGAL = Integer.MAX_VALUE - 1, EOS = Integer.MAX_VALUE;
+    static final int RANGE = 1000000, RANGE_EXCLUSIVE = RANGE + 1, LE = RANGE_EXCLUSIVE + 1, GE = LE + 1, ID = GE + 1, KEYWORD = ID + 1, INT_VALUE = KEYWORD + 1, ILLEGAL = Integer.MAX_VALUE - 1, EOS = Integer.MAX_VALUE;
     static final int KW_AND = 1000, KW_LESS = 1001, KW_MORE = 1002, KW_OR = 1003, KW_THAN = 1004;
     static final Map<String, Integer> keywords;
     static {
@@ -124,7 +124,10 @@ public class IntRangeParser2 {
                 return allowPlusMinusAsRange ? s[pos++]: parseNumber();
             case '[': case '(': case ']': case ')':
                 return s[pos++];
-            case '…': case ';':
+            case '…':
+                pos++;
+                return RANGE_EXCLUSIVE;
+            case ';':
                 pos++;
                 return RANGE;
             case '.':
@@ -215,6 +218,11 @@ public class IntRangeParser2 {
                             if (nextToken(false) != INT_VALUE) return error("Unexpected input");
                             low = max(number, low);
                             hi = min(intValue, hi);
+                            break;
+                        case RANGE_EXCLUSIVE:
+                            if (nextToken(false) != INT_VALUE) return error("Expected number");
+                            low = max(number + 1, low);
+                            hi = min(intValue - 1, hi);
                             break;
                         case KEYWORD:
                             switch (intValue) {
