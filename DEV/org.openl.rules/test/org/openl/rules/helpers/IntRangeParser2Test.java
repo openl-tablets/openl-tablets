@@ -45,8 +45,8 @@ public class IntRangeParser2Test {
             "[-10; -1]",                        -10, -1,
             "[1; 2]",                           1, 2,
             "[3.. 4]",                          3, 4,
-            "[5… 6]",                          5, 6,
             "[7-8]",                            7, 8,
+            "0… 6",                             1, 5,
             "-15 - -8",                         -15, -8,
             "6-8",                              6, 8,
             "-7-6",                             -7, 6,
@@ -130,7 +130,7 @@ public class IntRangeParser2Test {
         // Now do the real testing
         for (boolean leftOpen : new boolean[]{false, true})
             for (boolean rightOpen : new boolean[]{false, true})
-                for (String separator : new String[]{";", "..", "…", "-"})
+                for (String separator : new String[]{";", "..", "-"})
                     for (int i = 0; i < NUMBERS_STR.length; i++)
                         for (int j = 0; j < NUMBERS_STR.length; j++)
                             if (NUMBERS_VALUES[i] + 1 < NUMBERS_VALUES[j]) {
