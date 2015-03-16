@@ -18,6 +18,10 @@ public abstract class MatchingConstraint<P, C> {
         if (propertyValue == null || contextValue == null) {
             return MatchingResult.MATCH_BY_DEFAULT;
         }
+        
+        if (propertyValue.getClass().isArray() && ((Object[]) propertyValue).length == 0) {
+            return MatchingResult.MATCH_BY_DEFAULT;
+        }
 
         if (matchNotNulls(propertyValue, contextValue)) {
             return MatchingResult.MATCH;
