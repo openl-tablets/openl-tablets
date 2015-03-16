@@ -1,5 +1,13 @@
 package org.openl.meta;
 
+import java.net.URL;
+import java.util.Arrays;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.openl.meta.StringValue.StringValueAdapter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -7,13 +15,22 @@ import org.openl.util.ArrayTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
-import java.util.Arrays;
-
+@XmlRootElement
+@XmlJavaTypeAdapter(StringValueAdapter.class)
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     private final Logger log = LoggerFactory.getLogger(StringValue.class);
     private ValueMetaInfo metaInfo;
     private String value;
+    
+    public static class StringValueAdapter extends XmlAdapter<String,StringValue> {
+        public StringValue unmarshal(String val) throws Exception {
+            return new StringValue(val);
+        }
+        
+        public String marshal(StringValue val) throws Exception {
+            return val.getValue();
+        }
+    }
 
     public StringValue(String value) {
         if (value == null) {

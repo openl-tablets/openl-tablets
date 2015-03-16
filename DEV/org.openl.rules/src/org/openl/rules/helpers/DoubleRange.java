@@ -5,6 +5,8 @@ package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.meta.DoubleValue;
 import org.openl.util.RangeWithBounds;
@@ -15,6 +17,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  * "1.2-3", "2 .. 4", "123.456 ... 1000.00001" (Important: using of ".." and
  * "..." requires spaces between numbers and separator).
  */
+@XmlRootElement
 public class DoubleRange implements INumberRange {
     private double lowerBound = Double.MIN_VALUE;
     private double upperBound = Double.MAX_VALUE;
@@ -36,6 +39,9 @@ public class DoubleRange implements INumberRange {
         this.upperBoundType = upperBoundType;
     }
 
+    public DoubleRange() {
+    }
+    
     public DoubleRange(String range) {
         RangeWithBounds res = getRangeWithBounds(range);
 

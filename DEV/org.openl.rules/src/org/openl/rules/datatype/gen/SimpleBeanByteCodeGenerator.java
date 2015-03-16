@@ -9,6 +9,7 @@ import org.openl.rules.datatype.gen.bean.writers.DefaultConstructorWriter;
 import org.openl.rules.datatype.gen.bean.writers.EqualsWriter;
 import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.HashCodeWriter;
+import org.openl.rules.datatype.gen.bean.writers.JAXBAnnotationWriter;
 import org.openl.rules.datatype.gen.bean.writers.PrivateFieldsWriter;
 import org.openl.rules.datatype.gen.bean.writers.SettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
@@ -58,6 +59,7 @@ public class SimpleBeanByteCodeGenerator extends BeanByteCodeGenerator {
 
     private void initWriters() {
         addWriter(new ClassDescriptionWriter(getBeanNameWithPackage(), parentClass));
+        addWriter(new JAXBAnnotationWriter(getBeanNameWithPackage()));
         addWriter(new PrivateFieldsWriter(beanFields));
         addWriter(new DefaultConstructorWriter(getBeanNameWithPackage(), parentClass, beanFields));
         if (allFields.size() < 256) {

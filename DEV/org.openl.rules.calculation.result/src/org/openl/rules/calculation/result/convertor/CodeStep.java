@@ -1,5 +1,8 @@
 package org.openl.rules.calculation.result.convertor;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 /*
  * #%L
  * OpenL - DEV - Rules - Calculation Result
@@ -10,14 +13,16 @@ package org.openl.rules.calculation.result.convertor;
  * #L%
  */
 
-
 /**
  * Spreadsheet step(row) that has the code value.
  * 
  * @author DLiauchuk
  * 
  */
+
 @Deprecated
+@XmlRootElement
+@XmlSeeAlso({SimpleStep.class, CompoundStep.class})
 public class CodeStep extends CalculationStep {
 
     private static final long serialVersionUID = 7372598798002605558L;

@@ -132,7 +132,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testOpenLTypes() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
+        
         TestClass testBean = new TestClass();
         ByteValue byteValue = new ByteValue((byte) 255);
         ShortValue shortValue = new ShortValue((short) 12345);
@@ -175,7 +177,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setEnableDefaultTyping(false);
         bean.setSupportVariations(true);
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
 
         ArgumentReplacementVariation v = new ArgumentReplacementVariation("variationID", 1, new DoubleValue(123d));
 
@@ -211,7 +213,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     public void testSpreadsheetResult() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(new SpreadsheetResult(3, 3));
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
         Assert.assertTrue(result instanceof SpreadsheetResult);
@@ -227,7 +229,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     public void testRange() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(new DoubleRange(0.0d, 1d, BoundType.EXCLUDING, BoundType.EXCLUDING));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
         Assert.assertTrue(result instanceof DoubleRange);
@@ -251,7 +253,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         context.setLob("LOB");
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(context);
         
         IRulesRuntimeContext iRulesRuntimeContext = objectMapper.readValue(text, IRulesRuntimeContext.class);
@@ -287,7 +289,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setOverrideTypes(overrideTypes);
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
-        ObjectMapper objectMapper = bean.createJacksonDatabinding();
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
         Assert.assertTrue(w.animal instanceof Dog);

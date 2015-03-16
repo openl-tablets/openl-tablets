@@ -1,5 +1,7 @@
 package org.openl.rules.calculation.result.convertor;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * #%L
  * OpenL - DEV - Rules - Calculation Result
@@ -17,7 +19,9 @@ package org.openl.rules.calculation.result.convertor;
  * @author DLiauchuk
  * 
  */
+
 @Deprecated
+@XmlRootElement
 public class SimpleStep extends CodeStep {
 
     private static final long serialVersionUID = 3906469763279262117L;

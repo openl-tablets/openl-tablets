@@ -2,9 +2,14 @@ package org.openl.meta;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.IntValue.IntValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -13,6 +18,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(IntValueAdapter.class)
 public class IntValue extends ExplanationNumberValue<IntValue> {
     
     private static final long serialVersionUID = -3821702883606493390L;    
@@ -21,6 +28,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     private static final IntValue ONE = new IntValue((int) 1);
     private static final IntValue MINUS_ONE = new IntValue((int) -1);
 
+    public static class IntValueAdapter extends XmlAdapter<Integer,IntValue> {
+        public IntValue unmarshal(Integer val) throws Exception {
+            return new IntValue(val);
+        }
+        
+        public Integer marshal(IntValue val) throws Exception {
+            return val.getValue();
+        }
+    }
+    
     // <<< INSERT Functions >>>
     private int value;
 

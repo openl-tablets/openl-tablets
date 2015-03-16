@@ -20,7 +20,9 @@ import javax.ws.rs.core.Response;
 
 import net.sf.cglib.core.ReflectUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -41,19 +43,14 @@ import org.openl.util.generation.InterfaceTransformer;
  */
 public class JAXRSInterfaceEnhancerHelper {
 
-    private static boolean isPrimitive(Class<?> type) {
-        return type.isPrimitive();// || Integer.class == type || Boolean.class
-                                  // == type || Character.class == type ||
-                                  // String.class == type || Long.class == type
-                                  // || Short.class == type || Double.class ==
-                                  // type || Float.class == type;
-    }
+    private static final String JAXRS_RULESERVICE_NAMESPACE = "http://jaxrs.publish.ruleservice.rules.openl.com";
 
-    private static boolean isNullablePrimitive(Class<?> type) {
-        return type.isPrimitive() || Integer.class == type || Boolean.class == type || Character.class == type || String.class == type || Long.class == type || Short.class == type || Double.class == type || Float.class == type;
+    private static boolean isPrimitive(Class<?> type) {
+        return type.isPrimitive();
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
+
         private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
@@ -63,6 +60,7 @@ public class JAXRSInterfaceEnhancerHelper {
         private boolean changeReturnTypes = true;
         private Map<Method, String> methodNames = null;
         private Map<Method, String> paths = null;
+        private Map<Method, String> methodRequests = null;
 
         public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -101,7 +99,7 @@ public class JAXRSInterfaceEnhancerHelper {
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
-
+            
             // Consumes annotation
             if (consumesAnnotationRequired) {
                 addConsumesAnnotation(this);
@@ -120,7 +118,8 @@ public class JAXRSInterfaceEnhancerHelper {
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
             String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             int i = 0;
-            JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator();
+            JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator(getRequestParameterName(originalMethod),
+                JAXRS_RULESERVICE_NAMESPACE);
             for (Class<?> type : originalMethod.getParameterTypes()) {
                 generator.addProperty(parameterNames[i], type);
                 i++;
@@ -134,13 +133,37 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private ClassLoader getClassLoader() {
             ClassLoader classLoader = null;
-            if (service != null){
+            if (service != null) {
                 classLoader = service.getClassLoader();
             }
-            if (classLoader == null){
+            if (classLoader == null) {
                 classLoader = Thread.currentThread().getContextClassLoader();
             }
             return classLoader;
+        }
+
+        protected String getRequestParameterName(Method method) {
+            if (methodRequests == null) {
+                methodRequests = new HashMap<Method, String>();
+                List<Method> methods = new ArrayList<Method>();
+                for (Method m : originalClass.getMethods()) {
+                    methods.add(m);
+                }
+
+                methods = MethodUtil.sort(methods);
+
+                for (Method m : methods) {
+                    String s = StringUtils.uncapitalize(m.getName()) + "Request";
+                    int i = 1;
+                    while (methodRequests.values().contains(s)) {
+                        s = StringUtils.uncapitalize(m.getName()) + "Request" + i;
+                        i++;
+                    }
+                    methodRequests.put(m, s);
+                }
+            }
+
+            return methodRequests.get(method);
         }
 
         protected String getPath(Method method) {
@@ -225,22 +248,18 @@ public class JAXRSInterfaceEnhancerHelper {
 
             MethodVisitor mv = null;
             if (!skip) {
-                boolean allPrimitivesBeforeLastArgument = true;
-                int k = 0;
+                boolean allParametersIsPrimitive = true;
                 if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET) {
                     for (Class<?> parameterType : originalMethod.getParameterTypes()) {
-                        if (k < originalMethod.getParameterTypes().length - 1) {
-                            if (!isPrimitive(parameterType)) {
-                                allPrimitivesBeforeLastArgument = false;
-                                break;
-                            }
+                        if (!isPrimitive(parameterType)) {
+                            allParametersIsPrimitive = false;
+                            break;
                         }
-                        k++;
                     }
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.append("/" + getPath(originalMethod));
-                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET && allPrimitivesBeforeLastArgument && (originalMethod.getParameterTypes().length == 0 || isNullablePrimitive(originalMethod.getParameterTypes()[originalMethod.getParameterTypes().length - 1]))) {
+                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
                     if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
                         mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
                     } else {
@@ -271,6 +290,7 @@ public class JAXRSInterfaceEnhancerHelper {
                                     arg3,
                                     arg4);
                             }
+                            annotateReturnElementClass(mv, originalMethod.getReturnType());
                         } else {
                             if (originalMethod.getParameterTypes().length > 1 && originalMethod.getParameterTypes().length != 0) {
                                 mv = super.visitMethod(arg0,
@@ -322,6 +342,15 @@ public class JAXRSInterfaceEnhancerHelper {
             return originalMethod;
         }
 
+        private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
+            if (returnType.equals(Object.class) || returnType.equals(Void.class)){
+                return;
+            }
+            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ElementClass.class), true);
+            av.visit("response", Type.getType(returnType));
+            av.visitEnd();
+        }
+        
         private void addPostAnnotation(MethodVisitor mv) {
             AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
             av.visitEnd();
@@ -349,14 +378,11 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visit("value", paramName);
             av.visitEnd();
         }
-
+        
         private void addProducesAnnotation(ClassVisitor cv) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
-            av1.visit(null, MediaType.APPLICATION_XML);
-            av1.visit(null, MediaType.TEXT_XML);
-            av1.visit(null, "application/*+xml");
             av1.visitEnd();
             av.visitEnd();
         }
@@ -365,9 +391,6 @@ public class JAXRSInterfaceEnhancerHelper {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
             av1.visit(null, MediaType.APPLICATION_JSON);
-            av1.visit(null, MediaType.APPLICATION_XML);
-            av1.visit(null, MediaType.TEXT_XML);
-            av1.visit(null, "application/*+xml");
             av1.visitEnd();
             av.visitEnd();
         }
@@ -394,18 +417,17 @@ public class JAXRSInterfaceEnhancerHelper {
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         ClassLoader classLoader = getClassLoader(service);
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName,
-            cw.toByteArray(),
-            classLoader);
+        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
     }
 
+    
     private static ClassLoader getClassLoader(OpenLService service) {
         ClassLoader classLoader = null;
-        if (service != null){
+        if (service != null) {
             classLoader = service.getClassLoader();
         }
-        if (classLoader == null){
+        if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
         return classLoader;
@@ -502,13 +524,13 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 if (!found) {
-                    throw new IllegalStateException("Method not found!");
+                   throw new IllegalStateException("Method not found!");
                 }
             }
         }
 
         ClassLoader classLoader = getClassLoader(service);
-        
+
         return Proxy.newProxyInstance(classLoader,
             new Class<?>[] { proxyInterface },
             new JAXRSInvocationHandler(targetBean, methodMap, methodMapToPropertyDescriptors));

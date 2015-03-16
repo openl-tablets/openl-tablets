@@ -1,6 +1,10 @@
 package org.openl.rules.datatype.gen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.cglib.core.ReflectUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
@@ -8,12 +12,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class BeanByteCodeGenerator {
 
@@ -90,20 +88,6 @@ public abstract class BeanByteCodeGenerator {
 
     protected String getBeanNameWithPackage() {
         return beanNameWithPackage;
-    }
-
-    @SuppressWarnings("unused")
-    private void writeBytesToFile(byte[] byteArray) {
-        String strFilePath = String.format("D://gen//%s.class", JavaClassGeneratorHelper.getShortClassName(beanName));
-        try {
-            FileOutputStream fos = new FileOutputStream(strFilePath);
-            fos.write(byteArray);
-            fos.close();
-        } catch (FileNotFoundException ex) {
-            log.error("{}", this, ex);
-        } catch (IOException ioe) {
-            log.error("{}", this, ioe);
-        }
     }
 
     //TODO move to some utility class

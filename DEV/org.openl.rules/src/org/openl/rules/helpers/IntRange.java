@@ -3,6 +3,8 @@
  */
 package org.openl.rules.helpers;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.openl.domain.IntRangeDomain;
 import org.openl.meta.IntValue;
 import org.openl.util.RangeWithBounds;
@@ -13,6 +15,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  * "2 .. 4", "123 ... 1000" (Important: using of ".." and "..." requires spaces
  * between numbers and separator).
  */
+@XmlRootElement
 public class IntRange extends IntRangeDomain implements INumberRange {
 
     /**
@@ -34,6 +37,10 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         return contains(value.intValue());
     }
 
+    public IntRange() {
+        super(0, 0);
+    }
+    
     /**
      * Constructor for <code>IntRange</code>. Tries to parse range text with
      * variety of formats. Supported range formats: "<min number> - <max

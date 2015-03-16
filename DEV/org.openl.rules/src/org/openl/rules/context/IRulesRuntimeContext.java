@@ -1,5 +1,8 @@
 package org.openl.rules.context;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.openl.runtime.IRuntimeContext;
 
 /*
@@ -9,6 +12,8 @@ import org.openl.runtime.IRuntimeContext;
  * Add your method to exclusions the same way as it's done for "Object getValue(String variable)"
  */
 
+@XmlRootElement
+@XmlJavaTypeAdapter(DefaultRulesRuntimeContext.IRulesRuntimeContextAdapter.class)
 public interface IRulesRuntimeContext extends IRuntimeContext {
 	
 	Object getValue(String variable);

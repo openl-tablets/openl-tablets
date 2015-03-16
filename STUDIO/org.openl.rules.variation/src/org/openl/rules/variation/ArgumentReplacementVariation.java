@@ -1,5 +1,7 @@
 package org.openl.rules.variation;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * #%L
  * OpenL - Variation
@@ -20,6 +22,7 @@ package org.openl.rules.variation;
  * 
  * @author PUdalau
  */
+@XmlRootElement
 public class ArgumentReplacementVariation extends Variation {
     private int updatedArgumentIndex;
     private Object valueToSet;
@@ -73,11 +76,19 @@ public class ArgumentReplacementVariation extends Variation {
     public int getUpdatedArgumentIndex() {
         return updatedArgumentIndex;
     }
+    
+    public void setUpdatedArgumentIndex(int updatedArgumentIndex) {
+        this.updatedArgumentIndex = updatedArgumentIndex;
+    }
 
     /**
      * @return value to set into field.
      */
     public Object getValueToSet() {
         return valueToSet;
+    }
+    
+    public void setValueToSet(Object valueToSet) {
+        this.valueToSet = valueToSet;
     }
 }
