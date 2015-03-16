@@ -10,6 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +59,25 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(declaredFields);
         this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(allFields);
     }
+    
+    private void addJAXBAnnotations(StringBuilder buf) {
+        addImport(buf, filterTypeNameForImport(XmlRootElement.class));
+        addImport(buf, filterTypeNameForImport(XmlType.class));
+
+        String packageName = ClassUtils.getPackageName(getClassNameForGeneration());
+
+        String[] packageParts = packageName.split("\\.");
+        StringBuilder namespace = new StringBuilder("http://");
+        for (int i = packageParts.length - 1; i >= 0; i--) {
+            namespace.append(packageParts[i]);
+            if (i != 0) {
+                namespace.append(".");
+            }
+        }
+
+        buf.append("\n@XmlRootElement(namespace=\"" + namespace.toString() + "\")");
+        buf.append("\n@XmlType(namespace=\"" + namespace.toString() + "\")");
+    }
 
     public String generateJavaClass() {
 
@@ -66,6 +88,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         addPackage(buf);
 
         addImports(buf);
+        
+        addJAXBAnnotations(buf);
 
         addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()),
                 ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));

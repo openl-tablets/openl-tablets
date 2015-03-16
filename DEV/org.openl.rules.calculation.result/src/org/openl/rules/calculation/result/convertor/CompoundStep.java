@@ -14,6 +14,8 @@ package org.openl.rules.calculation.result.convertor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Spreadsheet row(step) that has nested SpreadsheetResult or
  * SpreadsheetResult[] value for one of the columns.
@@ -21,7 +23,9 @@ import java.util.List;
  * @author DLiauchuk
  * 
  */
+
 @Deprecated
+@XmlRootElement
 public class CompoundStep extends CodeStep {
 
     private static final long serialVersionUID = -7072660266573768559L;

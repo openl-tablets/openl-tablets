@@ -1,5 +1,7 @@
 package org.openl.meta.explanation;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
@@ -91,6 +93,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         return explanation;
     }
 
+    @XmlTransient
     public IMetaInfo getMetaInfo() {
         return getExplanation().getMetaInfo();
     }

@@ -13,12 +13,16 @@ package org.openl.rules.calculation.result.convertor;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * The base abstraction for the spreadsheet step, each step is a spreadsheet
  * row.
  * 
  */
+
 @Deprecated
+@XmlRootElement
 public class CalculationStep implements Serializable {
 
     private static final long serialVersionUID = 4067908093788043935L;

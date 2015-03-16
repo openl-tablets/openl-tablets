@@ -7,6 +7,8 @@ package org.openl.domain;
 
 import java.util.Iterator;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * @author snshor
  */
@@ -74,6 +76,7 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         return min == other.min && max == other.max;
     }
 
+    @XmlTransient
     public IType getElementType() {
         return null;
     }

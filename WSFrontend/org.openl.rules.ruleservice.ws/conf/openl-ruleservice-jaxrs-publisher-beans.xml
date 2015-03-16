@@ -6,25 +6,8 @@
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 
-	<bean id="JAXRSserviceDescriptionConfigurationReadXsiTypesFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
-		scope="prototype" >
-		<property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
-	</bean>
-
-	<bean id="JAXRSserviceDescriptionConfigurationWriteXsiTypesFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
-		scope="prototype" >
-		<property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
-	</bean>
-
-	<bean id="JAXRSserviceDescriptionConfigurationIgnoreNamespacesFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
-		scope="prototype" >
-		<property name="propertyName" value="aegisdatabinding.ignoreNamespaces"/>
-		<property name="defaultValue" value="${ruleservice.aegisbinding.ignoreNamespaces}"/>
+	<bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
+		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
 	
 	<bean id="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean"
@@ -32,29 +15,6 @@
 		scope="prototype" >
 		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping"/>
 		<property name="defaultValue" value="false"/>
-	</bean>
-	
-	<bean id="JAXRSaegisDatabindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
-		scope="prototype">
-		<property name="readXsiTypes" ref="JAXRSserviceDescriptionConfigurationReadXsiTypesFactoryBean" />
-		<property name="writeXsiTypes" ref="JAXRSserviceDescriptionConfigurationWriteXsiTypesFactoryBean" />
-		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
-		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
-	</bean>
-
-	<bean id="JAXRSServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
-		<property name="targetObject" ref="JAXRSaegisDatabindingFactoryBean"/>
-		<property name="targetMethod" value="createAegisDatabinding"/>
-		<property name="singleton" value="false"/>
-	</bean>
- 
-	<bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
-		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
-	</bean>
-	
-	<bean id="JAXRSNamespaceMapBean" class="org.openl.rules.ruleservice.databinding.JAXRSNamespaceMapFactoryBean" scope="prototype">
-		<property name="ignoredNamespace" ref="JAXRSserviceDescriptionConfigurationIgnoredNamespacesFactoryBean"/>
 	</bean>
 
 	<bean id="JAXRSJacksonDatabindingFactoryBean"
@@ -65,18 +25,16 @@
 		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
 	</bean>
 
-	<bean id="JAXRSJacksonServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
+	<bean id="JAXRSJacksonObjectMapper" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
 		<property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean"/>
-		<property name="targetMethod" value="createJacksonDatabinding"/>
+		<property name="targetMethod" value="createJacksonObjectMapper"/>
 		<property name="singleton" value="false"/>
 	</bean>
 	
 	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
-		<constructor-arg ref="JAXRSJacksonServicesDataBinding"/>
+		<constructor-arg ref="JAXRSJacksonObjectMapper"/>
 	</bean>
-	
-	<bean id="JAXRSAegisElementProvider" class="org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider" scope="prototype"/>
-	
+
 	<bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
 		<property name="addMessageToResponse" value="true"/>
 	</bean>
@@ -85,9 +43,14 @@
 		<property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
 	</bean>
 	
+	<bean id="wadlGenerator"
+      class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
+    	<property name="linkJsonToXmlSchema" value="true" />
+    	<property name="linkAnyMediaTypeToXmlSchema" value="true" />
+	</bean>
+
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">
-		<property name="dataBinding" ref="JAXRSServicesDataBinding" />
 		<property name="features">
 			<list>
 				<ref bean="JAXRSServicesLoggingFeature" />
@@ -95,19 +58,19 @@
 		</property>
 		<property name="outFaultInterceptors">
 			<list>
-				<ref bean="JAXRS200StatusOutInterceptor"/>
+				<ref bean="JAXRS200StatusOutInterceptor" />
 			</list>
 		</property>
 		<property name="outInterceptors">
 			<list>
-				<ref bean="JAXRS200StatusOutInterceptor"/>
+				<ref bean="JAXRS200StatusOutInterceptor" />
 			</list>
 		</property>
 		<property name="providers">
 			<list>
-				<ref bean="JAXRSJSONProvider"/>
-				<ref bean="JAXRSAegisElementProvider"/>
-				<ref bean="JAXRSWebApplicationExceptionMapper"/>
+				<ref bean="wadlGenerator"/> 
+				<ref bean="JAXRSJSONProvider"/> 
+				<ref bean="JAXRSWebApplicationExceptionMapper" />
 			</list>
 		</property>
 	</bean>

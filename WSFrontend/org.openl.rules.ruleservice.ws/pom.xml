@@ -108,7 +108,7 @@
         </testResources>
     </build>
     <dependencies>
-	    <!-- CORE -->
+        <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>

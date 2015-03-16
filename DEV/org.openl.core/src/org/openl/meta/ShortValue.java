@@ -2,9 +2,14 @@ package org.openl.meta;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.ShortValue.ShortValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -13,6 +18,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(ShortValueAdapter.class)
 public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
@@ -21,6 +28,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     private static final ShortValue ONE = new ShortValue((short) 1);
     private static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
+    public static class ShortValueAdapter extends XmlAdapter<Short,ShortValue> {
+        public ShortValue unmarshal(Short val) throws Exception {
+            return new ShortValue(val);
+        }
+        
+        public Short marshal(ShortValue val) throws Exception {
+            return val.getValue();
+        }
+    }
+    
     // <<< INSERT Functions >>>
     private short value;
 

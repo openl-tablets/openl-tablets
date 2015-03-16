@@ -1,5 +1,6 @@
 package org.openl.rules.variation;
 
+
 /*
  * #%L
  * OpenL - Variation

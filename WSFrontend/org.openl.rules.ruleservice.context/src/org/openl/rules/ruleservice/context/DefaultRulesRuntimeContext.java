@@ -13,8 +13,23 @@ package org.openl.rules.ruleservice.context;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 
+    public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
+        @Override
+        public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v) throws Exception {
+            // *TODO
+            return (DefaultRulesRuntimeContext) v;
+        }
+
+        @Override
+        public IRulesRuntimeContext unmarshal(DefaultRulesRuntimeContext v) throws Exception {
+            return v;
+        }
+    }
+    
     private Map<String, Object> internalMap = new HashMap<String, Object>();
 
     public void setValue(String name, Object value) {

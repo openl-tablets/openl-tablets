@@ -3,9 +3,14 @@ package org.openl.meta;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.BigIntegerValue.BigIntegerValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -14,6 +19,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(BigIntegerValueAdapter.class)
 public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     private static final long serialVersionUID = -3936317402079096501L;
@@ -22,10 +29,19 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     private static final BigIntegerValue ONE = new BigIntegerValue("1");
     private static final BigIntegerValue MINUS_ONE = new BigIntegerValue("-1");
 
-    // <<< INSERT Functions >>>
     private java.math.BigInteger value;
 
+    public static class BigIntegerValueAdapter extends XmlAdapter<BigInteger,BigIntegerValue> {
+        public BigIntegerValue unmarshal(BigInteger val) throws Exception {
+            return new BigIntegerValue(val);
+        }
+        public BigInteger marshal(BigIntegerValue val) throws Exception {
+            return val.getValue();
+        }
+    }
 
+    // <<< INSERT Functions >>>
+  
     /**
      * Compares two values
      * @param value1

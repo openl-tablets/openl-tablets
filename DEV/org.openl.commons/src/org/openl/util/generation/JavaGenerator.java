@@ -92,7 +92,7 @@ public abstract class JavaGenerator {
         return importsSet;
     }
 
-    private String filterTypeNameForImport(Class<?> type) {
+    protected String filterTypeNameForImport(Class<?> type) {
         String typeName = JavaClassGeneratorHelper.filterTypeName(type);
         int index = typeName.indexOf("[");
         if (index > 0) {
