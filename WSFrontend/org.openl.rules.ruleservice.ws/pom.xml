@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.15.0-SNAPSHOT</version>
+        <version>5.15.0-RC1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
@@ -67,8 +67,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip"/>
-                                <unzip dest="target/filesystemdatasource" overwrite="true" src="test-resources/org.openl.tablets.tutorial4.zip"/>
+                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip" />
+                                <unzip dest="target/filesystemdatasource" overwrite="true" src="test-resources/org.openl.tablets.tutorial4.zip" />
                             </tasks>
                         </configuration>
                     </execution>
