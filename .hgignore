@@ -12,6 +12,7 @@ syntax: glob
 *.log
 logs
 **/bin/**
+**/gen/**
 **/WEB-INF/classes/**
 DEMO/*/overlays/
 DEV/org.openl.rules/unit_tests/*.xls
