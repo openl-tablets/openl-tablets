@@ -54,7 +54,8 @@ public abstract class ALogicalTable implements ILogicalTable {
     @Override
     public String toString() {
         StringBuilder tableVisualization = new StringBuilder();     
-        tableVisualization.append(super.toString()).append("\n");
+        tableVisualization.append(super.toString())
+        .append("(" + getWidth() + " x " + getHeight() + ")").append("\n");
         
         int height = getHeight();
         int width = getWidth();
