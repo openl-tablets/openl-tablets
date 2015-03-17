@@ -89,7 +89,8 @@ public abstract class AGridTable implements IGridTable {
     @Override
     public String toString() {
         StringBuilder tableVizualization = new StringBuilder();
-        tableVizualization.append(super.toString() + (isNormalOrientation() ? "N" : "T")
+        tableVizualization.append(super.toString() + (isNormalOrientation() ? "[N]" : "[T]")  
+        		+ "(" + getWidth() + " x " + getHeight() + ")" 
                 +  getRegion().toString() +"\n");
         for (int i = 0; i < getHeight(); i++) {
             int length = 0;
