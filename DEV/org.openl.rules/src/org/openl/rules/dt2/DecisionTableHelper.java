@@ -98,7 +98,21 @@ public class DecisionTableHelper {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey().charAt(0) 
             && Character.isDigit(s.charAt(1));
     }
+    
+    public static boolean isValidHConditionHeader(String headerStr) {
+        return headerStr.startsWith(
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
+            Character.isDigit(headerStr.charAt(2));
+    }
+    
 
+    public static boolean isValidMergedConditionHeader(String headerStr) {
+        return headerStr.startsWith(
+                DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
+                Character.isDigit(headerStr.charAt(2));
+    }
+    
+    
     public static boolean isValidActionHeader(String s) {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) 
             && Character.isDigit(s.charAt(1));
@@ -114,7 +128,7 @@ public class DecisionTableHelper {
     }
 
     public static boolean isValidCommentHeader(String s) {
-        return s.startsWith(RulesCommons.COMMENT_SYMBOLS.toString());
+        return s.trim().length() == 0 || s.startsWith(RulesCommons.COMMENT_SYMBOLS.toString());
     }
 
     public static boolean isActionHeader(String s) {
@@ -122,7 +136,7 @@ public class DecisionTableHelper {
     }
 
     public static boolean isConditionHeader(String s) {
-        return isValidConditionHeader(s) || isValidHConditionHeader(s);
+        return isValidConditionHeader(s) || isValidHConditionHeader(s) || isValidMergedConditionHeader(s);
     }
 
     public static int countConditionsAndActions(ILogicalTable table) {
@@ -153,11 +167,6 @@ public class DecisionTableHelper {
     	return countHConditions(table) > 0;
     }
     
-    public static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
-            Character.isDigit(headerStr.charAt(2));
-    }
     
     /**
      * Creates virtual headers for condition and return columns to load simple
@@ -495,6 +504,7 @@ public class DecisionTableHelper {
 
         return cnt;
 	}
+
 
 
 }

@@ -17,7 +17,7 @@ public class LookupTableTest {
 
         DoubleValue getCarPriceMergedVerticalCondWithRuleCol(String country, String region, String brand, String model);
 
-//        DoubleValue getCarPriceMergedVerticalCond(String country, String region, String brand, String model);
+        DoubleValue getCarPriceMergedVerticalCond(String country, String region, String brand, String model);
 
     }
 
@@ -61,18 +61,18 @@ public class LookupTableTest {
         
     }
 
-//    @Test
-//    public void testMergedVerticalCond() {
-//        DoubleValue result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche",
-//                "911 Targa 4");
-//        assertEquals(90401, result.intValue());
-//        result = instance.getCarPriceMergedVerticalCond("Belarus", "Vitebsk", "Porche",
-//                "911 Targa 4");
-//        assertEquals(90402, result.intValue());
-//        
-//        result = instance.getCarPriceMergedVerticalCond("GreatBritain", "Wales", "Audi",
-//                "2009 Audi R8 4.2 quattro 6-Speed Manual");
-//        assertEquals(112501, result.intValue());
-//    }
+    @Test
+    public void testMergedVerticalCond() {
+        DoubleValue result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche",
+                "911 Targa 4");
+        assertEquals(90401, result.intValue());
+        result = instance.getCarPriceMergedVerticalCond("Belarus", "Vitebsk", "Porche",
+                "911 Targa 4");
+        assertEquals(90402, result.intValue());
+        
+        result = instance.getCarPriceMergedVerticalCond("GreatBritain", "Wales", "Audi",
+                "2009 Audi R8 4.2 quattro 6-Speed Manual");
+        assertEquals(112502, result.intValue());
+    }
 
 }
