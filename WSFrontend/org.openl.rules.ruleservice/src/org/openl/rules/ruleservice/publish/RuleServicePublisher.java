@@ -52,4 +52,12 @@ public interface RuleServicePublisher {
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
     OpenLService getServiceByName(String name);
+    
+    /**
+     * Is service with specified name was deployed.
+     * 
+     * @param name Name of the service.
+     * @return true if service with specified name was deployed otherwise false.
+     */
+    boolean isServiceDeployed(String name);
 }

@@ -192,6 +192,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
     }
+    
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 
     private void removeServiceInfo(String serviceName) {
         for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
