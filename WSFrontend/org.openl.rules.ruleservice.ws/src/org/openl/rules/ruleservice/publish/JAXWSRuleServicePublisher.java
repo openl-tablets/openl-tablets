@@ -28,7 +28,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup  {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -85,7 +85,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
-                
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
@@ -127,7 +126,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
             removeServiceInfo(serviceName);
-            service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
@@ -213,4 +211,9 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             return server;
         }
     }
+    
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 }

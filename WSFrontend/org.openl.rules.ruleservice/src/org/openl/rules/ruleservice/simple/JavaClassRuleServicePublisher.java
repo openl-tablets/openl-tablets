@@ -103,4 +103,8 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         this.frontend = frontend;
     }
 
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 }

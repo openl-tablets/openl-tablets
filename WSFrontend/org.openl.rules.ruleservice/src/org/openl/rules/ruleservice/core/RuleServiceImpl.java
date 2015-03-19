@@ -74,6 +74,7 @@ public class RuleServiceImpl implements RuleService {
         }
 
         ruleServicePublisher.undeploy(serviceName);
+        service.destroy();
         mapping.remove(serviceDescription.getName());
         if (ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { //NEED SOME FIX.
             ((RuleServiceOpenLServiceInstantiationFactoryImpl) ruleServiceInstantiationFactory).clear(serviceDescription.getDeployment());
