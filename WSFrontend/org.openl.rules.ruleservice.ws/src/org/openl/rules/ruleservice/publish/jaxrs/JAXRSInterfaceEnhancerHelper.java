@@ -314,12 +314,27 @@ public class JAXRSInterfaceEnhancerHelper {
                 } else {
                     mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
                 }
+                
+                //Parameter annotations process, because InterfaceTransformet skip them
+                //Need refactoring.
+                if (originalMethod.getParameterAnnotations().length > 0) {
+                    int index = 0;
+                    for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
+                        for (int j = 0; j < annotatons.length; j++) {
+                            AnnotationVisitor av = mv.visitParameterAnnotation(index,
+                                Type.getDescriptor(annotatons[j].annotationType()),
+                                true);
+                            InterfaceTransformer.processAnnotation(annotatons[j], av);
+                        }
+                        index++;
+                    }
+                }
             }
 
             addJAXRSMethodAnnotation(mv, originalMethod.getName());
             return mv;
         }
-
+        
         private Method findOriginalMethod(String methodName, String argumentTypes) {
             Method originalMethod = null;
             for (Method method : originalClass.getMethods()) {

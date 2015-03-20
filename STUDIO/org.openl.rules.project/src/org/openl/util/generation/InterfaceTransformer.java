@@ -126,7 +126,7 @@ public class InterfaceTransformer {
         return Modifier.isFinal(modifiers) && Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers);
     }
 
-    private void processAnnotation(Annotation annotation, AnnotationVisitor av) {
+    public static void processAnnotation(Annotation annotation, AnnotationVisitor av) {
         Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
         if (av != null) {
             for (Entry<String, Object> annotationAttribute : annotationAttributes.entrySet()) {
@@ -147,7 +147,7 @@ public class InterfaceTransformer {
         }
     }
 
-    private void visitNonArrayAnnotationAttribute(AnnotationVisitor av, String attributeName, Object attributeValue) {
+    private static void visitNonArrayAnnotationAttribute(AnnotationVisitor av, String attributeName, Object attributeValue) {
         Class<? extends Object> attributeType = attributeValue.getClass();
         if (attributeValue instanceof Class) {
             av.visit(attributeName, Type.getType((Class<?>) attributeValue));
