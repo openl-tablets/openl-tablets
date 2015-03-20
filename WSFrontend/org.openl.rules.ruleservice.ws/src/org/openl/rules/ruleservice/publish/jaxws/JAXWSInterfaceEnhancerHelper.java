@@ -98,24 +98,25 @@ public class JAXWSInterfaceEnhancerHelper {
                 av.visit("operationName", operationName);
                 av.visitEnd();
             }
-
-            String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
-            int i = 0;
-            for (String paramName : parameterNames) {
-                Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
-                boolean found = false;
-                for (Annotation ann : annotations) {
-                    if (ann.annotationType().equals(WebParam.class)) {
-                        found = true;
-                        break;
+            
+            if (service.getServiceClassName() == null){ //Set parameter names only for generated interfaces
+                String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                int i = 0;
+                for (String paramName : parameterNames) {
+                    Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
+                    boolean found = false;
+                    for (Annotation ann : annotations) {
+                        if (ann.annotationType().equals(WebParam.class)) {
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found) {
+                        addWebParamAnnotation(mv, i, paramName);
+                    }
+                    i++;
                 }
-                if (!found) {
-                    addWebParamAnnotation(mv, i, paramName);
-                }
-                i++;
             }
-
             return mv;
         }
 

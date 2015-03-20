@@ -121,6 +121,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
             serviceClass = processGeneratedServiceClass(service, instanceClass, serviceClassLoader);
+            service.setServiceClassName(null); //Generated class is used.
         }
         service.setServiceClass(serviceClass);
     }

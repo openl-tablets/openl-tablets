@@ -29,7 +29,6 @@ public final class OpenLService {
     private String url;
     private String serviceClassName;
     private Class<?> serviceClass;
-    private Class<?> instanceClass;
     private Object serviceBean;
     private IOpenClass openClass;
     private boolean provideRuntimeContext = false;
@@ -158,6 +157,10 @@ public final class OpenLService {
     public String getServiceClassName() {
         return serviceClassName;
     }
+    
+    void setServiceClassName(String serviceClassName) {
+        this.serviceClassName = serviceClassName;
+    }
 
     /**
      * Return provideRuntimeContext value. This value is define that service
@@ -202,14 +205,6 @@ public final class OpenLService {
 
     void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
-    }
-
-    public Class<?> getInstanceClass() {
-        return instanceClass;
-    }
-
-    void setInstanceClass(Class<?> instanceClass) {
-        this.instanceClass = instanceClass;
     }
 
     public Object getServiceBean() {
