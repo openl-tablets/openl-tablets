@@ -99,7 +99,7 @@ public class JAXWSInterfaceEnhancerHelper {
                 av.visitEnd();
             }
             
-            if (service.getServiceClassName() == null){ //Set parameter names only for generated interfaces
+            if (service != null && service.getServiceClassName() == null){ //Set parameter names only for generated interfaces
                 String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                 int i = 0;
                 for (String paramName : parameterNames) {
