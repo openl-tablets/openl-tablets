@@ -413,7 +413,7 @@ public class JAXRSInterfaceEnhancerHelper {
         if (originalClass.getPackage() == null) {
             enchancedClassName = "default." + enchancedClassName;
         }
-        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
+        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName, false);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         ClassLoader classLoader = getClassLoader(service);
