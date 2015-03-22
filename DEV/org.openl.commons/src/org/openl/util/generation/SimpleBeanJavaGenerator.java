@@ -10,10 +10,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     
     private void addJAXBAnnotations(StringBuilder buf) {
         addImport(buf, filterTypeNameForImport(XmlRootElement.class));
+        addImport(buf, filterTypeNameForImport(XmlElement.class));
         addImport(buf, filterTypeNameForImport(XmlType.class));
 
         String packageName = ClassUtils.getPackageName(getClassNameForGeneration());
@@ -116,6 +119,17 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
 
         for (Method method : methods) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
+                String fieldName = getFieldName(method.getName(), datatypeAllFields.keySet());
+                if (fieldName.length() == 1){
+                    fieldName = fieldName.toLowerCase();
+                }else{
+                    if (fieldName.length() > 1 && Character.isUpperCase(fieldName.charAt(1))){
+                        fieldName = StringUtils.capitalize(fieldName);
+                    }else{
+                        fieldName = StringUtils.uncapitalize(fieldName);
+                    }
+                }
+                buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
                 addGetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().startsWith(JavaGenerator.SET)) {
                 addSetter(buf, method, datatypeAllFields.keySet());
