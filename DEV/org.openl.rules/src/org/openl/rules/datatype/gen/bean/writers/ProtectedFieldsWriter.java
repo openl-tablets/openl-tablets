@@ -14,13 +14,13 @@ import org.openl.rules.datatype.gen.FieldDescription;
  * @author DLiauchuk
  *
  */
-public class PrivateFieldsWriter extends DefaultBeanByteCodeWriter {
+public class ProtectedFieldsWriter extends DefaultBeanByteCodeWriter {
     
     /**
      * 
      * @param beanFields fields of generating class.
      */
-    public PrivateFieldsWriter(Map<String, FieldDescription> beanFields) {
+    public ProtectedFieldsWriter(Map<String, FieldDescription> beanFields) {
         super(StringUtils.EMPTY, null, beanFields);        
     }
     
