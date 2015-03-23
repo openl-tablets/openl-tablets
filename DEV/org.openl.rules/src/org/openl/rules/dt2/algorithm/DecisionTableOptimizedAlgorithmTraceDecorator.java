@@ -10,7 +10,7 @@ import org.openl.rules.dt2.index.EqualsIndex;
 import org.openl.rules.dt2.index.RangeIndex;
 import org.openl.rules.dt2.index.TraceableEqualsIndex;
 import org.openl.rules.dt2.index.TraceableRangeIndex;
-import org.openl.rules.dt2.trace.DTConditionTraceObject;
+import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ChildTraceStack;

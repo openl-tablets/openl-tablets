@@ -1,6 +1,5 @@
 package org.openl.rules.dt.index;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.SortedMap;
@@ -8,7 +7,7 @@ import java.util.TreeMap;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.trace.TraceStack;
 

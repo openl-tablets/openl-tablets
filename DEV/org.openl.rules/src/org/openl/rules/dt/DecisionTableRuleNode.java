@@ -3,8 +3,9 @@ package org.openl.rules.dt;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.index.ARuleIndex;
+import org.openl.rules.dtx.IDecisionTableRuleNode;
 
-public class DecisionTableRuleNode {
+public class DecisionTableRuleNode implements IDecisionTableRuleNode {
 
     public static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;

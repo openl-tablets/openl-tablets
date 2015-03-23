@@ -2,7 +2,7 @@ package org.openl.rules.dt.index;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
 import org.openl.vm.trace.TraceStack;
 

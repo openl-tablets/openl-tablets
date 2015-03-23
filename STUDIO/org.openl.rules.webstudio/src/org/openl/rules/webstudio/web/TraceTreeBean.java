@@ -5,7 +5,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.rules.dt.trace.DTRuleTracerLeaf;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
