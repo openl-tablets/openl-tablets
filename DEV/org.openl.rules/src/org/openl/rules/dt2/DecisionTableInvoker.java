@@ -7,7 +7,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt2.algorithm.FailOnMissException;
 import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt2.element.IAction;
-import org.openl.rules.dt2.trace.DTRuleTracerLeaf;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;

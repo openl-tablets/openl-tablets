@@ -1,10 +1,8 @@
-package org.openl.rules.dt.trace;
+package org.openl.rules.dtx.trace;
 
 import java.util.List;
 
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
@@ -12,11 +10,11 @@ import org.openl.rules.table.ILogicalTable;
 public class DTConditionTraceObject extends DecisionTableTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableCondition";
     private final IDecisionTableTraceObject baseTraceObject;
-    protected final ICondition condition;
+    protected final IBaseCondition condition;
     protected boolean successful;
     protected final int ruleIndex;
 
-    public DTConditionTraceObject(IDecisionTableTraceObject baseTraceObject, ICondition condition, int ruleIndex,
+    public DTConditionTraceObject(IDecisionTableTraceObject baseTraceObject, IBaseCondition condition, int ruleIndex,
                                   boolean successful) {
         // Avoid cloning parameters for every instance - instead override the method getParameters()
         super(baseTraceObject.getDecisionTable(), new Object[0]);

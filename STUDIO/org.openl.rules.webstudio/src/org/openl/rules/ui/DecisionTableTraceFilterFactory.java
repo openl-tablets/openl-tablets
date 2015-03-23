@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.dt.trace.DTConditionTraceObject;
-import org.openl.rules.dt.trace.DTIndexedTraceObject;
-import org.openl.rules.dt.trace.DTRuleTracerLeaf;
+import org.openl.rules.dtx.trace.DTConditionTraceObject;
+import org.openl.rules.dtx.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
@@ -65,7 +65,7 @@ public class DecisionTableTraceFilterFactory {
             List<IGridRegion> regions = child.getGridRegions();
 
             if (child instanceof DTConditionTraceObject) {
-                DTConditionTraceObject conditionTrace = (DTConditionTraceObject) child;
+            	DTConditionTraceObject conditionTrace = (DTConditionTraceObject) child;
                 if (child instanceof DTIndexedTraceObject) {
                     indexedRegions.addAll(regions);
                 }
