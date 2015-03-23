@@ -20,109 +20,116 @@ public class IntRangeParser2Test {
 
     @Test
     public void testArbitrary() {
-        assertIntRangeEquals(
-            // simple numbers
-            "-1",                               -1, -1,
-            "0",                                0, 0,
-            "1",                                1, 1,
-            "1234567",                          1234567, 1234567,
-            "-321K",                            -321000, -321000,
-            "999M",                             999000000, 999000000,
-            "-1 B",                             -1000000000, -1000000000,
+        // simple numbers
+        assertIntRangeEquals("-1",                              -1, -1);
+        assertIntRangeEquals("0",                                0, 0);
+        assertIntRangeEquals("1",                                1, 1);
+        assertIntRangeEquals("1234567",                          1234567, 1234567);
+        assertIntRangeEquals("-321K",                            -321000, -321000);
+        assertIntRangeEquals("999M",                             999000000, 999000000);
+        assertIntRangeEquals("-1 B",                             -1000000000, -1000000000);
+        // currency symbol
+        assertIntRangeEquals("$13",                              13, 13);
+        assertIntRangeEquals("$13 - 200",                        13, 200);
+        assertIntRangeEquals("[$11; $32)",                       11, 31);
+        assertIntRangeEquals(">$2",                              3,  MAX_VALUE);
+        assertIntRangeEquals("$2 +",                             2,  MAX_VALUE);
+        assertIntRangeEquals("$2K+",                             2000, MAX_VALUE);
+        // ranges
+        assertIntRangeEquals("[-100;100]",                       -100, 100);
+        assertIntRangeEquals("(-100;100]",                       -99, 100);
+        assertIntRangeEquals("(-100;100)",                       -99, 99);
+        assertIntRangeEquals("[-100;100)",                       -100, 99);
+        assertIntRangeEquals("(-0;10]",                          1, 10);
+        assertIntRangeEquals("[0; 10)",                          0, 9);
+        assertIntRangeEquals("[-10; -1]",                        -10, -1);
+        assertIntRangeEquals("[1; 2]",                           1, 2);
+        assertIntRangeEquals("[3.. 4]",                          3, 4);
+        assertIntRangeEquals("4… 7",                            5, 6);
+        assertIntRangeEquals("4..7",                             4, 7);
+        assertIntRangeEquals("4...7",                            5, 6);
+        assertIntRangeEquals("[7-8]",                            7, 8);
+        assertIntRangeEquals("-15 - -8",                         -15, -8);
+        assertIntRangeEquals("6-8",                              6, 8);
+        assertIntRangeEquals("-7-6",                             -7, 6);
+        // spaces
+        assertIntRangeEquals("-7 -6",                            -7, 6);
+        assertIntRangeEquals("-7 - 6",                           -7, 6);
+        assertIntRangeEquals("-7- 6",                            -7, 6);
+        assertIntRangeEquals(" - 7 - 6 ",                        -7, 6);
+        assertIntRangeEquals("4 .. 7",                            4, 7);
+        assertIntRangeEquals("4 ... 7",                           5, 6);
+        // plus and minus
+        assertIntRangeEquals("+0+",                              0, MAX_VALUE);
+        assertIntRangeEquals("1+",                               1, MAX_VALUE);
+        assertIntRangeEquals("-1+",                              -1, MAX_VALUE);
+        assertIntRangeEquals("18  +",                            18, MAX_VALUE);
+        assertIntRangeEquals("1M+",                              1000000, MAX_VALUE);
+        assertIntRangeEquals("1+ and 10 or less",                1, 10);
+        assertIntRangeEquals("-7-+6",                            -7, 6);
+        // one less/greater condition
+        assertIntRangeEquals("0>",                               MIN_VALUE, -1);
+        assertIntRangeEquals(">=1",                              1, MAX_VALUE);
+        assertIntRangeEquals(">1",                               2, MAX_VALUE);
+        assertIntRangeEquals("<10",                              MIN_VALUE, 9);
+        assertIntRangeEquals("<=10",                             MIN_VALUE, 10);
+        // two  less/greater conditions
+        assertIntRangeEquals(">0 and <10",                       1, 9);
+        assertIntRangeEquals("<=10 and >=0",                     0, 10);
+        assertIntRangeEquals("<=10 and >=0 and > 5",             6, 10);
+        // less more
+        assertIntRangeEquals("0 and more",                       0, MAX_VALUE);
+        assertIntRangeEquals("1 or less",                        MIN_VALUE, 1);
+        assertIntRangeEquals("0 and more and 100 or less",       0, 100);
+        assertIntRangeEquals("7 or less and -1 and more",        -1, 7);
+        assertIntRangeEquals("less than 0 ",                     MIN_VALUE, -1);
+        assertIntRangeEquals("more than 0 ",                     1, MAX_VALUE);
+        assertIntRangeEquals("more than -1 less than 11",        0, 10);
+        assertIntRangeEquals("more than 1000 and less than 10000", 1001, 9999);
+        assertIntRangeEquals("less than -1 more than -1K",       -999, -2);
+        assertIntRangeEquals("-100 and more",                    -100, MAX_VALUE);
+        assertIntRangeEquals("less than -10",                    MIN_VALUE, -11);
+        assertIntRangeEquals("more than 2",                      3, MAX_VALUE);
+        assertIntRangeEquals("-100 and more less than 500",      -100, 499);
+        assertIntRangeEquals("-100 and more and less than 500",  -100, 499);
+        assertIntRangeEquals("41 or less and more than 31",      32, 41);
+        assertIntRangeEquals("less than -10 more than -20",      -19, -11);
+        assertIntRangeEquals("more than 2 5 or less",            3, 5);
+        assertIntRangeEquals("-100 and more less than 500",      -100, 499);
+        // thousands separator
+        assertIntRangeEquals("123,456",                          123456, 123456);
+        assertIntRangeEquals("-123,456 - 987,654",               -123456, 987654);
+        assertIntRangeEquals(">123,456",                         123457, MAX_VALUE);
+        assertIntRangeEquals(">=123,456 <=987,654",              123456, 987654);
+        assertIntRangeEquals("123,456 and more 987,654 or less", 123456, 987654);
+        assertIntRangeEquals("123,456 and more 987,654 or less", 123456, 987654);
+        assertIntRangeEquals("[123,456 - 987,654)",              123456, 987653);
+        assertIntRangeEquals("123,456 and more 987,654 or less", 123456, 987654);
+        // overflow test
+        assertIntRangeEquals("2147483647",                       2147483647, 2147483647);
+        assertIntRangeEquals("-2147483648",                      -2147483648, -2147483648);
+        assertWrong("-2147483649");
+        assertWrong("2147483648");
+        assertWrong("-10000000 K");
+        // numeral adjectives
+        assertIntRangeEquals("zero",                             0, 0);
+        assertIntRangeEquals("one .. fourteen",                  1, 14);
+        assertIntRangeEquals("twenty+",                          20, MAX_VALUE);
+        // empty input test
+        assertWrong(null);
+        assertWrong("");
+        assertWrong(" ");
+        assertWrong("  ");
 
-            // currency symbol
-            "$13",                              13, 13,
-            "$13 - 200",                        13, 200,
-            "[$11; $32)",                       11, 31,
-            ">$2",                              3,  MAX_VALUE,
-            "$2 +",                             2,  MAX_VALUE,
-
-            // ranges
-            "[-100;100]",                       -100, 100,
-            "(-100;100]",                       -99, 100,
-            "(-0;10]",                          1, 10,
-            "[0; 10)",                          0, 9,
-            "[-10; -1]",                        -10, -1,
-            "[1; 2]",                           1, 2,
-            "[3.. 4]",                          3, 4,
-            "[7-8]",                            7, 8,
-            "0… 6",                             1, 5,
-            "-15 - -8",                         -15, -8,
-            "6-8",                              6, 8,
-            "-7-6",                             -7, 6,
-
-            // spaces
-            "-7 -6",                            -7, 6,
-            "-7 - 6",                           -7, 6,
-            "-7- 6",                            -7, 6,
-            " - 7 - 6 ",                        -7, 6,
-
-
-            // plus and minus
-            "1+",                               1, MAX_VALUE,
-            "-1+",                              -1, MAX_VALUE,
-            "18  +",                            18, MAX_VALUE,
-            "1M+",                              1000000, MAX_VALUE,
-            "1+ and 10 or less",                1, 10,
-            "-7-+6",                            -7, 6,
-
-            // one less/greater condition
-            "0>",                               MIN_VALUE, -1,
-            ">=1",                              1, MAX_VALUE,
-            ">1",                               2, MAX_VALUE,
-            "<10",                              MIN_VALUE, 9,
-            "<=10",                             MIN_VALUE, 10,
-
-            // two  less/greater conditions
-            ">0 and <10",                       1, 9,
-            "<=10 and >=0",                     0, 10,
-            "<=10 and >=0 and > 5",             6, 10,
-
-            // less more
-            "0 and more",                       0, MAX_VALUE,
-            "1 or less",                        MIN_VALUE, 1,
-            "0 and more and 100 or less",       0, 100,
-            "7 or less and -1 and more",        -1, 7,
-            "less than 0 ",                     MIN_VALUE, -1,
-            "more than 0 ",                     1, MAX_VALUE,
-            "more than -1 less than 11",        0, 10,
-            "more than 1000 and less than 10000", 1001, 9999,
-            "less than -1 more than -1K",       -999, -2,
-            "-100 and more",                    -100, MAX_VALUE,
-            "less than -10",                    MIN_VALUE, -11,
-            "more than 2",                      3, MAX_VALUE,
-            "-100 and more less than 500",      -100, 499,
-            "-100 and more and less than 500",  -100, 499,
-            "41 or less and more than 31",      32, 41,
-            "less than -10 more than -20",      -19, -11,
-            "more than 2 5 or less",            3, 5,
-            "-100 and more less than 500",      -100, 499,
-
-            // thousands separator
-            "123,456",                          123456, 123456,
-            "-123,456 - 987,654",               -123456, 987654,
-            ">123,456",                         123457, MAX_VALUE,
-            ">=123,456 <=987,654",              123456, 987654,
-            "123,456 and more 987,654 or less", 123456, 987654,
-            "[123,456 - 987,654)",              123456, 987653,
-            "123,456 and more 987,654 or less", 123456, 987654,
-
-            // overflow test
-            "2147483647",                       2147483647, 2147483647,
-            "-2147483648",                      -2147483648, -2147483648,
-            "-2147483649",                      null,
-            "-10000000 K",                      null,
-
-            // numeral adjectives
-            "zero",                             0, 0,
-            "one .. fourteen",                  1, 14,
-            "twenty+",                          20, MAX_VALUE,
-
-            // empty input test
-            "",                                 null,
-            " ",                                null,
-            "  ",                               null
-        );
+        assertWrong("[1...5]");
+        assertWrong("(1…5)");
+        assertWrong("[-1; -10]");
+        assertWrong("3 - 1");
+        assertWrong("3..1");
+        assertWrong("3...1");
+        assertWrong("3…1");
+        assertWrong("1…2");
+        assertWrong("3 and more 1 or less");
     }
 
     @Test
@@ -155,12 +162,6 @@ public class IntRangeParser2Test {
             }
     }
 
-
-    @Test
-    public void testEmptyRange() {
-        // assertEquals(new IntRange(0, -10), parse("[0;-10]"));
-    }
-
     static String spaced(String value) {
         return randomSpaces() + value + randomSpaces();
     }
@@ -184,18 +185,11 @@ public class IntRangeParser2Test {
         }
     }
 
-    static void assertIntRangeEquals(Object... pairs) {
-        for (int i = 0; i < pairs.length;) {
-            String str = (String) pairs[i];
-            if (pairs[i+1] == null) {
-                assertEquals("Expected error", null, parse(str));
-                i+=2;
-            } else {
-                int low = (Integer) pairs[i+1], hi = (Integer) pairs[i + 2];
-                assertEquals("For string \"" + str + "\" expected range is [" + low + ";" + hi + "]", new IntRange(low, hi), parse(str));
-                i+=3;
-            }
-        }
+    void assertIntRangeEquals(String str, int low, int hi) {
+        assertEquals("For string \"" + str + "\" expected range is [" + low + ";" + hi + "]", new IntRange(low, hi), parse(str));
     }
 
+    void assertWrong(String str){
+        assertNull("Expected error", parse(str));
+    }
 }
