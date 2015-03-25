@@ -20,7 +20,8 @@ public class ServicesListServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RuleServicePublisher ruleServicePublisher = (RuleServicePublisher) WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()).getBean("ruleServicePublisher");
+        
+        RuleServicePublisher ruleServicePublisher = (RuleServicePublisher) WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("ruleServicePublisher");
 
         request.setAttribute("servicesGroup", getServicesGroup(ruleServicePublisher));
 
