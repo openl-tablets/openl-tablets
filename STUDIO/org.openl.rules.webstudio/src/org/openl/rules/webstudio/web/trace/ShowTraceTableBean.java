@@ -13,7 +13,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
-import org.openl.rules.dt.trace.DTRuleTracerLeaf;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -39,6 +39,7 @@ import org.openl.vm.trace.ITracerObject;
 /**
  * Request scope managed bean for showTraceTable page.
  */
+@SuppressWarnings("deprecation")
 @ManagedBean
 @RequestScoped
 public class ShowTraceTableBean {

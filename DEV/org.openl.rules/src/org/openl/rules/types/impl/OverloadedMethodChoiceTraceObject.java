@@ -1,14 +1,15 @@
 package org.openl.rules.types.impl;
 
+import java.util.List;
+
 import org.openl.binding.MethodUtil;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenMethod;
-
-import java.util.List;
 
 /**
  * Trace object for step of choosing the method from overloaded by properties
@@ -19,7 +20,7 @@ import java.util.List;
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     private List<IOpenMethod> methodCandidates;
 
-    public OverloadedMethodChoiceTraceObject(DecisionTable dispatcherTable, Object[] params,
+    public OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable, Object[] params,
                                              List<IOpenMethod> methodCandidates) {
         super("overloadedMethodChoice", null, dispatcherTable, params);
         this.methodCandidates = methodCandidates;
@@ -29,7 +30,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         IOpenMethod method = (IOpenMethod) getResult();
         int methodIndex = methodCandidates.indexOf(method);
 
-        ILogicalTable table = ((DecisionTable) getTraceObject()).getRuleTable(methodIndex);
+        ILogicalTable table = ((IDecisionTable) getTraceObject()).getRuleTable(methodIndex);
         return GridTableUtils.getGridRegions(table);
     }
 

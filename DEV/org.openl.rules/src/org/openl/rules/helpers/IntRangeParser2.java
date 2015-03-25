@@ -8,6 +8,7 @@ import static java.lang.Math.min;
 
 public class IntRangeParser2 {
     public static final String ERROR_OUT_RANGE  = "Integer value is out of possible range";
+    public static final String ERROR_NOT_NUMBER = "Number expected";
     static final int RANGE = 1000000, RANGE_EXCLUSIVE = RANGE + 1, LE = RANGE_EXCLUSIVE + 1, GE = LE + 1, ID = GE + 1, KEYWORD = ID + 1, INT_VALUE = KEYWORD + 1, ILLEGAL = Integer.MAX_VALUE - 1, EOS = Integer.MAX_VALUE;
     static final int KW_AND = 1000, KW_LESS = 1001, KW_MORE = 1002, KW_OR = 1003, KW_THAN = 1004;
     static final Map<String, Integer> keywords;
@@ -26,25 +27,13 @@ public class IntRangeParser2 {
 
     char[] s;
     int pos, prevPos;
-    String id;
     int intValue;
     String lastError;
 
-    public IntRangeParser2() {}
-
     public IntRangeParser2(String str) {
-        setString(str);
-    }
-
-    public void setString(String str) {
         s = str != null ? str.toCharArray() : new char[0];
         pos = prevPos = 0;
-        id = null;
         lastError = null;
-    }
-
-    private IntRange newRange(int low, int hi) {
-        return new IntRange(low, hi);
     }
 
     private int parseNumber() {
@@ -67,13 +56,13 @@ public class IntRangeParser2 {
             char ch = s[pos];
             if (ch == ',') continue; // thousands separator
             if (ch < '0' || ch > '9') {
-                if (pos == pos0) return ILLEGAL;
+                if (pos == pos0) { error("Unexpected symbol in the number"); return ILLEGAL; }
                 break;
             }
             int digit = ch - '0';
-            if (result < minLimit10) { error(pos0, ERROR_OUT_RANGE); return ILLEGAL; }
+            if (result < minLimit10) { error(ERROR_OUT_RANGE); return ILLEGAL; }
             result *= 10;
-            if (result < minLimit + digit) { error(pos0, ERROR_OUT_RANGE); return ILLEGAL; }
+            if (result < minLimit + digit) { error(ERROR_OUT_RANGE); return ILLEGAL; }
             result -= digit;
         }
         while (pos < n && Character.isSpaceChar((s[pos]))) pos++;
@@ -83,15 +72,15 @@ public class IntRangeParser2 {
         else {
             switch (s[pos0]) {
                 case 'K':
-                    if (result < minLimit/1000) { error(pos0, ERROR_OUT_RANGE); return ILLEGAL; }
+                    if (result < minLimit/1000) { error(ERROR_OUT_RANGE); return ILLEGAL; }
                     result *= 1000;
                     break;
                 case 'M':
-                    if (result < minLimit/1000000) { error(pos0, ERROR_OUT_RANGE); return ILLEGAL; }
+                    if (result < minLimit/1000000) { error(ERROR_OUT_RANGE); return ILLEGAL; }
                     result *= 1000000;
                     break;
                 case 'B':
-                    if (result < minLimit/1000000000) { error(pos0, ERROR_OUT_RANGE); return ILLEGAL; }
+                    if (result < minLimit/1000000000) { error(ERROR_OUT_RANGE); return ILLEGAL; }
                     result *= 1000000000;
                     break;
                 default:
@@ -132,7 +121,10 @@ public class IntRangeParser2 {
                 return RANGE;
             case '.':
                 if (++pos < n && s[pos] == '.') {
-                    if (++pos < n && s[pos] == '.') pos++;
+                    if (++pos < n && s[pos] == '.') {
+                        pos++;
+                        return RANGE_EXCLUSIVE;
+                    }
                     return RANGE;
                 } else {
                     return ILLEGAL;
@@ -153,22 +145,12 @@ public class IntRangeParser2 {
                 int from = pos;
                 while (pos < n && Character.isLetterOrDigit(s[pos])) pos++;
                 if (pos == from) return ILLEGAL;
-                id = new String(s, from, pos - from).toLowerCase();
+                String id = new String(s, from, pos - from).toLowerCase();
                 final Integer keyword = keywords.get(id);
                 if (keyword == null) return ID;
                 intValue = keyword;
                 return keyword < KW_AND ? INT_VALUE : KEYWORD;
         }
-    }
-
-    public IntRange error(String errorMessage) {
-        return error(prevPos, errorMessage);
-    }
-
-    public IntRange error(int pos, String errorMessage) {
-        lastError = "[" + (pos + 1) + "] " + errorMessage;
-        //System.err.println(lastError);
-        return null;
     }
 
     public IntRange parse() {
@@ -256,14 +238,14 @@ public class IntRangeParser2 {
                             token = nextToken(false);
                             if (token == EOS) return error("Unexpected end of input. Should it be \"more than <NUMBER>\"?");
                             if (token != KEYWORD || intValue != KW_THAN) return error("Unexpected input. Should it be \"more than <NUMBER>\"?");
-                            if (nextToken(false) != INT_VALUE) return error("Number expected");
+                            if (nextToken(false) != INT_VALUE) return error(ERROR_NOT_NUMBER);
                             low = max(low, intValue + 1);
                             break;
                         case KW_LESS:
                             token = nextToken(false);
                             if (token == EOS) return error("Unexpected end of input. Should it be \"less than <NUMBER>\"?");
                             if (token != KEYWORD || intValue != KW_THAN) return error("Unexpected input. Should it be \"less than <NUMBER>\"?");
-                            if (nextToken(false) != INT_VALUE) return error("Number expected");
+                            if (nextToken(false) != INT_VALUE) return error(ERROR_NOT_NUMBER);
                             hi = min(hi, intValue - 1);
                             break;
                         default:
@@ -272,10 +254,10 @@ public class IntRangeParser2 {
                     if (nextToken(false) != KEYWORD || intValue != KW_AND) pos = prevPos;
                     break;
                 case '[': case '(':
-                    if (nextToken(false) != INT_VALUE) return error("Number expected");
+                    if (nextToken(false) != INT_VALUE) return error(ERROR_NOT_NUMBER);
                     int c = token == '[' ? intValue : intValue + 1;
-                    if (nextToken(true) != RANGE) return error("Range delimiter \";\",\"-\", \"…\", \"..\", \"...\" expected");
-                    if (nextToken(false) != INT_VALUE) return error("Number expected");
+                    if (nextToken(true) != RANGE) return error("Range delimiter \";\",\"-\", \"..\", expected");
+                    if (nextToken(false) != INT_VALUE) return error(ERROR_NOT_NUMBER);
                     int d = intValue;
                     switch (nextToken(false)) {
                         case ')': d--; break;
@@ -290,6 +272,18 @@ public class IntRangeParser2 {
             atLeastOnePartParsed = true;
         }
 
+    }
+
+    private IntRange error(String errorMessage) {
+        lastError = errorMessage;
+        return null;
+    }
+
+    private IntRange newRange(int low, int hi) {
+        if (low > hi) {
+            return error("The upper bound '"+ hi + "' must be more or equal than the lower bound '" + low + "'.");
+        }
+        return new IntRange(low, hi);
     }
 
     public static IntRange parse(String str) {

@@ -1,11 +1,11 @@
 package org.openl.rules.dt.index;
 
-import org.openl.rules.dt.trace.DTConditionTraceObject;
-import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.TraceStack;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openl.rules.dtx.trace.DTConditionTraceObject;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.TraceStack;
 
 /**
  * Created by ymolchan on 9/19/2014.
