@@ -3,8 +3,9 @@ package org.openl.rules.dt2;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt2.index.ARuleIndex;
+import org.openl.rules.dtx.IDecisionTableRuleNode;
 
-public class DecisionTableRuleNode {
+public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
 
     public static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
@@ -38,12 +39,26 @@ public class DecisionTableRuleNode {
         }
     }
 
+    
+    
+    int[] collectRules()
+    {
+    	if (nextIndex == null)
+    		throw new RuntimeException("Internal Error: nextIndex is null when rules is null");
+    	
+    	return nextIndex.collectRules();
+    }
+    
+    
     public int[] getRules() {
+    	if (rules == null)
+    		return collectRules();
+    	
         return rules;
     }
 
     public IIntIterator getRulesIterator() {
-        return new IntArrayIterator(rules);
+        return new IntArrayIterator(getRules());
     }
 
     public boolean hasIndex() {
