@@ -852,18 +852,6 @@
                 <artifactId>derby</artifactId>
                 <version>10.10.2.0</version>
             </dependency>
-            <!-- XML parsers -->
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.11.0</version>
-            </dependency>
-            <!-- Apache-hosted set of DOM, SAX, and JAXP interfaces -->
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>1.4.01</version>
-            </dependency>
             <!-- Code generation library with shaded ASM dependecies -->
             <dependency>
                 <groupId>cglib</groupId>
@@ -959,6 +947,13 @@
                 <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
+		<!-- Doesn't required for JAVA 1.6 -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- XMLBeans is a technology for accessing XML by binding it to Java types. -->
             <dependency>
