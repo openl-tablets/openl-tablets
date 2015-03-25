@@ -99,5 +99,10 @@
 			<artifactId>org.openl.rules.calculation.result</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-api</artifactId>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 </project>
