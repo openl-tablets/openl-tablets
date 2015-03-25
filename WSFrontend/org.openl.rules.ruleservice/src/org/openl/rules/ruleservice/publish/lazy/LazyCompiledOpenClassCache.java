@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.lang.ref.SoftReference;
 import java.util.List;
 
 import net.sf.ehcache.Cache;
@@ -9,8 +8,6 @@ import net.sf.ehcache.Element;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Caches lazy compiled modules. Uses EhCache. This is singleton and thread safe
@@ -21,7 +18,6 @@ import org.slf4j.LoggerFactory;
 public final class LazyCompiledOpenClassCache {
 
     private static final String CACHE_NAME = "lazyModulesCache";
-    private final Logger log = LoggerFactory.getLogger(LazyCompiledOpenClassCache.class);
 
     private static class LazyCompiledOpenClassCacheHolder {
         public static final LazyCompiledOpenClassCache instance = new LazyCompiledOpenClassCache();
@@ -32,6 +28,8 @@ public final class LazyCompiledOpenClassCache {
 
     /**
      * Returns singleton LazyCompiledOpenClassCache
+     * 
+     * @return
      */
     public static LazyCompiledOpenClassCache getInstance() {
         return LazyCompiledOpenClassCacheHolder.instance;
@@ -51,19 +49,7 @@ public final class LazyCompiledOpenClassCache {
         if (element == null){
             return null;
         }
-
-        // TODO Make CompiledOpenClass serializable and remove SoftReference.
-        // Soft reference is just the last chance to survive. Most probably SoftReference cleanup indicates that
-        // there are memory-related problems.
-        @SuppressWarnings("unchecked")
-        SoftReference<CompiledOpenClass> reference = (SoftReference<CompiledOpenClass>) element.getObjectValue();
-        CompiledOpenClass compiledOpenClass = reference.get();
-        if (compiledOpenClass == null) {
-            log.warn("There is no enough memory. CompiledOpenClass was removed from cache after SoftReference cleanup");
-            cache.remove(key);
-        }
-
-        return compiledOpenClass;
+        return (CompiledOpenClass) element.getObjectValue();
     }
 
     public void putToCache(DeploymentDescription deploymentDescription,
@@ -76,13 +62,14 @@ public final class LazyCompiledOpenClassCache {
             throw new IllegalArgumentException("dependencyName can't be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
-        // TODO Make CompiledOpenClass serializable and remove SoftReference.
-        Element newElement = new Element(key, new SoftReference<CompiledOpenClass>(compiledOpenClass));
+        Element newElement = new Element(key, compiledOpenClass);
         cache.put(newElement);
     }
 
     /**
      * Removes module from cache.
+     * 
+     * @param module Module
      */
     public void remove(DeploymentDescription deploymentDescription, String dependencyName) {
         if (deploymentDescription == null) {
