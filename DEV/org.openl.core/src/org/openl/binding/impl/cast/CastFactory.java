@@ -266,6 +266,10 @@ public class CastFactory implements ICastFactory {
                 .isAssignableFrom(to.getInstanceClass())) {
                 return new TypeToAliasCast(from, to);
             }
+
+            if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) {
+                return JAVA_UP_CAST;
+            }
         }
 
         return null;

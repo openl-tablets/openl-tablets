@@ -31,7 +31,7 @@ import org.openl.meta.ObjectValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
@@ -6485,13 +6485,7 @@ public class RulesUtils {
         }
     }
 
-    public static Object[] getValues(Object obj) {
-        if (obj.getClass().isArray() && obj.getClass().getComponentType() instanceof Object) {
-            return (Object[]) obj;
-        } else if (!(obj instanceof IOpenClass)) {
-            throw new IllegalArgumentException("Not valid argument is in the getValues() function.");
-        }
-        IOpenClass clazz = (IOpenClass) obj;
+    public static Object[] getValues(DomainOpenClass clazz) {
         IDomain<?> domain = clazz.getDomain();
         List<Object> values = new ArrayList<Object>();
         for (Object item : domain) {
@@ -6503,6 +6497,4 @@ public class RulesUtils {
         result = values.toArray(result);
         return result;
     }
-
-    ;
 }
