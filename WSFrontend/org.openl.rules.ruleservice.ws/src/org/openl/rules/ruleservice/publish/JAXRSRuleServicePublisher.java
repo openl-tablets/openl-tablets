@@ -74,6 +74,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         if (service.getServiceClass().getMethods().length == 0){ //Skip deploy if service doesn't have methods.
+            if (log.isWarnEnabled()){
+                log.warn("Service \"{}\" with URL \"{}{}\" doens't have method and wasn't deployed.",
+                    service.getName(),
+                    getBaseAddress(),
+                    service.getUrl());
+            }
             return;
         }
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
