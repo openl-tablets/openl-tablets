@@ -16,7 +16,7 @@ a:visited   { color: #0090FF; }
     padding: 11px 15px;
 }
 #main {
-    padding: 0 20px 0;
+    padding: 0 20px 40px 0;
 }
 #main > div {
     display: inline-block;
