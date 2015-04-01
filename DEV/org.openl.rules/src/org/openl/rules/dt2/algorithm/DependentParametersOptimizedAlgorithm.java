@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
+import org.openl.binding.impl.BinaryOpNodeAnd;
 import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
 import org.openl.binding.impl.IndexNode;
@@ -374,9 +375,9 @@ public class DependentParametersOptimizedAlgorithm {
                 BlockNode blockNode = (BlockNode) boundNode;
                 if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BlockNode) {
                     blockNode = (BlockNode) blockNode.getChildren()[0];
-                    if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BinaryOpNode) {
-                        BinaryOpNode binaryOpNode = (BinaryOpNode) blockNode.getChildren()[0];
-                        if (binaryOpNode.getSyntaxNode().getType().endsWith("and") && binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof BinaryOpNode && binaryOpNode.getChildren()[1] instanceof BinaryOpNode) {
+                    if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BinaryOpNodeAnd) {
+                        BinaryOpNodeAnd binaryOpNode = (BinaryOpNodeAnd) blockNode.getChildren()[0];
+                        if (binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof BinaryOpNode && binaryOpNode.getChildren()[1] instanceof BinaryOpNode) {
                             BinaryOpNode binaryOpNode0 = (BinaryOpNode) binaryOpNode.getChildren()[0];
                             BinaryOpNode binaryOpNode1 = (BinaryOpNode) binaryOpNode.getChildren()[1];
                             String[] ret0 = parseBinaryOpExpression(binaryOpNode0);
