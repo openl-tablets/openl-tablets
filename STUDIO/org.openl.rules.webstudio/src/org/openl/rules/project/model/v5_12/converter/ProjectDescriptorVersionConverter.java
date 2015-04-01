@@ -47,7 +47,9 @@ public class ProjectDescriptorVersionConverter
                             }
                         })
         );
-        descriptor.setDependencies(dependencies);
+        if (!dependencies.isEmpty()) {
+            descriptor.setDependencies(dependencies);
+        }
 
         descriptor.setPropertiesFileNamePattern(oldVersion.getPropertiesFileNamePattern());
         descriptor.setPropertiesFileNameProcessor(oldVersion.getPropertiesFileNameProcessor());
@@ -81,7 +83,9 @@ public class ProjectDescriptorVersionConverter
                             }
                         })
         );
-        descriptor.setDependencies(dependencies);
+        if (!dependencies.isEmpty()) {
+            descriptor.setDependencies(dependencies);
+        }
 
         descriptor.setPropertiesFileNamePattern(currentVersion.getPropertiesFileNamePattern());
         descriptor.setPropertiesFileNameProcessor(currentVersion.getPropertiesFileNameProcessor());
