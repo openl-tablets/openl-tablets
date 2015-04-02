@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.channels.IllegalSelectorException;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.openl.binding.IBindingContext;
@@ -35,7 +34,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
@@ -457,7 +455,7 @@ public class DependentParametersOptimizedAlgorithm {
             }
             if (!p1.equals(conditionParam.getName()))
                 return null;
-            if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+            if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
                 return new OneParameterEqualsFactory(signatureParam, p2);
             }else{
                 return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p2);
@@ -467,7 +465,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p2.equals(conditionParam.getName()))
             return null;
 
-        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
             return new OneParameterEqualsFactory(signatureParam, p1);
         }else{
             return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p1);
@@ -495,7 +493,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + op);
 
-        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
         }else{
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p1);
@@ -563,7 +561,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p22.equals(conditionParam2.getName()))
             return null;
 
-        if (p12.startsWith(signatureParam.getName() + ".") || p12.equals(signatureParam.getName())){
+        if (p12.startsWith(signatureParam.getName() + "[") || p12.startsWith(signatureParam.getName() + ".") || p12.equals(signatureParam.getName())){
             return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, p12);
         }else{
             return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, signatureParam.getName() + "." + p12);
@@ -575,6 +573,9 @@ public class DependentParametersOptimizedAlgorithm {
         String parameterName = pname;
         if (pname.indexOf(".") > 0) {
             parameterName = pname.substring(0, pname.indexOf("."));
+            if (parameterName.indexOf("[") > 0){
+                parameterName = pname.substring(0, pname.indexOf("["));
+            }
         }
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
@@ -584,7 +585,7 @@ public class DependentParametersOptimizedAlgorithm {
         }
         
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            if (signature.getParameterType(i).getField(pname, false) != null){
+            if (signature.getParameterType(i).getField(parameterName, false) != null){
                 return new ParameterDeclaration(signature.getParameterType(i), signature.getParameterName(i));
             }
         }
@@ -620,7 +621,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + oppositeOp);
 
-        if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
         }else{
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p2);
@@ -694,37 +695,12 @@ public class DependentParametersOptimizedAlgorithm {
 
         public abstract boolean needsIncrement(Bound bound);
 
-        public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
-
-        private static IOpenClass findExpressionType(IOpenClass type, String expression) {
-            StringTokenizer stringTokenizer = new StringTokenizer(expression, ".");
-            boolean isFirst = true;
-            while (stringTokenizer.hasMoreTokens()) {
-                String v = stringTokenizer.nextToken();
-                if (isFirst) {
-                    isFirst = false;
-                    continue;
-                }
-                boolean arrayAccess = v.matches(ARRAY_ACCESS_PATTERN);
-                IOpenField field = null;
-                if (arrayAccess) {
-                    v = v.substring(0, v.indexOf("["));
-                }
-                field = type.getField(v);
-                type = field.getType();
-                if (type.isArray() && arrayAccess) {
-                    type = type.getComponentClass();
-                }
-            }
-            return type;
-        }
-
         public String getExpression() {
             return expression;
         }
 
         public IOpenClass getExpressionType() {
-            return findExpressionType(signatureParam.getType(), expression);
+            return ExpressionTypeUtils.findExpressionType(signatureParam.getType(), expression);
         }
 
     }
