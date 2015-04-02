@@ -5,11 +5,9 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.faces.bean.ViewScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.richfaces.event.ItemChangeEvent;
 
 @ManagedBean
 @SessionScoped
@@ -53,11 +51,8 @@ public class ProductionRepositoriesTreeController {
         return null;
     }
 
-    public void tabChange(String repo) {
-        if (repo.equals("production")) {
-            repositorySelectNodeStateHolder.setTab(1);
-            productionRepositoriesTreeState.initTree();
-        }
+    public void openTab() {
+        productionRepositoriesTreeState.initTree();
 
         TreeNode node = productionRepositoriesTreeState.getFirstProductionRepo();
         if (node != null) {
