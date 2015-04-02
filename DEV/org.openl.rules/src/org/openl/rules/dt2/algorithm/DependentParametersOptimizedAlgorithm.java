@@ -409,7 +409,7 @@ public class DependentParametersOptimizedAlgorithm {
                 String[] parsedValues = oneParameterExpressionParse(condition);
                 if (parsedValues == null)
                     return null;
-                if (parsedValues[1] == "==") {
+                if ("==".equals(parsedValues[1])) {
                     return makeOneParameterEqualsFactory(parsedValues[0],
                         parsedValues[1],
                         parsedValues[2],
@@ -457,14 +457,21 @@ public class DependentParametersOptimizedAlgorithm {
             }
             if (!p1.equals(conditionParam.getName()))
                 return null;
-
-            return new OneParameterEqualsFactory(signatureParam, p2);
+            if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+                return new OneParameterEqualsFactory(signatureParam, p2);
+            }else{
+                return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p2);
+            }
         }
 
         if (!p2.equals(conditionParam.getName()))
             return null;
 
-        return new OneParameterEqualsFactory(signatureParam, p1);
+        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+            return new OneParameterEqualsFactory(signatureParam, p1);
+        }else{
+            return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p1);
+        }
     }
 
     private static OneParameterRangeFactory makeOneParameterRangeFactory(String p1,
@@ -488,8 +495,11 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + op);
 
-        return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
-
+        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
+        }else{
+            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p1);
+        }
     }
 
     private static TwoParameterRangeFactory makeTwoParameterRangeFactory(String p11,
@@ -553,7 +563,11 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p22.equals(conditionParam2.getName()))
             return null;
 
-        return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, p12);
+        if (p12.startsWith(signatureParam.getName() + ".") || p12.equals(signatureParam.getName())){
+            return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, p12);
+        }else{
+            return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, signatureParam.getName() + "." + p12);
+        }
 
     }
 
@@ -568,6 +582,13 @@ public class DependentParametersOptimizedAlgorithm {
                 return new ParameterDeclaration(signature.getParameterType(i), parameterName);
             }
         }
+        
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            if (signature.getParameterType(i).getField(pname, false) != null){
+                return new ParameterDeclaration(signature.getParameterType(i), signature.getParameterName(i));
+            }
+        }
+        
         return null;
     }
 
@@ -599,7 +620,11 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + oppositeOp);
 
-        return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
+        if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
+        }else{
+            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p2);
+        }
     }
 
     static class RangeEvaluatorFactory {
