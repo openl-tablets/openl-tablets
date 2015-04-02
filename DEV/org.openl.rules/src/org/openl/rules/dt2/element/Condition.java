@@ -15,6 +15,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt2.DTScale;
 import org.openl.rules.dt2.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt2.algorithm.DependentParametersOptimizedAlgorithm;
+import org.openl.rules.dt2.algorithm.ExpressionTypeUtils;
 import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.table.ILogicalTable;
@@ -139,14 +140,13 @@ public class Condition extends FunctionalRow implements ICondition {
 
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
 
-
         if (isEmpty(ruleN)) {
             return DecisionValue.NxA_VALUE;
         }
 
-//        if (value instanceof DecisionValue) {
-//            return (DecisionValue) value;
-//        }
+        // if (value instanceof DecisionValue) {
+        // return (DecisionValue) value;
+        // }
 
         Object[] params = mergeParams(target, dtParams, env, ruleN);
         Object result = getMethod().invoke(target, params, env);
@@ -227,9 +227,16 @@ public class Condition extends FunctionalRow implements ICondition {
             String optimizedCode) {
         String v = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
         if (optimizedCode != null && !optimizedCode.equals(v)) {
-            return new SourceCodeMethodCaller(signature, getParams()[0].getType(), optimizedCode);
+            String p = ExpressionTypeUtils.cutExpressionRoot(optimizedCode);
+            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                String pname = signature.getParameterName(i);
+                if (pname.equals(p)) {
+                    IOpenClass type = ExpressionTypeUtils.findExpressionType(signature.getParameterType(i),
+                        optimizedCode);
+                    return new SourceCodeMethodCaller(signature, type, optimizedCode);
+                }
+            }
         }
         return null;
     }
-
 }
