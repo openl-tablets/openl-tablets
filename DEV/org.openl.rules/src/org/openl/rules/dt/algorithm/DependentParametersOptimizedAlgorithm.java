@@ -409,7 +409,7 @@ public class DependentParametersOptimizedAlgorithm {
                 String[] parsedValues = oneParameterExpressionParse(condition);
                 if (parsedValues == null)
                     return null;
-                if (parsedValues[1] == "==") {
+                if ("==".equals(parsedValues[1])) {
                     return makeOneParameterEqualsFactory(parsedValues[0],
                         parsedValues[1],
                         parsedValues[2],
@@ -457,7 +457,7 @@ public class DependentParametersOptimizedAlgorithm {
             }
             if (!p1.equals(conditionParam.getName()))
                 return null;
-            if (p2.startsWith(signatureParam.getName())){
+            if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
                 return new OneParameterEqualsFactory(signatureParam, p2);
             }else{
                 return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p2);
@@ -467,7 +467,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p2.equals(conditionParam.getName()))
             return null;
 
-        if (p1.startsWith(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
             return new OneParameterEqualsFactory(signatureParam, p1);
         }else{
             return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p1);
@@ -495,7 +495,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + op);
 
-        if (p1.startsWith(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
         }else{
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p1);
@@ -563,7 +563,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p22.equals(conditionParam2.getName()))
             return null;
 
-        if (p12.startsWith(signatureParam.getName())){
+        if (p12.startsWith(signatureParam.getName() + ".") || p12.equals(signatureParam.getName())){
             return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, p12);
         }else{
             return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, signatureParam.getName() + "." + p12);
@@ -620,7 +620,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw new RuntimeException("Could not find relation: " + oppositeOp);
 
-        if (p2.startsWith(signatureParam.getName())){
+        if (p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
         }else{
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p2);
