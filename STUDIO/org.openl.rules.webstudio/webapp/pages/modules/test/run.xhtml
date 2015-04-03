@@ -66,7 +66,6 @@
                                     </h:outputLink>
                                     <h:outputText rendered="#{helper.isSpreadsheetResult(result.actualResult)}"
                                         value="#{runBean.getFormattedSpreadsheetResult(result)}" escape="false" />
-                                    <br />
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{!empty errors}">
                                     <ui:include src="/pages/modules/messages.xhtml">
