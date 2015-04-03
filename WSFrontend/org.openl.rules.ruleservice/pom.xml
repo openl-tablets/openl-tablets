@@ -23,10 +23,6 @@
             </resource>
             <resource>
                 <directory>conf</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
             </resource>
         </resources>
         <testResources>
@@ -39,10 +35,6 @@
             </testResource>
             <testResource>
                 <directory>conf_test</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
             </testResource>
         </testResources>
         <testSourceDirectory>test</testSourceDirectory>
