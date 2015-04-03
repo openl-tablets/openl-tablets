@@ -122,11 +122,12 @@
                 <ui:param name="testFailed" value="#{test.numberOfFailures > 0}" />
                 <div class="test">
                     <h1>
-                        <h:outputLink value="#{studio.url('table')}"
+                        <h:outputLink value="#{studio.url('table', test.testSuite.testSuiteMethod.tableUri)}"
                             styleClass="#{testFailed ? 'testError' : 'testSuccess'}">
                             <f:param name="id" value="#{testBean.getTestTableId(test)}" />
                             <h:outputText value="#{testBean.getTestTableName(test)}" />
                         </h:outputLink>
+                        <span class="badge">#{testBean.getTestedTableUri()}</span>
                         <span class="badge">#{testBean.getTestTableInfo(test)}</span>
                         <h:panelGroup rendered="#{testFailed}"><span class="badge badge-error" style="margin-left:3px" title="#{test.numberOfFailures} failed">#{test.numberOfFailures}</span>
                         </h:panelGroup>
