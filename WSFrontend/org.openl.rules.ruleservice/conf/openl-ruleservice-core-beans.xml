@@ -10,6 +10,17 @@
 	<bean id="instantiationStrategyFactory"
 		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
 		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}"/>
+		<property name="skippedLazy" value="#{skippedLazyLoadingProjects.split('(\A#.*)?(([\r\n]\s*)+(#.*)?)+')}"/>
+	</bean>
+
+	<!-- A string which contains a 'newline' separated projects that should be warmed-up in lazy mode.
+		this string is loaded from the openl-ruleservice-skip-lazy.txt file -->
+	<bean id="skippedLazyLoadingProjects" class="java.lang.String">
+		<constructor-arg>
+			<bean class="org.springframework.util.FileCopyUtils" factory-method="copyToByteArray">
+				<constructor-arg value="openl-ruleservice-skip-lazy.txt" type="java.io.InputStream" />
+			</bean>
+		</constructor-arg>
 	</bean>
 
 	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

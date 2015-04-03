@@ -306,7 +306,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void rulesRepositorySelection() {
-        repositorySelectNodeStateHolder.setTab(0);
         setSelectedNode(rulesRepository);
     }
 
