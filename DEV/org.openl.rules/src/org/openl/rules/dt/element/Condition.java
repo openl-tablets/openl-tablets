@@ -16,6 +16,7 @@ import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.DependentParametersOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.algorithm.ExpressionTypeUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -227,7 +228,15 @@ public class Condition extends FunctionalRow implements ICondition {
             String optimizedCode) {
         String v = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
         if (optimizedCode != null && !optimizedCode.equals(v)) {
-            return new SourceCodeMethodCaller(signature, getParams()[0].getType(), optimizedCode);
+            String p = ExpressionTypeUtils.cutExpressionRoot(optimizedCode);
+            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                String pname = signature.getParameterName(i);
+                if (pname.equals(p)) {
+                    IOpenClass type = ExpressionTypeUtils.findExpressionType(signature.getParameterType(i),
+                        optimizedCode);
+                    return new SourceCodeMethodCaller(signature, type, optimizedCode);
+                }
+            }
         }
         return null;
     }
