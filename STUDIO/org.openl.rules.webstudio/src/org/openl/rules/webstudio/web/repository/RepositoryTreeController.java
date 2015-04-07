@@ -1725,15 +1725,15 @@ public class RepositoryTreeController {
         this.newProjectTemplate = newProjectTemplate;
     }
 
-    public String[] getCustomProjectCategories() {
+    public List<String> getCustomProjectCategories() {
         return customTemplatesResolver.getCategories();
     }
 
-    public String[] getCustomProjectTemplates(String category) {
+    public List<String> getCustomProjectTemplates(String category) {
         return customTemplatesResolver.getTemplates(category);
     }
 
-    public String[] getProjectTemplates(String category) {
+    public List<String> getProjectTemplates(String category) {
         return predefinedTemplatesResolver.getTemplates(category);
     }
 

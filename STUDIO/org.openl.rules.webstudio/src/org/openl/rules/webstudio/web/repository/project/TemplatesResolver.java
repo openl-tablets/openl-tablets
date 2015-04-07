@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,25 +9,25 @@ import java.util.Map;
  * @author nsamatov.
  */
 public abstract class TemplatesResolver {
-    protected String[] categories;
-    protected final Map<String, String[]> templateNamesCache = new HashMap<String, String[]>();
+    protected List<String> categories;
+    protected final Map<String, List<String>> templateNamesCache = new HashMap<String, List<String>>();
 
-    public String[] getCategories() {
+    public List<String> getCategories() {
         if (categories == null) {
             List<String> categoryList = resolveCategories();
-            categories = categoryList.toArray(new String[categoryList.size()]);
+            categories = Collections.unmodifiableList(categoryList);
         }
         return categories;
     }
 
-    public String[] getTemplates(String category) {
-        String[] names = templateNamesCache.get(category);
+    public List<String> getTemplates(String category) {
+        List<String> names = templateNamesCache.get(category);
         if (names != null) {
             return names;
         }
 
         List<String> templateNames = resolveTemplates(category);
-        names = templateNames.toArray(new String[templateNames.size()]);
+        names = Collections.unmodifiableList(templateNames);
 
         templateNamesCache.put(category, names);
         return names;

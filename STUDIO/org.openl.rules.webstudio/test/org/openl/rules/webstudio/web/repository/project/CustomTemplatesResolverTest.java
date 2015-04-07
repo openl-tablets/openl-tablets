@@ -1,9 +1,12 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +16,7 @@ import org.junit.rules.TemporaryFolder;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 
 /**
- * @author nsamatov.
+ * @author nsamatov, Yury Molchan.
  */
 public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     private static final String CUSTOM_TEMPLATES_CATEGORY = "Custom templates";
@@ -38,7 +41,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         touch(new File(sample2Folder, "Main2.xlsx"));
 
         // Auto rating project
-        touch(new File(autoRatingFolder, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)); 
+        touch(new File(autoRatingFolder, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
         File rulesFolder = createFolder(autoRatingFolder, "rules");
         touch(new File(rulesFolder, "Rating.xlsx"));
     }
@@ -50,10 +53,13 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
 
     @Test
     public void testGetCategories() throws Exception {
-        assertArrayEquals(new String[]{CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY}, new CustomTemplatesResolver().getCategories());
+        Collection<String> categories = new CustomTemplatesResolver().getCategories();
+        assertEquals(2, categories.size());
+        assertTrue(categories.containsAll(Arrays.asList(CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY)));
 
         System.setProperty("webstudio.home", tempFolder.getRoot().getPath() + "/not-exist");
-        assertArrayEquals(new String[]{}, new CustomTemplatesResolver().getCategories());
+        Collection<String> categories2 = new CustomTemplatesResolver().getCategories();
+        assertTrue(categories2.isEmpty());
         System.clearProperty("webstudio.home");
     }
 
@@ -61,8 +67,13 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     public void testGetTemplates() throws Exception {
         CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver();
 
-        assertArrayEquals(new String[]{"Sample1 project", "Sample2 project"}, templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY));
-        assertArrayEquals(new String[]{"Auto rating"}, templatesResolver.getTemplates(RATING_TEMPLATES_CATEGORY));
+        Collection<String> templates1 = templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY);
+        assertEquals(2, templates1.size());
+        assertTrue(templates1.containsAll(Arrays.asList("Sample1 project", "Sample2 project")));
+
+        Collection<String> templates2 = templatesResolver.getTemplates(RATING_TEMPLATES_CATEGORY);
+        assertEquals(1, templates2.size());
+        assertTrue(templates2.contains("Auto rating"));
     }
 
     @Test
