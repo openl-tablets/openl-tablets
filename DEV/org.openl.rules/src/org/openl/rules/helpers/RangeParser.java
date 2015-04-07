@@ -2,6 +2,6 @@ package org.openl.rules.helpers;
 
 import org.openl.util.RangeWithBounds;
 
-interface RangeParser {
+public interface RangeParser {
     RangeWithBounds parse(String range);
 }
