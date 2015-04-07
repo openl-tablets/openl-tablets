@@ -4,6 +4,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.util.RangeWithBounds;
 
 public abstract class BaseRangeParser implements RangeParser {
+    protected String minNumber = "";
+    protected String minMultiplier = "";
+    protected String maxNumber = "";
+    protected String maxMultiplier = "";
+
+    public String getMinNumber() {
+        return minNumber;
+    }
+
+    public String getMaxNumber() {
+        return maxNumber;
+    }
+
+    public String getMinMultiplier() {
+        return minMultiplier;
+    }
+
+    public String getMaxMultiplier() {
+        return maxMultiplier;
+    }
+
     protected int parseMultiplier(String suffix) {
         int multiplier;
         if ("K".equals(suffix)) {
@@ -85,6 +106,15 @@ public abstract class BaseRangeParser implements RangeParser {
             maxBound = firstBound.equals("<") ?
                        RangeWithBounds.BoundType.EXCLUDING :
                        RangeWithBounds.BoundType.INCLUDING;
+
+            String t;
+            t = minNumber;
+            minNumber = maxNumber;
+            maxNumber = t;
+
+            t = minMultiplier;
+            minMultiplier = maxMultiplier;
+            maxMultiplier = t;
         } else {
             if (secondBound.startsWith(">")) {
                 return null;

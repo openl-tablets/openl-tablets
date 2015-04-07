@@ -75,6 +75,6 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     }
 
     public static RangeWithBounds getRangeWithBounds(String range) {
-        return IntRangeParser.parse(range);
+        return IntRangeParser.getInstance().parse(range);
     }
 }
