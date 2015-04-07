@@ -61,7 +61,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static RangeWithBounds getRangeWithBounds(String range) {
-        return DoubleRangeParser.parse(range);
+        return DoubleRangeParser.getInstance().parse(range);
     }
 
     /**
