@@ -10,7 +10,7 @@ import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
-final class BExGrammarParser implements RangeParser {
+final public class BExGrammarParser implements RangeParser {
     private final SourceType sourceType;
 
     public BExGrammarParser(SourceType sourceType) {

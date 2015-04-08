@@ -9,10 +9,12 @@ import org.openl.util.RangeWithBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class DoubleRangeParser {
-    private static final BExGrammarParser FALLBACK_PARSER = new BExGrammarParser(SourceType.DOUBLE_RANGE);
+public class DoubleRangeParser {
+    protected static final BExGrammarParser FALLBACK_PARSER = new BExGrammarParser(SourceType.DOUBLE_RANGE);
 
-    private static final RangeParser PARSERS[] = {
+    private static final DoubleRangeParser INSTANCE = new DoubleRangeParser();
+
+    protected final RangeParser PARSERS[] = {
             new SimpleRangeParser(),
             new RangeWithBracketsParser(),
             new PrefixRangeParser(),
@@ -22,10 +24,14 @@ public final class DoubleRangeParser {
             new VerboseRangeParser()
     };
 
-    private DoubleRangeParser() {
+    protected DoubleRangeParser() {
     }
 
-    public static RangeWithBounds parse(String range) {
+    public static DoubleRangeParser getInstance() {
+        return INSTANCE;
+    }
+
+    public RangeWithBounds parse(String range) {
         try {
             range = range.trim();
             for (RangeParser parser : PARSERS) {
@@ -56,7 +62,12 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double value = parseDoubleWithMultiplier(matcher.group(1), matcher.group(2));
+            String number = matcher.group(1);
+            String multiplier = matcher.group(2);
+            minNumber = maxNumber = number;
+            minMultiplier = maxMultiplier = multiplier;
+
+            double value = parseDoubleWithMultiplier(number, multiplier);
 
             return new RangeWithBounds(value, value);
         }
@@ -74,24 +85,34 @@ public final class DoubleRangeParser {
             }
 
             String prefix = matcher.group(1);
-            double value = parseDoubleWithMultiplier(matcher.group(2), matcher.group(3));
+            String number = matcher.group(2);
+            String multiplier = matcher.group(3);
+            double value = parseDoubleWithMultiplier(number, multiplier);
 
             if ("<".equals(prefix) || "less than".equals(prefix)) {
+                maxNumber = number;
+                maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
                         value,
                         RangeWithBounds.BoundType.INCLUDING,
                         RangeWithBounds.BoundType.EXCLUDING);
             } else if ("<=".equals(prefix)) {
+                maxNumber = number;
+                maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
                         value,
                         RangeWithBounds.BoundType.INCLUDING,
                         RangeWithBounds.BoundType.INCLUDING);
             } else if (">".equals(prefix) || "more than".equals(prefix)) {
+                minNumber = number;
+                minMultiplier = multiplier;
                 return new RangeWithBounds(value,
                         getMax(value),
                         RangeWithBounds.BoundType.EXCLUDING,
                         RangeWithBounds.BoundType.INCLUDING);
             } else if (">=".equals(prefix)) {
+                minNumber = number;
+                minMultiplier = multiplier;
                 return new RangeWithBounds(value,
                         getMax(value),
                         RangeWithBounds.BoundType.INCLUDING,
@@ -114,15 +135,21 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double value = parseDoubleWithMultiplier(matcher.group(1), matcher.group(2));
+            String number = matcher.group(1);
+            String multiplier = matcher.group(2);
+            double value = parseDoubleWithMultiplier(number, multiplier);
 
             String suffix = matcher.group(3);
             if ("or less".equals(suffix)) {
+                maxNumber = number;
+                maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
                         value,
                         RangeWithBounds.BoundType.INCLUDING,
                         RangeWithBounds.BoundType.INCLUDING);
             } else {
+                minNumber = number;
+                minMultiplier = multiplier;
                 return new RangeWithBounds(value,
                         getMax(value),
                         RangeWithBounds.BoundType.INCLUDING,
@@ -144,9 +171,13 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double min = parseDoubleWithMultiplier(matcher.group(1), matcher.group(2));
+            minNumber = matcher.group(1);
+            minMultiplier = matcher.group(2);
+            double min = parseDoubleWithMultiplier(minNumber, minMultiplier);
             String separator = matcher.group(3);
-            double max = parseDoubleWithMultiplier(matcher.group(4), matcher.group(5));
+            maxNumber = matcher.group(4);
+            maxMultiplier = matcher.group(5);
+            double max = parseDoubleWithMultiplier(maxNumber, maxMultiplier);
 
             RangeWithBounds.BoundType boundType = "…".equals(separator) || "...".equals(separator) ?
                                                   RangeWithBounds.BoundType.EXCLUDING :
@@ -169,8 +200,12 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double min = parseDoubleWithMultiplier(matcher.group(2), matcher.group(3));
-            double max = parseDoubleWithMultiplier(matcher.group(5), matcher.group(6));
+            minNumber = matcher.group(2);
+            minMultiplier = matcher.group(3);
+            maxNumber = matcher.group(5);
+            maxMultiplier = matcher.group(6);
+            double min = parseDoubleWithMultiplier(minNumber, minMultiplier);
+            double max = parseDoubleWithMultiplier(maxNumber, maxMultiplier);
 
             RangeWithBounds.BoundType minBound = "[".equals(matcher.group(1)) ? RangeWithBounds.BoundType.INCLUDING :
                                                   RangeWithBounds.BoundType.EXCLUDING;
@@ -194,8 +229,12 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double first = parseDoubleWithMultiplier(matcher.group(2), matcher.group(3));
-            double second = parseDoubleWithMultiplier(matcher.group(5), matcher.group(6));
+            minNumber = matcher.group(2);
+            minMultiplier = matcher.group(3);
+            double first = parseDoubleWithMultiplier(minNumber, minMultiplier);
+            maxNumber = matcher.group(5);
+            maxMultiplier = matcher.group(6);
+            double second = parseDoubleWithMultiplier(maxNumber, maxMultiplier);
 
             String firstBound = matcher.group(1);
             String secondBound = matcher.group(4);
@@ -218,8 +257,12 @@ public final class DoubleRangeParser {
                 return null;
             }
 
-            double first = parseDoubleWithMultiplier(matcher.group(2), matcher.group(3));
-            double second = parseDoubleWithMultiplier(matcher.group(6), matcher.group(7));
+            minNumber = matcher.group(2);
+            minMultiplier = matcher.group(3);
+            double first = parseDoubleWithMultiplier(minNumber, minMultiplier);
+            maxNumber = matcher.group(6);
+            maxMultiplier = matcher.group(7);
+            double second = parseDoubleWithMultiplier(maxNumber, maxMultiplier);
 
             String firstBound1 = matcher.group(1);
             String firstBound2 = matcher.group(4);

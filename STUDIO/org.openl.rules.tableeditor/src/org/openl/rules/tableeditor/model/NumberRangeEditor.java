@@ -1,7 +1,5 @@
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 import org.openl.util.RangeWithBounds;
 
@@ -30,16 +28,19 @@ public class NumberRangeEditor implements ICellEditor {
         if (input == null) {
             return "";
         }
+        String min;
+        String max;
         RangeWithBounds range;
         if (ICellEditor.CE_INTEGER.equals(entryEditor)) {
             try {
-                range = IntRange.getRangeWithBounds(input);
+                DetailedIntRangeParser parser = new DetailedIntRangeParser();
+                range = parser.parse(input);
                 if (range.getMax().equals(Integer.MAX_VALUE)) {
                     StringBuilder builder = new StringBuilder(">");
                     if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
                         builder.append("=");
                     }
-                    builder.append(" ").append(range.getMin());
+                    builder.append(" ").append(parser.getMin());
                     return builder.toString();
                 }
                 if (range.getMin().equals(Integer.MIN_VALUE)) {
@@ -47,19 +48,22 @@ public class NumberRangeEditor implements ICellEditor {
                     if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
                         builder.append("=");
                     }
-                    builder.append(" ").append(range.getMax());
+                    builder.append(" ").append(parser.getMax());
                     return builder.toString();
                 }
                 if (range.getMax().equals(range.getMin())) {
                     return input;
                 }
+                min = parser.getMin();
+                max = parser.getMax();
             } catch (RuntimeException e) {
                 // Range format contains syntax error
                 return input;
             }
         } else if (ICellEditor.CE_DOUBLE.equals(entryEditor)) {
             try {
-                range = DoubleRange.getRangeWithBounds(input);
+                DetailedDoubleRangeParser parser = new DetailedDoubleRangeParser();
+                range = parser.parse(input);
                 if (range.getMax().equals(Double.POSITIVE_INFINITY)
                         || range.getMin().equals(Double.NEGATIVE_INFINITY)) {
                     return input;
@@ -67,6 +71,8 @@ public class NumberRangeEditor implements ICellEditor {
                 if (range.getMax().equals(range.getMin())) {
                     return input;
                 }
+                min = parser.getMin();
+                max = parser.getMax();
             } catch (Exception e) {
                 // Range format contains syntax error
                 return input;
@@ -81,7 +87,7 @@ public class NumberRangeEditor implements ICellEditor {
         } else {
             builder.append('(');
         }
-        builder.append(range.getMin()).append(" .. ").append(range.getMax());
+        builder.append(min).append(" .. ").append(max);
         if (range.getRightBoundType() == RangeWithBounds.BoundType.INCLUDING) {
             builder.append(']');
         } else {
