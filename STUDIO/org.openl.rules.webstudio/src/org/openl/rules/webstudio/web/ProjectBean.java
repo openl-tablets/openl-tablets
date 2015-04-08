@@ -1,5 +1,18 @@
 package org.openl.rules.webstudio.web;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.FileUtils;
@@ -29,16 +42,6 @@ import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.PathMatcher;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
-
-import java.io.*;
-import java.util.*;
 
 @ManagedBean
 @RequestScoped
@@ -143,7 +146,7 @@ public class ProjectBean {
 
             ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
             projectDescriptor.setPropertiesFileNameProcessor(className);
-            PropertiesFileNameProcessor processor = null;
+            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
@@ -359,13 +362,16 @@ public class ProjectBean {
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         } else {
-            studio.reset(ReloadType.FORCED);
-            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(studio.getCurrentProject()
-                    .getName());
-            if (projectNode != null) {
-                // For example, repository wasn't refreshed yet
-                projectNode.refresh();
-            }
+            refreshProject(studio.getCurrentProject().getName());
+        }
+    }
+
+    private void refreshProject(String name) {
+        studio.reset(ReloadType.FORCED);
+        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
+        if (projectNode != null) {
+            // For example, repository wasn't refreshed yet
+            projectNode.refresh();
         }
     }
 
@@ -397,15 +403,27 @@ public class ProjectBean {
                     }
                 }
             } else {
-                File file = new File(projectFolder, removed.getRulesRootPath().getPath());
+                File file = new File(removed.getRulesRootPath().getPath());
+                if (!file.isAbsolute()) {
+                    file = new File(projectFolder, removed.getRulesRootPath().getPath());
+                }
                 if (!file.delete() && file.exists()) {
                     throw new Message("Can't delete the file " + file.getName());
                 }
             }
+            File rulesXmlFile = new File(projectFolder,
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            if (rulesXmlFile.exists()) {
+                clean(newProjectDescriptor);
+                save(newProjectDescriptor);
+            } else {
+                refreshProject(studio.getCurrentProject().getName());
+            }
+        } else {
+            clean(newProjectDescriptor);
+            save(newProjectDescriptor);
         }
 
-        clean(newProjectDescriptor);
-        save(newProjectDescriptor);
     }
 
     public void removeDependency(String name) {
@@ -488,12 +506,7 @@ public class ProjectBean {
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
                 // repositoryTreeState.refreshSelectedNode();
             }
-            studio.reset(ReloadType.FORCED);
-            TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(project.getName());
-            if (projectNode != null) {
-                // For example, repository wasn't refreshed yet
-                projectNode.refresh();
-            }
+            refreshProject(project.getName());
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
         } catch (Exception e) {
@@ -729,7 +742,7 @@ public class ProjectBean {
 
             if (!projectDescriptorManager.isModuleWithWildcard(module)) {
                 // Single module
-                return Arrays.asList(getModulePath(module));
+                return Collections.singletonList(getModulePath(module));
             }
         }
 
