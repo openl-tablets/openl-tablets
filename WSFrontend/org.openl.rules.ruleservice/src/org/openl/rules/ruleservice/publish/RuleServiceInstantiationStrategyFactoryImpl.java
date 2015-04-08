@@ -12,6 +12,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates
@@ -27,6 +29,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
 
     private boolean lazy = true;
     private Set<String> skippedLazy = Collections.emptySet();
+    private final Logger log = LoggerFactory.getLogger(RuleServiceInstantiationStrategyFactoryImpl.class);
 
     public void setLazy(boolean lazy) {
         this.lazy = lazy;
@@ -53,12 +56,15 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         String serviceName = serviceDescription.getName();
 
         if (isLazy() && !skippedLazy.contains(serviceName)) {
+            log.info("LAZY loading: [{}]", serviceName);
             return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
         }
         if (moduleSize == 1) {
+            log.info("Single module loading: [{}]", serviceName);
             Module module = modules.iterator().next();
             return RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         }
+        log.info("Multi module loading: [{}]", serviceName);
         return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
     }
 }
