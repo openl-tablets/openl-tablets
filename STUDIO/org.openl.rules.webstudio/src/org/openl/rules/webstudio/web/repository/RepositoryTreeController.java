@@ -22,11 +22,7 @@ import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
@@ -666,7 +662,7 @@ public class RepositoryTreeController {
                 }
             }
             String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-            StringInputStream newContent = new StringInputStream(xmlString);
+            StringInputStream newContent = new StringInputStream(xmlString, "UTF-8");
             resource.setContent(newContent);
         }
     }
@@ -863,7 +859,9 @@ public class RepositoryTreeController {
             ExportModule.writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
-            zipFile.delete();
+            if (!zipFile.delete()) {
+                log.warn("Temporary zip file {} wasn't deleted", zipFile.getName());
+            }
         }
         return null;
     }
@@ -1649,7 +1647,7 @@ public class RepositoryTreeController {
                     module.setRulesRootPath(new PathEntry(modulePath));
                     projectDescriptor.getModules().add(module);
                     String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-                    StringInputStream newContent = new StringInputStream(xmlString);
+                    StringInputStream newContent = new StringInputStream(xmlString, "UTF-8");
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
