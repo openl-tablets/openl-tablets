@@ -24,6 +24,6 @@ public class RepositorySelectNodeStateHolder {
     }
 
     public boolean isProductionRepository() {
-        return selectedNode.getType().startsWith("prod");
+        return selectedNode != null && selectedNode.getType().startsWith("prod");
     }
 }
