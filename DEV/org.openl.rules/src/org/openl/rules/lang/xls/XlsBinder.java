@@ -44,7 +44,6 @@ import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
-import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
 import org.openl.rules.extension.bind.IExtensionBinder;
@@ -318,7 +317,13 @@ public class XlsBinder implements IOpenBinder {
         //
         ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
         TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
-        TableSyntaxNode[] processedDatatypeNodes = processDatatypes(datatypeNodes, moduleContext);
+
+        /*
+         * Processes datatype table nodes before the bind operation. Checks type
+         * declarations and finds invalid using of inheritance feature at this
+         * step.
+         */
+        TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext);
 
         bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
@@ -430,22 +435,6 @@ public class XlsBinder implements IOpenBinder {
                 processError(error, tsn, bindingContext);
             }
         }
-    }
-
-    /**
-     * Processes datatype table nodes before the bind operation. Checks type
-     * declarations and finds invalid using of inheritance feature at this step.
-     *
-     * @param datatypeNodes  array of datatype nodes
-     * @param bindingContext binding context
-     * @return array of datatypes in order of binding
-     */
-    private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
-        Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes);
-
-        TableSyntaxNode[] orderedTypes = new DatatypesSorter().sort(typesMap, bindingContext);
-
-        return orderedTypes;
     }
 
     private void processVocabulary(IVocabulary vocabulary,

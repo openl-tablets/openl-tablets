@@ -8,8 +8,8 @@ import java.util.*;
 /**
  * Created by dl on 4/16/14.
  */
-public class TopologicalSort<T> {
-    public Set<TopoGraphNode<T>> sort(final Collection<TopoGraphNode<T>> nodes)
+class TopologicalSort<T> {
+    Set<TopoGraphNode<T>> sort(final Collection<TopoGraphNode<T>> nodes)
             throws IllegalStateException {
         final LinkedHashSet<TopoGraphNode<T>> order = new LinkedHashSet<TopoGraphNode<T>>();
         final Set<TopoGraphNode<T>> visited = new HashSet<TopoGraphNode<T>>();
@@ -43,24 +43,24 @@ public class TopologicalSort<T> {
         alreadySeen.remove(n);
     }
 
-    public static class TopoGraphNode<T> {
+    static class TopoGraphNode<T> {
         private List<TopoGraphNode<T>> dependencies = new ArrayList<TopoGraphNode<T>>();
 
         private T obj;
 
-        public TopoGraphNode(T obj) {
+        TopoGraphNode(T obj) {
             this.obj = obj;
         }
 
-        public List<TopoGraphNode<T>> getDependents() {
+        List<TopoGraphNode<T>> getDependents() {
             return dependencies;
         }
 
-        public void addDependency(TopoGraphNode<T> node) {
+        void addDependency(TopoGraphNode<T> node) {
             dependencies.add(node);
         }
 
-        public T getObj() {
+        T getObj() {
             return obj;
         }
 
