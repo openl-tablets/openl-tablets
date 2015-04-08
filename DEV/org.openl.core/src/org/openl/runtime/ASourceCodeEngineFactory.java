@@ -2,8 +2,6 @@ package org.openl.runtime;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -78,8 +76,6 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         this.dependencyManager = dependencyManager;
     }
 
-    private static Map<ClassLoader, ClassLoader> classLoadersCache = new WeakHashMap<ClassLoader, ClassLoader>();
-
     protected CompiledOpenClass initializeOpenClass() {
         // Change class loader to OpenLBundleClassLoader
         //
@@ -90,14 +86,8 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         // for parent bundle
         //
         if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
-            if (classLoadersCache.containsKey(oldClassLoader)) {
-                ClassLoader newClassLoader = classLoadersCache.get(oldClassLoader);
-                Thread.currentThread().setContextClassLoader(newClassLoader);
-            } else {
-                ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
-                Thread.currentThread().setContextClassLoader(newClassLoader);
-                classLoadersCache.put(oldClassLoader, newClassLoader);
-            }
+            ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+            Thread.currentThread().setContextClassLoader(newClassLoader);
         }
 
         try {
