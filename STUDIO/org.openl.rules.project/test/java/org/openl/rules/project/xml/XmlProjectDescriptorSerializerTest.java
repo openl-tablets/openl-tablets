@@ -23,7 +23,7 @@ public class XmlProjectDescriptorSerializerTest {
 		
 		String newRulesXML = new XmlProjectDescriptorSerializer().serialize(pd);
 		
-		ProjectDescriptor pd1 = new XmlProjectDescriptorSerializer().deserialize(new StringInputStream(newRulesXML));
+		ProjectDescriptor pd1 = new XmlProjectDescriptorSerializer().deserialize(new StringInputStream(newRulesXML, "UTF-8"));
 		
 		Assert.assertEquals(2, pd1.getProperties().size());
 		
@@ -33,15 +33,10 @@ public class XmlProjectDescriptorSerializerTest {
 	}
 
 	@Test
-	public void testDeserialize()  {
-		
-		ProjectDescriptor pd = null;
-		try {
-			pd = new XmlProjectDescriptorSerializer().deserialize(new FileInputStream("test/resources/xml/rules1.xml"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
+	public void testDeserialize() throws FileNotFoundException {
+
+		ProjectDescriptor pd = new XmlProjectDescriptorSerializer().deserialize(new FileInputStream("test/resources/xml/rules1.xml"));
+
 		Assert.assertEquals(2, pd.getProperties().size());
 		
 		Property p = pd.getProperties().get(0);
