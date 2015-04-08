@@ -44,7 +44,7 @@
 										<constructor-arg>
 											<list>
 												<value>.cvsignore</value>
-												<value>*.tmp</value>DatatypeSorterTest
+												<value>*.tmp</value>
 											</list>
 										</constructor-arg>
 										<constructor-arg>
