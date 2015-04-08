@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -68,6 +69,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     }
 
     public String serialize(ProjectDescriptor source) {
+        clean(source);
         return xstream.toXML(source);
     }
 
@@ -89,6 +91,16 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
         if (descriptor.getModules() == null) {
             descriptor.setModules(new ArrayList<Module>());
+        }
+    }
+
+    private void clean(ProjectDescriptor descriptor) {
+        if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
+            descriptor.setClasspath(null);
+        }
+
+        if (CollectionUtils.isEmpty(descriptor.getModules())) {
+            descriptor.setModules(null);
         }
     }
 
