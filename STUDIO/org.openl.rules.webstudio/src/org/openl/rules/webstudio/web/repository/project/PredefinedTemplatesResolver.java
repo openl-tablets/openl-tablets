@@ -17,13 +17,14 @@ import java.util.List;
  * @author nsamatov.
  */
 public class PredefinedTemplatesResolver extends TemplatesResolver {
-    private final Logger log = LoggerFactory.getLogger(PredefinedTemplatesResolver.class);
 
     private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
+    private static final List<String> PREDEFINED_CATEGORIES = Arrays.asList("templates", "examples", "tutorials");
+    private final Logger log = LoggerFactory.getLogger(PredefinedTemplatesResolver.class);
 
     @Override
     protected List<String> resolveCategories() {
-        return Arrays.asList("templates", "examples", "tutorials");
+        return PREDEFINED_CATEGORIES;
     }
 
     protected List<String> resolveTemplates(String category) {

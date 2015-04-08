@@ -1,11 +1,8 @@
 package org.openl.rules.datatype.binding;
 
-import java.util.*;
-
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.BindHelper;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
@@ -148,48 +145,6 @@ public class DatatypeHelper {
             throw SyntaxNodeExceptionUtils.createError(message, null, null, tableHeader);
         }
         return parsedHeader;
-    }
-
-    public static Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes) {
-
-        Map<String, TableSyntaxNode> map = new HashMap<String, TableSyntaxNode>();
-
-        if (nodes == null) {
-            return map;
-        }
-
-        for (TableSyntaxNode tsn : nodes) {
-
-            if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
-                
-                try {
-                    String datatypeName = DatatypeHelper.getDatatypeName(tsn);
-
-                    if (datatypeName != null) {
-                        if (map.containsKey(datatypeName)) {
-                            String message = String.format("Type with name '%s' already exists", datatypeName);
-                            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
-                            tsn.addError(error);
-                            BindHelper.processError(error);
-                        } else {
-                            map.put(datatypeName, tsn);
-                        }
-                    } else {
-                        String message = "Cannot recognize type name";
-                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
-                        tsn.addError(error);
-                        BindHelper.processError(error);
-                    }
-                } catch (OpenLCompilationException e) {
-                    String message = "An error has occurred during compilation";
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, tsn);
-                    tsn.addError(error);
-                    BindHelper.processError(error);
-                }
-            }
-        }
-
-        return map;
     }
 
     public static boolean isCommented(String s) {
