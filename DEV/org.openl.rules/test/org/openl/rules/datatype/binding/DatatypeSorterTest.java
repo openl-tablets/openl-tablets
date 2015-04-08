@@ -41,32 +41,31 @@ public class DatatypeSorterTest {
         TableSyntaxNode independentNode = createStubTSN(DATATYPE_INDEPENDENT);
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                DatatypeHelper.createTypesMap(
                         new TableSyntaxNode[]{
                                 childNode,
                                 independentNode,
-                                parentNode}),
+                                parentNode},
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Parent should be compiled first", DATATYPE_PARENT, ordered[0].getHeader().getModule().getCode());
-        assertEquals("Independent datatype position is not changed", DATATYPE_INDEPENDENT, ordered[1].getHeader().getModule().getCode());
-        assertEquals("Child position goes after parent", DATATYPE_CHILD_EXTENDS_PARENT, ordered[2].getHeader().getModule().getCode());
+        assertEquals("Child position goes after parent", DATATYPE_CHILD_EXTENDS_PARENT, ordered[1].getHeader().getModule().getCode());
+        assertEquals("Independent datatype position is not changed", DATATYPE_INDEPENDENT, ordered[2].getHeader().getModule().getCode());
     }
 
     @Test
     public void testOrderDatatypes_fieldsDependency() {
         String[][] table1 = new String[3][2];
-        table1[0][0] = "Datatype Type1";
+        table1[0][0] = "Datatype Dependent";
         table1[0][1] = null;
         table1[1][0] = "String";
         table1[1][1] = "name";
-        table1[2][0] = "Type2";
+        table1[2][0] = "Dependence";
         table1[2][1] = "type2Obj";
         GridTable gridTable1 = new GridTable(table1);
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
-        table2[0][0] = "Datatype Type3";
+        table2[0][0] = "Datatype Independent";
         table2[0][1] = null;
         table2[1][0] = "Integer";
         table2[1][1] = "num";
@@ -76,7 +75,7 @@ public class DatatypeSorterTest {
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
-        table3[0][0] = "Datatype Type2";
+        table3[0][0] = "Datatype Dependence";
         table3[0][1] = null;
         table3[1][0] = "Integer";
         table3[1][1] = "num";
@@ -86,38 +85,37 @@ public class DatatypeSorterTest {
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                DatatypeHelper.createTypesMap(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
                                 getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
                 null);
         assertEquals(3, ordered.length);
-        assertEquals("Datatype Type3", ordered[0].getHeader().getModule().getCode());
-        assertEquals("Datatype Type2", ordered[1].getHeader().getModule().getCode());
-        assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependent", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype Independent", ordered[2].getHeader().getModule().getCode());
     }
 
     @Test
     public void testOrderDatatypes_fieldsDependency_Recursion() {
         String[][] table1 = new String[4][2];
-        table1[0][0] = "Datatype Type1";
+        table1[0][0] = "Datatype Dependent";
         table1[0][1] = null;
         table1[1][0] = "String";
         table1[1][1] = "name";
-        table1[2][0] = "Type2";
+        table1[2][0] = "Dependence";
         table1[2][1] = "type2Obj";
 
         // Added Recursion dependency
         //
-        table1[3][0] = "Type1";
+        table1[3][0] = "Dependent";
         table1[3][1] = "type1Obj";
 
         GridTable gridTable1 = new GridTable(table1);
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
-        table2[0][0] = "Datatype Type3";
+        table2[0][0] = "Datatype Independent";
         table2[0][1] = null;
         table2[1][0] = "Integer";
         table2[1][1] = "num";
@@ -127,7 +125,7 @@ public class DatatypeSorterTest {
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
-        table3[0][0] = "Datatype Type2";
+        table3[0][0] = "Datatype Dependence";
         table3[0][1] = null;
         table3[1][0] = "Integer";
         table3[1][1] = "num";
@@ -137,16 +135,15 @@ public class DatatypeSorterTest {
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                DatatypeHelper.createTypesMap(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
                                 getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
                 null);
         assertEquals(3, ordered.length);
-        assertEquals("Datatype Type3", ordered[0].getHeader().getModule().getCode());
-        assertEquals("Datatype Type2", ordered[1].getHeader().getModule().getCode());
-        assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependent", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype Independent", ordered[2].getHeader().getModule().getCode());
     }
 
     @Test(timeout = 100000)
@@ -175,20 +172,19 @@ public class DatatypeSorterTest {
 
         // Shouldn't throw StackOverflowError
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                DatatypeHelper.createTypesMap(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(gridTableParent, gridTableParent.getRow(0)),
-                                getTableSyntaxNode(gridTableChild, gridTableChild.getRow(0))}),
+                                getTableSyntaxNode(gridTableChild, gridTableChild.getRow(0))},
                 null);
         assertEquals(2, ordered.length);
-        assertEquals("Datatype TypeParent", ordered[0].getHeader().getModule().getCode());
-        assertEquals("Datatype TypeChild extends TypeParent", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype TypeChild extends TypeParent", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype TypeParent", ordered[1].getHeader().getModule().getCode());
     }
 
     @Test
     public void testOrderDatatypes_arrayFieldsDependency() {
         String[][] table1 = new String[3][2];
-        table1[0][0] = "Datatype Type1";
+        table1[0][0] = "Datatype Independent";
         table1[0][1] = null;
         table1[1][0] = "String";
         table1[1][1] = "name";
@@ -198,17 +194,17 @@ public class DatatypeSorterTest {
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
-        table2[0][0] = "Datatype Type3";
+        table2[0][0] = "Datatype Dependent";
         table2[0][1] = null;
         table2[1][0] = "Integer";
         table2[1][1] = "num";
-        table2[2][0] = "Type2[]";
+        table2[2][0] = "Dependence[]";
         table2[2][1] = "type2Array";
         GridTable gridTable2 = new GridTable(table2);
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
-        table3[0][0] = "Datatype Type2";
+        table3[0][0] = "Datatype Dependence";
         table3[0][1] = null;
         table3[1][0] = "Integer";
         table3[1][1] = "num";
@@ -218,16 +214,15 @@ public class DatatypeSorterTest {
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                DatatypeHelper.createTypesMap(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
                                 getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))}),
+                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
                 null);
         assertEquals(3, ordered.length);
-        assertEquals("Datatype Type2", ordered[0].getHeader().getModule().getCode());
-        assertEquals("Datatype Type3", ordered[1].getHeader().getModule().getCode());
-        assertEquals("Datatype Type1", ordered[2].getHeader().getModule().getCode());
+        assertEquals("Datatype Independent", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependence", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Datatype Dependent", ordered[2].getHeader().getModule().getCode());
     }
 
     private TableSyntaxNode createStubTSN(final String datatypeHeader) {
