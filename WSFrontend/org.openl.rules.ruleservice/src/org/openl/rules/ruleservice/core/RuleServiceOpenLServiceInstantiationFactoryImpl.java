@@ -200,8 +200,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
             OpenLService openLService = builder.build();
 
-            DeploymentDescription deployment = serviceDescription.getDeployment();
-            initService(getDependencyManager(deployment), openLService);
+            initService(getDependencyManager(serviceDescription), openLService);
             return openLService;
         } catch (Exception e) {
             throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
@@ -254,18 +253,19 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
     }
 
-    private IDependencyManager getDependencyManager(DeploymentDescription deployment) {
+    private IDependencyManager getDependencyManager(ServiceDescription serviceDescription) {
         if (externalDependencyManager != null) {
             return externalDependencyManager;
         }
 
         RuleServiceDeploymentRelatedDependencyManager dependencyManager;
+        DeploymentDescription deployment = serviceDescription.getDeployment();
         if (dependencyManagerMap.containsKey(deployment)) {
             dependencyManager = dependencyManagerMap.get(deployment);
         } else {
             boolean isLazy = false;
             if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
-                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy();
+                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy(serviceDescription.getName());
             }
             dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(deployment, ruleServiceLoader, isLazy);
             dependencyManager.setExternalParameters(externalParameters);
