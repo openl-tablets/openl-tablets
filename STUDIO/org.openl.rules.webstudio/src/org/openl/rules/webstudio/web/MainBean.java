@@ -27,16 +27,8 @@ public class MainBean {
         }
     }
 
-    /**
-     * Stub method that used for bean initialization.
-     */
-    public String getInit() {
-    	WebStudioUtils.getWebStudio(true);
-        return StringUtils.EMPTY;
-    }
-
     public void init() throws Exception {
-        WebStudio studio = WebStudioUtils.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio(true);
 
         String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
