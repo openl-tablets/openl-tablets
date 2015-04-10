@@ -28,21 +28,14 @@ import org.slf4j.LoggerFactory;
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
     private boolean lazy = true;
-    private Set<String> skippedLazy = Collections.emptySet();
     private final Logger log = LoggerFactory.getLogger(RuleServiceInstantiationStrategyFactoryImpl.class);
 
     public void setLazy(boolean lazy) {
         this.lazy = lazy;
     }
 
-    public boolean isLazy(String serviceName) {
-        boolean lazyLoad = lazy && !skippedLazy.contains(serviceName);
-        log.debug("LAZY setting for \"{}\" is {}", serviceName, lazyLoad);
-        return lazyLoad;
-    }
-
-    public void setSkippedLazy(Set<String> skippedLazy) {
-        this.skippedLazy = skippedLazy;
+    public boolean isLazy() {
+        return lazy;
     }
 
     /** {@inheritDoc} */
@@ -57,16 +50,16 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         }
         String serviceName = serviceDescription.getName();
 
-        if (isLazy(serviceName)) {
-            log.info("LAZY loading: \"{}\"", serviceName);
+        if (isLazy()) {
+            log.debug("Lazy loading strategy used for service: \"{}\"", serviceName);
             return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
         }
         if (moduleSize == 1) {
-            log.info("Single module loading: \"{}\"", serviceName);
+            log.debug("Single module loading strategy used for service: \"{}\"", serviceName);
             Module module = modules.iterator().next();
             return RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         }
-        log.info("Multi module loading: \"{}\"", serviceName);
+        log.debug("Multi module loading strategy used for service: \"{}\"", serviceName);
         return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
     }
 }

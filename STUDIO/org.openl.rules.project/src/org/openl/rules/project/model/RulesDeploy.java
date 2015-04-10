@@ -9,6 +9,22 @@ public class RulesDeploy {
         RESTFUL
     }
 
+    public static class WildcardPattern {
+        String value;
+
+        public WildcardPattern(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private Boolean useRuleServiceRuntimeContext;
@@ -18,6 +34,8 @@ public class RulesDeploy {
     private String serviceClass;
     private String url;
     private Map<String, Object> configuration;
+
+    private WildcardPattern[] lazyModulesForCompilationPatterns;
 
     public PublisherType[] getPublishers() {
         return publishers;
@@ -89,5 +107,13 @@ public class RulesDeploy {
 
     public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
         this.interceptingTemplateClassName = interceptingTemplateClassName;
+    }
+
+    public WildcardPattern[] getLazyModulesForCompilationPatterns() {
+        return lazyModulesForCompilationPatterns;
+    }
+    
+    public void setLazyModulesForCompilationPatterns(WildcardPattern[] lazyModulesForCompilationPatterns) {
+        this.lazyModulesForCompilationPatterns = lazyModulesForCompilationPatterns;
     }
 }

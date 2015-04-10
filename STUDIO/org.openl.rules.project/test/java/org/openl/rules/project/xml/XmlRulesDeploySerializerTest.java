@@ -31,6 +31,10 @@ public class XmlRulesDeploySerializerTest {
         assertEquals(1, rulesDeploy.getPublishers().length);
         assertEquals(RulesDeploy.PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
         assertEquals("someURL", rulesDeploy.getUrl());
+        assertNotNull(rulesDeploy.getLazyModulesForCompilationPatterns());
+        assertEquals(2, rulesDeploy.getLazyModulesForCompilationPatterns().length);
+        assertEquals("some1*", rulesDeploy.getLazyModulesForCompilationPatterns()[0].getValue());
+        assertEquals("some2*", rulesDeploy.getLazyModulesForCompilationPatterns()[1].getValue());
     }
     
     @Test
@@ -39,6 +43,7 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
         rulesDeploy.setProvideVariations(true);
+        rulesDeploy.setLazyModulesForCompilationPatterns(new RulesDeploy.WildcardPattern[]{new RulesDeploy.WildcardPattern("some1*"), new RulesDeploy.WildcardPattern("some2*")});
         rulesDeploy.setUseRuleServiceRuntimeContext(true);
         rulesDeploy.setInterceptingTemplateClassName(String.class.getCanonicalName());
         rulesDeploy.setServiceClass(String.class.getCanonicalName());
@@ -66,6 +71,10 @@ public class XmlRulesDeploySerializerTest {
                                 "      <string>value</string>"+ "\n" +
                                 "    </entry>"+ "\n" +
                                 "  </configuration>" + "\n" +
+                                "  <lazy-modules-for-compilation>" + "\n" +
+                                "    <module name=\"some1*\"/>" + "\n" +
+                                "    <module name=\"some2*\"/>" + "\n" +
+                                "  </lazy-modules-for-compilation>" + "\n" +
                                 "</rules-deploy>";
         assertEquals(expectedValue, value);
     }

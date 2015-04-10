@@ -265,7 +265,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         } else {
             boolean isLazy = false;
             if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
-                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy(serviceDescription.getName());
+                isLazy = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory).isLazy();
             }
             dependencyManager = new RuleServiceDeploymentRelatedDependencyManager(deployment, ruleServiceLoader, isLazy);
             dependencyManager.setExternalParameters(externalParameters);
