@@ -35,8 +35,10 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         this.lazy = lazy;
     }
 
-    public boolean isLazy() {
-        return lazy;
+    public boolean isLazy(String serviceName) {
+        boolean lazyLoad = lazy && !skippedLazy.contains(serviceName);
+        log.debug("LAZY setting for \"{}\" is {}", serviceName, lazyLoad);
+        return lazyLoad;
     }
 
     public void setSkippedLazy(Set<String> skippedLazy) {
@@ -55,16 +57,16 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         }
         String serviceName = serviceDescription.getName();
 
-        if (isLazy() && !skippedLazy.contains(serviceName)) {
-            log.info("LAZY loading: [{}]", serviceName);
+        if (isLazy(serviceName)) {
+            log.info("LAZY loading: \"{}\"", serviceName);
             return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
         }
         if (moduleSize == 1) {
-            log.info("Single module loading: [{}]", serviceName);
+            log.info("Single module loading: \"{}\"", serviceName);
             Module module = modules.iterator().next();
             return RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         }
-        log.info("Multi module loading: [{}]", serviceName);
+        log.info("Multi module loading: \"{}\"", serviceName);
         return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
     }
 }
