@@ -36,7 +36,7 @@ public class MainBean {
     }
 
     public void init() throws Exception {
-        WebStudio studio = WebStudioUtils.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio(true);
 
         String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
