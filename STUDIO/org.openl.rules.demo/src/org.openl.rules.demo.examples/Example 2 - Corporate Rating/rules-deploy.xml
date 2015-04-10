@@ -1,0 +1,11 @@
+<rules-deploy>
+  <isProvideRuntimeContext>true</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName></serviceName>
+  <publishers>
+    <publisher>WEBSERVICE</publisher>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+  <serviceClass></serviceClass>
+  <url>Example2-CorporateRating</url>
+</rules-deploy>
