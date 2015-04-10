@@ -173,7 +173,7 @@ public class TestUnitsResults implements INamedThing {
                                 if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
                                     SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
-                                    arrayField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
+                                    arrayField = spreadsheetResultOpenClass.getField(getArrayName(nodes[i + 1 - startIndex]));
                                     currentType = spreadsheetResultOpenClass;
                                 }
                                 int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
