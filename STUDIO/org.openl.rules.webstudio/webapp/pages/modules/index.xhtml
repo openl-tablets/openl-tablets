@@ -569,7 +569,7 @@
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
                     determineIfModuleChanged(project, module);
-                    render(url, newModule && { project: project, module: module }, toReload, toOpen);
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
                 crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
@@ -586,7 +586,7 @@
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
                     var toOpen = { bottom: 1, right: 1 };
                     determineIfModuleChanged(project, module);
-                    render(url, newModule && { project: project, module: module }, toReload, toOpen, openTreeNode);
+                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
                 crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
@@ -604,7 +604,7 @@
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
                     determineIfModuleChanged(project, module);
-                    render(url, newModule && { project: project, module: module }, toReload, toOpen);
+                    render(url, { project: project, module: module }, toReload, toOpen);
                 });
             })();
 
@@ -715,26 +715,22 @@
                     }).toggleClass("restore-changed-state restore-changed-state-added");
                 });
 
-                var loadPages = function () {
-                    // Load all pages after project/module model initialized
-                    api.ajax.load(content, function () {
-                        for (var i = 0; i < callbacks.length; i++) {
-                            callbacks[i].call();
-                        }
-                    });
-                };
-
+                var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
-                    var initUrl = urlRewrite.prefix + "init.xhtml";
                     initUrl += ("?project=" + init.project);
                     if (init.module) {
                         initUrl += "&module=" + init.module;
                     }
-                    api.ajax.get(initUrl, loadPages);
-                } else {
-                    loadPages();
                 }
 
+                api.ajax.get(initUrl, function() {
+                    // Load all pages after project/module model initialized
+                    api.ajax.load(content, function() {
+                        for (var i = 0; i < callbacks.length; i++) {
+                            callbacks[i].call();
+                        }
+                    });
+                });
             };
 
             var openTreeNode = function(pageToOpen) {
