@@ -9,4 +9,8 @@
   </publishers>
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <url>someURL</url>
+  <lazy-modules-for-compilation>
+    <module name="some1*"/>
+    <module name="some2*"/>
+  </lazy-modules-for-compilation>
 </rules-deploy>

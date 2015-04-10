@@ -10,6 +10,8 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public final static String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
+    public final static String MODULE_NAME = "module";
+    public final static String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
 
     private XStream xstream;
 
@@ -21,6 +23,12 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         
         xstream.aliasType("publisher", RulesDeploy.PublisherType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy.class);
+        xstream.aliasType(MODULE_NAME, RulesDeploy.WildcardPattern.class);
+        
+        xstream.aliasField(LAZY_MODULES_FOR_COMPILATION, RulesDeploy.class, "lazyModulesForCompilationPatterns");
+        
+        xstream.aliasField("name", RulesDeploy.WildcardPattern.class, "value");
+        xstream.useAttributeFor(RulesDeploy.WildcardPattern.class, "value");
     }
 
     public XStream getXstream() {
