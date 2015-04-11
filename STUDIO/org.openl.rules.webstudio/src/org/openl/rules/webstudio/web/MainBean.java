@@ -27,6 +27,14 @@ public class MainBean {
         }
     }
 
+    /**
+     * Stub method that used for bean initialization.
+     */
+    public String getInit() {
+    	WebStudioUtils.getWebStudio(true);
+        return StringUtils.EMPTY;
+    }
+
     public void init() throws Exception {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
