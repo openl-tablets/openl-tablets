@@ -21,7 +21,6 @@ import javax.ws.rs.core.Response;
 import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -510,7 +509,7 @@ public class JAXRSInterfaceEnhancerHelper {
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q].equals(WordUtils.uncapitalize(propertyDescriptors[j].getName()))) {
+                                    if (paramNames[q].equals(MethodUtil.convertParameterName(propertyDescriptors[j].getName()))) {
                                         k = q;
                                         break;
                                     }

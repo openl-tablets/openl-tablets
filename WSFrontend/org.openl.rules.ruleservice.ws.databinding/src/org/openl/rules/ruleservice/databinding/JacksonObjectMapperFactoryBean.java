@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 public class JacksonObjectMapperFactoryBean {
@@ -44,11 +46,10 @@ public class JacksonObjectMapperFactoryBean {
     public ObjectMapper createJacksonObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         
-        AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
-        @SuppressWarnings("deprecation")
-        AnnotationIntrospector secondaryIntropsector = new JaxbAnnotationIntrospector();
-        @SuppressWarnings("deprecation")
-        AnnotationIntrospector introspector = new AnnotationIntrospector.Pair(primaryIntrospector, secondaryIntropsector);
+        AnnotationIntrospector secondaryIntropsector = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
+        
+        AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector, secondaryIntropsector);
         
         mapper.setAnnotationIntrospector(introspector);
 
