@@ -106,10 +106,6 @@ public final class FolderHelper {
         return !failures;
     }
 
-    public static File generateSubLocation(File location, String name) {
-        return new File(location, name);
-    }
-
     public static boolean isParent(File parent, File child) {
         return (child != null) && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
