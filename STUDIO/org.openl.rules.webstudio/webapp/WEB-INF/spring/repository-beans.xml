@@ -6,7 +6,6 @@
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
     <property name="workspaceHome" value="#{systemConfig['user.workspace.home']}" />
-    <property name="singleUserMode" value="#{systemConfig['user.mode'] == 'single'}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>

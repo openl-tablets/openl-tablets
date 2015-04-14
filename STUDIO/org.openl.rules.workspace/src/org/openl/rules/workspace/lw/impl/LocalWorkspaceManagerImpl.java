@@ -25,7 +25,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private final Logger log = LoggerFactory.getLogger(LocalWorkspaceManagerImpl.class);
 
     private String workspaceHome;
-    private boolean singleUserMode = false;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
@@ -40,45 +39,28 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
         }
-        log.info("Location of Local Workspaces: {}\nSingle user mode: {}", workspaceHome, singleUserMode);
-    }
-
-    protected LocalWorkspaceImpl createSingleUserWorkspace(WorkspaceUser user) throws WorkspaceException {
-        log.debug("Workspace home: ''{}''", workspaceHome);
-        File localWorkspaceDir = new File(workspaceHome);
-        if (!localWorkspaceDir.exists()) {
-            localWorkspaceDir.mkdir();
-        }
-        return new LocalWorkspaceImpl(user, localWorkspaceDir, localWorkspaceFolderFilter,
-                localWorkspaceFileFilter);
+        log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
-        File f = FolderHelper.generateSubLocation(new File(workspaceHome), userId);
-        if (!FolderHelper.checkOrCreateFolder(f)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, f.getAbsolutePath());
+        File workspaceRoot = new File(workspaceHome);
+        File userWorkspace = new File(workspaceRoot, userId);
+        if (!FolderHelper.checkOrCreateFolder(userWorkspace)) {
+            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, userWorkspace.getAbsolutePath());
         }
-        log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), f.getAbsolutePath());
-        return new LocalWorkspaceImpl(user, f, localWorkspaceFolderFilter, localWorkspaceFileFilter);
+        log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
+        return new LocalWorkspaceImpl(user, userWorkspace, localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (singleUserMode) {
-                lwi = createSingleUserWorkspace(user);
-            } else {
-                lwi = createWorkspace(user);
-            }
+            lwi = createWorkspace(user);
             localWorkspaces.put(userId, lwi);
         }
         return lwi;
-    }
-
-    public void setSingleUserMode(boolean singleUserMode) {
-        this.singleUserMode = singleUserMode;
     }
 
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
