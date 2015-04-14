@@ -42,7 +42,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
-    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
+    protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
