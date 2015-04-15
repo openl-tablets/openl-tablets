@@ -91,10 +91,6 @@
             <artifactId>cglib</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>uk.com.robust-it</groupId>
             <artifactId>cloning</artifactId>
         </dependency>
