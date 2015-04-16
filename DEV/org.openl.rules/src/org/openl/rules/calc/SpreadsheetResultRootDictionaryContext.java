@@ -15,12 +15,17 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
     public IOpenField findField(String name) {
         String lowerCaseName = name.toLowerCase();
         List<IOpenField> ff = fields.get(lowerCaseName);
+
         if (ff == null) {
-            IOpenField field = getTypeClass().getField(lowerCaseName);
+            IOpenField field = getTypeClass().getField(name);
             if (field != null) {
                 initializeField(getRootField(), field, 1);
+                ff = fields.get(lowerCaseName);
             }
-            return field;
+        }
+
+        if (ff == null) {
+            return null;
         }
         if (ff.size() > 1) {
             throw new AmbiguousVarException(lowerCaseName, ff);
