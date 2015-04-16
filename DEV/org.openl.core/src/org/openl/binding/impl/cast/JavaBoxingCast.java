@@ -7,12 +7,22 @@ import org.openl.types.IOpenClass;
  */
 public class JavaBoxingCast implements IOpenCast {
 
+    private final int distance;
+
+    public JavaBoxingCast() {
+        this(1);
+    }
+
+    public JavaBoxingCast(int distance) {
+        this.distance = distance;
+    }
+
     public Object convert(Object from) {
         return from;
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 1;
+        return distance;
     }
 
     public boolean isImplicit() {

@@ -46,7 +46,7 @@ public class MethodBindingContext extends BindingContextDelegator {
 
     ILocalVar[] paramVars;
 
-    RootDictionaryContext rootContext;
+    VariableInContextFinder rootContext;
 
     /**
      * @param delegate
@@ -113,8 +113,8 @@ public class MethodBindingContext extends BindingContextDelegator {
         }
 
         if (searchInParameterContext) {
-            RootDictionaryContext cxt = getRootContext(parameterContextDepthLevel);
-            return cxt.findField(name);
+            VariableInContextFinder cxt = getRootContext(parameterContextDepthLevel);
+            return cxt.findVariable(name);
         }
         return null;
 
@@ -145,7 +145,7 @@ public class MethodBindingContext extends BindingContextDelegator {
         return returnType == null ? header.getType() : returnType;
     }
 
-    private RootDictionaryContext getRootContext(int depthLevel) {
+    private VariableInContextFinder getRootContext(int depthLevel) {
         if (rootContext == null) {
             rootContext = new RootDictionaryContext(paramVars, depthLevel);
         }

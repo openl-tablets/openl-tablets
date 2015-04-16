@@ -123,7 +123,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 		
 		ISyntaxNode expressionNode =  node.getNumberOfChildren() == 1 ? node.getChild(0) : node.getChild(1);
 			
-		IBoundNode boundExpressionNode = bindChildNode(expressionNode,  new TypeBindingContext(
+		IBoundNode boundExpressionNode = bindChildNode(expressionNode,  TypeBindingContext.create(
 				bindingContext, localVar));
 
 		boundExpressionNode = validateExpressionNode(boundExpressionNode, bindingContext);

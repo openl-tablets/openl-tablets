@@ -40,6 +40,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
+    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JavaUpCast.UP_CAST_DISTANCE);
 
     /**
      * Method factory object. This factory allows to define cast operations thru
@@ -92,7 +93,6 @@ public class CastFactory implements ICastFactory {
      * 
      * @param from from type
      * @param to to type
-     * @return
      */
     public IOpenCast findCast(IOpenClass from, IOpenClass to) {
 
@@ -177,6 +177,10 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
+        if (IgnoreJavaUpCast.class.isAssignableFrom(fromClass)) {
+            return null;
+        }
+
         if (toClass.isAssignableFrom(fromClass)) {
             return JAVA_UP_CAST;
         }
@@ -208,6 +212,10 @@ public class CastFactory implements ICastFactory {
 
         if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
             return JAVA_BOXING_CAST;
+        }
+
+        if (toClass.isAssignableFrom(ClassUtils.primitiveToWrapper(fromClass))) {
+            return JAVA_BOXING_UP_CAST;
         }
 
         // Apache ClassUtils has error in 2.6
@@ -276,11 +284,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds cast operation using {@link IMethodFacotry} object.
+     * Finds cast operation using {@link IMethodFactory} object.
      * 
      * @param from from type
      * @param to to type
-     * @param methodFactory {@link IMethodFacotry} object
+     * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
     private IOpenCast findMethodBasedCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
@@ -307,11 +315,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds cast operation using {@link IMethodFacotry} object.
+     * Finds cast operation using {@link IMethodFactory} object.
      * 
      * @param from from type
      * @param to to type
-     * @param methodFactory {@link IMethodFacotry} object
+     * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
     private IOpenCast findMethodCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
@@ -466,11 +474,13 @@ public class CastFactory implements ICastFactory {
 
         try {
             distanceCaller = methodFactory.getMatchingMethod(DISTANCE_METHOD_NAME, new IOpenClass[] { fromOpenClass, toOpenClass });
-        } catch (AmbiguousMethodException ex) {
+        } catch (AmbiguousMethodException ignored) {
         }
 
         if (distanceCaller != null) {
-            distance = ((Integer) distanceCaller.invoke(null, new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() }, null)).intValue();
+            distance = (Integer) distanceCaller.invoke(null,
+                    new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() },
+                    null);
         }
 
         return new MethodBasedCast(castCaller, auto, distance, toNullObject);

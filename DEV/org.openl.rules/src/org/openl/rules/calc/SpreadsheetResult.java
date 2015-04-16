@@ -18,7 +18,7 @@ import org.openl.types.java.CustomJavaOpenClass;
  *
  */
 @XmlRootElement
-@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class)
+@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
 public class SpreadsheetResult implements Serializable {
     
     private static final long serialVersionUID = 8704762477153429384L;
