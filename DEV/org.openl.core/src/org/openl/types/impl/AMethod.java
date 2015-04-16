@@ -7,12 +7,12 @@ package org.openl.types.impl;
 
 import org.openl.binding.MethodUtil;
 import org.openl.types.*;
-import org.openl.types.IMethodModuleInfo;
+import org.openl.types.IModuleInfo;
 
 /**
  * @author snshor
  */
-public abstract class AMethod implements IOpenMethod, IMethodModuleInfo {
+public abstract class AMethod implements IOpenMethod, IModuleInfo {
 
     private IOpenMethodHeader header;
     

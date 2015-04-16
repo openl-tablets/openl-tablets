@@ -55,17 +55,12 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.runtime.OpenLInvocationHandler;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.types.IDynamicObject;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IOpenSchema;
+import org.openl.types.*;
+import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenMethod;
@@ -383,13 +378,25 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         IOpenMethod m = decorateForMultimoduleDispatching(method);
 
+        // Workaround needed to set the module name in the method while compile
+        if (m instanceof AMethod) {
+            if (((AMethod) m).getModuleName() == null) {
+                XlsMetaInfo metaInfo = getXlsMetaInfo();
+                if (metaInfo != null) {
+                    IOpenSourceCodeModule sourceCodeModule = metaInfo.getXlsModuleNode().getModule();
+                    if (sourceCodeModule instanceof IModuleInfo) {
+                        ((AMethod) m).setModuleName(((IModuleInfo) sourceCodeModule).getModuleName());
+                    }
+                }
+            }
+        }
         // Get method key.
         //
         MethodKey key = new MethodKey(method);
 
         Map<MethodKey, IOpenMethod> methods = methodMap();
 
-        // Checks that method aleready exists in method map. If it already
+        // Checks that method already exists in method map. If it already
         // exists then "overload" it using decorator; otherwise - just add to
         // method map.
         //
