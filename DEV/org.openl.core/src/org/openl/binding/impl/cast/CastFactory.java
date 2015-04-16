@@ -40,6 +40,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
+    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JavaUpCast.UP_CAST_DISTANCE);
 
     /**
      * Method factory object. This factory allows to define cast operations thru
@@ -177,6 +178,10 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
+        if (IgnoreJavaUpCast.class.isAssignableFrom(fromClass)) {
+            return null;
+        }
+
         if (toClass.isAssignableFrom(fromClass)) {
             return JAVA_UP_CAST;
         }
@@ -208,6 +213,10 @@ public class CastFactory implements ICastFactory {
 
         if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
             return JAVA_BOXING_CAST;
+        }
+
+        if (toClass.isAssignableFrom(ClassUtils.primitiveToWrapper(fromClass))) {
+            return JAVA_BOXING_UP_CAST;
         }
 
         // Apache ClassUtils has error in 2.6
