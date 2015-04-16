@@ -204,7 +204,7 @@ public class JavaOpenClass extends AOpenClass {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(String.format("Constructor of a custom JavaOpenClass of type '%s' is inaccessible", type.getCanonicalName()), e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException(String.format("Costructor of a class '%s' throwed and exception", type.getCanonicalName()), e);
+            throw new IllegalStateException(String.format("Constructor of a class '%s' threw and exception", type.getCanonicalName()), e);
         }
     }
 
