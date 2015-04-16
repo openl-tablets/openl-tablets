@@ -16,10 +16,7 @@ import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 
@@ -194,12 +191,49 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 String newMethodHashUrl = ((TableUriMethod) newMethod).getTableUri();
                 String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
 
-				if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
-					throw new DuplicatedMethodException(
-							String.format(
-									"Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
-									existedMethod.getName()), existedMethod);
-				}
+                if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
+                    // Modules to which methods belongs to
+                    List<String> modules = new ArrayList<String>();
+                    if (newMethod instanceof IModuleInfo) {
+                        // Get the name of the module for the newMethod
+                        String moduleName = ((IModuleInfo) newMethod).getModuleName();
+                        if (moduleName != null) {
+                            modules.add(moduleName);
+                        }
+                    }
+                    if (existedMethod instanceof IModuleInfo) {
+                        // Get the name of the module for the existedMethod
+                        String moduleName = ((IModuleInfo) existedMethod).getModuleName();
+                        if (moduleName != null) {
+                            modules.add(moduleName);
+                        }
+                    }
+
+                    if (modules.isEmpty()) {
+                        // Case module names where not set to the methods
+                        throw new DuplicatedMethodException(String.format(
+                                "Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                                existedMethod.getName()),
+                                existedMethod);
+                    } else {
+                        // Case when the module names where set to the methods
+                        String modulesString = modules.get(0);
+                        if (modules.size() > 1) {
+                            throw new DuplicatedMethodException(String.format(
+                                    "Method \"%s\" has already been used in modules \"%s\" and \"%s\" with the same version, active status, properties set and different method body!",
+                                    existedMethod.getName(),
+                                    modulesString,
+                                    modules.get(1)),
+                                    existedMethod);
+                        } else {
+                            throw new DuplicatedMethodException(String.format(
+                                    "Method \"%s\" has already been used in module \"%s\" with the same version, active status, properties set and different method body!",
+                                    existedMethod.getName(),
+                                    modulesString),
+                                    existedMethod);
+                        }
+                    }
+                }
             } else {
                 throw new IllegalStateException("Implementation supports only TableUriMethod!");
             }
