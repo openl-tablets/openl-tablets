@@ -93,7 +93,6 @@ public class CastFactory implements ICastFactory {
      * 
      * @param from from type
      * @param to to type
-     * @return
      */
     public IOpenCast findCast(IOpenClass from, IOpenClass to) {
 
@@ -285,11 +284,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds cast operation using {@link IMethodFacotry} object.
+     * Finds cast operation using {@link IMethodFactory} object.
      * 
      * @param from from type
      * @param to to type
-     * @param methodFactory {@link IMethodFacotry} object
+     * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
     private IOpenCast findMethodBasedCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
@@ -316,11 +315,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds cast operation using {@link IMethodFacotry} object.
+     * Finds cast operation using {@link IMethodFactory} object.
      * 
      * @param from from type
      * @param to to type
-     * @param methodFactory {@link IMethodFacotry} object
+     * @param methodFactory {@link IMethodFactory} object
      * @return cast operation
      */
     private IOpenCast findMethodCast(IOpenClass from, IOpenClass to, IMethodFactory methodFactory) {
@@ -475,11 +474,13 @@ public class CastFactory implements ICastFactory {
 
         try {
             distanceCaller = methodFactory.getMatchingMethod(DISTANCE_METHOD_NAME, new IOpenClass[] { fromOpenClass, toOpenClass });
-        } catch (AmbiguousMethodException ex) {
+        } catch (AmbiguousMethodException ignored) {
         }
 
         if (distanceCaller != null) {
-            distance = ((Integer) distanceCaller.invoke(null, new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() }, null)).intValue();
+            distance = (Integer) distanceCaller.invoke(null,
+                    new Object[] { fromOpenClass.nullObject(), toOpenClass.nullObject() },
+                    null);
         }
 
         return new MethodBasedCast(castCaller, auto, distance, toNullObject);
