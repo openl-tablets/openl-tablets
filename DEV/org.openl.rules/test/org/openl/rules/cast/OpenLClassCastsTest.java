@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.JavaBoxingCast;
+import org.openl.binding.impl.cast.JavaUpCast;
 import org.openl.types.java.JavaOpenClass;
 
 public class OpenLClassCastsTest {
@@ -32,9 +34,21 @@ public class OpenLClassCastsTest {
         assertTrue(autoboxingWithAutocast.getDistance(integerClass, JavaOpenClass.DOUBLE) < cast.getDistance(
                 JavaOpenClass.DOUBLE, JavaOpenClass.INT));
     }
+
+    @Test
+    public void testBoxingUpCast() {
+        JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
+        IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.INT, comparableClass));
+
+        cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT);
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.INT, JavaOpenClass.OBJECT));
+    }
     
     @Test
-    @Ignore 
+    @Ignore
     public void testCastFromPrimitiveToOtherPrimitiveWrapper() throws Exception {
         JavaOpenClass doubleWrapperClass = JavaOpenClass.getOpenClass(Double.class);
         
