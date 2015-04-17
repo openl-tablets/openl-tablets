@@ -8,17 +8,15 @@ import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.cast.JavaBoxingCast;
 import org.openl.binding.impl.cast.JavaUpCast;
 import org.openl.types.java.JavaOpenClass;
 
 public class OpenLClassCastsTest {
-    private static OpenL openL;
     private static ICastFactory castFactory;
     
     @BeforeClass
     public static void init(){
-        openL = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
+        OpenL openL = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
         castFactory = openL.getBinder().getCastFactory();
     }
     
