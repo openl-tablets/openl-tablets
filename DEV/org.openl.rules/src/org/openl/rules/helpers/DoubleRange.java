@@ -19,8 +19,8 @@ import org.openl.util.RangeWithBounds.BoundType;
  */
 @XmlRootElement
 public class DoubleRange implements INumberRange {
-    private double lowerBound = Double.MIN_VALUE;
-    private double upperBound = Double.MAX_VALUE;
+    private double lowerBound;
+    private double upperBound;
 
     private BoundType lowerBoundType;
     private BoundType upperBoundType;
@@ -40,6 +40,8 @@ public class DoubleRange implements INumberRange {
     }
 
     public DoubleRange() {
+        lowerBound = 0;
+        upperBound = 0;
     }
     
     public DoubleRange(String range) {

@@ -111,7 +111,9 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             if (!(fieldEntry.getValue() instanceof UnmodifiableParameterTreeNode)) {
                 String fieldName = (String) fieldEntry.getKey();
                 IOpenField field = getType().getField(fieldName);
-                field.set(value, fieldEntry.getValue().getValueForced(), env);
+                if (field.isWritable()) {
+                    field.set(value, fieldEntry.getValue().getValueForced(), env);
+                }
             }
         }
         return value;
