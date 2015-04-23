@@ -88,7 +88,7 @@ public class CompileMojo extends BaseOpenLMojo {
                         Severity.ERROR);
                     for (OpenLMessage message : errors) {
                         if (getLog().isErrorEnabled()) {
-                            String errorMessage = message.getDetails();
+                            String errorMessage = "";
                             if (message instanceof OpenLErrorMessage) {
                                 OpenLException error = ((OpenLErrorMessage) message).getError();
                                 StringWriter stringWriter = new StringWriter();

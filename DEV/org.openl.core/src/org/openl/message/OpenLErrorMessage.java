@@ -18,17 +18,13 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     private OpenLException error;
 
-    public OpenLErrorMessage(String summary, String details) {
-        super(summary, details, Severity.ERROR);
-    }
-
-    public OpenLErrorMessage(String summary, String details, OpenLException error) {
-        super(summary, details, Severity.ERROR);
-        this.error = error;
+    public OpenLErrorMessage(String summary) {
+        super(summary, Severity.ERROR);
     }
 
     public OpenLErrorMessage(OpenLException error) {
-        this(OpenLExceptionUtils.getOpenLExceptionMessage(error), StringUtils.EMPTY, error);
+        super(OpenLExceptionUtils.getOpenLExceptionMessage(error), Severity.ERROR);
+        this.error = error;
     }
 
     public OpenLException getError() {

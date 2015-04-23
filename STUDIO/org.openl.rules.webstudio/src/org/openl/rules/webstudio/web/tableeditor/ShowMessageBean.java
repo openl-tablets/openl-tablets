@@ -29,7 +29,7 @@ public class ShowMessageBean {
             severity = Severity.INFO;
         }
 
-        OpenLMessage message = new OpenLMessage(summary, StringUtils.EMPTY, severity);
+        OpenLMessage message = new OpenLMessage(summary, severity);
 
         return Collections.singletonList(message);
     }

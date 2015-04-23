@@ -37,7 +37,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
             String message = String.format("Can't load dependent module '%s': %s",
                 dependencyName,
                 openLMessage.getSummary());
-            messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
+            messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();

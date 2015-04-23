@@ -59,7 +59,7 @@ public class OpenLMessagesUtils {
 
     public static void addMessage(String message, Severity severity) {
 
-        OpenLMessage openlMessage = new OpenLMessage(message, "", severity);
+        OpenLMessage openlMessage = new OpenLMessage(message, severity);
         addMessage(openlMessage);
     }
 
@@ -97,8 +97,7 @@ public class OpenLMessagesUtils {
             OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
             messages.add(errorMessage);
         } else {
-            OpenLMessage message = new OpenLMessage(ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY,
-                Severity.ERROR);
+            OpenLMessage message = new OpenLMessage(ExceptionUtils.getRootCauseMessage(exception), Severity.ERROR);
             messages.add(message);
         }
 
