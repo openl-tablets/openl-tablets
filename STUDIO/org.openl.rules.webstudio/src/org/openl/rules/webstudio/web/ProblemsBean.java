@@ -91,7 +91,7 @@ public class ProblemsBean {
         for (OpenLMessage message : messages) {
             String url = getNodeUrl(message, model);
             TreeNode messageNode = new TreeNode(true,
-                    message.getSummary(), message.getDetails(), url, 0, 0, nodeName.toLowerCase(), true);
+                    message.getSummary(), "", url, 0, 0, nodeName.toLowerCase(), true);
             parent.addChild(nodeCount++, messageNode);
         }
     }

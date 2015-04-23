@@ -7,16 +7,8 @@ public class OpenLWarnMessage extends OpenLMessage {
 
     private ISyntaxNode source;
 
-    public OpenLWarnMessage(String summary, String details) {
-        this(summary, details, null);
-    }
-
     public OpenLWarnMessage(String summary, ISyntaxNode source) {
-        this(summary, StringUtils.EMPTY, source);
-    }
-
-    public OpenLWarnMessage(String summary, String details, ISyntaxNode source) {
-        super(summary, details, Severity.WARN);
+        super(summary, Severity.WARN);
 
         this.source = source;
     }

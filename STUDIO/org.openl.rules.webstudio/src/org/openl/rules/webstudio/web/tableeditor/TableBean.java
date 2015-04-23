@@ -166,7 +166,7 @@ public class TableBean {
             for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
                     if (!warningWasAdded){
-                        warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY, Severity.WARN));
+                        warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                         warningWasAdded = true;
                     }
                     if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR).isEmpty()){

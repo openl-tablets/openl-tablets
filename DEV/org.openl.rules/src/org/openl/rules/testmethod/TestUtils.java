@@ -43,14 +43,14 @@ public final class TestUtils {
 
             if (exception instanceof OpenLUserRuntimeException) {
                 OpenLUserRuntimeException userException = (OpenLUserRuntimeException) exception;
-                messages.add(new OpenLMessage(userException.getOriginalMessage(), StringUtils.EMPTY));
+                messages.add(new OpenLMessage(userException.getOriginalMessage()));
             } else if (exception instanceof CompositeSyntaxNodeException) {
                 CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
 
                 for (OpenLException openLException : compositeException.getErrors()) {
                     if (openLException instanceof OpenLUserRuntimeException) {
                         OpenLUserRuntimeException userException = (OpenLUserRuntimeException) openLException;
-                        messages.add(new OpenLMessage(userException.getOriginalMessage(), StringUtils.EMPTY));
+                        messages.add(new OpenLMessage(userException.getOriginalMessage()));
                     } else {
                         messages.add(new OpenLErrorMessage(openLException));
                     }
@@ -60,7 +60,7 @@ public final class TestUtils {
                 if (exception instanceof OpenLException) {
                     messages.add(new OpenLErrorMessage((OpenLException) exception));
                 } else {
-                    messages.add(new OpenLErrorMessage(ExceptionUtils.getRootCauseMessage(exception), StringUtils.EMPTY));
+                    messages.add(new OpenLErrorMessage(ExceptionUtils.getRootCauseMessage(exception)));
                 }
             }
 

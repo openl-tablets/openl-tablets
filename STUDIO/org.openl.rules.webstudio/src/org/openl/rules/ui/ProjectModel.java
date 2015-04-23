@@ -1255,7 +1255,7 @@ public class ProjectModel {
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
-                messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
+                messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],

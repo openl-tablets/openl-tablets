@@ -16,11 +16,6 @@ public class OpenLMessage {
     private String summary;
 
     /**
-     * Message's detailed information.
-     */
-    private String details;
-
-    /**
      * Message's severity.
      */
     private Severity severity;
@@ -29,22 +24,19 @@ public class OpenLMessage {
      * Constructs new instance of message with INFO severity.
      * 
      * @param summary brief information
-     * @param details detailed information
      */
-    public OpenLMessage(String summary, String details) {
-        this(summary, details, Severity.INFO);
+    public OpenLMessage(String summary) {
+        this(summary, Severity.INFO);
     }
 
     /**
      * Constructs new instance of message.
      * 
      * @param summary brief information
-     * @param details detailed information
      * @param severity message severity
      */
-    public OpenLMessage(String summary, String details, Severity severity) {
+    public OpenLMessage(String summary, Severity severity) {
         this.summary = summary;
-        this.details = details;
         this.severity = severity;
     }
 
@@ -55,15 +47,6 @@ public class OpenLMessage {
      */
     public String getSummary() {
         return summary;
-    }
-
-    /**
-     * Gets message details.
-     * 
-     * @return message details
-     */
-    public String getDetails() {
-        return details;
     }
 
     /**
