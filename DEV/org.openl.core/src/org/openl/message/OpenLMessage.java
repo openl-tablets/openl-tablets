@@ -63,4 +63,7 @@ public class OpenLMessage {
         return StringUtils.defaultString(summary);
     }
 
+    public String getSourceLocation() {
+        return null;
+    }
 }
