@@ -3,14 +3,10 @@ package org.openl.exception;
 import java.io.PrintWriter;
 import java.util.Stack;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
 
 public class OpenLExceptionUtils {
 
@@ -111,41 +107,4 @@ public class OpenLExceptionUtils {
             error.getCause().printStackTrace(writer);
         }
     }
-
-    public static String[] getErrorCode(OpenLException error) {
-        ILocation location = error.getLocation();
-        IOpenSourceCodeModule sourceModule = error.getSourceModule();
-
-        return getErrorCode(location, sourceModule);
-    }
-
-    public static String[] getErrorCode(ILocation location, IOpenSourceCodeModule sourceModule) {
-        String code = StringUtils.EMPTY;
-        if (sourceModule != null) {
-            code = sourceModule.getCode();
-            if (StringUtils.isBlank(code)) {
-                code = StringUtils.EMPTY;
-            }
-        }
-
-        int pstart = 0;
-        int pend = 0;
-
-        if (StringUtils.isNotBlank(code)
-                && location != null && location.isTextLocation()) {
-            TextInfo info = new TextInfo(code);
-            pstart = location.getStart().getAbsolutePosition(info);
-            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
-        }
-
-        if (pend != 0) {
-            return new String[] {
-                    code.substring(0, pstart),
-                    code.substring(pstart, pend),
-                    code.substring(pend, code.length())};
-        }
-
-        return new String[0];
-    }
-
 }

@@ -5,7 +5,6 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -14,7 +13,10 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInfo;
 import org.richfaces.component.UIRepeat;
 
 @ManagedBean
@@ -46,18 +48,22 @@ public class MessagesBean {
     public String[] getErrorCode() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
 
+        ILocation location = null;
+        IOpenSourceCodeModule module = null;
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
             OpenLException error = errorMessage.getError();
 
-            return OpenLExceptionUtils.getErrorCode(error);
+            location = error.getLocation();
+            module = error.getSourceModule();
+
         } else if (message instanceof OpenLWarnMessage) {
             OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
             ISyntaxNode source = warnMessage.getSource();
-            return OpenLExceptionUtils.getErrorCode(source.getSourceLocation(), source.getModule());
+            location = source.getSourceLocation();
+            module = source.getModule();
         }
-
-        return new String[0];
+        return getErrorCode(location, module);
     }
 
     public String getTableId() {
@@ -96,6 +102,36 @@ public class MessagesBean {
         }
 
         return errorUri;
+    }
+
+
+    private String[] getErrorCode(ILocation location, IOpenSourceCodeModule sourceModule) {
+        String code = StringUtils.EMPTY;
+        if (sourceModule != null) {
+            code = sourceModule.getCode();
+            if (StringUtils.isBlank(code)) {
+                code = StringUtils.EMPTY;
+            }
+        }
+
+        int pstart = 0;
+        int pend = 0;
+
+        if (StringUtils.isNotBlank(code)
+                && location != null && location.isTextLocation()) {
+            TextInfo info = new TextInfo(code);
+            pstart = location.getStart().getAbsolutePosition(info);
+            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
+        }
+
+        if (pend != 0) {
+            return new String[] {
+                    code.substring(0, pstart),
+                    code.substring(pstart, pend),
+                    code.substring(pend, code.length())};
+        }
+
+        return new String[0];
     }
 
 }
