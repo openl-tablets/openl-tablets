@@ -21,6 +21,6 @@ public class OpenLWarnMessage extends OpenLMessage {
 
     @Override
     public String getSourceLocation() {
-        return SourceCodeURLTool.makeSourceLocationURL(source.getSourceLocation(), source.getModule(), "");
+        return SourceCodeURLTool.makeSourceLocationURL(source.getSourceLocation(), source.getModule());
     }
 }

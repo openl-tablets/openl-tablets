@@ -43,7 +43,7 @@ public class OpenLErrorMessage extends OpenLMessage {
         
         if (getError() != null) {
             String url = SourceCodeURLTool.makeSourceLocationURL(getError().getLocation(),
-                getError().getSourceModule(), "");
+                getError().getSourceModule());
 
             if (!StringUtils.isEmpty(url)) {
                 printWriter.print(SourceCodeURLConstants.AT_PREFIX + url);
@@ -57,7 +57,7 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     @Override
     public String getSourceLocation() {
-        return SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
+        return SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule());
     }
 
 }
