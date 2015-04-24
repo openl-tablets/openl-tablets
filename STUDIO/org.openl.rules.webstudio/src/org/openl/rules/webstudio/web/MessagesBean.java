@@ -5,7 +5,6 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLException;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
@@ -53,10 +52,8 @@ public class MessagesBean {
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
             OpenLException error = errorMessage.getError();
-
             location = error.getLocation();
             module = error.getSourceModule();
-
         } else if (message instanceof OpenLWarnMessage) {
             OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
             ISyntaxNode source = warnMessage.getSource();
@@ -87,16 +84,9 @@ public class MessagesBean {
         String errorUri;
         Object rowData = messages.getRowData();
 
-        if (rowData instanceof OpenLErrorMessage) {
-            OpenLErrorMessage message = (OpenLErrorMessage) rowData;
-            OpenLException error = message.getError();
-
-            errorUri = SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
-        } else if (rowData instanceof OpenLWarnMessage) {
-            OpenLWarnMessage message = (OpenLWarnMessage) rowData;
-            ISyntaxNode source = message.getSource();
-
-            errorUri = SourceCodeURLTool.makeSourceLocationURL(source.getSourceLocation(), source.getModule(), "");
+        if (rowData instanceof OpenLMessage) {
+            OpenLMessage message = (OpenLMessage) rowData;
+            errorUri = message.getSourceLocation();
         } else {
             errorUri = null;
         }

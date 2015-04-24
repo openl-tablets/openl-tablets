@@ -1,6 +1,6 @@
 package org.openl.message;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.main.SourceCodeURLTool;
 import org.openl.syntax.ISyntaxNode;
 
 public class OpenLWarnMessage extends OpenLMessage {
@@ -9,7 +9,9 @@ public class OpenLWarnMessage extends OpenLMessage {
 
     public OpenLWarnMessage(String summary, ISyntaxNode source) {
         super(summary, Severity.WARN);
-
+        if (source == null) {
+            throw new NullPointerException();
+        }
         this.source = source;
     }
 
@@ -17,4 +19,8 @@ public class OpenLWarnMessage extends OpenLMessage {
         return source;
     }
 
+    @Override
+    public String getSourceLocation() {
+        return SourceCodeURLTool.makeSourceLocationURL(source.getSourceLocation(), source.getModule(), "");
+    }
 }

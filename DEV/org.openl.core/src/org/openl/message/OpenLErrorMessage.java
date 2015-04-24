@@ -24,6 +24,9 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     public OpenLErrorMessage(OpenLException error) {
         super(OpenLExceptionUtils.getOpenLExceptionMessage(error), Severity.ERROR);
+        if (error == null) {
+            throw new NullPointerException();
+        }
         this.error = error;
     }
 
@@ -50,6 +53,11 @@ public class OpenLErrorMessage extends OpenLMessage {
         printWriter.close();
 
         return stringWriter.toString();
+    }
+
+    @Override
+    public String getSourceLocation() {
+        return SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule(), "");
     }
 
 }

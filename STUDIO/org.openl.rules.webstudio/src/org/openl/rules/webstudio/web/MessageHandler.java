@@ -40,7 +40,7 @@ public class MessageHandler {
 
     protected String getUri(OpenLMessage message) {
         // Default implementation
-        return null;
+        return message.getSourceLocation();
     }
 
     protected String getUrl(ProjectModel model, String errorUri, OpenLMessage message) {
