@@ -1,15 +1,10 @@
 package org.openl.rules.datatype.binding;
 
 import org.junit.Test;
-import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.syntax.GridLocation;
-import org.openl.syntax.impl.IdentifierNode;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNull;
@@ -18,13 +13,7 @@ import static junit.framework.TestCase.assertNull;
  * Created by dl on 6/17/14.
  */
 public class DatatypeSorterTest {
-    public static final String CHILD = "Child";
-    public static final String INDEPENDENT = "Independent";
-    public static final String PARENT = "Parent";
 
-    public static final String DATATYPE_PARENT = String.format("%s %s", XlsNodeTypes.XLS_DATATYPE, PARENT);
-    public static final String DATATYPE_CHILD_EXTENDS_PARENT = String.format("%s %s extends %s", XlsNodeTypes.XLS_DATATYPE, CHILD, PARENT);
-    public static final String DATATYPE_INDEPENDENT = String.format("%s %s", XlsNodeTypes.XLS_DATATYPE, INDEPENDENT);
 
 
     @Test
@@ -34,20 +23,26 @@ public class DatatypeSorterTest {
 
     @Test
     public void testOrderDatatypes_InheritanceDependency() {
-        TableSyntaxNode parentNode = createStubTSN(DATATYPE_PARENT);
-        TableSyntaxNode childNode = createStubTSN(DATATYPE_CHILD_EXTENDS_PARENT);
-        TableSyntaxNode independentNode = createStubTSN(DATATYPE_INDEPENDENT);
+        String[][] parent = new String[1][1];
+        parent[0][0] = "Datatype TypeParent";
+
+        String[][] child = new String[1][1];
+        child[0][0] = "Datatype TypeChild extends TypeParent";
+
+        String[][] independent = new String[1][1];
+        independent[0][0] = "Datatype Independent";
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
-                        new TableSyntaxNode[]{
-                                childNode,
-                                independentNode,
-                                parentNode},
+                new TableSyntaxNode[]{
+                        getTableSyntaxNode(child),
+                        getTableSyntaxNode(independent),
+                        getTableSyntaxNode(parent)},
                 null);
+
         assertEquals(3, ordered.length);
-        assertEquals("Parent should be compiled first", DATATYPE_PARENT, ordered[0].getHeader().getModule().getCode());
-        assertEquals("Child position goes after parent", DATATYPE_CHILD_EXTENDS_PARENT, ordered[1].getHeader().getModule().getCode());
-        assertEquals("Independent datatype position is not changed", DATATYPE_INDEPENDENT, ordered[2].getHeader().getModule().getCode());
+        assertEquals("Parent should be compiled first", "Datatype TypeParent", ordered[0].getHeader().getModule().getCode());
+        assertEquals("Child position goes after parent", "Datatype TypeChild extends TypeParent", ordered[1].getHeader().getModule().getCode());
+        assertEquals("Independent datatype position is not changed", "Datatype Independent", ordered[2].getHeader().getModule().getCode());
     }
 
     @Test
@@ -59,7 +54,6 @@ public class DatatypeSorterTest {
         table1[1][1] = "name";
         table1[2][0] = "Dependence";
         table1[2][1] = "type2Obj";
-        MockGridTable gridTable1 = new MockGridTable(table1);
 
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Independent";
@@ -68,7 +62,6 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
-        MockGridTable gridTable2 = new MockGridTable(table2);
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -77,13 +70,12 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        MockGridTable gridTable3 = new MockGridTable(table3);
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
-                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
-                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
+                                getTableSyntaxNode(table1),
+                                getTableSyntaxNode(table2),
+                                getTableSyntaxNode(table3)},
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
@@ -106,8 +98,6 @@ public class DatatypeSorterTest {
         table1[3][0] = "Dependent";
         table1[3][1] = "type1Obj";
 
-        MockGridTable gridTable1 = new MockGridTable(table1);
-
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Independent";
         table2[0][1] = null;
@@ -115,7 +105,6 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
-        MockGridTable gridTable2 = new MockGridTable(table2);
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -124,13 +113,12 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        MockGridTable gridTable3 = new MockGridTable(table3);
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
-                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
-                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
+                                getTableSyntaxNode(table1),
+                                getTableSyntaxNode(table2),
+                                getTableSyntaxNode(table3)},
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
@@ -149,7 +137,6 @@ public class DatatypeSorterTest {
         tableParent[2][0] = "TypeChild";
         tableParent[2][1] = "typeChild";
 
-        MockGridTable gridTableParent = new MockGridTable(tableParent);
 
         String[][] tableChild = new String[3][2];
         tableChild[0][0] = "Datatype TypeChild extends TypeParent";
@@ -158,13 +145,12 @@ public class DatatypeSorterTest {
         tableChild[1][1] = "num";
         tableChild[2][0] = "Boolean";
         tableChild[2][1] = "flag";
-        MockGridTable gridTableChild = new MockGridTable(tableChild);
 
         // Shouldn't throw StackOverflowError
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
-                                getTableSyntaxNode(gridTableParent, gridTableParent.getRow(0)),
-                                getTableSyntaxNode(gridTableChild, gridTableChild.getRow(0))},
+                                getTableSyntaxNode(tableParent),
+                                getTableSyntaxNode(tableChild)},
                 null);
         assertEquals(2, ordered.length);
         assertEquals("Datatype TypeChild extends TypeParent", ordered[0].getHeader().getModule().getCode());
@@ -180,7 +166,6 @@ public class DatatypeSorterTest {
         table1[1][1] = "name";
         table1[2][0] = "Boolean";
         table1[2][1] = "boolVal";
-        MockGridTable gridTable1 = new MockGridTable(table1);
 
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Dependent";
@@ -189,7 +174,6 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Dependence[]";
         table2[2][1] = "type2Array";
-        MockGridTable gridTable2 = new MockGridTable(table2);
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -198,13 +182,12 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        MockGridTable gridTable3 = new MockGridTable(table3);
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
-                                getTableSyntaxNode(gridTable1, gridTable1.getRow(0)),
-                                getTableSyntaxNode(gridTable2, gridTable2.getRow(0)),
-                                getTableSyntaxNode(gridTable3, gridTable3.getRow(0))},
+                                getTableSyntaxNode(table1),
+                                getTableSyntaxNode(table2),
+                                getTableSyntaxNode(table3)},
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Independent", ordered[0].getHeader().getModule().getCode());
@@ -212,29 +195,12 @@ public class DatatypeSorterTest {
         assertEquals("Datatype Dependent", ordered[2].getHeader().getModule().getCode());
     }
 
-    private TableSyntaxNode createStubTSN(final String datatypeHeader) {
-        IGridTable gridTable = new org.openl.rules.table.GridTable(1, 1, 1, 1, null);
-
-
-        IGridTable headerCell = new org.openl.rules.table.GridTable(0, 0, 0, 0, null) {
-            @Override
-            public ICell getCell(int column, int row) {
-                Cell cell = new Cell();
-                cell.setStringValue(datatypeHeader);
-                return cell;
-            }
-        };
-
-        return getTableSyntaxNode(gridTable, headerCell);
-    }
-
-    private TableSyntaxNode getTableSyntaxNode(IGridTable gridTable, IGridTable headerCell) {
-        GridLocation pos = new GridLocation(gridTable);
-
-        GridCellSourceCodeModule headerSrc = new GridCellSourceCodeModule(headerCell);
-
-        HeaderSyntaxNode header = new HeaderSyntaxNode(headerSrc, new IdentifierNode(null, null,
-                IXlsTableNames.DATATYPE_TABLE, null));
-        return new TableSyntaxNode(XlsNodeTypes.XLS_DATATYPE.toString(), pos, null, gridTable, header);
+    private TableSyntaxNode getTableSyntaxNode(Object[][] cells) {
+        try {
+            IGridTable gridTable = new MockGridTable(cells);
+            return XlsHelper.createTableSyntaxNode(gridTable, null);
+        } catch (OpenLCompilationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

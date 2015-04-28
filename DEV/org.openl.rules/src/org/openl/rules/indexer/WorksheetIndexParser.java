@@ -2,26 +2,20 @@ package org.openl.rules.indexer;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.XlsLoader;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 
 /**
  * Parser for sheet. Parses the sheet to table it contains.
  * 
  */
 public class WorksheetIndexParser implements IIndexParser {
-
-    private static final String NOT_AVAILABLE = "N/A";
 
     public String getCategory() {
         return IDocumentType.WORKSHEET.getCategory();
@@ -59,16 +53,16 @@ public class WorksheetIndexParser implements IIndexParser {
         for (int i = 0; i < nodes.length; i++) {
 
             IGridTable table = tables[i];
-            GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
-            IdentifierNode parsedHeader;
 
             try {
-                parsedHeader = Tokenizer.firstToken(src, " \n\r");
+                TableSyntaxNode tableSyntaxNode = XlsHelper.createTableSyntaxNode(table, sheetSrc);
+                nodes[i] = tableSyntaxNode;
             } catch (OpenLCompilationException e) {
 
                 // Add error.
                 //
+                GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse table header",
                     e,
                     null,
@@ -78,18 +72,8 @@ public class WorksheetIndexParser implements IIndexParser {
                 // Continue tables parsing.
                 // 
                 continue;
-            }            
-
-            String header = parsedHeader.getIdentifier();
-            String xls_type = XlsLoader.getTableHeaders().get(header);
-
-            if (xls_type == null) {
-                xls_type = NOT_AVAILABLE;
             }
-            
-            HeaderSyntaxNode headerNode = HeaderNodeFactory.getHeaderNode(xls_type, src, parsedHeader);
 
-            nodes[i] = new TableSyntaxNode(xls_type, new GridLocation(table), sheetSrc, table, headerNode);
         }
 
         return nodes;
