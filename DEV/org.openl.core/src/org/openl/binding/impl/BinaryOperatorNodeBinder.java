@@ -8,6 +8,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -174,7 +175,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            throw new SyntaxNodeException("Binary node must have 2 subnodes", null, node);
+            throw SyntaxNodeExceptionUtils.createError("Binary node must have 2 subnodes", node);
         }
 
         int index = node.getType().lastIndexOf('.');

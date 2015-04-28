@@ -19,6 +19,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
@@ -156,7 +157,7 @@ public class GapOverlapValidator extends TablesValidator {
         if (validationResult == null) {
             validationResult = new ValidationResult(ValidationStatus.FAIL);
         }
-        SyntaxNodeException error = new SyntaxNodeException(message, null, sourceNode);
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, sourceNode);
         sourceNode.addError(error);
         ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
     }

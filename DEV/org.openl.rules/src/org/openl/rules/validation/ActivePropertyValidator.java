@@ -8,6 +8,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -56,9 +57,8 @@ public class ActivePropertyValidator extends TablesValidator {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
                         }
-                        SyntaxNodeException exception = new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE,
-                            null,
-                            executableMethodTable);
+                        SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
+                                executableMethodTable);
                         executableMethodTable.addError(exception);
                         ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                     } else {

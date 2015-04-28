@@ -59,6 +59,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.*;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
@@ -435,7 +436,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
                     if (memberMetaInfo.getSyntaxNode() != null) {
                         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                            error = new SyntaxNodeException(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
+                            error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
+                                    e,
+                                    memberMetaInfo.getSyntaxNode());
                             ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
                         }
                     }
