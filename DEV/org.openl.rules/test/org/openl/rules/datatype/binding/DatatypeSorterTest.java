@@ -5,9 +5,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.AGrid;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
@@ -62,7 +60,6 @@ public class DatatypeSorterTest {
         table1[2][0] = "Dependence";
         table1[2][1] = "type2Obj";
         MockGridTable gridTable1 = new MockGridTable(table1);
-        gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Independent";
@@ -72,7 +69,6 @@ public class DatatypeSorterTest {
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
         MockGridTable gridTable2 = new MockGridTable(table2);
-        gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -82,7 +78,6 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
         MockGridTable gridTable3 = new MockGridTable(table3);
-        gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
@@ -112,7 +107,6 @@ public class DatatypeSorterTest {
         table1[3][1] = "type1Obj";
 
         MockGridTable gridTable1 = new MockGridTable(table1);
-        gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Independent";
@@ -122,7 +116,6 @@ public class DatatypeSorterTest {
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
         MockGridTable gridTable2 = new MockGridTable(table2);
-        gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -132,7 +125,6 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
         MockGridTable gridTable3 = new MockGridTable(table3);
-        gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
@@ -158,7 +150,6 @@ public class DatatypeSorterTest {
         tableParent[2][1] = "typeChild";
 
         MockGridTable gridTableParent = new MockGridTable(tableParent);
-        gridTableParent.setGrid(new TestGrid(gridTableParent));
 
         String[][] tableChild = new String[3][2];
         tableChild[0][0] = "Datatype TypeChild extends TypeParent";
@@ -168,7 +159,6 @@ public class DatatypeSorterTest {
         tableChild[2][0] = "Boolean";
         tableChild[2][1] = "flag";
         MockGridTable gridTableChild = new MockGridTable(tableChild);
-        gridTableChild.setGrid(new TestGrid(gridTableChild));
 
         // Shouldn't throw StackOverflowError
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
@@ -191,7 +181,6 @@ public class DatatypeSorterTest {
         table1[2][0] = "Boolean";
         table1[2][1] = "boolVal";
         MockGridTable gridTable1 = new MockGridTable(table1);
-        gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
         table2[0][0] = "Datatype Dependent";
@@ -201,7 +190,6 @@ public class DatatypeSorterTest {
         table2[2][0] = "Dependence[]";
         table2[2][1] = "type2Array";
         MockGridTable gridTable2 = new MockGridTable(table2);
-        gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
         table3[0][0] = "Datatype Dependence";
@@ -211,7 +199,6 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
         MockGridTable gridTable3 = new MockGridTable(table3);
-        gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
                         new TableSyntaxNode[]{
@@ -249,74 +236,5 @@ public class DatatypeSorterTest {
         HeaderSyntaxNode header = new HeaderSyntaxNode(headerSrc, new IdentifierNode(null, null,
                 IXlsTableNames.DATATYPE_TABLE, null));
         return new TableSyntaxNode(XlsNodeTypes.XLS_DATATYPE.toString(), pos, null, gridTable, header);
-    }
-
-    /**
-     * Stub implementation for the IGrid
-     * just getCell is implemented
-     * to avoid NPE
-     */
-    private class TestGrid extends AGrid {
-
-        private IGridTable table;
-
-        public TestGrid(IGridTable table) {
-            this.table = table;
-        }
-
-        @Override
-        public ICell getCell(int column, int row) {
-            return table.getCell(column, row);
-        }
-
-        @Override
-        public int getColumnWidth(int col) {
-            return 0;
-        }
-
-        @Override
-        public int getMaxColumnIndex(int row) {
-            return 0;
-        }
-
-        @Override
-        public int getMaxRowIndex() {
-            return 0;
-        }
-
-        @Override
-        public IGridRegion getMergedRegion(int i) {
-            return null;
-        }
-
-        @Override
-        public int getMinColumnIndex(int row) {
-            return 0;
-        }
-
-        @Override
-        public int getMinRowIndex() {
-            return 0;
-        }
-
-        @Override
-        public int getNumberOfMergedRegions() {
-            return 0;
-        }
-
-        @Override
-        public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
-            return null;
-        }
-
-        @Override
-        public String getUri() {
-            return null;
-        }
-
-        @Override
-        public boolean isEmpty(int col, int row) {
-            return false;
-        }
     }
 }
