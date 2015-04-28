@@ -16,6 +16,7 @@ import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.*;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
@@ -290,9 +291,9 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 							IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
 							if (memberMetaInfo.getSyntaxNode() != null) {
 								if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-									SyntaxNodeException error = new SyntaxNodeException(e
-											.getMessage(), e,
-											memberMetaInfo.getSyntaxNode());
+									SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e
+                                                    .getMessage(), e,
+                                            memberMetaInfo.getSyntaxNode());
 									((TableSyntaxNode) memberMetaInfo
 											.getSyntaxNode())
 											.addError(error);

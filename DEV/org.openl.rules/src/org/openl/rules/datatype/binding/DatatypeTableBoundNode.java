@@ -424,9 +424,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
                                 field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                     }else{
-                        throw new SyntaxNodeException(String.format(
+                        throw SyntaxNodeExceptionUtils.createError(String.format(
                                 "Field [%s] has been already defined in class \"%s\" with another type",
-                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), null,
+                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)),
                                 tableSyntaxNode);
                     }
                 }

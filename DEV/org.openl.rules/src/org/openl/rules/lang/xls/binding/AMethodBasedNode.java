@@ -23,6 +23,7 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -122,7 +123,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         try{
             openClass.addMethod(getServiceMethod(originalMethod));
         }catch (DuplicatedMethodException e) {
-            SyntaxNodeException error = new SyntaxNodeException(null, e, getTableSyntaxNode());
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(null, e, getTableSyntaxNode());
             getTableSyntaxNode().addError(error);
             OpenLMessagesUtils.addError(error);
         }

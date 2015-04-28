@@ -8,6 +8,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -39,9 +40,9 @@ public class RegexpPropertyValidator extends TablesValidator {
                     if (validationResult == null) {
                         validationResult = new ValidationResult(ValidationStatus.FAIL);
                     }
-                    SyntaxNodeException exception = new SyntaxNodeException(String.format(
+                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(String.format(
                             "Incorrect value \"%s\" for property \"%s\"", propertyValue,
-                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), null, tsn);
+                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     tsn.addError(exception);
                     ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                 }
