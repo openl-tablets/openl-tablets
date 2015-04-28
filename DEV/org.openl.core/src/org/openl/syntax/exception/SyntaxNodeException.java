@@ -10,7 +10,6 @@ public class SyntaxNodeException extends OpenLCompilationException {
     private static final long serialVersionUID = 4448924727461016950L;
 
     private ISyntaxNode syntaxNode;
-    private ISyntaxNode topLevelSyntaxNode;
 
     public SyntaxNodeException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
         super(message, cause, location, source);
@@ -38,13 +37,4 @@ public class SyntaxNodeException extends OpenLCompilationException {
     public ISyntaxNode getSyntaxNode() {
         return syntaxNode;
     }
-
-    public void setTopLevelSyntaxNode(ISyntaxNode topLevelSyntaxNode) {
-        this.topLevelSyntaxNode = topLevelSyntaxNode;
-    }
-
-    public ISyntaxNode getTopLevelSyntaxNode() {
-        return topLevelSyntaxNode;
-    }
-
 }

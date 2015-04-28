@@ -707,8 +707,6 @@ public class XlsBinder implements IOpenBinder {
                                 TableSyntaxNode tableSyntaxNode,
                                 RulesModuleBindingContext moduleContext) {
 
-        error.setTopLevelSyntaxNode(tableSyntaxNode);
-
         tableSyntaxNode.addError(error);
         BindHelper.processError(error, moduleContext);
     }
