@@ -15,12 +15,12 @@ import org.openl.rules.table.*;
  *
  * @author Denis Levchuk
  */
-public class GridTable extends AGridTable {
+public class MockGridTable extends AGridTable {
     private Object[][] values;
 
     private IGrid grid;
 
-    public GridTable(Object[][] cells) {
+    public MockGridTable(Object[][] cells) {
         // Flag indicating that previously there was a
         // null cell
         //

@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openl.rules.datatype.binding.GridTable;
+import org.openl.rules.datatype.binding.MockGridTable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ public class GridTableUtilsTest {
         arr[0][1] = "cell_0_1";
         arr[1][0] = "cell_1_0";
         arr[1][1] = "cell_1_1";
-        IGridTable grid = new GridTable(arr);
+        IGridTable grid = new MockGridTable(arr);
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(4, regions.size());
@@ -33,7 +33,7 @@ public class GridTableUtilsTest {
     public void getGridRegionsFullMeged() {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
-        IGridTable grid = new GridTable(arr);
+        IGridTable grid = new MockGridTable(arr);
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(1, regions.size());
@@ -46,7 +46,7 @@ public class GridTableUtilsTest {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         arr[1][0] = "cell_1_0";
-        IGridTable grid = new GridTable(arr);
+        IGridTable grid = new MockGridTable(arr);
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(2, regions.size());
@@ -59,7 +59,7 @@ public class GridTableUtilsTest {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         arr[0][1] = "cell_0_1";
-        IGridTable grid = new GridTable(arr);
+        IGridTable grid = new MockGridTable(arr);
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(2, regions.size());
@@ -74,7 +74,7 @@ public class GridTableUtilsTest {
         arr[0][0] = "cell_0_0";
         arr[0][1] = "cell_0_1";
         arr[1][1] = "cell_1_1";
-        IGridTable grid = new GridTable(arr);
+        IGridTable grid = new MockGridTable(arr);
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(3, regions.size());
