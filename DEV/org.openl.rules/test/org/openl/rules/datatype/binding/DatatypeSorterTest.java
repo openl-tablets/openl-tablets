@@ -61,7 +61,7 @@ public class DatatypeSorterTest {
         table1[1][1] = "name";
         table1[2][0] = "Dependence";
         table1[2][1] = "type2Obj";
-        GridTable gridTable1 = new GridTable(table1);
+        MockGridTable gridTable1 = new MockGridTable(table1);
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
@@ -71,7 +71,7 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
-        GridTable gridTable2 = new GridTable(table2);
+        MockGridTable gridTable2 = new MockGridTable(table2);
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
@@ -81,7 +81,7 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        GridTable gridTable3 = new GridTable(table3);
+        MockGridTable gridTable3 = new MockGridTable(table3);
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
@@ -111,7 +111,7 @@ public class DatatypeSorterTest {
         table1[3][0] = "Dependent";
         table1[3][1] = "type1Obj";
 
-        GridTable gridTable1 = new GridTable(table1);
+        MockGridTable gridTable1 = new MockGridTable(table1);
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
@@ -121,7 +121,7 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Boolean";
         table2[2][1] = "flag";
-        GridTable gridTable2 = new GridTable(table2);
+        MockGridTable gridTable2 = new MockGridTable(table2);
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
@@ -131,7 +131,7 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        GridTable gridTable3 = new GridTable(table3);
+        MockGridTable gridTable3 = new MockGridTable(table3);
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
@@ -157,7 +157,7 @@ public class DatatypeSorterTest {
         tableParent[2][0] = "TypeChild";
         tableParent[2][1] = "typeChild";
 
-        GridTable gridTableParent = new GridTable(tableParent);
+        MockGridTable gridTableParent = new MockGridTable(tableParent);
         gridTableParent.setGrid(new TestGrid(gridTableParent));
 
         String[][] tableChild = new String[3][2];
@@ -167,7 +167,7 @@ public class DatatypeSorterTest {
         tableChild[1][1] = "num";
         tableChild[2][0] = "Boolean";
         tableChild[2][1] = "flag";
-        GridTable gridTableChild = new GridTable(tableChild);
+        MockGridTable gridTableChild = new MockGridTable(tableChild);
         gridTableChild.setGrid(new TestGrid(gridTableChild));
 
         // Shouldn't throw StackOverflowError
@@ -190,7 +190,7 @@ public class DatatypeSorterTest {
         table1[1][1] = "name";
         table1[2][0] = "Boolean";
         table1[2][1] = "boolVal";
-        GridTable gridTable1 = new GridTable(table1);
+        MockGridTable gridTable1 = new MockGridTable(table1);
         gridTable1.setGrid(new TestGrid(gridTable1));
 
         String[][] table2 = new String[3][2];
@@ -200,7 +200,7 @@ public class DatatypeSorterTest {
         table2[1][1] = "num";
         table2[2][0] = "Dependence[]";
         table2[2][1] = "type2Array";
-        GridTable gridTable2 = new GridTable(table2);
+        MockGridTable gridTable2 = new MockGridTable(table2);
         gridTable2.setGrid(new TestGrid(gridTable2));
 
         String[][] table3 = new String[3][2];
@@ -210,7 +210,7 @@ public class DatatypeSorterTest {
         table3[1][1] = "num";
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
-        GridTable gridTable3 = new GridTable(table3);
+        MockGridTable gridTable3 = new MockGridTable(table3);
         gridTable3.setGrid(new TestGrid(gridTable3));
 
         TableSyntaxNode[] ordered = new DatatypesSorter().sort(
