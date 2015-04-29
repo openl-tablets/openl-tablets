@@ -1,14 +1,14 @@
 package org.openl.rules.dtx.type.domains;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Collect domains for all dimension properties.
@@ -84,9 +84,11 @@ public class DimensionPropertiesDomainsCollector {
         String propName = propDef.getName();
         String key = propName + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX;
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
-            propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAttribute(), gatheredDomain);
-            propertiesDomains.put(propName, gatheredDomain);
-            propertiesDomains.put(key, gatheredDomain);
+            if (propDef.getExpression() != null) {
+                propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAttribute(), gatheredDomain);
+                propertiesDomains.put(propName, gatheredDomain);
+                propertiesDomains.put(key, gatheredDomain);
+            }
         }        
     }
 

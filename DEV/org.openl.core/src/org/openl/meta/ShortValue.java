@@ -253,6 +253,35 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     //ADD
+    public static ShortValue add(ShortValue value1, String value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 == null) {
+            return new ShortValue(Short.valueOf(value2));
+        }
+        
+        short v = Short.valueOf(value2);
+
+        return new org.openl.meta.ShortValue(value1, new ShortValue(v), Operators.add(value1.getValue(), v),
+            Formulas.ADD);
+    }
+    
+    public static ShortValue add(String value1, ShortValue value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return new ShortValue(Short.valueOf(value1));
+        }
+        
+        short v = Short.valueOf(value1);
+        
+        return new org.openl.meta.ShortValue(new ShortValue(v), value2, Operators.add(v, value2.getValue()),
+            Formulas.ADD);
+    }    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.ShortValue
@@ -670,6 +699,28 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
+    }
+    
+    public static String autocast(ShortValue x, String y) {
+        if (x == null) {
+            return null;
+        }
+        return x.toString();
+    }
+    
+    public static Integer distance(ShortValue x, String y) {
+        return 11;
+    }
+
+    public static ShortValue autocast(String x, ShortValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new ShortValue(Short.valueOf(x));
+    }
+    
+    public static Integer distance(String x, ShortValue y) {
+        return 10;
     }
 
     // ******* Casts*************

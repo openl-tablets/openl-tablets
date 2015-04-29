@@ -188,7 +188,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         List<ITableProperties> propertiesFromMethods = getMethodsProperties();
 
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods)) {
+            if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
                 return true;
             }
         }
@@ -271,7 +271,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         // get only dimensional properties from methods properties
         //
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods)) {
+            if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
                 conditions.add(DispatcherTableColumnMaker.makeColumn(dimensionProperty, rules));
             }
         }
@@ -463,6 +463,10 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             result = true;
         }
         return result;
+    }
+
+    private boolean isSuitable(String dimensionPropertyName, List<ITableProperties> methodsProperties) {
+        return isPropertyPresented(dimensionPropertyName, methodsProperties) && !"origin".equals(dimensionPropertyName);
     }
 
 }

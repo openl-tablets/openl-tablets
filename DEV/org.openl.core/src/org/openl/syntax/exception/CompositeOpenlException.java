@@ -1,11 +1,11 @@
 package org.openl.syntax.exception;
 
+import org.openl.message.OpenLMessage;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.openl.message.OpenLMessage;
 
 /**
  * Added possibility to handle list of {@link OpenLMessage}.
@@ -30,8 +30,11 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
+        printWriter.println("+++There are " + errorMessages.size() + " exceptions");
+
         for (OpenLMessage message : errorMessages) {
             printWriter.println(message);
+            printWriter.println("-------------------------------------------------------------------------------------");
         }
 
         printWriter.close();

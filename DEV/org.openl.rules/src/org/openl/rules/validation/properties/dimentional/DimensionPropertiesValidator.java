@@ -1,9 +1,5 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
@@ -15,13 +11,15 @@ import org.openl.rules.dtx.validator.DecisionTableValidator;
 import org.openl.rules.dtx.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class DimensionPropertiesValidator extends TablesValidator {
     
@@ -30,34 +28,36 @@ public class DimensionPropertiesValidator extends TablesValidator {
     @SuppressWarnings("unused")
 	@Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {        
-        ValidationResult validationResult = null;  
-        
-        Map<String, IDomainAdaptor> propertiesDomains = 
-            getDomainsForDimensionalProperties(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
-        
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            // search for generated dispatcher decision table for dimension properties.
-            //
-            if (isDimensionPropertiesDispatcherTable(tsn)) {
-                // FIXME currently validation of dispatcher tables is disabled
-                // because of "match by default" case(when context value == null
-                // the all tables with matches by corresponding property).
-                //
-                // check {context value} == null || {matching expression} was
-                // introduced and validation mechanism does not works with such
-                // expressions.
-                OpenLMessage validationMessage = null;//validateDecisionTable(tsn, propertiesDomains, openClass);
-                if (validationMessage != null) {
-                    if (validationResult == null) {
-                        validationResult = new ValidationResult(ValidationStatus.FAIL); 
-                    } 
-                    ValidationUtils.addValidationMessage(validationResult, validationMessage);
-                }
-            }                        
-        }
-        if (validationResult != null) {
-            return validationResult;
-        }
+        ValidationResult validationResult = null;
+
+        // FIXME: currently validation of dispatcher tables is disabled
+        // because of "match by default" case(when context value == null
+        // the all tables with matches by corresponding property).
+        //
+        // check {context value} == null || {matching expression} was
+        // introduced and validation mechanism does not works with such
+        // expressions.
+
+//        Map<String, IDomainAdaptor> propertiesDomains =
+//            getDomainsForDimensionalProperties(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
+//
+//        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+//            // search for generated dispatcher decision table for dimension properties.
+//            //
+//            if (isDimensionPropertiesDispatcherTable(tsn)) {
+//
+//                OpenLMessage validationMessage = null;//validateDecisionTable(tsn, propertiesDomains, openClass);
+//                if (validationMessage != null) {
+//                    if (validationResult == null) {
+//                        validationResult = new ValidationResult(ValidationStatus.FAIL);
+//                    }
+//                    ValidationUtils.addValidationMessage(validationResult, validationMessage);
+//                }
+//            }
+//        }
+//        if (validationResult != null) {
+//            return validationResult;
+//        }
         return ValidationUtils.validationSuccess();
     }
     
