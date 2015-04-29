@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[34];
+		definitions = new TablePropertyDefinition[35];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -480,6 +480,20 @@ public class DefaultPropertyDefinitions
 		definitions[33].setSystem(false);
 		definitions[33].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[34] = new TablePropertyDefinition();
+		definitions[34].setConstraints(new org.openl.rules.table.constraints.Constraints("data: origins"));
+		definitions[34].setDescription("Indicates origin of the rules to allow hierarchy of more generic and more specif"
+		 + "ic rules");
+		definitions[34].setDimensional(true);
+		definitions[34].setDisplayName("Origin");
+		definitions[34].setGroup("Business Dimension");
+		definitions[34].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[34].setName("origin");
+		definitions[34].setPrimaryKey(false);
+		definitions[34].setSecurityFilter("no");
+		definitions[34].setSystem(false);
+		definitions[34].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.OriginsEnum.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

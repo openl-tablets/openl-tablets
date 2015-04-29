@@ -46,8 +46,8 @@ public class TestFloatValue {
 
     @Test
     public void testAdd() {
-        assertEquals("0.0", FloatValue.add(null, new FloatValue(0)).toString());
-        assertEquals("0.0", FloatValue.add(new FloatValue(0), null).toString());
+        assertEquals("0.0", FloatValue.add((FloatValue) null, new FloatValue(0)).toString());
+        assertEquals("0.0", FloatValue.add(new FloatValue(0), (FloatValue) null).toString());
     }
 }
     

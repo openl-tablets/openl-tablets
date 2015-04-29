@@ -2,6 +2,7 @@ package org.openl.rules.datatype;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.TestHelper;
 
@@ -51,6 +52,7 @@ public class WrongAliasDatatypeTest {
 	}
 
 	@Test(expected = Exception.class)
+	@Ignore
 	public void test6() {
 		File xlsFile = new File(
 				"test/rules/datatype/WrongAliasDatatypeUsage2Test.xlsx");
@@ -61,6 +63,7 @@ public class WrongAliasDatatypeTest {
 	}
 
 	@Test(expected = Exception.class)
+	@Ignore
 	public void test7() {
 		File xlsFile = new File(
 				"test/rules/datatype/WrongAliasDatatypeUsage3Test.xlsx");
