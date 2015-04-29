@@ -1,10 +1,5 @@
 package org.openl.codegen.tools;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.codegen.FileCodeGen;
 import org.openl.codegen.ICodeGenAdaptor;
 import org.openl.codegen.JavaCodeGen;
@@ -12,13 +7,7 @@ import org.openl.codegen.tools.generator.SourceGenerator;
 import org.openl.codegen.tools.loader.IContextPropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablePropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablesPriorityLoader;
-import org.openl.codegen.tools.type.ContextPropertyDefinitionWrapper;
-import org.openl.codegen.tools.type.ContextPropertyDefinitionWrappers;
-import org.openl.codegen.tools.type.TablePriorityRuleWrappers;
-import org.openl.codegen.tools.type.TablePropertyDefinitionWrapper;
-import org.openl.codegen.tools.type.TablePropertyDefinitionWrappers;
-import org.openl.codegen.tools.type.TablePropertyValidatorsWrapper;
-import org.openl.codegen.tools.type.TablePropertyValidatorsWrappers;
+import org.openl.codegen.tools.type.*;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
@@ -27,13 +16,14 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
-import org.openl.rules.types.impl.DefaultPropertiesIntersectionFinder;
-import org.openl.rules.types.impl.DefaultTablePropertiesSorter;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcherHelper;
+import org.openl.rules.types.impl.*;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.xls.RulesCompileContext;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GenRulesCode {
 
@@ -199,7 +189,7 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalProperties();
+                .getDimensionalPropertiesWithMatchExpression();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
@@ -213,7 +203,7 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalProperties();
+                .getDimensionalPropertiesWithContextVar();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
@@ -225,7 +215,7 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalProperties();
+                .getDimensionalPropertiesWithMatchExpression();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);

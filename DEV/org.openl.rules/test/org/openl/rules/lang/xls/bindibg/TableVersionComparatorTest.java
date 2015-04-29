@@ -1,11 +1,11 @@
 package org.openl.rules.lang.xls.bindibg;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.table.properties.TableProperties;
+
+import static org.junit.Assert.assertEquals;
 
 public class TableVersionComparatorTest {
 
@@ -37,6 +37,20 @@ public class TableVersionComparatorTest {
     }
 
     @Test
+    public void testLess() {
+        first.setActive(true);
+        second.setActive(false);
+        assertEquals(-1, comparator.compare(first, second));
+    }
+
+    @Test
+    public void testMore() {
+        first.setActive(false);
+        second.setActive(true);
+        assertEquals(1, comparator.compare(first, second));
+    }
+
+    @Test
     public void testCompareNullProperties() {
         first.setActive(null);
         second.setActive(Boolean.TRUE);
@@ -56,6 +70,20 @@ public class TableVersionComparatorTest {
 
         first.setActive(Boolean.FALSE);
         second.setActive(null);
+        assertEquals(1, comparator.compare(first, second));
+    }
+
+    @Test
+    public void testLessByActive() {
+        first.setActive(true);
+        second.setActive(false);
+        assertEquals(-1, comparator.compare(first, second));
+    }
+
+    @Test
+    public void testMoreByActive() {
+        first.setActive(false);
+        second.setActive(true);
         assertEquals(1, comparator.compare(first, second));
     }
 }

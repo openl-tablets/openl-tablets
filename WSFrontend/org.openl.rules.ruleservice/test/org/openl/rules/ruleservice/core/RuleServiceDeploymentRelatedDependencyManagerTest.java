@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.project.model.Module;
@@ -24,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:RuleServiceDeploymentRelatedDependencyManagerTest/openl-ruleservice-beans.xml" })
+@Ignore
 public class RuleServiceDeploymentRelatedDependencyManagerTest implements ApplicationContextAware {
 
     public static class TestInitializingListener implements InitializingModuleListener {

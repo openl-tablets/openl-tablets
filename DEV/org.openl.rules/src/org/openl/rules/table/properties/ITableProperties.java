@@ -1,11 +1,11 @@
 package org.openl.rules.table.properties;
 
-import java.util.Map;
-
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+
+import java.util.Map;
 
 public interface ITableProperties {
     
@@ -190,6 +190,8 @@ public interface ITableProperties {
 	void setPrecision(java.lang.String precision);
 	java.lang.Boolean getAutoType();
 	void setAutoType(java.lang.Boolean autoType);
+	org.openl.rules.enumeration.OriginsEnum getOrigin();
+	void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
 // <<< END INSERT >>>
 	
 	

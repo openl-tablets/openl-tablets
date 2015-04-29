@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -2391,6 +2392,12 @@ public class RulesUtils {
             throw new OpenLRuntimeException(stringDate);
         }
         return stringDate;
+    }
+
+    public static Date stringToDate(String value) throws ParseException {
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+
+        return df.parse(value);
     }
 
     public static String format(double d) {

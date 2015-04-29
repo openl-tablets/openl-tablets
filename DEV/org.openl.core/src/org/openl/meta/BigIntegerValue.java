@@ -254,6 +254,36 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     //ADD
+    public static BigIntegerValue add(BigIntegerValue value1, String value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 == null) {
+            return new BigIntegerValue(new BigInteger(value2));
+        }
+        
+        BigInteger v = new BigInteger(value2);
+
+        return new org.openl.meta.BigIntegerValue(value1, new BigIntegerValue(v), Operators.add(value1.getValue(), v),
+            Formulas.ADD);
+    }
+    
+    public static BigIntegerValue add(String value1, BigIntegerValue value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return new BigIntegerValue(new BigInteger(value1));
+        }
+        
+        BigInteger v = new BigInteger(value1);
+        
+        return new org.openl.meta.BigIntegerValue(new BigIntegerValue(v), value2, Operators.add(v, value2.getValue()),
+            Formulas.ADD);
+    }
+    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.BigIntegerValue
@@ -275,7 +305,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         return new org.openl.meta.BigIntegerValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
-}
+    }
 
     // MULTIPLY
      /**
@@ -650,6 +680,28 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             return null;
         }
         return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
+    }
+    
+    public static String autocast(BigIntegerValue x, String y) {
+        if (x == null) {
+            return null;
+        }
+        return x.toString();
+    }
+    
+    public static Integer distance(BigIntegerValue x, String y) {
+        return 11;
+    }
+
+    public static BigIntegerValue autocast(String x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(new BigInteger(x));
+    }
+    
+    public static Integer distance(String x, BigIntegerValue y) {
+        return 10;
     }
 
     // ******* Casts 8*************

@@ -1,14 +1,7 @@
 package org.openl.meta;
 
-import java.util.Arrays;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.DoubleValue.DoubleValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -17,6 +10,11 @@ import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Arrays;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(DoubleValueAdapter.class)
@@ -37,7 +35,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return dv;
         }
     }
-    
+
     public static class DoubleValueAdapter extends XmlAdapter<Double,DoubleValue> {
         public DoubleValue unmarshal(Double val) throws Exception {
             return new DoubleValue(val);
@@ -288,6 +286,36 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     //ADD
+    public static DoubleValue add(DoubleValue value1, String value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 == null) {
+            return new DoubleValue(Double.valueOf(value2));
+        }
+        
+        double v = Double.valueOf(value2);
+
+        return new org.openl.meta.DoubleValue(value1, new DoubleValue(v), Operators.add(value1.getValue(), v),
+            Formulas.ADD);
+    }
+    
+    public static DoubleValue add(String value1, DoubleValue value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return new DoubleValue(Double.valueOf(value1));
+        }
+        
+        double v = Double.valueOf(value1);
+        
+        return new org.openl.meta.DoubleValue(new DoubleValue(v), value2, Operators.add(v, value2.getValue()),
+            Formulas.ADD);
+    } 
+    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.DoubleValue
@@ -387,7 +415,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+
+            // FIXME: temporary commented the throwing exception
+            // Is needed for the one of the commercial products, pls contact Denis Levchuk
+            //
+            return new org.openl.meta.DoubleValue(value1, value2, Double.POSITIVE_INFINITY, Formulas.DIVIDE);
         }
 
         return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
@@ -661,7 +693,38 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return Operators.eq(getValue(), secondObj.getValue());
         }
 
+        // FIXME: Temporary fix for the commercial line to support
+        // var == "0" where var is of type DoubleValue
+        // In this case autocast should work, need investigation
+        //
+        if (obj instanceof String) {
+            double d;
+            try
+            {
+                d = Double.parseDouble((String)obj);
+            }
+            catch(NumberFormatException nfe)
+            {
+                return false;
+            }
+
+            return Operators.eq(getValue(), d);
+        }
+
         return false;
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 
     // sort
@@ -702,6 +765,29 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
+    }
+
+    public static String autocast(DoubleValue x, String y) {
+        if (x == null) {
+            return null;
+        }
+
+        return x.toString();
+    }
+    
+    public static Integer distance(DoubleValue x, String y) {
+        return 11;
+    }
+
+    public static DoubleValue autocast(String x, DoubleValue y) {
+        if (x == null || "".equals(x)) {
+            return null;
+        }
+        return new DoubleValue(Double.valueOf(x));
+    }
+    
+    public static Integer distance(String x, DoubleValue y) {
+        return 10;
     }
 
     // ******* Casts *************
