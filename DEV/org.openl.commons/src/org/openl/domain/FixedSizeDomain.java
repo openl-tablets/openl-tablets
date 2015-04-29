@@ -1,7 +1,10 @@
 package org.openl.domain;
 
-public abstract class FixedSizeDomain<T> implements IFiniteDomain<T> {
+import javax.xml.bind.annotation.XmlTransient;
 
+public abstract class FixedSizeDomain<T> implements IFiniteDomain<T> {
+    
+    @XmlTransient
     final public boolean isFinite() {
         return true;
     }

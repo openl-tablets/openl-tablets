@@ -17,7 +17,7 @@ import org.junit.Test;
 public class JAXRSInterfaceEnhancerHelperTest {
 
     public static interface TestInterface {
-        void someMethod(String arg);
+        void someMethod(int arg);
     }
 
     public static interface TestParameterInterface {
@@ -90,7 +90,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
         boolean getAnnotationExists = false;
         boolean pathParamAnnotationExists = false;
 
-        Method someMethod = enchancedClass.getMethod("someMethod", String.class);
+        Method someMethod = enchancedClass.getMethod("someMethod", int.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
                 Path path = (Path) annotation;
@@ -219,10 +219,10 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
             if ("someMethod2".equals(method.getName())) {
                 i++;
-                Annotation getAnnotation = method.getAnnotation(GET.class);
-                Assert.assertNotNull("Expected GET annotation!", getAnnotation);
+                Annotation getAnnotation = method.getAnnotation(POST.class);
+                Assert.assertNotNull("Expected POST annotation!", getAnnotation);
 
-                Assert.assertEquals("Expected two parameters in method!", 2, method.getParameterTypes().length);
+                Assert.assertEquals("Expected one parameters in method!", 1, method.getParameterTypes().length);
             }
             if ("someMethod3".equals(method.getName())) {
                 i++;
@@ -254,8 +254,8 @@ public class JAXRSInterfaceEnhancerHelperTest {
                 Annotation pathAnnotation = method.getAnnotation(Path.class);
                 Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
 
-                Assert.assertEquals("Expected two parameters in method!", 2, method.getParameterTypes().length);
-                Assert.assertEquals("Expected \"someMethod\" value in annotation!", "/someMethod/{arg0: .*}/{arg1: .*}", ((Path)pathAnnotation).value());
+                Assert.assertEquals("Expected one parameters in method!", 1, method.getParameterTypes().length);
+                Assert.assertEquals("Expected \"someMethod\" value in annotation!", "/someMethod", ((Path)pathAnnotation).value());
             }
             if ("someMethod2".equals(method.getName())) {
                 i++;

@@ -2,13 +2,9 @@ package org.openl.rules.datatype.binding;
 
 import static org.junit.Assert.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -41,7 +37,7 @@ public class DatatypeSorterExcelTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void test_InheritanceOrder() {
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(DatatypeHelper.createTypesMap(getTableSyntaxNodes()), null);
+        TableSyntaxNode[] ordered = new DatatypesSorter().sort(getTableSyntaxNodes(), null);
         assertEquals(5, ordered.length);
         assertEquals("ParentType", getDatatypeTypeName(ordered[0]));
         assertEquals("ChildType", getDatatypeTypeName(ordered[1]));

@@ -29,7 +29,6 @@ public final class OpenLService {
     private String url;
     private String serviceClassName;
     private Class<?> serviceClass;
-    private Class<?> instanceClass;
     private Object serviceBean;
     private IOpenClass openClass;
     private boolean provideRuntimeContext = false;
@@ -37,7 +36,8 @@ public final class OpenLService {
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Set<String> publishers;
-
+    private ClassLoader classLoader;
+    
     /**
      * Not full constructor, by default variations is not supported.
      * 
@@ -48,20 +48,28 @@ public final class OpenLService {
      * @param modules a list of modules for load
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            Set<String> publishers, Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules);
+            Set<String> publishers, Collection<Module> modules, ClassLoader classLoader) {
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules, classLoader);
     }
 
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, null, modules);
+            Collection<Module> modules, ClassLoader classLoader) {
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, null, modules, classLoader);
     }
 
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            boolean provideVariations, Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, provideVariations, null, modules);
+            boolean provideVariations, Collection<Module> modules, ClassLoader classLoader) {
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, provideVariations, null, modules, classLoader);
     }
-
+    
+    /**
+     * Returns service classloader
+     * @return classLoader
+     */
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+    
     /**
      * Main constructor.
      * 
@@ -73,7 +81,7 @@ public final class OpenLService {
      * @param modules a list of modules for load
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
-            boolean provideVariations, Set<String> publishers, Collection<Module> modules) {
+            boolean provideVariations, Set<String> publishers, Collection<Module> modules, ClassLoader classLoader) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
         }
@@ -93,11 +101,12 @@ public final class OpenLService {
         } else {
             this.publishers = Collections.emptySet();
         }
+        this.classLoader = classLoader;
     }
 
     private OpenLService(OpenLServiceBuilder builder) {
         this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext,
-                builder.provideVariations, builder.publishers, builder.modules);
+                builder.provideVariations, builder.publishers, builder.modules, builder.classLoader);
     }
 
     /**
@@ -148,6 +157,10 @@ public final class OpenLService {
     public String getServiceClassName() {
         return serviceClassName;
     }
+    
+    void setServiceClassName(String serviceClassName) {
+        this.serviceClassName = serviceClassName;
+    }
 
     /**
      * Return provideRuntimeContext value. This value is define that service
@@ -185,17 +198,13 @@ public final class OpenLService {
     public Class<?> getServiceClass() {
         return serviceClass;
     }
+    
+    void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
     void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
-    }
-
-    public Class<?> getInstanceClass() {
-        return instanceClass;
-    }
-
-    void setInstanceClass(Class<?> instanceClass) {
-        this.instanceClass = instanceClass;
     }
 
     public Object getServiceBean() {
@@ -248,13 +257,12 @@ public final class OpenLService {
      * Unregister ClassLoaders of this service.
      */
     public void destroy() {
-        if (serviceClass != null) {
-            ClassLoader classLoader = serviceClass.getClassLoader();
+        if (getClassLoader() != null) {
+            ClassLoader classLoader = getClassLoader();
             while (classLoader instanceof SimpleBundleClassLoader) {
                 JavaOpenClass.resetClassloader(classLoader);
                 String2DataConvertorFactory.unregisterClassLoader(classLoader);
                 ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
-
                 classLoader = classLoader.getParent();
             }
         }
@@ -275,7 +283,13 @@ public final class OpenLService {
         private boolean useRuleServiceRuntimeContext = false;
         private Collection<Module> modules;
         private Set<String> publishers;
+        private ClassLoader classLoader;
 
+        public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
+            this.classLoader = classLoader;
+            return this;
+        }
+        
         public OpenLServiceBuilder setPublishers(Set<String> publishers) {
             if (publishers == null) {
                 this.publishers = new HashSet<String>(0);

@@ -11,6 +11,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultField;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
@@ -574,7 +575,7 @@ public class DataTableBindHelper {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
             
-            if (fieldIndex > 0 && fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField && fieldAccessorChain[fieldIndex - 1].getType().getOpenClass().equals(JavaOpenClass.OBJECT)){
+            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1].getType().getOpenClass().equals(JavaOpenClass.OBJECT)){
                 if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)){
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                     aOpenField.setType(new SpreadsheetResultOpenClass(SpreadsheetResult.class));

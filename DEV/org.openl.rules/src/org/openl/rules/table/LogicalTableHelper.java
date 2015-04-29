@@ -188,4 +188,91 @@ public class LogicalTableHelper {
     
     }
 
+	public static ILogicalTable unmergeColumns(ILogicalTable table, int fromColumn, int toColumn) {
+		
+		IGridTable gt = table.getSource();
+		
+		int gridWidth = gt.getWidth();
+		
+		if (table.getWidth() == gridWidth)
+			return table;
+		
+		int[] columnOffsets = getColumnOffsets(table);
+		
+		int gridFromOffset = columnOffsets[fromColumn];
+		
+		int gridToOffset = columnOffsets[toColumn];
+		
+		if (gridToOffset - gridFromOffset == toColumn - fromColumn)
+			return table;
+		
+		
+		int gridColumnsToUnmerge = gridToOffset - gridFromOffset;
+		
+		int restOfColumns = table.getWidth() - toColumn;
+		
+		int newWidth = fromColumn + gridColumnsToUnmerge + restOfColumns;
+		
+		int[] newColumnOffsets = new int[newWidth + 1];
+		
+		System.arraycopy(columnOffsets, 0, newColumnOffsets, 0, fromColumn); //copy beginning
+		
+		int offset = columnOffsets[fromColumn];
+		
+		for (int i = 0; i < gridColumnsToUnmerge; ++i, ++offset) {
+			newColumnOffsets[fromColumn + i] = offset;
+		}
+		
+		System.arraycopy(columnOffsets, toColumn, newColumnOffsets, fromColumn + gridColumnsToUnmerge, restOfColumns+1); //copy the rest+1
+		
+		
+		return new LogicalTable(gt, newColumnOffsets, getRowOffsets(table));
+	}
+	
+	
+    private static int[] getRowOffsets(ILogicalTable table) {
+    	if (table instanceof LogicalTable) {
+            return ((LogicalTable)table).getRowOffset();
+        }
+    	
+    	return calculateRowOffsets(table.getHeight(), table.getSource());
+	}
+
+	private static int[] getColumnOffsets(ILogicalTable table) {
+    	
+    	if (table instanceof LogicalTable) {
+            return ((LogicalTable)table).getColumnOffset();
+        }
+    	
+    	return calculateColumnOffsets(table.getWidth(), table.getSource());
+    	
+	}
+
+	public static int[] calculateColumnOffsets(int width, IGridTable gt) {
+        int[] columnOffset = new int[width + 1];
+        int offset = 0;
+        
+        for (int i = 0, cellWidth = 0; i < width; offset += cellWidth, ++i) {
+            columnOffset[i] = offset;
+            cellWidth = gt.getCell(offset, 0).getWidth();
+        }
+        
+        columnOffset[width] = offset; //last+1 column offset is needed to determine last column's width 
+        return columnOffset;
+    }
+	
+    public static int[] calculateRowOffsets(int height, IGridTable gt) {
+        int[] rowOffset = new int[height + 1];
+        int offset = 0;
+        
+        for (int i = 0, cellHeight = 0; i < height; offset += cellHeight, ++i) {
+            rowOffset[i] = offset;
+            cellHeight = gt.getCell(0, offset).getHeight();
+        }
+        rowOffset[height] = offset;
+        return rowOffset;
+    }
+    
+    
+
 }

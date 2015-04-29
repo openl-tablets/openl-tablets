@@ -28,16 +28,6 @@ public class GridLocation implements ILocation {
             table.getGrid());
     }
 
-    public GridLocation(IGridTable table, int x1, int y1) {
-        start = new GridPosition(table.getGridColumn(x1, y1), table.getGridRow(x1, y1), table.getGrid());
-        end = null;
-    }
-
-    public GridLocation(IGridTable table, int x1, int y1, int x2, int y2) {
-        start = new GridPosition(table.getGridColumn(x1, y1), table.getGridRow(x1, y1), table.getGrid());
-        end = new GridPosition(table.getGridColumn(x2, y2), table.getGridRow(x2, y2), table.getGrid());
-    }
-
     public IPosition getEnd() {
         return end;
     }

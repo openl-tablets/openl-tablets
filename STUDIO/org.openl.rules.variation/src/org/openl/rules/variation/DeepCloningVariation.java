@@ -11,6 +11,8 @@ package org.openl.rules.variation;
  */
 
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.rits.cloning.Cloner;
 
 /**
@@ -19,6 +21,8 @@ import com.rits.cloning.Cloner;
  * 
  * @author PUdalau, Marat Kamalov
  */
+
+@XmlRootElement
 public class DeepCloningVariation extends Variation {
     /**
      * Suffix for generated variation ID if it have not been specified.
@@ -95,6 +99,10 @@ public class DeepCloningVariation extends Variation {
      */
     public Variation getDelegatedVariation() {
         return variation;
+    }
+    
+    public void setDelegatedVariation(Variation variation) {
+        this.variation = variation;
     }
 
 }

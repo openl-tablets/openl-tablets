@@ -28,6 +28,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
@@ -116,16 +117,27 @@ public class BindingContext implements IBindingContext {
 		return type.getField(fieldName, strictMatch);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openl.binding.IBindingContext#findMethod(java.lang.String,
-	 * org.openl.types.IOpenClass[])
-	 */
+
+    static final Object NOT_FOUND = "NOT_FOUND";
+
 	public IMethodCaller findMethodCaller(String namespace, String name,
 			IOpenClass[] parTypes) {
-		return binder.getMethodFactory().getMethodCaller(namespace, name,
-				parTypes, binder.getCastFactory());
+    	MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
+    	Map<MethodKey, Object> methodCache = ((Binder)binder).methodCache;
+
+    	synchronized (methodCache ) {
+        	Object res = methodCache.get(key);
+        	if (res == null)
+        	{
+        		IMethodCaller found = binder.getMethodFactory().getMethodCaller(namespace, name,
+        				parTypes, binder.getCastFactory());
+        		methodCache.put(key, found == null ?  NOT_FOUND : found);
+        		return found;
+        	}
+        	if (res == NOT_FOUND)
+        		return null;
+        	return (IMethodCaller) res;
+		}
 	}
 
 	/*

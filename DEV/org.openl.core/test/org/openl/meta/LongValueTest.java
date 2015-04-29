@@ -11,8 +11,8 @@ public class LongValueTest {
     
     @Test
     public void testEquals() {
-        LongValue value1 = new LongValue(2000000000, new ValueMetaInfo("shortName", "fullName", null));
-        LongValue value2 = new LongValue(2000000000, new ValueMetaInfo("shortName2", "fullName2", null));
+        LongValue value1 = new LongValue(2000000000);
+        LongValue value2 = new LongValue(2000000000);
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);

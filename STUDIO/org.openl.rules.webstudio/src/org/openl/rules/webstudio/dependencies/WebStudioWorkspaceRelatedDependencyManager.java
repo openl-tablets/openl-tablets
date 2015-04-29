@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.*;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
@@ -11,13 +13,11 @@ import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
 public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
-    private List<IDependencyLoader> dependencyLoaders;
+    private List<IDependencyLoader> dependencyLoaders = null;
 
     private List<ProjectDescriptor> projects;
 
@@ -25,12 +25,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private final List<String> moduleNames = new ArrayList<String>();
 
-    private Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+    private Collection<ProjectDescriptor> projectDescriptors = null;
 
     private boolean singleModuleMode = false;
 
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects,
-                                                      boolean singleModuleMode) {
+            boolean singleModuleMode) {
         super();
         if (projects == null) {
             throw new IllegalArgumentException("projects can't be null!");
@@ -54,40 +54,48 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     }
 
     @Override
-    protected Collection<ProjectDescriptor> getProjectDescriptors() {
+    public Collection<ProjectDescriptor> getProjectDescriptors() {
+        if (dependencyLoaders == null) {
+            initDependencyLoaders();
+        }
         return projectDescriptors;
     }
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders != null) {
-            return dependencyLoaders;
+        if (dependencyLoaders == null) {
+            initDependencyLoaders();
         }
-        dependencyLoaders = new ArrayList<IDependencyLoader>();
-        for (ProjectDescriptor project : projects) {
-            try {
-                Collection<Module> modulesOfProject = project.getModules();
-                if (!modulesOfProject.isEmpty()) {
-                    for (final Module m : modulesOfProject) {
-                        dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
-                                Arrays.asList(m),
-                                singleModuleMode));
-                        moduleNames.add(m.getName());
-                    }
-                }
+        return dependencyLoaders;
+    }
 
-                String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
-                IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
-                        project.getModules(),
-                        singleModuleMode);
-                projectDescriptors.add(project);
-                dependencyLoaders.add(projectLoader);
-            } catch (Exception e) {
-                log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+    private synchronized void initDependencyLoaders() {
+        if (projectDescriptors == null && dependencyLoaders == null) {
+            dependencyLoaders = new ArrayList<IDependencyLoader>();
+            projectDescriptors = new ArrayList<ProjectDescriptor>();
+            for (ProjectDescriptor project : projects) {
+                try {
+                    Collection<Module> modulesOfProject = project.getModules();
+                    if (!modulesOfProject.isEmpty()) {
+                        for (final Module m : modulesOfProject) {
+                            dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
+                                    Collections.singletonList(m),
+                                    singleModuleMode));
+                            moduleNames.add(m.getName());
+                        }
+                    }
+
+                    String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
+                    IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
+                            project.getModules(),
+                            singleModuleMode);
+                    projectDescriptors.add(project);
+                    dependencyLoaders.add(projectLoader);
+                } catch (Exception e) {
+                    log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                }
             }
         }
-
-        return dependencyLoaders;
     }
 
     @Override
@@ -121,7 +129,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
         if (projectToReset != null) {
             clearClassLoader(projectToReset.getName());
-            String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectToReset.getName());
+            String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(
+                    projectToReset.getName());
 
             for (IDependencyLoader dependencyLoader : dependencyLoaders) {
                 WebStudioDependencyLoader loader = (WebStudioDependencyLoader) dependencyLoader;
@@ -174,5 +183,18 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     public List<String> getModuleNames() {
         return moduleNames;
+    }
+
+    public Collection<CompiledDependency> getCompiledDependencies() {
+        Collection<CompiledDependency> dependencies = new ArrayList<CompiledDependency>();
+
+        for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
+            CompiledDependency compiledDependency = ((WebStudioDependencyLoader) dependencyLoader).getCompiledDependency();
+            if (compiledDependency != null) {
+                dependencies.add(compiledDependency);
+            }
+        }
+
+        return dependencies;
     }
 }

@@ -94,7 +94,7 @@
 
         initFilter();
 
-        var productionFlag = #{repositorySelectNodeStateHolder.isProductionNode()};
+        var productionFlag = #{repositorySelectNodeStateHolder.isProductionRepository()};
         if(productionFlag) {
             goToRepo('production', 'design');
         } else {

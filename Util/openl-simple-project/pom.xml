@@ -6,7 +6,7 @@
     <version>1.0.0</version>
     <name>OpenL Simple Project</name>
     <properties>
-        <openl.rules.version>5.16.0.1-SNAPSHOT</openl.rules.version>
+        <openl.rules.version>5.16.0-SNAPSHOT</openl.rules.version>
     </properties>
     <dependencies>
         <dependency>
@@ -43,7 +43,7 @@
                             <displayName>Template Rules</displayName>
                             <targetClass>template.Wrapper</targetClass>
                             <!-- Rules root document. Usually excel file on file system. -->
-                            <srcFile>src/main/openl/rules/OPENL-Base-DS-CA-04012013-V01.xlsx</srcFile>
+                            <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
                         </generateInterface>
                     </generateInterfaces>
                 </configuration>

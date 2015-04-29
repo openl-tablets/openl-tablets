@@ -1,14 +1,12 @@
 package org.openl.meta.explanation;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
-import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.NumberFormula;
-import org.openl.meta.number.NumberFunction;
 import org.openl.meta.number.NumberOperations;
-import org.openl.meta.number.NumberValue;
 import org.openl.util.tree.ITreeElement;
 
 /**
@@ -18,93 +16,120 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends NumberValue<T> implements
+public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements Comparable<Number>,
     ExplanationForNumber<T> {
     
     private static final long serialVersionUID = -5461468496220613277L;
     
     /** 
      * Explanator for current value.
-     * Its implementation depends on the {@link #getValueType()}, for each value type there is it`s own 
-     * explanator. 
-     */    
+     */
     private transient ExplanationForNumber<T> explanation;
 
-    public ExplanationNumberValue() {        
-        this.explanation = new SingleValueExplanation<T>();
-    }
-    
-    public ExplanationNumberValue(IMetaInfo metaInfo) {
-        this.explanation = new SingleValueExplanation<T>(metaInfo);
-    }
-
-    public ExplanationNumberValue(String name) {
-        this.explanation = new SingleValueExplanation<T>(name);
+    public ExplanationNumberValue() {
     }
     
     /** Formula constructor */
-    public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {   
-        super(new NumberFormula<T>(dv1, dv2, operand));
-        
-        /** initialize explanation for formula value */ 
-        this.explanation = new FormulaExplanationValue<T>(getFormula());
+    public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {
+        /** initialize explanation for formula value */
+        this.explanation = new FormulaExplanationValue<T>(dv1, dv2, operand);
     }
     
     /** Function constructor */
-    public ExplanationNumberValue(T result, NumberOperations function, T[] params) {        
-        super(new NumberFunction<T>(function, params, result));
-        
+    public ExplanationNumberValue(NumberOperations function, T[] params) {
         /** initialize explanation for function value */
-        this.explanation = new FunctionExplanationValue<T>(getFunction());
+        this.explanation = new FunctionExplanationValue<T>(function, params);
     }
     
     /** Casting constructor */
     @SuppressWarnings("unchecked")
-    public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {   
-        super(new NumberCast(previousValue, operand));
-        
-        /** initialize explanation for cast value */ 
-        this.explanation = new CastExplanationValue(getCast());
+    public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {
+        /** initialize explanation for cast value */
+        this.explanation = new CastExplanationValue(previousValue, operand);
+    }
+
+    /**
+     * @return explanation for a formula value.
+     */
+    public FormulaExplanationValue<T> getFormula() {
+        return (FormulaExplanationValue<T>) explanation;
+    }
+
+    /**
+     * @return explanation for a function value.
+     */
+    public FunctionExplanationValue<T> getFunction() {
+        return (FunctionExplanationValue<T>) explanation;
+    }
+
+    /**
+     * @return explanation for a cast value.
+     */
+    public CastExplanationValue getCast() {
+        return (CastExplanationValue) explanation;
+    }
+
+    public boolean isFormula() {
+        return explanation instanceof FormulaExplanationValue;
+    }
+
+    public boolean isFunction() {
+        return explanation instanceof FunctionExplanationValue;
+    }
+
+    public boolean isCast() {
+        return explanation instanceof CastExplanationValue;
     }
 
     public abstract T copy(String name);
 
+    /**
+     * Lazy initialization of explanation to reduce memory usage in executionMode=true
+     */
+    private ExplanationForNumber<T> getExplanation() {
+        if (explanation == null) {
+            explanation = new SingleValueExplanation<T>();
+        }
+        return explanation;
+    }
+
+    @XmlTransient
     public IMetaInfo getMetaInfo() {
-        return explanation.getMetaInfo();
+        return getExplanation().getMetaInfo();
     }
     
     public void setMetaInfo(IMetaInfo metaInfo) {
-        explanation.setMetaInfo(metaInfo);
+        getExplanation().setMetaInfo(metaInfo);
     }
     
     public String getName() {
-        return explanation.getName();
+        return getExplanation().getName();
     }
     
     public String getDisplayName(int mode) {
-        return explanation.getDisplayName(mode);
+        return getExplanation().getDisplayName(mode);
     }
 
     public void setFullName(String name) {
-        explanation.setFullName(name);
+        getExplanation().setFullName(name);
     }
 
     public void setName(String name) {
-        explanation.setName(name);
+        getExplanation().setName(name);
     }
 
     public Iterable<? extends ITreeElement<T>> getChildren() {
-        return explanation.getChildren();
+        return getExplanation().getChildren();
     }
 
     public boolean isLeaf() {
-        return explanation.isLeaf();
+        return getExplanation().isLeaf();
     }
 
     public String getType() {
-        return explanation.getType();
+        return getExplanation().getType();
     }
-    
+
     @SuppressWarnings("unchecked")
     public T getObject() {    
         return (T) this;
@@ -121,8 +146,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      * @param result
      * @return
      */
-    protected static <T extends NumberValue<T>> NumberValue<T> getAppropriateValue(NumberValue<T>[] values, NumberValue<?> result) {
-        for (NumberValue<T> value : values) {
+    protected static <T extends ExplanationNumberValue<T>> ExplanationNumberValue<T> getAppropriateValue(ExplanationNumberValue<T>[] values, ExplanationNumberValue<?> result) {
+        for (ExplanationNumberValue<T> value : values) {
             if (value == result || value != null && value.equals(result)) {
                 return value;
             }

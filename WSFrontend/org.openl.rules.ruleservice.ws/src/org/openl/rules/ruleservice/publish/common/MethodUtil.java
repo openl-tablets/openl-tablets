@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
@@ -46,12 +46,14 @@ public final class MethodUtil {
                     boolean f = true;
                     boolean skipRuntimeContextParameter = false;
                     boolean variationPackIsLastParameter = false;
+                    int j = 0;
                     for (Class<?> clazz : method.getParameterTypes()) {
+                        j++;
                         if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
                             skipRuntimeContextParameter = true;
                             continue;
                         }
-                        if (i == method.getParameterTypes().length - 1 && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
+                        if (j == method.getParameterTypes().length && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
                             variationPackIsLastParameter = true;
                             continue;
                         }
@@ -71,7 +73,8 @@ public final class MethodUtil {
                             parameterNames.add("runtimeContext");
                         }
                         for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                            parameterNames.add(WordUtils.uncapitalize(m.getSignature().getParameterName(i)));
+                            String pName = convertParameterName(m.getSignature().getParameterName(i));
+                            parameterNames.add(pName);
                         }
                         if (variationPackIsLastParameter) {
                             parameterNames.add("variationPack");
@@ -86,5 +89,17 @@ public final class MethodUtil {
             parameterNames[i] = "arg" + i;
         }
         return parameterNames;
+    }
+
+    public static String convertParameterName(String pName) {
+        if (pName.length() == 1){
+            return pName.toLowerCase();
+        }else{
+            if (pName.length() > 1 && Character.isUpperCase(pName.charAt(1))){
+                return StringUtils.capitalize(pName);
+            }else{
+                return StringUtils.uncapitalize(pName);
+            }
+        }
     }
 }

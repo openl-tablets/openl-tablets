@@ -26,6 +26,8 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
@@ -43,7 +45,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
     }
 
     // TODO fix
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -213,11 +215,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
-    public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
+    public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
-    public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+    public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 

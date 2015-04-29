@@ -2,10 +2,14 @@ package org.openl.rules.webstudio.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringTool;
 
 public class MessageHandler {
@@ -28,9 +32,6 @@ public class MessageHandler {
 
     /**
      * Gets the url for messages that don`t have any sources.
-     *
-     * @param message
-     * @return
      */
     public String getUrlForEmptySource(OpenLMessage message) {
         return WebStudioUtils.getWebStudio().url("message" + "?type" + "=" + message.getSeverity().name()
@@ -39,18 +40,52 @@ public class MessageHandler {
 
     protected String getUri(OpenLMessage message) {
         // Default implementation
-        return null;
+        return message.getSourceLocation();
     }
 
     protected String getUrl(ProjectModel model, String errorUri, OpenLMessage message) {
         String url;
         TableSyntaxNode node = model.getNode(errorUri);
-        if (node != null) {
+
+        if (isCurrentModule(model, node)) {
             // Table belongs to current module
             url = getUrlForCurrentModule(errorUri, node.getId());
         } else {
             // Table belongs to dependent module
-            url = getErrorUrlForDependency(message);
+            if (node != null) {
+                url = getUrlToDependentModule(node);
+            } else {
+                url = getErrorUrlForDependency(message);
+            }
+        }
+        return url;
+    }
+
+    private boolean isCurrentModule(ProjectModel model, TableSyntaxNode node) {
+        ISyntaxNode referencedModule = getModuleNode(node);
+
+        XlsWorkbookSourceCodeModule currentModuleWorkbook = model.getCurrentModuleWorkbook();
+
+        return referencedModule != null && currentModuleWorkbook != null && currentModuleWorkbook.getSource()
+                .equals(referencedModule.getModule());
+    }
+
+    private ISyntaxNode getModuleNode(TableSyntaxNode node) {
+        ISyntaxNode moduleNode = node;
+        while (moduleNode != null) {
+            if (moduleNode instanceof XlsModuleSyntaxNode) {
+                break;
+            } else {
+                moduleNode = moduleNode.getParent();
+            }
+        }
+        return moduleNode;
+    }
+
+    private String getUrlToDependentModule(TableSyntaxNode node) {
+        String url = WebStudioUtils.getWebStudio().url("table", node.getUri());
+        if (url.endsWith("table")) {
+            url += "?" + Constants.REQUEST_PARAM_ID + "=" + node.getId();
         }
         return url;
     }

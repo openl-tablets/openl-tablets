@@ -12,9 +12,7 @@ import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -166,7 +164,7 @@ public class TableBean {
             for (IOpenLTable targetTable : targetTables) {
                 if (targetTable.getMessages().size() > 0) {
                     if (!warningWasAdded){
-                        warnings.add(new OpenLMessage("Tested rules have errors", StringUtils.EMPTY, Severity.WARN));
+                        warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                         warningWasAdded = true;
                     }
                     if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR).isEmpty()){
@@ -185,11 +183,10 @@ public class TableBean {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
-                if (syntaxNode instanceof TableSyntaxNode
-                        && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
+                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
                     warnings.add(warning);
-                } else if (syntaxNode != null) {
-                    String warnUri = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule(), "");
+                } else {
+                    String warnUri = warning.getSourceLocation();
 
                     XlsUrlParser uriParser = new XlsUrlParser();
                     uriParser.parse(warnUri);

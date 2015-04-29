@@ -14,6 +14,9 @@ package org.openl.rules.variation;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * Container of all variations for calculations.
  * 
@@ -24,6 +27,7 @@ import java.util.List;
  * 
  * @author Marat Kamalov
  */
+@XmlRootElement
 public final class VariationsPack {
     private List<Variation> variations = new ArrayList<Variation>();
 
@@ -84,10 +88,15 @@ public final class VariationsPack {
     public List<Variation> getVariations() {
         return variations;
     }
+    
+    public void setVariations(List<Variation> variations) {
+        this.variations = variations;
+    }
 
     /**
      * @return IDs of all variation defined in this pack.
      */
+    @XmlTransient
     public String[] getVariationIDs() {
         String[] ids = new String[variations.size()];
         int i = 0;

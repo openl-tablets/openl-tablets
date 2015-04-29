@@ -28,7 +28,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup  {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -67,7 +67,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(service.getClassLoader());
 
         try {
             ServerFactoryBean svrFactory = getServerFactoryBean();
@@ -79,13 +79,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
 
-                svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
+                svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
-                
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
@@ -127,7 +126,6 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
             removeServiceInfo(serviceName);
-            service.destroy();
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
@@ -213,4 +211,9 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             return server;
         }
     }
+    
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 }

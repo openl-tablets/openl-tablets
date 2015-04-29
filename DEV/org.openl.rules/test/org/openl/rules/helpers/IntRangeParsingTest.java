@@ -103,6 +103,19 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100+"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
+        assertEquals(new IntRange(-4, 2), new IntRange("-4-2"));
+        assertEquals(new IntRange(-4, 2), new IntRange("[-4-2]"));
+    }
+
+    @Test
+    public void testThousandsSeparator() {
+        assertEquals(new IntRange(-123456, 987654), new IntRange("-123,456 - 987,654"));
+        assertEquals(new IntRange(123456, Integer.MAX_VALUE), new IntRange("123,456+"));
+        assertEquals(new IntRange(123457, Integer.MAX_VALUE), new IntRange(">123,456"));
+        assertEquals(new IntRange(123456, 123456), new IntRange("123,456"));
+        assertEquals(new IntRange(123456, 987653), new IntRange("[123,456 - 987,654)"));
+        assertEquals(new IntRange(123456, 987654), new IntRange(">=123,456 <=987,654"));
+        assertEquals(new IntRange(123456, 987654), new IntRange("123,456 and more 987,654 or less"));
     }
 
     @Test

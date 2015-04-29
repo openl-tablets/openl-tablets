@@ -5,46 +5,21 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<import resource="classpath:project-resolver-beans.xml"/>
-	
-	<!-- Folders exclude definition bean-->
-	<bean id="excludedFolders" class="java.util.LinkedHashSet">
-		<constructor-arg>
-			<list>
-				<value>.svn</value>
-				<value>CVS</value>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- Files exclude definition bean-->
-	<bean id="excludedFiles" class="java.util.LinkedHashSet">
-		<constructor-arg>
-			<list>
-				<value>.cvsignore</value>
-			</list>
-		</constructor-arg>
-	</bean>
 
 	<!-- Folder filter bean -->
 	<bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
 		<constructor-arg>
 			<list>
-				<bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
+				<util:constant static-field="org.apache.commons.io.filefilter.DirectoryFileFilter.DIRECTORY" />
 				<bean class="org.apache.commons.io.filefilter.NotFileFilter">
 					<constructor-arg>
-						<bean class="org.apache.commons.io.filefilter.OrFileFilter">
+						<bean class="org.apache.commons.io.filefilter.NameFileFilter">
 							<constructor-arg>
 								<list>
-									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
-										<constructor-arg ref="excludedFolders" />
-									</bean>
-									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
-										<constructor-arg>
-											<list>
-												<value>.studioProps</value>
-											</list>
-										</constructor-arg>
-									</bean>
+									<!-- Exclude the following folders from a workspace -->
+									<value>.studioProps</value>
+									<value>.svn</value>
+									<value>CVS</value>
 								</list>
 							</constructor-arg>
 						</bean>
@@ -62,17 +37,19 @@
 				<bean class="org.apache.commons.io.filefilter.AndFileFilter">
 					<constructor-arg>
 						<list>
-							<util:constant
-								static-field="org.apache.commons.io.filefilter.HiddenFileFilter.VISIBLE" />
+							<util:constant static-field="org.apache.commons.io.filefilter.FileFileFilter.FILE" />
 							<bean class="org.apache.commons.io.filefilter.NotFileFilter">
 								<constructor-arg>
-									<bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
-								</constructor-arg>
-							</bean>
-							<bean class="org.apache.commons.io.filefilter.NotFileFilter">
-								<constructor-arg>
-									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
-										<constructor-arg ref="excludedFiles" />
+									<bean class="org.apache.commons.io.filefilter.WildcardFileFilter">
+										<constructor-arg>
+											<list>
+												<value>.cvsignore</value>
+												<value>*.tmp</value>
+											</list>
+										</constructor-arg>
+										<constructor-arg>
+											<util:constant static-field="org.apache.commons.io.IOCase.INSENSITIVE" />
+										</constructor-arg>
 									</bean>
 								</constructor-arg>
 							</bean>

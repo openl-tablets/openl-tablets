@@ -3,9 +3,14 @@ package org.openl.meta;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.BigDecimalValue.BigDecimalValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -14,6 +19,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(BigDecimalValueAdapter.class)
 public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     private static final long serialVersionUID = 1996508840075924034L;
@@ -22,10 +29,18 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     private static final BigDecimalValue ONE = new BigDecimalValue("1");
     private static final BigDecimalValue MINUS_ONE = new BigDecimalValue("-1");
 
-    // <<< INSERT Functions >>>
     private java.math.BigDecimal value;
 
+    public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal,BigDecimalValue> {
+        public BigDecimalValue unmarshal(BigDecimal val) throws Exception {
+            return new BigDecimalValue(val);
+        }
+        public BigDecimal marshal(BigDecimalValue val) throws Exception {
+            return val.getValue();
+        }
+    }
 
+    // <<< INSERT Functions >>>
     /**
      * Compares two values
      * @param value1
@@ -588,16 +603,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         this.value = value;
     }
 
-    public BigDecimalValue(java.math.BigDecimal value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public BigDecimalValue(java.math.BigDecimal value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public BigDecimalValue(org.openl.meta.BigDecimalValue lv1, org.openl.meta.BigDecimalValue lv2, java.math.BigDecimal value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -816,19 +821,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         value = new BigDecimal(valueString);
     }
 
-    public BigDecimalValue(String value, String name) {
-        super(name);
-        this.value = new BigDecimal(value);
-    }
-
-    public BigDecimalValue(String value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = new BigDecimal(value);
-    }
-
     /** Function constructor **/
     public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.getValue();
     }
 

@@ -28,7 +28,7 @@ import java.util.StringTokenizer;
  */
 public class SourceCodeURLTool implements SourceCodeURLConstants {
 
-    static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module, String openl) {
+    static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
         final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
 
         if (module != null && StringUtils.isEmpty(module.getUri(0))) {
@@ -44,17 +44,6 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         if (location != null && location.isTextLocation()) {
             String src = module.getCode();
             TextInfo info = new TextInfo(src);
-            // position = location.getStart().getAbsolutePosition(info);
-            // lineFrom = location.getStart().getLine(info);
-            // columnFrom = location.getStart().getColumn(info,
-            // module.getTabSize());
-            // lineTo = location.getEnd().getLine(info);
-            // columnTo = location.getEnd().getColumn(info,
-            // module.getTabSize());
-            // lineInfo = "&lineFrom=" + lineFrom + "&columnFrom=" + columnFrom
-            // +
-            // "&lineTo=" + lineTo + "&columnTo=" + columnTo
-            // ;
             try {
                 start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
                 end = location.getEnd().getAbsolutePosition(info) + module.getStartPosition();
@@ -83,14 +72,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             suffix = QSEP;
         }
 
-        if (StringUtils.isNotEmpty(openl)) {
-            url += suffix + OPENL + "=" + openl;
-        }
-
         return url;
-        // testURL(url, stream);
-        // stream.println(" at " + url);
-
     }
 
     static void parseQuery(String query, Map<String, String> map) {
@@ -190,7 +172,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
     static public void printSourceLocation(ILocation location, IOpenSourceCodeModule module, PrintWriter pw) {
 
-        String url = SourceCodeURLTool.makeSourceLocationURL(location, module, "");
+        String url = SourceCodeURLTool.makeSourceLocationURL(location, module);
 
         if (!StringUtils.isEmpty(url)) {
             pw.println(SourceCodeURLConstants.AT_PREFIX + url);

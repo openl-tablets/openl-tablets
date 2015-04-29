@@ -37,4 +37,14 @@ public class IntArrayIterator extends AIntIterator {
         return ary.length;
     }
 
+	@Override
+	public boolean isResetable() {
+		return true;
+	}
+
+	@Override
+	public void reset() {
+		current = 0;
+	}
+
 }

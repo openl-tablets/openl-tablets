@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 
@@ -32,6 +35,7 @@ import com.caucho.hessian.io.Hessian2Output;
  * 
  * @author PUdalau, Marat Kamalov
  */
+@XmlRootElement
 public class VariationsResult<T> {
     private byte[] data;
 
@@ -82,6 +86,10 @@ public class VariationsResult<T> {
     public Map<String, T> getVariationResults() {
         return Collections.unmodifiableMap(variationResults);
     }
+    
+    public void setVariationResults(Map<String, T> variationResults) {
+        this.variationResults = variationResults;
+    }
 
     /**
      * @return All failed calculations of variations.
@@ -89,10 +97,15 @@ public class VariationsResult<T> {
     public Map<String, String> getVariationFailures() {
         return Collections.unmodifiableMap(variationFailures);
     }
+    
+    public void setVariationFailures(Map<String, String> variationFailures) {
+        this.variationFailures = variationFailures;
+    }
 
     /**
      * @return IDs of successfully calculated variations.
      */
+    @XmlTransient
     public String[] getCalculatedVariationIDs() {
         String[] ids = new String[variationResults.size()];
         int i = 0;
@@ -105,6 +118,7 @@ public class VariationsResult<T> {
     /**
      * @return IDs of variations that have been failed and thrown an exception.
      */
+    @XmlTransient
     public String[] getFailedVariationIDs() {
         String[] ids = new String[variationFailures.size()];
         int i = 0;
@@ -179,6 +193,7 @@ public class VariationsResult<T> {
      * @return IDs of all processed variations: successfully calculated and
      *         failed ones.
      */
+    @XmlTransient
     public String[] getAllProcessedVariationIDs() {
         String[] failedIDs = getFailedVariationIDs();
         String[] calculatedIDs = getCalculatedVariationIDs();

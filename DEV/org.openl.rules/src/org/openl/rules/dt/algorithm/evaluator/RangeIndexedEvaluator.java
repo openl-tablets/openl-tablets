@@ -21,6 +21,8 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dt.type.IRangeAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.helpers.IntRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -41,7 +43,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         this.nparams = nparams;
     }
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         if (rangeAdaptor != null && rangeAdaptor.useOriginalSource())
             return condition.getSourceCodeModule();
 
@@ -208,6 +210,9 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
+        if (rulesIndexesCollection.isEmpty()) {
+            return DecisionTableRuleNode.ZERO_ARRAY;
+        }
         int[] rulesIndexesArray = new int[rulesIndexesCollection.size()];
         int i = 0;
         for (Integer value : rulesIndexesCollection) {
@@ -261,15 +266,19 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return result;
     }
 
-    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
+    public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
-    protected IDomain<? extends Object> indexedDomain(ICondition condition) throws DomainCanNotBeDefined {
+    protected IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
-        Object[][] params = condition.getParamValues();
+        
+        
+        Object[][] params = ((ICondition)condition).getParamValues();
+        
+        
         for (int i = 0; i < params.length; i++) {
             Object[] pi = params[i];
             if (pi == null)

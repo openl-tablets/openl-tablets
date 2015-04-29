@@ -98,24 +98,25 @@ public class JAXWSInterfaceEnhancerHelper {
                 av.visit("operationName", operationName);
                 av.visitEnd();
             }
-
-            String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
-            int i = 0;
-            for (String paramName : parameterNames) {
-                Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
-                boolean found = false;
-                for (Annotation ann : annotations) {
-                    if (ann.annotationType().equals(WebParam.class)) {
-                        found = true;
-                        break;
+            
+            if (service != null && service.getServiceClassName() == null){ //Set parameter names only for generated interfaces
+                String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                int i = 0;
+                for (String paramName : parameterNames) {
+                    Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
+                    boolean found = false;
+                    for (Annotation ann : annotations) {
+                        if (ann.annotationType().equals(WebParam.class)) {
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found) {
+                        addWebParamAnnotation(mv, i, paramName);
+                    }
+                    i++;
                 }
-                if (!found) {
-                    addWebParamAnnotation(mv, i, paramName);
-                }
-                i++;
             }
-
             return mv;
         }
 
@@ -179,27 +180,38 @@ public class JAXWSInterfaceEnhancerHelper {
         }
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, ClassLoader classLoader, OpenLService service) throws Exception {
+    private static ClassLoader getClassLoader(OpenLService service) {
+        ClassLoader classLoader = null;
+        if (service != null) {
+            classLoader = service.getClassLoader();
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        return classLoader;
+    }
+
+    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Original class should be an interface!");
         }
+        String enchancedClassName = originalClass.getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+
         ClassWriter cw = new ClassWriter(0);
         JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(cw,
             originalClass,
             service);
-        String enchancedClassName = originalClass.getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
+
+        ClassLoader classLoader = getClassLoader(service);
+
         Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
-    }
-
-    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
-        return decorateInterface(originalClass, Thread.currentThread().getContextClassLoader(), service);
     }
 
     public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {

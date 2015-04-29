@@ -40,6 +40,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
+import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
@@ -107,13 +108,8 @@ public class RuleRowHelper {
 
             for (String token : tokens) {
 
-                Object res = RuleRowHelper.loadSingleParam(paramType,
-                    paramName,
-                    ruleName,
-                    cell,
-                    openlAdaptor,
-                    token,
-                        true);
+                String str = StringPool.intern(token);
+                Object res = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, str, true);
 
                 if (res == null) {
                     res = paramType.nullObject();
@@ -202,7 +198,7 @@ public class RuleRowHelper {
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
-            if (src != null) src = src.intern();
+            if (src != null) src = src.length() <=4 ? src.intern() : src;
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
         }
         
@@ -234,7 +230,9 @@ public class RuleRowHelper {
         // don`t move it up, as this call will convert native values such as numbers and dates to strings, it 
         // has negative performance implication
         String src = theCell.getStringValue();
-        if (src != null) src = src.intern();
+// TODO review our using of intern()        
+// @see http://java-performance.info/string-intern-in-java-6-7-8/        
+//        if (src != null) src = src.intern();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
     }
 

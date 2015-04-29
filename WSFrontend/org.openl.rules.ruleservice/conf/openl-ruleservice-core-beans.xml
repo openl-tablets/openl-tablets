@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-		
-	<!-- Controls instantiation of OpenL modules and creates service beans and 
-		service classes. -->
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
 	<bean id="instantiationStrategyFactory"
 		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
 		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}"/>
@@ -22,15 +19,15 @@
 	<bean id="ruleServiceInstantiationFactory"
 		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl" depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
-		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
-		<!-- <property name="externalParameters">
+		<property name="externalParameters">
 			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-				<property name="location" value="system.properties"/>
+				<property name="location" value="classpath:system.properties"/>
+				<property name="ignoreResourceNotFound" value="true"/>
 			</bean>
-		</property> -->
+		</property>
 	</bean>
-	
+
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
 		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>

@@ -75,6 +75,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
     }
 
     int from = 0;
+    int current;
 
     int step = 1;
 
@@ -84,22 +85,18 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         this.from = from;
         this.to = to;
         this.step = step;
+        this.current = from;
     }
 
     public final boolean hasNext() {
-        return size() > 0;
+        return step > 0 ?  current < to : current > to ;
     }
 
     protected abstract T indexedElement(int i);
 
     public T next() {
-        if (size() <= 0) {
-            throw new NoSuchElementException();
-        }
-
-        int idx = from;
-        from += step;
-
+    	int idx = current;
+    	current += step;
         return indexedElement(idx);
     }
 
@@ -113,7 +110,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         step = -step;
         to = newFrom + s * step;
-        from = newFrom;
+        current = from = newFrom;
     }
 
     @Override

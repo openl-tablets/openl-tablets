@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;

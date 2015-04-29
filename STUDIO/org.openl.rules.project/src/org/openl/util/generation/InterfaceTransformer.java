@@ -30,6 +30,7 @@ public class InterfaceTransformer {
     private final Logger log = LoggerFactory.getLogger(InterfaceTransformer.class);
     private Class<?> interfaceToTransform;
     private String className;
+    private boolean processParamAnnotation;
 
     /**
      * @param interfaceToTransform Base class for generations.
@@ -39,6 +40,13 @@ public class InterfaceTransformer {
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.interfaceToTransform = interfaceToTransform;
         this.className = className;
+        this.processParamAnnotation = true;
+    }
+
+    public InterfaceTransformer(Class<?> interfaceToTransform, String className, boolean processParamAnnotation) {
+        this.interfaceToTransform = interfaceToTransform;
+        this.className = className;
+        this.processParamAnnotation = processParamAnnotation;
     }
 
     /**
@@ -94,16 +102,18 @@ public class InterfaceTransformer {
                         true);
                     processAnnotation(annotation, av);
                 }
-                if (method.getParameterAnnotations().length > 0) {
-                    int index = 0;
-                    for (Annotation[] annotatons : method.getParameterAnnotations()) {
-                        for (int j = 0; j < annotatons.length; j++) {
-                            AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index,
-                                Type.getDescriptor(annotatons[j].annotationType()),
-                                true);
-                            processAnnotation(annotatons[j], av);
+                if (processParamAnnotation){
+                    if (method.getParameterAnnotations().length > 0) {
+                        int index = 0;
+                        for (Annotation[] annotatons : method.getParameterAnnotations()) {
+                            for (int j = 0; j < annotatons.length; j++) {
+                                AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index,
+                                    Type.getDescriptor(annotatons[j].annotationType()),
+                                    true);
+                                processAnnotation(annotatons[j], av);
+                            }
+                            index++;
                         }
-                        index++;
                     }
                 }
             }
@@ -116,7 +126,7 @@ public class InterfaceTransformer {
         return Modifier.isFinal(modifiers) && Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers);
     }
 
-    private void processAnnotation(Annotation annotation, AnnotationVisitor av) {
+    public static void processAnnotation(Annotation annotation, AnnotationVisitor av) {
         Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
         if (av != null) {
             for (Entry<String, Object> annotationAttribute : annotationAttributes.entrySet()) {
@@ -137,7 +147,7 @@ public class InterfaceTransformer {
         }
     }
 
-    private void visitNonArrayAnnotationAttribute(AnnotationVisitor av, String attributeName, Object attributeValue) {
+    private static void visitNonArrayAnnotationAttribute(AnnotationVisitor av, String attributeName, Object attributeValue) {
         Class<? extends Object> attributeType = attributeValue.getClass();
         if (attributeValue instanceof Class) {
             av.visit(attributeName, Type.getType((Class<?>) attributeValue));

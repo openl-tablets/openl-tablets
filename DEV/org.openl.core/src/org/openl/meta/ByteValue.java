@@ -2,9 +2,14 @@ package org.openl.meta;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.ByteValue.ByteValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -13,6 +18,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(ByteValueAdapter.class)
 public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     private static final long serialVersionUID = -3137978912171407672L;
@@ -21,6 +28,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     private static final ByteValue ONE = new ByteValue((byte) 1);
     private static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
+    public static class ByteValueAdapter extends XmlAdapter<Byte,ByteValue> {
+        public ByteValue unmarshal(Byte val) throws Exception {
+            return new ByteValue(val);
+        }
+        
+        public Byte marshal(ByteValue val) throws Exception {
+            return val.getValue();
+        }
+    }
+    
     // <<< INSERT Functions >>>
     private byte value;
 
@@ -546,16 +563,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         this.value = value;
     }
 
-    public ByteValue(byte value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public ByteValue(byte value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public ByteValue(org.openl.meta.ByteValue lv1, org.openl.meta.ByteValue lv2, byte value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -764,7 +771,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     /** Function constructor **/
     public ByteValue(ByteValue result, NumberOperations function, ByteValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.byteValue();
     }
 

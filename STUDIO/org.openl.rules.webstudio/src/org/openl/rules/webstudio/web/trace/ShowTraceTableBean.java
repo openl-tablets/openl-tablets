@@ -1,13 +1,20 @@
 package org.openl.rules.webstudio.web.trace;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
-import org.openl.rules.dt.trace.DTRuleTracerLeaf;
-import org.openl.rules.dt.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -29,15 +36,10 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
 import org.openl.vm.trace.ITracerObject;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Request scope managed bean for showTraceTable page.
  */
+@SuppressWarnings("deprecation")
 @ManagedBean
 @RequestScoped
 public class ShowTraceTableBean {

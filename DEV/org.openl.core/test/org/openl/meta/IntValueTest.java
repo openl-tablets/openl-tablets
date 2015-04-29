@@ -10,8 +10,8 @@ public class IntValueTest {
     
     @Test
     public void testEquals() {
-        IntValue value1 = new IntValue(10000, new ValueMetaInfo("shortName", "fullName", null));
-        IntValue value2 = new IntValue(10000, new ValueMetaInfo("shortName2", "fullName2", null));
+        IntValue value1 = new IntValue(10000);
+        IntValue value2 = new IntValue(10000);
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
@@ -67,11 +67,11 @@ public class IntValueTest {
     
     @Test
     public void testDivide() {
-        IntValue value1 = new IntValue(10000, new ValueMetaInfo("shortName", "fullName", null));
-        IntValue value2 = new IntValue(10000, new ValueMetaInfo("shortName2", "fullName2", null));
+        IntValue value1 = new IntValue(10000);
+        IntValue value2 = new IntValue(10000);
         assertEquals(1, IntValue.divide(value1, value2).getValue());
         
-        value2 = new IntValue(0, new ValueMetaInfo("shortName2", "fullName2", null));        
+        value2 = new IntValue(0);
         try {
             assertEquals(1, IntValue.divide(value1, value2));
             fail();

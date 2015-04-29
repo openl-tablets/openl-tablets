@@ -24,14 +24,16 @@ public class DecisionTableRuleNodeBuilder {
     }
 
     public int[] makeRulesAry() {
-        
-        int[] res = new int[rules.size()];
-        
+
+        int size = rules.size();
+        if (size == 0) {
+            return DecisionTableRuleNode.ZERO_ARRAY;
+        }
+        int[] res = new int[size];
+
         for (int i = 0; i < res.length; i++) {
             res[i] = rules.get(i);
         }
-        
         return res;
     }
-
 }

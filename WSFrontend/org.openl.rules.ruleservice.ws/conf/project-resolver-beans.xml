@@ -23,7 +23,7 @@
 	<bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
 		<property name="resolvingStrategies">
 			<list>
-				<ref bean="descriptorBasedStrategy" />								
+				<ref bean="descriptorBasedStrategy" />				
 				<ref bean="simpleXLSStrategy" />
 				<ref bean="eclipseBasedStrategy" />
 			</list>

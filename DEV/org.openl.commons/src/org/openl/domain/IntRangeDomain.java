@@ -7,29 +7,44 @@ package org.openl.domain;
 
 import java.util.Iterator;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * @author snshor
  */
 public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDomain {
     private class RangeIterator extends AIntIterator {
-        private int current;
+        private int current, step;
 
-        RangeIterator() {
-            current = min - 1;
+        RangeIterator(int step) {
+            this.current = min;
+            this.step = step;
         }
 
         public boolean hasNext() {
-            return current < max;
+            return current <= max;
         }
 
         public int nextInt() {
-            return ++current;
+        	int ret = current;
+        	current += step;
+            return ret;
         }
 
         @Override
         public int size() {
-            return max - min + 1;
+            return (max - min + 1) / step;
         }
+
+		@Override
+		public boolean isResetable() {
+			return true;
+		}
+
+		@Override
+		public void reset() {
+			current = min;
+		}
     }
 
     protected int min, max;
@@ -61,6 +76,7 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         return min == other.min && max == other.max;
     }
 
+    @XmlTransient
     public IType getElementType() {
         return null;
     }
@@ -84,8 +100,13 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
     }
 
     public IIntIterator intIterator() {
-        return new RangeIterator();
+        return new RangeIterator(1);
     }
+    
+    public IIntIterator iterate(int step) {
+        return new RangeIterator(step);
+    }
+    
 
     public Iterator<Integer> iterator() {
         return intIterator();

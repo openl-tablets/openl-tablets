@@ -31,13 +31,12 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ObjectValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
-import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
 import org.openl.util.ArrayTool;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
- * {@link NumberValue} are visible and executed from excel.
+ * {@link org.openl.meta.explanation.ExplanationNumberValue} are visible and executed from excel.
  *
  * @author DLiauchuk
  *         <p/>
@@ -838,10 +837,6 @@ public class RulesUtilsTest {
         Object[] testGetValuesAlias();
 
         Object[] testGetValuesPrimesAlias();
-
-        Object[] testGetValuesData();
-
-        Object[] testGetValuesWrongType();
     }
 
     @Before
@@ -5078,7 +5073,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    @Ignore
     public void getValuesTest() {
         Object[] agency = instance.testGetValuesAlias();
         assertArrayEquals(new String[]{"Alias1", "Alias2", "Alias0", "Alias4"}, agency);
@@ -5087,14 +5081,5 @@ public class RulesUtilsTest {
         Object[] primes = instance.testGetValuesPrimesAlias();
         assertArrayEquals(new Integer[]{5, 7, 13, 17}, primes);
         assertEquals(Integer.class, primes.getClass().getComponentType());
-
-        Object[] data = instance.testGetValuesData();
-        assertArrayEquals(new String[]{"Data1", "Data2", "Data0", "Data4"}, data);
-        assertEquals(String.class, data.getClass().getComponentType());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void getValuesTestWrongType() {
-        instance.testGetValuesWrongType();
     }
 }

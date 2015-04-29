@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.16.0.1-SNAPSHOT</version>
+        <version>5.16.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
@@ -67,8 +67,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip"/>
-                                <unzip dest="target/filesystemdatasource" overwrite="true" src="test-resources/org.openl.tablets.tutorial4.zip"/>
+                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip" />
+                                <unzip dest="target/filesystemdatasource" overwrite="true" src="test-resources/org.openl.tablets.tutorial4.zip" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -84,10 +84,6 @@
             </resource>
             <resource>
                 <directory>conf</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
             </resource>
         </resources>
         <testResources>
@@ -100,15 +96,16 @@
             </testResource>
             <testResource>
                 <directory>conf_test</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
             </testResource>
         </testResources>
     </build>
     <dependencies>
-	    <!-- CORE -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
@@ -157,21 +154,9 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -201,8 +186,18 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+	<!-- Required for WADL generation-->
+        <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

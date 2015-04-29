@@ -1,8 +1,7 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.CoordinatesTransformer;
-import org.openl.rules.table.Point;
+import org.openl.rules.table.IGridTable;
 
 /**
  * Transforms coordinates for table with two dimensions(table that has vertical
@@ -11,10 +10,10 @@ import org.openl.rules.table.Point;
  * @author PUdalau
  */
 public class TwoDimensionDecisionTableTranformer implements CoordinatesTransformer {
-    
+
     private static final int CONDITION_HEADERS_HEIGHT = 4;
     protected static final int HCONDITION_HEADERS_HEIGHT = 3;
-    
+
     // width of simple(vertical) conditions in columns
     private int conditionsWidth;
     private int hConditionsCount;
@@ -23,24 +22,6 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     private int retTableWidth;
 
     private int dtHeaderHeight;
-    
-    /**
-     * @param conditionsCount Vertical conditions count.
-     * @param hConditionsCount Horizontal conditions count.
-     * @param lookupValuesTableHeight Height of "values subtable" == vertical
-     *            condition values height.
-     * @param lookupValuesTableWidth Width of "values subtable" == vertical
-     *            condition values width.
-     */
-    public TwoDimensionDecisionTableTranformer(int conditionsCount, int hConditionsCount, int lookupValuesTableHeight,
-            int lookupValuesTableWidth, int retTableWidth) {
-        this.conditionsWidth = conditionsCount;
-        this.hConditionsCount = hConditionsCount;
-        this.lookupValuesTableHeight = lookupValuesTableHeight;
-        this.lookupValuesTableWidth = lookupValuesTableWidth;
-        this.retTableWidth = retTableWidth;
-        this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + (hConditionsCount - 1);
-    }
 
     /**
      * @param entireTable The entire table with two dimensions(WITHOUT a
@@ -56,43 +37,8 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
         this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + (hConditionsCount - 1);
     }
 
-    public Point calculateCoordinates(int column, int row) {
-        if (row < dtHeaderHeight) {
-            return getCoordinatesFromConditionHeaders(column, row);
-        }
-        if (column < conditionsWidth) {
-            return getCoordinatesFromConditionValues(column, row);
-        }
-        if (column < conditionsWidth + hConditionsCount) {
-            return getCoordinatesFromHConditionValues(column, row);
-        }
-        return getCoordinatesFromLookupValues(column, row);
-    }
-    
-    protected int getRetTableWidth() {        
+    protected int getRetTableWidth() {
         return retTableWidth;
-    }
-
-    protected Point getCoordinatesFromConditionHeaders(int column, int row) {
-        return new Point(column, row);
-    }
-
-    private Point getCoordinatesFromConditionValues(int column, int row) {
-        int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
-        return new Point(column, dtHeaderHeight + conditionValueIndex);
-    }
-
-    private Point getCoordinatesFromHConditionValues(int column, int row) {
-        int hConditionIndex = column - conditionsWidth;
-        int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
-        return new Point(conditionsWidth + hConditionValueIndex , HCONDITION_HEADERS_HEIGHT + hConditionIndex);
-    }
-
-    private Point getCoordinatesFromLookupValues(int column, int row) {
-        int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
-        int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight* retTableWidth;
-        return new Point(conditionsWidth + hConditionValueIndex + (column - conditionsWidth - hConditionsCount), HCONDITION_HEADERS_HEIGHT + hConditionsCount
-                + conditionValueIndex);
     }
 
     public int getHeight() {
@@ -101,5 +47,56 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
 
     public int getWidth() {
         return conditionsWidth + hConditionsCount + retTableWidth;
+    }
+
+    /**
+     * @param col The column of logical table.
+     * @param row The row of logical table.
+     * @return Coordinates inside the source table.
+     */
+    public int getColumn(int col, int row) {
+        int res;
+        if (row < dtHeaderHeight) {
+            // getCoordinatesFromConditionHeaders
+            res = col;
+        } else if (col < conditionsWidth) {
+            // getCoordinatesFromConditionValues(
+            res = col;
+        } else if (col < conditionsWidth + hConditionsCount) {
+            // getCoordinatesFromHConditionValues
+            int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
+            res = conditionsWidth + hConditionValueIndex;
+        } else {
+            // getCoordinatesFromLookupValues
+            int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
+            res = conditionsWidth + hConditionValueIndex + (col - conditionsWidth - hConditionsCount);
+        }
+        return res;
+    }
+
+    /**
+     * @param col The column of logical table.
+     * @param row The row of logical table.
+     * @return Coordinates inside the source table.
+     */
+    public int getRow(int col, int row) {
+        int res;
+        if (row < dtHeaderHeight) {
+            // getCoordinatesFromConditionHeaders
+            res = row;
+        } else if (col < conditionsWidth) {
+            // getCoordinatesFromConditionValues
+            int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
+            res = dtHeaderHeight + conditionValueIndex;
+        } else if (col < conditionsWidth + hConditionsCount) {
+            // getCoordinatesFromHConditionValues
+            int hConditionIndex = col - conditionsWidth;
+            res = HCONDITION_HEADERS_HEIGHT + hConditionIndex;
+        } else {
+            // getCoordinatesFromLookupValues
+            int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
+            res = HCONDITION_HEADERS_HEIGHT + hConditionsCount + conditionValueIndex;
+        }
+        return res;
     }
 }

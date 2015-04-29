@@ -67,7 +67,7 @@ public class JAXRSInvocationHandler implements InvocationHandler {
         }
         try {
             PropertyDescriptor[] propertyDescriptors = methodMapToPropertyDescriptors.get(method);
-            if (args.length == 1 && propertyDescriptors != null) {
+            if (args != null && args.length == 1 && propertyDescriptors != null) {
                 // Wrapped argument process;
                 Object[] arguments = new Object[propertyDescriptors.length];
                 int i = 0;

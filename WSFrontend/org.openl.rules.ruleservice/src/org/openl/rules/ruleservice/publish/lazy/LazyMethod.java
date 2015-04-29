@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -38,11 +40,31 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         this.argTypes = argTypes;
     }
 
+    protected CompiledOpenClass lastCompiledOpenClass;
+    protected IOpenMethod lastOpenMethod;
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(); 
+    
     protected IOpenMethod getMemberForModule(DeploymentDescription deployment, Module module) {
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass(deployment, module);
-            IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
-            return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
+            
+            readWriteLock.readLock().lock();
+            try{
+                if (lastCompiledOpenClass == compiledOpenClass){
+                    return lastOpenMethod;
+                }
+            }finally{
+                readWriteLock.readLock().unlock();
+            }
+            readWriteLock.writeLock().lock();
+            try{
+                lastCompiledOpenClass = compiledOpenClass;
+                IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
+                lastOpenMethod = compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
+                return lastOpenMethod;
+            }finally{
+                readWriteLock.writeLock().unlock();
+            }
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy method", e);
         }

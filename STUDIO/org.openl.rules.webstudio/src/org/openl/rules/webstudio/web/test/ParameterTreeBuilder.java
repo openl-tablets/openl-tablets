@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.test;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.SubGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -34,6 +36,11 @@ public class ParameterTreeBuilder {
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, IOpenField previewField,
                                                           String fieldName, ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
+        ParameterDeclarationTreeNode customNode = getOpenLCustomNode(fieldType, value, fieldName, parent);
+        if (customNode != null) {
+            return customNode;
+        }
+
         if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
         } else if (isSpreadsheetResult(value)) {
@@ -101,6 +108,19 @@ public class ParameterTreeBuilder {
             node.setWarnMessage(String.format("Field '%s' is not writable.", fieldName));
             return node;
         }
+    }
+
+    private static ParameterDeclarationTreeNode getOpenLCustomNode(IOpenClass fieldType, Object value,
+            String fieldName,
+            ParameterDeclarationTreeNode parent) {
+        Class<?> instanceClass = fieldType.getInstanceClass();
+        if (IntRange.class.equals(instanceClass)) {
+            return new IntRangeDeclarationTreeNode(fieldName, value, fieldType, parent);
+        } else if (DoubleRange.class.equals(instanceClass)) {
+            return new DoubleRangeDeclarationTreeNode(fieldName, value, fieldType, parent);
+        }
+
+        return null;
     }
 
     public String getRoot(ParameterWithValueDeclaration param) {

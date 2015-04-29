@@ -44,10 +44,8 @@ import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
-import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
-import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -84,14 +82,22 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
-    private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
+	
+	//set this flag to true if you want to test all the rules with new DT2 implementation
+	//If set to false the new implementation will affect only  Rules2, DT2, SimpleRules2, SimpleLookup2 keywords
+	
+    public static final boolean USE_DT2_ONLY = true;
+    
+	
+	private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
-
+    
     public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
 
     private static final String[][] BINDERS = {{XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName()},
-            {XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT.toString(), USE_DT2_ONLY ? org.openl.rules.dt2.DecisionTableNodeBinder.class.getName() :  org.openl.rules.dt.DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT2.toString(), org.openl.rules.dt2.DecisionTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName()},
@@ -311,7 +317,13 @@ public class XlsBinder implements IOpenBinder {
         //
         ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
         TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
-        TableSyntaxNode[] processedDatatypeNodes = processDatatypes(datatypeNodes, moduleContext);
+
+        /*
+         * Processes datatype table nodes before the bind operation. Checks type
+         * declarations and finds invalid using of inheritance feature at this
+         * step.
+         */
+        TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext);
 
         bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
@@ -423,22 +435,6 @@ public class XlsBinder implements IOpenBinder {
                 processError(error, tsn, bindingContext);
             }
         }
-    }
-
-    /**
-     * Processes datatype table nodes before the bind operation. Checks type
-     * declarations and finds invalid using of inheritance feature at this step.
-     *
-     * @param datatypeNodes  array of datatype nodes
-     * @param bindingContext binding context
-     * @return array of datatypes in order of binding
-     */
-    private TableSyntaxNode[] processDatatypes(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
-        Map<String, TableSyntaxNode> typesMap = DatatypeHelper.createTypesMap(datatypeNodes);
-
-        TableSyntaxNode[] orderedTypes = new DatatypesSorter().sort(typesMap, bindingContext);
-
-        return orderedTypes;
     }
 
     private void processVocabulary(IVocabulary vocabulary,

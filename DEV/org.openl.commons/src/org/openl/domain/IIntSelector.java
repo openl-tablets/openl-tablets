@@ -49,6 +49,17 @@ public interface IIntSelector {
             return next;
         }
 
+		@Override
+		public boolean isResetable() {
+			return it.isResetable();
+		}
+
+		@Override
+		public void reset() {
+			hasNext = false;
+			it.reset();
+		}
+
     }
 
     boolean select(int x);

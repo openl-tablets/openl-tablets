@@ -13,7 +13,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 @ManagedBean
 @SessionScoped
 public class RepositorySelectNodeStateHolder {
-    private int tab = 0;
     private TreeNode selectedNode;
 
     public TreeNode getSelectedNode() {
@@ -24,15 +23,7 @@ public class RepositorySelectNodeStateHolder {
         this.selectedNode = selectedNode;
     }
 
-    public void setTab(int tab) {
-        this.tab = tab;
-    }
-
-    public int getTab() {
-        return tab;
-    }
-
-    public boolean isProductionNode() {
-        return selectedNode.getType().contains("prod");
+    public boolean isProductionRepository() {
+        return selectedNode != null && selectedNode.getType().startsWith("prod");
     }
 }

@@ -13,12 +13,36 @@ package org.openl.rules.ruleservice.databinding;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.cglib.beans.BeanGenerator;
-
 public class JAXRSArgumentWrapperGenerator {
 
     Map<String, Class<?>> props = new HashMap<String, Class<?>>();
+    String xmlTypeName;
+    String xmlTypeNamespace;
 
+    public JAXRSArgumentWrapperGenerator() {
+    }
+    
+    public JAXRSArgumentWrapperGenerator(String xmlTypeName, String namespace) {
+        this.xmlTypeName = xmlTypeName;
+        this.xmlTypeNamespace = namespace;
+    }
+    
+    public String getXmlTypeName() {
+        return xmlTypeName;
+    }
+    
+    public String getXmlTypeNamespace() {
+        return xmlTypeNamespace;
+    }
+    
+    public void setXmlTypeName(String xmlTypeName) {
+        this.xmlTypeName = xmlTypeName;
+    }
+    
+    public void setXmlTypeNamespace(String xmlTypeNamespace) {
+        this.xmlTypeNamespace = xmlTypeNamespace;
+    }
+    
     public void addProperty(String name, Class<?> type) {
         props.put(name, type);
     }
@@ -28,12 +52,16 @@ public class JAXRSArgumentWrapperGenerator {
     }
 
     public Class<?> generateClass(ClassLoader classLoader) throws Exception {
-        BeanGenerator beanGenerator = new BeanGenerator();
+        BeanGeneratorWithJAXBAnnotations beanGenerator = new BeanGeneratorWithJAXBAnnotations();
         for (String name : props.keySet()) {
             beanGenerator.addProperty(name, props.get(name));
         }
         beanGenerator.setClassLoader(classLoader);
-        return (Class<?>) beanGenerator.createClass();
+        beanGenerator.setXmlTypeName(xmlTypeName);
+        beanGenerator.setXmlTypeNamespace(xmlTypeNamespace);
+        
+        Class<?> generatedClass = (Class<?>) beanGenerator.createClass();
+        return generatedClass;
     }
 
 }

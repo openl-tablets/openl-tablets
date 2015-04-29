@@ -13,6 +13,9 @@ package org.openl.rules.variation;
 
 import java.util.UUID;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 /**
  * Common variations class. It should have unique ID and handle two phases:
  * modifying arguments before the calculations and rolling back changes after
@@ -23,6 +26,9 @@ import java.util.UUID;
  * 
  * @author PUdalau, Marat Kamalov
  */
+
+@XmlRootElement
+@XmlSeeAlso({ArgumentReplacementVariation.class, NoVariation.class, ComplexVariation.class, JXPathVariation.class, DeepCloningVariation.class})
 public abstract class Variation {
     private String variationID;
 

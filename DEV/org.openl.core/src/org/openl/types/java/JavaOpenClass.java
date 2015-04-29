@@ -204,7 +204,7 @@ public class JavaOpenClass extends AOpenClass {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(String.format("Constructor of a custom JavaOpenClass of type '%s' is inaccessible", type.getCanonicalName()), e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException(String.format("Costructor of a class '%s' throwed and exception", type.getCanonicalName()), e);
+            throw new IllegalStateException(String.format("Constructor of a class '%s' threw and exception", type.getCanonicalName()), e);
         }
     }
 
@@ -359,8 +359,13 @@ public class JavaOpenClass extends AOpenClass {
         return getMethod(name, params);
     }
 
+    
+    String name;
+    
     public String getName() {
-        return instanceClass.getCanonicalName();
+    	if (name == null)
+    		name = instanceClass.getCanonicalName(); 
+        return name;
     }
 
     public String getSimpleName() {
@@ -451,8 +456,22 @@ public class JavaOpenClass extends AOpenClass {
         return null;
     }
     
+    
+    IOpenClass[] superClasses;
+    
+    public synchronized Iterator<IOpenClass> superClasses() {
+    	if (superClasses == null)
+    	{
+				IOpenIterator<IOpenClass> sc = collectSuperClasses();
+				superClasses = sc.asList().toArray(new IOpenClass[0]);
+    	}
+    	
+    	return OpenIterator.fromArray(superClasses);
+    }
+    
+    
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Iterator<IOpenClass> superClasses() {
+    private IOpenIterator<IOpenClass> collectSuperClasses() {
         Class<?>[] tmp = instanceClass.getInterfaces();
         IOpenIterator<Class<?>> ic = OpenIterator.fromArray(tmp);
 

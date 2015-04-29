@@ -58,7 +58,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         if (userContext == null) {
             synchronized (this) {
                 if (userContext == null) {
-                    userContext = new UserContext(getDefaultUserClassLoader(), userHome);
+                    userContext = new UserContext(getDefaultUserClassLoader(),  userHome);
                 }
             }
         }

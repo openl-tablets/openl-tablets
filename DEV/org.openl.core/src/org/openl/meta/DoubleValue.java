@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.meta.DoubleValue.DoubleValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -10,8 +11,13 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Arrays;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(DoubleValueAdapter.class)
 public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     private static final long serialVersionUID = -4594250562069599646L;
@@ -27,6 +33,15 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         public DoubleValue multiply(DoubleValue dv) {
             return dv;
+        }
+    }
+
+    public static class DoubleValueAdapter extends XmlAdapter<Double,DoubleValue> {
+        public DoubleValue unmarshal(Double val) throws Exception {
+            return new DoubleValue(val);
+        }
+        public Double marshal(DoubleValue val) throws Exception {
+            return val.doubleValue();
         }
     }
 
@@ -401,11 +416,10 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         if (value2.doubleValue() == 0) {
 
-//            throw new OpenlNotCheckedException("Division by zero");
             // FIXME: temporary commented the throwing exception
-            // Is needed for ISO
+            // Is needed for the one of the commercial products, pls contact Denis Levchuk
             //
-            return new org.openl.meta.DoubleValue(value1, value2, DoubleValue.ZERO.doubleValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(value1, value2, Double.POSITIVE_INFINITY, Formulas.DIVIDE);
         }
 
         return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
@@ -627,16 +641,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = value;
     }
 
-    public DoubleValue(double value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public DoubleValue(double value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public DoubleValue(org.openl.meta.DoubleValue lv1, org.openl.meta.DoubleValue lv2, double value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -689,7 +693,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return Operators.eq(getValue(), secondObj.getValue());
         }
 
-        // FIXME: Temporary fix for the ISO to support
+        // FIXME: Temporary fix for the commercial line to support
         // var == "0" where var is of type DoubleValue
         // In this case autocast should work, need investigation
         //
@@ -762,7 +766,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
-    
+
     public static String autocast(DoubleValue x, String y) {
         if (x == null) {
             return null;
@@ -934,15 +938,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         super();
     }
 
-    @Deprecated
-    /**
-     * @deprecated format is not used inside Double value
-     */
-    public DoubleValue(double value, IMetaInfo metaInfo, String format) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     public DoubleValue(String valueString) {
         super();
         value = Double.parseDouble(valueString);
@@ -950,7 +945,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     /** Function constructor **/
     public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.doubleValue();
     }
 

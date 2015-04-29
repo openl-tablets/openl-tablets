@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * @author Nail Samatov, Marat Kamalov
  */
 public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
-    private static final String REST_PREFIX = "REST/";
+    public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
@@ -52,7 +51,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     public ObjectFactory<?> getServerFactory() {
         return serverFactory;
     }
-
+    
     public void setServerFactory(ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory) {
         this.serverFactory = serverFactory;
     }
@@ -63,8 +62,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
         throw new IllegalArgumentException("serverFactory doesn't defined");
     }
-
-    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
+    
+    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass, OpenLService service, String url) throws Exception {
         return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
     }
 
@@ -74,25 +73,33 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
+        if (service.getServiceClass().getMethods().length == 0){ //Skip deploy if service doesn't have methods.
+            if (log.isWarnEnabled()){
+                log.warn("Service \"{}\" with URL \"{}{}\" doens't have method and wasn't deployed.",
+                    service.getName(),
+                    getBaseAddress(),
+                    service.getUrl());
+            }
+            return;
+        }
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(service.getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
             String url = URLHelper.processURL(service.getUrl());
-            if (service.getPublishers().size() != 1) {    
-                svrFactory.setAddress(getBaseAddress() + REST_PREFIX + url);
+            if (service.getPublishers().size() != 1) {
+                url = getBaseAddress() + REST_PREFIX + url;
             } else {
-                svrFactory.setAddress(getBaseAddress() + url);
+                url = getBaseAddress() + url;
             }
-            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
+            svrFactory.setAddress(url);
+            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service, url);
             svrFactory.setResourceClasses(serviceClass);
             Object target = createWrappedBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
-            AegisContextResolver aegisContextResolver = new AegisContextResolver((AegisDatabinding) svrFactory.getDataBinding());
-            svrFactory.setProvider(aegisContextResolver);
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
+                svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));
@@ -194,6 +201,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
     }
+    
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 
     private void removeServiceInfo(String serviceName) {
         for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {

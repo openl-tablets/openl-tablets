@@ -207,6 +207,11 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         String url = service.getUrl() + "?wsdl";
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
     }
+    
+    @Override
+    public boolean isServiceDeployed(String name) {
+        return getServiceByName(name) != null;
+    }    
 
     private void removeServiceInfo(String serviceName) {
         for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext(); ) {

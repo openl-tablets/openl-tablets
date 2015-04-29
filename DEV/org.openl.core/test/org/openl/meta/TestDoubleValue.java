@@ -1,20 +1,17 @@
 package org.openl.meta;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
-import org.openl.exception.OpenlNotCheckedException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TestDoubleValue {
     @Test
     public void testEquals() {
-        DoubleValue value1 = new DoubleValue(10.2, new ValueMetaInfo("shortName", "fullName", null), "");
-        DoubleValue value2 = new DoubleValue(10.2, new ValueMetaInfo("shortName2", "fullName2", null), "");
+        DoubleValue value1 = new DoubleValue(10.2);
+        DoubleValue value2 = new DoubleValue(10.2);
         assertEquals(value1, value2);
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
@@ -134,22 +131,12 @@ public class TestDoubleValue {
     	
     	v1 = new DoubleValue(34);
     	v2 = new DoubleValue(0.00000000);
-    	try {
-    		DoubleValue.divide(v1, v2);
-    		fail("Division by zero cannot pass");
-    	} catch (OpenlNotCheckedException e) {
-    		assertTrue(true);
-		}
-    	
+		assertEquals(Double.POSITIVE_INFINITY, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
+
     	v1 = new DoubleValue(0);
     	v2 = new DoubleValue(0.00000000);
-    	try {
-    		DoubleValue.divide(v1, v2);
-    		fail("Division by zero cannot pass");
-    	} catch (OpenlNotCheckedException e) {
-    		assertTrue(true);
-		}
-    	    	
+		assertEquals(Double.POSITIVE_INFINITY, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
+
     	v1 = null;
     	v2 = new DoubleValue(12);
     	assertEquals(0.08333, DoubleValue.divide(v1, v2).doubleValue(), 0.001);
@@ -165,12 +152,7 @@ public class TestDoubleValue {
     	
     	v1 = null;
     	v2 = new DoubleValue(0);
-    	try {
-    		DoubleValue.divide(v1, v2);
-    		fail("Division by zero cannot pass");
-    	} catch (OpenlNotCheckedException e) {
-    		assertTrue(true);
-		}
+		assertEquals(Double.POSITIVE_INFINITY, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
     }
     
     @Test

@@ -1,5 +1,7 @@
 package org.openl.rules.variation;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * #%L
  * OpenL - Variation
@@ -18,6 +20,7 @@ package org.openl.rules.variation;
  * 
  * @author PUdalau
  */
+@XmlRootElement
 public class ComplexVariation extends Variation {
     private Variation[] variations;
 
@@ -97,5 +100,9 @@ public class ComplexVariation extends Variation {
 
     public Variation[] getVariations() {
         return variations;
+    }
+    
+    public void setVariations(Variation[] variations) {
+        this.variations = variations;
     }
 }

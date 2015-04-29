@@ -62,7 +62,6 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.webstudio.dependencies.DefaultDependencyManagerListener;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
@@ -1221,25 +1220,18 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             final String moduleName = moduleInfo.getName();
             WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
-            DefaultDependencyManagerListener listener = new DefaultDependencyManagerListener() {
-                @Override
-                public void onLoadDependency(CompiledDependency loadedDependency) {
-                    if (!loadedDependency.getDependencyName().equals(moduleName)) {
-                        XlsMetaInfo metaInfo = (XlsMetaInfo) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-                        if (metaInfo != null) {
-                            allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-                        }
+
+            compiledOpenClass = instantiationStrategy.compile();
+
+            for (CompiledDependency dependency : dependencyManager.getCompiledDependencies()) {
+                if (!dependency.getDependencyName().equals(moduleName)) {
+                    XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+
+                    if (metaInfo != null) {
+                        allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
                     }
                 }
-            };
-
-            try {
-                dependencyManager.addListener(listener);
-                compiledOpenClass = instantiationStrategy.compile();
-            } finally {
-                dependencyManager.removeListener(listener);
             }
-
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
@@ -1263,7 +1255,7 @@ public class ProjectModel {
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
-                messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
+                messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],

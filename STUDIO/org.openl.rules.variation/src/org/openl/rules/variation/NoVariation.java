@@ -1,5 +1,7 @@
     package org.openl.rules.variation;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * #%L
  * OpenL - Variation
@@ -17,6 +19,8 @@
  * 
  * @author PUdalau, Marat Kamalov
  */
+
+@XmlRootElement
 public class NoVariation extends Variation {
     /**
      * ID for original calculation. Can be used for retrieving result of

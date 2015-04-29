@@ -2,10 +2,8 @@ package org.openl.rules.webstudio.web;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -14,9 +12,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Request scope managed bean providing logic for problems tree page of OpenL Studio.
@@ -33,14 +29,7 @@ public class ProblemsBean {
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
 
-    private static Map<Class<?>, MessageHandler> messageHandlers;
-
-    static {
-        messageHandlers = new HashMap<Class<?>, MessageHandler>();
-        messageHandlers.put(OpenLErrorMessage.class, new ErrorMessageHandler());
-        messageHandlers.put(OpenLWarnMessage.class, new WarningMessageHandler());
-        messageHandlers.put(OpenLMessage.class, new MessageHandler());
-    }
+    private static MessageHandler messageHandler = new MessageHandler();
 
     public ProblemsBean() {
     }
@@ -91,14 +80,12 @@ public class ProblemsBean {
         for (OpenLMessage message : messages) {
             String url = getNodeUrl(message, model);
             TreeNode messageNode = new TreeNode(true,
-                    message.getSummary(), message.getDetails(), url, 0, 0, nodeName.toLowerCase(), true);
+                    message.getSummary(), "", url, 0, 0, nodeName.toLowerCase(), true);
             parent.addChild(nodeCount++, messageNode);
         }
     }
 
     private String getNodeUrl(OpenLMessage message, ProjectModel model) {
-        MessageHandler messageHandler = messageHandlers.get(message.getClass());
-
         String url = messageHandler.getSourceUrl(message, model);
 
         if (StringUtils.isBlank(url)) {

@@ -9,7 +9,8 @@ import org.openl.rules.datatype.gen.bean.writers.DefaultConstructorWriter;
 import org.openl.rules.datatype.gen.bean.writers.EqualsWriter;
 import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.HashCodeWriter;
-import org.openl.rules.datatype.gen.bean.writers.PrivateFieldsWriter;
+import org.openl.rules.datatype.gen.bean.writers.JAXBAnnotationWriter;
+import org.openl.rules.datatype.gen.bean.writers.ProtectedFieldsWriter;
 import org.openl.rules.datatype.gen.bean.writers.SettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
 
@@ -58,7 +59,8 @@ public class SimpleBeanByteCodeGenerator extends BeanByteCodeGenerator {
 
     private void initWriters() {
         addWriter(new ClassDescriptionWriter(getBeanNameWithPackage(), parentClass));
-        addWriter(new PrivateFieldsWriter(beanFields));
+        addWriter(new JAXBAnnotationWriter(getBeanNameWithPackage()));
+        addWriter(new ProtectedFieldsWriter(beanFields));
         addWriter(new DefaultConstructorWriter(getBeanNameWithPackage(), parentClass, beanFields));
         if (allFields.size() < 256) {
             // Generate constructor with parameters only in case where there are less than 256 arguments.

@@ -2,9 +2,14 @@ package org.openl.meta;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.LongValue.LongValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -13,6 +18,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(LongValueAdapter.class)
 public class LongValue extends ExplanationNumberValue<LongValue> {
 
     private static final long serialVersionUID = -437788531108803012L;
@@ -21,6 +28,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     private static final LongValue ONE = new LongValue((long) 1);
     private static final LongValue MINUS_ONE = new LongValue((long) -1);
 
+    public static class LongValueAdapter extends XmlAdapter<Long,LongValue> {
+        public LongValue unmarshal(Long val) throws Exception {
+            return new LongValue(val);
+        }
+        
+        public Long marshal(LongValue val) throws Exception {
+            return val.getValue();
+        }
+    }
+    
     // <<< INSERT Functions >>>
     private long value;
 
@@ -569,16 +586,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         this.value = value;
     }
 
-    public LongValue(long value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public LongValue(long value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public LongValue(org.openl.meta.LongValue lv1, org.openl.meta.LongValue lv2, long value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -784,7 +791,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     /** Function constructor **/
     public LongValue(LongValue result, NumberOperations function, LongValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.longValue();
     }
 

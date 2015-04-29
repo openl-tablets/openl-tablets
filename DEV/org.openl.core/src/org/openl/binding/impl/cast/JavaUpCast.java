@@ -4,6 +4,8 @@ import org.openl.types.IOpenClass;
 
 public class JavaUpCast implements IOpenCast {
 
+    public static final int UP_CAST_DISTANCE = 7;
+
     public Object convert(Object from) {
         return from;
     }
@@ -21,7 +23,7 @@ public class JavaUpCast implements IOpenCast {
             return 0;
         }
 
-        return 7;
+        return UP_CAST_DISTANCE;
     }
 
     /*

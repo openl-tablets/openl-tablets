@@ -2,6 +2,8 @@ package org.openl.rules.table;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -9,6 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * Handles two coordinates: column number and row number.
  *
  */
+@XmlRootElement
 public class Point implements Serializable {
     
     private static final long serialVersionUID = 5186952375131099814L;
@@ -16,6 +19,9 @@ public class Point implements Serializable {
     private int column;
     private int row;
 
+    public Point() {
+    }
+    
     public Point(int column, int row) {
         this.column = column;
         this.row = row;

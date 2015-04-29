@@ -2,9 +2,14 @@ package org.openl.meta;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.meta.FloatValue.FloatValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -13,6 +18,8 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
+@XmlRootElement
+@XmlJavaTypeAdapter(FloatValueAdapter.class)
 public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     private static final long serialVersionUID = -8235832583740963916L;
@@ -21,6 +28,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     private static final FloatValue ONE = new FloatValue((float) 1);
     private static final FloatValue MINUS_ONE = new FloatValue((float) -1);
 
+    public static class FloatValueAdapter extends XmlAdapter<Float,FloatValue> {
+        public FloatValue unmarshal(Float val) throws Exception {
+            return new FloatValue(val);
+        }
+        
+        public Float marshal(FloatValue val) throws Exception {
+            return val.getValue();
+        }
+    }
+    
     // <<< INSERT Functions >>>
     private float value;
 
@@ -578,16 +595,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         this.value = value;
     }
 
-    public FloatValue(float value, String name) {
-        super(name);
-        this.value = value;
-    }
-
-    public FloatValue(float value, IMetaInfo metaInfo) {
-        super(metaInfo);
-        this.value = value;
-    }
-
     /**Formula constructor**/
     public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);
@@ -814,7 +821,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     /** Function constructor **/
     public FloatValue(FloatValue result, NumberOperations function, FloatValue[] params) {
-        super(result, function, params);
+        super(function, params);
         this.value = result.floatValue();
     }
 

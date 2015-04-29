@@ -1,5 +1,8 @@
 package org.openl.rules.calculation.result.convertor2;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 /*
  * #%L
  * OpenL - DEV - Rules - Calculation Result
@@ -17,6 +20,9 @@ package org.openl.rules.calculation.result.convertor2;
  * @author DLiauchuk, Marat Kamalov
  * 
  */
+
+@XmlRootElement
+@XmlSeeAlso({CalculationStep.class, SimpleStep.class})
 public class CodeStep extends CalculationStep {
 
     private static final long serialVersionUID = 7372598798002605558L;

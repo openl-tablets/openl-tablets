@@ -11,6 +11,8 @@ package org.openl.rules.variation;
  */
 
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -23,6 +25,8 @@ import org.apache.commons.jxpath.Pointer;
  * 
  * @author PUdalau, Marat Kamalov
  */
+
+@XmlRootElement
 public class JXPathVariation extends Variation {
     private int updatedArgumentIndex;
     private String path;
@@ -97,6 +101,10 @@ public class JXPathVariation extends Variation {
     public int getUpdatedArgumentIndex() {
         return updatedArgumentIndex;
     }
+    
+    public void setUpdatedArgumentIndex(int updatedArgumentIndex) {
+        this.updatedArgumentIndex = updatedArgumentIndex;
+    }
 
     /**
      * @return path to field to be modified.
@@ -104,11 +112,19 @@ public class JXPathVariation extends Variation {
     public String getPath() {
         return path;
     }
+    
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     /**
      * @return value to set into modified field.
      */
     public Object getValueToSet() {
         return valueToSet;
+    }
+    
+    public void setValueToSet(Object valueToSet) {
+        this.valueToSet = valueToSet;
     }
 }

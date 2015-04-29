@@ -1,62 +1,63 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
-import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.type.domains.DimensionPropertiesDomainsCollector;
+import org.openl.rules.dtx.type.domains.IDomainAdaptor;
+import org.openl.rules.dtx.validator.DecisionTableValidator;
+import org.openl.rules.dtx.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class DimensionPropertiesValidator extends TablesValidator {
     
     private static final String VALIDATION_FAILED = "Validation failed for dispatcher table";
     
-    @Override
+    @SuppressWarnings("unused")
+	@Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {        
-        ValidationResult validationResult = null;  
-        
-        Map<String, IDomainAdaptor> propertiesDomains = 
-            getDomainsForDimensionalProperties(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
-        
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            // search for generated dispatcher decision table for dimension properties.
-            //
-            if (isDimensionPropertiesDispatcherTable(tsn)) {
-                // FIXME currently validation of dispatcher tables is disabled
-                // because of "match by default" case(when context value == null
-                // the all tables with matches by corresponding property).
-                //
-                // check {context value} == null || {matching expression} was
-                // introduced and validation mechanism does not works with such
-                // expressions.
-                OpenLMessage validationMessage = null;//validateDecisionTable(tsn, propertiesDomains, openClass);
-                if (validationMessage != null) {
-                    if (validationResult == null) {
-                        validationResult = new ValidationResult(ValidationStatus.FAIL); 
-                    } 
-                    ValidationUtils.addValidationMessage(validationResult, validationMessage);
-                }
-            }                        
-        }
-        if (validationResult != null) {
-            return validationResult;
-        }
+        ValidationResult validationResult = null;
+
+        // FIXME: currently validation of dispatcher tables is disabled
+        // because of "match by default" case(when context value == null
+        // the all tables with matches by corresponding property).
+        //
+        // check {context value} == null || {matching expression} was
+        // introduced and validation mechanism does not works with such
+        // expressions.
+
+//        Map<String, IDomainAdaptor> propertiesDomains =
+//            getDomainsForDimensionalProperties(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
+//
+//        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+//            // search for generated dispatcher decision table for dimension properties.
+//            //
+//            if (isDimensionPropertiesDispatcherTable(tsn)) {
+//
+//                OpenLMessage validationMessage = null;//validateDecisionTable(tsn, propertiesDomains, openClass);
+//                if (validationMessage != null) {
+//                    if (validationResult == null) {
+//                        validationResult = new ValidationResult(ValidationStatus.FAIL);
+//                    }
+//                    ValidationUtils.addValidationMessage(validationResult, validationMessage);
+//                }
+//            }
+//        }
+//        if (validationResult != null) {
+//            return validationResult;
+//        }
         return ValidationUtils.validationSuccess();
     }
     
@@ -68,7 +69,8 @@ public class DimensionPropertiesValidator extends TablesValidator {
      * @param openClass Open class for whole module.
      * @return message, explaining validation result
      */
-    private OpenLMessage validateDecisionTable(TableSyntaxNode tsn, Map<String, IDomainAdaptor> propertiesDomains, 
+    @SuppressWarnings("unused")
+	private OpenLMessage validateDecisionTable(TableSyntaxNode tsn, Map<String, IDomainAdaptor> propertiesDomains, 
             IOpenClass openClass) {
         
         DesionTableValidationResult tableValidationResult = validate(tsn, propertiesDomains, openClass);
@@ -89,7 +91,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
             IOpenClass openClass) {
         DesionTableValidationResult tableValidationResult = null;
         try {
-            tableValidationResult = DecisionTableValidator.validateTable((DecisionTable)tsn.getMember(), 
+            tableValidationResult = DecisionTableValidator.validateTable((IDecisionTable)tsn.getMember(), 
                     propertiesDomains, openClass);     
         } catch (Exception t) {
             throw new OpenlNotCheckedException(VALIDATION_FAILED, t);
@@ -121,7 +123,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     private boolean isDimensionPropertiesDispatcherTable(TableSyntaxNode tsn) {
         return tsn.getDisplayName() != null && 
         tsn.getDisplayName().contains(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) && 
-        tsn.getMember() instanceof DecisionTable;
+        tsn.getMember() instanceof IDecisionTable;
     }
     
     private Map<String, IDomainAdaptor> getDomainsForDimensionalProperties(List<IOpenMethod> methods) {

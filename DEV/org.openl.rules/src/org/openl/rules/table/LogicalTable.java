@@ -17,8 +17,8 @@ public class LogicalTable extends ALogicalTable {
 
     public LogicalTable(IGridTable table, int width, int height) {
         super(table);
-        calculateRowOffsets(height);
-        calculateColumnOffsets(width);
+        this.rowOffset = LogicalTableHelper.calculateRowOffsets(height, table);
+        this.columnOffset = LogicalTableHelper.calculateColumnOffsets(width, table);
     }
 
     public LogicalTable(IGridTable table, int[] columnOffset, int[] rowOffset) {
@@ -26,41 +26,20 @@ public class LogicalTable extends ALogicalTable {
 
         if (columnOffset == null) {
             int width = LogicalTableHelper.calcLogicalColumns(table);
-            calculateColumnOffsets(width);
+            this.columnOffset = LogicalTableHelper.calculateColumnOffsets(width, table);
         }
         else
             this.columnOffset = columnOffset;
 
         if (rowOffset == null) {
             int height = LogicalTableHelper.calcLogicalRows(table);
-            calculateRowOffsets(height);
+            this.rowOffset = LogicalTableHelper.calculateRowOffsets(height, table);
         }
         else
             this.rowOffset = rowOffset;
     }
 
-    private void calculateRowOffsets(int height) {
-        rowOffset = new int[height + 1];
-        int cellHeight = 0, offset = 0;
-        int i = 0;
-        for (; i < rowOffset.length - 1; offset += cellHeight, ++i) {
-            rowOffset[i] = offset;
-            cellHeight = getSource().getCell(0, offset).getHeight();
-        }
-        rowOffset[i] = offset;
-    }
 
-    private void calculateColumnOffsets(int width) {
-        columnOffset = new int[width+1];
-        int cellWidth = 0;
-        int offset = 0;
-        int i = 0;
-        for (; i < columnOffset.length - 1; offset += cellWidth, ++i) {
-            columnOffset[i] = offset;
-            cellWidth = getSource().getCell(offset, 0).getWidth();
-        }
-        columnOffset[i] = offset;
-    }
 
     public int getWidth() {
         return columnOffset.length - 1;

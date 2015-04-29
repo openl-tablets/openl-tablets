@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.openl.rules.helpers.ITableAdaptor;
 import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;
@@ -14,7 +17,8 @@ import org.openl.types.java.CustomJavaOpenClass;
  * Serializable bean that handles result of spreadsheet calculation.
  *
  */
-@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class)
+@XmlRootElement
+@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
 public class SpreadsheetResult implements Serializable {
     
     private static final long serialVersionUID = 8704762477153429384L;
@@ -24,7 +28,7 @@ public class SpreadsheetResult implements Serializable {
     private int width;
     private String[] columnNames;
     private String[] rowNames;
-    final private Map<String, Point> fieldsCoordinates;
+    private Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
     
     /**
      * logical representation of calculated spreadsheet table
@@ -32,13 +36,15 @@ public class SpreadsheetResult implements Serializable {
      */
     private transient ILogicalTable logicalTable;
     
+    public SpreadsheetResult() {
+    }
+    
     public SpreadsheetResult(int height, int width) {
         this.height = height;
         this.width = width;
         this.columnNames = new String[height];
         this.rowNames = new String[width];
         this.results = new Object[height][width];        
-        this.fieldsCoordinates = new HashMap<String, Point>();  
     }
     
     public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, 
@@ -148,15 +154,16 @@ public class SpreadsheetResult implements Serializable {
         fieldsCoordinates.put(field, coord);
     }
 
-//    public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
-//        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
-//    }
+    public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
+        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
+    }
     
     /**
      * 
      * @return logical representation of calculated spreadsheet table
      * it is needed for web studio to display results
      */
+    @XmlTransient
     public ILogicalTable getLogicalTable() {
         return logicalTable;
     }
@@ -209,10 +216,8 @@ public class SpreadsheetResult implements Serializable {
         return asTableAdaptor;
     }
     
-    public String printAsTable()
-    {
-        
-        String res = new  TablePrinter(makeTableAdaptor(), null, " | ").print();
+    public String printAsTable() {
+        String res = new TablePrinter(makeTableAdaptor(), null, " | ").print();
         return res;
     }
 

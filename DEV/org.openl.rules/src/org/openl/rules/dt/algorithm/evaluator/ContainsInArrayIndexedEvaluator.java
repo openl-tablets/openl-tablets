@@ -6,6 +6,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -33,7 +35,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IParameterDeclaration[] cparams = condition.getParams();
 
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
@@ -126,14 +128,14 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode());
             }
         } else {
-            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+            nodeMap = Collections.emptyMap();
         }
 
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
-    protected IDomain<Object> indexedDomain(ICondition condition) {
-        Object[][] params = condition.getParamValues();
+    protected IDomain<Object> indexedDomain(IBaseCondition condition) {
+        Object[][] params = ((ICondition)condition).getParamValues();
         int len = params.length;
         ArrayList<Object> list = new ArrayList<Object>(len);
         HashSet<Object> set = new HashSet<Object>(len);

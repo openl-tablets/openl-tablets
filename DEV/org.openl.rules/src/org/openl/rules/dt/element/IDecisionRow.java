@@ -9,6 +9,8 @@ package org.openl.rules.dt.element;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.dtx.IBaseDecisionRow;
+import org.openl.rules.dtx.IDecisionTableParameterInfo;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
@@ -20,7 +22,7 @@ import org.openl.types.IParameterDeclaration;
  * @author snshor
  * 
  */
-public interface IDecisionRow {
+public interface IDecisionRow extends IBaseDecisionRow{
 
     String getName();
 
@@ -30,7 +32,7 @@ public interface IDecisionRow {
 
 //    DecisionTableParameterInfo findParameterInfo(String name);
 
-    DecisionTableParameterInfo getParameterInfo(int i);
+    IDecisionTableParameterInfo getParameterInfo(int i);
 
     String[] getParamPresentation();
 
@@ -44,7 +46,6 @@ public interface IDecisionRow {
 
     void clearParamValues();
 
-    int numberOfParams();
 
     boolean isAction();
 
