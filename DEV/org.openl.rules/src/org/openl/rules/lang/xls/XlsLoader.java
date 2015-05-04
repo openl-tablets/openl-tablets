@@ -12,7 +12,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.extension.load.NameConventionLoaderFactory;
-import org.openl.rules.indexer.HeaderNodeFactory;
 import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -30,7 +29,6 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
@@ -46,56 +44,6 @@ import java.util.*;
 public class XlsLoader {
 
     private final Logger log = LoggerFactory.getLogger(XlsLoader.class);
-    
-
-    private static final String[][] headerMapping = {
-
-    		{IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
-            {IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString()},
-            {IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString()},
-            {IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString()},
-
-            //new dt2 implementation
-    		{IXlsTableNames.DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString()},
-            {IXlsTableNames.DECISION_TABLE2_2, XlsNodeTypes.XLS_DT2.toString()},
-            {IXlsTableNames.SIMPLE_DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString()},
-            {IXlsTableNames.SIMPLE_DECISION_LOOKUP_2, XlsNodeTypes.XLS_DT2.toString()},
-            
-            
-            {IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString()},
-            {IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString()},
-
-            {IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString()},
-            {IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString()},
-
-            {IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString()},
-            {IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString()},
-            {IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString()},
-
-            {IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString()},
-            {IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString()},
-
-            {IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString()},
-            {IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},
-            {IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString()},
-            {IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString()},
-            {IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString()},
-            {IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString()},
-            {IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString()},
-            {IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString()}};
-
-    private static Map<String, String> tableHeaders;
-
-    static {
-
-        if (tableHeaders == null) {
-            tableHeaders = new HashMap<String, String>();
-
-            for (String[] aHeaderMapping : headerMapping) {
-                tableHeaders.put(aHeaderMapping[0], aHeaderMapping[1]);
-            }
-        }
-    }
 
     private Collection<String> imports = new HashSet<String>();
 
@@ -130,10 +78,6 @@ public class XlsLoader {
     public XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {
         this.includeSeeker = includeSeeker;
         // this.userContext = userContext;
-    }
-
-    public static Map<String, String> getTableHeaders() {
-        return tableHeaders;
     }
 
     public void addError(SyntaxNodeException error) {
@@ -334,25 +278,12 @@ public class XlsLoader {
                                             XlsSheetSourceCodeModule source,
                                             TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
 
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
+        TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
 
-        IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
-
-        String header = headerToken.getIdentifier();
-
-        String xls_type = getTableHeaders().get(header);
-
-        if (xls_type == null) {
-            xls_type = XlsNodeTypes.XLS_OTHER.toString();
-        }
-
-        HeaderSyntaxNode headerNode = HeaderNodeFactory.getHeaderNode(xls_type, src, headerToken);
-
-        TableSyntaxNode tsn = new TableSyntaxNode(xls_type, new GridLocation(table), source, table, headerNode);
-
-        if (header.equals(IXlsTableNames.ENVIRONMENT_TABLE)) {
+        String type = tsn.getType();
+        if (type.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())) {
             preprocessEnvironmentTable(tsn, source);
-        } else if (xls_type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
+        } else if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
             try {
                 tablePartProcessor.register(table, source);
             } catch (Throwable t) {

@@ -20,6 +20,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
@@ -108,7 +109,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
 		if (Severity.WARN.equals(severity)) {
 			return new OpenLWarnMessage(message, syntaxNode);
 		} else if (Severity.ERROR.equals(severity)) {
-			SyntaxNodeException sne = new SyntaxNodeException(message, null, syntaxNode);
+			SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
 			// error should be put inside tsn
 			//
 			syntaxNode.addError(sne);

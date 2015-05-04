@@ -6,6 +6,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -21,7 +22,8 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -111,12 +113,16 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             Builder<IWritableGrid> dtSourceBuilder = initDecisionTableSourceBuilder();
             XlsSheetGridModel sheetWithTable = (XlsSheetGridModel) dtSourceBuilder.build();
             IGridTable decisionTableSource = sheetWithTable.getTables()[0];
+            XlsSheetSourceCodeModule sheetSource = sheetWithTable.getSheetSource();
 
             // build TableSyntaxNode
             //
-            Builder<TableSyntaxNode> tsnBuilder = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable.getSheetSource(),
-                    decisionTableSource);
-            tsn = tsnBuilder.build();
+            try {
+                tsn = XlsHelper.createTableSyntaxNode(decisionTableSource, sheetSource);
+            } catch (OpenLCompilationException e) {
+                OpenLMessagesUtils.addError(e);
+                return null;
+            }
 
             // build Openl decision table
             //

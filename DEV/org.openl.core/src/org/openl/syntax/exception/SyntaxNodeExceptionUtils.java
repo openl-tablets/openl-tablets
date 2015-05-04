@@ -23,11 +23,11 @@ public class SyntaxNodeExceptionUtils {
     }
 
     public static SyntaxNodeException createError(String message, IOpenSourceCodeModule source) {
-        return new SyntaxNodeException(message, null, null, source);
+        return createError(message, null, null, source);
     }
 
     public static SyntaxNodeException createError(String message, ISyntaxNode syntaxNode) {
-        return new SyntaxNodeException(message, null, syntaxNode);
+        return createError(message, null, syntaxNode);
     }
 
     public static SyntaxNodeException createError(String message,

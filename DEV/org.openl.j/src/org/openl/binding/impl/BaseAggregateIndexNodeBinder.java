@@ -6,6 +6,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -67,7 +68,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 		case 2:
 			return prepareDefinedLocalVar(node, bindingContext, targetNode);
 		default:
-			throw new SyntaxNodeException("Aggregate node can have either 1 or 2 childen nodes", null, node);
+			throw SyntaxNodeExceptionUtils.createError("Aggregate node can have either 1 or 2 childen nodes", node);
 			
 		}
 
