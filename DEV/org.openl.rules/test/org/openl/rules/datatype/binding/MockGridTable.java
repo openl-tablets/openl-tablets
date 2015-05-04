@@ -15,12 +15,12 @@ import org.openl.rules.table.*;
  *
  * @author Denis Levchuk
  */
-public class GridTable extends AGridTable {
+public class MockGridTable extends AGridTable {
     private Object[][] values;
 
     private IGrid grid;
 
-    public GridTable(Object[][] cells) {
+    public MockGridTable(Object[][] cells) {
         // Flag indicating that previously there was a
         // null cell
         //
@@ -54,6 +54,7 @@ public class GridTable extends AGridTable {
             }
         }
         this.values = cells;
+        this.grid = new TestGrid(this);
     }
 
     @Override
@@ -154,10 +155,6 @@ public class GridTable extends AGridTable {
         return grid;
     }
 
-    public void setGrid(IGrid grid) {
-        this.grid = grid;
-    }
-
     @Override
     public int getGridRow(int column, int row) {
         // Left default implementation
@@ -175,5 +172,74 @@ public class GridTable extends AGridTable {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    /**
+     * Stub implementation for the IGrid
+     * just getCell is implemented
+     * to avoid NPE
+     */
+    private class TestGrid extends AGrid {
+
+        private IGridTable table;
+
+        public TestGrid(IGridTable table) {
+            this.table = table;
+        }
+
+        @Override
+        public ICell getCell(int column, int row) {
+            return table.getCell(column, row);
+        }
+
+        @Override
+        public int getColumnWidth(int col) {
+            return 0;
+        }
+
+        @Override
+        public int getMaxColumnIndex(int row) {
+            return 0;
+        }
+
+        @Override
+        public int getMaxRowIndex() {
+            return 0;
+        }
+
+        @Override
+        public IGridRegion getMergedRegion(int i) {
+            return null;
+        }
+
+        @Override
+        public int getMinColumnIndex(int row) {
+            return 0;
+        }
+
+        @Override
+        public int getMinRowIndex() {
+            return 0;
+        }
+
+        @Override
+        public int getNumberOfMergedRegions() {
+            return 0;
+        }
+
+        @Override
+        public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
+            return null;
+        }
+
+        @Override
+        public String getUri() {
+            return null;
+        }
+
+        @Override
+        public boolean isEmpty(int col, int row) {
+            return false;
+        }
     }
 }

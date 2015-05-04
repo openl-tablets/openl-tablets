@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by dl on 6/16/14.
  */
-public class GridTableTest {
+public class MockGridTableTest {
 
     public static final String CELL1 = "cell1";
     public static final String CELL2 = "cell2";
@@ -24,7 +24,7 @@ public class GridTableTest {
         mas[0][0] = CELL1;
         mas[0][1] = null;
         mas[0][2] = null;
-        GridTable t = new GridTable(mas);
+        MockGridTable t = new MockGridTable(mas);
 
         assertEquals(3, t.getWidth());
         assertEquals(1, t.getHeight());
@@ -42,7 +42,7 @@ public class GridTableTest {
         mas[0][0] = CELL1;
         mas[1][0] = null;
         mas[2][0] = null;
-        GridTable t = new GridTable(mas);
+        MockGridTable t = new MockGridTable(mas);
 
         assertEquals(1, t.getWidth());
         assertEquals(3, t.getHeight());
@@ -62,7 +62,7 @@ public class GridTableTest {
         mas[1][0] = CELL1;
         mas[2][0] = null;
         try {
-            GridTable t = new GridTable(mas);
+            MockGridTable t = new MockGridTable(mas);
         } catch (IllegalArgumentException ex) {
             assertTrue("Error should be thrown", true);
         }
@@ -81,7 +81,7 @@ public class GridTableTest {
         mas[1][1] = CELL5;
         mas[1][2] = CELL6;
 
-        GridTable t = new GridTable(mas);
+        MockGridTable t = new MockGridTable(mas);
 
         assertEquals(CELL1, t.getCell(0, 0).getStringValue());
         assertEquals(CELL2, t.getCell(1, 0).getStringValue());
@@ -111,7 +111,7 @@ public class GridTableTest {
         mas[1][1] = CELL5;
         mas[1][2] = CELL6;
 
-        GridTable t = new GridTable(mas);
+        MockGridTable t = new MockGridTable(mas);
 
         ILogicalTable logT = LogicalTableHelper.logicalTable(t);
 

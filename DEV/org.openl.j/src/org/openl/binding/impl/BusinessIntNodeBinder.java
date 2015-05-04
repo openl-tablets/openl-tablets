@@ -6,6 +6,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -19,7 +20,7 @@ public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
                 number.longValue(),
                 Integer.MIN_VALUE,
                 Integer.MAX_VALUE);
-            throw new SyntaxNodeException(message, null, node);
+            throw SyntaxNodeExceptionUtils.createError(message, node);
         }
 
         return number.intValue();

@@ -105,7 +105,7 @@ public class DecisionTableLoader {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
 
         if (tableBody == null) {
-            throw new SyntaxNodeException(EMPTY_BODY, null, tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError(EMPTY_BODY, tableSyntaxNode);
         }
 
         // preprocess simple decision tables (without conditions and return headers)
@@ -114,7 +114,7 @@ public class DecisionTableLoader {
         try {
             tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
         } catch (OpenLCompilationException e) {
-            throw new SyntaxNodeException("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
         }
 
         ILogicalTable toParse = tableBody;
@@ -134,7 +134,7 @@ public class DecisionTableLoader {
                 info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
                 
             } catch (Exception e) {
-                throw new SyntaxNodeException("Cannot convert table", e, tableSyntaxNode);
+                throw SyntaxNodeExceptionUtils.createError("Cannot convert table", e, tableSyntaxNode);
             }
 
         } else if (DecisionTableHelper.looksLikeVertical(tableBody)) {
@@ -153,7 +153,7 @@ public class DecisionTableLoader {
         
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            throw new SyntaxNodeException("Invalid structure of decision table", null, tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table", tableSyntaxNode);
         }
 
         columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
