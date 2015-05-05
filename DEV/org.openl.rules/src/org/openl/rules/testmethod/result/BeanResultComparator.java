@@ -1,12 +1,12 @@
 package org.openl.rules.testmethod.result;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -14,22 +14,18 @@ import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.types.IOpenField;
-import org.openl.util.StringTool;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public class BeanResultComparator implements TestResultComparator {
-    private List<String> fieldsToCompare;
+    protected Map<String, IOpenField> fieldMap;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 
-    public BeanResultComparator(List<String> fieldsToCompare) {
-        if (fieldsToCompare != null) {
-            this.fieldsToCompare = fieldsToCompare;
-        } else {
-            throw new IllegalArgumentException("Fields for comparing cannot be null");
+    public BeanResultComparator(List<IOpenField> fields) {
+        fieldMap = new LinkedHashMap<String, IOpenField>();
+        for (IOpenField field : fields) {
+            fieldMap.put(field.getName(), field);
         }
-    }
-
-    public List<String> getFieldsToCompare() {
-        return fieldsToCompare;
     }
 
     public List<ComparedResult> getComparisonResults() {
@@ -50,7 +46,7 @@ public class BeanResultComparator implements TestResultComparator {
                 actualFieldValue = rootCause.getMessage();
             }
 
-            for (String fieldToCompare : fieldsToCompare) {
+            for (String fieldToCompare : fieldMap.keySet()) {
                 ComparedResult fieldComparisonResults = new ComparedResult();
                 fieldComparisonResults.setFieldName(fieldToCompare);
 
@@ -73,7 +69,7 @@ public class BeanResultComparator implements TestResultComparator {
         if (actualResult == null || expectedResult == null) {
             boolean success = true;
 
-            for (String fieldToCompare : fieldsToCompare) {
+            for (String fieldToCompare : fieldMap.keySet()) {
                 Object actualFieldValue = getFieldValueOrNull(actualResult, fieldToCompare);
                 Object expectedFieldValue = getFieldValueOrNull(expectedResult, fieldToCompare);
                 boolean equal = actualFieldValue == null && expectedFieldValue == null;
@@ -92,36 +88,20 @@ public class BeanResultComparator implements TestResultComparator {
         } else {
             comparisonResults = new ArrayList<ComparedResult>();
             boolean success = true;
-            for (String fieldToCompare : fieldsToCompare) {
+            for (String fieldToCompare : fieldMap.keySet()) {
                 Double columnDelta = delta;
                 ComparedResult fieldComparisonResults = new ComparedResult();
                 fieldComparisonResults.setFieldName(fieldToCompare);
 
-                Object actualFieldValue = null;
-                try {
-                    actualFieldValue = getFieldValue(actualResult, fieldToCompare);
-                } catch (OpenLRuntimeException e) {
-                    actualFieldValue = null;
-                } catch (NullPointerException e) {
-                    actualFieldValue = null;
-                }
-                Object expectedFieldValue = null;
-                try {
-                    expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
-                } catch (OpenLRuntimeException e) {
-                    actualFieldValue = null;
-                } catch (NullPointerException e) {
-                    actualFieldValue = null;
-                }
+                Object actualFieldValue = getFieldValueOrNull(actualResult, fieldToCompare);
+                Object expectedFieldValue = getFieldValueOrNull(expectedResult, fieldToCompare);
 
-                if (this instanceof OpenLBeanResultComparator) {
-                    IOpenField field = ((OpenLBeanResultComparator) this).getField(fieldToCompare);
+                IOpenField field = fieldMap.get(fieldToCompare);
 
-                    // Get delta for field if setted
-                    if (field instanceof PrecisionFieldChain) {
-                        if (((PrecisionFieldChain) field).hasDelta()) {
-                            columnDelta = ((PrecisionFieldChain) field).getDelta();
-                        }
+                // Get delta for field if setted
+                if (field instanceof PrecisionFieldChain) {
+                    if (((PrecisionFieldChain) field).hasDelta()) {
+                        columnDelta = ((PrecisionFieldChain) field).getDelta();
                     }
                 }
                 boolean compare = false;
@@ -157,26 +137,13 @@ public class BeanResultComparator implements TestResultComparator {
         Object fieldValue = null;
         if (result != null) {
             try {
-                fieldValue = getFieldValue(result, fieldToCompare);
+                IOpenField field = fieldMap.get(fieldToCompare);
+                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+                fieldValue = field.get(result, env);
             } catch (OpenLRuntimeException ignored) {
             } catch (NullPointerException ignored) {
             }
         }
         return fieldValue;
     }
-
-    protected Object getFieldValue(Object target, String fieldName) {
-        Object res = null;
-        Class<?> targetClass = target.getClass();
-        Method method;
-        try {
-            method = targetClass.getMethod(StringTool.getGetterName(fieldName), new Class<?>[0]);
-            res = method.invoke(target, new Object[0]);
-        } catch (Exception e1) {
-            String message = String.format("Cannot get value for field %s", fieldName);
-            throw new OpenlNotCheckedException(message, e1);
-        }
-        return res;
-    }
-
 }

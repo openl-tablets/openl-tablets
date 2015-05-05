@@ -1,28 +1,32 @@
 package org.openl.rules.testmethod.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 import org.openl.rules.testmethod.result.BeanResultComparator;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 public class BeanResultComparatorTest {
 
     @Test
-    public void test() {
-        BeanResultComparator comparator = new BeanResultComparator(new ArrayList<String>());
+    public void test() throws NoSuchFieldException {
+        BeanResultComparator comparator = new BeanResultComparator(Collections.<IOpenField> emptyList());
         assertTrue(comparator.compareResult(null, null, null));
 
-        List<String> fields = new ArrayList<String>();
-        fields.add("NumberFormat");
+        List<IOpenField> fields = new ArrayList<IOpenField>(JavaOpenClass.STRING.getFields().values());
         BeanResultComparator comparator1 = new BeanResultComparator(fields);
-        assertFalse(comparator1.compareResult(null, new SimpleDateFormat(), null));
 
-        assertFalse(comparator1.compareResult(new SimpleDateFormat(), null, null));
-
-        assertTrue(comparator1.compareResult(new SimpleDateFormat(), new SimpleDateFormat(), null));
+        assertFalse(comparator1.compareResult(null, "Hello", null));
+        assertFalse(comparator1.compareResult("Hello", null, null));
+        assertTrue(comparator1.compareResult("Hello", "Hello", null));
+        assertTrue(comparator1.compareResult(new String("Hello"), new String("Hello"), null));
+        assertFalse(comparator1.compareResult("Hello", "By-by", null));
     }
 }
