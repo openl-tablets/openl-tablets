@@ -86,8 +86,8 @@ public class TestUnit {
         TestResultComparator comparator = o != null ? testUnitComparator.getComparator()
                                                                     : TestResultComparatorFactory.getComparator(runningResult,
                                                                         getExpectedResult());
-        if (comparator instanceof OpenLBeanResultComparator) {
-            OpenLBeanResultComparator beanComparator = (OpenLBeanResultComparator) comparator;
+        if (comparator instanceof BeanResultComparator) {
+            BeanResultComparator beanComparator = (BeanResultComparator) comparator;
             actualResult = runningResult; // Cannot clone SpreadsheetResult's
 
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
