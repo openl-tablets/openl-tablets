@@ -131,8 +131,8 @@ public class BeanResultComparator implements TestResultComparator {
             try {
                 IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
                 fieldValue = field.get(result, env);
-            } catch (OpenLRuntimeException ignored) {
-            } catch (NullPointerException ignored) {
+            } catch (Exception ex) {
+                fieldValue = ex;
             }
         }
         return fieldValue;
