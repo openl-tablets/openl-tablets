@@ -26,12 +26,8 @@ public class TestResultComparatorFactory {
         return new DefaultComparator();
     }
 
-    public static TestResultComparator getBeanComparator(List<String> fieldsToTest) {
-        return new BeanResultComparator(fieldsToTest);
-    }
-
     public static TestResultComparator getOpenLBeanComparator(
             List<IOpenField> fieldsToTest) {
-        return new OpenLBeanResultComparator(fieldsToTest);
+        return new BeanResultComparator(fieldsToTest);
     }
 }

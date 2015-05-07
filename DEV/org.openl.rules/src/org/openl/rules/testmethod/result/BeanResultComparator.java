@@ -1,12 +1,9 @@
 package org.openl.rules.testmethod.result;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -14,22 +11,15 @@ import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.types.IOpenField;
-import org.openl.util.StringTool;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public class BeanResultComparator implements TestResultComparator {
-    private List<String> fieldsToCompare;
+    private List<IOpenField> fields;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 
-    public BeanResultComparator(List<String> fieldsToCompare) {
-        if (fieldsToCompare != null) {
-            this.fieldsToCompare = fieldsToCompare;
-        } else {
-            throw new IllegalArgumentException("Fields for comparing cannot be null");
-        }
-    }
-
-    public List<String> getFieldsToCompare() {
-        return fieldsToCompare;
+    public BeanResultComparator(List<IOpenField> fields) {
+        this.fields = fields;
     }
 
     public List<ComparedResult> getComparisonResults() {
@@ -50,12 +40,12 @@ public class BeanResultComparator implements TestResultComparator {
                 actualFieldValue = rootCause.getMessage();
             }
 
-            for (String fieldToCompare : fieldsToCompare) {
+            for (IOpenField field : fields) {
                 ComparedResult fieldComparisonResults = new ComparedResult();
-                fieldComparisonResults.setFieldName(fieldToCompare);
+                fieldComparisonResults.setFieldName(field.getName());
 
                 fieldComparisonResults.setActualValue(actualFieldValue);
-                fieldComparisonResults.setExpectedValue(getFieldValueOrNull(expectedResult, fieldToCompare));
+                fieldComparisonResults.setExpectedValue(getFieldValueOrNull(expectedResult, field));
 
                 // For BeanResultComparator expectedResult is complex object - that's why expectedResult
                 // always doesn't equal to exception
@@ -70,58 +60,40 @@ public class BeanResultComparator implements TestResultComparator {
     }
 
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
+        boolean success = true;
         if (actualResult == null || expectedResult == null) {
-            boolean success = true;
 
-            for (String fieldToCompare : fieldsToCompare) {
-                Object actualFieldValue = getFieldValueOrNull(actualResult, fieldToCompare);
-                Object expectedFieldValue = getFieldValueOrNull(expectedResult, fieldToCompare);
+            for (IOpenField field : fields) {
+                Object actualFieldValue = getFieldValueOrNull(actualResult, field);
+                Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
+
                 boolean equal = actualFieldValue == null && expectedFieldValue == null;
                 if (!equal) {
                     success = false;
                 }
 
                 ComparedResult fieldComparisonResults = new ComparedResult();
-                fieldComparisonResults.setFieldName(fieldToCompare);
+                fieldComparisonResults.setFieldName(field.getName());
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
                 fieldComparisonResults.setStatus(equal ? TestStatus.TR_OK : TestStatus.TR_NEQ);
                 comparisonResults.add(fieldComparisonResults);
             }
-            return success;
         } else {
             comparisonResults = new ArrayList<ComparedResult>();
-            boolean success = true;
-            for (String fieldToCompare : fieldsToCompare) {
-                Double columnDelta = delta;
+            for (IOpenField field : fields) {
+                Object actualFieldValue = getFieldValueOrNull(actualResult, field);
+                Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
+
                 ComparedResult fieldComparisonResults = new ComparedResult();
-                fieldComparisonResults.setFieldName(fieldToCompare);
+                fieldComparisonResults.setFieldName(field.getName());
 
-                Object actualFieldValue = null;
-                try {
-                    actualFieldValue = getFieldValue(actualResult, fieldToCompare);
-                } catch (OpenLRuntimeException e) {
-                    actualFieldValue = null;
-                } catch (NullPointerException e) {
-                    actualFieldValue = null;
-                }
-                Object expectedFieldValue = null;
-                try {
-                    expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
-                } catch (OpenLRuntimeException e) {
-                    actualFieldValue = null;
-                } catch (NullPointerException e) {
-                    actualFieldValue = null;
-                }
 
-                if (this instanceof OpenLBeanResultComparator) {
-                    IOpenField field = ((OpenLBeanResultComparator) this).getField(fieldToCompare);
-
-                    // Get delta for field if setted
-                    if (field instanceof PrecisionFieldChain) {
-                        if (((PrecisionFieldChain) field).hasDelta()) {
-                            columnDelta = ((PrecisionFieldChain) field).getDelta();
-                        }
+                // Get delta for field if setted
+                Double columnDelta = delta;
+                if (field instanceof PrecisionFieldChain) {
+                    if (((PrecisionFieldChain) field).hasDelta()) {
+                        columnDelta = ((PrecisionFieldChain) field).getDelta();
                     }
                 }
                 boolean compare = false;
@@ -148,35 +120,21 @@ public class BeanResultComparator implements TestResultComparator {
                 }
                 comparisonResults.add(fieldComparisonResults);
             }
-            return success;
         }
+        return success;
 
     }
 
-    private Object getFieldValueOrNull(Object result, String fieldToCompare) {
+    private Object getFieldValueOrNull(Object result, IOpenField field) {
         Object fieldValue = null;
         if (result != null) {
             try {
-                fieldValue = getFieldValue(result, fieldToCompare);
-            } catch (OpenLRuntimeException ignored) {
-            } catch (NullPointerException ignored) {
+                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+                fieldValue = field.get(result, env);
+            } catch (Exception ex) {
+                fieldValue = ex;
             }
         }
         return fieldValue;
     }
-
-    protected Object getFieldValue(Object target, String fieldName) {
-        Object res = null;
-        Class<?> targetClass = target.getClass();
-        Method method;
-        try {
-            method = targetClass.getMethod(StringTool.getGetterName(fieldName), new Class<?>[0]);
-            res = method.invoke(target, new Object[0]);
-        } catch (Exception e1) {
-            String message = String.format("Cannot get value for field %s", fieldName);
-            throw new OpenlNotCheckedException(message, e1);
-        }
-        return res;
-    }
-
 }
