@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -20,6 +20,7 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -49,7 +50,7 @@ import org.openl.types.IOpenMethod;
  * Request scope managed bean for Table page.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class TableBean {
 
     private IOpenMethod method;
@@ -281,12 +282,17 @@ public class TableBean {
         return id;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public List<IOpenLTable> getTargetTables() {
-        return targetTables;
+    public List<TableDescription> getTargetTables() {
+        if (targetTables == null) {
+            return  null;
+        }
+        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(targetTables.size());
+        for (IOpenLTable targetTable : targetTables) {
+            tableDescriptions.add(new TableDescription(targetTable.getUri(),
+                    targetTable.getId(),
+                    getTableName(targetTable)));
+        }
+        return tableDescriptions;
     }
 
     /**
@@ -345,8 +351,17 @@ public class TableBean {
     /**
      * Gets all tests for current table.
      */
-    public IOpenMethod[] getAllTests() {
-        return allTests;
+    public TableDescription[] getAllTests() {
+        if (allTests == null) {
+            return null;
+        }
+        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(allTests.length);
+        for (IOpenMethod test : allTests) {
+            String tableUri = ((TableUriMethod) test).getTableUri();
+            TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
+            tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
+        }
+        return tableDescriptions.toArray(new TableDescription[tableDescriptions.size()]);
     }
     
     public String getTestName(Object testMethod){
@@ -392,16 +407,6 @@ public class TableBean {
         studio.rebuildModel();
     }
 
-    public void setShowFormulas() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setShowFormulas(!studio.isShowFormulas());
-    }
-
-    public void setCollapseProperties() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setCollapseProperties(!studio.isCollapseProperties());
-    }
-
     public boolean getCanEdit() {
         return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
     }
@@ -435,5 +440,29 @@ public class TableBean {
             return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
         }
         return null;
+    }
+
+    public static class TableDescription {
+        private final String uri;
+        private final String id;
+        private final String name;
+
+        public TableDescription(String uri, String id, String name) {
+            this.uri = uri;
+            this.id = id;
+            this.name = name;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }
