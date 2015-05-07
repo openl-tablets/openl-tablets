@@ -13,6 +13,10 @@ import java.util.Map;
 
 public class RowParser implements IRowParser {
     private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";
+    private static final String CONDITION = "Condition";
+    private static final String ACTION = "Action";
+    private static final String BEFORE = "Before";
+    private static final String AFTER = "After";
     private List<AlgorithmRow> rows;
     private TableParserSpecificationBean[] specifications;
 
@@ -190,10 +194,10 @@ public class RowParser implements IRowParser {
             throw SyntaxNodeExceptionUtils.createError(errMsg, row.getLabel().asSourceCodeModule());
         }
 
-        checkRowValue("Condition", row.getCondition(), spec.getCondition());
-        checkRowValue("Action", row.getAction(), spec.getAction());
-        checkRowValue("Before", row.getBefore(), spec.getBeforeAndAfter());
-        checkRowValue("After", row.getAfter(), spec.getBeforeAndAfter());
+        checkRowValue(CONDITION, row.getCondition(), spec.getCondition());
+        checkRowValue(ACTION, row.getAction(), spec.getAction());
+        checkRowValue(BEFORE, row.getBefore(), spec.getBeforeAndAfter());
+        checkRowValue(AFTER, row.getAfter(), spec.getBeforeAndAfter());
 
         // check Top Level
         int indent = row.getOperationLevel();

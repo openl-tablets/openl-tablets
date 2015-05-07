@@ -1,5 +1,6 @@
 package org.openl.rules.tbasic;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -20,6 +21,16 @@ import org.openl.types.java.JavaOpenClass;
 import java.util.*;
 
 public class AlgorithmBuilder {
+
+    private static final String LABEL = "label";
+    private static final String DESCRIPTION = "description";
+    private static final String OPERATION1 = "operation";
+    private static final String CONDITION = "condition";
+    private static final String ACTION = "action";
+    private static final String BEFORE = "before";
+    private static final String AFTER = "after";
+    private static final String CELL = "cell";
+    private static final String UNDERSCORE = "_";
 
     // Section Description Operation Condition Action Before After
     private static class AlgorithmColumn {
@@ -124,10 +135,10 @@ public class AlgorithmBuilder {
                 String value = grid.getCell(c, r).getStringValue();
 
                 if (value == null) {
-                    value = "";
+                    value = StringUtils.EMPTY;
                 }
 
-                StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, new GridCellSourceCodeModule(grid,
+                StringValue sv = new StringValue(value, CELL + r + UNDERSCORE + c, null, new GridCellSourceCodeModule(grid,
                         c, r, bindingContext));
 
                 setRowField(aRow, column.id, sv);
@@ -176,19 +187,19 @@ public class AlgorithmBuilder {
     }
 
     private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxNodeException {
-        if ("label".equalsIgnoreCase(column)) {
+        if (LABEL.equalsIgnoreCase(column)) {
             row.setLabel(sv);
-        } else if ("description".equalsIgnoreCase(column)) {
+        } else if (DESCRIPTION.equalsIgnoreCase(column)) {
             row.setDescription(sv);
-        } else if ("operation".equalsIgnoreCase(column)) {
+        } else if (OPERATION1.equalsIgnoreCase(column)) {
             row.setOperation(sv);
-        } else if ("condition".equalsIgnoreCase(column)) {
+        } else if (CONDITION.equalsIgnoreCase(column)) {
             row.setCondition(sv);
-        } else if ("action".equalsIgnoreCase(column)) {
+        } else if (ACTION.equalsIgnoreCase(column)) {
             row.setAction(sv);
-        } else if ("before".equalsIgnoreCase(column)) {
+        } else if (BEFORE.equalsIgnoreCase(column)) {
             row.setBefore(sv);
-        } else if ("after".equalsIgnoreCase(column)) {
+        } else if (AFTER.equalsIgnoreCase(column)) {
             row.setAfter(sv);
         } else {
             throw SyntaxNodeExceptionUtils.createError("Invalid column id '" + column + "'!", null, tsn);
