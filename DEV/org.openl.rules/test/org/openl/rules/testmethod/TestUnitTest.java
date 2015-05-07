@@ -17,7 +17,7 @@ public class TestUnitTest {
 
         DoubleValue testResult = new DoubleValue(0.93);
 
-        TestUnit unit = new TestUnit(test, testResult, null);
+        TestUnit unit = new TestUnit(test, testResult);
 
         assertEquals(new DoubleValue(0.93), unit.getActualResult());
         assertEquals(0, unit.compareResult());

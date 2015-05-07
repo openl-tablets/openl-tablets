@@ -175,7 +175,7 @@ public class TestDescription {
             } finally {
                 env.setContext(oldContext);
             }
-            return exception == null ? new TestUnit(this, res, null) : new TestUnit(this, null, exception);
+            return exception == null ? new TestUnit(this, res) : new TestUnit(this, exception);
         }
     }
 
