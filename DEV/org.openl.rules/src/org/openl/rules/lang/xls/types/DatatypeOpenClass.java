@@ -19,9 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -337,6 +335,8 @@ public class DatatypeOpenClass extends ADynamicClass {
         }
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            // TODO: remove usage of the EqualsBuilder
+            //
             EqualsBuilder builder = new EqualsBuilder();
             Map<String, IOpenField> fields = openClass.getFields();
             for (IOpenField field : fields.values()) {
@@ -391,12 +391,14 @@ public class DatatypeOpenClass extends ADynamicClass {
         }
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            HashCodeBuilder builder = new HashCodeBuilder();
+            int result = 0;
             Map<String, IOpenField> fields = openClass.getFields();
+
             for (IOpenField field : fields.values()) {
-                builder.append(field.get(target, env));
+                result = 31 * result + (field != null ? field.hashCode() : 0);
             }
-            return builder.toHashCode();
+
+            return result;
         }
     }
 }
