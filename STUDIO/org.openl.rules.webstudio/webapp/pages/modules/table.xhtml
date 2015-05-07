@@ -471,7 +471,7 @@
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#{studio.url('table', targetTable.uri)}">
                                 <f:param name="id" value="#{targetTable.id}" />
-                                <h:outputText value="#{tableBean.getTableName(targetTable)}" />
+                                <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
                                 onclick="ws.ui.showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
@@ -487,7 +487,7 @@
                         <div>
                             <h:outputLink value="#{studio.url('table', targetTable.uri)}">
                                 <f:param name="id" value="#{targetTable.id}" />
-                                <h:outputText value="#{tableBean.getTableName(targetTable)}" />
+                                <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
                         </div>
                         </h:panelGroup>
@@ -504,9 +504,9 @@
                     <div>
                         <ui:repeat value="#{tableBean.allTests}" var="test2" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table', test2.tableUri)}" >
-                                <f:param name="id" value="#{test2.info.syntaxNode.id}" />
-                                <h:outputText value="#{tableBean.getTestName(test2)}" />
+                            <h:outputLink value="#{studio.url('table', test2.uri)}" >
+                                <f:param name="id" value="#{test2.id}" />
+                                <h:outputText value="#{test2.name}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
                                 onclick="ws.ui.showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
@@ -521,9 +521,9 @@
                         <ui:repeat value="#{tableBean.allTests}" var="test3" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#{studio.url('table', test3.tableUri)}">
-                                <f:param name="id" value="#{test3.info.syntaxNode.id}" />
-                                <h:outputText value="#{tableBean.getTestName(test3)}" />
+                            <h:outputLink value="#{studio.url('table', test3.uri)}">
+                                <f:param name="id" value="#{test3.id}" />
+                                <h:outputText value="#{test3.name}" />
                             </h:outputLink>
                         </div>
                         </h:panelGroup>
