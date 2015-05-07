@@ -1,5 +1,6 @@
 package org.openl.rules.tbasic;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
 
@@ -23,35 +24,35 @@ public class AlgorithmRow {
 
     public StringValue getAction() {
         if (action == null) {
-            action = new StringValue("");
+            action = new StringValue(StringUtils.EMPTY);
         }
         return action;
     }
 
     public StringValue getAfter() {
         if (after == null) {
-            after = new StringValue("");
+            after = new StringValue(StringUtils.EMPTY);
         }
         return after;
     }
 
     public StringValue getBefore() {
         if (before == null) {
-            before = new StringValue("");
+            before = new StringValue(StringUtils.EMPTY);
         }
         return before;
     }
 
     public StringValue getCondition() {
         if (condition == null) {
-            condition = new StringValue("");
+            condition = new StringValue(StringUtils.EMPTY);
         }
         return condition;
     }
 
     public StringValue getDescription() {
         if (description == null) {
-            description = new StringValue("");
+            description = new StringValue(StringUtils.EMPTY);
         }
         return description;
     }
@@ -65,14 +66,14 @@ public class AlgorithmRow {
 
     public StringValue getLabel() {
         if (label == null) {
-            label = new StringValue("");
+            label = new StringValue(StringUtils.EMPTY);
         }
         return label;
     }
 
     public StringValue getOperation() {
         if (description == null) {
-            description = new StringValue("");
+            description = new StringValue(StringUtils.EMPTY);
         }
         return operation;
     }
