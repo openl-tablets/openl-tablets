@@ -1,9 +1,8 @@
 package org.openl.cache;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.Arrays;
 
 /**
  * This is immutable object for using it as a key. Build key by array of
@@ -44,6 +43,8 @@ public final class GenericKey {
         if (objects.length != anotherKey.objects.length) {
             return false;
         }
+        // FIXME: Remove usage of the EqualsBuilder
+        //
         EqualsBuilder equalsBuilder = new EqualsBuilder();
         for (int i = 0; i < objects.length; i++) {
             equalsBuilder.append(objects[i], anotherKey.objects[i]);
@@ -53,10 +54,6 @@ public final class GenericKey {
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        for (int i = 0; i < objects.length; i++) {
-            hashCodeBuilder.append(objects[i]);
-        }
-        return hashCodeBuilder.toHashCode();
+        return objects != null ? Arrays.hashCode(objects) : 0;
     }
 }
