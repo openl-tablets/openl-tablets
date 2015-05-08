@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -11,17 +18,11 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import java.util.List;
-
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class RunBean {
 
     @ManagedProperty("#{runTestHelper}")

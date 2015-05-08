@@ -1,5 +1,10 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.*;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -22,15 +27,11 @@ import org.openl.types.IParameterDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import java.util.*;
-
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
