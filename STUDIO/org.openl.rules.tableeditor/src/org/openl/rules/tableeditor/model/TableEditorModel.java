@@ -257,7 +257,7 @@ public class TableEditorModel {
             String pName = propNameCell.getStringValue();
 
             if (pName != null && pName.equals(propName)) {
-                return new CellKey(1, 1 + i);
+                return CellKey.CellKeyFactory.getCellKey(1, 1 + i);
             }
         }
 
