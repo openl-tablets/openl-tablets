@@ -6,16 +6,16 @@
 
 package org.openl.binding.impl;
 
+import org.openl.meta.StringValue;
+import org.openl.util.ArrayTool;
+import org.openl.util.DateDifference;
+import org.openl.util.math.MathUtils;
+
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.openl.meta.StringValue;
-import org.openl.util.ArrayTool;
-import org.openl.util.DateDifference;
-import org.openl.util.math.MathUtils;
 
 /**
  * @author snshor
@@ -752,8 +752,20 @@ public class Operators {
         return x > y;
     }
 
-    public static <T extends Comparable<T>> boolean gt(T c1, T c2) {
+    public static boolean gt(BigInteger c1, BigInteger c2) {
         return strict_gt(c1, c2);
+    }
+
+    public static boolean gt(BigDecimal c1, BigDecimal c2) {
+        return strict_gt(c1, c2);
+    }
+
+    public static boolean gt(String x, String y) {
+        return strict_gt(x, y);
+    }
+
+    public static boolean gt(Date x, Date y) {
+        return strict_gt(x, y);
     }
 
     public static <T extends Comparable<T>> boolean strict_gt(T c1, T c2) {
@@ -825,8 +837,20 @@ public class Operators {
         return x >= y;
     }
 
-    public static <T extends Comparable<T>> boolean ge(T c1, T c2) {
-        return strict_ge(c1, c2);
+    public static boolean ge(BigInteger x, BigInteger y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean ge(BigDecimal x, BigDecimal y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean ge(Date x, Date y) {
+        return strict_ge(x, y);
+    }
+
+    public static boolean ge(String x, String y) {
+        return strict_ge(x, y);
     }
 
     public static <T extends Comparable<T>> boolean strict_ge(T c1, T c2) {
@@ -902,12 +926,16 @@ public class Operators {
         return strict_lt(x, y);
     }
 
-    public static boolean strict_lt(BigDecimal x, BigDecimal y) {
-        return x.compareTo(y) < 0;
+    public static boolean lt(BigInteger x, BigInteger y) {
+        return strict_lt(x, y);
     }
 
-    public static <T extends Comparable<T>> boolean lt(T c1, T c2) {
-        return strict_lt(c1, c2);
+    public static boolean lt(Date x, Date y) {
+        return strict_lt(x, y);
+    }
+
+    public static boolean lt(String x, String y) {
+        return strict_lt(x, y);
     }
 
     public static <T extends Comparable<T>> boolean strict_lt(T c1, T c2) {
@@ -979,8 +1007,20 @@ public class Operators {
         return x <= y;
     }
 
-    public static <T extends Comparable<T>> boolean le(T c1, T c2) {
-        return strict_le(c1, c2);
+    public static boolean le(BigDecimal x, BigDecimal y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean le(BigInteger x, BigInteger y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean le(Date x, Date y) {
+        return strict_le(x, y);
+    }
+
+    public static boolean le(String x, String y) {
+        return strict_le(x, y);
     }
 
     public static <T extends Comparable<T>> boolean strict_le(T c1, T c2) {
@@ -995,6 +1035,8 @@ public class Operators {
         }
     }
 
+    // FIXME: is it normal? Why not to use contains(array, element)?
+    //
     public static boolean le(String x, String[] y) {
         return strict_le(x, y);
     }

@@ -1,10 +1,5 @@
 package org.openl.rules.table.properties;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.openl.OpenL;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -23,6 +18,11 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads all kinds of properties to tsn. At first load all properties defined in
@@ -134,6 +134,18 @@ public class PropertiesLoader {
         }
     }
 
+    private static HashMap<String, Object> commonDefaultProperties1 = new HashMap<String, Object>() {
+        {
+            put("active", true);
+        }
+    };
+
+    private static HashMap<String, Object> commonDefaultProperties2 = new HashMap<String, Object>() {
+        {
+            put("failOnMiss", true);
+        }
+    };
+
     /**
      * Load to tsn default properties.
      * 
@@ -160,6 +172,15 @@ public class PropertiesLoader {
             );
 
             defaultProperties.put(defaultPropertyName, defaultValue);
+        }
+
+        // Optimisation case.
+        // Use the same instance of the default properties for the most popular cases
+        //
+        if (commonDefaultProperties1.equals(defaultProperties)) {
+            defaultProperties = commonDefaultProperties1;
+        } else  if (commonDefaultProperties2.equals(defaultProperties)) {
+            defaultProperties = commonDefaultProperties2;
         }
 
         properties.setPropertiesAppliedByDefault(defaultProperties);

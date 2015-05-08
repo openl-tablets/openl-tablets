@@ -14,8 +14,10 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
  *
  */
 public class ArrayParameterColumn extends ADispatcherTableColumn {
-    
-    public ArrayParameterColumn(TablePropertyDefinition arrayDimensionProperty, 
+
+    private static final String LOGICAL_OR = " || ";
+
+    public ArrayParameterColumn(TablePropertyDefinition arrayDimensionProperty,
             DispatcherTableRules rules) {
         super(arrayDimensionProperty, rules);
         validate();
@@ -47,7 +49,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
                 //
                 for (int i = 1; i <= getNumberOfLocalParameters(); i++) {
                     if (i > 1){
-                        codeExpression.append(" || ");
+                        codeExpression.append(LOGICAL_OR);
                     }
                     String parameterName = getLocalParameterName(i);                    
                     codeExpression.append(createCodeExpression(matchExpression, parameterName));
@@ -59,7 +61,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
                 getProperty().getName());
             OpenLMessagesUtils.addWarn(message);
         }
-        return result;        
+        return result.intern();
     }
 
     public String getTitle() {        
@@ -68,7 +70,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     public String getParameterDeclaration() {
         Class<?> componentType = getProperty().getType().getInstanceClass().getComponentType();
-        return String.format("%s %s", componentType.getSimpleName(), getLocalParameterName());        
+        return String.format("%s %s", componentType.getSimpleName(), getLocalParameterName()).intern();
     }
     
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
@@ -102,7 +104,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     }
     
     private String getLocalParameterName() {
-        return String.format("%s%s", getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
+        return String.format("%s%s", getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX).intern();
     }
     
     private String createCodeExpression(MatchingExpression matchExpression, String parameterName) {        
@@ -116,6 +118,6 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
      * @return code expression like "<propertyName>Local1"
      */
     private String getLocalParameterName(int numberOfLocalParameter) {
-        return String.format("%s%d", getLocalParameterName(), numberOfLocalParameter);
+        return String.format("%s%d", getLocalParameterName(), numberOfLocalParameter).intern();
     }
 }
