@@ -45,15 +45,18 @@ public class AlgorithmBuilder {
 
     private static final String OPERATION = "Operation";
 
-    public static Set<String> algorithmOperations = new LinkedHashSet<String>();
+    public static String[] algorithmOperationsArray = null;
 
     static {
         AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
         TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
 
+        Set<String> algorithmOperations = new LinkedHashSet<String>();
+
         for (TableParserSpecificationBean specification : algSpecifications) {
             algorithmOperations.add(specification.getKeyword());
         }
+        algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
     }
 
 
@@ -81,7 +84,7 @@ public class AlgorithmBuilder {
      */
     private void bindMetaInfo(IGridTable grid, int c, int r) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
-                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations.toArray(new String[algorithmOperations.size()])), null), false);
+                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
         IWritableGrid wgrid = (IWritableGrid) grid.getGrid();
         wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
                 grid.getRegion(), r), meta);
