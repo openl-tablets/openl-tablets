@@ -80,36 +80,21 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             if (project == null || project.isEmpty()) {
                 throw new IllegalArgumentException("project can't be null or empty!");
             }
+            File projectFile = new File(project);
+            File workspaceFile = workspace == null ? null : new File(workspace);
             if (module == null) {
-                if (workspace != null) {
-                    return new SimpleProjectEngineFactory<T>(new File(project),
-                            new File(workspace),
-                            interfaceClass,
-                            provideRuntimeContext,
-                            executionMode);
-                } else {
-                    return new SimpleProjectEngineFactory<T>(new File(project),
-                            null,
-                            interfaceClass,
-                            provideRuntimeContext,
-                            executionMode);
-                }
+                return new SimpleProjectEngineFactory<T>(projectFile,
+                    workspaceFile,
+                    interfaceClass,
+                    provideRuntimeContext,
+                    executionMode);
             } else {
-                if (workspace != null) {
-                    return new SimpleProjectEngineFactory<T>(new File(project),
-                            new File(workspace),
-                            module,
-                            interfaceClass,
-                            provideRuntimeContext,
-                            executionMode);
-                } else {
-                    return new SimpleProjectEngineFactory<T>(new File(project),
-                            null,
-                            module,
-                            interfaceClass,
-                            provideRuntimeContext,
-                            executionMode);
-                }
+                return new SimpleProjectEngineFactory<T>(projectFile,
+                    workspaceFile,
+                    module,
+                    interfaceClass,
+                    provideRuntimeContext,
+                    executionMode);
             }
 
         }
