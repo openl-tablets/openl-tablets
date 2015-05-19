@@ -13,7 +13,7 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
-import org.openl.rules.table.ui.IGridSelector;
+import org.openl.rules.table.ui.filters.AGridFilter;
 import org.openl.rules.table.ui.filters.CollectionCellFilter;
 import org.openl.rules.table.ui.filters.ExpectedResultFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -32,7 +32,7 @@ public final class ObjectViewer {
     private ObjectViewer() {
     }
 
-    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/ 
+    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/
     public static String displaySpreadsheetResult(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest) {
         return display(res, spreadsheetCellsForTest, true);
     }
@@ -48,7 +48,7 @@ public final class ObjectViewer {
     }
 
     private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest, boolean filter) {
-        ILogicalTable table = res.getLogicalTable();        
+        ILogicalTable table = res.getLogicalTable();
 
         final int firstRowHeight = table.getRow(0).getSource().getHeight();
         final int firstColWidth = table.getColumn(0).getSource().getWidth();
@@ -71,17 +71,17 @@ public final class ObjectViewer {
 
         };
 
-        IGridTable gridtable = table.getSource();        
-        TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);       
+        IGridTable gridtable = table.getSource();
+        TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);
         CollectionCellFilter collectionFilter = new CollectionCellFilter();
 
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(tableValueFilter);
         filters.add(collectionFilter);
 
-        if (filter) {            
-            filters.add(new LinkMaker(tableValueFilter));
-            
+        if (filter) {
+            filters.add(new LinkMaker());
+
             // Check if the cells for test are initialized,
             // Means Spreadsheet should be displayed with expected values for tests
             //
@@ -95,49 +95,17 @@ public final class ObjectViewer {
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 
-    private static class LinkMaker implements IGridFilter, IGridSelector {
-
-        private String url;
-
-        private TableValueFilter dataAdapter;
-
-        public LinkMaker(TableValueFilter dataAdapter) {
-            super();
-            this.dataAdapter = dataAdapter;
-        }
+    private static class LinkMaker extends AGridFilter {
 
         public FormattedCell filterFormat(FormattedCell cell) {
-            cell.setFormattedValue("<a href=\"" + url + "\">" + cell.getFormattedValue() + "</a>");
+            Object value = cell.getObjectValue();
+            if (value instanceof ExplanationNumberValue<?>) {
+                int rootID = Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) value);
+                String url = "javascript: explain(\'?rootID=" + rootID + "')";
+                cell.setFormattedValue("<a href=\"" + url + "\">" + cell.getFormattedValue() + "</a>");
+            }
             return cell;
         }
-
-        public IGridSelector getGridSelector() {
-            return this;
-        }
-
-        private String makeUrl(int col, int row, TableValueFilter dataAdapter) {
-            Object obj = dataAdapter.getCellValue(col, row);
-            
-            if (obj == null || !(obj instanceof ExplanationNumberValue<?>)) {
-                return null;
-            }
-
-            ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) obj;
-
-            return getURL(explanationValue);
-        }
-
-        public static String getURL(ExplanationNumberValue<?> dv) {
-            int rootID = Explanator.getCurrent().getUniqueId(dv);
-            return "javascript: explain(\'?rootID=" + rootID + "')";
-        }
-
-        public boolean selectCoords(int col, int row) {
-            url = makeUrl(col, row, dataAdapter);
-
-            return url != null;
-        }
-
     }
 
 }
