@@ -7,17 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
-import org.openl.rules.table.ui.filters.AGridFilter;
-import org.openl.rules.table.ui.filters.CollectionCellFilter;
 import org.openl.rules.table.ui.filters.ExpectedResultFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.ui.filters.TableValueFilter;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -73,14 +68,13 @@ public final class ObjectViewer {
 
         IGridTable gridtable = table.getSource();
         TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);
-        CollectionCellFilter collectionFilter = new CollectionCellFilter();
 
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(tableValueFilter);
-        filters.add(collectionFilter);
+        filters.add(CollectionCellFilter.INSTANCE);
 
         if (filter) {
-            filters.add(new LinkMaker());
+            filters.add(LinkMaker.INSTANCE);
 
             // Check if the cells for test are initialized,
             // Means Spreadsheet should be displayed with expected values for tests
@@ -93,19 +87,6 @@ public final class ObjectViewer {
 
         TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[filters.size()]));
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
-    }
-
-    private static class LinkMaker extends AGridFilter {
-
-        public FormattedCell filterFormat(FormattedCell cell) {
-            Object value = cell.getObjectValue();
-            if (value instanceof ExplanationNumberValue<?>) {
-                int rootID = Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) value);
-                String url = "javascript: explain(\'?rootID=" + rootID + "')";
-                cell.setFormattedValue("<a href=\"" + url + "\">" + cell.getFormattedValue() + "</a>");
-            }
-            return cell;
-        }
     }
 
 }
