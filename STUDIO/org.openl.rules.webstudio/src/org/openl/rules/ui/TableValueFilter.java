@@ -1,7 +1,8 @@
-package org.openl.rules.table.ui.filters;
+package org.openl.rules.ui;
 
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.filters.AGridFilter;
 
 public class TableValueFilter extends AGridFilter {
 
@@ -13,29 +14,20 @@ public class TableValueFilter extends AGridFilter {
 
     private int startX, startY;
 
- //   private IGrid grid;
-
     public TableValueFilter(IGridTable t, Model m) {
         model = m;
         startX = t.getGridColumn(0, 0);
         startY = t.getGridRow(0, 0);
-//       grid = t.getGrid();
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
-        Object v = getCellValue(cell.getColumn(), cell.getRow());
+        Object v = model.getValue(cell.getColumn() - startX, cell.getRow() - startY);
 
         if (v != null) {
             cell.setObjectValue(v);
             cell.setFormattedValue(String.valueOf(v));
         }
         return cell;
-    }
-
-    public Object getCellValue(int column, int row) {
-        Object v = model.getValue(column - startX, row - startY);
-
-        return v;
     }
 
 }
