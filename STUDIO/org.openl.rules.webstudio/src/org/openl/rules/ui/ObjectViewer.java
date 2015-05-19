@@ -43,34 +43,8 @@ public final class ObjectViewer {
     }
 
     private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest, boolean filter) {
-        ILogicalTable table = res.getLogicalTable();
-
-        final int firstRowHeight = table.getRow(0).getSource().getHeight();
-        final int firstColWidth = table.getColumn(0).getSource().getWidth();
-
-        TableValueFilter.Model model = new TableValueFilter.Model() {
-
-            public Object getValue(int col, int row) {
-                if (row < firstRowHeight) {
-                    return null; // the row 0 contains column headers
-                }
-                if (col < firstColWidth) {
-                    return null;
-                }
-                if (res.getWidth() <= col - firstColWidth || res.getHeight() <= row - firstRowHeight) {
-                    return null;
-                }
-
-                return res.getValue(row - firstRowHeight, col - firstColWidth);
-            }
-
-        };
-
-        IGridTable gridtable = table.getSource();
-        TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);
-
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
-        filters.add(tableValueFilter);
+        filters.add(new TableValueFilter(res));
         filters.add(CollectionCellFilter.INSTANCE);
 
         if (filter) {
@@ -85,6 +59,8 @@ public final class ObjectViewer {
             }
         }
 
+        ILogicalTable table = res.getLogicalTable();
+        IGridTable gridtable = table.getSource();
         TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[filters.size()]));
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
