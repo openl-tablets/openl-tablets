@@ -25,18 +25,15 @@ public class FilteredGrid extends AGrid {
         this.formatFilters = formatFilters.clone();
     }
 
-    private void formatCell(FormattedCell fcell, int col, int row) {
+    private void formatCell(FormattedCell fcell) {
         if (formatFilters != null) {
             for (int i = 0; i < formatFilters.length; i++) {
-                if (formatFilters[i].getGridSelector() == null
-                        || formatFilters[i].getGridSelector().selectCoords(col, row)) {
-                    try {
-                        // Side effect of method call is setting object value of the cell
-                        formatFilters[i].filterFormat(fcell);
-                    }
-                    catch (IllegalArgumentException e){
-                        //Ignore if failed to format
-                    }
+                try {
+                    // Side effect of method call is setting object value of the cell
+                    formatFilters[i].filterFormat(fcell);
+                }
+                catch (IllegalArgumentException e){
+                    //Ignore if failed to format
                 }
             }
         }
@@ -51,9 +48,11 @@ public class FilteredGrid extends AGrid {
     }
 
     public synchronized FormattedCell getFormattedCell(int col, int row) {
-        FormattedCell cellToFormat = new FormattedCell(delegate.getCell(col, row));
+        ICell cell = delegate.getCell(col, row);
 
-        formatCell(cellToFormat, col, row);
+        FormattedCell cellToFormat = new FormattedCell(cell);
+
+        formatCell(cellToFormat);
 
         return cellToFormat;
     }
