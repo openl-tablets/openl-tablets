@@ -125,7 +125,8 @@ public class Explanation {
         if (isExpanded(explanationValue)) {
             return "<span class='expanded' data-id='" + id + "'>" + value + "</span>";
         } else {
-            return HTMLHelper.urlLink(makeExpandUrl(id), "Explain", value, null, "explain");
+            String url = "?rootID=" + explanator.getUniqueId(root) + "&expandID=" + id + "&from=" + currentId;
+            return HTMLHelper.urlLink(url, "Explain", value, null, "explain");
         }
     }
 
@@ -199,14 +200,6 @@ public class Explanation {
         }
 
         return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
-    }
-
-    protected String makeBasicUrl() {
-        return "?rootID=" + explanator.getUniqueId(root);
-    }
-
-    protected String makeExpandUrl(int id) {
-        return makeBasicUrl() + "&expandID=" + id + "&from=" + currentId;
     }
 
     public void setExpandedValues(List<ExplanationNumberValue<?>> expandedValues) {
