@@ -26,32 +26,10 @@ public class Explanation {
 
     private Explanator explanator;
 
-    private String getName(ExplanationNumberValue<?> value) {
-        IMetaInfo mi = value.getMetaInfo();
-        return mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
-    }
-
     public Explanation(Explanator explanator, ExplanationNumberValue<?> root) {
         this.explanator = explanator;
         this.root = root;
         expandedValues.add(root);
-    }
-
-    private void expand(String expandID, String fromID) {
-        ExplanationNumberValue<?> ev = explanator.find(expandID);
-
-        if (!isExpanded(ev)) {
-            expandedValues.add(ev);
-
-            int from = Integer.valueOf(fromID);
-            Integer levelFrom = expandLevels.get(from);
-            if (levelFrom != null) {
-                expandLevels.put(Integer.valueOf(expandID), levelFrom + 1);
-            } else {
-                expandLevels.put(levelFrom, 0);
-                expandLevels.put(Integer.valueOf(expandID), 1);
-            }
-        }
     }
 
     private boolean isExpanded(ExplanationNumberValue<?> v) {
@@ -135,7 +113,8 @@ public class Explanation {
     private String resultValue(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
 
-        String name = getName(explanationValue);
+        IMetaInfo mi = explanationValue.getMetaInfo();
+        String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
         String url = findUrl(explanationValue, null);
 
         if (url != null && name != null) {
@@ -198,7 +177,20 @@ public class Explanation {
 
     public List<String[]> getExplainList(String expandID, String fromID) {
         if (expandID != null) {
-            expand(expandID, fromID);
+            ExplanationNumberValue<?> ev = explanator.find(expandID);
+
+            if (!isExpanded(ev)) {
+                expandedValues.add(ev);
+
+                int from = Integer.valueOf(fromID);
+                Integer levelFrom = expandLevels.get(from);
+                if (levelFrom != null) {
+                    expandLevels.put(Integer.valueOf(expandID), levelFrom + 1);
+                } else {
+                    expandLevels.put(levelFrom, 0);
+                    expandLevels.put(Integer.valueOf(expandID), 1);
+                }
+            }
         }
         List<String[]> expandedValuesList = new ArrayList<String[]>();
 
