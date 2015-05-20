@@ -57,9 +57,10 @@ public class Explanator {
         return id;
     }
 
-    public void reset() {
-        id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
-        value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
-        explanators = new HashMap<String, Explanation>();
+    public static Explanation getRootExplanation() {
+        Explanator explanator = getCurrent();
+        String rootID = FacesUtils.getRequestParameter("rootID");
+        Explanation explanation = explanator.getExplanation(rootID);
+        return explanation;
     }
 }
