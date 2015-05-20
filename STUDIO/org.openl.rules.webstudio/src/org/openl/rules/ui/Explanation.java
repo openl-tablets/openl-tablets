@@ -173,10 +173,6 @@ public class Explanation {
         return expandedValues;
     }
 
-    public ExplanationNumberValue<?> getExplainTree() {
-        return root;
-    }
-
     public String htmlString(ExplanationNumberValue<?> value) {
         if (value.isFormula()) {
             return expandFormula(value, null, 0);
