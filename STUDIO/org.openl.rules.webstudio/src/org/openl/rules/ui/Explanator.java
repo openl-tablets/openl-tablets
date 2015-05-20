@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
+import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
 
 public class Explanator {
@@ -61,5 +63,13 @@ public class Explanator {
         String rootID = FacesUtils.getRequestParameter("rootID");
         Explanation explanation = explanator.getExplanation(rootID);
         return explanation;
+    }
+
+    public static TreeNode getExplainTree(String rootID) {
+        Explanator explanator = getCurrent();
+        int id = Integer.parseInt(rootID);
+        ExplanationNumberValue<?> root = explanator.id2value.get(id);
+        TreeNode rfTree = new ExplainTreeBuilder().buildWithRoot(root);
+        return rfTree;
     }
 }
