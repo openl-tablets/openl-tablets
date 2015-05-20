@@ -1,7 +1,9 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -58,17 +60,18 @@ public class Explanator {
         return id;
     }
 
-    public static Explanation getRootExplanation(String rootID) {
-        Explanator explanator = getCurrent();
-        Explanation explanation = explanator.getExplanation(rootID);
-        return explanation;
-    }
-
     public static TreeNode getExplainTree(String rootID) {
         Explanator explanator = getCurrent();
         int id = Integer.parseInt(rootID);
         ExplanationNumberValue<?> root = explanator.id2value.get(id);
         TreeNode rfTree = new ExplainTreeBuilder().buildWithRoot(root);
         return rfTree;
+    }
+
+    public static List<String[]> getExplainList(String rootID, String expandID, String fromID) {
+        Explanator explanator = getCurrent();
+        Explanation explanation = explanator.getExplanation(rootID);
+        List<String[]> result = explanation.getExplainList(expandID, fromID);
+        return result;
     }
 }
