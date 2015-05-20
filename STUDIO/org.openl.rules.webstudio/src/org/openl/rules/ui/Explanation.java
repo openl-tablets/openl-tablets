@@ -31,8 +31,9 @@ public class Explanation {
         return mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
     }
 
-    public Explanation(Explanator explanator) {
+    public Explanation(Explanator explanator, ExplanationNumberValue<?> root) {
         this.explanator = explanator;
+        this.root = root;
     }
 
     public void expand(String expandID, String fromID) {
@@ -201,17 +202,4 @@ public class Explanation {
 
         return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
     }
-
-    public void setExpandedValues(List<ExplanationNumberValue<?>> expandedValues) {
-        this.expandedValues = expandedValues;
-    }
-
-    public ExplanationNumberValue<?> getRoot() {
-        return root;
-    }
-
-    public void setRoot(ExplanationNumberValue<?> root) {
-        this.root = root;
-    }
-
 }
