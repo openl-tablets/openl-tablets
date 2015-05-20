@@ -170,10 +170,6 @@ public class Explanation {
 
     }
 
-    public List<ExplanationNumberValue<?>> getExpandedValues() {
-        return expandedValues;
-    }
-
     public String htmlString(ExplanationNumberValue<?> value) {
         if (value.isFormula()) {
             return expandFormula(value, null, 0);
@@ -198,5 +194,20 @@ public class Explanation {
         }
 
         return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
+    }
+
+    public List<String[]> getExplainList(String expandID, String fromID) {
+        if (expandID != null) {
+            expand(expandID, fromID);
+        }
+        List<String[]> expandedValuesList = new ArrayList<String[]>();
+
+        for (ExplanationNumberValue<?> explanationValue : expandedValues) {
+            String[] html = htmlTable(explanationValue);
+            expandedValuesList.add(html);
+        }
+
+        return expandedValuesList;
+
     }
 }
