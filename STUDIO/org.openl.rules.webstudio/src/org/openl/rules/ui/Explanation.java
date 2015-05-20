@@ -26,7 +26,7 @@ public class Explanation {
 
     private Explanator explanator;
 
-    public static String getName(ExplanationNumberValue<?> value) {
+    private String getName(ExplanationNumberValue<?> value) {
         IMetaInfo mi = value.getMetaInfo();
         return mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
     }
@@ -37,7 +37,7 @@ public class Explanation {
         expandedValues.add(root);
     }
 
-    public void expand(String expandID, String fromID) {
+    private void expand(String expandID, String fromID) {
         ExplanationNumberValue<?> ev = explanator.find(expandID);
 
         if (!isExpanded(ev)) {
@@ -54,7 +54,7 @@ public class Explanation {
         }
     }
 
-    public boolean isExpanded(ExplanationNumberValue<?> v) {
+    private boolean isExpanded(ExplanationNumberValue<?> v) {
         for (ExplanationNumberValue value : expandedValues) {
             if (value == v) { // Don't use equals
                 return true;
@@ -63,7 +63,7 @@ public class Explanation {
         return false;
     }
 
-    protected String expandArgument(ExplanationNumberValue<?> value,
+    private String expandArgument(ExplanationNumberValue<?> value,
             boolean isMultiplicative,
             String parentUrl,
             int level) {
@@ -86,7 +86,7 @@ public class Explanation {
         return resultValue(value);
     }
 
-    protected String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
+    private String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
         String url = findUrl(value, parentUrl);
 
         String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level);
@@ -110,7 +110,7 @@ public class Explanation {
         return ret.append(")").toString();
     }
 
-    protected String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
+    private String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
         String url = findUrl(value, parentUrl);
 
         CastOperand operand = value.getCast().getOperand();
@@ -120,7 +120,7 @@ public class Explanation {
         return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
 
-    public String expandValue(ExplanationNumberValue<?> explanationValue) {
+    private String expandValue(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
         int id = explanator.getUniqueId(explanationValue);
 
@@ -153,7 +153,7 @@ public class Explanation {
         return FormattersManager.format(explanationValue);
     }
 
-    public String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
+    private String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
         String url = null;
 
         ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
@@ -170,7 +170,7 @@ public class Explanation {
 
     }
 
-    public String htmlString(ExplanationNumberValue<?> value) {
+    private String htmlString(ExplanationNumberValue<?> value) {
         if (value.isFormula()) {
             return expandFormula(value, null, 0);
         } else if (value.isFunction()) {
@@ -183,7 +183,7 @@ public class Explanation {
 
     private int currentId;
 
-    public String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
+    private String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
         int id = explanator.getUniqueId(explanationValue);
         currentId = id;
