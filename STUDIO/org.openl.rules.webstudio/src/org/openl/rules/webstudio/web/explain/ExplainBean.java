@@ -19,13 +19,10 @@ import org.openl.rules.webstudio.web.util.Constants;
 @RequestScoped
 public class ExplainBean {
 
-    private Explanator explanator;
     private Explanation explanation;
 
     public ExplainBean() {
-        explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
-        String rootID = FacesUtils.getRequestParameter("rootID");
-        explanation = explanator.getExplanation(rootID);
+        explanation = Explanator.getRootExplanation();
     }
 
     public String[] getExplainTree() {
