@@ -34,6 +34,7 @@ public class Explanation {
     public Explanation(Explanator explanator, ExplanationNumberValue<?> root) {
         this.explanator = explanator;
         this.root = root;
+        expandedValues.add(root);
     }
 
     public void expand(String expandID, String fromID) {

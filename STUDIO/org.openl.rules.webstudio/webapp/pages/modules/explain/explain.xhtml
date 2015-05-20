@@ -71,11 +71,6 @@
                         <th></th>
                         <th>Explanation</th>
                     </tr>
-                    <tr>
-                        <td>#{explainBean.explainTree[2]}</td>
-                        <td>=</td>
-                        <td><h:outputText value="#{explainBean.explainTree[3]}" escape="false" /></td>
-                    </tr>
                     <ui:repeat value="#{explainBean.expandedValues}" var="value">
                     <tr id="#{value[0]}">
                         <td style="padding-left:#{4 + 9 * value[1]}px">#{value[2]}</td>

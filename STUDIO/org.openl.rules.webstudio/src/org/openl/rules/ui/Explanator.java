@@ -58,9 +58,8 @@ public class Explanator {
         return id;
     }
 
-    public static Explanation getRootExplanation() {
+    public static Explanation getRootExplanation(String rootID) {
         Explanator explanator = getCurrent();
-        String rootID = FacesUtils.getRequestParameter("rootID");
         Explanation explanation = explanator.getExplanation(rootID);
         return explanation;
     }
