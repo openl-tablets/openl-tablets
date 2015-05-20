@@ -37,8 +37,7 @@ public class Explanator {
             int id = Integer.parseInt(rootID);
 
             ExplanationNumberValue<?> value = id2value.get(id);
-            expl = new Explanation(this);
-            expl.setRoot(value);
+            expl = new Explanation(this, value);
             explanators.put(rootID, expl);
         }
         return expl;
