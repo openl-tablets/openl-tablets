@@ -10,7 +10,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
-import org.openl.rules.webstudio.web.util.Constants;
 
 /**
  * Request scope managed bean for Explain page.
@@ -19,24 +18,15 @@ import org.openl.rules.webstudio.web.util.Constants;
 @RequestScoped
 public class ExplainBean {
 
-    private Explanation explanation;
-
-    public ExplainBean() {
-        explanation = Explanator.getRootExplanation();
-    }
-
-    public String[] getExplainTree() {
+    public List<String[]> getExpandedValues() {
+        String rootID = FacesUtils.getRequestParameter("rootID");
         String expandID = FacesUtils.getRequestParameter("expandID");
         String fromID = FacesUtils.getRequestParameter("from");
 
+        Explanation explanation = Explanator.getRootExplanation(rootID);
         if (expandID != null) {
-             explanation.expand(expandID, fromID);
+            explanation.expand(expandID, fromID);
         }
-
-        return explanation.htmlTable(explanation.getExplainTree());
-    }
-
-    public List<String[]> getExpandedValues() {
         List<String[]> expandedValuesList = new ArrayList<String[]>();
 
         List<ExplanationNumberValue<?>> expandedValues = explanation.getExpandedValues();
