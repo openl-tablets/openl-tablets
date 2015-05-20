@@ -29,11 +29,9 @@ public class ExplainBean {
     }
 
     public String[] getExplainTree() {
-        String header = FacesUtils.getRequestParameter("header");
         String expandID = FacesUtils.getRequestParameter("expandID");
         String fromID = FacesUtils.getRequestParameter("from");
 
-        explanation.setHeader(header);
         if (expandID != null) {
              explanation.expand(expandID, fromID);
         }

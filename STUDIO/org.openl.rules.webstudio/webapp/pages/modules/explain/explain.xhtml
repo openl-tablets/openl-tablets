@@ -51,12 +51,7 @@
             }
         </style>
 
-        <c:set var="header" value="#{param.header}" />
         <c:set var="rootID" value="#{param.rootID}" />
-        <c:set var="showNames" value="#{param.showNames}" />
-        <c:set var="showValues" value="#{param.showValues}" />
-        <c:set var="checkedShowNames" value="#{empty showNames ? '' : 'checked'}" />
-        <c:set var="checkedShowValues" value="#{empty showValues ? '' : 'checked'}" />
 
         <div class="tree-menu">
             <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}"
@@ -65,7 +60,6 @@
 
         <h:form>
 
-            <input type="hidden" name="header" value="#{header}" />
             <input type="hidden" name="rootID" value="#{rootID}" />
     
             <p />
