@@ -24,8 +24,6 @@ public class Explanation {
     private List<ExplanationNumberValue<?>> expandedValues = new ArrayList<ExplanationNumberValue<?>>();
     private Map<Integer, Integer> expandLevels = new HashMap<Integer, Integer>();
 
-    private String header;
-
     private Explanator explanator;
 
     public static String getName(ExplanationNumberValue<?> value) {
@@ -173,10 +171,6 @@ public class Explanation {
         return expandedValues;
     }
 
-    public String getHeader() {
-        return header;
-    }
-
     public ExplanationNumberValue<?> getExplainTree() {
         return root;
     }
@@ -208,7 +202,7 @@ public class Explanation {
     }
 
     protected String makeBasicUrl() {
-        return "?rootID=" + explanator.getUniqueId(root) + "&header=" + header;
+        return "?rootID=" + explanator.getUniqueId(root);
     }
 
     protected String makeExpandUrl(int id) {
@@ -217,10 +211,6 @@ public class Explanation {
 
     public void setExpandedValues(List<ExplanationNumberValue<?>> expandedValues) {
         this.expandedValues = expandedValues;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
     }
 
     public ExplanationNumberValue<?> getRoot() {
