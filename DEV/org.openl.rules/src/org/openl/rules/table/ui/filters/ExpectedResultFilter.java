@@ -1,14 +1,14 @@
 package org.openl.rules.table.ui.filters;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.IParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ExpectedResultFilter extends AGridFilter {
 
@@ -23,33 +23,25 @@ public class ExpectedResultFilter extends AGridFilter {
 
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
             ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);
-            String formattedExpectedValue = null;
-            boolean equals = (result.getStatus() == TestStatus.TR_OK);
-            if (!equals) {
+            StringBuilder formattedValue = new StringBuilder(60);
+            boolean isOk = (result.getStatus() == TestStatus.TR_OK);
+            if (isOk) {
+                formattedValue.append("<i class=\"case-success\"></i> ").append(cell.getFormattedValue());
+            } else {
                 Object expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration) {
                     IParameterWithValueDeclaration declaration = (IParameterWithValueDeclaration) expectedValue;
                     expectedValue = declaration.getValue();
                 }
-                formattedExpectedValue = FormattersManager.format(expectedValue);
+                String formattedExpectedValue = FormattersManager.format(expectedValue);
+                formattedValue.append("<i class=\"case-error\"></i> ")
+                    .append(cell.getFormattedValue())
+                    .append(' ')
+                    .append(formattedExpectedValue);
             }
-            String image = getImage(result);
-            String formattedResult = String.format(equals ? "%s %s" : "%s %s %s", image,
-                    cell.getFormattedValue(), formattedExpectedValue);
-            cell.setFormattedValue(formattedResult);
+            cell.setFormattedValue(formattedValue.toString());
         }
 
         return cell;
     }
-
-    private String getImage(ComparedResult result) {
-        String image;
-        if (result.getStatus().equals(TestStatus.TR_OK)) {
-            image = "<i class=\"case-success\"></i>";
-        } else {
-            image = "<i class=\"case-error\"></i>";
-        }
-        return image;
-    }
-
 }
