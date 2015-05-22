@@ -43,13 +43,17 @@ public class LazyWorkbookLoader implements WorkbookLoader {
             return cachedWorkbook;
         }
 
-        Workbook wb = workbook != null ? workbook : WorkbookLoadUtils.loadWorkbook(fileSource);
+        Workbook wb = workbook != null ? workbook : loadWorkbook();
         workbookCache = new WeakReference<Workbook>(wb);
         if (!canUnload) {
             // Store the strong reference to the workbook, so it will not garbage collected until setCanUnload(true) invocation
             workbook = wb;
         }
         return wb;
+    }
+
+    protected Workbook loadWorkbook() {
+        return WorkbookLoadUtils.loadWorkbook(fileSource);
     }
 
     /**
