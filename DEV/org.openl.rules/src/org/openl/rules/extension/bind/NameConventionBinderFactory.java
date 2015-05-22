@@ -3,6 +3,10 @@ package org.openl.rules.extension.bind;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.syntax.impl.IdentifierNode;
 
+/**
+ * @deprecated Will be deleted soon. Now extension is declared in rules.xml.
+ */
+@Deprecated
 public class NameConventionBinderFactory implements IBinderFactory {
 
     public static IBinderFactory INSTANCE = new NameConventionBinderFactory();

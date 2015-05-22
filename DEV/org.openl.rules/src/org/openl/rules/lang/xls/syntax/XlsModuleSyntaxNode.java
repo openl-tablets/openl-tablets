@@ -24,6 +24,7 @@ import org.openl.syntax.impl.NaryNode;
  */
 public class XlsModuleSyntaxNode extends NaryNode {
 
+    @Deprecated
     private List<IdentifierNode> extensionNodes;
 
     private OpenlSyntaxNode openlNode;
