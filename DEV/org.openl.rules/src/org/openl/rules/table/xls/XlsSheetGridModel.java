@@ -27,13 +27,11 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.*;
 import org.openl.rules.table.Point;
-import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.*;
 import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
-import org.openl.util.StringTool;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -58,9 +56,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
-        extractMergedRegions();
-
-        initCellWriters();
 
         dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
     }
@@ -100,9 +95,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             }
         }
         setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
-        mergedRegionsPool.add(reg);
+        getMergedRegionsPool().add(reg);
         return getSheet()
                 .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
+    }
+
+    private RegionsPool getMergedRegionsPool() {
+        if (mergedRegionsPool == null) {
+            extractMergedRegions();
+        }
+        return mergedRegionsPool;
     }
 
     private Object findFirstValueInRegion(IGridRegion reg) {
@@ -218,23 +220,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     /**
-     * Gets the URI to the table by its four coordinates on the sheet.
-     * 
-     * @return URI to the table in the sheet. (e.g.
-     *         <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
-     * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
-     */
-    public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
-
-        if (colStart == colEnd && rowStart == rowEnd) {
-            return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
-        }
-
-        String range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
-        return getUri() + "&" + XlsURLConstants.RANGE + "=" + StringTool.encodeURL(range);
-    }
-
-    /**
      * Gets the URI to the table by table region. Just calls
      * {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
      * 
@@ -248,7 +233,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public IGridRegion getRegionContaining(int x, int y) {
-        return mergedRegionsPool.getRegionContaining(x, y);
+        return getMergedRegionsPool().getRegionContaining(x, y);
     }
 
     public XlsSheetSourceCodeModule getSheetSource() {
@@ -271,7 +256,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public void removeMergedRegion(int x, int y) {
         Sheet sheet = getSheet();
-        mergedRegionsPool.remove(x, y);
+        getMergedRegionsPool().remove(x, y);
         int nregions = getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
             CellRangeAddress reg = PoiExcelHelper.getMergedRegionAt(i, sheet);
@@ -332,11 +317,18 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
 
         if (formula != null) {
-            AXlsCellWriter cellWriter = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
+            AXlsCellWriter cellWriter = getCellWriters().get(AXlsCellWriter.FORMULA_WRITER);
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(formula);
             cellWriter.writeCellValue(false);
         }
+    }
+
+    private Map<String, AXlsCellWriter> getCellWriters() {
+        if (cellWriters.isEmpty()) {
+            initCellWriters();
+        }
+        return cellWriters;
     }
 
     public void setCellStyle(int col, int row, ICellStyle style) {
@@ -552,6 +544,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     // TODO: move to factory.
     public AXlsCellWriter getCellWriter(Object value) {
+        Map<String, AXlsCellWriter> cellWriters = getCellWriters();
         AXlsCellWriter result;
         if (value instanceof Number) {
             result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
