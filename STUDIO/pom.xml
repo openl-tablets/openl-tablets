@@ -26,6 +26,7 @@
         <module>org.openl.rules.security</module>
         <module>org.openl.rules.security.standalone</module>
         <module>org.openl.rules.diff</module>
+        <module>org.openl.extension.xmlrules</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -124,6 +125,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.diff</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.extension.xmlrules</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
