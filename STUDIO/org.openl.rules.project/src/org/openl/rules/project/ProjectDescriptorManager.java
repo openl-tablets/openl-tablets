@@ -147,6 +147,7 @@ public class ProjectDescriptorManager {
             m.setMethodFilter(module.getMethodFilter());
             m.setWildcardRulesRootPath(pathPattern);
             m.setWildcardName(module.getName());
+            m.setExtension(module.getExtension());
             modules.add(m);
         }
         return modules;

@@ -92,6 +92,11 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         super.setInterfaceClass(interfaceClass);
     }
 
+    public RulesEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
+        super(openlName, sourceCode);
+        super.setInterfaceClass(interfaceClass);
+    }
+
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
      *
