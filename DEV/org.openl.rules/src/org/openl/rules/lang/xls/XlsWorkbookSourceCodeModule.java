@@ -56,12 +56,12 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, WorkbookLoader workbookLoader) {
         super(src);
         this.workbookLoader = workbookLoader;
-        if (getWorkbook() instanceof HSSFWorkbook) {
-            initWorkbookColors();
-        }
     }
 
     private void initWorkbookColors() {
+        if (!(getWorkbook() instanceof HSSFWorkbook)) {
+            return;
+        }
         Workbook workbook = getWorkbook();
         short numStyles = workbook.getNumCellStyles();
         for (short i = 0; i < numStyles; i++) {
@@ -193,6 +193,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     public Set<Short> getWorkbookColors() {
+        if (wbColors.isEmpty()) {
+            initWorkbookColors();
+        }
         return wbColors;
     }
 
@@ -201,7 +204,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
      *
      * @author NSamatov
      */
-    public static interface ModificationChecker {
+    public interface ModificationChecker {
         /**
          * Returns a modification status
          *
