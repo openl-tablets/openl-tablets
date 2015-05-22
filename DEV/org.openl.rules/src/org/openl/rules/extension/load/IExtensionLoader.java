@@ -5,6 +5,10 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 
+/**
+ * @deprecated Will be deleted soon. Now extension is declared in rules.xml.
+ */
+@Deprecated
 public interface IExtensionLoader {
 
     String getModuleName();

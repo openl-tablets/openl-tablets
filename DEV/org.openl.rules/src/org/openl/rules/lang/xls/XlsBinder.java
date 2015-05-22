@@ -460,6 +460,10 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
+    /**
+     * @deprecated Will be deleted soon. Now extension is declared in rules.xml.
+     */
+    @Deprecated
     private void processExtensions(XlsModuleOpenClass module,
                                    XlsModuleSyntaxNode moduleNode,
                                    List<IdentifierNode> extensionNodes, RulesModuleBindingContext moduleContext) {
