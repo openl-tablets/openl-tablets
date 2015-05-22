@@ -20,7 +20,6 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
@@ -55,8 +54,6 @@ public class XlsLoader {
 
     private IdentifierNode vocabulary;
 
-    private List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
-
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
     private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
@@ -82,10 +79,6 @@ public class XlsLoader {
 
     public void addError(SyntaxNodeException error) {
         errors.add(error);
-    }
-
-    public void addNode(ISyntaxNode node) {
-        nodesList.add(node);
     }
 
     public void addExtensionNode(IdentifierNode node) {
@@ -294,8 +287,6 @@ public class XlsLoader {
             }
         }
 
-        addNode(tsn);
-
         return tsn;
     }
 
@@ -326,22 +317,7 @@ public class XlsLoader {
 
         for (int i = 0; i < nsheets; i++) {
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
-            IGridTable[] tables = getAllGridTables(sheetSource);
-            List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
-
-            for (IGridTable table : tables) {
-
-                TableSyntaxNode tsn;
-
-                try {
-                    tsn = preprocessTable(table, sheetSource, tablePartProcessor);
-                    tableNodes.add(tsn);
-                } catch (OpenLCompilationException e) {
-                    OpenLMessagesUtils.addError(e);
-                }
-            }
-
-            sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
+            sheetNodes[i] = createWorksheetSyntaxNode(sheetSource, tablePartProcessor);
         }
 
         TableSyntaxNode[] mergedNodes = {};
@@ -362,6 +338,27 @@ public class XlsLoader {
         workbookNodes.add(workbookNode);
 
         return workbookNode;
+    }
+
+    private WorksheetSyntaxNode createWorksheetSyntaxNode(XlsSheetSourceCodeModule sheetSource,
+            TablePartProcessor tablePartProcessor) {
+        IGridTable[] tables = getAllGridTables(sheetSource);
+        List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
+
+        for (IGridTable table : tables) {
+
+            TableSyntaxNode tsn;
+
+            try {
+                tsn = preprocessTable(table, sheetSource, tablePartProcessor);
+                tableNodes.add(tsn);
+            } catch (OpenLCompilationException e) {
+                OpenLMessagesUtils.addError(e);
+            }
+        }
+
+        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes
+                .size()]), sheetSource);
     }
 
     /**
