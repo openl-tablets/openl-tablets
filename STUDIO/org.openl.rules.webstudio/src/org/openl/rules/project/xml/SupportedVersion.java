@@ -3,7 +3,8 @@ package org.openl.rules.project.xml;
 public enum SupportedVersion {
     V5_11,
     V5_12,
-    V5_13;
+    V5_13,
+    V5_16;
 
     public String getVersion() {
         return name().substring(1).replace("_", ".");

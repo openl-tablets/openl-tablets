@@ -14,6 +14,7 @@ public class Module{
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
+    private Extension extension;
 
     public MethodFilter getMethodFilter() {
         return methodFilter;
@@ -77,6 +78,14 @@ public class Module{
 
     public void setRulesRootPath(PathEntry rulesRootPath) {
         this.rulesRootPath = rulesRootPath;
+    }
+
+    public Extension getExtension() {
+        return extension;
+    }
+
+    public void setExtension(Extension extension) {
+        this.extension = extension;
     }
 
     public Map<String, Object> getProperties() {
