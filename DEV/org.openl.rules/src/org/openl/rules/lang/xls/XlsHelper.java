@@ -8,9 +8,9 @@ import java.util.Map;
 import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.indexer.HeaderNodeFactory;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
+import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
@@ -140,7 +140,14 @@ public abstract class XlsHelper {
             xls_type = XlsNodeTypes.XLS_OTHER.toString();
         }
 
-        HeaderSyntaxNode headerNode = HeaderNodeFactory.getHeaderNode(xls_type, src, headerToken);
+        HeaderSyntaxNode result;
+        if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xls_type)) {
+            result = new SpreadsheetHeaderNode(src, headerToken);
+        } else {
+            result = new HeaderSyntaxNode(src, headerToken);
+        }
+
+        HeaderSyntaxNode headerNode = result;
 
         GridLocation pos = new GridLocation(table);
         return new TableSyntaxNode(xls_type, pos, source, table, headerNode);
