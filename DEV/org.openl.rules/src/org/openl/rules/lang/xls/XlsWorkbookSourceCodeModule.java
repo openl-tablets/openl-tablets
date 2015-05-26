@@ -7,8 +7,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openl.rules.indexer.IDocumentType;
-import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
@@ -27,7 +25,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
+public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
 
     private final Logger log = LoggerFactory.getLogger(XlsWorkbookSourceCodeModule.class);
 
@@ -90,21 +88,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return listeners;
     }
 
-    public String getCategory() {
-        return IDocumentType.WORKBOOK.getCategory();
-    }
-
     public String getDisplayName() {
         String uri = StringTool.decodeURL(src.getUri(0));
         return FilenameUtils.getName(uri);
-    }
-
-    public String getIndexedText() {
-        return getDisplayName();
-    }
-
-    public String getType() {
-        return IDocumentType.WORKBOOK.getType();
     }
 
     public String getUri() {

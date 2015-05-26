@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
-import org.openl.rules.indexer.IDocumentType;
-import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -23,7 +21,7 @@ import org.openl.util.fast.FastStringReader;
  * @author snshor
  *
  */
-public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
+public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     private IGridTable table;
     private String code;
@@ -79,11 +77,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         throw new UnsupportedOperationException();
     }
 
-    public String getCategory() {
-
-        return IDocumentType.WORKSHEET_CELL.getCategory();
-    }
-
     public Reader getCharacterStream() {
 
         return new FastStringReader(getCode());
@@ -108,20 +101,12 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return "Cell";
     }
 
-    public String getIndexedText() {
-        return table.getCell(column, row).getStringValue();
-    }
-
     public int getStartPosition() {
         return 0;
     }
 
     public int getTabSize() {
         return 2;
-    }
-
-    public String getType() {
-        return IDocumentType.WORKSHEET_CELL.getCategory();
     }
 
     public String getUri() {
