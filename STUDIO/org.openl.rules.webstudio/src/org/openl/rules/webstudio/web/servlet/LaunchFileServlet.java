@@ -70,25 +70,26 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
+        if (!FileTypeHelper.isExcelFile(file)) { // Excel
+            log.error("Unsupported file format [{}]", file);
+            return;
+        }
+
         decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
 
-        String wbPath = null;
-        String wbName = null;
-        String wsName = null;
-        String range = null;
+        String wbPath;
+        String wbName;
+        String wsName;
+        String range;
 
-        boolean isExcel = false;
-
+        // Parse url
         try {
-            if (FileTypeHelper.isExcelFile(file)) { // Excel
-                XlsUrlParser parser = new XlsUrlParser();
-                parser.parse(decodedUriParameter);
-                wbPath = parser.wbPath;
-                wbName = parser.wbName;
-                wsName = parser.wsName;
-                range = parser.range;
-                isExcel = true;
-            }
+            XlsUrlParser parser = new XlsUrlParser();
+            parser.parse(decodedUriParameter);
+            wbPath = parser.wbPath;
+            wbName = parser.wbName;
+            wsName = parser.wsName;
+            range = parser.range;
         } catch (Exception e) {
             log.error("Can't parse file uri", e);
             return;
@@ -97,32 +98,20 @@ public class LaunchFileServlet extends HttpServlet {
         boolean local = WebTool.isLocalRequest(request);
         if (local) { // local mode
             try {
-                if (isExcel) {
-                    model.openWorkbookForEdit(wbName);
+                model.openWorkbookForEdit(wbName);
 
-                    String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
-                    ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
+                String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
+                ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
 
-                    model.afterOpenWorkbookForEdit(wbName);
+                model.afterOpenWorkbookForEdit(wbName);
 
-                }
             } catch (Exception e) {
                 log.error("Can't launch file", e);
             }
 
         } else { // remote mode
-            String fileName;
-            String path;
 
-            if (isExcel) {
-                fileName = wbName;
-                path = wbPath;
-            } else {
-                log.error("Unsupported file format");
-                return;
-            }
-
-            String filePath = new File(path, fileName).getAbsolutePath();
+            String filePath = new File(wbPath, wbName).getAbsolutePath();
 
             String query = "filename=" + StringTool.encodeURL(filePath);
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/action/download?" + query);
