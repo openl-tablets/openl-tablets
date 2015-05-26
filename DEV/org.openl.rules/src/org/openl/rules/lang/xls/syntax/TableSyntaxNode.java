@@ -14,8 +14,6 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
-import org.openl.rules.indexer.IDocumentType;
-import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
@@ -32,7 +30,7 @@ import org.openl.types.IOpenMember;
 /**
  * @author snshor
  */
-public class TableSyntaxNode extends NaryNode implements IIndexElement {
+public class TableSyntaxNode extends NaryNode {
 
     private ILogicalTable table;
 
@@ -79,10 +77,6 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         errors = null;
     }
     
-    public String getCategory() {
-        return IDocumentType.WORKSHEET_TABLE.getCategory();
-    }
-
     public String getDisplayName() {
         return table.getSource().getCell(0, 0).getStringValue();
     }
@@ -111,11 +105,6 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         } else {
             return new StringValue(value, value, value, new GridCellSourceCodeModule(table.getSource(), 0, 0, null));
         }
-    }
-
-    public String getIndexedText() {
-        // return table.getGridTable().getStringValue(0, 0);
-        return null;
     }
 
     public IOpenMember getMember() {
