@@ -2,12 +2,10 @@ package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
-import org.openl.rules.webstudio.util.WordLauncher;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
@@ -79,13 +77,7 @@ public class LaunchFileServlet extends HttpServlet {
         String wsName = null;
         String range = null;
 
-        String wdPath = null;
-        String wdName = null;
-        String wdParStart = null;
-        String wdParEnd = null;
-
         boolean isExcel = false;
-        boolean isWord = false;
 
         try {
             if (FileTypeHelper.isExcelFile(file)) { // Excel
@@ -96,15 +88,6 @@ public class LaunchFileServlet extends HttpServlet {
                 wsName = parser.wsName;
                 range = parser.range;
                 isExcel = true;
-
-            } else if (FileTypeHelper.isWordFile(file)) { // Word
-                WordUrlParser parser = new WordUrlParser();
-                parser.parse(decodedUriParameter);
-                wdPath = parser.wdPath;
-                wdName = parser.wdName;
-                wdParStart = parser.wdParStart;
-                wdParEnd = parser.wdParEnd;
-                isWord = true;
             }
         } catch (Exception e) {
             log.error("Can't parse file uri", e);
@@ -122,9 +105,6 @@ public class LaunchFileServlet extends HttpServlet {
 
                     model.afterOpenWorkbookForEdit(wbName);
 
-                } else if (isWord) {
-                    String wordScriptPath = getServletContext().getRealPath("/scripts/LaunchWord.vbs");
-                    WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
                 }
             } catch (Exception e) {
                 log.error("Can't launch file", e);
@@ -137,9 +117,6 @@ public class LaunchFileServlet extends HttpServlet {
             if (isExcel) {
                 fileName = wbName;
                 path = wbPath;
-            } else if (isWord) {
-                fileName = wdName;
-                path = wdPath;
             } else {
                 log.error("Unsupported file format");
                 return;

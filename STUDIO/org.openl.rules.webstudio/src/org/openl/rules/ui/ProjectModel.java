@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderCloserFactory;
@@ -121,8 +120,6 @@ public class ProjectModel {
     private boolean openedInSingleModuleMode;
 
     private InstantiationStrategyFactory instantiationStrategyFactory;
-
-    private ProjectIndexer indexer;
 
     private WebStudio studio;
 
@@ -445,13 +442,6 @@ public class ProjectModel {
 
     public ColorFilterHolder getFilterHolder() {
         return filterHolder;
-    }
-
-    /**
-     * @return Returns the indexer.
-     */
-    public ProjectIndexer getIndexer() {
-        return indexer;
     }
 
     public IOpenMethod getMethod(String tableUri) {
@@ -1188,8 +1178,6 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
         openedInSingleModuleMode = singleModuleMode;
-
-        indexer = new ProjectIndexer(projectFolder.getAbsolutePath());
 
         // Clear project messages (errors, warnings)
         clearOpenLMessages();
