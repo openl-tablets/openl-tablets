@@ -17,9 +17,9 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 public class IndexTest {
-    
+
     @Test
-    public void testOk() throws NoSuchMethodException{
+    public void testOk() throws NoSuchMethodException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/index/test1.xlsx");
         engineFactory.setExecutionMode(false);
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
@@ -40,29 +40,16 @@ public class IndexTest {
 
     @Test
     @Ignore
-    public void testFail1() throws NoSuchMethodException{
+    public void testFail1() throws NoSuchMethodException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/index/test2.xlsx");
         engineFactory.setExecutionMode(false);
         Assert.assertTrue(engineFactory.getCompiledOpenClass().hasErrors());
     }
 
     @Test
-    public void testFail2() throws NoSuchMethodException{
+    public void testFail2() throws NoSuchMethodException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/index/test3.xlsx");
         engineFactory.setExecutionMode(false);
         Assert.assertTrue(engineFactory.getCompiledOpenClass().hasErrors());
     }
-    
-    @Test
-    public void testGetRoot() {
-        String token = "drivers";
-        String result = Index.getRoot(token);
-        assertEquals("driver", result);
-
-        String token1 = "";
-        String result1 = Index.getRoot(token1);
-        assertEquals("", result1);
-
-    }
-
 }
