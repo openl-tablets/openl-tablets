@@ -11,7 +11,8 @@ public class WrongAliasDatatypeTest {
 	public interface ITest {
 	}
 
-	@Test(expected = Exception.class)
+    //String
+	@Test//(expected = Exception.class)
 	public void test1() {
 		File xlsFile = new File(
 				"test/rules/datatype/WrongAliasDatatype1Test.xlsx");
@@ -44,7 +45,7 @@ public class WrongAliasDatatypeTest {
 	@Test(expected = Exception.class)
 	public void test4() {
 		File xlsFile = new File(
-				"test/rules/datatype/WrongAliasDatatype3Test.xlsx");
+				"test/rules/datatype/WrongAliasDatatype4Test.xlsx");
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
