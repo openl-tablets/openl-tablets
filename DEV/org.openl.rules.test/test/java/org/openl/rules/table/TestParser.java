@@ -17,11 +17,12 @@ import org.openl.IOpenBinder;
 import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
+import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.test.OpenlTest;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.xls.OpenLBuilder;
 
 /**
@@ -126,23 +127,38 @@ public class TestParser extends TestCase {
     public void testOpenlRun1() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
-        OpenlTest.aTestMethodFile(url.toURI().getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
+        aTestMethodFile(url.toURI().getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
     }
 
     public void testOpenlRun2() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        OpenlTest.aTestMethodFile(url.toURI().getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(10) }, null);
+        aTestMethodFile(url.toURI().getPath(),
+                OpenL.OPENL_JAVA_RULE_NAME,
+                "hello",
+                new Object[] { new Integer(10) },
+                null);
     }
 
-	/**
-	 * Ignore the test. Test rules table doesn't have success result for current
-	 * input. If table property "failOnMiss" has "TRUE" value exception will be
-	 * thrown at binding step.
-	 */
-	public void testOpenlRun3() throws Exception {
-        
-//        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/IndexLogic.xls");
-//        OpenlTest.aTestMethodFile(url.getPath(), OpenL.OPENL_JAVA_RULE_NAME, "main", new Object[] { new String[] {} }, null);
-	}
+    private void aTestMethodFile(String moduleFile, String openl, String methodName, Object[] params,
+            Object expected) throws Exception {
+
+        OpenL op = OpenL.getInstance(openl);
+
+        Class<?>[] cc = new Class[params.length];
+        for (int i = 0; i < cc.length; i++) {
+            cc[i] = params[i].getClass();
+            if (cc[i] == Integer.class) {
+                cc[i] = int.class;
+            }
+        }
+
+        Object res = OpenLManager.runMethod(op,
+                new FileSourceCodeModule(new File(moduleFile), null),
+                methodName, JavaOpenClass.getOpenClasses(cc),
+                params);
+
+        Assert.assertEquals(expected, res);
+
+    }
 }
