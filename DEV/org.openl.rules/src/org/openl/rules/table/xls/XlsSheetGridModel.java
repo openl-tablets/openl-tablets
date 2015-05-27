@@ -128,6 +128,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         setCellMetaInfo(col, row, null);
         Cell cell = PoiExcelHelper.getCell(col, row, sheet);
         if (cell != null) {
+            cell.removeCellComment();
+            cell.removeHyperlink();
             sheet.getRow(row).removeCell(cell);
         }
     }

@@ -46,7 +46,7 @@ public class TestUndoable extends TestCase {
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
 
-        saveWb(wb, "wb1.xls");
+        saveWb(wb, "wb_insC.xls");
 
         IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
         for (int j = 0; j < tables.length; j++) {
@@ -55,7 +55,7 @@ public class TestUndoable extends TestCase {
             tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
-        saveWb(wb, "wb2.xls");
+        saveWb(wb, "wb_remC.xls");
     }
 
     public void testRemove() throws Exception {
@@ -74,14 +74,13 @@ public class TestUndoable extends TestCase {
 
         IGridTable[] tables = xsGrid.getTables();
 
-        IUndoableGridTableAction[] uaa1 = new IUndoableGridTableAction[tables.length];
-        for (int j = 0; j < tables.length; j++) {
-            uaa1[j] = GridTool.removeRows(1, 0, tables[j].getRegion(), tables[j].getGrid());
-            uaa1[j].doAction(tables[j]);
-            tables[j] = new GridTable(tables[j].getRegion().getTop(), tables[j].getRegion().getLeft(), tables[j]
-                    .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
+        for (IGridTable table: tables) {
+            IGridRegion region = table.getRegion();
+            IGrid grid = table.getGrid();
+            IUndoableGridTableAction action = GridTool.removeRows(1, 0, region, grid);
+            action.doAction(table);
         }
-        saveWb(wb, "wb1.xls");
+        saveWb(wb, "wb_remR.xls");
     }
 
     public void testInsert() throws Exception {
@@ -108,7 +107,7 @@ public class TestUndoable extends TestCase {
                     .getRegion().getBottom(), tables[j].getRegion().getRight() + 1, tables[j].getGrid());
         }
         
-        saveWb(wb, "wb1.xls");
+        saveWb(wb, "wb1_insC.xls");
 
         IUndoableGridTableAction[] uaa2 = new IUndoableGridTableAction[tables.length];
 
@@ -117,7 +116,7 @@ public class TestUndoable extends TestCase {
             uaa2[j].doAction(tables[j]);
         }
 
-        saveWb(wb, "wb11.xls");
+        saveWb(wb, "wb1_insR.xls");
 
         IUndoableGridTableAction[] uaa3 = new IUndoableGridTableAction[tables.length];
 
@@ -128,25 +127,25 @@ public class TestUndoable extends TestCase {
             uaa3[j].doAction(tables[j]);
         }
 
-        saveWb(wb, "wb12.xls");
+        saveWb(wb, "wb1_set.xls");
 
         for (int j = 0; j < uaa3.length; j++) {
             uaa3[j].undoAction(tables[j]);
         }
 
-        saveWb(wb, "wb21.xls");
+        saveWb(wb, "wb1_undo.xls");
 
         for (int j = 0; j < uaa2.length; j++) {
             uaa2[j].undoAction(tables[j]);
         }
 
-        saveWb(wb, "wb22.xls");
+        saveWb(wb, "wb1_undo2.xls");
 
         for (int j = 0; j < uaa1.length; j++) {
             uaa1[j].undoAction(tables[j]);
         }
 
-        saveWb(wb, "wb23.xls");
+        saveWb(wb, "wb1_undo3.xls");
     }
 
     private void saveWb(Workbook wb, String name) throws IOException {
