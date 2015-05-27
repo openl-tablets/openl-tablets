@@ -162,11 +162,6 @@
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
         <!-- Other -->
         <dependency>
             <groupId>org.apache.cxf</groupId>

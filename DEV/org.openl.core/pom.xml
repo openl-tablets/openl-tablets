@@ -41,10 +41,6 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.commons</artifactId>
         </dependency>
@@ -59,11 +55,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

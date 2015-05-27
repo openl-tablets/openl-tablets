@@ -189,7 +189,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
         </dependency>
-	<!-- Required for WADL generation-->
+        <!-- Required for WADL generation-->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
