@@ -81,18 +81,6 @@
                 <artifactId>org.openl.test</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- OPENL MODIFIED POI -->
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.lib.poi.dev.modified</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.openl.rules</groupId>
-                        <artifactId>org.openl.lib.poi.dev</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ce</artifactId>
