@@ -100,11 +100,6 @@
         </testResources>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>

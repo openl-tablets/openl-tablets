@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.test;
+package org.openl.rules.ruleservice.multimodule;
 
 import java.util.Collection;
 
