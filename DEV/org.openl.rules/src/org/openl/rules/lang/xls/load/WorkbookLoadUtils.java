@@ -28,7 +28,7 @@ final class WorkbookLoadUtils {
             log.error("Error while preprocessing workbook", e);
 
             String message = "Can't open source file or file is corrupted: " +
-                    ExceptionUtils.getRootCause(e).getMessage();
+                    ExceptionUtils.getRootCauseMessage(e);
             throw new OpenLRuntimeException(message, e);
         } finally {
             try {
