@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.ReferenceMap;
-import org.openl.cache.CacheUtils;
+import org.openl.cache.GenericKey;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
@@ -118,7 +118,7 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, IUserContext userContext)
             throws OpenConfigurationException {
 
-        Object key = CacheUtils.buildKey(name, userContext);
+        Object key = GenericKey.getInstance(name, userContext);
         OpenL openl = openLCache.get(key);
 
         if (openl == null) {
@@ -146,7 +146,7 @@ public class OpenL {
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
-        Object key = CacheUtils.buildKey(name, userContext);
+        Object key = GenericKey.getInstance(name, userContext);
         OpenL openl = openLCache.get(key);
 
         if (openl == null) {
@@ -216,7 +216,7 @@ public class OpenL {
      */
     public static synchronized OpenL remove(String name, IUserContext userContext) {
 
-        Object key = CacheUtils.buildKey(name, userContext);
+        Object key = GenericKey.getInstance(name, userContext);
         /*OpenL openl = openlCache.get(key);
 
         if (openl == null) {
