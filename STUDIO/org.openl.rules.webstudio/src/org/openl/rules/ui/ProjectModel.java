@@ -37,19 +37,10 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.search.IOpenLSearch;
-import org.openl.rules.search.ISearchTableRow;
-import org.openl.rules.search.OpenLAdvancedSearchResult;
-import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
-import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
-import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.OpenLTable;
-import org.openl.rules.table.search.SearchResult;
-import org.openl.rules.table.search.TableSearcher;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -594,82 +585,6 @@ public class ProjectModel {
         return projectRoot;
     }
 
-    public List<IOpenLTable> getAdvancedSearchResults(Object searchResult) {
-        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
-
-        if (searchResult instanceof OpenLAdvancedSearchResult) {
-            TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
-            OpenLAdvancedSearchResultViewer searchViewer = new OpenLAdvancedSearchResultViewer();
-            for (int i = 0; i < tr.length; i++) {
-                ISearchTableRow[] rows = tr[i].getRows();
-                if (rows.length > 0) {
-                    TableSyntaxNode tsn = tr[i].getTsn();
-                    String tableUri = tsn.getUri();
-
-                    CompositeGrid cg = searchViewer.makeGrid(rows);
-                    IGridTable gridTable = cg != null ? cg.asGridTable() : null;
-
-                    OpenLTable newTable = new OpenLTable();
-                    newTable.setGridTable(gridTable);
-                    newTable.setUri(tableUri);
-                    newTable.setProperties(tsn.getTableProperties());
-
-                    searchResults.add(newTable);
-                }
-            }
-        }
-
-        return searchResults;
-    }
-
-    public List<IOpenLTable> getSearchResults(Object searchResult) {
-        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
-
-        if (searchResult instanceof SearchResult) {
-            List<TableSyntaxNode> foundTables = ((SearchResult) searchResult).getFoundTables();
-            for (TableSyntaxNode foundTable : foundTables) {
-                searchResults.add(new TableSyntaxNodeAdapter(foundTable));
-            }
-
-        } else if (searchResult instanceof OpenLAdvancedSearchResult) {
-            TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
-            OpenLAdvancedSearchResultViewer searchViewer = new OpenLAdvancedSearchResultViewer();
-            for (int i = 0; i < tr.length; i++) {
-                ISearchTableRow[] rows = tr[i].getRows();
-                if (rows.length > 0) {
-                    TableSyntaxNode tsn = tr[i].getTsn();
-                    String tableUri = tsn.getUri();
-
-                    CompositeGrid cg = searchViewer.makeGrid(rows);
-                    IGridTable gridTable = cg != null ? cg.asGridTable() : null;
-
-                    OpenLTable newTable = new OpenLTable();
-                    newTable.setGridTable(gridTable);
-                    newTable.setUri(tableUri);
-                    newTable.setProperties(tsn.getTableProperties());
-
-                    searchResults.add(newTable);
-                }
-            }
-        }
-
-        return searchResults;
-    }
-
-    @Deprecated
-    public List<IOpenLTable> getBussinessSearchResults(Object searchResult) {
-        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
-
-        if (searchResult instanceof OpenLBussinessSearchResult) {
-            List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
-            for (TableSyntaxNode foundTable : foundTables) {
-                searchResults.add(new TableSyntaxNodeAdapter(foundTable));
-            }
-        }
-
-        return searchResults;
-    }
-
     public IOpenLTable getTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
@@ -1096,15 +1011,22 @@ public class ProjectModel {
         }
     }
 
-    @Deprecated
-    public Object runSearch(IOpenLSearch searcher) {
-        XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        return searcher.search(xsn);
-    }
-
     public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        return getSearchResults(new TableSearcher().search(xsn, selectors));
+        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
+        List<TableSyntaxNode> foundTables = new ArrayList<TableSyntaxNode>();
+
+        TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
+        for (TableSyntaxNode table : tables) {
+            if (!XlsNodeTypes.XLS_TABLEPART.toString().equals(table.getType()) // Exclude
+                                                                               // TablePart
+                                                                               // tables
+                    && selectors.select(table)) {
+                searchResults.add(new TableSyntaxNodeAdapter(table));
+            }
+        }
+
+        return searchResults;
     }
 
     public void setProjectTree(ProjectTreeNode projectRoot) {
