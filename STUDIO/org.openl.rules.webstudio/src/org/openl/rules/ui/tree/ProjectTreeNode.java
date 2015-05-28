@@ -1,12 +1,9 @@
 package org.openl.rules.ui.tree;
 
-import java.util.Iterator;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.tree.ITreeElement;
-import org.openl.vm.trace.ITracerObject;
 
 public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
 

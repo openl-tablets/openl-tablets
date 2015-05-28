@@ -6,14 +6,26 @@
 
 package org.openl.rules.table.xls;
 
+import java.awt.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -25,18 +37,28 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.*;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.CellKey;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
+import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.openl.rules.table.xls.writers.*;
+import org.openl.rules.table.xls.writers.AXlsCellWriter;
+import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
+import org.openl.rules.table.xls.writers.XlsCellDateWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
+import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
+import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
+import org.openl.rules.table.xls.writers.XlsCellStringWriter;
 import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
-
-import java.awt.Color;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
 
 /**
  * @author snshor

@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tablewizard.util;
 
-import java.util.Map;
-
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.richfaces.json.JSONObject;

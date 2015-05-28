@@ -6,7 +6,6 @@ import org.openl.rules.calc.ce.SpreadsheetNodeBinderCE;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ce.DataBaseCE;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 
 public class XlsBinderCE  extends XlsBinder{	

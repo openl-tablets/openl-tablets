@@ -1,10 +1,6 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +14,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;

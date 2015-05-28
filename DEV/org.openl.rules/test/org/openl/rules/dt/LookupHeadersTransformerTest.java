@@ -3,7 +3,6 @@ package org.openl.rules.dt;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
 

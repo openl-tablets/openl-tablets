@@ -3,15 +3,14 @@ package org.openl.rules.project.xml;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.v5_13.ProjectDescriptor_v5_13;
-import org.openl.rules.project.model.v5_13.converter.ProjectDescriptorVersionConverter;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSerializer {
     protected final XStream xstream;
