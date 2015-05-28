@@ -1,4 +1,4 @@
-package org.openl.rules.table.search.selectors;
+package org.openl.rules.webstudio.web;
 
 import java.lang.reflect.Array;
 
@@ -6,39 +6,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.util.AStringBoolOperator;
-import org.openl.util.AStringBoolOperator.ContainsIgnoreCaseOperator;
+import org.openl.util.ASelector;
 
-public class CellValueSelector extends TableDataSelector {
+class CellValueSelector extends ASelector<TableSyntaxNode> {
 
-    private AStringBoolOperator matchOperator;
-    private String value;
-
-    public CellValueSelector() {
-    }
+    private final String value;
 
     public CellValueSelector(String value) {
-        this(value, new ContainsIgnoreCaseOperator(null));
-    }
-
-    public CellValueSelector(String value, AStringBoolOperator matchOperator) {
-        this.value = value;
-        this.matchOperator = matchOperator;
-    }
-
-    public AStringBoolOperator getMatchOperator() {
-        return matchOperator;
-    }
-
-    public void setMatchOperator(AStringBoolOperator matchOperator) {
-        this.matchOperator = matchOperator;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
         this.value = value;
     }
 
@@ -78,7 +52,7 @@ public class CellValueSelector extends TableDataSelector {
 
         String strCellValue = String.valueOf(cellValue);
 
-        return matchOperator.isMatching(value, strCellValue);
+        return StringUtils.containsIgnoreCase(strCellValue, value);
     }
 
 }

@@ -1,54 +1,30 @@
-package org.openl.rules.table.search.selectors;
+package org.openl.rules.webstudio.web;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.util.AStringBoolOperator;
-import org.openl.util.AStringBoolOperator.ContainsIgnoreCaseOperator;
+import org.openl.util.ASelector;
 
 /**
  * @author Andrei Astrouski
  */
-public class TablePropertiesSelector extends TableSelector {
+class TablePropertiesSelector extends ASelector<TableSyntaxNode> {
 
-    private AStringBoolOperator stringMatchOperator;
-    private Map<String, Object> properties;
-
-    public TablePropertiesSelector() {
-    }
+    private final Map<String, Object> properties;
 
     public TablePropertiesSelector(Map<String, Object> properties) {
-        this(properties, new ContainsIgnoreCaseOperator(null));
-    }
-
-    public TablePropertiesSelector(Map<String, Object> properties, AStringBoolOperator stringMatchOperator) {
         this.properties = properties;
-        this.stringMatchOperator = stringMatchOperator;
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
-    }
-
-    public AStringBoolOperator getStringMatchOperator() {
-        return stringMatchOperator;
-    }
-
-    public void setStringMatchOperator(AStringBoolOperator stringMatchOperator) {
-        this.stringMatchOperator = stringMatchOperator;
     }
 
     /**
-     * Check if table properties consists all the values for properties from defined properties.
+     * Check if table properties consists all the values for properties from
+     * defined properties.
      */
     @Override
     public boolean select(TableSyntaxNode node) {
@@ -58,11 +34,11 @@ public class TablePropertiesSelector extends TableSelector {
         for (Map.Entry<String, Object> searchProperty : properties.entrySet()) {
             String searchPropName = searchProperty.getKey();
             Object searchPropValue = searchProperty.getValue();
-            if (tableProperties != null){
+            if (tableProperties != null) {
                 Object propValue = tableProperties.getPropertyValue(searchPropName);
                 if (propValue != null && valuesEqual(searchPropValue, propValue)) {
                     numMatch++;
-                }                
+                }
             }
         }
 
@@ -75,7 +51,7 @@ public class TablePropertiesSelector extends TableSelector {
 
         if (value.getClass().equals(searchValue.getClass())) {
             if (value instanceof String) {
-                result = stringMatchOperator.isMatching((String) searchValue, (String) value);
+                result = StringUtils.containsIgnoreCase((String) value, (String) searchValue);
 
             } else if (value instanceof Date) {
                 result = DateUtils.isSameDay((Date) searchValue, (Date) value);
