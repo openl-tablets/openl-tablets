@@ -1,16 +1,12 @@
 package org.openl.rules.table.xls;
 
-import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.impl.FileSourceCodeModule;
-import org.openl.util.export.IExporter;
 
 public class XlsSheetGridHelper {
     
@@ -19,20 +15,7 @@ public class XlsSheetGridHelper {
     private XlsSheetGridHelper() {
         
     }
-    
-    public static IExporter createExporter(XlsWorkbookSourceCodeModule workbookModule) {
-        Workbook workbook = workbookModule.getWorkbook();
-        Sheet sheet;
-        synchronized (workbook) {
-            sheet = workbook.getSheet(SHEET_NAME);
-            if (sheet == null) {
-                sheet = workbook.createSheet(SHEET_NAME);
-            }
-        }
 
-        return new XlsSheetGridExporter(workbook, createVirtualGrid(sheet));
-    }
-    
     /**
      * Creates virtual {@link XlsSheetGridModel} from poi source sheet.
      * 
