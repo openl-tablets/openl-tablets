@@ -9,7 +9,6 @@ package org.openl.source.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Map;
 
 import org.openl.source.IOpenSourceCodeModule;

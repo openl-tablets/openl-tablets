@@ -1,8 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;

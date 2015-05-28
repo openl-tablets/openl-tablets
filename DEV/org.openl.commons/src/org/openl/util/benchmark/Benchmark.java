@@ -1,10 +1,9 @@
 package org.openl.util.benchmark;
 
-import org.openl.util.Log;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import org.openl.util.Log;
 
 public class Benchmark {
 

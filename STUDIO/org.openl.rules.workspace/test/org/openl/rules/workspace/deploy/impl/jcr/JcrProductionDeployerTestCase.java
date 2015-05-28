@@ -1,5 +1,18 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
+import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
+import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
+import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.openl.config.ConfigurationManagerFactory;
@@ -11,25 +24,11 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
-import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
-import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
-import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.mock.MockFolder;
 import org.openl.rules.workspace.mock.MockResource;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class JcrProductionDeployerTestCase extends TestCase {
     private static final String PROJECT1_NAME = "project1";

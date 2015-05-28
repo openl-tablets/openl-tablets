@@ -1,16 +1,12 @@
 package org.openl.rules.datatype.gen;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
-
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by dl on 6/18/14.

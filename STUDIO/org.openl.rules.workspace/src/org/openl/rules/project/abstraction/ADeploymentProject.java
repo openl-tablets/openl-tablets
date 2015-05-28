@@ -1,22 +1,26 @@
 package org.openl.rules.project.abstraction;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
-import org.openl.rules.common.*;
-import org.openl.rules.common.ProjectDescriptorHelper;
-import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.workspace.WorkspaceUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectDescriptorHelper;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ADeploymentProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);

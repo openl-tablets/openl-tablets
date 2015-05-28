@@ -1,6 +1,5 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
