@@ -6,7 +6,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.util.FileTool;
 import org.openl.util.StringTool;
 import org.openl.util.tree.FileTreeIterator;
 import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
@@ -14,7 +13,9 @@ import org.openl.util.tree.TreeIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,13 +61,13 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
                     folder.getPath());
                 return false;
             }
-            if (!FileTool.containsFile(folder, PROJECT_FILE, false)) {
+            if (!containsFile(folder, PROJECT_FILE, false)) {
                 log.debug("Eclipse based project strategy failed to resolve project folder {}: there is no file {} in the folder",
                     folder.getPath(),
                     PROJECT_FILE);
                 return false;
             }
-            if (!FileTool.containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
+            if (!containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
                 log.debug("Eclipse based project strategy failed to resolve project folder {}: {} file doen`t contains {}",
                     folder.getPath(),
                     PROJECT_FILE,
@@ -82,6 +83,37 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
             return true;
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    private boolean containsFile(File f, String fname, boolean isDir) throws IOException {
+        File ff = new File(f.getCanonicalPath(), fname);
+        return ff.exists() && ff.isDirectory() == isDir;
+
+    }
+
+    private boolean containsFileText(File dir, String fname, String content) throws IOException {
+        File f = new File(dir.getCanonicalPath(), fname);
+
+        FileReader fr = new FileReader(f);
+
+        BufferedReader br = new BufferedReader(fr);
+
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                if (line.indexOf(content) >= 0) {
+                    return true;
+                }
+            }
+            return false;
+
+        } finally {
+            br.close();
+            fr.close();
         }
     }
 
