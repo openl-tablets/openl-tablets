@@ -4,10 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.openl.rules.calculation.result.convertor2.CodeStep;
-import org.openl.rules.calculation.result.convertor2.ColumnToExtract;
-import org.openl.rules.calculation.result.convertor2.SimpleStep;
-import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
 
 public class SpreadsheetColumnExtractorTest {
 
