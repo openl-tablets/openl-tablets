@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-dev-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.9.3.4-Canada-SNAPSHOT</version>
+  <version>5.9.3.4-Canada</version>
   <name>OpenL DEV SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
