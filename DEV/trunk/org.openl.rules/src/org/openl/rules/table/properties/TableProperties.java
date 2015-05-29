@@ -258,6 +258,18 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCustom2(java.lang.String[] custom2) {
 		setFieldValue("custom2", custom2);
 	}	
+	public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
+		return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions"); 
+	}
+	public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions) {
+		setFieldValue("caRegions", caRegions);
+	}	
+	public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
+		return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces"); 
+	}
+	public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces) {
+		setFieldValue("caProvinces", caProvinces);
+	}	
 // <<< END INSERT >>>
 
     /**

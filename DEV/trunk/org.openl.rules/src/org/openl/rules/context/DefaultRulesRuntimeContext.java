@@ -89,5 +89,17 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
 		setValue("region", region);
 	}	
+	public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
+		return (org.openl.rules.enumeration.CaProvincesEnum) getValue("caProvince"); 
+	}
+	public void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince) {
+		setValue("caProvince", caProvince);
+	}	
+	public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
+		return (org.openl.rules.enumeration.CaRegionsEnum) getValue("caRegion"); 
+	}
+	public void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion) {
+		setValue("caRegion", caRegion);
+	}	
 // <<< END INSERT >>>
 }

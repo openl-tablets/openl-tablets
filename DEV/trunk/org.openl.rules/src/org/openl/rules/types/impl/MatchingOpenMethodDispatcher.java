@@ -241,6 +241,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 		selectCandidatesByProperty("lang", selected, context);
 		selectCandidatesByProperty("state", selected, context);
 		selectCandidatesByProperty("region", selected, context);
+		selectCandidatesByProperty("caRegions", selected, context);
+		selectCandidatesByProperty("caProvinces", selected, context);
 	}
 // <<< END INSERT MatchingProperties >>>
 

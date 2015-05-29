@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[30];
+		definitions = new TablePropertyDefinition[32];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
@@ -443,6 +443,32 @@ public class DefaultPropertyDefinitions
 		definitions[29].setPrimaryKey(false);
 		definitions[29].setSystem(false);
 		definitions[29].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
+		definitions[30] = new TablePropertyDefinition();
+		definitions[30].setBusinessSearch(true);
+		definitions[30].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caRegions"));
+		definitions[30].setDescription("Région d\'opération pour laquelle la table devrait être utilisée");
+		definitions[30].setDimensional(true);
+		definitions[30].setDisplayName("Region");
+		definitions[30].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caRegion)"));
+		definitions[30].setGroup("Business Dimension");
+		definitions[30].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[30].setName("caRegions");
+		definitions[30].setPrimaryKey(false);
+		definitions[30].setSystem(false);
+		definitions[30].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaRegionsEnum[].class));
+		definitions[31] = new TablePropertyDefinition();
+		definitions[31].setBusinessSearch(true);
+		definitions[31].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caProvinces"));
+		definitions[31].setDescription("Province pour laquelle la table devrait être utilisée");
+		definitions[31].setDimensional(true);
+		definitions[31].setDisplayName("Province");
+		definitions[31].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caProvince)"));
+		definitions[31].setGroup("Business Dimension");
+		definitions[31].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[31].setName("caProvinces");
+		definitions[31].setPrimaryKey(false);
+		definitions[31].setSystem(false);
+		definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaProvincesEnum[].class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 
