@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.eclipse-pom</artifactId>
-    <version>5.9.3.4-Canada-SNAPSHOT</version>
+    <version>5.9.3.4-Canada</version>
     <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
