@@ -1,13 +1,15 @@
 package org.openl.codegen.tools.generator;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.Properties;
-
 
 public class SourceGenerator {
 
@@ -40,7 +42,9 @@ public class SourceGenerator {
     private Properties loadVelocityProperties() throws IOException, FileNotFoundException {
 
         Properties properties = new Properties();
-        properties.load(new FileInputStream(new File(VELOCITY_PROPERTIES)));
+        FileInputStream is = new FileInputStream(new File(VELOCITY_PROPERTIES));
+        properties.load(is);
+        IOUtils.closeQuietly(is);
 
         return properties;
     }
@@ -50,13 +54,14 @@ public class SourceGenerator {
 
         File file = new File(sourceFilePath);
         FileOutputStream os = new FileOutputStream(file, false);
-
+        OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8");
+        
         String codeSnippet = generateSource(templateName, variables);
-        os.write(codeSnippet.getBytes());
+        writer.write(codeSnippet);
 
-        os.close();
+        writer.close();
     }
-    
+
     public String generateSource(String templateName, Map<String, Object> variables) throws Exception {
         return generator.generate(templateName, variables);
     }

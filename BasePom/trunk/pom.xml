@@ -14,6 +14,10 @@
        <developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
    </scm>
 
+   <properties> 
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
   <modules>
     <module>org.openl.rules.base-pom</module>
   </modules>
