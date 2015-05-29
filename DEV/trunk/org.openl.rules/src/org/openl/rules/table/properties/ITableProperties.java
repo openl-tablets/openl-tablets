@@ -175,6 +175,10 @@ public interface ITableProperties {
 	void setCustom1(java.lang.String[] custom1);
 	java.lang.String[] getCustom2();
 	void setCustom2(java.lang.String[] custom2);
+	org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions();
+	void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions);
+	org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces();
+	void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces);
 // <<< END INSERT >>>
 	
 	
