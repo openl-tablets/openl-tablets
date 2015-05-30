@@ -18,9 +18,10 @@
 	<url>http://openl-tablets.sf.net/</url>
 
 	<scm>
-		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
-	</scm>
+	        <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+        	<developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
+	        <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
+   	</scm>
 
 	<modules>
 		<module>../org.openl.rules.tableeditor</module>

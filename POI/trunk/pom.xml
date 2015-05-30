@@ -10,17 +10,24 @@
 	<url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
 	<scm>
-       		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-       		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+	        <connection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</connection>
+        	<developerConnection>scm:hg:https://vno-hg.exigengroup.com/hg/openl/</developerConnection>
+	        <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
    	</scm>
 
 	<distributionManagement>
 		<repository>
-			<id>exigen-repo-release</id>
-			<name>Exigen Release Repository</name>
-			<url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-		</repository>
+			<id>internal-minsk</id>
+          		<name>Release Repository</name>
+          		<url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
+      		</repository>
+      		<snapshotRepository>
+          		<id>internal-minsk</id>
+          		<name>Snapshot Repository</name>
+          		<url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
+	      </snapshotRepository>
 	</distributionManagement>
+
 	<modules>
 		<module>org.openl.lib.poi.dev-pom</module>
 	</modules>
