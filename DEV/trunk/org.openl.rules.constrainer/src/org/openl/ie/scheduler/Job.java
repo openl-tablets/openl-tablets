@@ -49,7 +49,7 @@ public interface Job {
     /**
      * Returns constrainer this job associated with
      *
-     * @return Ñonstrainer this job associated with
+     * @return constrainer this job associated with
      */
     public Constrainer constrainer();
 

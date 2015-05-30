@@ -42,7 +42,7 @@ public interface Resource {
     /**
      * Returns constrainer this resource associated with
      *
-     * @return Ñonstrainer this resource associated with
+     * @return constrainer this resource associated with
      */
     public Constrainer constrainer();
 
