@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>general-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.9.3.4-Canada</version>
+  <version>5.9.3.5-Canada-SNAPSHOT</version>
   <name>General pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
