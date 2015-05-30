@@ -346,16 +346,16 @@
 		<profile>
 			<id>internal-deploy</id>
 			<distributionManagement>
-				<repository>
-					<id>internal-minsk</id>
-					<name>Release Repository</name>
-					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-release/</url>
-				</repository>
-				<snapshotRepository>
-					<id>internal-minsk</id>
-					<name>Snapshot Repository</name>
-					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-snapshot/</url>
-				</snapshotRepository>
+		        	<repository>
+	        		    <id>internal-minsk</id>
+		        	    <name>Release Repository</name>
+        			    <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
+			        </repository>
+	        		<snapshotRepository>
+			        	    <id>internal-minsk</id>
+		        		    <name>Snapshot Repository</name>
+				            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
+			        </snapshotRepository>
 			</distributionManagement>
 		</profile>
 		<profile>
@@ -389,12 +389,12 @@
 				<repository>
 					<id>sonatype-nexus-staging</id>
 					<name>Nexus Release Repository</name>
-					<url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 				</repository>
 				<snapshotRepository>
 					<id>sonatype-nexus-snapshots</id>
 					<name>Sonatype Nexus Snapshots</name>
-					<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 				</snapshotRepository>
 			</distributionManagement>
 			<build>
