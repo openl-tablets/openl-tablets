@@ -10,4 +10,6 @@ public interface Project {
     List<DataInstance> getDataInstances();
 
     List<Table> getTables();
+
+    List<Function> getFunctions();
 }

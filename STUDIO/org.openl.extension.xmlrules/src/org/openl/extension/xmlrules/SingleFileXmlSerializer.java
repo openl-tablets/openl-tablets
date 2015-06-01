@@ -17,10 +17,12 @@ public class SingleFileXmlSerializer implements Serializer<Project> {
     private static final String LIVE_EXCEL_DATA_INSTANCE_TAG = "dataInstance";
     private static final String LIVE_EXCEL_FIELD_TAG = "field";
     private static final String LIVE_EXCEL_TABLE_TAG = "table";
+    private static final String LIVE_EXCEL_FUNCTION_TAG = "function";
     private static final String LIVE_EXCEL_CONDITION_TAG = "condition";
     private static final String LIVE_EXCEL_RETURN_TAG = "return";
     private static final String XLS_REGION_TAG = "region";
     public static final String CONDITION_EXPRESSION = "conditionExpression";
+    public static final String FUNCTION_EXPRESSION = "functionExpression";
 
     private final XStream xstream;
 
@@ -33,8 +35,10 @@ public class SingleFileXmlSerializer implements Serializer<Project> {
         xstream.aliasType(LIVE_EXCEL_DATA_INSTANCE_TAG, DataInstanceImpl.class);
         xstream.aliasType(LIVE_EXCEL_FIELD_TAG, FieldImpl.class);
         xstream.aliasType(LIVE_EXCEL_TABLE_TAG, TableImpl.class);
+        xstream.aliasType(LIVE_EXCEL_FUNCTION_TAG, FunctionImpl.class);
         xstream.aliasType(LIVE_EXCEL_CONDITION_TAG, ConditionImpl.class);
         xstream.aliasType(CONDITION_EXPRESSION, ConditionExpressionImpl.class);
+        xstream.aliasType(FUNCTION_EXPRESSION, FunctionExpressionImpl.class);
         xstream.aliasType(LIVE_EXCEL_RETURN_TAG, ReturnValueImpl.class);
         xstream.aliasType(XLS_REGION_TAG, XlsRegionImpl.class);
     }
@@ -53,43 +57,53 @@ public class SingleFileXmlSerializer implements Serializer<Project> {
     }
 
     private void postProcess(ProjectImpl project) {
-        for (Type type : project.getTypes()) {
-            postProcess((XlsRegionImpl) type.getRegion());
+        if (project.getTypes() != null) {
+            for (Type type : project.getTypes()) {
+                postProcess((XlsRegionImpl) type.getRegion());
 
-            for (Field field : type.getFields()) {
-                postProcess((XlsRegionImpl) field.getRegion());
+                for (Field field : type.getFields()) {
+                    postProcess((XlsRegionImpl) field.getRegion());
+                }
             }
         }
 
-        for (Table table : project.getTables()) {
-            TableImpl t = (TableImpl) table;
-            postProcess(t.getRegion());
+        if (project.getTables() != null) {
+            for (Table table : project.getTables()) {
+                TableImpl t = (TableImpl) table;
+                postProcess(t.getRegion());
 
-            List<Condition> verticalConditions = t.getVerticalConditions();
-            if (verticalConditions != null) {
-                for (Condition condition : verticalConditions) {
-                    for (ConditionExpression expression : condition.getExpressions()) {
-                        postProcess((XlsRegionImpl) expression.getRegion());
+                List<Condition> verticalConditions = t.getVerticalConditions();
+                if (verticalConditions != null) {
+                    for (Condition condition : verticalConditions) {
+                        for (ConditionExpression expression : condition.getExpressions()) {
+                            postProcess((XlsRegionImpl) expression.getRegion());
+                        }
+                    }
+                } else {
+                    t.setVerticalConditions(Collections.<Condition>emptyList());
+                }
+                List<Condition> horizontalConditions = table.getHorizontalConditions();
+                if (horizontalConditions != null) {
+                    for (Condition condition : horizontalConditions) {
+                        for (ConditionExpression expression : condition.getExpressions()) {
+                            postProcess((XlsRegionImpl) expression.getRegion());
+                        }
+                    }
+                } else {
+                    t.setHorizontalConditions(Collections.<Condition>emptyList());
+                }
+
+                for (List<ReturnValue> row : table.getReturnValues()) {
+                    for (ReturnValue returnValue : row) {
+                        postProcess((XlsRegionImpl) returnValue.getRegion());
                     }
                 }
-            } else {
-                t.setVerticalConditions(Collections.<Condition>emptyList());
             }
-            List<Condition> horizontalConditions = table.getHorizontalConditions();
-            if (horizontalConditions != null) {
-                for (Condition condition : horizontalConditions) {
-                    for (ConditionExpression expression : condition.getExpressions()) {
-                        postProcess((XlsRegionImpl) expression.getRegion());
-                    }
-                }
-            } else {
-                t.setHorizontalConditions(Collections.<Condition>emptyList());
-            }
+        }
 
-            for (List<ReturnValue> row : table.getReturnValues()) {
-                for (ReturnValue returnValue : row) {
-                    postProcess((XlsRegionImpl) returnValue.getRegion());
-                }
+        if (project.getFunctions() != null) {
+            for (Function function : project.getFunctions()) {
+                postProcess((XlsRegionImpl) function.getRegion());
             }
         }
     }
@@ -134,6 +148,10 @@ public class SingleFileXmlSerializer implements Serializer<Project> {
                     preProcess((XlsRegionImpl) returnValue.getRegion());
                 }
             }
+        }
+
+        for (Function function : project.getFunctions()) {
+            preProcess((XlsRegionImpl) function.getRegion());
         }
     }
 
