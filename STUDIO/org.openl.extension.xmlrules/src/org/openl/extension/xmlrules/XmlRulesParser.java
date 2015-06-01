@@ -55,6 +55,7 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         createTypes(gridBuilder, project);
         createDataInstances(gridBuilder, project);
         createTables(gridBuilder, project);
+        createFunctions(gridBuilder, project);
 
         return gridBuilder.build().getTables();
     }
@@ -77,8 +78,12 @@ public class XmlRulesParser extends ExtensionParser<Project> {
     }
 
     private void createDataInstances(StringGridBuilder gridBuilder, Project project) {
+        if (project.getDataInstances() == null) {
+            return;
+        }
         for (DataInstance dataInstance : project.getDataInstances()) {
-            gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(), dataInstance.getFields().size()).nextRow();
+            gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
+                    dataInstance.getFields().size()).nextRow();
             // Fields
             boolean hasReferences = false;
             for (Field field : dataInstance.getFields()) {
@@ -121,6 +126,9 @@ public class XmlRulesParser extends ExtensionParser<Project> {
     }
 
     private void createTables(StringGridBuilder gridBuilder, Project project) {
+        if (project.getTables() == null) {
+            return;
+        }
         for (Table table : project.getTables()) {
             int tableRow = gridBuilder.getRow();
 
@@ -213,6 +221,50 @@ public class XmlRulesParser extends ExtensionParser<Project> {
                 }
             }
             gridBuilder.setStartColumn(startColumn);
+            gridBuilder.nextRow();
+        }
+    }
+
+    private void createFunctions(StringGridBuilder gridBuilder, Project project) {
+        if (project.getFunctions() == null) {
+            return;
+        }
+        for (Function function : project.getFunctions()) {
+            StringBuilder headerBuilder = new StringBuilder();
+            // TODO Add other return types and input parameters support
+            headerBuilder.append("Spreadsheet ")
+                    .append("String") // FIXME
+                    .append(' ')
+                    .append(function.getName())
+                    .append('(');
+            List<String> parameters = function.getParameters();
+            for (int i = 0; i < parameters.size(); i++) {
+                if (i > 0) {
+                    headerBuilder.append(", ");
+                }
+                String parameter = parameters.get(i);
+                headerBuilder.append("String") // FIXME
+                        .append(" ")
+                        .append(parameter);
+            }
+            headerBuilder.append(')');
+            gridBuilder.addCell(headerBuilder.toString(), 2).nextRow();
+
+            gridBuilder.addCell("Step").addCell("Formula").nextRow();
+
+            List<FunctionExpression> expressions = function.getExpressions();
+            for (int i = 0; i < expressions.size(); i++) {
+                FunctionExpression expression = expressions.get(i);
+                String step = expression.getStepName();
+                if (expression.getStepType() != null) {
+                    step += " : " + expression.getStepType();
+                } else if (StringUtils.isBlank(step) && i == expressions.size() - 1) {
+                    step = "RETURN";
+                }
+
+                gridBuilder.addCell(step).addCell("=" + StringUtils.trim(expression.getExpression())).nextRow();
+            }
+
             gridBuilder.nextRow();
         }
     }

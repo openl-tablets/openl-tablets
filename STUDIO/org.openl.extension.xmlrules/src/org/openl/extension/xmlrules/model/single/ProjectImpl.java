@@ -3,16 +3,14 @@ package org.openl.extension.xmlrules.model.single;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.extension.xmlrules.model.DataInstance;
-import org.openl.extension.xmlrules.model.Project;
-import org.openl.extension.xmlrules.model.Table;
-import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.*;
 
 public class ProjectImpl implements Project {
     private String xlsFileName;
     private List<Type> types = new ArrayList<Type>();
     private List<DataInstance> dataInstances = new ArrayList<DataInstance>();
     private List<Table> tables = new ArrayList<Table>();
+    private List<Function> functions = new ArrayList<Function>();
 
     @Override
     public String getXlsFileName() {
@@ -48,5 +46,14 @@ public class ProjectImpl implements Project {
 
     public void setTables(List<Table> tables) {
         this.tables = tables;
+    }
+
+    @Override
+    public List<Function> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(List<Function> functions) {
+        this.functions = functions;
     }
 }
