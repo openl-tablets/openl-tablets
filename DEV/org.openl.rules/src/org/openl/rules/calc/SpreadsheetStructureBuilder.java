@@ -325,11 +325,9 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
                 /** create spreadsheet cell field */
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
-                    spreadsheetHeader,
-                    spreadsheetHeader.getType(),
-                    fieldname,
-                    spreadsheetCell);
+                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetHeader.getType(),
+                        spreadsheetCell,
+                        fieldname);
 
                 /** add spreadsheet cell field to its open class */
                 spreadsheetType.addField(field);
@@ -370,7 +368,7 @@ public class SpreadsheetStructureBuilder {
         }
 
         String cellCode = sourceCell.getStringValue();
-        IOpenClass cellType = deriveCellType(cell, columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
+        IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
         spreadsheetCell.setType(cellType);
         if (cellCode == null || cellCode.isEmpty())
             spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
@@ -382,8 +380,7 @@ public class SpreadsheetStructureBuilder {
         return spreadsheetCell;
     }
 
-    private IOpenClass deriveCellType(ILogicalTable cell,
-            SpreadsheetHeaderDefinition columnHeader,
+    private IOpenClass deriveCellType(SpreadsheetHeaderDefinition columnHeader,
             SpreadsheetHeaderDefinition rowHeader,
             String cellValue) {
 
@@ -482,11 +479,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
-                    spreadsheetHeader,
-                    columnOpenClass,
-                    fieldName,
-                    cell);
+                SpreadsheetCellField field = createSpreadsheetCellField(columnOpenClass, cell, fieldName);
 
                 columnOpenClass.addField(field);
             }
@@ -527,11 +520,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
-                    spreadsheetHeader,
-                    rowOpenClass,
-                    fieldName,
-                    cell);
+                SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass, cell, fieldName);
 
                 rowOpenClass.addField(field);
             }
@@ -550,5 +539,14 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return rowOpenClass;
+    }
+
+    private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
+            SpreadsheetCell cell,
+            String fieldName) {
+        return SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
+                rowOpenClass,
+                fieldName,
+                cell);
     }
 }
