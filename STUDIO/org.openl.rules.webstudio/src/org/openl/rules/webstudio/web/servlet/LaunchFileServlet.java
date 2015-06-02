@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.commons.web.util.WebTool;
+import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -70,6 +71,12 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
+        ExtensionWrapperGrid wrapperGrid = null;
+        if (table.getGridTable().getGrid() instanceof ExtensionWrapperGrid) {
+            wrapperGrid = (ExtensionWrapperGrid) table.getGridTable().getGrid();
+            file = wrapperGrid.getSourceFileName();
+        }
+
         if (!FileTypeHelper.isExcelFile(file)) { // Excel
             log.error("Unsupported file format [{}]", file);
             return;
@@ -87,7 +94,7 @@ public class LaunchFileServlet extends HttpServlet {
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(decodedUriParameter);
             wbPath = parser.wbPath;
-            wbName = parser.wbName;
+            wbName = wrapperGrid != null ? wrapperGrid.getSourceFileName() : parser.wbName;
             wsName = parser.wsName;
             range = parser.range;
         } catch (Exception e) {

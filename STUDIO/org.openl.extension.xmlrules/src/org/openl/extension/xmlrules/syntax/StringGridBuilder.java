@@ -12,8 +12,8 @@ public class StringGridBuilder {
 
     private SimpleGrid.SimpleGridBuilder builder;
 
-    public StringGridBuilder(String uri) {
-        builder = new SimpleGrid.SimpleGridBuilder(uri);
+    public StringGridBuilder(String uri, String sourceFileName) {
+        builder = new SimpleGrid.SimpleGridBuilder(uri, sourceFileName);
     }
 
     public StringGridBuilder setStartRow(int row) {
