@@ -2,8 +2,11 @@ package org.openl.extension.xmlrules.model;
 
 import java.util.List;
 
-public interface Project {
-    String getXlsFileName();
+/**
+ * Analogue of Excel's sheet.
+ */
+public interface TableGroup {
+    String getName();
 
     List<Type> getTypes();
 

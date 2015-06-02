@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.extension.xmlrules.model.ExtensionModule;
+import org.openl.extension.xmlrules.model.TableGroup;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.BaseParser;
 import org.openl.rules.lang.xls.XlsHelper;
@@ -28,23 +30,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base extension parser
- *
- * @param <T> Extension project model
  */
-public abstract class ExtensionParser<T> extends BaseParser {
+public abstract class ExtensionParser extends BaseParser {
     private final Logger log = LoggerFactory.getLogger(ExtensionParser.class);
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-        T project = load(source);
+        ExtensionModule module = load(source);
 
         ISyntaxNode syntaxNode = null;
         List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         try {
-            XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(project, source);
+            XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
 
-            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(project, workbookSourceCodeModule);
+            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule);
             syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                     workbookSourceCodeModule,
                     null,
@@ -70,11 +70,16 @@ public abstract class ExtensionParser<T> extends BaseParser {
                 new IDependency[] {});
     }
 
-    protected WorkbookSyntaxNode[] getWorkbooks(T project, XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-        // TODO Get sheet number and name from project: sheet name is used as category name
-        XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(0, workbookSourceCodeModule);
-        WorksheetSyntaxNode sheetNode = getWorksheet(sheetSource, project);
-        WorksheetSyntaxNode[] sheetNodes = { sheetNode };
+    protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module, XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+        List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
+        List<TableGroup> tableGroups = module.getTableGroups();
+        for (int i = 0; i < tableGroups.size(); i++) {
+            TableGroup tableGroup = tableGroups.get(i);
+            // Sheet name is used as category name in WebStudio
+            XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceCodeModule);
+            sheetNodeList.add(getWorksheet(sheetSource, tableGroup));
+        }
+        WorksheetSyntaxNode[] sheetNodes = sheetNodeList.toArray(new WorksheetSyntaxNode[sheetNodeList.size()]);
 
         // TODO: Add TableParts
         TableSyntaxNode[] mergedNodes = {};
@@ -82,8 +87,8 @@ public abstract class ExtensionParser<T> extends BaseParser {
         return new WorkbookSyntaxNode[] { new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule) };
     }
 
-    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, T project) {
-        IGridTable[] tables = getAllGridTables(sheetSource, project);
+    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
+        IGridTable[] tables = getAllGridTables(sheetSource, tableGroup);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
@@ -103,16 +108,16 @@ public abstract class ExtensionParser<T> extends BaseParser {
      * @param source source
      * @return loaded project
      */
-    protected abstract T load(IOpenSourceCodeModule source);
+    protected abstract ExtensionModule load(IOpenSourceCodeModule source);
 
     /**
      * Wrap source to XlsWorkbookSourceCodeModule
      */
-    protected abstract XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(T project,
+    protected abstract XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(ExtensionModule project,
             IOpenSourceCodeModule source) throws OpenLCompilationException;
 
     /**
      * Gets all grid tables from the sheet.
      */
-    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, T project);
+    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup);
 }
