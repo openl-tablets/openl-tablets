@@ -16,13 +16,13 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 
-public class XmlRulesParser extends ExtensionParser<Project> {
+public class XmlRulesParser extends ExtensionParser {
     public XmlRulesParser() {
     }
 
     @Override
-    protected Project load(IOpenSourceCodeModule source) {
-        Serializer<Project> serializer = new SingleFileXmlSerializer();
+    protected ExtensionModule load(IOpenSourceCodeModule source) {
+        Serializer<ExtensionModule> serializer = new SingleFileXmlSerializer();
         return serializer.deserialize(source.getByteStream());
     }
 
@@ -30,13 +30,14 @@ public class XmlRulesParser extends ExtensionParser<Project> {
      * Wrap source to XlsWorkbookSourceCodeModule
      */
     @Override
-    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(Project project, IOpenSourceCodeModule source) throws
+    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(ExtensionModule extensionModule, IOpenSourceCodeModule source) throws
                                                                                                                      OpenLCompilationException {
         try {
             // TODO Check the cases when source can be UrlSourceCodeModule or another one.
             File projectFolder = new File(new File(new URI(source.getUri(0))).getParent());
 
-            return new XlsWorkbookSourceCodeModule(source, new LazyXmlRulesWorkbookLoader(projectFolder, project));
+            return new XlsWorkbookSourceCodeModule(source, new LazyXmlRulesWorkbookLoader(projectFolder,
+                    extensionModule));
         } catch (URISyntaxException e) {
             throw new OpenLCompilationException(e.getMessage(), e);
         }
@@ -46,22 +47,25 @@ public class XmlRulesParser extends ExtensionParser<Project> {
      * Gets all grid tables from the sheet.
      */
     @Override
-    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, Project project) {
+    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
         String uri = sheetSource.getUri();
         // TODO Improve LaunchFileServlet to support real ranges
 
         StringGridBuilder gridBuilder = new StringGridBuilder(uri);
 
-        createTypes(gridBuilder, project);
-        createDataInstances(gridBuilder, project);
-        createTables(gridBuilder, project);
-        createFunctions(gridBuilder, project);
+        createTypes(gridBuilder, tableGroup);
+        createDataInstances(gridBuilder, tableGroup);
+        createTables(gridBuilder, tableGroup);
+        createFunctions(gridBuilder, tableGroup);
 
         return gridBuilder.build().getTables();
     }
 
-    private void createTypes(StringGridBuilder gridBuilder, Project project) {
-        for (Type type : project.getTypes()) {
+    private void createTypes(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getTypes() == null) {
+            return;
+        }
+        for (Type type : tableGroup.getTypes()) {
             gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
             for (Field field : type.getFields()) {
@@ -77,11 +81,11 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         }
     }
 
-    private void createDataInstances(StringGridBuilder gridBuilder, Project project) {
-        if (project.getDataInstances() == null) {
+    private void createDataInstances(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getDataInstances() == null) {
             return;
         }
-        for (DataInstance dataInstance : project.getDataInstances()) {
+        for (DataInstance dataInstance : tableGroup.getDataInstances()) {
             gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
                     dataInstance.getFields().size()).nextRow();
             // Fields
@@ -125,11 +129,11 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         }
     }
 
-    private void createTables(StringGridBuilder gridBuilder, Project project) {
-        if (project.getTables() == null) {
+    private void createTables(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getTables() == null) {
             return;
         }
-        for (Table table : project.getTables()) {
+        for (Table table : tableGroup.getTables()) {
             int tableRow = gridBuilder.getRow();
 
             boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
@@ -225,11 +229,11 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         }
     }
 
-    private void createFunctions(StringGridBuilder gridBuilder, Project project) {
-        if (project.getFunctions() == null) {
+    private void createFunctions(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getFunctions() == null) {
             return;
         }
-        for (Function function : project.getFunctions()) {
+        for (Function function : tableGroup.getFunctions()) {
             StringBuilder headerBuilder = new StringBuilder();
             // TODO Add other return types and input parameters support
             headerBuilder.append("Spreadsheet ")

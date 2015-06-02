@@ -5,20 +5,20 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.*;
 
-public class ProjectImpl implements Project {
-    private String xlsFileName;
+public class TableGroupImpl implements TableGroup {
+    private String name;
     private List<Type> types = new ArrayList<Type>();
     private List<DataInstance> dataInstances = new ArrayList<DataInstance>();
     private List<Table> tables = new ArrayList<Table>();
     private List<Function> functions = new ArrayList<Function>();
 
     @Override
-    public String getXlsFileName() {
-        return xlsFileName;
+    public String getName() {
+        return name;
     }
 
-    public void setXlsFileName(String xlsFileName) {
-        this.xlsFileName = xlsFileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
