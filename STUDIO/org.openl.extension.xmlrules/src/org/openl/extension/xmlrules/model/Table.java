@@ -8,7 +8,9 @@ import java.util.List;
 public interface Table {
     String getName();
 
-    List<String> getParameters();
+    List<Parameter> getParameters();
+
+    String getReturnType();
 
     List<Condition> getHorizontalConditions();
 

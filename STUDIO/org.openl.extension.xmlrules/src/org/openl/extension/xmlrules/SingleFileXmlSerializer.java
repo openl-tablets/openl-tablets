@@ -21,6 +21,7 @@ public class SingleFileXmlSerializer implements Serializer<ExtensionModule> {
     private static final String FUNCTION_TAG = "function";
     private static final String CONDITION_TAG = "condition";
     private static final String RETURN_TAG = "return";
+    private static final String PARAMETER_TAG = "parameter";
     private static final String XLS_REGION_TAG = "region";
     public static final String CONDITION_EXPRESSION = "conditionExpression";
     public static final String FUNCTION_EXPRESSION = "functionExpression";
@@ -43,6 +44,7 @@ public class SingleFileXmlSerializer implements Serializer<ExtensionModule> {
         xstream.aliasType(FUNCTION_EXPRESSION, FunctionExpressionImpl.class);
         xstream.aliasType(RETURN_TAG, ReturnValueImpl.class);
         xstream.aliasType(XLS_REGION_TAG, XlsRegionImpl.class);
+        xstream.aliasType(PARAMETER_TAG, ParameterImpl.class);
     }
 
     @Override

@@ -139,14 +139,21 @@ public class XmlRulesParser extends ExtensionParser {
             boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
             String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
             StringBuilder header = new StringBuilder();
-            header.append(tableType).append(" String ").append(table.getName()).append("(");
+            String returnType = table.getReturnType();
+            if (StringUtils.isBlank(returnType)) {
+                returnType = "void";
+            }
+            header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
             boolean needComma = false;
-            for (String parameter : table.getParameters()) {
+            for (Parameter parameter : table.getParameters()) {
                 if (needComma) {
                     header.append(", ");
                 }
-                // TODO: Consider other types too
-                header.append("String ").append(parameter);
+                String type = parameter.getType();
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
+                header.append(type).append(' ').append(parameter.getName());
                 needComma = true;
             }
             header.append(")");
@@ -170,23 +177,23 @@ public class XmlRulesParser extends ExtensionParser {
 
             // VC header
             if (isSimpleRules) {
-                for (String parameter : table.getParameters()) {
-                    gridBuilder.addCell(parameter);
+                for (Parameter parameter : table.getParameters()) {
+                    gridBuilder.addCell(parameter.getName());
                 }
                 gridBuilder.addCell("Return");
                 gridBuilder.nextRow();
             } else {
-                List<String> parameters = table.getParameters();
+                List<Parameter> parameters = table.getParameters();
                 for (int i = 0; i < parameters.size(); i++) {
                     if (i >= table.getVerticalConditions().size()) {
                         break;
                     }
-                    String parameter = parameters.get(i);
+                    Parameter parameter = parameters.get(i);
                     gridBuilder.setCell(gridBuilder.getColumn(),
                             tableRow + 1,
                             1,
                             table.getHorizontalConditions().size(),
-                            parameter);
+                            parameter.getName());
                 }
             }
 
@@ -235,21 +242,28 @@ public class XmlRulesParser extends ExtensionParser {
         }
         for (Function function : tableGroup.getFunctions()) {
             StringBuilder headerBuilder = new StringBuilder();
-            // TODO Add other return types and input parameters support
+            String returnType = function.getReturnType();
+            if (StringUtils.isBlank(returnType)) {
+                returnType = "void";
+            }
             headerBuilder.append("Spreadsheet ")
-                    .append("String") // FIXME
+                    .append(returnType)
                     .append(' ')
                     .append(function.getName())
                     .append('(');
-            List<String> parameters = function.getParameters();
+            List<Parameter> parameters = function.getParameters();
             for (int i = 0; i < parameters.size(); i++) {
                 if (i > 0) {
                     headerBuilder.append(", ");
                 }
-                String parameter = parameters.get(i);
-                headerBuilder.append("String") // FIXME
+                Parameter parameter = parameters.get(i);
+                String type = parameter.getType();
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
+                headerBuilder.append(type)
                         .append(" ")
-                        .append(parameter);
+                        .append(parameter.getName());
             }
             headerBuilder.append(')');
             gridBuilder.addCell(headerBuilder.toString(), 2).nextRow();

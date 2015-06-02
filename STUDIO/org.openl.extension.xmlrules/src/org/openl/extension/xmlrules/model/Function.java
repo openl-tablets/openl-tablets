@@ -5,7 +5,9 @@ import java.util.List;
 public interface Function {
     String getName();
 
-    List<String> getParameters();
+    List<Parameter> getParameters();
+
+    String getReturnType();
 
     List<FunctionExpression> getExpressions();
 
