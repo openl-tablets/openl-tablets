@@ -129,6 +129,7 @@ public abstract class XlsHelper {
         }
     }
 
+
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table, XlsSheetSourceCodeModule source) throws
                                                                                                            OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
@@ -140,14 +141,12 @@ public abstract class XlsHelper {
             xls_type = XlsNodeTypes.XLS_OTHER.toString();
         }
 
-        HeaderSyntaxNode result;
+        HeaderSyntaxNode headerNode;
         if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xls_type)) {
-            result = new SpreadsheetHeaderNode(src, headerToken);
+            headerNode = new SpreadsheetHeaderNode(src, headerToken);
         } else {
-            result = new HeaderSyntaxNode(src, headerToken);
+            headerNode = new HeaderSyntaxNode(src, headerToken);
         }
-
-        HeaderSyntaxNode headerNode = result;
 
         GridLocation pos = new GridLocation(table);
         return new TableSyntaxNode(xls_type, pos, source, table, headerNode);
