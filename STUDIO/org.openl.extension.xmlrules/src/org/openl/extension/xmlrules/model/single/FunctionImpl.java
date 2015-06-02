@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.FunctionExpression;
+import org.openl.extension.xmlrules.model.Parameter;
 
 public class FunctionImpl implements Function {
     private String name;
-    private List<String> parameters = new ArrayList<String>();
+    private String returnType;
+    private List<Parameter> parameters = new ArrayList<Parameter>();
     private List<FunctionExpression> expressions = new ArrayList<FunctionExpression>();
     private XlsRegionImpl region;
 
@@ -21,12 +23,21 @@ public class FunctionImpl implements Function {
         this.name = name;
     }
 
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
     @Override
-    public List<String> getParameters() {
+    public String getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<String> parameters) {
+    public void setParameters(List<Parameter> parameters) {
         this.parameters = parameters;
     }
 
