@@ -61,4 +61,8 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
 
         return workbook;
     }
+
+    public ExtensionModule getExtensionModule() {
+        return extensionModule;
+    }
 }

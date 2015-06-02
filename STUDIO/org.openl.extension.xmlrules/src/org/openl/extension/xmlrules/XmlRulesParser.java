@@ -50,8 +50,9 @@ public class XmlRulesParser extends ExtensionParser {
     protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
         String uri = sheetSource.getUri();
         // TODO Improve LaunchFileServlet to support real ranges
+        LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource().getWorkbookLoader();
 
-        StringGridBuilder gridBuilder = new StringGridBuilder(uri);
+        StringGridBuilder gridBuilder = new StringGridBuilder(uri, workbookLoader.getExtensionModule().getXlsFileName());
 
         createTypes(gridBuilder, tableGroup);
         createDataInstances(gridBuilder, tableGroup);
