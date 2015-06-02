@@ -85,10 +85,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     private void initSpreadsheetBuilder(IBindingContext bindingContext) throws SyntaxNodeException {
-        validateTableBody(getTableSyntaxNode().getTableBody());
-        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext,
-            getTableSyntaxNode(),
-            getHeader()));
+        TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
+        validateTableBody(tableSyntaxNode.getTableBody());
+        IOpenMethodHeader header = getHeader();
+
+        SpreadsheetBuilder spreadsheetBuilder = new SpreadsheetBuilder(tableSyntaxNode, bindingContext, header);
+        setSpreadsheetBuilder(spreadsheetBuilder);
     }
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
