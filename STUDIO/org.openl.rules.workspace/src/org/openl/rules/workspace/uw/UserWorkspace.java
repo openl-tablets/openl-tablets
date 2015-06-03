@@ -10,7 +10,6 @@ import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
-import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;

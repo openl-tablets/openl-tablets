@@ -1,12 +1,14 @@
 package org.openl.util.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.Test;
-import org.openl.util.BooleanUtils;
 
 /**
  * @author DLiauchuk TODO: test all methods.

@@ -7,7 +7,6 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
-import java.util.NoSuchElementException;
 
 /**
  * @author snshor

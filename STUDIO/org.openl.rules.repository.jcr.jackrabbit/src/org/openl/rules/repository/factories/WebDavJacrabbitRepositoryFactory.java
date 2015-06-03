@@ -4,7 +4,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.jcr2spi.RepositoryImpl;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;

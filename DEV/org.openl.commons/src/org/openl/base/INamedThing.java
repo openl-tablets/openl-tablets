@@ -35,17 +35,6 @@ public interface INamedThing {
 		}
     }
 
-    static class Tool {
-        public static INamedThing find(INamedThing[] ary, String name) {
-            for (INamedThing namedThing : ary) {
-                if (namedThing.getName().equals(name)) {
-                    return namedThing;
-                }
-            }
-            return null;
-        }
-    }
-
     static public INamedThing[] EMPTY = {};
 
     static public int SHORT = 0;

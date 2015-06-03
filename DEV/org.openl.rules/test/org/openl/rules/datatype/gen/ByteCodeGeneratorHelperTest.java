@@ -1,12 +1,8 @@
 package org.openl.rules.datatype.gen;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DatatypeOpenField;
-import org.openl.types.impl.DynamicArrayAggregateInfo;
 
 public class ByteCodeGeneratorHelperTest {
     

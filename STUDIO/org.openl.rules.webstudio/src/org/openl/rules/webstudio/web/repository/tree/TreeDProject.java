@@ -1,13 +1,10 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
-import java.util.List;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 public class TreeDProject extends TreeFile {

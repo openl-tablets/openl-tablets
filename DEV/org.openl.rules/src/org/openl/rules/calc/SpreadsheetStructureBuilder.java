@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
-import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
@@ -25,6 +24,7 @@ import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -68,10 +68,10 @@ public class SpreadsheetStructureBuilder {
         return spreadsheetStructureBuilderHolder;
     }
     
-    public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder rowColumnExtractor,
+    public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext,
             IOpenMethodHeader spreadsheetHeader,
             Boolean autoType) {
-        this.componentsBuilder = rowColumnExtractor;
+        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         this.spreadsheetHeader = spreadsheetHeader;
         this.autoType = autoType;
     }

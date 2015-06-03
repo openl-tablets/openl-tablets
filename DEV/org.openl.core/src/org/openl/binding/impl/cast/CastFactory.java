@@ -12,7 +12,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.cache.CacheUtils;
+import org.openl.cache.GenericKey;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -77,7 +77,7 @@ public class CastFactory implements ICastFactory {
      * @return cast operation if it have been found; null - otherwise
      */
     public synchronized IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        Object key = CacheUtils.buildKey(from, to);
+        Object key = GenericKey.getInstance(from, to);
         IOpenCast cast = castCache.get(key);
 
         if (cast == null) {
