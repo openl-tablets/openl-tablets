@@ -27,10 +27,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 
     private Map<String, Object> internalMap = new HashMap<String, Object>();
 
-    public void setValue(String name, Object value) {
-        internalMap.put(name, value);
-    }
-
     public Object getValue(String name) {
         return internalMap.get(name);
     }
@@ -45,81 +41,140 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
         return out.toString();
     }
 
-    public IRuntimeContext clone() throws CloneNotSupportedException {
-        return (IRuntimeContext) super.clone();
-    }
-
     // <<< INSERT >>>
-    public java.util.Date getCurrentDate() {
-        return (java.util.Date) getValue("currentDate");
+	public IRuntimeContext clone() throws CloneNotSupportedException {
+        DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
+		defaultRulesRuntimeContext.setCurrentDate(this.currentDate);
+		defaultRulesRuntimeContext.setRequestDate(this.requestDate);
+		defaultRulesRuntimeContext.setLob(this.lob);
+		defaultRulesRuntimeContext.setUsState(this.usState);
+		defaultRulesRuntimeContext.setCountry(this.country);
+		defaultRulesRuntimeContext.setUsRegion(this.usRegion);
+		defaultRulesRuntimeContext.setCurrency(this.currency);
+		defaultRulesRuntimeContext.setLang(this.lang);
+		defaultRulesRuntimeContext.setRegion(this.region);
+        return defaultRulesRuntimeContext;
     }
 
-    public void setCurrentDate(java.util.Date currentDate) {
-        setValue("currentDate", currentDate);
-    }
+	public void setValue(String name, Object value){
+		if ("currentDate".equals(name)){
+			setCurrentDate((java.util.Date)value);
+			return;
+		}
+		if ("requestDate".equals(name)){
+			setRequestDate((java.util.Date)value);
+			return;
+		}
+		if ("lob".equals(name)){
+			setLob((java.lang.String)value);
+			return;
+		}
+		if ("usState".equals(name)){
+			setUsState((org.openl.rules.enumeration.UsStatesEnum)value);
+			return;
+		}
+		if ("country".equals(name)){
+			setCountry((org.openl.rules.enumeration.CountriesEnum)value);
+			return;
+		}
+		if ("usRegion".equals(name)){
+			setUsRegion((org.openl.rules.enumeration.UsRegionsEnum)value);
+			return;
+		}
+		if ("currency".equals(name)){
+			setCurrency((org.openl.rules.enumeration.CurrenciesEnum)value);
+			return;
+		}
+		if ("lang".equals(name)){
+			setLang((org.openl.rules.enumeration.LanguagesEnum)value);
+			return;
+		}
+		if ("region".equals(name)){
+			setRegion((org.openl.rules.enumeration.RegionsEnum)value);
+			return;
+		}
+	}
 
-    public java.util.Date getRequestDate() {
-        return (java.util.Date) getValue("requestDate");
-    }
-
-    public void setRequestDate(java.util.Date requestDate) {
-        setValue("requestDate", requestDate);
-    }
-
-    public java.lang.String getLob() {
-        return (java.lang.String) getValue("lob");
-    }
-
-    public void setLob(java.lang.String lob) {
-        setValue("lob", lob);
-    }
-
-    public org.openl.rules.enumeration.UsStatesEnum getUsState() {
-        return (org.openl.rules.enumeration.UsStatesEnum) getValue("usState");
-    }
-
-    public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
-        setValue("usState", usState);
-    }
-
-    public org.openl.rules.enumeration.CountriesEnum getCountry() {
-        return (org.openl.rules.enumeration.CountriesEnum) getValue("country");
-    }
-
-    public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
-        setValue("country", country);
-    }
-
-    public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
-        return (org.openl.rules.enumeration.UsRegionsEnum) getValue("usRegion");
-    }
-
-    public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
-        setValue("usRegion", usRegion);
-    }
-
-    public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
-        return (org.openl.rules.enumeration.CurrenciesEnum) getValue("currency");
-    }
-
-    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
-        setValue("currency", currency);
-    }
-
-    public org.openl.rules.enumeration.LanguagesEnum getLang() {
-        return (org.openl.rules.enumeration.LanguagesEnum) getValue("lang");
-    }
-
-    public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
-        setValue("lang", lang);
-    }
-
-    public org.openl.rules.enumeration.RegionsEnum getRegion() {
-        return (org.openl.rules.enumeration.RegionsEnum) getValue("region");
-    }
-
-    public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
-        setValue("region", region);
-    }
-    // <<< END INSERT >>>
+	private java.util.Date currentDate = null;
+	public java.util.Date getCurrentDate() {
+		return currentDate;
+	}
+	public void setCurrentDate(java.util.Date currentDate) {
+		this.currentDate = currentDate;
+		internalMap.put("currentDate", currentDate);
+	}
+		
+	private java.util.Date requestDate = null;
+	public java.util.Date getRequestDate() {
+		return requestDate;
+	}
+	public void setRequestDate(java.util.Date requestDate) {
+		this.requestDate = requestDate;
+		internalMap.put("requestDate", requestDate);
+	}
+		
+	private java.lang.String lob = null;
+	public java.lang.String getLob() {
+		return lob;
+	}
+	public void setLob(java.lang.String lob) {
+		this.lob = lob;
+		internalMap.put("lob", lob);
+	}
+		
+	private org.openl.rules.enumeration.UsStatesEnum usState = null;
+	public org.openl.rules.enumeration.UsStatesEnum getUsState() {
+		return usState;
+	}
+	public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
+		this.usState = usState;
+		internalMap.put("usState", usState);
+	}
+		
+	private org.openl.rules.enumeration.CountriesEnum country = null;
+	public org.openl.rules.enumeration.CountriesEnum getCountry() {
+		return country;
+	}
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
+		this.country = country;
+		internalMap.put("country", country);
+	}
+		
+	private org.openl.rules.enumeration.UsRegionsEnum usRegion = null;
+	public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
+		return usRegion;
+	}
+	public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
+		this.usRegion = usRegion;
+		internalMap.put("usRegion", usRegion);
+	}
+		
+	private org.openl.rules.enumeration.CurrenciesEnum currency = null;
+	public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
+		return currency;
+	}
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
+		this.currency = currency;
+		internalMap.put("currency", currency);
+	}
+		
+	private org.openl.rules.enumeration.LanguagesEnum lang = null;
+	public org.openl.rules.enumeration.LanguagesEnum getLang() {
+		return lang;
+	}
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
+		this.lang = lang;
+		internalMap.put("lang", lang);
+	}
+		
+	private org.openl.rules.enumeration.RegionsEnum region = null;
+	public org.openl.rules.enumeration.RegionsEnum getRegion() {
+		return region;
+	}
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
+		this.region = region;
+		internalMap.put("region", region);
+	}
+		
+// <<< END INSERT >>>
 }

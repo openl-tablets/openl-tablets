@@ -21,6 +21,7 @@ import org.openl.codegen.tools.type.TablePropertyValidatorsWrapper;
 import org.openl.codegen.tools.type.TablePropertyValidatorsWrappers;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
@@ -132,6 +133,11 @@ public class GenRulesCode {
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
 
         processSourceCode(sourceFilePath, "DefaultRulesContext-properties.vm", variables);
+
+        sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(RulesRuntimeContextDelegator.class);
+
+        processSourceCode(sourceFilePath, "RulesRuntimeContextDelegator-properties.vm", variables);
+
     }
 
     private void generateIRulesRuntimeContextCode() throws IOException {

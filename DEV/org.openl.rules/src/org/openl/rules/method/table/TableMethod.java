@@ -26,6 +26,10 @@ public class TableMethod extends ExecutableRulesMethod {
      */
     private Invokable invoker;
 
+    public TableMethod() {
+        super(null, null);
+    }
+    
     /**
      * Constructs new instance of class.
      * 
