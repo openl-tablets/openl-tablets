@@ -61,6 +61,10 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      */
     private Invokable invoker;
 
+    public DecisionTable() {
+        super(null, null);
+    }
+    
     public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());

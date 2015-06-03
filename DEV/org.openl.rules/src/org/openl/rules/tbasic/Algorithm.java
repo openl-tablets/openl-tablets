@@ -39,6 +39,10 @@ public class Algorithm extends AlgorithmFunction {
         return new Algorithm(header, node);
     }
 
+    public Algorithm() {
+        super(null, null);
+    }
+    
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header, node);
         initProperties(getSyntaxNode().getTableProperties());

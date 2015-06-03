@@ -64,6 +64,10 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private boolean customSpreadsheetType;
 
+    public Spreadsheet() {
+        super(null, null);
+    }
+    
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheetType) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());

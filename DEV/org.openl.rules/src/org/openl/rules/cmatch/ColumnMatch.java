@@ -28,6 +28,10 @@ public class ColumnMatch extends ExecutableRulesMethod {
     private MatchNode totalScore;
     private int[] columnScores;
 
+    public ColumnMatch() {
+        super(null, null);
+    }
+    
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header, node);
         initProperties(getSyntaxNode().getTableProperties());
