@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.IOUtils;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.extension.xmlrules.model.Project;
+import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.rules.lang.xls.load.LazySheetLoader;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoader;
 import org.openl.rules.lang.xls.load.SheetLoader;
@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
     private final Logger log = LoggerFactory.getLogger(LazyXmlRulesWorkbookLoader.class);
-    private final Project project;
+    private final ExtensionModule extensionModule;
     private final File folder;
 
-    public LazyXmlRulesWorkbookLoader(File folder, Project project) {
+    public LazyXmlRulesWorkbookLoader(File folder, ExtensionModule extensionModule) {
         super(null);
         this.folder = folder;
-        this.project = project;
+        this.extensionModule = extensionModule;
     }
 
     @Override
@@ -33,7 +33,8 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
         return new LazySheetLoader(this, sheetIndex) {
             @Override
             public String getSheetName() {
-                return "" + sheetIndex; //FIXME
+                // Sheet name is used as category name in WebStudio
+                return extensionModule.getTableGroups().get(sheetIndex).getName();
             }
         };
     }
@@ -43,9 +44,9 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
         InputStream is = null;
         Workbook workbook;
         try {
-            log.info("loading workbook {}...", project.getXlsFileName());
+            log.info("loading workbook {}...", extensionModule.getXlsFileName());
 
-            is = new BufferedInputStream(new FileInputStream(new File(folder, project.getXlsFileName())));
+            is = new BufferedInputStream(new FileInputStream(new File(folder, extensionModule.getXlsFileName())));
             workbook = WorkbookFactory.create(is);
             IOUtils.closeQuietly(is);
         } catch (Exception e) {
@@ -59,5 +60,9 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
         }
 
         return workbook;
+    }
+
+    public ExtensionModule getExtensionModule() {
+        return extensionModule;
     }
 }

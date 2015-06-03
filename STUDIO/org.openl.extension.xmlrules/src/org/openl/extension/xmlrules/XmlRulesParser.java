@@ -16,13 +16,13 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 
-public class XmlRulesParser extends ExtensionParser<Project> {
+public class XmlRulesParser extends ExtensionParser {
     public XmlRulesParser() {
     }
 
     @Override
-    protected Project load(IOpenSourceCodeModule source) {
-        Serializer<Project> serializer = new SingleFileXmlSerializer();
+    protected ExtensionModule load(IOpenSourceCodeModule source) {
+        Serializer<ExtensionModule> serializer = new SingleFileXmlSerializer();
         return serializer.deserialize(source.getByteStream());
     }
 
@@ -30,13 +30,14 @@ public class XmlRulesParser extends ExtensionParser<Project> {
      * Wrap source to XlsWorkbookSourceCodeModule
      */
     @Override
-    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(Project project, IOpenSourceCodeModule source) throws
+    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(ExtensionModule extensionModule, IOpenSourceCodeModule source) throws
                                                                                                                      OpenLCompilationException {
         try {
             // TODO Check the cases when source can be UrlSourceCodeModule or another one.
             File projectFolder = new File(new File(new URI(source.getUri(0))).getParent());
 
-            return new XlsWorkbookSourceCodeModule(source, new LazyXmlRulesWorkbookLoader(projectFolder, project));
+            return new XlsWorkbookSourceCodeModule(source, new LazyXmlRulesWorkbookLoader(projectFolder,
+                    extensionModule));
         } catch (URISyntaxException e) {
             throw new OpenLCompilationException(e.getMessage(), e);
         }
@@ -46,21 +47,26 @@ public class XmlRulesParser extends ExtensionParser<Project> {
      * Gets all grid tables from the sheet.
      */
     @Override
-    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, Project project) {
+    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
         String uri = sheetSource.getUri();
         // TODO Improve LaunchFileServlet to support real ranges
+        LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource().getWorkbookLoader();
 
-        StringGridBuilder gridBuilder = new StringGridBuilder(uri);
+        StringGridBuilder gridBuilder = new StringGridBuilder(uri, workbookLoader.getExtensionModule().getXlsFileName());
 
-        createTypes(gridBuilder, project);
-        createDataInstances(gridBuilder, project);
-        createTables(gridBuilder, project);
+        createTypes(gridBuilder, tableGroup);
+        createDataInstances(gridBuilder, tableGroup);
+        createTables(gridBuilder, tableGroup);
+        createFunctions(gridBuilder, tableGroup);
 
         return gridBuilder.build().getTables();
     }
 
-    private void createTypes(StringGridBuilder gridBuilder, Project project) {
-        for (Type type : project.getTypes()) {
+    private void createTypes(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getTypes() == null) {
+            return;
+        }
+        for (Type type : tableGroup.getTypes()) {
             gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
             for (Field field : type.getFields()) {
@@ -76,9 +82,13 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         }
     }
 
-    private void createDataInstances(StringGridBuilder gridBuilder, Project project) {
-        for (DataInstance dataInstance : project.getDataInstances()) {
-            gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(), dataInstance.getFields().size()).nextRow();
+    private void createDataInstances(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getDataInstances() == null) {
+            return;
+        }
+        for (DataInstance dataInstance : tableGroup.getDataInstances()) {
+            gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
+                    dataInstance.getFields().size()).nextRow();
             // Fields
             boolean hasReferences = false;
             for (Field field : dataInstance.getFields()) {
@@ -120,21 +130,31 @@ public class XmlRulesParser extends ExtensionParser<Project> {
         }
     }
 
-    private void createTables(StringGridBuilder gridBuilder, Project project) {
-        for (Table table : project.getTables()) {
+    private void createTables(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getTables() == null) {
+            return;
+        }
+        for (Table table : tableGroup.getTables()) {
             int tableRow = gridBuilder.getRow();
 
             boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
             String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
             StringBuilder header = new StringBuilder();
-            header.append(tableType).append(" String ").append(table.getName()).append("(");
+            String returnType = table.getReturnType();
+            if (StringUtils.isBlank(returnType)) {
+                returnType = "void";
+            }
+            header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
             boolean needComma = false;
-            for (String parameter : table.getParameters()) {
+            for (Parameter parameter : table.getParameters()) {
                 if (needComma) {
                     header.append(", ");
                 }
-                // TODO: Consider other types too
-                header.append("String ").append(parameter);
+                String type = parameter.getType();
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
+                header.append(type).append(' ').append(parameter.getName());
                 needComma = true;
             }
             header.append(")");
@@ -158,23 +178,23 @@ public class XmlRulesParser extends ExtensionParser<Project> {
 
             // VC header
             if (isSimpleRules) {
-                for (String parameter : table.getParameters()) {
-                    gridBuilder.addCell(parameter);
+                for (Parameter parameter : table.getParameters()) {
+                    gridBuilder.addCell(parameter.getName());
                 }
                 gridBuilder.addCell("Return");
                 gridBuilder.nextRow();
             } else {
-                List<String> parameters = table.getParameters();
+                List<Parameter> parameters = table.getParameters();
                 for (int i = 0; i < parameters.size(); i++) {
                     if (i >= table.getVerticalConditions().size()) {
                         break;
                     }
-                    String parameter = parameters.get(i);
+                    Parameter parameter = parameters.get(i);
                     gridBuilder.setCell(gridBuilder.getColumn(),
                             tableRow + 1,
                             1,
                             table.getHorizontalConditions().size(),
-                            parameter);
+                            parameter.getName());
                 }
             }
 
@@ -213,6 +233,57 @@ public class XmlRulesParser extends ExtensionParser<Project> {
                 }
             }
             gridBuilder.setStartColumn(startColumn);
+            gridBuilder.nextRow();
+        }
+    }
+
+    private void createFunctions(StringGridBuilder gridBuilder, TableGroup tableGroup) {
+        if (tableGroup.getFunctions() == null) {
+            return;
+        }
+        for (Function function : tableGroup.getFunctions()) {
+            StringBuilder headerBuilder = new StringBuilder();
+            String returnType = function.getReturnType();
+            if (StringUtils.isBlank(returnType)) {
+                returnType = "void";
+            }
+            headerBuilder.append("Spreadsheet ")
+                    .append(returnType)
+                    .append(' ')
+                    .append(function.getName())
+                    .append('(');
+            List<Parameter> parameters = function.getParameters();
+            for (int i = 0; i < parameters.size(); i++) {
+                if (i > 0) {
+                    headerBuilder.append(", ");
+                }
+                Parameter parameter = parameters.get(i);
+                String type = parameter.getType();
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
+                headerBuilder.append(type)
+                        .append(" ")
+                        .append(parameter.getName());
+            }
+            headerBuilder.append(')');
+            gridBuilder.addCell(headerBuilder.toString(), 2).nextRow();
+
+            gridBuilder.addCell("Step").addCell("Formula").nextRow();
+
+            List<FunctionExpression> expressions = function.getExpressions();
+            for (int i = 0; i < expressions.size(); i++) {
+                FunctionExpression expression = expressions.get(i);
+                String step = expression.getStepName();
+                if (expression.getStepType() != null) {
+                    step += " : " + expression.getStepType();
+                } else if (StringUtils.isBlank(step) && i == expressions.size() - 1) {
+                    step = "RETURN";
+                }
+
+                gridBuilder.addCell(step).addCell("=" + StringUtils.trim(expression.getExpression())).nextRow();
+            }
+
             gridBuilder.nextRow();
         }
     }

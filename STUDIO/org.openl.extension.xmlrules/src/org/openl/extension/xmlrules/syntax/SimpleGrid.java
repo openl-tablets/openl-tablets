@@ -3,19 +3,27 @@ package org.openl.extension.xmlrules.syntax;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 
-public class SimpleGrid extends AGrid {
+public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
     private final NavigableMap<Integer, NavigableMap<Integer, ICell>> rows;
     private final String uri;
+    private final String sourceFileName;
 
     private IGridRegion[] mergedRegions;
 
-    public SimpleGrid(NavigableMap<Integer, NavigableMap<Integer, ICell>> rows, String uri) {
+    public SimpleGrid(NavigableMap<Integer, NavigableMap<Integer, ICell>> rows, String uri, String sourceFileName) {
         this.rows = rows;
         this.uri = uri;
+        this.sourceFileName = sourceFileName;
+    }
+
+    @Override
+    public String getSourceFileName() {
+        return sourceFileName;
     }
 
     @Override
@@ -103,9 +111,11 @@ public class SimpleGrid extends AGrid {
     public static class SimpleGridBuilder {
         private String uri;
         private NavigableMap<Integer, NavigableMap<Integer, ICell>> rows = new TreeMap<Integer, NavigableMap<Integer, ICell>>();
+        private String sourceFileName;
 
-        public SimpleGridBuilder(String uri) {
+        public SimpleGridBuilder(String uri, String sourceFileName) {
             this.uri = uri;
+            this.sourceFileName = sourceFileName;
         }
 
         public SimpleGridBuilder addCell(ICell cell) {
@@ -127,7 +137,7 @@ public class SimpleGrid extends AGrid {
         }
 
         public SimpleGrid build() {
-            return new SimpleGrid(rows, uri);
+            return new SimpleGrid(rows, uri, sourceFileName);
         }
     }
 }

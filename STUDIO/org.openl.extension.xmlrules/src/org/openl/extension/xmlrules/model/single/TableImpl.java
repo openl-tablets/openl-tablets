@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.extension.xmlrules.model.Condition;
+import org.openl.extension.xmlrules.model.Parameter;
 import org.openl.extension.xmlrules.model.ReturnValue;
 import org.openl.extension.xmlrules.model.Table;
 
 public class TableImpl implements Table {
     private String name;
-    private List<String> parameters = new ArrayList<String>();
+    private List<Parameter> parameters = new ArrayList<Parameter>();
+    private String returnType;
     private List<Condition> horizontalConditions = new ArrayList<Condition>();
     private List<Condition> verticalConditions = new ArrayList<Condition>();
     private List<List<ReturnValue>> returnValues = new ArrayList<List<ReturnValue>>();
@@ -25,12 +27,21 @@ public class TableImpl implements Table {
     }
 
     @Override
-    public List<String> getParameters() {
+    public List<Parameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<String> parameters) {
+    public void setParameters(List<Parameter> parameters) {
         this.parameters = parameters;
+    }
+
+    @Override
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
     }
 
     @Override
