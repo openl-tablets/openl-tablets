@@ -68,8 +68,9 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     
     private DTInfo dtInfo;
     
-    
-    
+    public DecisionTable() {
+        super(null, null);
+    }
 
     public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
