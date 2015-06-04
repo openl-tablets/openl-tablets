@@ -2,12 +2,17 @@ package org.openl.rules.types;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -133,6 +138,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return candidates;
     }
 
+    private Map<UUID, IOpenMethod> cache = new ConcurrentSkipListMap<UUID, IOpenMethod>();
+    
+    private static final int MAX_ELEMENTS_IN_CAHCE = 100;
+    private static final int MIN_ELEMENTS_IN_CAHCE = 80;
+    
     /**
      * Invokes appropriate method using runtime context.
      */
@@ -149,7 +159,24 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Get matching method.
         //
-        IOpenMethod method = findMatchingMethod(candidates, context);
+        IOpenMethod method;
+        
+        if (context instanceof IRulesRuntimeContextMutableUUID){
+            IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
+            method = cache.get(contextMutableUUID.getUUID());
+            if (method == null){
+                method = findMatchingMethod(candidates, context);
+                cache.put(contextMutableUUID.getUUID(), method);
+                if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
+                    Iterator<UUID> itr = cache.keySet().iterator();
+                    for (int i = 0;i<MAX_ELEMENTS_IN_CAHCE - MIN_ELEMENTS_IN_CAHCE;i++){
+                        cache.remove(itr.next());
+                    }
+                }
+            }
+        }else{
+            method = findMatchingMethod(candidates, context);
+        }
 
         // Check that founded required method.
         //
