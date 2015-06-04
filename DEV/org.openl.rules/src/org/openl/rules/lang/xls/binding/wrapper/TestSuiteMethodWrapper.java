@@ -1,31 +1,29 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.cmatch.MatchNode;
-import org.openl.rules.cmatch.TableColumn;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.source.IOpenSourceCodeModule;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestMethodBoundNode;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.DynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchDelegate extends ColumnMatch implements DispatchDelegateOpenMethod{
-    ColumnMatch delegate;
+public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchWrapperMark{
+    TestSuiteMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public ColumnMatchDelegate(XlsModuleOpenClass xlsModuleOpenClass, ColumnMatch delegate) {
+    public TestSuiteMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, TestSuiteMethod delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
@@ -54,10 +52,6 @@ public class ColumnMatchDelegate extends ColumnMatch implements DispatchDelegate
         return delegate.getTableUri();
     }
 
-    public IOpenSourceCodeModule getAlgorithm() {
-        return delegate.getAlgorithm();
-    }
-
     public IOpenMethod getMethod() {
         return delegate.getMethod();
     }
@@ -66,24 +60,12 @@ public class ColumnMatchDelegate extends ColumnMatch implements DispatchDelegate
         return delegate.getName();
     }
 
-    public MatchNode getCheckTree() {
-        return delegate.getCheckTree();
-    }
-
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
 
-    public List<TableColumn> getColumns() {
-        return delegate.getColumns();
-    }
-
     public IOpenClass getType() {
         return delegate.getType();
-    }
-
-    public int[] getColumnScores() {
-        return delegate.getColumnScores();
     }
 
     public boolean isStatic() {
@@ -94,72 +76,84 @@ public class ColumnMatchDelegate extends ColumnMatch implements DispatchDelegate
         return delegate.hashCode();
     }
 
+    public int[] getIndices(String ids) {
+        return delegate.getIndices(ids);
+    }
+
+    public TestMethodBoundNode getBoundNode() {
+        return delegate.getBoundNode();
+    }
+
+    public String[] unitName() {
+        return delegate.unitName();
+    }
+
+    public String getBenchmarkName() {
+        return delegate.getBenchmarkName();
+    }
+
     public BindingDependencies getDependencies() {
         return delegate.getDependencies();
     }
 
-    public Object[] getReturnValues() {
-        return delegate.getReturnValues();
-    }
-
-    public List<TableRow> getRows() {
-        return delegate.getRows();
-    }
-
-    public String getSourceUrl() {
-        return delegate.getSourceUrl();
-    }
-
-    public MatchNode getTotalScore() {
-        return delegate.getTotalScore();
-    }
-
-    public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
-        delegate.setAlgorithmExecutor(algorithmExecutor);
-    }
-
-    public void setCheckTree(MatchNode checkTree) {
-        delegate.setCheckTree(checkTree);
-    }
-
-    public void setColumns(List<TableColumn> columns) {
-        delegate.setColumns(columns);
-    }
-
-    public void setColumnScores(int[] columnScores) {
-        delegate.setColumnScores(columnScores);
-    }
-
-    public void setReturnValues(Object[] returnValues) {
-        delegate.setReturnValues(returnValues);
-    }
-
-    public void setRows(List<TableRow> rows) {
-        delegate.setRows(rows);
-    }
-
-    public void setTotalScore(MatchNode totalScore) {
-        delegate.setTotalScore(totalScore);
-    }
-
-    public IMatchAlgorithmExecutor getAlgorithmExecutor() {
-        return delegate.getAlgorithmExecutor();
+    public int getNumberOfTests() {
+        return delegate.getNumberOfTests();
     }
 
     public boolean equals(Object obj) {
         return delegate.equals(obj);
     }
 
+    public String getSourceUrl() {
+        return delegate.getSourceUrl();
+    }
+
+    public DynamicObject[] getTestObjects() {
+        return delegate.getTestObjects();
+    }
+
+    public TestDescription[] getTests() {
+        return delegate.getTests();
+    }
+
+    public TestDescription getTest(int numberOfTest) {
+        return delegate.getTest(numberOfTest);
+    }
+
+    public String getColumnDisplayName(String columnTechnicalName) {
+        return delegate.getColumnDisplayName(columnTechnicalName);
+    }
+
+    public String getColumnName(int index) {
+        return delegate.getColumnName(index);
+    }
+
+    public String getColumnDisplayName(int index) {
+        return delegate.getColumnDisplayName(index);
+    }
+
+    public int getColumnsCount() {
+        return delegate.getColumnsCount();
+    }
+
+    public IOpenMethod getTestedMethod() {
+        return delegate.getTestedMethod();
+    }
+
     public void setBoundNode(ATableBoundNode node) {
         delegate.setBoundNode(node);
     }
 
-    public ATableBoundNode getBoundNode() {
-        return delegate.getBoundNode();
+    public TestUnitsResults invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, long ntimes) {
+        return delegate.invokeBenchmark(target, params, env, ntimes);
     }
 
     public Map<String, Object> getProperties() {
         return delegate.getProperties();
+    }
+
+    public boolean isRunmethod() {
+        return delegate.isRunmethod();
     }
 
     public ITableProperties getMethodProperties() {
@@ -170,10 +164,17 @@ public class ColumnMatchDelegate extends ColumnMatch implements DispatchDelegate
         return delegate.getInfo();
     }
 
+    public boolean isRunmethodTestable() {
+        return delegate.isRunmethodTestable();
+    }
+
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
     }
-    
-    
 
+    public int nUnitRuns() {
+        return delegate.nUnitRuns();
+    }
+
+    
 }

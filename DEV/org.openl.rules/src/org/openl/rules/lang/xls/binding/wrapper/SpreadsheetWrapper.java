@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -23,11 +23,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetDelegate extends Spreadsheet implements DispatchDelegateOpenMethod{
+public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapperMark{
     Spreadsheet delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public SpreadsheetDelegate(XlsModuleOpenClass xlsModuleOpenClass, Spreadsheet delegate) {
+    public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass, Spreadsheet delegate) {
         super();
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;

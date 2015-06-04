@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
@@ -9,10 +9,13 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class DispatcherLogic {
+public final class DispatcherLogic {
     public static ThreadLocal<IOpenClass> topClassRef = new ThreadLocal<IOpenClass>();
     public static ThreadLocal<Boolean> isInvokedFromTop = new BooleanThreadLocal();
 
+    private DispatcherLogic() {
+    }
+    
     private static class BooleanThreadLocal extends ThreadLocal<Boolean> {
         @Override
         protected Boolean initialValue() {
