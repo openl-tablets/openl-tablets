@@ -1,19 +1,22 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
+import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class JavaOpenMethodDelegate extends JavaOpenMethod implements DispatchDelegateOpenMethod{
-    JavaOpenMethod delegate;
+public class DeferredMethodWrapper extends DeferredMethod implements DispatchWrapperMark{
+    DeferredMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public JavaOpenMethodDelegate(XlsModuleOpenClass xlsModuleOpenClass, JavaOpenMethod delegate) {
-        super(null);
+    public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, DeferredMethod delegate) {
+        super(null, null, null, null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
@@ -30,6 +33,10 @@ public class JavaOpenMethodDelegate extends JavaOpenMethod implements DispatchDe
         return delegate.getDisplayName(mode);
     }
 
+    public IOpenMethodHeader getHeader() {
+        return delegate.getHeader();
+    }
+
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
@@ -38,32 +45,12 @@ public class JavaOpenMethodDelegate extends JavaOpenMethod implements DispatchDe
         return delegate.getMethod();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
+    public ISyntaxNode getMethodBodyNode() {
+        return delegate.getMethodBodyNode();
     }
 
     public String getName() {
         return delegate.getName();
-    }
-
-    public int getNumberOfParameters() {
-        return delegate.getNumberOfParameters();
-    }
-
-    public int getParameterDirection(int i) {
-        return delegate.getParameterDirection(i);
-    }
-
-    public String getParameterName(int i) {
-        return delegate.getParameterName(i);
-    }
-
-    public IOpenClass getParameterType(int i) {
-        return delegate.getParameterType(i);
-    }
-
-    public IOpenClass[] getParameterTypes() {
-        return delegate.getParameterTypes();
     }
 
     public IMethodSignature getSignature() {
@@ -74,17 +61,23 @@ public class JavaOpenMethodDelegate extends JavaOpenMethod implements DispatchDe
         return delegate.getType();
     }
 
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
-    }
-
     public boolean isStatic() {
         return delegate.isStatic();
+    }
+
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
+        delegate.setMethodBodyBoundNode(bnode);
+    }
+
+    public boolean equals(Object obj) {
+        return delegate.equals(obj);
     }
 
     public String toString() {
         return delegate.toString();
     }
-
-    
 }

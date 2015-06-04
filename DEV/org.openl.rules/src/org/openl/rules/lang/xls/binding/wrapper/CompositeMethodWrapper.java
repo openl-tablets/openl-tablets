@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Map;
 
@@ -14,11 +14,11 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethodDelegate extends CompositeMethod implements DispatchDelegateOpenMethod{
+public class CompositeMethodWrapper extends CompositeMethod implements DispatchWrapperMark{
     CompositeMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public CompositeMethodDelegate(XlsModuleOpenClass xlsModuleOpenClass, CompositeMethod delegate) {
+    public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, CompositeMethod delegate) {
         super(null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;

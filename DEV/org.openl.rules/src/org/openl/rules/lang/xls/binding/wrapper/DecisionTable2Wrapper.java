@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Map;
 
@@ -26,11 +26,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTable2Delegate extends DecisionTable implements DispatchDelegateOpenMethod{
+public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrapperMark{
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public DecisionTable2Delegate(XlsModuleOpenClass xlsModuleOpenClass, DecisionTable delegate) {
+    public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass, DecisionTable delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }

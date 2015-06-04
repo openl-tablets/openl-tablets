@@ -29,20 +29,20 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.delegate.AlgorithmDelegate;
-import org.openl.rules.lang.xls.binding.delegate.AlgorithmSubroutineMethodDelegate;
-import org.openl.rules.lang.xls.binding.delegate.ColumnMatchDelegate;
-import org.openl.rules.lang.xls.binding.delegate.CompositeMethodDelegate;
-import org.openl.rules.lang.xls.binding.delegate.DecisionTable2Delegate;
-import org.openl.rules.lang.xls.binding.delegate.DecisionTableDelegate;
-import org.openl.rules.lang.xls.binding.delegate.DeferredMethodDelegate;
-import org.openl.rules.lang.xls.binding.delegate.DispatchDelegateOpenMethod;
-import org.openl.rules.lang.xls.binding.delegate.JavaOpenMethodDelegate;
-import org.openl.rules.lang.xls.binding.delegate.MatchingOpenMethodDispatcherDelegate;
-import org.openl.rules.lang.xls.binding.delegate.OverloadedMethodsDispatcherTableDelegate;
-import org.openl.rules.lang.xls.binding.delegate.SpreadsheetDelegate;
-import org.openl.rules.lang.xls.binding.delegate.TableMethodDelegate;
-import org.openl.rules.lang.xls.binding.delegate.TestSuiteMethodDelegate;
+import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapperMark;
+import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.TableMethodDelegate;
+import org.openl.rules.lang.xls.binding.wrapper.TestSuiteMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
@@ -205,48 +205,48 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                                                           // fix
                                                                                           // for
                                                                                           // mul1ti-module
-        if (openMethod instanceof DispatchDelegateOpenMethod || openMethod instanceof TestSuiteMethod) {
+        if (openMethod instanceof DispatchWrapperMark || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableDelegate(this, (OverloadedMethodsDispatcherTable) openMethod);
+            return new OverloadedMethodsDispatcherTableWrapper(this, (OverloadedMethodsDispatcherTable) openMethod);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
-            return new MatchingOpenMethodDispatcherDelegate(this, (MatchingOpenMethodDispatcher) openMethod);
+            return new MatchingOpenMethodDispatcherWrapper(this, (MatchingOpenMethodDispatcher) openMethod);
         }
         if (openMethod instanceof DeferredMethod) {
-            return new DeferredMethodDelegate(this, (DeferredMethod) openMethod);
+            return new DeferredMethodWrapper(this, (DeferredMethod) openMethod);
         }
         if (openMethod instanceof CompositeMethod) {
-            return new CompositeMethodDelegate(this, (CompositeMethod) openMethod);
+            return new CompositeMethodWrapper(this, (CompositeMethod) openMethod);
         }
         if (openMethod instanceof Algorithm) {
-            return new AlgorithmDelegate(this, (Algorithm) openMethod);
+            return new AlgorithmWrapper(this, (Algorithm) openMethod);
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AlgorithmSubroutineMethodDelegate(this, (AlgorithmSubroutineMethod) openMethod);
+            return new AlgorithmSubroutineMethodWrapper(this, (AlgorithmSubroutineMethod) openMethod);
         }
         if (openMethod instanceof DecisionTable) {
-            return new DecisionTable2Delegate(this, (DecisionTable) openMethod);
+            return new DecisionTable2Wrapper(this, (DecisionTable) openMethod);
         }
         if (openMethod instanceof org.openl.rules.dt.DecisionTable) {
-            return new DecisionTableDelegate(this, (org.openl.rules.dt.DecisionTable) openMethod);
+            return new DecisionTableWrapper(this, (org.openl.rules.dt.DecisionTable) openMethod);
         }
         if (openMethod instanceof ColumnMatch) {
-            return new ColumnMatchDelegate(this, (ColumnMatch) openMethod); 
+            return new ColumnMatchWrapper(this, (ColumnMatch) openMethod); 
         }
         if (openMethod instanceof TestSuiteMethod) {
-            return new TestSuiteMethodDelegate(this, (TestSuiteMethod) openMethod);
+            return new TestSuiteMethodWrapper(this, (TestSuiteMethod) openMethod);
         }
         if (openMethod instanceof Spreadsheet) {
-            return new SpreadsheetDelegate(this, (Spreadsheet) openMethod);
+            return new SpreadsheetWrapper(this, (Spreadsheet) openMethod);
         }
         if (openMethod instanceof TableMethod) {
             return new TableMethodDelegate(this, (TableMethod) openMethod);
         }
 
         if (openMethod instanceof JavaOpenMethod) {
-            return new JavaOpenMethodDelegate(this, (JavaOpenMethod) openMethod);
+            return new JavaOpenMethodWrapper(this, (JavaOpenMethod) openMethod);
         }
 
         /*
