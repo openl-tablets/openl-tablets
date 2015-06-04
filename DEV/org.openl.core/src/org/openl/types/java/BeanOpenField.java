@@ -27,6 +27,8 @@ import java.util.Map;
 public class BeanOpenField implements IOpenField {
 
     PropertyDescriptor descriptor;
+    Method readMethod;
+    Method writeMethod;
 
     static public void collectFields(Map<String, IOpenField> map, Class<?> c, Map<Method, BeanOpenField> getters,
             Map<Method, BeanOpenField> setters) {
@@ -95,6 +97,8 @@ public class BeanOpenField implements IOpenField {
      */
     public BeanOpenField(PropertyDescriptor descriptor) {
         this.descriptor = descriptor;
+        this.readMethod = descriptor.getReadMethod();
+        this.writeMethod = descriptor.getWriteMethod();
     }
 
     /**
@@ -103,7 +107,7 @@ public class BeanOpenField implements IOpenField {
 
     public Object get(Object target, IRuntimeEnv env) {
         try {
-            return descriptor.getReadMethod().invoke(target, ArrayTool.ZERO_OBJECT);
+            return readMethod.invoke(target, ArrayTool.ZERO_OBJECT);
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap("", ex);
         }
@@ -115,10 +119,10 @@ public class BeanOpenField implements IOpenField {
 
     public IOpenClass getDeclaringClass() {
         if (descriptor.getReadMethod() != null) {
-            return JavaOpenClass.getOpenClass(descriptor.getReadMethod().getDeclaringClass());
+            return JavaOpenClass.getOpenClass(readMethod.getDeclaringClass());
         }
         if (descriptor.getWriteMethod() != null) {
-            return JavaOpenClass.getOpenClass(descriptor.getWriteMethod().getDeclaringClass());
+            return JavaOpenClass.getOpenClass(writeMethod.getDeclaringClass());
         }
         throw new RuntimeException("Something is wrong with this bean");
     }
@@ -165,7 +169,7 @@ public class BeanOpenField implements IOpenField {
      */
 
     public boolean isReadable() {
-        return descriptor.getReadMethod() != null;
+        return readMethod != null;
     }
 
     /**
@@ -181,7 +185,7 @@ public class BeanOpenField implements IOpenField {
      */
 
     public boolean isWritable() {
-        return descriptor.getWriteMethod() != null;
+        return writeMethod != null;
     }
 
     /**
@@ -190,7 +194,7 @@ public class BeanOpenField implements IOpenField {
 
     public void set(Object target, Object value, IRuntimeEnv env) {
         try {
-            descriptor.getWriteMethod().invoke(target, new Object[] { value });
+            writeMethod.invoke(target, new Object[] { value });
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap("", ex);
         }
