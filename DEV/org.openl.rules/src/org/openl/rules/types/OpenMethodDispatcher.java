@@ -140,8 +140,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     private Map<UUID, IOpenMethod> cache = new ConcurrentSkipListMap<UUID, IOpenMethod>();
     
-    private static final int MAX_ELEMENTS_IN_CAHCE = 100;
-    private static final int MIN_ELEMENTS_IN_CAHCE = 80;
+    private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
+    private static final int MIN_ELEMENTS_IN_CAHCE = 800;
     
     /**
      * Invokes appropriate method using runtime context.
@@ -168,9 +168,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 method = findMatchingMethod(candidates, context);
                 cache.put(contextMutableUUID.getUUID(), method);
                 if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
-                    Iterator<UUID> itr = cache.keySet().iterator();
-                    for (int i = 0;i<MAX_ELEMENTS_IN_CAHCE - MIN_ELEMENTS_IN_CAHCE;i++){
-                        cache.remove(itr.next());
+                    synchronized (cache) {
+                        if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
+                            Iterator<UUID> itr = cache.keySet().iterator();
+                            while (cache.size() > MIN_ELEMENTS_IN_CAHCE && itr.hasNext()){
+                                cache.remove(itr.next());
+                            }
+                        }
                     }
                 }
             }
