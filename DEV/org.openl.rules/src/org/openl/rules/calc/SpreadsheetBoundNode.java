@@ -29,6 +29,7 @@ import org.openl.types.impl.CompositeMethod;
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
     private SpreadsheetBuilder builder;
+    private IBindingContext bindingContext;
 
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
@@ -51,7 +52,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
          * the spreadsheet is SpreadsheetResult and the customspreadsheet
          * property is true
          */
-        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext()
+        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
             .getExternalParams());
 
         return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
@@ -71,30 +72,26 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             IOpenClass type = null;
             try {
                 type = spreadsheet.getType(); // Can throw RuntimeException
-                builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, type);
+                bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
             } catch (Exception e) {
                 String message = String.format("Cannot add type %s to the binding context",
                     type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);
-                BindHelper.processError(exception, builder.getBindingContext());
+                BindHelper.processError(exception, bindingContext);
             }
         }
 
         return spreadsheet;
     }
 
-    private void initSpreadsheetBuilder(IBindingContext bindingContext) throws SyntaxNodeException {
+    public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode.getTableBody());
         IOpenMethodHeader header = getHeader();
 
-        SpreadsheetBuilder spreadsheetBuilder = new SpreadsheetBuilder(tableSyntaxNode, bindingContext, header);
-        setSpreadsheetBuilder(spreadsheetBuilder);
-    }
-
-    public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
-        initSpreadsheetBuilder(bindingContext);
+        this.bindingContext = bindingContext;
+        this.builder = new SpreadsheetBuilder(tableSyntaxNode, bindingContext, header);
         builder.populateSpreadsheetOpenClass();
     }
 
@@ -130,14 +127,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return (Spreadsheet) getMethod();
     }
 
-    public SpreadsheetBuilder getSpreadsheetBuilder() {
-        return builder;
-    }
-
-    public void setSpreadsheetBuilder(SpreadsheetBuilder spreadsheetBuilder) {
-        this.builder = spreadsheetBuilder;
-    }
-
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         if (getSpreadsheet().getCells() != null) {
@@ -162,9 +151,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             super.removeDebugInformation(cxt);
             // clean the builder, that was used for creating spreadsheet
             //
-            getSpreadsheetBuilder().removeDebugInformation();
-            
-            setSpreadsheetBuilder(null);
+            this.builder.removeDebugInformation();
+            this.builder = null;
+            this.bindingContext = null;
         }
     }
 }

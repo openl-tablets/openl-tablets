@@ -15,20 +15,14 @@ public class SpreadsheetBuilder {
 
     private SpreadsheetStructureBuilder structureBuilder;
 
-    private IBindingContext bindingContext;
     private SpreadsheetOpenClass spreadsheetOpenClass;
 
     public SpreadsheetBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext, IOpenMethodHeader header) {
-        this.bindingContext = bindingContext;
         OpenL openl = bindingContext.getOpenL();
         String type = header.getName() + "Type";
         this.spreadsheetOpenClass = new SpreadsheetOpenClass(type, openl);
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         this.structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, autoType);
-    }
-
-    public IBindingContext getBindingContext() {
-        return bindingContext;
     }
 
     /**
