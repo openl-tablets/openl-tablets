@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -18,11 +18,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmSubroutineMethodDelegate extends AlgorithmSubroutineMethod implements DispatchDelegateOpenMethod{
+public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements DispatchWrapperMark{
     AlgorithmSubroutineMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public AlgorithmSubroutineMethodDelegate(XlsModuleOpenClass xlsModuleOpenClass, AlgorithmSubroutineMethod delegate) {
+    public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, AlgorithmSubroutineMethod delegate) {
         super(null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;

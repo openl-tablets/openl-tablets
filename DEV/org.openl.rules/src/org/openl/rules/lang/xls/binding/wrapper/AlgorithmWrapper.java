@@ -1,27 +1,27 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.table.MethodTableBoundNode;
-import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.tbasic.Algorithm;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class TableMethodDelegate extends TableMethod implements DispatchDelegateOpenMethod{
-    TableMethod delegate;
+public class AlgorithmWrapper extends Algorithm implements DispatchWrapperMark{
+    Algorithm delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public TableMethodDelegate(XlsModuleOpenClass xlsModuleOpenClass, TableMethod delegate) {
+    public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass, Algorithm delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
@@ -74,20 +74,24 @@ public class TableMethodDelegate extends TableMethod implements DispatchDelegate
         return delegate.hashCode();
     }
 
-    public MethodTableBoundNode getMethodTableBoundNode() {
-        return delegate.getMethodTableBoundNode();
-    }
-
-    public BindingDependencies getDependencies() {
-        return delegate.getDependencies();
-    }
-
     public String getSourceUrl() {
         return delegate.getSourceUrl();
     }
 
-    public CompositeMethod getCompositeMethod() {
-        return delegate.getCompositeMethod();
+    public void setAlgorithmSteps(List<RuntimeOperation> algorithmSteps) {
+        delegate.setAlgorithmSteps(algorithmSteps);
+    }
+
+    public void setLabels(Map<String, RuntimeOperation> labels) {
+        delegate.setLabels(labels);
+    }
+
+    public void setThisClass(IOpenClass thisClass) {
+        delegate.setThisClass(thisClass);
+    }
+
+    public BindingDependencies getDependencies() {
+        return delegate.getDependencies();
     }
 
     public boolean equals(Object obj) {
@@ -117,7 +121,6 @@ public class TableMethodDelegate extends TableMethod implements DispatchDelegate
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
     }
-    
     
 
 }

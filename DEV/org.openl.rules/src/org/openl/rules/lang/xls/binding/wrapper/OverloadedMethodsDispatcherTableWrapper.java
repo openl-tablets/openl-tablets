@@ -1,21 +1,21 @@
-package org.openl.rules.lang.xls.binding.delegate;
+package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.List;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class MatchingOpenMethodDispatcherDelegate extends MatchingOpenMethodDispatcher implements DispatchDelegateOpenMethod{
-    MatchingOpenMethodDispatcher delegate;
+public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements DispatchWrapperMark{
+    OverloadedMethodsDispatcherTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public MatchingOpenMethodDispatcherDelegate(XlsModuleOpenClass xlsModuleOpenClass, MatchingOpenMethodDispatcher delegate) {
+    public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass, OverloadedMethodsDispatcherTable delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
@@ -34,6 +34,10 @@ public class MatchingOpenMethodDispatcherDelegate extends MatchingOpenMethodDisp
 
     public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
         delegate.setDispatchingOpenMethod(dispatchingOpenMethod);
+    }
+
+    public TableSyntaxNode getDispatcherTable() {
+        return delegate.getDispatcherTable();
     }
 
     public IMethodSignature getSignature() {
@@ -72,10 +76,6 @@ public class MatchingOpenMethodDispatcherDelegate extends MatchingOpenMethodDisp
         return delegate.equals(obj);
     }
 
-    public TableSyntaxNode getDispatcherTable() {
-        return delegate.getDispatcherTable();
-    }
-
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
@@ -91,6 +91,4 @@ public class MatchingOpenMethodDispatcherDelegate extends MatchingOpenMethodDisp
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
-
-    
 }
