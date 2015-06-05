@@ -8,10 +8,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.TableGroup;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.BaseParser;
-import org.openl.rules.lang.xls.XlsHelper;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
@@ -71,35 +68,65 @@ public abstract class ExtensionParser extends BaseParser {
     }
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module, XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+        TablePartProcessor tablePartProcessor = new TablePartProcessor();
+
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
         List<TableGroup> tableGroups = module.getTableGroups();
         for (int i = 0; i < tableGroups.size(); i++) {
             TableGroup tableGroup = tableGroups.get(i);
             // Sheet name is used as category name in WebStudio
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceCodeModule);
-            sheetNodeList.add(getWorksheet(sheetSource, tableGroup));
+            sheetNodeList.add(getWorksheet(sheetSource, tableGroup, tablePartProcessor));
         }
         WorksheetSyntaxNode[] sheetNodes = sheetNodeList.toArray(new WorksheetSyntaxNode[sheetNodeList.size()]);
 
-        // TODO: Add TableParts
         TableSyntaxNode[] mergedNodes = {};
+        try {
+            List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
+            int n = tableParts.size();
+            mergedNodes = new TableSyntaxNode[n];
+            for (int i = 0; i < n; i++) {
+                mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(), tableParts.get(i).getSource(),
+                        tablePartProcessor);
+            }
+        } catch (OpenLCompilationException e) {
+            OpenLMessagesUtils.addError(e);
+        }
 
         return new WorkbookSyntaxNode[] { new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule) };
     }
 
-    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
+    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup, TablePartProcessor tablePartProcessor) {
         IGridTable[] tables = getAllGridTables(sheetSource, tableGroup);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
             try {
-                tableNodes.add(XlsHelper.createTableSyntaxNode(table, sheetSource));
+                tableNodes.add(preprocessTable(table, sheetSource, tablePartProcessor));
             } catch (OpenLCompilationException e) {
                 OpenLMessagesUtils.addError(e);
             }
         }
 
         return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
+    }
+
+    private TableSyntaxNode preprocessTable(IGridTable table,
+            XlsSheetSourceCodeModule source,
+            TablePartProcessor tablePartProcessor) throws
+                                                                                                    OpenLCompilationException {
+        TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
+        String type = tsn.getType();
+        if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
+            try {
+                tablePartProcessor.register(table, source);
+            } catch (Throwable t) {
+                SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
+                tsn.addError(sne);
+                OpenLMessagesUtils.addError(sne.getMessage());
+            }
+        }
+        return tsn;
     }
 
     /**

@@ -19,7 +19,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 
-class TablePartProcessor {
+public class TablePartProcessor {
 
     /**
      * 
