@@ -154,7 +154,7 @@ public class XmlRulesParser extends ExtensionParser {
             StringBuilder header = new StringBuilder();
             String returnType = table.getReturnType();
             if (StringUtils.isBlank(returnType)) {
-                returnType = "void";
+                returnType = "String";
             }
             header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
             boolean needComma = false;
@@ -267,7 +267,7 @@ public class XmlRulesParser extends ExtensionParser {
             StringBuilder headerBuilder = new StringBuilder();
             String returnType = function.getReturnType();
             if (StringUtils.isBlank(returnType)) {
-                returnType = "void";
+                returnType = "String";
             }
             headerBuilder.append("Spreadsheet ")
                     .append(returnType)
