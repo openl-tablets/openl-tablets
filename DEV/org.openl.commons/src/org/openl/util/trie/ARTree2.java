@@ -40,64 +40,51 @@ public final class ARTree2<K extends ISequentialKey, V> implements
 	@Override
 	public void put(K key, V value) {
 
-		// root = insert(root, key, value, 0);
-		int depth = 0;
+		
 		IARTNode current = root;
 
-		// }
 
-		// private IARTNodeX insert(IARTNodeX current, K key, V value, int
-		// depth) {
+		int len = key.length() - 1;
 
-		int len = key.length();
-
-		for (;;++depth) {
+		for (int depth = 0; depth < len; ++depth) {
 			int index = key.keyAt(depth);
-			if (depth == len - 1)
-			{	
-				((IARTNodeV)current).setValue(index, value);
-//				insertValue( current, key, value);
-				return;
-			}	
-
-
 
 			IARTNode next = current.findNode(index);
 			if (next != null) {
 				current = next;
-				continue;
 			}
-
-			next = createNext(key, depth);
-			current.setNode(index, next);
-			current = next;
+			else
+			{	
+				next = new ARTNode1NbVib();
+				current.setNode(index, next);
+				current = next;
+			}	
+			
 		}
+		current.setValue(key.keyAt(len), value);
 	}
 
-	private IARTNode createNext(K key, int depth) {
+	protected IARTNode createNext(K key, int depth) {
 		KeyRange range = key.keyRange(depth);
 		return createNode(range);
 	}
 
+	
+	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public V get(K key) {
 		int len = key.length() - 1;
-		IARTNodeX current = root;
+		IARTNode current = root;
 		for (int depth = 0; depth < len; depth++) {
-			int index = key.keyAt(depth);
 
-			IARTNodeX next = ((IARTNodeN) current).findNode(index);
-			if (next == null)
+			current = ((IARTNodeN) current).findNode(key.keyAt(depth));
+			if (current == null)
 				return null;
-
-			current = next;
-
 		}
 
-		@SuppressWarnings("unchecked")
-		V res = (V) ((IARTNodeV) current).getValue(key.keyAt(len));
-		return res;
+		return (V)  current.getValue(key.keyAt(len));
 	}
 
 	public void compact() {
