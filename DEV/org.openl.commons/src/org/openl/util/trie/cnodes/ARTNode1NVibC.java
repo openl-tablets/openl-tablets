@@ -2,34 +2,26 @@ package org.openl.util.trie.cnodes;
 
 import org.openl.domain.IIntIterator;
 import org.openl.util.trie.IARTNode;
-import org.openl.util.trie.IARTNodeV;
 import org.openl.util.trie.nodes.NodeArrayIterator;
 
-public final class ARTNode1N extends IARTNodeV.EmptyARTNodeV implements IARTNode {
+public final class ARTNode1NVibC extends ARTNode1VibC {
 
+	public ARTNode1NVibC(int startN, int countN, IARTNode[] nodes,
+			int newStartV, byte[] newMapperV, int[] mappedArrayV) {
+		super(newStartV, newMapperV, mappedArrayV);
+		this.nodes = nodes;
+		this.startN = startN;
+		this.countN = countN;
+		
+	}
 
-
+	
 	int startN;
 	
 	IARTNode[] nodes;
 
 	private int countN;
 
-	
-	
-	public ARTNode1N(int startN, int countN, IARTNode[] nodes)
-	{
-		this.nodes = nodes;
-		this.startN = startN;
-		this.countN = countN;
-	}
-	
-	public ARTNode1N(int start, int count, int capacity)
-	{
-		this.startN = start;
-		this.countN = count;
-		this.nodes = new IARTNode[capacity];
-	}
 	
 	
 	
@@ -75,11 +67,5 @@ public final class ARTNode1N extends IARTNodeV.EmptyARTNodeV implements IARTNode
 	}
 
 
-	@Override
-	public IARTNode compact() { 
-		return this;
-	}
-
 	
-
 }

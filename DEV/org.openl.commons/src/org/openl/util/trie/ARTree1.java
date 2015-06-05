@@ -1,12 +1,14 @@
 package org.openl.util.trie;
 
+import java.util.Iterator;
+
 import org.openl.util.trie.ISequentialKey.KeyRange;
-import org.openl.util.trie.nodes.ARTNode1NI;
+import org.openl.util.trie.nodes.ARTNode1NbVib;
 
 public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V> {
 	
 	
-	IARTNodeX root;
+	IARTNode root;
 	
 	
 	public ARTree1()
@@ -20,11 +22,11 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 	}
 
 
-	private IARTNodeX createNode(KeyRange range) {
-		int start = range.initialMin();
-		int capacity = range.initialMax() - range.initialMin() + 1;
+	private IARTNode createNode(KeyRange range) {
+//		int start = range.initialMin();
+//		int capacity = range.initialMax() - range.initialMin() + 1;
 		
-		return new ARTNode1NI(start, capacity);
+		return new ARTNode1NbVib();
 	}
 
 
@@ -40,45 +42,44 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 		
 	}
 
-	private IARTNodeX insert(IARTNodeX current, K key, V value, int depth) {
+	private IARTNode insert(IARTNode current, K key, V value, int depth) {
 		int len = key.length();
 		if (depth == len - 1)
-			return insertValue((IARTNodeV)current, key, value);
+			return insertValue(current, key, value);
 		
 		int index = key.keyAt(depth);
 		
-		IARTNodeN currentN = (IARTNodeN)current;
 		
-		IARTNodeX next = currentN.findNode(index);
+		IARTNode next = current.findNode(index);
 		if (next != null)
 		{	
-			IARTNodeX next1 = insert(next, key, value, depth + 1);
+			IARTNode next1 = insert(next, key, value, depth + 1);
 			if (next1 != next)
-				currentN.setNode(index, next1);
-			return currentN;
+				current.setNode(index, next1);
+			return current;
 		}
 		
 		next = createNext(key, depth);
 		next = insert(next, key, value, depth + 1);
-		currentN = currentN.setNode(index, next);
+		current.setNode(index, next);
 		
-		return currentN;
+		return current;
 	}
 
-	private IARTNodeX createNext(K key, int depth) {
-		KeyRange range = key.keyRange(depth);
-		return createNode(range);
+	private IARTNode createNext(K key, int depth) {
+		return new ARTNode1NbVib();
+		
 	}
 	
 	
 
-	private IARTNodeV insertValue(IARTNodeV current, K key, V value) {
+	private IARTNode insertValue(IARTNodeV current, K key, V value) {
 
 		int index = key.keyAt(key.length() - 1);
 		
-		current = current.setValue(index, value);
+		current.setValue(index, value);
 		
-		return current;
+		return (IARTNode)current;
 		
 	}
 
@@ -105,7 +106,13 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 
 
 	public void compact() {
-		root = root.compact();
+		root = (IARTNode) root.compact();
+	}
+
+
+	@Override
+	public Iterator<IARTNode> nodeIteratorDepthFirst() {
+		return new DepthFirstNodeIterator(root);
 	}
 
 
