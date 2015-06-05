@@ -3,10 +3,7 @@ package org.openl.extension.xmlrules.model.single;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.extension.xmlrules.model.Condition;
-import org.openl.extension.xmlrules.model.Parameter;
-import org.openl.extension.xmlrules.model.ReturnValue;
-import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.*;
 
 public class TableImpl implements Table {
     private String name;
@@ -15,6 +12,7 @@ public class TableImpl implements Table {
     private List<Condition> horizontalConditions = new ArrayList<Condition>();
     private List<Condition> verticalConditions = new ArrayList<Condition>();
     private List<List<ReturnValue>> returnValues = new ArrayList<List<ReturnValue>>();
+    private SegmentImpl segment;
     private XlsRegionImpl region;
 
     @Override
@@ -78,5 +76,14 @@ public class TableImpl implements Table {
 
     public void setReturnValues(List<List<ReturnValue>> returnValues) {
         this.returnValues = returnValues;
+    }
+
+    @Override
+    public SegmentImpl getSegment() {
+        return segment;
+    }
+
+    public void setSegment(SegmentImpl segment) {
+        this.segment = segment;
     }
 }

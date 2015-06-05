@@ -9,8 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.ExtensionParser;
 import org.openl.extension.Serializer;
-import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.IGridTable;
@@ -135,6 +135,18 @@ public class XmlRulesParser extends ExtensionParser {
             return;
         }
         for (Table table : tableGroup.getTables()) {
+            Integer tableWidth = table.getRegion().getWidth();
+
+            int headerHeight = 0;
+            int headerWidth = 0;
+
+            Segment segment = table.getSegment();
+            if (segment != null) {
+                String tablePartHeader = "TablePart " + table.getName() +
+                        (segment.isColumnSegment() ? " column " : " row ")
+                        + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
+                gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
+            }
             int tableRow = gridBuilder.getRow();
 
             boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
@@ -159,42 +171,52 @@ public class XmlRulesParser extends ExtensionParser {
             }
             header.append(")");
 
-            gridBuilder.addCell(header.toString(), table.getRegion().getWidth());
-            gridBuilder.nextRow();
+            if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                gridBuilder.addCell(header.toString(), tableWidth);
+                gridBuilder.nextRow();
+                headerHeight++;
+            }
 
             int startColumn = gridBuilder.getStartColumn();
 
             // HC expressions
-            gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+            if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
 
-            for (Condition condition : table.getHorizontalConditions()) {
-                for (ConditionExpression expression : condition.getExpressions()) {
-                    XlsRegion region = expression.getRegion();
-                    gridBuilder.addCell(expression.getExpression(), region == null ? 1 : region.getWidth());
+                for (Condition condition : table.getHorizontalConditions()) {
+                    for (ConditionExpression expression : condition.getExpressions()) {
+                        XlsRegion region = expression.getRegion();
+                        gridBuilder.addCell(expression.getExpression(), region == null ? 1 : region.getWidth());
+                    }
+                    gridBuilder.nextRow();
+                    headerHeight++;
                 }
-                gridBuilder.nextRow();
+                gridBuilder.setStartColumn(startColumn);
             }
-            gridBuilder.setStartColumn(startColumn);
 
             // VC header
-            if (isSimpleRules) {
-                for (Parameter parameter : table.getParameters()) {
-                    gridBuilder.addCell(parameter.getName());
-                }
-                gridBuilder.addCell("Return");
-                gridBuilder.nextRow();
-            } else {
-                List<Parameter> parameters = table.getParameters();
-                for (int i = 0; i < parameters.size(); i++) {
-                    if (i >= table.getVerticalConditions().size()) {
-                        break;
+            if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                if (isSimpleRules) {
+                    for (Parameter parameter : table.getParameters()) {
+                        gridBuilder.addCell(parameter.getName());
                     }
-                    Parameter parameter = parameters.get(i);
-                    gridBuilder.setCell(gridBuilder.getColumn(),
-                            tableRow + 1,
-                            1,
-                            table.getHorizontalConditions().size(),
-                            parameter.getName());
+                    gridBuilder.addCell("Return");
+                    gridBuilder.nextRow();
+                    headerHeight++;
+                } else {
+                    List<Parameter> parameters = table.getParameters();
+                    for (int i = 0; i < parameters.size(); i++) {
+                        if (i >= table.getVerticalConditions().size()) {
+                            break;
+                        }
+                        Parameter parameter = parameters.get(i);
+                        gridBuilder.setCell(gridBuilder.getColumn(),
+                                tableRow + 1,
+                                1,
+                                table.getHorizontalConditions().size(),
+                                parameter.getName());
+                        headerWidth++;
+                    }
                 }
             }
 
@@ -217,14 +239,14 @@ public class XmlRulesParser extends ExtensionParser {
 
             // Return values
             if (isSimpleRules) {
-                gridBuilder.setRow(tableRow + 2);
+                gridBuilder.setRow(tableRow + headerHeight);
                 gridBuilder.setStartColumn(conditionColumn);
                 for (ReturnValue returnValue : table.getReturnValues().get(0)) {
                     gridBuilder.addCell(returnValue.getValue()).nextRow();
                 }
             } else {
-                gridBuilder.setRow(tableRow + 1 + table.getHorizontalConditions().size());
-                gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+                gridBuilder.setRow(tableRow + headerHeight);
+                gridBuilder.setStartColumn(startColumn + headerWidth);
                 for (List<ReturnValue> returnValues : table.getReturnValues()) {
                     for (ReturnValue returnValue : returnValues) {
                         gridBuilder.addCell(returnValue.getValue());
