@@ -8,7 +8,7 @@ public interface IARTNodeV extends IARTNodeX {
 	
 	Object getValue(int index);
 	
-	IARTNodeV setValue(int index, Object value);
+	void setValue(int index, Object value);
 	
 	int countV();
 	int minIndexV();
@@ -18,10 +18,10 @@ public interface IARTNodeV extends IARTNodeX {
 	
 	static public final  EmptyARTNodeV EMPTY = new EmptyARTNodeV();
 	
-	static class EmptyARTNodeV implements IARTNodeV {
+	static public class EmptyARTNodeV implements IARTNodeV {
 		
 		@Override
-		public IARTNodeV setValue(int index, Object value) {
+		public void setValue(int index, Object value) {
 			throw new UnsupportedOperationException();
 		}
 		
@@ -50,10 +50,6 @@ public interface IARTNodeV extends IARTNodeX {
 			return AIntIterator.fromValue();
 		}
 
-		@Override
-		public IARTNodeX compact() {
-			return this;
-		}
 	};
 	
 	
