@@ -19,4 +19,6 @@ public interface Table {
     XlsRegion getRegion();
 
     List<List<ReturnValue>> getReturnValues();
+
+    Segment getSegment();
 }
