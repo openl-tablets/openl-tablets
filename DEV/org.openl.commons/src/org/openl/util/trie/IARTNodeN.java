@@ -7,9 +7,9 @@ public interface IARTNodeN extends IARTNodeX {
 	
 
 
-	IARTNodeX findNode(int index);
+	IARTNode findNode(int index);
 	
-	IARTNodeN setNode(int index, IARTNodeX node);
+	void setNode(int index, IARTNode node);
 	
 
 	int countN();
@@ -20,10 +20,10 @@ public interface IARTNodeN extends IARTNodeX {
 
 	
 	static public final IARTNodeN EMPTY = new EmptyARTNodeN();
-	static class EmptyARTNodeN implements IARTNodeN {
+	static public class EmptyARTNodeN implements IARTNodeN {
 		
 		@Override
-		public IARTNodeN setNode(int index, IARTNodeX node) {
+		public void setNode(int index, IARTNode node) {
 			throw new UnsupportedOperationException();
 		}
 		
@@ -38,7 +38,7 @@ public interface IARTNodeN extends IARTNodeX {
 		}
 		
 		@Override
-		public IARTNodeX findNode(int index) {
+		public IARTNode findNode(int index) {
 			return null;
 		}
 		
@@ -52,10 +52,6 @@ public interface IARTNodeN extends IARTNodeX {
 			return AIntIterator.fromValue();
 		}
 
-		@Override
-		public IARTNodeX compact() {
-			return this;
-		}
 	};
 	
 	

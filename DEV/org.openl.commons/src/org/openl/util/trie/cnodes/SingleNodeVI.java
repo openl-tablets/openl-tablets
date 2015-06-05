@@ -2,16 +2,16 @@ package org.openl.util.trie.cnodes;
 
 import org.openl.domain.AIntIterator;
 import org.openl.domain.IIntIterator;
-import org.openl.util.trie.IARTNodeV;
-import org.openl.util.trie.IARTNodeVI;
-import org.openl.util.trie.IARTNodeX;
+import org.openl.util.trie.IARTNode;
+import org.openl.util.trie.IARTNodeN;
+import org.openl.util.trie.IARTNodeVi;
 
-public class SingleNodeVI implements IARTNodeVI {
+public class SingleNodeVi extends IARTNodeN.EmptyARTNodeN implements IARTNode, IARTNodeVi {
 
 	private int storedIndex;
 	private int value;
 	
-	public SingleNodeVI(int storedIndex, int value) {
+	public SingleNodeVi(int storedIndex, int value) {
 		super();
 		this.storedIndex = storedIndex;
 		this.value = value;
@@ -24,7 +24,7 @@ public class SingleNodeVI implements IARTNodeVI {
 	}
 
 	@Override
-	public IARTNodeV setValue(int index, Object value) {
+	public void setValue(int index, Object value) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -56,7 +56,7 @@ public class SingleNodeVI implements IARTNodeVI {
 
 
 	@Override
-	public IARTNodeX compact() {
+	public IARTNode compact() {
 		return this;
 	}
 

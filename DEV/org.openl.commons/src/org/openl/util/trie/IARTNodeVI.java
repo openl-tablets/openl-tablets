@@ -1,5 +1,5 @@
 package org.openl.util.trie;
 
-public interface IARTNodeVI extends IARTNodeV{
+public interface IARTNodeVi extends IARTNodeV{
 
 }

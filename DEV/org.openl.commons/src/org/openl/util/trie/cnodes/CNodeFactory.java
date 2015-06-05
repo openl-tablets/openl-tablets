@@ -1,7 +1,8 @@
 package org.openl.util.trie.cnodes;
 
 
-public class NodeFactory {
+
+public class CNodeFactory {
 	
 	
 	public static int arraySize(Class<?> arrayClass, int size)
@@ -76,5 +77,11 @@ public class NodeFactory {
 		
 		return mapperSize * 10  < directSize * 9;
 	}
+	
+	
+	
+	
+	
+	
 	
 }

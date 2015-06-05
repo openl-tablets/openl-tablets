@@ -1,11 +1,11 @@
 package org.openl.util.trie.cnodes;
 
 import org.openl.domain.IIntIterator;
-import org.openl.util.trie.IARTNodeV;
-import org.openl.util.trie.IARTNodeX;
+import org.openl.util.trie.IARTNode;
+import org.openl.util.trie.IARTNodeN;
 import org.openl.util.trie.nodes.ObjectArrayIterator;
 
-public class ARTNode1V implements IARTNodeV {
+public class ARTNode1V extends IARTNodeN.EmptyARTNodeN implements IARTNode {
 
 
 	int start;
@@ -32,11 +32,10 @@ public class ARTNode1V implements IARTNodeV {
 
 
 	@Override
-	public IARTNodeV setValue(int index, Object value) {
+	public void setValue(int index, Object value) {
 
 		values[index - start] = value;
 
-		return this;
 	}
 
 	@Override
@@ -62,7 +61,7 @@ public class ARTNode1V implements IARTNodeV {
 
 
 	@Override
-	public IARTNodeX compact() {
+	public IARTNode compact() {
 		return this;
 	}
 
