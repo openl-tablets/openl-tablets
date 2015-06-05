@@ -171,9 +171,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 cache.put(contextMutableUUID.getUUID(), method);
                 if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
                     synchronized (cache) {
-                        Iterator<UUID> itr = cache.keySet().iterator();
-                        for (int i = 0;i<MAX_ELEMENTS_IN_CAHCE - MIN_ELEMENTS_IN_CAHCE;i++){
-                            cache.remove(itr.next());
+                        if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
+                            Iterator<UUID> itr = cache.keySet().iterator();
+                            while (cache.size() > MIN_ELEMENTS_IN_CAHCE && itr.hasNext()){
+                                cache.remove(itr.next());
+                            }
                         }
                     }
                 }
