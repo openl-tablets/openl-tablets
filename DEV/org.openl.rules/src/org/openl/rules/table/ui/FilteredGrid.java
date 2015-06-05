@@ -3,10 +3,10 @@
  */
 package org.openl.rules.table.ui;
 
+import org.openl.rules.table.AGrid;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
-import org.openl.rules.table.AGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.filters.IGridFilter;
 
@@ -17,23 +17,26 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 public class FilteredGrid extends AGrid {
 
     private IGridFilter[] formatFilters;
-    
+
     private IGrid delegate;
 
-    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {     
+    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {
         this.delegate = delegate;
         this.formatFilters = formatFilters.clone();
     }
 
-    private void formatCell(FormattedCell fcell) {
+    private void formatCell(FormattedCell fcell, int col, int row) {
         if (formatFilters != null) {
             for (int i = 0; i < formatFilters.length; i++) {
-                try {
-                    // Side effect of method call is setting object value of the cell
-                    formatFilters[i].filterFormat(fcell);
-                }
-                catch (IllegalArgumentException e){
-                    //Ignore if failed to format
+                IGridSelector selector = formatFilters[i].getGridSelector();
+                if (selector == null || selector.selectCoords(col, row)) {
+                    try {
+                        // Side effect of method call is setting object value of
+                        // the cell
+                        formatFilters[i].filterFormat(fcell);
+                    } catch (IllegalArgumentException e) {
+                        // Ignore if failed to format
+                    }
                 }
             }
         }
@@ -49,10 +52,9 @@ public class FilteredGrid extends AGrid {
 
     public synchronized FormattedCell getFormattedCell(int col, int row) {
         ICell cell = delegate.getCell(col, row);
-
         FormattedCell cellToFormat = new FormattedCell(cell);
 
-        formatCell(cellToFormat);
+        formatCell(cellToFormat, col, row);
 
         return cellToFormat;
     }
@@ -61,7 +63,7 @@ public class FilteredGrid extends AGrid {
         return delegate.getColumnWidth(col);
     }
 
-    public int getMaxColumnIndex(int row) {        
+    public int getMaxColumnIndex(int row) {
         return delegate.getMaxColumnIndex(row);
     }
 
@@ -76,7 +78,7 @@ public class FilteredGrid extends AGrid {
     public int getMinColumnIndex(int row) {
         return delegate.getMaxColumnIndex(row);
     }
-    
+
     public int getMinRowIndex() {
         return delegate.getMinRowIndex();
     }
