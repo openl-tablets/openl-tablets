@@ -38,10 +38,6 @@ public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWra
         return delegate.getMethod();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public String getName() {
         return delegate.getName();
     }
@@ -72,10 +68,6 @@ public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWra
 
     public IOpenClass getType() {
         return delegate.getType();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public boolean isStatic() {
