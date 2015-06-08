@@ -65,16 +65,8 @@ public class DeferredMethodWrapper extends DeferredMethod implements DispatchWra
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
         delegate.setMethodBodyBoundNode(bnode);
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public String toString() {

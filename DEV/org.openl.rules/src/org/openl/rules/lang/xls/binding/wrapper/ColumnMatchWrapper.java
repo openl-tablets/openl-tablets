@@ -90,10 +90,6 @@ public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapperMa
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public BindingDependencies getDependencies() {
         return delegate.getDependencies();
     }
@@ -144,10 +140,6 @@ public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapperMa
 
     public IMatchAlgorithmExecutor getAlgorithmExecutor() {
         return delegate.getAlgorithmExecutor();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public void setBoundNode(ATableBoundNode node) {

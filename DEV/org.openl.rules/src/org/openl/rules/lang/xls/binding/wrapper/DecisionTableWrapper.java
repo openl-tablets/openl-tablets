@@ -64,10 +64,6 @@ public class DecisionTableWrapper extends DecisionTable implements DispatchWrapp
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public IAction[] getActionRows() {
         return delegate.getActionRows();
     }
@@ -106,10 +102,6 @@ public class DecisionTableWrapper extends DecisionTable implements DispatchWrapp
 
     public ILogicalTable getRuleTable(int ruleIndex) {
         return delegate.getRuleTable(ruleIndex);
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public String getSourceUrl() {
