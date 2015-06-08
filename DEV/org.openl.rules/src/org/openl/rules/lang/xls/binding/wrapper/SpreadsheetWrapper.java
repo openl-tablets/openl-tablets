@@ -73,10 +73,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapperMa
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
         return delegate.getResultConstructor();
     }
@@ -87,10 +83,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapperMa
 
     public boolean isCustomSpreadsheetType() {
         return delegate.isCustomSpreadsheetType();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public SpreadsheetCell[][] getCells() {

@@ -76,16 +76,8 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public String getSourceUrl() {
         return delegate.getSourceUrl();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public void setAlgorithmSteps(List<RuntimeOperation> operations) {
@@ -123,6 +115,5 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
-
     
 }
