@@ -67,13 +67,17 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         String dependencyName = dependency.getNode().getIdentifier();
         CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
         if (compiledOpenClass != null) {
-            log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+            if (log.isDebugEnabled()){
+                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+            }
             return compiledOpenClass;
         }
         synchronized (CompiledOpenClassCache.getInstance()) {
             compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {
-                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                if (log.isDebugEnabled()){
+                    log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                }
                 return compiledOpenClass;
             }
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
@@ -105,7 +109,9 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                if (log.isDebugEnabled()){
+                    log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                }
                 return compiledOpenClass;
             } catch (Exception ex) {
                 OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
