@@ -30,7 +30,7 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper {
         search.setTableElements(tableElements);
         Object searchResult = search.search(getModuleSuntaxNode());
         if ((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
-            assertEquals(9, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
+            assertEquals(8, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
             for (TableAndRows tabAndRows : ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length > 0);
             }
@@ -53,7 +53,7 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper {
         Object searchResult = search.search(getModuleSuntaxNode());
         if ((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);
-            assertEquals(12, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
+            assertEquals(11, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
             for (TableAndRows tabAndRows : ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length > 0);
             }
@@ -82,7 +82,7 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper {
         Object searchResult = search.search(getModuleSuntaxNode());
         if ((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);
-            assertEquals(32, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
+            assertEquals(31, ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows().length);
             for (TableAndRows tabAndRows : ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows()) {
                 assertTrue(tabAndRows.getRows().length > 0);
             }
@@ -107,7 +107,7 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper {
         if ((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult) searchResult);
-            assertEquals(32, result.getFoundTableAndRows().length);
+            assertEquals(31, result.getFoundTableAndRows().length);
 
             for (int i = 0; i < 2; i++) {
                 assertTrue(result.getFoundTableAndRows()[i].getRows().length > 0);
@@ -146,7 +146,7 @@ public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper {
         if ((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult) searchResult);
-            assertEquals(32, result.getFoundTableAndRows().length);
+            assertEquals(31, result.getFoundTableAndRows().length);
 
             for (int i = 0; i < 2; i++) {
                 assertTrue(result.getFoundTableAndRows()[i].getRows().length > 0);

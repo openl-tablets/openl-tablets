@@ -6,12 +6,12 @@
 
 package org.openl.rules.lang.xls;
 
-import org.openl.vm.SimpleVM;
+import org.openl.rules.vm.SimpleRulesVM;
 
 /**
  * @author snshor
  *
  */
-public class XlsVM extends SimpleVM {
+public class XlsVM extends SimpleRulesVM {
 
 }
