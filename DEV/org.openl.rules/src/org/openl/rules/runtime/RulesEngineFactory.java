@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -89,6 +90,18 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, source, userHome);
+        super.setInterfaceClass(interfaceClass);
+    }
+    
+    public RulesEngineFactory(URL source) {
+        super(RULES_XLS_OPENL_NAME, source);
+    }
+    
+    public RulesEngineFactory(URL source, Class<T> interfaceClass) {
+        super(RULES_XLS_OPENL_NAME, source);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
         super.setInterfaceClass(interfaceClass);
     }
 

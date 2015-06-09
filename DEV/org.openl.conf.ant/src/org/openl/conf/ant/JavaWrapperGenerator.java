@@ -151,7 +151,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         buf.append(
                 "  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n")
                 .append("    @Override\n").append("    protected org.openl.vm.IRuntimeEnv initialValue() {\n")
-                .append("      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();\n")
+                .append("      org.openl.vm.IRuntimeEnv environment = new org.openl.rules.vm.SimpleRulesVM().getRuntimeEnv();\n")
                 .append("      environment.setContext(org.openl.rules.context.RulesRuntimeContextFactory.buildRulesRuntimeContext());\n")
                 .append("      return environment;\n").append("    }\n").append("  };\n\n");
         // getter and setter

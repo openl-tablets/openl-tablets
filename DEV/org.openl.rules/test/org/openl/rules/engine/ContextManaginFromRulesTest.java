@@ -1,6 +1,8 @@
 package org.openl.rules.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -8,10 +10,10 @@ import java.beans.PropertyDescriptor;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -29,7 +31,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testContextModifying() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("modifyContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
@@ -41,7 +43,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testContextSetter() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("setContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
@@ -54,7 +56,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     public void testCurrentContextGetter() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("getContextPropery",
                 new IOpenClass[] { JavaOpenClass.STRING });
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.MO);
@@ -65,7 +67,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testEmptyContextGetter() throws Exception {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("emptyContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         Object result = testMethod.invoke(instance, new Object[] {}, env);
         assertTrue(result instanceof IRulesRuntimeContext);
@@ -79,7 +81,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testContextRestoring() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("restoreContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
@@ -91,7 +93,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testTBasicContext() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
