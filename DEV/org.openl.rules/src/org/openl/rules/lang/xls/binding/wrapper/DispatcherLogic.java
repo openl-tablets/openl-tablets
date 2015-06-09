@@ -18,10 +18,16 @@ public final class DispatcherLogic {
     
 
     public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass, IOpenMethod delegate, Object target, Object[] params, IRuntimeEnv env) {
+        IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv){
-            return delegate.invoke(target, params, env);
+            TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
+            env1 = tBasicContextHolderEnv.getEnv();
+            while (env1 instanceof TBasicContextHolderEnv){
+                tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
+                env1 = tBasicContextHolderEnv.getEnv();
+            }
         }
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
+        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
         
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
