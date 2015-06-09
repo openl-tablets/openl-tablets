@@ -1094,7 +1094,7 @@ public class ProjectModel {
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
         if (!isParallel) {
             return test.invoke(target, env, 1);
