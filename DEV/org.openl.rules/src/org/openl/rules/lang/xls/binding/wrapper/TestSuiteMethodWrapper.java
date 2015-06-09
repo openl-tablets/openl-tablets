@@ -72,10 +72,6 @@ public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchW
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public int[] getIndices(String ids) {
         return delegate.getIndices(ids);
     }
@@ -98,10 +94,6 @@ public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchW
 
     public int getNumberOfTests() {
         return delegate.getNumberOfTests();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public String getSourceUrl() {

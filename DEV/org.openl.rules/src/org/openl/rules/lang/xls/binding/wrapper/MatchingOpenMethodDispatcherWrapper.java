@@ -24,10 +24,6 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
         return DispatcherLogic.dispatch(xlsModuleOpenClass, delegate, target, params, env);
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public IOpenMethod getDispatchingOpenMethod() {
         return delegate.getDispatchingOpenMethod();
     }
@@ -66,10 +62,6 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
 
     public IOpenMethod getMethod() {
         return delegate.getMethod();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public TableSyntaxNode getDispatcherTable() {

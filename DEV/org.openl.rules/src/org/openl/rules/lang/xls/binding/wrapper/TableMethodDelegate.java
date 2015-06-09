@@ -70,10 +70,6 @@ public class TableMethodDelegate extends TableMethod implements DispatchWrapperM
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public MethodTableBoundNode getMethodTableBoundNode() {
         return delegate.getMethodTableBoundNode();
     }
@@ -88,10 +84,6 @@ public class TableMethodDelegate extends TableMethod implements DispatchWrapperM
 
     public CompositeMethod getCompositeMethod() {
         return delegate.getCompositeMethod();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public void setBoundNode(ATableBoundNode node) {

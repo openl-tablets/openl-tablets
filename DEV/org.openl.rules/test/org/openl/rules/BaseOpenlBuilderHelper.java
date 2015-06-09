@@ -3,7 +3,6 @@ package org.openl.rules;
 import java.util.Map.Entry;
 
 import org.junit.Assert;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.OpenL;
 import org.openl.conf.UserContext;
@@ -13,6 +12,8 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -118,7 +119,7 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {
-        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+        org.openl.vm.IRuntimeEnv environment = new SimpleRulesVM().getRuntimeEnv();
         Object myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
 
         return testMethod.invoke(myInstance, paramValues, environment);
