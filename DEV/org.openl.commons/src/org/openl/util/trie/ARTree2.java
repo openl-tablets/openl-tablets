@@ -13,8 +13,8 @@ import org.openl.util.trie.nodes.ARTNode1NbVib;
  * 
  */
 
-public final class ARTree2<K extends ISequentialKey, V> implements
-		IARTree<K, V> {
+public final class ARTree2<V> implements
+		IARTreeBase<V> {
 
 	IARTNode root;
 
@@ -38,7 +38,7 @@ public final class ARTree2<K extends ISequentialKey, V> implements
 	}
 
 	@Override
-	public void put(K key, V value) {
+	public void put(ISequentialKey key, V value) {
 
 		
 		IARTNode current = root;
@@ -64,7 +64,7 @@ public final class ARTree2<K extends ISequentialKey, V> implements
 		current.setValue(key.keyAt(len), value);
 	}
 
-	protected IARTNode createNext(K key, int depth) {
+	protected IARTNode createNext(ISequentialKey key, int depth) {
 		KeyRange range = key.keyRange(depth);
 		return createNode(range);
 	}
@@ -74,7 +74,7 @@ public final class ARTree2<K extends ISequentialKey, V> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public V get(K key) {
+	public V get(ISequentialKey key) {
 		int len = key.length() - 1;
 		IARTNode current = root;
 		for (int depth = 0; depth < len; depth++) {

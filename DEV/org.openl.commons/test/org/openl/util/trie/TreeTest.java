@@ -10,11 +10,10 @@ public class TreeTest {
 
 	@Test
 	public void test() {
-		testOp(new ARTree1<ISequentialKey, Integer>());
-		testOp(new ARTree2<ISequentialKey, Integer>());
+		testOp(new ARTree3<Integer>());
 	}
 
-	private void testOp(IARTree<ISequentialKey, Integer> tree) {
+	private void testOp(IARTree<Integer> tree) {
 		
 		String[] keys = {"AAA", "AAB", "AAD", "BCA", "BC", "AA", "AB"};
 		

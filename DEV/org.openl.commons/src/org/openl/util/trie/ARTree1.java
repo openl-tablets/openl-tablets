@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.openl.util.trie.ISequentialKey.KeyRange;
 import org.openl.util.trie.nodes.ARTNode1NbVib;
 
-public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V> {
+public final class ARTree1<V> implements IARTreeBase<V> {
 	
 	
 	IARTNode root;
@@ -36,13 +36,13 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 
 
 	@Override
-	public void put(K key, V value) {
+	public void put(ISequentialKey key, V value) {
 		
 		root = insert(root, key, value, 0);
 		
 	}
 
-	private IARTNode insert(IARTNode current, K key, V value, int depth) {
+	private IARTNode insert(IARTNode current, ISequentialKey key, V value, int depth) {
 		int len = key.length();
 		if (depth == len - 1)
 			return insertValue(current, key, value);
@@ -66,14 +66,14 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 		return current;
 	}
 
-	private IARTNode createNext(K key, int depth) {
+	private IARTNode createNext(ISequentialKey key, int depth) {
 		return new ARTNode1NbVib();
 		
 	}
 	
 	
 
-	private IARTNode insertValue(IARTNodeV current, K key, V value) {
+	private IARTNode insertValue(IARTNodeV current, ISequentialKey key, V value) {
 
 		int index = key.keyAt(key.length() - 1);
 		
@@ -85,7 +85,7 @@ public final class ARTree1<K extends ISequentialKey, V> implements IARTree<K , V
 
 
 	@Override
-	public V get(K key) {
+	public V get(ISequentialKey key) {
 		int len = key.length() - 1;
 		IARTNodeX current = root;
 		for (int depth = 0; depth < len; depth++) {
