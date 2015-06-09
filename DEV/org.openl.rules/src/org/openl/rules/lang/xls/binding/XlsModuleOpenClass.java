@@ -29,8 +29,8 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
@@ -38,8 +38,6 @@ import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapperMark;
 import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodDelegate;
 import org.openl.rules.lang.xls.binding.wrapper.TestSuiteMethodWrapper;
@@ -205,15 +203,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                                                           // fix
                                                                                           // for
                                                                                           // mul1ti-module
-        if (openMethod instanceof DispatchWrapperMark || openMethod instanceof TestSuiteMethod) {
+        if (openMethod instanceof DispatchWrapperMark || openMethod instanceof TestSuiteMethod || openMethod instanceof MatchingOpenMethodDispatcher) {
             return openMethod;
         }
-        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
+        /*if (openMethod instanceof OverloadedMethodsDispatcherTable) {
             return new OverloadedMethodsDispatcherTableWrapper(this, (OverloadedMethodsDispatcherTable) openMethod);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(this, (MatchingOpenMethodDispatcher) openMethod);
-        }
+        }*/
         if (openMethod instanceof DeferredMethod) {
             return new DeferredMethodWrapper(this, (DeferredMethod) openMethod);
         }
@@ -359,7 +357,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod) {
                 methodMap().put(key, m);
             } else {
-                createDispatcherMethod(m, key);
+                IOpenMethod decoratedMethod = decorateForMultimoduleDispatching(m);
+                methodMap().put(key, decoratedMethod);
             }
         }
     }
@@ -399,11 +398,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
-
+        IOpenMethod decorated = decorateForMultimoduleDispatching(method);
         if (useDescisionTableDispatcher) {
-            decorator = new OverloadedMethodsDispatcherTable(method, this);
+            decorator = new OverloadedMethodsDispatcherTable(decorated, this);
         } else {
-            decorator = new MatchingOpenMethodDispatcher(method, this);
+            decorator = new MatchingOpenMethodDispatcher(decorated, this);
         }
 
         IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);

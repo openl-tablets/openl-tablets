@@ -9,6 +9,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
@@ -38,7 +39,7 @@ public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.
   private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      org.openl.vm.IRuntimeEnv environment = new SimpleRulesVM().getRuntimeEnv();
       environment.setContext(RulesRuntimeContextFactory.buildRulesRuntimeContext());
       return environment;
     }

@@ -10,8 +10,8 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
-import org.openl.runtime.EngineFactory;
 
 /**
  * @author User
@@ -52,8 +52,8 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         String sourceType = OpenL.OPENL_JAVA_RULE_NAME;
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
-        EngineFactory<IAlgorithmTableParserManager> engineFactory = new EngineFactory<IAlgorithmTableParserManager>(
-                sourceType, sourceFile, IAlgorithmTableParserManager.class);
+        RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<IAlgorithmTableParserManager>(
+                sourceFile, IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
         
         // get the errors before compiling inside component.

@@ -1,5 +1,21 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -52,6 +68,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
@@ -77,22 +94,6 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.Tracer;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 public class ProjectModel {
 
@@ -1005,7 +1006,7 @@ public class ProjectModel {
             return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
                 @Override
                 public IRuntimeEnv buildIRuntimeEnv() {
-                    return new SimpleVM().getRuntimeEnv();
+                    return new SimpleRulesVM().getRuntimeEnv();
                 }
             }, 1);
         }

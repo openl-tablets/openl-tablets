@@ -43,7 +43,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
   private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+      org.openl.vm.IRuntimeEnv environment = new org.openl.rules.vm.SimpleRulesVM().getRuntimeEnv();
       environment.setContext(RulesRuntimeContextFactory.buildRulesRuntimeContext());
       return environment;
     }
