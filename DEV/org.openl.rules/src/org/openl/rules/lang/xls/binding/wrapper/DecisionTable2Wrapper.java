@@ -67,10 +67,6 @@ public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrap
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public IBaseAction[] getActionRows() {
         return delegate.getActionRows();
     }
@@ -101,10 +97,6 @@ public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrap
 
     public String getRuleName(int col) {
         return delegate.getRuleName(col);
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public RuleRow getRuleRow() {

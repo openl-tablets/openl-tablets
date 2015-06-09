@@ -1,8 +1,10 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -10,21 +12,24 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public final class DispatcherLogic {
-    public static ThreadLocal<IOpenClass> topClassRef = new ThreadLocal<IOpenClass>();
-    public static ThreadLocal<Boolean> isInvokedFromTop = new BooleanThreadLocal();
 
     private DispatcherLogic() {
     }
     
-    private static class BooleanThreadLocal extends ThreadLocal<Boolean> {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    }
 
     public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass, IOpenMethod delegate, Object target, Object[] params, IRuntimeEnv env) {
-        IOpenClass topClass = topClassRef.get();
+        IRuntimeEnv env1 = env;
+        if (env instanceof TBasicContextHolderEnv){
+            TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
+            env1 = tBasicContextHolderEnv.getEnv();
+            while (env1 instanceof TBasicContextHolderEnv){
+                tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
+                env1 = tBasicContextHolderEnv.getEnv();
+            }
+        }
+        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
+        
+        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
             try {
                 IOpenClass typeClass;
@@ -48,25 +53,25 @@ public final class DispatcherLogic {
                 } else {
                     throw new IllegalStateException("Can't define openl class from target object");
                 }
-                topClassRef.set(typeClass);
+                simpleRulesRuntimeEnv.setTopClass(typeClass);
                 return delegate.invoke(target, params, env);
             } finally {
-                topClassRef.remove();
-                isInvokedFromTop.remove();
+                simpleRulesRuntimeEnv.setTopClass(null);
+                simpleRulesRuntimeEnv.setInvokedFromTop(false);
             }
         } else {
-            Boolean f = isInvokedFromTop.get();
+            boolean f = simpleRulesRuntimeEnv.isInvokedFromTop();
             if (topClass != xlsModuleOpenClass) {
-                if (!Boolean.TRUE.equals(f)) {
+                if (!f) {
                     IOpenMethod matchedMethod = topClass.getMatchingMethod(delegate.getName(), delegate.getSignature()
                         .getParameterTypes());
                     if (matchedMethod != null) {
-                        isInvokedFromTop.set(Boolean.TRUE);
+                        simpleRulesRuntimeEnv.setInvokedFromTop(true);
                         return matchedMethod.invoke(target, params, env);
                     }
                 } else {
                     if (!(delegate instanceof MatchingOpenMethodDispatcher || delegate instanceof OverloadedMethodsDispatcherTable)) {
-                        isInvokedFromTop.remove();
+                        simpleRulesRuntimeEnv.setInvokedFromTop(false);
                     }
                 }
             }

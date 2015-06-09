@@ -80,10 +80,6 @@ public class CompositeMethodWrapper extends CompositeMethod implements DispatchW
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public void removeDebugInformation() {
         delegate.removeDebugInformation();
     }
@@ -112,9 +108,4 @@ public class CompositeMethodWrapper extends CompositeMethod implements DispatchW
         return delegate.getSourceUrl();
     }
 
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
-    }
-    
-    
 }

@@ -70,10 +70,6 @@ public class AlgorithmWrapper extends Algorithm implements DispatchWrapperMark{
         return delegate.isStatic();
     }
 
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
     public String getSourceUrl() {
         return delegate.getSourceUrl();
     }
@@ -92,10 +88,6 @@ public class AlgorithmWrapper extends Algorithm implements DispatchWrapperMark{
 
     public BindingDependencies getDependencies() {
         return delegate.getDependencies();
-    }
-
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
     }
 
     public void setBoundNode(ATableBoundNode node) {

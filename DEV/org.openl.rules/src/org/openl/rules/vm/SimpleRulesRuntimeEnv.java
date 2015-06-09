@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
@@ -290,5 +291,24 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
             }
         }
     }
-
+    
+    public IOpenClass getTopClass() {
+        return topClass;
+    }
+    
+    public void setTopClass(IOpenClass topClass) {
+        this.topClass = topClass;
+    }
+    
+    public boolean isInvokedFromTop() {
+        return invokedFromTop;
+    }
+    
+    public void setInvokedFromTop(boolean invokedFromTop) {
+        this.invokedFromTop = invokedFromTop;
+    }
+    
+    private IOpenClass topClass;
+    
+    private boolean invokedFromTop;
 }

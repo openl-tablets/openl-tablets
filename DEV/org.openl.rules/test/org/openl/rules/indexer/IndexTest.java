@@ -10,10 +10,10 @@ import org.junit.Test;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 public class IndexTest {
     
@@ -21,7 +21,7 @@ public class IndexTest {
     public void testOk() throws NoSuchMethodException{
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/index/test1.xlsx");
         engineFactory.setExecutionMode(false);
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Assert.assertFalse(engineFactory.getCompiledOpenClass().hasErrors());
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
         Object target = openClass.newInstance(env);
