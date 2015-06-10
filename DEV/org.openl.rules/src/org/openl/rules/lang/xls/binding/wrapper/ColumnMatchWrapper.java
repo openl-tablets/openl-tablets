@@ -21,7 +21,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapperMark{
+public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapper{
     ColumnMatch delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -56,6 +56,11 @@ public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapperMa
 
     public IOpenSourceCodeModule getAlgorithm() {
         return delegate.getAlgorithm();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public IOpenMethod getMethod() {

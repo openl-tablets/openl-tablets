@@ -17,11 +17,11 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class TableMethodDelegate extends TableMethod implements DispatchWrapperMark{
+public class TableMethodWrapper extends TableMethod implements DispatchWrapper{
     TableMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
-    public TableMethodDelegate(XlsModuleOpenClass xlsModuleOpenClass, TableMethod delegate) {
+    public TableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, TableMethod delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
@@ -38,6 +38,11 @@ public class TableMethodDelegate extends TableMethod implements DispatchWrapperM
         return delegate.getDeclaringClass();
     }
 
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
+    }
+    
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }
