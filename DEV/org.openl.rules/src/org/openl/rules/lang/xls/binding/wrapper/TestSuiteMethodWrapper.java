@@ -19,7 +19,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
-public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchWrapperMark{
+public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchWrapper{
     TestSuiteMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -50,6 +50,11 @@ public class TestSuiteMethodWrapper extends TestSuiteMethod implements DispatchW
 
     public String getTableUri() {
         return delegate.getTableUri();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public IOpenMethod getMethod() {
