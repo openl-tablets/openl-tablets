@@ -26,7 +26,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrapperMark{
+public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrapper{
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -65,6 +65,11 @@ public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrap
 
     public boolean isStatic() {
         return delegate.isStatic();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public IBaseAction[] getActionRows() {

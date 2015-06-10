@@ -14,7 +14,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethodWrapper extends CompositeMethod implements DispatchWrapperMark{
+public class CompositeMethodWrapper extends CompositeMethod implements DispatchWrapper{
     CompositeMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -50,6 +50,11 @@ public class CompositeMethodWrapper extends CompositeMethod implements DispatchW
 
     public IBoundMethodNode getMethodBodyBoundNode() {
         return delegate.getMethodBodyBoundNode();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public IMemberMetaInfo getInfo() {

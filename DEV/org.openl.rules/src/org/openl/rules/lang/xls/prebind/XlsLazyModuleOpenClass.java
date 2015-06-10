@@ -60,4 +60,9 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             super.addField(field);
         }
     }
+    
+    @Override
+    protected IOpenMethod decorateForMultimoduleDispatching(IOpenMethod openMethod) {
+        return openMethod;
+    }
 }

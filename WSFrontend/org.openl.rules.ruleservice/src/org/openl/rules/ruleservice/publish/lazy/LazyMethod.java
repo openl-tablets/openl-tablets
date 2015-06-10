@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
@@ -61,6 +62,9 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 lastCompiledOpenClass = compiledOpenClass;
                 IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
                 lastOpenMethod = compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
+                if (lastOpenMethod instanceof DispatchWrapper){
+                    lastOpenMethod = ((DispatchWrapper) lastOpenMethod).getDelegate();
+                }
                 return lastOpenMethod;
             }finally{
                 readWriteLock.writeLock().unlock();

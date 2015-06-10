@@ -36,10 +36,12 @@ import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapperMark;
+import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.TableMethodDelegate;
+import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TestSuiteMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -195,19 +197,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return (XlsMetaInfo) metaInfo;
     }
 
-    private IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
+    protected IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
                                                                                           // fix
                                                                                           // for
                                                                                           // mul1ti-module
-        if (openMethod instanceof DispatchWrapperMark || openMethod instanceof TestSuiteMethod || openMethod instanceof MatchingOpenMethodDispatcher) {
+        if (openMethod instanceof DispatchWrapper || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
-        /*if (openMethod instanceof OverloadedMethodsDispatcherTable) {
+        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
             return new OverloadedMethodsDispatcherTableWrapper(this, (OverloadedMethodsDispatcherTable) openMethod);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(this, (MatchingOpenMethodDispatcher) openMethod);
-        }*/
+        }
         if (openMethod instanceof DeferredMethod) {
             return new DeferredMethodWrapper(this, (DeferredMethod) openMethod);
         }
@@ -236,7 +238,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             return new SpreadsheetWrapper(this, (Spreadsheet) openMethod);
         }
         if (openMethod instanceof TableMethod) {
-            return new TableMethodDelegate(this, (TableMethod) openMethod);
+            return new TableMethodWrapper(this, (TableMethod) openMethod);
         }
 
         if (openMethod instanceof JavaOpenMethod) {

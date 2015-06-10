@@ -23,7 +23,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapperMark{
+public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapper{
     Spreadsheet delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -35,6 +35,11 @@ public class SpreadsheetWrapper extends Spreadsheet implements DispatchWrapperMa
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return DispatcherLogic.dispatch(xlsModuleOpenClass, delegate, target, params, env);
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public String toString() {
