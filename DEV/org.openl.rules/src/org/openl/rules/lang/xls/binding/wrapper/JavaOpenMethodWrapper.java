@@ -8,7 +8,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWrapperMark{
+public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWrapper{
     JavaOpenMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -24,6 +24,11 @@ public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWra
 
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public String getDisplayName(int mode) {

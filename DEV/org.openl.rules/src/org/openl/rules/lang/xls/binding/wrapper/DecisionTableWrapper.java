@@ -23,7 +23,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTableWrapper extends DecisionTable implements DispatchWrapperMark{
+public class DecisionTableWrapper extends DecisionTable implements DispatchWrapper{
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -40,6 +40,11 @@ public class DecisionTableWrapper extends DecisionTable implements DispatchWrapp
         return delegate.getDeclaringClass();
     }
 
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
+    }
+    
     public IOpenMethodHeader getHeader() {
         return delegate.getHeader();
     }

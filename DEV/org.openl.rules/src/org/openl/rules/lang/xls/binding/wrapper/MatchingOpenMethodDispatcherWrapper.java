@@ -11,7 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher implements DispatchWrapperMark{
+public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher implements DispatchWrapper{
     MatchingOpenMethodDispatcher delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -34,6 +34,11 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
 
     public IMethodSignature getSignature() {
         return delegate.getSignature();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public IOpenClass getDeclaringClass() {

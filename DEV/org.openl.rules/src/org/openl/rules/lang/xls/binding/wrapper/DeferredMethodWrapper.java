@@ -11,7 +11,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DeferredMethodWrapper extends DeferredMethod implements DispatchWrapperMark{
+public class DeferredMethodWrapper extends DeferredMethod implements DispatchWrapper{
     DeferredMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -29,6 +29,11 @@ public class DeferredMethodWrapper extends DeferredMethod implements DispatchWra
         return delegate.getDeclaringClass();
     }
 
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
+    }
+    
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }

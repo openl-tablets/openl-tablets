@@ -17,7 +17,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmWrapper extends Algorithm implements DispatchWrapperMark{
+public class AlgorithmWrapper extends Algorithm implements DispatchWrapper{
     Algorithm delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -44,6 +44,11 @@ public class AlgorithmWrapper extends Algorithm implements DispatchWrapperMark{
 
     public IOpenMethodHeader getHeader() {
         return delegate.getHeader();
+    }
+
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public String getTableUri() {

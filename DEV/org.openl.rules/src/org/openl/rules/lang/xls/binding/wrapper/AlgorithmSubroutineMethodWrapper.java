@@ -18,7 +18,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements DispatchWrapperMark{
+public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements DispatchWrapper{
     AlgorithmSubroutineMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -38,6 +38,11 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
 
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
+    }
+    
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     public String getDisplayName(int mode) {
