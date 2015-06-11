@@ -2,6 +2,7 @@ package org.openl.util.math;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
@@ -1662,7 +1663,7 @@ public class MathUtils {
         if (number == null || divisor == null) {
             return null;
         }
-        return number.divide(divisor, 5, RoundingMode.HALF_UP);
+        return number.divide(divisor, MathContext.DECIMAL128);
     }
 
     public static BigInteger divide(BigInteger number, BigInteger divisor) {
