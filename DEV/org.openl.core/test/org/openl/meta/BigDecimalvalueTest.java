@@ -83,6 +83,20 @@ public class BigDecimalvalueTest {
     }
 
     @Test
+    public void testDivide1_31() {
+        BigDecimalValue result = BigDecimalValue.divide(new BigDecimalValue("1"), new BigDecimalValue("31"));
+        assertEquals(new BigDecimalValue("0.03225806451612903225806451612903226"), result);
+        assertEquals(new BigDecimalValue("0.03"), result);
+    }
+
+    @Test
+    public void testDivide1_3() {
+        BigDecimalValue result = BigDecimalValue.divide(new BigDecimalValue("1"), new BigDecimalValue("3000000"));
+        assertEquals(new BigDecimalValue("0.0000003333333333333333333333333333333333"), result);
+        assertEquals(new BigDecimalValue("0.0000003"), result);
+    }
+
+    @Test
     public void testMin() {
         BigDecimalValue[] la = getTestArray();
         assertEquals(new BigDecimalValue("5.23"), BigDecimalValue.min(la));

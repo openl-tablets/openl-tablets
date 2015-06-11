@@ -14,6 +14,8 @@ import org.openl.util.math.MathUtils;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -263,7 +265,7 @@ public class Operators {
     }
     
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
-        return MathUtils.divide(x, y);
+        return x.divide(y, MathContext.DECIMAL128);
     }
 
     // Equals
