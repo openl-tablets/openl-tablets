@@ -85,6 +85,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
+    
+    private boolean dispatchingValidationEnabled;
 
     private Collection<String> imports = new HashSet<String>();
 
@@ -93,8 +95,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
-            boolean useDescisionTableDispatcher) {
-        this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
+            boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
+        this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher, dispatchingValidationEnabled);
     }
 
     /**
@@ -107,11 +109,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
-            boolean useDescisionTableDispatcher) {
-        super(schema, name, openl, usingModules);
+            boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
+        super(schema, name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+        this.dispatchingValidationEnabled = dispatchingValidationEnabled;
+        if (usingModules != null) {
+            setDependencies(usingModules);
+            initDependencies();
+        }
         initImports(metaInfo.getXlsModuleNode());
         additionalInitDependencies(); // Required for data tables.
     }
@@ -201,6 +208,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return (XlsMetaInfo) metaInfo;
     }
 
+    protected IOpenMethod undecorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
+        // fix
+        // for
+        // mul1ti-module
+        if (openMethod instanceof DispatchWrapper){
+            DispatchWrapper dispatchWrapper = (DispatchWrapper) openMethod;
+            return dispatchWrapper.getDelegate();
+        }
+        return openMethod;
+    }
+    
     protected IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
                                                                                           // fix
                                                                                           // for
@@ -318,8 +336,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     decorator.addMethod(m);
                 } else {
                     if (m != existedMethod) {
-                        OpenMethodDispatcher dispatcher = createDispatcherMethod(existedMethod, key);
-                        dispatcher.addMethod(m);
+                        OpenMethodDispatcher dispatcher = addDispatcherMethod(existedMethod, key);
+                        dispatcher.addMethod(undecorateForMultimoduleDispatching(m));
                     }
                 }
             } catch (DuplicatedMethodException e) {
@@ -359,8 +377,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod) {
                 methodMap().put(key, m);
             } else {
-                IOpenMethod decoratedMethod = decorateForMultimoduleDispatching(m);
-                methodMap().put(key, decoratedMethod);
+                if (dispatchingValidationEnabled){
+                    addDispatcherMethod(m, key);
+                }else{
+                    methodMap().put(key, m);
+                }
             }
         }
     }
@@ -396,11 +417,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private OpenMethodDispatcher createDispatcherMethod(IOpenMethod method, MethodKey key) {
+    private OpenMethodDispatcher addDispatcherMethod(IOpenMethod method, MethodKey key) {
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
-        IOpenMethod decorated = decorateForMultimoduleDispatching(method);
+        IOpenMethod decorated = undecorateForMultimoduleDispatching(method);
         if (useDescisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(decorated, this);
         } else {

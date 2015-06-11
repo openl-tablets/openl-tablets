@@ -2,8 +2,6 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IDynamicObject;
@@ -70,9 +68,9 @@ public final class DispatcherLogic {
                         return matchedMethod.invoke(target, params, env);
                     }
                 } else {
-                    if (!(delegate instanceof MatchingOpenMethodDispatcher || delegate instanceof OverloadedMethodsDispatcherTable)) {
-                        simpleRulesRuntimeEnv.setInvokedFromTop(false);
-                    }
+                    //if (!(delegate instanceof MatchingOpenMethodDispatcher || delegate instanceof OverloadedMethodsDispatcherTable)) {
+                    simpleRulesRuntimeEnv.setInvokedFromTop(false);
+                    //}
                 }
             }
         }
