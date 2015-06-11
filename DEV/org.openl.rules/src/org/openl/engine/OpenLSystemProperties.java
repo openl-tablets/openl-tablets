@@ -11,6 +11,7 @@ public class OpenLSystemProperties {
     public static final String RUN_TESTS_IN_PARALLEL = "test.run.parallel";
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
     public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
+    public static final String DISPATCHING_VALIDATION = "dispatching.validation";
     public static final String DISPATCHING_MODE_JAVA = "java";
     public static final String DISPATCHING_MODE_DT = "dt";
 
@@ -49,6 +50,16 @@ public class OpenLSystemProperties {
             dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
         }
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_DT);
+    }
+    
+    public static boolean isDispatchingValidationEnabled(Map<String, Object> externalParameters) {
+        String dispatchingValidation = null;
+        if (externalParameters != null && externalParameters.containsKey(DISPATCHING_VALIDATION)) {
+            dispatchingValidation = externalParameters.get(DISPATCHING_VALIDATION).toString();
+        } else {
+            dispatchingValidation = System.getProperty(DISPATCHING_VALIDATION);
+        }
+        return BooleanUtils.toBoolean(dispatchingValidation);
     }
 
     public static boolean isRunTestsInParallel(Map<String, Object> externalParameters) {

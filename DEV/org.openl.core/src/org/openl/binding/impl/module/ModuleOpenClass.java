@@ -80,7 +80,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Populate current module fields with data from dependent modules. 
      */
-    private void initDependencies() {
+    protected void initDependencies() {
         for (CompiledDependency dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.

@@ -71,7 +71,8 @@ public class XlsPreBinder extends XlsBinder {
                 openl,
                 dbase,
                 prebindHandler,
-                moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
+                moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
+                OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())));
 
         processErrors(module.getErrors(), moduleNode, bindingContext);
 
