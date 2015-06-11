@@ -408,7 +408,7 @@ public class XlsBinder implements IOpenBinder {
                                                        Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
+                openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
         processErrors(module.getErrors(), moduleNode, bindingContext);
         return module;
     }
