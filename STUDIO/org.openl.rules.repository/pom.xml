@@ -28,5 +28,9 @@
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
     </dependencies>
 </project>
