@@ -25,7 +25,7 @@ public class CompositeMethodWrapper extends CompositeMethod implements DispatchW
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, delegate, target, params, env);
+        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
     }
 
     public String toString() {

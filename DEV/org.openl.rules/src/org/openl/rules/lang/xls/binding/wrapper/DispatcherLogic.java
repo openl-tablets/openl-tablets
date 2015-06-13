@@ -15,7 +15,7 @@ public final class DispatcherLogic {
     }
     
 
-    public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass, IOpenMethod delegate, Object target, Object[] params, IRuntimeEnv env) {
+    public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass, DispatchWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv){
             TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
@@ -52,28 +52,19 @@ public final class DispatcherLogic {
                     throw new IllegalStateException("Can't define openl class from target object");
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
-                return delegate.invoke(target, params, env);
+                return wrapper.getDelegate().invoke(target, params, env);
             } finally {
                 simpleRulesRuntimeEnv.setTopClass(null);
-                simpleRulesRuntimeEnv.setInvokedFromTop(false);
             }
         } else {
-            boolean f = simpleRulesRuntimeEnv.isInvokedFromTop();
             if (topClass != xlsModuleOpenClass) {
-                if (!f) {
-                    IOpenMethod matchedMethod = topClass.getMatchingMethod(delegate.getName(), delegate.getSignature()
-                        .getParameterTypes());
-                    if (matchedMethod != null) {
-                        simpleRulesRuntimeEnv.setInvokedFromTop(true);
-                        return matchedMethod.invoke(target, params, env);
-                    }
-                } else {
-                    //if (!(delegate instanceof MatchingOpenMethodDispatcher || delegate instanceof OverloadedMethodsDispatcherTable)) {
-                    simpleRulesRuntimeEnv.setInvokedFromTop(false);
-                    //}
+                IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(), wrapper.getDelegate().getSignature()
+                    .getParameterTypes());
+                if (matchedMethod != null && matchedMethod != wrapper){
+                    return matchedMethod.invoke(target, params, env);
                 }
             }
         }
-        return delegate.invoke(target, params, env);
+        return wrapper.getDelegate().invoke(target, params, env);
     }
 }
