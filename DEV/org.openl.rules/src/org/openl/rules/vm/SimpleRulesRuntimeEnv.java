@@ -300,15 +300,5 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         this.topClass = topClass;
     }
     
-    public boolean isInvokedFromTop() {
-        return invokedFromTop;
-    }
-    
-    public void setInvokedFromTop(boolean invokedFromTop) {
-        this.invokedFromTop = invokedFromTop;
-    }
-    
     private IOpenClass topClass;
-    
-    private boolean invokedFromTop;
 }
