@@ -1,13 +1,13 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.prebind.LazyWrapper;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 
@@ -62,6 +62,9 @@ public final class DispatcherLogic {
             if (topClass != xlsModuleOpenClass) {
                 IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(), wrapper.getDelegate().getSignature()
                     .getParameterTypes());
+                while (matchedMethod instanceof LazyWrapper){
+                    matchedMethod = ((LazyWrapper) matchedMethod).getCompiledMethod(simpleRulesRuntimeEnv);
+                }
                 if (matchedMethod != null && matchedMethod != wrapper){
                     if (matchedMethod instanceof MethodDelegator){
                         MethodDelegator castingMethodCaller = (MethodDelegator) matchedMethod;
