@@ -7,6 +7,8 @@ import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 
 public final class DispatcherLogic {
@@ -61,7 +63,14 @@ public final class DispatcherLogic {
                 IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(), wrapper.getDelegate().getSignature()
                     .getParameterTypes());
                 if (matchedMethod != null && matchedMethod != wrapper){
-                    return matchedMethod.invoke(target, params, env);
+                    if (matchedMethod instanceof MethodDelegator){
+                        MethodDelegator castingMethodCaller = (MethodDelegator) matchedMethod;
+                        if (castingMethodCaller.getMethod() != wrapper){
+                            return matchedMethod.invoke(target, params, env);
+                        }
+                    }else{
+                        return matchedMethod.invoke(target, params, env);
+                    }
                 }
             }
         }
