@@ -1,19 +1,15 @@
 package org.openl.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class StringTool {
 
@@ -516,28 +512,27 @@ public class StringTool {
     }
 
     /**
-     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape
+     * Split the string by the splitSymbol. To avoid splitting escapeSymbol
      * is used. Trims the splitted result. For examples see tests.
      * 
      * @param src source to process. Can`t be <code>null</code>.
-     * @param symbolToSplit the delimiting symbol. Can`t be <code>null</code>.
-     * @param symbolToEscape the escaper, that is used to break splitting by
-     *            symbolToSplit. If <code>null</code>, the symbolToSplit array
+     * @param splitSymbol the delimiting symbol. Can`t be <code>null</code>.
+     * @param escapeSymbol the escaper, that is used to break splitting by
+     *            splitSymbol. If <code>null</code>, the splitSymbol array
      *            will be returned.
      * @return the array of strings computed by splitting this string around
-     *         matches of the given symbolToSplit and escaped by escaper.
+     *         matches of the given splitSymbol and escaped by escaper.
      */
-    public static String[] splitAndEscape(String src, String symbolToSplit, String symbolToEscape) {
-        String[] result = null;
-        String[] tokens = src.split(symbolToSplit);
+    public static String[] splitAndEscape(String src, String splitSymbol, String escapeSymbol) {
+        String[] result;
+        String[] tokens = src.split(splitSymbol);
         List<String> resultList = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
-        if (symbolToEscape != null) {
+        if (escapeSymbol != null) {
             for (int i = 0; i < tokens.length; i++) {
-                if (tokens[i].endsWith(symbolToEscape)) {
-                    tokens[i] = tokens[i].trim();
-                    String tokenWithoutEscaper = tokens[i].substring(0, tokens[i].length() - 1);
-                    buf.append(tokenWithoutEscaper).append(symbolToSplit);
+                if (tokens[i].endsWith(escapeSymbol)) {
+                    String noEscapeToken = tokens[i].substring(0, tokens[i].length() - 1);
+                    buf.append(noEscapeToken).append(splitSymbol);
                 } else {
                     if (buf.length() == 0) {
                         tokens[i] = tokens[i].trim();

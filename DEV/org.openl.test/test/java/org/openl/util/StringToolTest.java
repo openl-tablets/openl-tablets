@@ -3,15 +3,14 @@
  */
 package org.openl.util;
 
+import junit.framework.TestCase;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-
-import org.junit.Assert;
-import junit.framework.TestCase;
 
 /**
  * @author snshor
@@ -434,7 +433,16 @@ public class StringToolTest extends TestCase {
         String escaper = "\\";        
         String[] escapedTokens = StringTool.splitAndEscape("Hello! I want to split it, Right , Lets Do it", COMMA, escaper);
         assertTrue(escapedTokens.length == 3);
-                
+        assertTrue("Hello! I want to split it".equals(escapedTokens[0]));
+        assertTrue("Right".equals(escapedTokens[1]));
+        assertTrue("Lets Do it".equals(escapedTokens[2]));
+
+        String[] escapedTokens01 = StringTool.splitAndEscape("    Hello! I want to split it, Right , Lets Do it    ", COMMA, escaper);
+        assertTrue(escapedTokens01.length == 3);
+        assertTrue("Hello! I want to split it".equals(escapedTokens01[0]));
+        assertTrue("Right".equals(escapedTokens01[1]));
+        assertTrue("Lets Do it".equals(escapedTokens01[2]));
+
         String[] escapedTokens1 = StringTool.splitAndEscape("Hello! I want to split it\\, Right,Lets Do it", COMMA, escaper);
         assertTrue(escapedTokens1.length == 2);
         assertTrue("Hello! I want to split it, Right".equals(escapedTokens1[0]));
@@ -459,10 +467,20 @@ public class StringToolTest extends TestCase {
         assertTrue("456".equals(escapedTokens4[1]));
         
         String[] escapedTokens5 = StringTool.splitAndEscape("Spencer\\, Sara's Son, Sara", COMMA, escaper);
-        assertNotNull(escapedTokens4);
+        assertNotNull(escapedTokens5);
         assertTrue(escapedTokens5.length == 2);
         assertTrue("Spencer, Sara's Son".equals(escapedTokens5[0]));
         assertTrue("Sara".equals(escapedTokens5[1]));
+
+        String[] escapedTokens6 = StringTool.splitAndEscape("Trucks\\, Tractors\\, And Trailers Zone Rated", COMMA, escaper);
+        assertNotNull(escapedTokens6);
+        assertTrue(escapedTokens6.length == 1);
+        assertTrue("Trucks, Tractors, And Trailers Zone Rated".equals(escapedTokens6[0]));
+
+        String[] escapedTokens7 = StringTool.splitAndEscape("  Trucks  \\, Tractors  \\, And Trailers Zone Rated", COMMA, escaper);
+        assertNotNull(escapedTokens7);
+        assertTrue(escapedTokens7.length == 1);
+        assertTrue("  Trucks  , Tractors  , And Trailers Zone Rated".equals(escapedTokens7[0]));
     }
     
     @Test
