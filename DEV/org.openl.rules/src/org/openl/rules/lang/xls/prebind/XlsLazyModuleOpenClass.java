@@ -7,6 +7,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
@@ -65,6 +66,9 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     
     @Override
     protected IOpenMethod decorateForMultimoduleDispatching(IOpenMethod openMethod) {
+        if (openMethod instanceof OpenMethodDispatcher){
+            return super.decorateForMultimoduleDispatching(openMethod);
+        }
         return openMethod;
     }
 }
