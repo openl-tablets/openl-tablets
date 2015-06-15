@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
+import org.openl.rules.lang.xls.prebind.LazyWrapper;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod, LazyWrapper {
     private String methodName;
 
     private Class<?>[] argTypes;
@@ -62,9 +62,6 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 lastCompiledOpenClass = compiledOpenClass;
                 IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
                 lastOpenMethod = compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
-                if (lastOpenMethod instanceof DispatchWrapper){
-                    lastOpenMethod = ((DispatchWrapper) lastOpenMethod).getDelegate();
-                }
                 return lastOpenMethod;
             }finally{
                 readWriteLock.writeLock().unlock();
@@ -76,6 +73,11 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
 
     public IMethodSignature getSignature() {
         return getOriginal().getSignature();
+    }
+    
+    @Override
+    public IOpenMethod getCompiledMethod(IRuntimeEnv env) {
+        return getMember(env);
     }
 
     @Override
