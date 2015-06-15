@@ -317,7 +317,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             try {
                 if (existedMethod instanceof OpenMethodDispatcher) {
                     OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                    decorator.addMethod(m);
+                    decorator.addMethod(undecorateForMultimoduleDispatching(m));
                 } else {
                     if (m != existedMethod) {
                         OpenMethodDispatcher dispatcher = addDispatcherMethod(existedMethod, key);
