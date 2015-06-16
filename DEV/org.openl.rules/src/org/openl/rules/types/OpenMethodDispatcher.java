@@ -16,7 +16,7 @@ import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
-import org.openl.rules.lang.xls.prebind.LazyWrapper;
+import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
@@ -25,6 +25,7 @@ import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.*;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 
@@ -201,9 +202,16 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             throw new OpenLRuntimeException(message);
         }
 
-        while (method instanceof LazyWrapper){
-            method = ((LazyWrapper) method).getCompiledMethod(env);
+        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
+            if (method instanceof LazyMethodWrapper) {
+                method = ((LazyMethodWrapper) method).getCompiledMethod(env);
+            }
+            if (method instanceof MethodDelegator) {
+                MethodDelegator methodDelegator = (MethodDelegator) method;
+                method = methodDelegator.getMethod();
+            }
         }
+        
         if (method instanceof DispatchWrapper){
             method = ((DispatchWrapper) method).getDelegate();
         }
