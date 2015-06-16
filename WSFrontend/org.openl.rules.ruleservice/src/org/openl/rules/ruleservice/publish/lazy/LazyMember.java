@@ -36,7 +36,8 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private boolean executionMode;
     private T original;
     private Map<String, Object> externalParameters;
-
+    private CompiledOpenClass compiledOpenClass;
+    
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -65,7 +66,13 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 module.getName(),
                 null));
         String dependencyName = dependency.getNode().getIdentifier();
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+        if (compiledOpenClass == null){
+            synchronized (this) {
+                if (compiledOpenClass == null){
+                    compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+                }
+            }
+        }
         if (compiledOpenClass != null) {
             if (log.isDebugEnabled()){
                 log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
