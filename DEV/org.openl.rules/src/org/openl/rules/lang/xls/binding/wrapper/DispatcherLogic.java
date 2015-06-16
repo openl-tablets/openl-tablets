@@ -1,7 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.prebind.LazyWrapper;
+import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.OpenLInvocationHandler;
@@ -15,20 +15,23 @@ public final class DispatcherLogic {
 
     private DispatcherLogic() {
     }
-    
 
-    public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass, DispatchWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
+    public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass,
+            DispatchWrapper wrapper,
+            Object target,
+            Object[] params,
+            IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
-        if (env instanceof TBasicContextHolderEnv){
+        if (env instanceof TBasicContextHolderEnv) {
             TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
             env1 = tBasicContextHolderEnv.getEnv();
-            while (env1 instanceof TBasicContextHolderEnv){
+            while (env1 instanceof TBasicContextHolderEnv) {
                 tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
                 env1 = tBasicContextHolderEnv.getEnv();
             }
         }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
-        
+
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
             try {
@@ -60,20 +63,21 @@ public final class DispatcherLogic {
             }
         } else {
             if (topClass != xlsModuleOpenClass) {
-                IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(), wrapper.getDelegate().getSignature()
-                    .getParameterTypes());
-                while (matchedMethod instanceof LazyWrapper){
-                    matchedMethod = ((LazyWrapper) matchedMethod).getCompiledMethod(simpleRulesRuntimeEnv);
-                }
-                if (matchedMethod != null && matchedMethod != wrapper){
-                    if (matchedMethod instanceof MethodDelegator){
-                        MethodDelegator castingMethodCaller = (MethodDelegator) matchedMethod;
-                        if (castingMethodCaller.getMethod() != wrapper){
-                            return matchedMethod.invoke(target, params, env);
+                IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(),
+                    wrapper.getDelegate().getSignature().getParameterTypes());
+                if (matchedMethod != null) {
+                    while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
+                        if (matchedMethod instanceof LazyMethodWrapper) {
+                            matchedMethod = ((LazyMethodWrapper) matchedMethod).getCompiledMethod(simpleRulesRuntimeEnv);
                         }
-                    }else{
-                        return matchedMethod.invoke(target, params, env);
+                        if (matchedMethod instanceof MethodDelegator) {
+                            MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
+                            matchedMethod = methodDelegator.getMethod();
+                        }
                     }
+                    if (matchedMethod != wrapper) {
+                        return matchedMethod.invoke(target, params, env);
+                    } 
                 }
             }
         }

@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.lang.xls.prebind.LazyWrapper;
+import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod, LazyWrapper {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod, LazyMethodWrapper {
     private String methodName;
 
     private Class<?>[] argTypes;
