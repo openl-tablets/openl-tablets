@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -78,7 +81,10 @@ public class FormattersManagerTest {
         assertEquals("2", FormattersManager.format(BigDecimal.valueOf(2)));
         assertEquals("true", FormattersManager.format(true));
         assertEquals("1.2105263157894737", FormattersManager.format(23d / 19d));
-        assertEquals("07/12/1980", FormattersManager.format(new Date(332222444400L)));
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.ROOT);
+        cal.set(1980,6,12);
+        System.out.println(cal.getTime().getTime());
+        assertEquals("07/12/1980", FormattersManager.format(cal.getTime()));
         assertEquals("foo,bar", FormattersManager.format(new String[]{"foo", "bar"}));
         assertEquals("Object(id=0)[]", FormattersManager.format(new Object()));
         assertEquals("Arrays$ArrayList<String>{BAR, FOO}", FormattersManager.format(Arrays.asList("BAR", "FOO")));
