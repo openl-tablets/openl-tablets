@@ -67,7 +67,7 @@
         <tag>HEAD</tag>
     </scm>
     <properties>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springsecurity.version>3.2.4.RELEASE</org.springsecurity.version>
@@ -84,7 +84,7 @@
         <!-- By default empty mercurial revision hash -->
         <changeSet />
         <!-- By default empty mercurial revision url -->
-        <changeSetUrlPrefix />
+        <changeSetUrlPrefix>https://sourceforge.net/p/openl-tablets/openl/ci/</changeSetUrlPrefix>
     </properties>
     <modules>
         <module>DEV</module>
