@@ -25,6 +25,7 @@ import org.openl.rules.dt2.IDecisionTableConstants;
 import org.openl.rules.dt2.storage.IStorage;
 import org.openl.rules.dt2.storage.IStorageBuilder;
 import org.openl.rules.dt2.storage.StorageFactory;
+import org.openl.rules.dt2.storage.StorageInfo;
 import org.openl.rules.dtx.IDecisionTableParameterInfo;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -609,6 +610,12 @@ public abstract class FunctionalRow implements IDecisionRow {
 				return true;
 		}
 		return false;
+	}
+	
+	
+	public StorageInfo getStorageInfo(int paramN)
+	{
+		return storage[paramN].getInfo();
 	}
 
 }
