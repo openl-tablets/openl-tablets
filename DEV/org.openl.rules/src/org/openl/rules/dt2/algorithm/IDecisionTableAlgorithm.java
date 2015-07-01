@@ -13,6 +13,8 @@ public interface IDecisionTableAlgorithm {
 
 	IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
 			IDecisionTableTraceObject traceObject);
-
+	
+	
+	
 
 }
