@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules.demo</groupId>
     <artifactId>org.openl.rules.demo-pom</artifactId>
-  <version>5.15.1</version>
+  <version>5.15.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>OpenL Tablets - DEMO - POM</name>
     <description>OpenL Tablets Demo (zip) Base POM</description>
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.15.1</version>
+        <version>5.15.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modules>
@@ -24,22 +24,22 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules</artifactId>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.calculation.result</artifactId>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.variation</artifactId>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules.demo</groupId>
@@ -51,12 +51,12 @@
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openl</groupId>
                 <artifactId>org.openl.commons</artifactId>
-                <version>5.15.1</version>
+                <version>5.15.2-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
