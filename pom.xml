@@ -74,7 +74,7 @@
         <org.hibernate.version>4.3.5.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.0.3</org.apache.cxf.version>
+        <org.apache.cxf.version>3.1.1</org.apache.cxf.version>
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <org.apache.poi.version>3.12</org.apache.poi.version>
@@ -411,7 +411,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>1.9.5</version>
+                <version>1.10.19</version>
                 <scope>test</scope>
             </dependency>
             <!-- Build tool -->
@@ -425,6 +425,17 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
             </dependency>
             <!-- Apache Commons DBCP software implements Database Connection Pooling -->
             <dependency>
