@@ -14,7 +14,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IParameterDeclaration;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -78,15 +77,6 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      */
     public int getNumberOfParameters() {
         return getParameterTypes().length;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IMethodSignature#getParameterDirection(int)
-     */
-    public int getParameterDirection(int i) {
-        return IParameterDeclaration.IN;
     }
 
     /*

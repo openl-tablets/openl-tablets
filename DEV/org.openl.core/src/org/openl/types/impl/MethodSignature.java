@@ -58,10 +58,6 @@ public class MethodSignature implements IMethodSignature {
         return parameters.length;
     }
 
-    public int getParameterDirection(int i) {
-        return parameters[i].getDirection();
-    }
-
     public String getParameterName(int i) {
         return parameters[i].getName();
     }

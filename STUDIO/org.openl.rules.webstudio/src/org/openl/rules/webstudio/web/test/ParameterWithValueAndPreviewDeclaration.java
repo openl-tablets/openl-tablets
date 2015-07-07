@@ -7,7 +7,7 @@ public class ParameterWithValueAndPreviewDeclaration extends ParameterWithValueD
     private final IOpenField previewField;
 
     public ParameterWithValueAndPreviewDeclaration(ParameterWithValueDeclaration delegate, IOpenField previewField) {
-        super(delegate.getName(), delegate.getValue(), delegate.getType(), delegate.getDirection());
+        super(delegate.getName(), delegate.getValue(), delegate.getType());
         this.previewField = previewField;
     }
 
