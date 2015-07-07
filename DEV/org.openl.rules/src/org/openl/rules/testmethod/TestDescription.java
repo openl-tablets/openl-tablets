@@ -8,7 +8,6 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DynamicObject;
 import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
@@ -148,8 +147,8 @@ public class TestDescription {
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
             executionParams[i] = new ParameterWithValueDeclaration(paramName,
                     paramValue,
-                    paramType,
-                    IParameterDeclaration.IN);
+                    paramType
+            );
         }
         return executionParams;
     }

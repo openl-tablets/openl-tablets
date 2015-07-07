@@ -11,7 +11,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.types.IParameterDeclaration;
 
 public final class TestUtils {
 
@@ -27,7 +26,7 @@ public final class TestUtils {
 
                 Object value = context != null ? context.getValue(columnName.replace(TestMethodHelper.CONTEXT_NAME + ".", "")) : null;
 
-                params.add(new ParameterWithValueDeclaration(columnName, value, IParameterDeclaration.IN));
+                params.add(new ParameterWithValueDeclaration(columnName, value));
             }
         }
 

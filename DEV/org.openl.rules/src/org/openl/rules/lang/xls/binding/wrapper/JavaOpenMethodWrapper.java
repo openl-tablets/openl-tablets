@@ -51,10 +51,6 @@ public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWra
         return delegate.getNumberOfParameters();
     }
 
-    public int getParameterDirection(int i) {
-        return delegate.getParameterDirection(i);
-    }
-
     public String getParameterName(int i) {
         return delegate.getParameterName(i);
     }
