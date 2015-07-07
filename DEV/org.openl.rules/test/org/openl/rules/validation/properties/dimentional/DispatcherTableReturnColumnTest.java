@@ -1,9 +1,5 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -11,83 +7,59 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class DispatcherTableReturnColumnTest {
-    
+
     @Test
     public void testGetparameterDeclaration() {
-        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
-        IOpenClass originalReturnType = JavaOpenClass.FLOAT;
-        retColumn.setOriginalReturnType(originalReturnType);
-        
+        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("float result", retColumn.getParameterDeclaration());
-        
-        retColumn.setOriginalReturnType(NullOpenClass.the);
+
+        retColumn = createDTColumn(NullOpenClass.the, null);
         assertEquals("null-Class result", retColumn.getParameterDeclaration());
     }
-    
-    @Test 
+
+    @Test
     public void testGetCodeExpression() {
-        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
+        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("result", retColumn.getCodeExpression());
     }
-    
+
     @Test
     public void testGetTitle() {
-        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
+        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("RESULT", retColumn.getTitle());
     }
-    
+
     @Test
-    public void testGetOriginalParamsThroughComma() {
-        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
-        IMethodSignature signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.FLOAT});
-        retColumn.setOriginalSignature(signature);
-        
-        assertEquals(String.format("%1$sp0, %1$sp1", TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE),
-            retColumn.originalParamsThroughComma());
-        
+    public void testGetRuleValue() {
+        MethodSignature signature = new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.FLOAT });
+        IDecisionTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
+        assertEquals("=aMethod$3(arg_p0, arg_p1)", retColumn.getRuleValue(3, 5));
+
         signature = new MethodSignature(new IOpenClass[0]);
-        retColumn.setOriginalSignature(signature);
-        assertEquals(StringUtils.EMPTY, retColumn.originalParamsThroughComma());
+        retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
+        assertEquals("=aMethod$7()", retColumn.getRuleValue(7, 9));
     }
-    
+
     @Test
     public void testParamsThroughComma() {
-        DispatcherTableReturnColumn retColumn = new DispatcherTableReturnColumn();
-        IMethodSignature signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.FLOAT});
-        
-        Map<String, IOpenClass> newIncomeParams = new HashMap<String, IOpenClass>();
-        newIncomeParams.put("field1", JavaOpenClass.STRING);
-        newIncomeParams.put("field2", JavaOpenClass.INT);
-        newIncomeParams.put("field3", JavaOpenClass.DOUBLE);
-        
-        retColumn.setOriginalSignature(signature);
-        retColumn.setNewIncomeParams(newIncomeParams);
-        assertEquals(String.format("String %1$sp0, float %1$sp1, double field3, int field2, String field1",
-            TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE), retColumn.paramsThroughComma());
-        
+        IMethodSignature signature = new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING,
+                JavaOpenClass.FLOAT });
+        IDecisionTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
+        assertEquals("String arg_p0, float arg_p1", retColumn.paramsThroughComma());
+
         // check with empty signature
         //
-        retColumn.setOriginalSignature(new MethodSignature(new IOpenClass[0]));
-        
-        assertEquals("double field3, int field2, String field1", retColumn.paramsThroughComma());
-        
-        // check with empty new income parameters
-        //
-        retColumn.setNewIncomeParams(new HashMap<String, IOpenClass>());
-        signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.DOUBLE, JavaOpenClass.SHORT});
-        retColumn.setOriginalSignature(signature);
-        
-        assertEquals(String.format("double %1$sp0, short %1$sp1",
-            TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE), retColumn.paramsThroughComma());
-        
-        // check with both empty signature and income parameters
-        //        
-        retColumn.setOriginalSignature(new MethodSignature(new IOpenClass[0]));
-        retColumn.setNewIncomeParams(new HashMap<String, IOpenClass>());
-        assertEquals(StringUtils.EMPTY, retColumn.paramsThroughComma());
-        
+        signature = new MethodSignature(new IOpenClass[0]);
+        retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
+
+        assertEquals("", retColumn.paramsThroughComma());
+    }
+
+    private DispatcherTableReturnColumn createDTColumn(IOpenClass type,
+            IMethodSignature signature) {
+        return new DispatcherTableReturnColumn(type, "aMethod", signature);
     }
 }
