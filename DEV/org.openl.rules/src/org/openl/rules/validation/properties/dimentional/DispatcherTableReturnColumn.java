@@ -1,9 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
@@ -37,44 +35,21 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
      */
     private IMethodSignature originalSignature;
     
-    /**
-     * As new income params to newly created dispatcher table are used params from context.
-     */
-    private Map<String, IOpenClass> newIncomeParams;
-    
     private static final String RESULT_VAR = "result";
     
     /**for tests*/
-    protected DispatcherTableReturnColumn () {        
-    }
-    
-    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName, 
-            IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
+    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName,
+            IMethodSignature originalSignature) {
         this.originalReturnType = originalReturnType;
         this.methodName = methodName;
         this.originalSignature = originalSignature;
-        this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
-    public DispatcherTableReturnColumn(MatchingOpenMethodDispatcher dispatcher, 
-            Map<String, IOpenClass> newIncomeParams) {        
-        this(dispatcher.getType(), dispatcher.getName(), 
-            dispatcher.getSignature(), newIncomeParams);        
+    public DispatcherTableReturnColumn(MatchingOpenMethodDispatcher dispatcher) {
+        this(dispatcher.getType(), dispatcher.getName(), dispatcher.getSignature());
     }
     
-    public void setOriginalReturnType(IOpenClass originalReturnType) {
-        this.originalReturnType = originalReturnType;
-    }
-    
-    public void setOriginalSignature(IMethodSignature originalSignature) {
-        this.originalSignature = originalSignature;
-    }
-
-    public void setNewIncomeParams(Map<String, IOpenClass> newIncomeParams) {
-        this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);
-    }
-
-    public String getParameterDeclaration() {        
+    public String getParameterDeclaration() {
         return String.format("%s %s", getReturnType().getDisplayName(0), getCodeExpression());
     }
     
@@ -98,8 +73,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
         return originalReturnType;
     }
     
-    /**protected for tests*/
-    protected String originalParamsThroughComma() {
+    private String originalParamsThroughComma() {
         String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();        
         for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {
@@ -112,26 +86,6 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     }
 
     public String paramsThroughComma() {
-        List<String> values = new ArrayList<String>();
-        String originalParamsThroughComma = originalParamsWithTypesThroughComma();
-        
-        // add original parameters of the method
-        //
-        if (StringUtils.isNotBlank(originalParamsThroughComma)) {
-            values.add(originalParamsThroughComma);
-        }
-        
-        // add new income parameters through comma
-        //
-        String newParamsThroughComma = paramsWithTypesThroughComma(newIncomeParams);
-        if (StringUtils.isNotBlank(newParamsThroughComma)) {
-            values.add(newParamsThroughComma);
-        }
-        
-        return StringTool.listToStringThroughSymbol(values, ",");
-    }
-    
-    private String originalParamsWithTypesThroughComma() {
         String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();        
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) { 
@@ -153,18 +107,6 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
         return result; 
     }
     
-    private String paramsWithTypesThroughComma(Map<String, IOpenClass> params) {    
-        String result = StringUtils.EMPTY;
-        List<String> values = new ArrayList<String>();
-        for (Map.Entry<String, IOpenClass> param : params.entrySet()) {
-            values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
-        }
-        if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughSymbol(values, ",");
-        }        
-        return result; 
-    }
-    
     public int getNumberOfLocalParameters() {
         /**
          * For return column only one local parameter is possible.
@@ -174,10 +116,6 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     
     public String getRuleValue(int ruleIndex) {
         return getRuleValue(ruleIndex, 0);
-    }
-    
-    public boolean isArrayCondition() {
-        return false;
     }
     
     public String getColumnType() {
