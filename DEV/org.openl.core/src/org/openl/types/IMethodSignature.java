@@ -17,10 +17,6 @@ public interface IMethodSignature {
             return 0;
         }
 
-        public int getParameterDirection(int i) {
-            throw new IndexOutOfBoundsException();
-        }
-
         public String getParameterName(int i) {
             throw new IndexOutOfBoundsException();
         }
@@ -38,8 +34,6 @@ public interface IMethodSignature {
     IMethodSignature VOID = new VoidSignature();
 
     int getNumberOfParameters();
-
-    int getParameterDirection(int i);
 
     String getParameterName(int i);
     

@@ -33,7 +33,6 @@ import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IParameterDeclaration;
 import org.openl.vm.trace.ITracerObject;
 
 /**
@@ -107,7 +106,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
             paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                    parameters[i], IParameterDeclaration.IN);
+                    parameters[i]);
         }
         return paramDescriptions;
     }
@@ -116,7 +115,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration returnResult = null;
         Object result = tto.getResult();
         if (result != null) {
-            returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT);
+            returnResult = new ParameterWithValueDeclaration("return", result);
         }
         return returnResult;
     }

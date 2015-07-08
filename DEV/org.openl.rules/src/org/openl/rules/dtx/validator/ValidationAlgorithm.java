@@ -215,8 +215,8 @@ public class ValidationAlgorithm {
                 transformeedParameters.add(paramDeclaration);
             } else {
                 ParameterDeclaration parameter = new ParameterDeclaration(newType,
-                    paramDeclaration.getName(),
-                    paramDeclaration.getDirection());
+                    paramDeclaration.getName()
+                );
 
                 transformeedParameters.add(parameter);
             }
@@ -236,8 +236,8 @@ public class ValidationAlgorithm {
             }
 
             ParameterDeclaration parameter = new ParameterDeclaration(newType,
-                paramDeclarationFromSignature.getName(),
-                paramDeclarationFromSignature.getDirection());
+                paramDeclarationFromSignature.getName()
+            );
 
             parameters.add(parameter);
         }

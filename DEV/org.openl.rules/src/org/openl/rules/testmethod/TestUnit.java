@@ -5,7 +5,6 @@ import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
-import org.openl.types.IParameterDeclaration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,7 @@ public class TestUnit {
     }
 
     public ParameterWithValueDeclaration getActualParam() {
-        return new ParameterWithValueDeclaration("actual", getActualResult(), IParameterDeclaration.OUT);
+        return new ParameterWithValueDeclaration("actual", getActualResult());
     }
 
     public ParameterWithValueDeclaration[] getContextParams(Object objTestResult) {
@@ -87,9 +86,9 @@ public class TestUnit {
                 }
                 for (ComparedResult comparedResult : results) {
                     comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getActualValue(), IParameterDeclaration.OUT));
+                            comparedResult.getFieldName(), comparedResult.getActualValue()));
                     comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getExpectedValue(), IParameterDeclaration.OUT));
+                            comparedResult.getFieldName(), comparedResult.getExpectedValue()));
                     params.add(comparedResult);
                 }
                 return params;
@@ -98,8 +97,8 @@ public class TestUnit {
 
         ComparedResult result = new ComparedResult();
         result.setStatus(TestUnitResultComparator.TestStatus.getConstant(compareResult()));
-        result.setActualValue(new ParameterWithValueDeclaration("actual", actual, IParameterDeclaration.OUT));
-        result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected, IParameterDeclaration.OUT));
+        result.setActualValue(new ParameterWithValueDeclaration("actual", actual));
+        result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected));
         params.add(result);
 
         return params;

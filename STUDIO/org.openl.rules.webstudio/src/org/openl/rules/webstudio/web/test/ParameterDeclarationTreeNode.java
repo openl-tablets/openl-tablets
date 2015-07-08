@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
-import org.openl.types.IParameterDeclaration;
 import org.richfaces.model.TreeNode;
 
 public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDeclaration implements TreeNode {
@@ -18,7 +17,7 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
             Object value,
             IOpenClass fieldType,
             ParameterDeclarationTreeNode parent) {
-        super(fieldName, value, fieldType, IParameterDeclaration.IN);
+        super(fieldName, value, fieldType);
         this.parent = parent;
     }
 

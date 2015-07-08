@@ -14,7 +14,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.impl.MethodSignature;
@@ -42,7 +41,7 @@ public class MethodParametersNode extends ABoundNode {
 
         for (int i = 0; i < len; i++) {
             params[i] = new ParameterDeclaration(children[i].getType(), ((ParameterNode) children[i])
-                    .getName(), IParameterDeclaration.IN);
+                    .getName());
         }
 
         return new MethodSignature(params);

@@ -8,13 +8,13 @@ import org.openl.types.java.JavaOpenClass;
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     private Object value;
     
-    public ParameterWithValueDeclaration(String paramName, Object value, IOpenClass parameterType, int direction) {
-        super(parameterType, paramName, direction);
+    public ParameterWithValueDeclaration(String paramName, Object value, IOpenClass parameterType) {
+        super(parameterType, paramName);
         this.value = value;
     }
 
-    public ParameterWithValueDeclaration(String paramName, Object value, int direction) {
-        super(getParamType(value), paramName, direction);
+    public ParameterWithValueDeclaration(String paramName, Object value) {
+        super(getParamType(value), paramName);
         this.value = value;
     }
     

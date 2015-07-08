@@ -45,6 +45,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,7 +242,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, sheetName,
                 numberOfColumns);
 
-        DispatcherTableReturnColumn returnColumn = getReturnColumn();
+        DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher);
 
         DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
 
@@ -258,13 +259,35 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
         String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2,
                 returnColumn.getReturnType().getDisplayName(0), tableName);
+
         StringBuilder strBuf = new StringBuilder();
         strBuf.append(start);
-        strBuf.append(returnColumn.paramsThroughComma());
+        strBuf.append(getParams(returnColumn));
         strBuf.append(")");
+
 
         return strBuf.toString();
     }
+
+    private String getParams(DispatcherTableReturnColumn returnColumn) {
+        List<String> values = new ArrayList<String>();
+        String originalParamsThroughComma = returnColumn.paramsThroughComma();
+
+        // add original parameters of the method
+        //
+        if (StringUtils.isNotBlank(originalParamsThroughComma)) {
+            values.add(originalParamsThroughComma);
+        }
+
+        // add new income parameters
+        //
+        for (Map.Entry<String, IOpenClass> param : incomeParams.entrySet()) {
+            values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
+        }
+
+        return StringTool.listToStringThroughSymbol(values, ",");
+    }
+
 
     private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods,
                                                      DispatcherTableRules rules) {
@@ -282,10 +305,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             }
         }
         return conditions;
-    }
-
-    private DispatcherTableReturnColumn getReturnColumn() {
-        return new DispatcherTableReturnColumn(dispatcher, incomeParams);
     }
 
     /**
