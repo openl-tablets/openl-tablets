@@ -94,12 +94,25 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
         T step = null;
         List<ColumnToExtract> compoundColumns = conf.getColumnsToExtract(currentNestingLevel);
         List<SpreadsheetColumnExtractor<Q>> extractors = new ArrayList<SpreadsheetColumnExtractor<Q>>();
+        
         boolean isNestedRow = false;
+        int minNestedPriority = -1;
         for (ColumnToExtract column : compoundColumns) {
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(),
                 spreadsheetResult.getColumnNames());
             Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
             if (valueIsNested(valueInColumn)) {
+                if (column.getNestedPriority() > 0 && (column.getNestedPriority() <= minNestedPriority || minNestedPriority == -1)){
+                    minNestedPriority = column.getNestedPriority(); 
+                }
+            }
+        }
+        
+        for (ColumnToExtract column : compoundColumns) {
+            int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(),
+                spreadsheetResult.getColumnNames());
+            Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
+            if (!isNestedRow && minNestedPriority > 0 && minNestedPriority == column.getNestedPriority() && valueIsNested(valueInColumn)) {
                 extractors.add((SpreadsheetColumnExtractor<Q>) conf.initCompoundColumnExtractor(currentNestingLevel,
                     column));
                 isNestedRow = true;
