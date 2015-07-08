@@ -120,20 +120,22 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (serviceClass == null) {
             log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
-            serviceClass = processGeneratedServiceClass(service, instanceClass, serviceClassLoader);
+            serviceClass = processGeneratedServiceClass(instantiationStrategy, service, instanceClass, serviceClassLoader);
             service.setServiceClassName(null); //Generated class is used.
         }
         service.setServiceClass(serviceClass);
     }
 
-    private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
+    private Class<?> processGeneratedServiceClass(RulesInstantiationStrategy instantiationStrategy, OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
         if (resultClass == null) {
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
             Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(resultClass, classLoader);
-            return decoratedClass;
+            Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+                decoratedClass);
+            return interfaceForInstantiationStrategy;
         } catch (Exception e) {
             log.error("Failed to applying custom spreadsheet result convertor for class with name \"{}\"",
                 resultClass.getCanonicalName(),
