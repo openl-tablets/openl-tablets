@@ -27,6 +27,8 @@ public class ColumnToExtract {
     private String columnName;
 
     private Map<String, Class<?>> mapPropertyNameToType = new LinkedHashMap<String, Class<?>>();
+    
+    private int nestedPriority = Integer.MAX_VALUE - 1;
     /**
      * Creates a ColumnToExtract with column name. Requred for nested columns.
      * 
@@ -36,6 +38,11 @@ public class ColumnToExtract {
         this(columnName, columnName, SpreadsheetResult.class);
     }
 
+    public ColumnToExtract(String columnName, Class<?> expectedType, int nestedPriority) {
+        this(columnName, expectedType);
+        this.nestedPriority = nestedPriority;
+    }
+    
     /**
      * Creates a ColumnToExtract with column name and expected type.
      * 
@@ -46,6 +53,11 @@ public class ColumnToExtract {
         this(columnName, columnName, expectedType);
     }
 
+    public ColumnToExtract(String columnName, String propertyName, Class<?> expectedType, int nestedPriority) {
+        this(columnName, propertyName, expectedType);
+        this.nestedPriority = nestedPriority;
+    }
+    
     /**
      * Creates a ColumnToExtract with column name, property name and expected type. Property name is used for storing value into row instance.
      * 
@@ -67,6 +79,11 @@ public class ColumnToExtract {
         this.mapPropertyNameToType.put(propertyName, expectedType);
     }
 
+    public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes, int nestedPriority) {
+        this(columnName, propertyNames, expectedTypes);
+        this.nestedPriority = nestedPriority;
+    }
+    
     /**
      * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for storing value into row instance.
      * If value can't be stored in row instance next property name and expected type is used.
@@ -126,6 +143,10 @@ public class ColumnToExtract {
         return mapPropertyNameToType.keySet().toArray(new String[] {});
     }
 
+    public int getNestedPriority() {
+        return nestedPriority;
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;
