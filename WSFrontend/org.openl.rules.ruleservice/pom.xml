@@ -71,6 +71,11 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <!-- DEV -->
         <dependency>
             <groupId>org.openl</groupId>
