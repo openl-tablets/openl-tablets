@@ -92,8 +92,22 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
     @SuppressWarnings("unchecked")
     private CalculationStep processRow(SpreadsheetResult spreadsheetResult, int row) {
         T step = null;
-        List<ColumnToExtract> compoundColumns = conf.getColumnsToExtract(currentNestingLevel);
+        List<ColumnToExtract> confCompoundColumns = conf.getColumnsToExtract(currentNestingLevel);
+        List<ColumnToExtract> compoundColumns = new ArrayList<ColumnToExtract>();
         List<SpreadsheetColumnExtractor<Q>> extractors = new ArrayList<SpreadsheetColumnExtractor<Q>>();
+        
+        //Find existed columns in spreadsheetResult
+        for (ColumnToExtract column : confCompoundColumns){
+            int columnIndex = SpreadsheetResultHelper.getColumnIndex(column.getColumnName(),
+                spreadsheetResult.getColumnNames());
+            if (columnIndex >= 0){
+                compoundColumns.add(column);
+            }else{
+                if (log.isDebugEnabled()){
+                    log.debug("Column {} was skipped!", column.getColumnName());
+                }
+            }
+        }
         
         boolean isNestedRow = false;
         int minNestedPriority = -1;
