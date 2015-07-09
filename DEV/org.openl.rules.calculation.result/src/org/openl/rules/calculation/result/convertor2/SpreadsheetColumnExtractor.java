@@ -51,7 +51,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         for (String propertyName : column.getPropertyNames()) {
             if (valueForStoraging != null) {
                 Object value = convert(valueForStoraging, column.getExpectedType(propertyName));
-                if (value.getClass().isAssignableFrom(column.getExpectedType(propertyName))){
+                if (column.getExpectedType(propertyName).isAssignableFrom(value.getClass())){
                     if (store(value, spreadsheetRow, propertyName, column.getExpectedType(propertyName))) {
                         return;
                     }
