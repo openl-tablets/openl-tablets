@@ -19,6 +19,10 @@ public class IndexInfo {
 
 	private int step = 1;
 	
+	public int getStep() {
+		return step;
+	}
+
 	public IndexInfo withTable(DecisionTable t)
 	{
 		table = t;

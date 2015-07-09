@@ -10,8 +10,10 @@ import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.dt2.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt2.algorithm.IndexInfo;
+import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt2.algorithm2.nodes.DefaultNodeBuilder;
 import org.openl.rules.dt2.algorithm2.nodes.EqualsNodeBuilder;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dtx.IBaseCondition;
@@ -42,7 +44,7 @@ public class DecisionTableAlgorithmBuilder2 extends
 
 		
 		
-		nodeBuilders = makeNodeBuilders(first, last);
+		nodeBuilders = makeNodeBuilders(first, last, info);
 
 		ISearchTreeNode root = nodeBuilders[0].createNode();
 
@@ -63,7 +65,7 @@ public class DecisionTableAlgorithmBuilder2 extends
 		return searchTree;
 	}
 
-	private NodeBuilder[] makeNodeBuilders(int first, int last) {
+	private NodeBuilder[] makeNodeBuilders(int first, int last, IndexInfo info) {
 		int len = last- first + 1;
 		NodeBuilder[] nb = new NodeBuilder[len];
 		
@@ -74,7 +76,7 @@ public class DecisionTableAlgorithmBuilder2 extends
 			boolean isFirst = idx == first;
 			boolean isLast = idx == last;
 			
-			nb[i] = makeNodeBuilder(isFirst, isLast, cond);
+			nb[i] = makeNodeBuilder(isFirst, isLast, cond, info);
 			if (!isFirst)
 				nb[i - 1].next = nb[i];
 			
@@ -83,12 +85,17 @@ public class DecisionTableAlgorithmBuilder2 extends
 	}
 
 	private NodeBuilder makeNodeBuilder(boolean isFirst, boolean isLast,
-			ICondition cond) {
+			ICondition cond, IndexInfo info) {
 		
 		IConditionEvaluator ce = cond.getConditionEvaluator();
 		if (ce instanceof EqualsIndexedEvaluator)
 		{
 			return EqualsNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
+		}
+		
+		if (ce instanceof DefaultConditionEvaluator)
+		{
+			return DefaultNodeBuilder.makeNodeBuilder(cond, isFirst, isLast, info);
 		}	
 		
 		throw new UnsupportedOperationException("Evaluator: " + ce.getClass().getName());

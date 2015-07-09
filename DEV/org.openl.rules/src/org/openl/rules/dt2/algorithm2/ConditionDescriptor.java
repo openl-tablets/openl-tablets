@@ -23,6 +23,14 @@ public class ConditionDescriptor {
 	}
 
 	
+    public boolean calculateCondition(
+            int ruleN, SearchContext sc) {
+
+        return condition.calculateCondition(ruleN, sc.target, sc.params, sc.env).getBooleanValue();
+    }
+
+	
+	
 	
 	static public class WithMap extends ConditionDescriptor
 	{
