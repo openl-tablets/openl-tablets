@@ -118,6 +118,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 		public int currentConditionIdx;
 		private ISearchTreeNode[] savedNodes;
 		Object[] indexedValues;
+		Object[] storedValues;
 		
 		public int savedRuleN;
 
@@ -125,6 +126,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 			super(target, params, env);
 			int len = descriptors.length;
 			indexedValues = new Object[len];
+			storedValues = new Object[len];
 			savedNodes = new ISearchTreeNode[len];
 			savedNodes[0] = root;
 		}
@@ -157,9 +159,23 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 				
 			}	
 			return indexedValues[currentConditionIdx];
-			
-			
-			
+		}
+		
+		
+		public boolean calculateCondition(
+	            int ruleN)
+		{
+			return descriptors[currentConditionIdx].calculateCondition(ruleN, this);
+		}
+
+		public void store(Object  x) {
+			storedValues[currentConditionIdx] = x;
+		}
+		
+		
+		public Object retrieve()
+		{
+			return storedValues[currentConditionIdx];
 		}
 
 	}
