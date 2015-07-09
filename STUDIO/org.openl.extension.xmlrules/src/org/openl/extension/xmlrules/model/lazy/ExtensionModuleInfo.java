@@ -1,16 +1,13 @@
-package org.openl.extension.xmlrules.model.single;
+package org.openl.extension.xmlrules.model.lazy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.extension.xmlrules.model.*;
-
-public class ExtensionModuleImpl implements ExtensionModule {
+public class ExtensionModuleInfo {
     private String formatVersion;
     private String xlsFileName;
-    private List<Sheet> sheets = new ArrayList<Sheet>();
+    private List<String> sheetEntries = new ArrayList<String>();
 
-    @Override
     public String getFormatVersion() {
         return formatVersion;
     }
@@ -19,7 +16,6 @@ public class ExtensionModuleImpl implements ExtensionModule {
         this.formatVersion = formatVersion;
     }
 
-    @Override
     public String getXlsFileName() {
         return xlsFileName;
     }
@@ -28,12 +24,11 @@ public class ExtensionModuleImpl implements ExtensionModule {
         this.xlsFileName = xlsFileName;
     }
 
-    @Override
-    public List<Sheet> getSheets() {
-        return sheets;
+    public List<String> getSheetEntries() {
+        return sheetEntries;
     }
 
-    public void setSheets(List<Sheet> sheets) {
-        this.sheets = sheets;
+    public void setSheetEntries(List<String> sheetEntries) {
+        this.sheetEntries = sheetEntries;
     }
 }

@@ -16,9 +16,7 @@ public interface Table {
 
     List<Condition> getVerticalConditions();
 
-    XlsRegion getRegion();
-
-    List<List<ReturnValue>> getReturnValues();
+    List<List<Expression>> getReturnValues();
 
     Segment getSegment();
 }

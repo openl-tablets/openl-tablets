@@ -10,6 +10,4 @@ public interface Function {
     String getReturnType();
 
     List<FunctionExpression> getExpressions();
-
-    XlsRegion getRegion();
 }

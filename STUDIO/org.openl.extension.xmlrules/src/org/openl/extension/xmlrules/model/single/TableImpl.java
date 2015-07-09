@@ -11,9 +11,8 @@ public class TableImpl implements Table {
     private String returnType;
     private List<Condition> horizontalConditions = new ArrayList<Condition>();
     private List<Condition> verticalConditions = new ArrayList<Condition>();
-    private List<List<ReturnValue>> returnValues = new ArrayList<List<ReturnValue>>();
+    private List<List<Expression>> returnValues = new ArrayList<List<Expression>>();
     private SegmentImpl segment;
-    private XlsRegionImpl region;
 
     @Override
     public String getName() {
@@ -61,20 +60,11 @@ public class TableImpl implements Table {
     }
 
     @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
-    }
-
-    @Override
-    public List<List<ReturnValue>> getReturnValues() {
+    public List<List<Expression>> getReturnValues() {
         return returnValues;
     }
 
-    public void setReturnValues(List<List<ReturnValue>> returnValues) {
+    public void setReturnValues(List<List<Expression>> returnValues) {
         this.returnValues = returnValues;
     }
 

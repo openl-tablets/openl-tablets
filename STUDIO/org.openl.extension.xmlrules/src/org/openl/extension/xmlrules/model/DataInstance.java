@@ -9,7 +9,5 @@ public interface DataInstance {
 
     List<Field> getFields();
 
-    XlsRegion getRegion();
-
     List<List<String>> getValues();
 }

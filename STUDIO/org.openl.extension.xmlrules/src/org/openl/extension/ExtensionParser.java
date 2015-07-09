@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.model.ExtensionModule;
-import org.openl.extension.xmlrules.model.TableGroup;
+import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -71,12 +71,12 @@ public abstract class ExtensionParser extends BaseParser {
         TablePartProcessor tablePartProcessor = new TablePartProcessor();
 
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
-        List<TableGroup> tableGroups = module.getTableGroups();
-        for (int i = 0; i < tableGroups.size(); i++) {
-            TableGroup tableGroup = tableGroups.get(i);
+        List<Sheet> sheets = module.getSheets();
+        for (int i = 0; i < sheets.size(); i++) {
+            Sheet sheet = sheets.get(i);
             // Sheet name is used as category name in WebStudio
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceCodeModule);
-            sheetNodeList.add(getWorksheet(sheetSource, tableGroup, tablePartProcessor));
+            sheetNodeList.add(getWorksheet(sheetSource, sheet, tablePartProcessor));
         }
         WorksheetSyntaxNode[] sheetNodes = sheetNodeList.toArray(new WorksheetSyntaxNode[sheetNodeList.size()]);
 
@@ -96,8 +96,8 @@ public abstract class ExtensionParser extends BaseParser {
         return new WorkbookSyntaxNode[] { new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule) };
     }
 
-    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup, TablePartProcessor tablePartProcessor) {
-        IGridTable[] tables = getAllGridTables(sheetSource, tableGroup);
+    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, Sheet sheet, TablePartProcessor tablePartProcessor) {
+        IGridTable[] tables = getAllGridTables(sheetSource, sheet);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
@@ -146,5 +146,5 @@ public abstract class ExtensionParser extends BaseParser {
     /**
      * Gets all grid tables from the sheet.
      */
-    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup);
+    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, Sheet sheet);
 }

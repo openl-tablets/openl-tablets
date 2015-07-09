@@ -34,7 +34,7 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
             @Override
             public String getSheetName() {
                 // Sheet name is used as category name in WebStudio
-                return extensionModule.getTableGroups().get(sheetIndex).getName();
+                return extensionModule.getSheets().get(sheetIndex).getName();
             }
         };
     }

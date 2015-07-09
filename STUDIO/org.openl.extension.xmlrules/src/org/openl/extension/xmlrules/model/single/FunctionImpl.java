@@ -12,7 +12,6 @@ public class FunctionImpl implements Function {
     private String returnType;
     private List<Parameter> parameters = new ArrayList<Parameter>();
     private List<FunctionExpression> expressions = new ArrayList<FunctionExpression>();
-    private XlsRegionImpl region;
 
     @Override
     public String getName() {
@@ -50,12 +49,4 @@ public class FunctionImpl implements Function {
         this.expressions = expressions;
     }
 
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
-    }
 }

@@ -1,7 +1,6 @@
 package org.openl.extension.xmlrules.model;
 
 public interface XlsRegion {
-    Integer getSheetNumber();
 
     int getColumn();
 

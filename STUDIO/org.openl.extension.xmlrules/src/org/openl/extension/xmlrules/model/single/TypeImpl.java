@@ -8,7 +8,6 @@ import org.openl.extension.xmlrules.model.Type;
 public class TypeImpl implements Type {
     private String name;
     private List<Field> fields;
-    private XlsRegionImpl region;
 
     @Override
     public String getName() {
@@ -28,12 +27,4 @@ public class TypeImpl implements Type {
         this.fields = fields;
     }
 
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
-    }
 }

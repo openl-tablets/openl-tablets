@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.*;
 
-public class TableGroupImpl implements TableGroup {
+public class SheetImpl implements Sheet {
     private String name;
     private List<Type> types = new ArrayList<Type>();
     private List<DataInstance> dataInstances = new ArrayList<DataInstance>();

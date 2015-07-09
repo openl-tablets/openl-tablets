@@ -5,7 +5,5 @@ public interface Field {
 
     String getName();
 
-    XlsRegion getRegion();
-
     String getReference();
 }

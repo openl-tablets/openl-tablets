@@ -6,6 +6,4 @@ public interface Type {
     String getName();
 
     List<Field> getFields();
-
-    XlsRegion getRegion();
 }

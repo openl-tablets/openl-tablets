@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.extension.Deserializer;
 import org.openl.extension.ExtensionParser;
-import org.openl.extension.Serializer;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -22,16 +22,20 @@ public class XmlRulesParser extends ExtensionParser {
 
     @Override
     protected ExtensionModule load(IOpenSourceCodeModule source) {
-        Serializer<ExtensionModule> serializer = new SingleFileXmlSerializer();
-        return serializer.deserialize(source.getByteStream());
+        String uri = source.getUri(0);
+        Deserializer<ExtensionModule> deserializer = uri.endsWith(".zip") ?
+                                                     new ZipFileXmlDeserializer(uri) :
+                                                     new SingleFileXmlDeserializer();
+        return deserializer.deserialize(source.getByteStream());
     }
 
     /**
      * Wrap source to XlsWorkbookSourceCodeModule
      */
     @Override
-    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(ExtensionModule extensionModule, IOpenSourceCodeModule source) throws
-                                                                                                                     OpenLCompilationException {
+    protected XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule(ExtensionModule extensionModule,
+            IOpenSourceCodeModule source) throws
+                                          OpenLCompilationException {
         try {
             // TODO Check the cases when source can be UrlSourceCodeModule or another one.
             File projectFolder = new File(new File(new URI(source.getUri(0))).getParent());
@@ -47,26 +51,28 @@ public class XmlRulesParser extends ExtensionParser {
      * Gets all grid tables from the sheet.
      */
     @Override
-    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, TableGroup tableGroup) {
+    protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, Sheet sheet) {
         String uri = sheetSource.getUri();
         // TODO Improve LaunchFileServlet to support real ranges
-        LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource().getWorkbookLoader();
+        LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource()
+                .getWorkbookLoader();
 
-        StringGridBuilder gridBuilder = new StringGridBuilder(uri, workbookLoader.getExtensionModule().getXlsFileName());
+        StringGridBuilder gridBuilder = new StringGridBuilder(uri,
+                workbookLoader.getExtensionModule().getXlsFileName());
 
-        createTypes(gridBuilder, tableGroup);
-        createDataInstances(gridBuilder, tableGroup);
-        createTables(gridBuilder, tableGroup);
-        createFunctions(gridBuilder, tableGroup);
+        createTypes(gridBuilder, sheet);
+        createDataInstances(gridBuilder, sheet);
+        createTables(gridBuilder, sheet);
+        createFunctions(gridBuilder, sheet);
 
         return gridBuilder.build().getTables();
     }
 
-    private void createTypes(StringGridBuilder gridBuilder, TableGroup tableGroup) {
-        if (tableGroup.getTypes() == null) {
+    private void createTypes(StringGridBuilder gridBuilder, Sheet sheet) {
+        if (sheet.getTypes() == null) {
             return;
         }
-        for (Type type : tableGroup.getTypes()) {
+        for (Type type : sheet.getTypes()) {
             gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
             for (Field field : type.getFields()) {
@@ -82,11 +88,11 @@ public class XmlRulesParser extends ExtensionParser {
         }
     }
 
-    private void createDataInstances(StringGridBuilder gridBuilder, TableGroup tableGroup) {
-        if (tableGroup.getDataInstances() == null) {
+    private void createDataInstances(StringGridBuilder gridBuilder, Sheet sheet) {
+        if (sheet.getDataInstances() == null) {
             return;
         }
-        for (DataInstance dataInstance : tableGroup.getDataInstances()) {
+        for (DataInstance dataInstance : sheet.getDataInstances()) {
             gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
                     dataInstance.getFields().size()).nextRow();
             // Fields
@@ -130,12 +136,14 @@ public class XmlRulesParser extends ExtensionParser {
         }
     }
 
-    private void createTables(StringGridBuilder gridBuilder, TableGroup tableGroup) {
-        if (tableGroup.getTables() == null) {
+    private void createTables(StringGridBuilder gridBuilder, Sheet sheet) {
+        if (sheet.getTables() == null) {
             return;
         }
-        for (Table table : tableGroup.getTables()) {
-            Integer tableWidth = table.getRegion().getWidth();
+        for (Table table : sheet.getTables()) {
+            boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
+
+            int tableWidth = getTableWidth(table, isSimpleRules);
 
             int headerHeight = 0;
             int headerWidth = 0;
@@ -149,7 +157,6 @@ public class XmlRulesParser extends ExtensionParser {
             }
             int tableRow = gridBuilder.getRow();
 
-            boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
             String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
             StringBuilder header = new StringBuilder();
             String returnType = table.getReturnType();
@@ -184,9 +191,8 @@ public class XmlRulesParser extends ExtensionParser {
                 gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
 
                 for (Condition condition : table.getHorizontalConditions()) {
-                    for (ConditionExpression expression : condition.getExpressions()) {
-                        XlsRegion region = expression.getRegion();
-                        gridBuilder.addCell(expression.getExpression(), region == null ? 1 : region.getWidth());
+                    for (Expression expression : condition.getExpressions()) {
+                        gridBuilder.addCell(expression.getValue(), expression.getWidth());
                     }
                     gridBuilder.nextRow();
                     headerHeight++;
@@ -225,14 +231,13 @@ public class XmlRulesParser extends ExtensionParser {
             int conditionColumn = gridBuilder.getColumn();
             for (Condition condition : table.getVerticalConditions()) {
                 int row = conditionRow;
-                for (ConditionExpression expression : condition.getExpressions()) {
-                    XlsRegion region = expression.getRegion();
+                for (Expression expression : condition.getExpressions()) {
                     gridBuilder.setCell(conditionColumn,
                             row,
-                            region == null ? 1 : region.getWidth(),
-                            region == null ? 1 : region.getHeight(),
-                            expression.getExpression());
-                    row += region == null ? 1 : region.getHeight();
+                            expression.getWidth(),
+                            expression.getHeight(),
+                            expression.getValue());
+                    row += expression.getHeight();
                 }
                 conditionColumn++;
             }
@@ -241,14 +246,14 @@ public class XmlRulesParser extends ExtensionParser {
             if (isSimpleRules) {
                 gridBuilder.setRow(tableRow + headerHeight);
                 gridBuilder.setStartColumn(conditionColumn);
-                for (ReturnValue returnValue : table.getReturnValues().get(0)) {
+                for (Expression returnValue : table.getReturnValues().get(0)) {
                     gridBuilder.addCell(returnValue.getValue()).nextRow();
                 }
             } else {
                 gridBuilder.setRow(tableRow + headerHeight);
                 gridBuilder.setStartColumn(startColumn + headerWidth);
-                for (List<ReturnValue> returnValues : table.getReturnValues()) {
-                    for (ReturnValue returnValue : returnValues) {
+                for (List<Expression> returnValues : table.getReturnValues()) {
+                    for (Expression returnValue : returnValues) {
                         gridBuilder.addCell(returnValue.getValue());
                     }
                     gridBuilder.nextRow();
@@ -259,11 +264,36 @@ public class XmlRulesParser extends ExtensionParser {
         }
     }
 
-    private void createFunctions(StringGridBuilder gridBuilder, TableGroup tableGroup) {
-        if (tableGroup.getFunctions() == null) {
+    private int getTableWidth(Table table, boolean isSimpleRules) {
+        int tableWidth = 0;
+        for (Condition condition : table.getVerticalConditions()) {
+            if (condition.getExpressions().size() > 0) {
+                tableWidth += condition.getExpressions().get(0).getWidth();
+            }
+        }
+
+        if (table.getHorizontalConditions().size() > 0) {
+            Condition condition = table.getHorizontalConditions().get(0);
+            for (Expression expression : condition.getExpressions()) {
+                tableWidth += expression.getWidth();
+            }
+        }
+
+        if (isSimpleRules) {
+            tableWidth += 1;
+        }
+
+        if (tableWidth == 0) {
+            tableWidth = 1;
+        }
+        return tableWidth;
+    }
+
+    private void createFunctions(StringGridBuilder gridBuilder, Sheet sheet) {
+        if (sheet.getFunctions() == null) {
             return;
         }
-        for (Function function : tableGroup.getFunctions()) {
+        for (Function function : sheet.getFunctions()) {
             StringBuilder headerBuilder = new StringBuilder();
             String returnType = function.getReturnType();
             if (StringUtils.isBlank(returnType)) {

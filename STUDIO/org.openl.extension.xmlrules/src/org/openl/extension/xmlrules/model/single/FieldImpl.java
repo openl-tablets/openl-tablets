@@ -5,7 +5,6 @@ import org.openl.extension.xmlrules.model.Field;
 public class FieldImpl implements Field {
     private String typeName;
     private String name;
-    private XlsRegionImpl region;
     private String reference;
 
     @Override
@@ -24,15 +23,6 @@ public class FieldImpl implements Field {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
     }
 
     @Override

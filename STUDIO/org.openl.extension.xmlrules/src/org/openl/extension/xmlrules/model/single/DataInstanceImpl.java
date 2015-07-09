@@ -10,7 +10,6 @@ public class DataInstanceImpl implements DataInstance {
     private String name;
     private List<Field> fields;
     private List<List<String>> values;
-    private XlsRegionImpl region;
 
     @Override
     public String getType() {
@@ -37,15 +36,6 @@ public class DataInstanceImpl implements DataInstance {
 
     public void setFields(List<Field> fields) {
         this.fields = fields;
-    }
-
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
     }
 
     @Override

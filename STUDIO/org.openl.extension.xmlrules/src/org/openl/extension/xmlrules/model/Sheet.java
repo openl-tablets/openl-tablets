@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Analogue of Excel's sheet.
  */
-public interface TableGroup {
+public interface Sheet {
     String getName();
 
     List<Type> getTypes();
