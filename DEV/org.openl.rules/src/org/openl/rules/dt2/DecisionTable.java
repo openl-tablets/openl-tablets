@@ -195,11 +195,15 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         algorithm = getAlgorithmBuilder(header, openl, module, bindingContextDelegator).prepareAndBuildAlgorithm();
 
     }
+    
+    
+    public static boolean ALG2 = false;
 
     private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header, OpenL openl,
 			ComponentOpenClass module,
 			IBindingContextDelegator bindingContextDelegator) {
-		return new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
+		return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator) 
+		            : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
 	}
 
 

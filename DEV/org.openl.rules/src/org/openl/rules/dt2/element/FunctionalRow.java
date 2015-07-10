@@ -602,7 +602,6 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	}
 
-
 	@Override
 	public boolean hasFormulasInStorage() {
 		for (int i = 0; i < storage.length; i++) {
@@ -611,11 +610,23 @@ public abstract class FunctionalRow implements IDecisionRow {
 		}
 		return false;
 	}
-	
-	
-	public StorageInfo getStorageInfo(int paramN)
-	{
+
+	public StorageInfo getStorageInfo(int paramN) {
 		return storage[paramN].getInfo();
+	}
+
+	@Override
+	public boolean isEqual(int rule1, int rule2) {
+		int n = getNumberOfParams();
+		for (int i = 0; i < n; i++) {
+			if (!objEquals(getParamValue(i, rule1), getParamValue(i, rule2)))
+				return false;
+		}
+		return true;
+	}
+
+	public static boolean objEquals(Object a, Object b) {
+		return (a == b) || (a != null && a.equals(b));
 	}
 
 }

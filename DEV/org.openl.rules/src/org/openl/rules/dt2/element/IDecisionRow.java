@@ -62,4 +62,6 @@ public interface IDecisionRow  extends IBaseDecisionRow{
 			Object[] tableParams, IRuntimeEnv env);
 
     
+	boolean isEqual(int rule1, int rule2);
+	
 }
