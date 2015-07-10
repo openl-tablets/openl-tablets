@@ -25,16 +25,7 @@ public class SimpleStep extends CodeStep {
 
     private static final long serialVersionUID = 3906469763279262117L;
 
-    private Double value;
     private String text;
-
-    public Double getValue() {
-        return value;
-    }
-
-    public void setValue(Double value) {
-        this.value = value;
-    }
 
     public String getText() {
         return text;
