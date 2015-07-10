@@ -17,6 +17,7 @@ import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
@@ -108,13 +109,36 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     }
 
     private Object convert(Object x, Class<?> expectedType) {
-        if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
-            try {
-                IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(expectedType, x.getClass());
-                return convertor.convert(x, null);
-            } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot convert value {} to {}", x, expectedType.getName(), e);
+        if (x.getClass().isArray() && expectedType.isArray()){
+            int length = Array.getLength(x);
+            Object newValue = Array.newInstance(expectedType.getComponentType(), length);
+            IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(expectedType.getComponentType(),
+                x.getClass().getComponentType());
+            for (int i = 0; i < length; i++) {
+                Object componentValue = Array.get(x, i);
+                if (!ClassUtils.isAssignable(componentValue.getClass(), expectedType.getComponentType())) {
+                    try {
+                        componentValue = convertor.convert(componentValue, null);
+                    } catch (Exception e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Cannot convert value {} to {}", componentValue, expectedType.getComponentType()
+                                .getName(), e);
+                        }
+                        return x;
+                    }
+                }
+                Array.set(newValue, i, componentValue);
+            }
+            return newValue;
+        }else{
+            if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
+                try {
+                    IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(expectedType, x.getClass());
+                    return convertor.convert(x, null);
+                } catch (Exception e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cannot convert value {} to {}", x, expectedType.getName(), e);
+                    }
                 }
             }
         }
