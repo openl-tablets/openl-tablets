@@ -1,6 +1,7 @@
 package org.openl.rules.convertor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.binding.IBindingContext;
 import org.openl.util.StringTool;
 
 import java.lang.reflect.Array;
@@ -13,7 +14,7 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
+class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2DataConverterWithContext<T[]> {
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
@@ -35,6 +36,38 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> {
         this.componentType = componentType;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public T[] parse(String data, String format, IBindingContext cxt) {
+        if (data == null) return null;
+        if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
+
+        String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
+                ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+
+        List<Object> elements = new ArrayList<Object>();
+
+        IString2DataConvertor<T> convertor = String2DataConvertorFactory.getConvertor(componentType);
+        for (String elementValue : elementValues) {
+            Object element;
+            if (elementValue.length() == 0) {
+                element = null;
+            } else {
+                if (convertor instanceof IString2DataConverterWithContext) {
+                    IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
+                    element = convertorCxt.parse(elementValue, format, cxt);
+                }else{
+                    element = convertor.parse(elementValue, format);
+                }
+            }
+            elements.add(element);
+        }
+
+        T[] resultArray = (T[]) Array.newInstance(componentType, elements.size());
+        T[] result = elements.toArray(resultArray);
+        return result;
+    }
+    
     /**
      * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will separated by
      * {@link #ARRAY_ELEMENTS_SEPARATOR}. Null safety.
