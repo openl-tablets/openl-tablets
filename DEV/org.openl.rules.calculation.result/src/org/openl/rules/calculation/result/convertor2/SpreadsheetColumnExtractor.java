@@ -15,7 +15,9 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.JavaNoCast;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +51,20 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
      * @param spreadsheetRow for population with given data
      */
     public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
-        for (String propertyName : column.getPropertyNames()) {
-            if (valueForStoraging != null) {
-                Object value = convert(valueForStoraging, column.getExpectedType(propertyName));
-                if (column.getExpectedType(propertyName).isAssignableFrom(value.getClass())){
-                    if (store(value, spreadsheetRow, propertyName, column.getExpectedType(propertyName))) {
+        if (valueForStoraging != null) {
+            Integer minConvertDistance = null;
+            String propertyNameForStore = null;
+            for (String propertyName : column.getPropertyNames()) {
+                Integer d = convertDistance(valueForStoraging, column.getExpectedType(propertyName));
+                if (d != null && (minConvertDistance == null || d < minConvertDistance)){
+                    minConvertDistance = d;
+                    propertyNameForStore = propertyName;
+                }
+            }
+            if (propertyNameForStore != null){
+                Object value = convert(valueForStoraging, column.getExpectedType(propertyNameForStore));
+                if (column.getExpectedType(propertyNameForStore).isAssignableFrom(value.getClass())) {
+                    if (store(value, spreadsheetRow, propertyNameForStore, column.getExpectedType(propertyNameForStore))) {
                         return;
                     }
                 }
@@ -106,6 +117,32 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     // protected for tests
     protected String getSetterName(String fieldName) {
         return String.format("set%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1).toLowerCase());
+    }
+
+    private Integer convertDistance(Object x, Class<?> expectedType) {
+        if (x.getClass().isArray() && expectedType.isArray()) {
+            IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
+                x.getClass().getComponentType());
+            if (openCast != null) {
+                return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType),
+                    JavaOpenClass.getOpenClass(x.getClass()));
+            } else {
+                return null;
+            }
+        } else {
+            if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
+                IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType, x.getClass());
+                if (openCast != null) {
+                    return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType),
+                        JavaOpenClass.getOpenClass(x.getClass()));
+                } else {
+                    return null;
+                }
+            } else {
+                return new JavaNoCast().getDistance(JavaOpenClass.getOpenClass(expectedType),
+                    JavaOpenClass.getOpenClass(x.getClass()));
+            }
+        }
     }
 
     private Object convert(Object x, Class<?> expectedType) {
