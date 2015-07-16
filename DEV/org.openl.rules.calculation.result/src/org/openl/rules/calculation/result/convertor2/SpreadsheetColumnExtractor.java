@@ -124,8 +124,8 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             if (openCast != null) {
-                return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType),
-                    JavaOpenClass.getOpenClass(x.getClass()));
+                return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType.getComponentType()),
+                    JavaOpenClass.getOpenClass(x.getClass().getComponentType()));
             } else {
                 return null;
             }
