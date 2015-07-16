@@ -280,6 +280,12 @@ public class DependentParametersOptimizedAlgorithm {
             return true;
         }
 
+		@Override
+		public Class<?> getIndexType() {
+
+			return typeAdaptor.getTargetType();
+		}
+
     }
 
     private static String buildFieldName(IndexNode indexNode) {
