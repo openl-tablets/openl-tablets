@@ -36,7 +36,8 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
     private IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
-    int nparams; // 1 or 2
+ 
+	int nparams; // 1 or 2
 
     public RangeIndexedEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor, int nparams) {
         this.rangeAdaptor = adaptor;
@@ -207,6 +208,13 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         public boolean useOriginalSource() {
             throw new UnsupportedOperationException("Operation not supported!");
         }
+
+		@Override
+		public Class<?> getIndexType() {
+//			if (rangeAdaptor != null) 
+//					return rangeAdaptor.getIndexType(); 
+			throw new UnsupportedOperationException("getIndexType fpr empty rangeAdaptors") ;
+		}
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
@@ -342,4 +350,13 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             return this.v.compareTo(o.v);
         }
     }
+    
+    public IRangeAdaptor<Object, ? extends Comparable<Object>> getRangeAdaptor() {
+ 		return rangeAdaptor;
+ 	}
+
+ 	public int getNparams() {
+ 		return nparams;
+ 	}
+    
 }
