@@ -10,15 +10,15 @@ package org.openl.rules.calculation.result.convertor2;
  * #L%
  */
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+
 import org.apache.commons.lang3.ClassUtils;
-import org.openl.rules.convertor.IObjectToDataConvertor;
-import org.openl.rules.convertor.ObjectToDataConvertorFactory;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
@@ -112,13 +112,13 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         if (x.getClass().isArray() && expectedType.isArray()){
             int length = Array.getLength(x);
             Object newValue = Array.newInstance(expectedType.getComponentType(), length);
-            IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(expectedType.getComponentType(),
+            IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             for (int i = 0; i < length; i++) {
                 Object componentValue = Array.get(x, i);
                 if (!ClassUtils.isAssignable(componentValue.getClass(), expectedType.getComponentType())) {
                     try {
-                        componentValue = convertor.convert(componentValue, null);
+                        componentValue = openCast.convert(componentValue);
                     } catch (Exception e) {
                         if (log.isDebugEnabled()) {
                             log.debug("Cannot convert value {} to {}", componentValue, expectedType.getComponentType()
@@ -133,8 +133,8 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         }else{
             if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
                 try {
-                    IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(expectedType, x.getClass());
-                    return convertor.convert(x, null);
+                    IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType, x.getClass());
+                    return openCast.convert(x);
                 } catch (Exception e) {
                     if (log.isDebugEnabled()) {
                         log.debug("Cannot convert value {} to {}", x, expectedType.getName(), e);
