@@ -13,8 +13,10 @@ import org.openl.rules.dt2.algorithm.IndexInfo;
 import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt2.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt2.algorithm2.nodes.DefaultNodeBuilder;
 import org.openl.rules.dt2.algorithm2.nodes.EqualsNodeBuilder;
+import org.openl.rules.dt2.algorithm2.nodes.RangeNodeBuilder;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -97,6 +99,14 @@ public class DecisionTableAlgorithmBuilder2 extends
 		{
 			return DefaultNodeBuilder.makeNodeBuilder(cond, isFirst, isLast, info);
 		}	
+		
+		if (ce instanceof RangeIndexedEvaluator)
+		{
+			return RangeNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
+		}	
+	
+		
+		
 		
 		throw new UnsupportedOperationException("Evaluator: " + ce.getClass().getName());
 	}

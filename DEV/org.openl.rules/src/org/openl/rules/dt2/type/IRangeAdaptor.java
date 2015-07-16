@@ -37,4 +37,6 @@ public interface IRangeAdaptor<T, C extends Comparable<?>> {
 
 	boolean useOriginalSource();
 
+	Class<?> getIndexType();
+
 }

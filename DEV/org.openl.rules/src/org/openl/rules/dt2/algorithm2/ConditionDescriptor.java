@@ -3,7 +3,9 @@ package org.openl.rules.dt2.algorithm2;
 import java.util.Map;
 
 import org.openl.rules.dt2.algorithm2.DecisionTableSearchTree.SearchContext;
+import org.openl.rules.dt2.algorithm2.nodes.RangeNodeBuilder.IRangeIndexMap;
 import org.openl.rules.dt2.element.ICondition;
+import org.openl.rules.dt2.type.IRangeAdaptor;
 import org.openl.types.IMethodCaller;
 
 public class ConditionDescriptor {
@@ -46,6 +48,32 @@ public class ConditionDescriptor {
 		@Override
 		public Object evaluate(SearchContext c) {
 			return map.get(evaluator.invoke(c.target, c.params, c.env));
+		}
+		
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	static public class WithRangeMap extends ConditionDescriptor
+	{
+		
+		IRangeIndexMap rangeMap;
+		IRangeAdaptor rangeAdaptor;
+
+		public WithRangeMap(boolean useIndexedValue,
+				ICondition condition, IRangeIndexMap rangeMap, IRangeAdaptor rangeAdaptor) {
+			super(useIndexedValue, condition);
+			this.rangeMap = rangeMap;
+			this.rangeAdaptor = rangeAdaptor;
+		}
+
+		@Override
+		public Object evaluate(SearchContext c) {
+			Object x = evaluator.invoke(c.target, c.params, c.env);
+			if (rangeAdaptor != null)
+				x = rangeAdaptor.adaptValueType(x);
+			
+			return rangeMap.findIndex(x);
 		}
 		
 	}
