@@ -190,6 +190,10 @@ public interface ITableProperties {
 	void setPrecision(java.lang.String precision);
 	java.lang.Boolean getAutoType();
 	void setAutoType(java.lang.Boolean autoType);
+	org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions();
+	void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions);
+	org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces();
+	void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces);
 // <<< END INSERT >>>
 	
 	

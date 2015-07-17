@@ -4,13 +4,11 @@ package org.openl.rules.ruleservice.context.enumeration;
  * #%L
  * OpenL - RuleService - RuleService - Context
  * %%
- * Copyright (C) 2013 OpenL Tablets
+ * Copyright (C) 2015 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-
-
 public enum LanguagesEnum {
 
 	ALB("Albanian"),
