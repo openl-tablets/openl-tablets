@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[34];
+		definitions = new TablePropertyDefinition[36];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -480,6 +480,34 @@ public class DefaultPropertyDefinitions
 		definitions[33].setSystem(false);
 		definitions[33].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[34] = new TablePropertyDefinition();
+		definitions[34].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caRegions"));
+		definitions[34].setDescription("Région d\'opération pour laquelle la table devrait être utilisée");
+		definitions[34].setDimensional(true);
+		definitions[34].setDisplayName("Region");
+		definitions[34].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caRegion)"));
+		definitions[34].setGroup("Business Dimension");
+		definitions[34].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[34].setName("caRegions");
+		definitions[34].setPrimaryKey(false);
+		definitions[34].setSecurityFilter("no");
+		definitions[34].setSystem(false);
+		definitions[34].setTableType(new XlsNodeTypes[] {});
+		definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaRegionsEnum[].class));
+		definitions[35] = new TablePropertyDefinition();
+		definitions[35].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caProvinces"));
+		definitions[35].setDescription("Province pour laquelle la table devrait être utilisée");
+		definitions[35].setDimensional(true);
+		definitions[35].setDisplayName("Province");
+		definitions[35].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caProvince)"));
+		definitions[35].setGroup("Business Dimension");
+		definitions[35].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[35].setName("caProvinces");
+		definitions[35].setPrimaryKey(false);
+		definitions[35].setSecurityFilter("no");
+		definitions[35].setSystem(false);
+		definitions[35].setTableType(new XlsNodeTypes[] {});
+		definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaProvincesEnum[].class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

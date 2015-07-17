@@ -227,6 +227,42 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
+		constraints.put("caRegions", new MatchingConstraint<org.openl.rules.enumeration.CaRegionsEnum[], org.openl.rules.enumeration.CaRegionsEnum>() { 
+
+			@Override
+			protected org.openl.rules.enumeration.CaRegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaRegion();
+			}
+			
+			@Override
+			protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaRegions();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] propertyValue, org.openl.rules.enumeration.CaRegionsEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("caProvinces", new MatchingConstraint<org.openl.rules.enumeration.CaProvincesEnum[], org.openl.rules.enumeration.CaProvincesEnum>() { 
+
+			@Override
+			protected org.openl.rules.enumeration.CaProvincesEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaProvince();
+			}
+			
+			@Override
+			protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaProvinces();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] propertyValue, org.openl.rules.enumeration.CaProvincesEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
+			}
+			
+        });
 // <<< END INSERT >>>
     }
 

@@ -9,16 +9,14 @@ package org.openl.rules.ruleservice.context.enumeration;
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-public enum RegionsEnum {
+public enum CaRegionsEnum {
 
-	NCSA("Americas"),
-	EU("European Union"),
-	EMEA("Europe; Middle East; Africa"),
-	APJ("Asia Pacific; Japan");
+	QC("Québec"),
+	HQ("Hors Québec");
 
 	private final String displayName;
 
-	private RegionsEnum (String displayName) {
+	private CaRegionsEnum (String displayName) {
 		this.displayName = displayName;
 	}
 
@@ -27,8 +25,8 @@ public enum RegionsEnum {
 		return displayName;
 	}
 	
-	public static RegionsEnum fromString(String displayName) {
-		for (RegionsEnum v : RegionsEnum.values()) {
+	public static CaRegionsEnum fromString(String displayName) {
+		for (CaRegionsEnum v : CaRegionsEnum.values()) {
 			if (displayName.equalsIgnoreCase(v.displayName)) {
 				return v;
 			}

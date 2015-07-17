@@ -46,6 +46,20 @@ public class RuntimeContextConvertor {
     	return org.openl.rules.enumeration.RegionsEnum.fromString(region.toString());
     }
     
+    private static org.openl.rules.enumeration.CaProvincesEnum convertCaProvince(org.openl.rules.ruleservice.context.enumeration.CaProvincesEnum caProvince) {
+		if (caProvince == null) {
+			return null;
+		}
+    	return org.openl.rules.enumeration.CaProvincesEnum.fromString(caProvince.toString());
+    }
+    
+    private static org.openl.rules.enumeration.CaRegionsEnum convertCaRegion(org.openl.rules.ruleservice.context.enumeration.CaRegionsEnum caRegion) {
+		if (caRegion == null) {
+			return null;
+		}
+    	return org.openl.rules.enumeration.CaRegionsEnum.fromString(caRegion.toString());
+    }
+    
 	public static org.openl.rules.context.IRulesRuntimeContext covert(org.openl.rules.ruleservice.context.IRulesRuntimeContext context) {
 	    org.openl.rules.context.IRulesRuntimeContext rulesRuntimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 		rulesRuntimeContext.setCurrentDate(context.getCurrentDate());
@@ -57,6 +71,8 @@ public class RuntimeContextConvertor {
 		rulesRuntimeContext.setCurrency(convertCurrency(context.getCurrency()));
 		rulesRuntimeContext.setLang(convertLang(context.getLang()));
 		rulesRuntimeContext.setRegion(convertRegion(context.getRegion()));
+		rulesRuntimeContext.setCaProvince(convertCaProvince(context.getCaProvince()));
+		rulesRuntimeContext.setCaRegion(convertCaRegion(context.getCaRegion()));
 		return rulesRuntimeContext;
 	}
 // <<< END INSERT >>>

@@ -161,6 +161,28 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getRegion();
 			}
 		});
+		put("caRegions", new PropertyAccessDelegation<org.openl.rules.enumeration.CaRegionsEnum[], org.openl.rules.enumeration.CaRegionsEnum>() { 
+			@Override
+			protected org.openl.rules.enumeration.CaRegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaRegion();
+			}
+	
+			@Override
+			protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaRegions();
+			}
+		});
+		put("caProvinces", new PropertyAccessDelegation<org.openl.rules.enumeration.CaProvincesEnum[], org.openl.rules.enumeration.CaProvincesEnum>() { 
+			@Override
+			protected org.openl.rules.enumeration.CaProvincesEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaProvince();
+			}
+	
+			@Override
+			protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaProvinces();
+			}
+		});
 // <<< END INSERT >>>
     }
 
