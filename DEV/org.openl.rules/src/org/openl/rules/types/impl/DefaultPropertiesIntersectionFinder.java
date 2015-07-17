@@ -109,6 +109,30 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
+        constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() { 
+
+            @Override
+            protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getCaRegions();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] firstValue, org.openl.rules.enumeration.CaRegionsEnum[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
+            }
+        });
+        constraints.put("caProvinces", new IntersectionConstraint<org.openl.rules.enumeration.CaProvincesEnum[]>() { 
+
+            @Override
+            protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getCaProvinces();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] firstValue, org.openl.rules.enumeration.CaProvincesEnum[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
+            }
+        });
 // <<< END INSERT >>>
     }
 
