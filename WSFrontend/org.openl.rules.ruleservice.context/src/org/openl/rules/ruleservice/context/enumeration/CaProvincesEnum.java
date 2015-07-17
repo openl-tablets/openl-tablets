@@ -9,16 +9,25 @@ package org.openl.rules.ruleservice.context.enumeration;
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-public enum RegionsEnum {
+public enum CaProvincesEnum {
 
-	NCSA("Americas"),
-	EU("European Union"),
-	EMEA("Europe; Middle East; Africa"),
-	APJ("Asia Pacific; Japan");
+	AB("Alberta"),
+	BC("Colombie-Britannique"),
+	PE("Île-du-Prince-Édouard"),
+	MB("Manitoba"),
+	NB("Nouveau-Brunswick"),
+	NS("Nouvelle-Écosse"),
+	NU("Nunavut"),
+	ON("Ontario"),
+	QC("Québec"),
+	SK("Saskatchewan"),
+	NL("Terre-Neuve-et-Labrador"),
+	YT("Yukon"),
+	NT("Territoires du Nord-Ouest");
 
 	private final String displayName;
 
-	private RegionsEnum (String displayName) {
+	private CaProvincesEnum (String displayName) {
 		this.displayName = displayName;
 	}
 
@@ -27,8 +36,8 @@ public enum RegionsEnum {
 		return displayName;
 	}
 	
-	public static RegionsEnum fromString(String displayName) {
-		for (RegionsEnum v : RegionsEnum.values()) {
+	public static CaProvincesEnum fromString(String displayName) {
+		for (CaProvincesEnum v : CaProvincesEnum.values()) {
 			if (displayName.equalsIgnoreCase(v.displayName)) {
 				return v;
 			}

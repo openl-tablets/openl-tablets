@@ -360,6 +360,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (context.getRegion() != null) {
             propNames.add("region");
         }
+        if (context.getCaRegion() != null) {
+            propNames.add("caRegions");
+        }
+        if (context.getCaProvince() != null) {
+            propNames.add("caProvinces");
+        }
 
         return propNames;
     }
