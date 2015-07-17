@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.openl.rules.demo</groupId>
         <artifactId>org.openl.rules.demo-pom</artifactId>
-        <version>5.15.2</version>
+        <version>5.15.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.demo.webstudio</artifactId>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.workspace</artifactId>
-            <version>5.15.2</version>
+            <version>5.15.3-SNAPSHOT</version>
         </dependency>
         <!-- OpenL Tablets WebStudio dependency -->
         <dependency>
