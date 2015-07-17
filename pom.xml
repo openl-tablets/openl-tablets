@@ -3,7 +3,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.15.2</version>
+    <version>5.15.3-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>http://openl-tablets.sourceforge.net</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -64,7 +64,7 @@
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
         <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
-        <tag>release-5.15.2</tag>
+        <tag>release-5.15.1-RC1</tag>
     </scm>
     <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
