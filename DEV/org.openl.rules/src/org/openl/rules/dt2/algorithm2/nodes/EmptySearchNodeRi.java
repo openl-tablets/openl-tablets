@@ -7,11 +7,11 @@ import org.openl.rules.dt2.algorithm2.DecisionTableSearchTree.SearchContext;
 import org.openl.rules.dt2.algorithm2.ISearchTreeNode;
 import org.openl.rules.dt2.algorithm2.nodes.NodesUtil.RuleRange;
 
-public class DefaultSearchNodeRi extends BaseSearchNode {
+public class EmptySearchNodeRi extends BaseSearchNode {
 
 	List<Integer> rules = new ArrayList<Integer>();
 
-	public DefaultSearchNodeRi() {
+	public EmptySearchNodeRi() {
 		super();
 
 	}
@@ -33,33 +33,12 @@ public class DefaultSearchNodeRi extends BaseSearchNode {
 
 	@Override
 	public Object findFirstNodeOrValue(SearchContext scxt) {
-
-		int i = 0;
-		while (i <= rules.size()) {
-			int ruleN = rules.get(i);
-			if (scxt.calculateCondition(ruleN)) {
-				scxt.store(i);
-				return ruleN;
-			}
-			++i;
-		}
-
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Object findNextNodeOrValue(SearchContext scxt) {
-		int i = (Integer) scxt.retrieve();
-		while (i <= rules.size()) {
-			int ruleN = rules.get(i);
-			if (scxt.calculateCondition(ruleN)) {
-				scxt.store(i);
-				return ruleN;
-			}
-			++i;
-		}
-
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public void addRule(int ruleN) {
@@ -78,7 +57,7 @@ public class DefaultSearchNodeRi extends BaseSearchNode {
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return scxt.calculateCondition(ruleN) ? ruleN : null;
+			return ruleN;
 		}
 
 	}
@@ -93,25 +72,20 @@ public class DefaultSearchNodeRi extends BaseSearchNode {
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, ruleRange.from);
+			scxt.store(ruleRange.from);
+			return ruleRange.from;					
+
 		}
 		
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, (Integer)scxt.retrieve() + ruleRange.step);
+			int ruleN = (Integer)scxt.retrieve() + ruleRange.step;
+			if (ruleN >= ruleRange.to)
+				return null;
+			scxt.store(ruleN);
+			return ruleN;
 		}
 
-		private Object findNodeOrValue(SearchContext scxt, int start) {
-			for (int ruleN = start; ruleN <= ruleRange.to; ruleN += ruleRange.step) {
-				if (scxt.calculateCondition(ruleN))
-				{	
-					scxt.store(ruleN);
-					return ruleN;
-				}	
-			}
-
-			return null;
-		}
 	}
 
 	static class ArrayRi extends Compact {
@@ -124,25 +98,17 @@ public class DefaultSearchNodeRi extends BaseSearchNode {
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, 0);
+			scxt.store(0);
+			return ruleAry[0];					
 		}
 		
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, (Integer)scxt.retrieve() + 1);
-		}
-
-		private Object findNodeOrValue(SearchContext scxt, int start) {
-			for (int idx = start; idx <= ruleAry.length; ++idx) {
-				
-				if (scxt.calculateCondition(ruleAry[idx]))
-				{	
-					scxt.store(idx);
-					return idx;
-				}	
-			}
-
-			return null;
+			int idx = (Integer)scxt.retrieve() + 1;
+			if (idx >= ruleAry.length)
+				return null;
+			scxt.store(idx);
+			return ruleAry[idx];
 		}
 	}
 }

@@ -27,7 +27,7 @@ public abstract class BaseSearchNode extends IARTNode.EmptyARTNode implements IS
 
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			throw new UnsupportedOperationException("findNextNodeOrValue");
+			return null;
 		}
 	}
 
@@ -35,7 +35,7 @@ public abstract class BaseSearchNode extends IARTNode.EmptyARTNode implements IS
 	{
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			throw new UnsupportedOperationException("findNextNodeOrValue");
+			return null;
 		}
 	}
 }

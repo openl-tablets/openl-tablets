@@ -10,13 +10,16 @@ import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.dt2.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt2.algorithm.IndexInfo;
+import org.openl.rules.dt2.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt2.algorithm.evaluator.RangeIndexedEvaluator;
+import org.openl.rules.dt2.algorithm2.nodes.ContainsInArrayNodeBuilder;
 import org.openl.rules.dt2.algorithm2.nodes.DefaultNodeBuilder;
 import org.openl.rules.dt2.algorithm2.nodes.EqualsNodeBuilder;
 import org.openl.rules.dt2.algorithm2.nodes.RangeNodeBuilder;
+import org.openl.rules.dt2.algorithm2.nodes.SpecialNodeBuilder;
 import org.openl.rules.dt2.element.ICondition;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -56,7 +59,7 @@ public class DecisionTableAlgorithmBuilder2 extends
 			indexRule(ruleN, info, 0, root);
 		}
 		
-		root = (ISearchTreeNode) root.compact();
+		root = root.compactSearchNode();
 
 		ConditionDescriptor[] descriptors = new ConditionDescriptor[nodeBuilders.length];
 		for (int i = 0; i < descriptors.length; i++) {
@@ -79,8 +82,9 @@ public class DecisionTableAlgorithmBuilder2 extends
 			boolean isLast = idx == last;
 			
 			nb[i] = makeNodeBuilder(isFirst, isLast, cond, info);
+			
 			if (!isFirst)
-				nb[i - 1].next = nb[i];
+				nb[i - 1].setNext(nb[i]) ;
 			
 		}
 		return nb;
@@ -90,25 +94,34 @@ public class DecisionTableAlgorithmBuilder2 extends
 			ICondition cond, IndexInfo info) {
 		
 		IConditionEvaluator ce = cond.getConditionEvaluator();
+		NodeBuilder nb = null;
 		if (ce instanceof EqualsIndexedEvaluator)
 		{
-			return EqualsNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
+			nb = EqualsNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
 		}
 		
-		if (ce instanceof DefaultConditionEvaluator)
+		else if (ce instanceof DefaultConditionEvaluator)
 		{
-			return DefaultNodeBuilder.makeNodeBuilder(cond, isFirst, isLast, info);
+			nb = DefaultNodeBuilder.makeNodeBuilder(cond, isFirst, isLast, info);
 		}	
 		
-		if (ce instanceof RangeIndexedEvaluator)
+		else if (ce instanceof RangeIndexedEvaluator)
 		{
-			return RangeNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
+			nb = RangeNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
 		}	
-	
+		else if (ce instanceof ContainsInArrayIndexedEvaluator)
+		{
+			nb = ContainsInArrayNodeBuilder.makeNodeBuilder(cond, isFirst, isLast);
+		}	
+		else
+			throw new UnsupportedOperationException("Evaluator: " + ce.getClass().getName());
 		
+		if (cond.hasEmptyRules() || cond.hasSpecialRules())
+		{
+			return new SpecialNodeBuilder(cond, isFirst, isLast, nb, info);
+		}	
 		
-		
-		throw new UnsupportedOperationException("Evaluator: " + ce.getClass().getName());
+		return nb;
 	}
 
 	NodeBuilder[] nodeBuilders;
@@ -120,7 +133,7 @@ public class DecisionTableAlgorithmBuilder2 extends
 		if (nb.isLast)
 			return nb.indexRuleN(node, ruleN);
 		else {
-			if (nb.isSingleNode(ruleN)) {
+			if (nb.isSingleNode(node, ruleN)) {
 				ISearchTreeNode nextNode = nb.findOrCreateNextNode(node, ruleN);
 				return indexRule(ruleN, info, nbIndex + 1, nextNode);
 			} else {
