@@ -21,6 +21,10 @@ public abstract class NodeBuilder   {
 
 	public abstract boolean indexRuleN(ISearchTreeNode node, int ruleN);
 
+	public boolean isSingleNode(ISearchTreeNode node, int ruleN){
+		return isSingleNode(ruleN);
+	}
+
 	public abstract boolean isSingleNode(int ruleN);
 
 	public abstract Iterator<ISearchTreeNode> findOrCreateNextNodes(ISearchTreeNode node, int ruleN);
@@ -53,6 +57,12 @@ public abstract class NodeBuilder   {
 		
 		
 		
+	}
+
+
+
+	public void setNext(NodeBuilder next) {
+		this.next = next;
 	}
 	
 

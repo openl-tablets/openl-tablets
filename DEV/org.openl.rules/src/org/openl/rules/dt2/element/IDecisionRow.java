@@ -39,9 +39,20 @@ public interface IDecisionRow  extends IBaseDecisionRow{
 
 	
 	boolean hasFormulasInStorage();
-
-
-    
+	
+	/**
+	 * 
+	 * @return true if condition or action contains rule rows consisting of all spaces
+	 */
+	boolean hasEmptyRules(); 
+	
+	
+	/**
+	 * 
+	 * @return true if condition or action contains rule rows consisting of formulas or ELSE elements
+	 */
+	
+    boolean hasSpecialRules();
     
 
     void clearParamValues();

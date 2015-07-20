@@ -2,11 +2,15 @@ package org.openl.rules.dt2.algorithm2.nodes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
+import org.openl.rules.dt2.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt2.algorithm2.ConditionDescriptor;
 import org.openl.rules.dt2.algorithm2.ISearchTreeNode;
 import org.openl.rules.dt2.algorithm2.NodeBuilder;
 import org.openl.rules.dt2.element.ICondition;
+import org.openl.rules.helpers.NumberUtils;
+import org.openl.types.IOpenClass;
 
 public class EqualsNodeBuilder {
 
@@ -36,11 +40,7 @@ public class EqualsNodeBuilder {
 		public EqualsNodeBuiderVi(ICondition condition, boolean isFirst, boolean isLast)
 		{
 			super(condition, isFirst, isLast);
-			init();
-		}
-		
-		private void init() {
-			this.map = condition.getStorageInfo(0).getUniqueIndex();
+			this.map =  initilaizeEqualsIndexMap(getMapKeyType(condition), condition.getStorageInfo(0).getUniqueIndex());
 		}
 		
 		protected int calculateNodeIndex(int ruleN) {
@@ -73,11 +73,7 @@ public class EqualsNodeBuilder {
 		public EqualsNodeBuiderN(ICondition condition, boolean isFirst, boolean isLast)
 		{
 			super(condition, isFirst, isLast);
-			init();
-		}
-		
-		private void init() {
-			this.map = condition.getStorageInfo(0).getUniqueIndex();
+			this.map = initilaizeEqualsIndexMap(getMapKeyType(condition), condition.getStorageInfo(0).getUniqueIndex());
 		}
 		
 		protected int calculateNodeIndex(int ruleN) {
@@ -107,11 +103,7 @@ public class EqualsNodeBuilder {
 		public EqualsNodeBuiderMN(ICondition condition, boolean isFirst,
 				boolean isLast) {
 			super(condition, isFirst, isLast);
-			init();
-		}
-		
-		private void init() {
-			map = new HashMap<Object, ISearchTreeNode>(condition.getStorageInfo(0).getUniqueIndex().size());
+			map =  initializeEqualsNodeMap( getMapKeyType(condition), condition.getStorageInfo(0).getUniqueIndex().size());
 		}
 
 
@@ -159,11 +151,7 @@ public class EqualsNodeBuilder {
 		public EqualsNodeBuiderMi(ICondition condition, boolean isFirst,
 				boolean isLast) {
 			super(condition, isFirst, isLast);
-			init();
-		}
-
-		private void init() {
-			map = new HashMap<Object, Integer>(condition.getStorageInfo(0).getUniqueIndex().size());
+			map = initilaizeEqualsRuleNMap(getMapKeyType(condition), condition.getStorageInfo(0).getUniqueIndex().size());
 		}
 
 		@Override
@@ -196,6 +184,56 @@ public class EqualsNodeBuilder {
 		}
 
 		
+	}
+
+
+
+
+
+	public static Map<Object, Integer> initilaizeEqualsIndexMap(IOpenClass type,
+			Map<Object, Integer> uniqueIndex) {
+		
+		if (NumberUtils.isFloatPointType(type.getInstanceClass()))
+		{	
+			Map<Object, Integer> map = new TreeMap<Object, Integer>(FloatTypeComparator.getInstance());
+			map.putAll(uniqueIndex);
+			return  map;
+		}	
+		return uniqueIndex;
+	}
+
+
+
+
+
+	public static Map<Object, Integer> initilaizeEqualsRuleNMap(IOpenClass type,
+			int size) {
+		if (NumberUtils.isFloatPointType(type.getInstanceClass()))
+		{	
+			return new TreeMap<Object, Integer>(FloatTypeComparator.getInstance());
+		}	
+		else return new HashMap<Object, Integer>(size);
+	}
+
+
+
+
+
+	public static IOpenClass getMapKeyType(ICondition condition) {
+		return condition.getParameterInfo(0).getParameterDeclaration().getType();
+	}
+
+
+
+
+
+	public static Map<Object, ISearchTreeNode> initializeEqualsNodeMap(
+			IOpenClass type, int size) {
+		if (NumberUtils.isFloatPointType(type.getInstanceClass()))
+		{	
+			return new TreeMap<Object, ISearchTreeNode>(FloatTypeComparator.getInstance());
+		}	
+		else return new HashMap<Object, ISearchTreeNode>(size);
 	}
 	
 	

@@ -38,7 +38,7 @@ public class DefaultSearchNodeAi extends BaseSearchNode {
 
 	@Override
 	public Object findNextNodeOrValue(SearchContext scxt) {
-		int cnt = scxt.savedRuleN;
+		int cnt = scxt.savedRuleN + 1;
 		while(cnt < to)
 		{
 			if (scxt.calculateCondition(cnt))

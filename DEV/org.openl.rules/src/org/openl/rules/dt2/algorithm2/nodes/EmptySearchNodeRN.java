@@ -9,7 +9,7 @@ import org.openl.rules.dt2.algorithm2.ISearchTreeNode;
 import org.openl.rules.dt2.algorithm2.nodes.NodesUtil.RuleRange;
 import org.openl.rules.dt2.element.ICondition;
 
-public class DefaultSearchNodeRN extends BaseSearchNode {
+public class EmptySearchNodeRN extends BaseSearchNode {
 
 	
 	
@@ -32,14 +32,11 @@ public class DefaultSearchNodeRN extends BaseSearchNode {
 			Object intseq = NodesUtil.compactSequence(rules);
 
 			if (intseq instanceof Integer) {
-				return new SingleRN((Integer) intseq, nodes.get(0));
+				return new SingleRN(nodes.get(0));
 			}
 
-			if (intseq instanceof RuleRange) {
-				return new RangeRN((RuleRange) intseq, nodes.toArray(new ISearchTreeNode[0]));
-			}
 
-			return new ArrayRN((int[]) intseq, nodes.toArray(new ISearchTreeNode[0]));
+			return new ArrayRN(nodes.toArray(new ISearchTreeNode[0]));
 	}
 
 	@Override
@@ -75,16 +72,12 @@ public class DefaultSearchNodeRN extends BaseSearchNode {
 	}
 
 	public ISearchTreeNode useLastNode(int ruleN, IndexInfo info, ICondition condition) {
-		if (ranges.size() == 0)
-			return null;
 		
 		RuleRange rlast = ranges.get(ranges.size() - 1);
 		
 		if (ruleN != rlast.to + info.getStep())
 			return null;
 		
-		if (!condition.isEqual(rlast.to, ruleN))
-			return null;
 		
 		rlast.to = ruleN;
 		
@@ -101,20 +94,24 @@ public class DefaultSearchNodeRN extends BaseSearchNode {
 	
 	/********************** Compact Classes ****************************/
 
-	static class SingleRN extends CompactUnique {
+	static class SingleRN extends Unique {
 
-		int ruleN;
 		ISearchTreeNode node;
 
-		public SingleRN(int ruleN, ISearchTreeNode node) {
+		public SingleRN(ISearchTreeNode node) {
 			super();
-			this.ruleN = ruleN;
 			this.node = node;
 		}
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return scxt.calculateCondition(ruleN) ? node : null;
+			return node;
+		}
+
+		@Override
+		public ISearchTreeNode compactSearchNode() {
+			node = node.compactSearchNode();
+			return this;
 		}
 
 	}
@@ -131,61 +128,50 @@ public class DefaultSearchNodeRN extends BaseSearchNode {
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, 0);
+			scxt.store(0);
+			return nodes[0];
 		}
 		
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, (Integer)scxt.retrieve() + ruleRange.step);
-		}
-
-		private Object findNodeOrValue(SearchContext scxt, int step) {
-			for (; step < nodes.length; step++) {
-				int ruleN = ruleRange.from + step * ruleRange.step;
-				if (scxt.calculateCondition(ruleN))
-				{	
-					scxt.store(step);
-					return nodes[step];
-				}	
-			}
-
+			int idx = (Integer)scxt.retrieve() + ruleRange.step;
+			if (idx < ruleRange.to)
+			{
+				scxt.store(idx);
+				return nodes[idx];
+				
+			}	
 			return null;
 		}
+
 	}
 
 	static class ArrayRN extends Compact {
 
-		int[] ruleAry;
 		ISearchTreeNode[] nodes;
 
-		public ArrayRN(int[] ruleAry, ISearchTreeNode[] nodes) {
+		public ArrayRN(ISearchTreeNode[] nodes) {
 			super();
-			this.ruleAry = ruleAry;
 			this.nodes = nodes;
 		}
 
 		@Override
 		public Object findFirstNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, 0);
+			scxt.store(0);
+			return nodes[0];
 		}
 		
 		@Override
 		public Object findNextNodeOrValue(SearchContext scxt) {
-			return findNodeOrValue(scxt, (Integer)scxt.retrieve() + 1);
-		}
-
-		private Object findNodeOrValue(SearchContext scxt, int start) {
-			for (int idx = start; idx <= ruleAry.length; ++idx) {
-				
-				if (scxt.calculateCondition(ruleAry[idx]))
-				{	
-					scxt.store(idx);
-					return nodes[idx];
-				}	
-			}
-
+			int idx = (Integer)scxt.retrieve() + 1;
+			if (idx < nodes.length)
+			{
+				scxt.store(idx);
+				return nodes[idx];
+			}	
 			return null;
 		}
+
 	}
 }
 	

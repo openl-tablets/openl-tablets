@@ -15,7 +15,8 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 
 	private IndexInfo info;
 
-	public DecisionTableSearchTree(ISearchTreeNode root, ConditionDescriptor[] descriptors, IndexInfo info) {
+	public DecisionTableSearchTree(ISearchTreeNode root,
+			ConditionDescriptor[] descriptors, IndexInfo info) {
 		this.root = root;
 		this.descriptors = descriptors;
 		this.info = info;
@@ -31,10 +32,9 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 	public IIntIterator checkedRules(Object target, Object[] params,
 			IRuntimeEnv env) {
 
-        if (root == null)
-            return info.makeRuleIterator();
+		if (root == null)
+			return info.makeRuleIterator();
 
-		
 		SearchContext scxt = new SearchContext(target, params, env);
 
 		return searchFirst(scxt);
@@ -54,7 +54,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 				return SearchResult.found(scxt);
 			} else
 				scxt.setNextNode(next);
-			
+
 			next = scxt.currentNode().findNextNodeOrValue(scxt);
 			if (next == null) {
 				--scxt.currentConditionIdx;
@@ -63,7 +63,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 					return SearchResult.notFound(scxt);
 
 			}
-		}	
+		}
 	}
 
 	public SearchResult searchFirst(SearchContext scxt) {
@@ -75,23 +75,20 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 				next = backtrack(scxt);
 				if (next == null)
 					return SearchResult.notFound(scxt);
-			} else {
-
-				if (scxt.currentConditionIdx + 1 == descriptors.length) // last
-																		// node
-				{
-					scxt.setValue(next);
-					return SearchResult.found(scxt);
-				} else
-					scxt.setNextNode(next);
 
 			}
+			
+			if (scxt.currentConditionIdx + 1 == descriptors.length) // last
+																	// node
+			{
+				scxt.setValue(next);
+				return SearchResult.found(scxt);
+			} else
+				scxt.setNextNode(next);
 
 		}
 
 	}
-
-
 
 	private Object backtrack(SearchContext scxt) {
 
@@ -119,7 +116,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 		private ISearchTreeNode[] savedNodes;
 		Object[] indexedValues;
 		Object[] storedValues;
-		
+
 		public int savedRuleN;
 
 		public SearchContext(Object target, Object[] params, IRuntimeEnv env) {
@@ -146,35 +143,28 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 		public SearchResult findNext() {
 			return searchNext(this);
 		}
-		
-		
-		public Object getIndexedValue()
-		{
-			if (indexedValues[currentConditionIdx] == null)
-			{
-				ConditionDescriptor cd = descriptors[currentConditionIdx]; 
+
+		public Object getIndexedValue() {
+			if (indexedValues[currentConditionIdx] == null) {
+				ConditionDescriptor cd = descriptors[currentConditionIdx];
 				if (!cd.useIndexedValue)
 					return cd.evaluate(this);
 				indexedValues[currentConditionIdx] = cd.evaluate(this);
-				
-			}	
+
+			}
 			return indexedValues[currentConditionIdx];
 		}
-		
-		
-		public boolean calculateCondition(
-	            int ruleN)
-		{
-			return descriptors[currentConditionIdx].calculateCondition(ruleN, this);
+
+		public boolean calculateCondition(int ruleN) {
+			return descriptors[currentConditionIdx].calculateCondition(ruleN,
+					this);
 		}
 
-		public void store(Object  x) {
+		public void store(Object x) {
 			storedValues[currentConditionIdx] = x;
 		}
-		
-		
-		public Object retrieve()
-		{
+
+		public Object retrieve() {
 			return storedValues[currentConditionIdx];
 		}
 

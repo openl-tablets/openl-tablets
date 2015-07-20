@@ -117,7 +117,7 @@ public class DefaultNodeBuilder {
 		public boolean indexRuleN(ISearchTreeNode node, int ruleN) {
 			DefaultSearchNodeRi nodeRi = (DefaultSearchNodeRi)node;
 			nodeRi.addRule(ruleN);
-			return false;
+			return true;
 		}
 
 		@Override

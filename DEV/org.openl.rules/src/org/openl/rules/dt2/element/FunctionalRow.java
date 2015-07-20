@@ -55,6 +55,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow {
 
+
 	private static final String NO_PARAM = "P";
 
 	private String name;
@@ -629,4 +630,53 @@ public abstract class FunctionalRow implements IDecisionRow {
 		return (a == b) || (a != null && a.equals(b));
 	}
 
+	
+	@Override
+	public boolean hasEmptyRules() {
+		
+		int n = getNumberOfParams();
+		if (n  == 1)
+			return storage[0].getInfo().getNumberOfSpaces() > 0;
+		
+		boolean hasAnySpaces = false;	
+		for (int i = 0; i < n; i++) {
+			if (storage[i].getInfo().getNumberOfSpaces() > 0)
+			{
+				hasAnySpaces = true;
+				break;
+			}	
+		}	
+		if (!hasAnySpaces)
+			return false;
+		
+		int nRules = getNumberOfRules();
+		
+		for (int ruleN = 0; ruleN < nRules; ruleN++) {
+			boolean allSpaces = true;
+			for (int np = 0; np < n; np++) {
+				if (!storage[np].isSpace(ruleN))
+				{
+					allSpaces = false;
+					break;
+				}	
+			}
+			if (allSpaces)
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean hasSpecialRules() {
+		int n = getNumberOfParams();
+		for (int i = 0; i < n; i++) {
+			if (storage[i].getInfo().getNumberOfFormulas() > 0 || storage[i].getInfo().getNumberOfElses() > 0)			{
+				return true;
+			}	
+		}
+		
+		return false;
+	}
+	
 }
