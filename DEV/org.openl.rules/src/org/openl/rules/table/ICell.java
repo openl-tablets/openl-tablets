@@ -89,4 +89,6 @@ public interface ICell {
 
     IFormatter getDataFormatter();
 
+	ICell getTopLeftCellFromRegion();
+
 }
