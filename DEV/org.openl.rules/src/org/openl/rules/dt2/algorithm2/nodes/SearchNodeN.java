@@ -14,7 +14,10 @@ public class SearchNodeN extends ARTNode0N implements ISearchTreeNode{
 
 	@Override
 	public Object findFirstNodeOrValue(SearchContext scxt) {
-		return findNode((Integer) scxt.getIndexedValue());
+		Object res = scxt.getIndexedValue();
+		if (res == null)
+			return null;
+		return findNode((Integer)res);
 	}
 
 	@Override

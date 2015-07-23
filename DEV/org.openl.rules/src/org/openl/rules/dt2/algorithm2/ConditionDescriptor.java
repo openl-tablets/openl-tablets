@@ -47,7 +47,10 @@ public class ConditionDescriptor {
 
 		@Override
 		public Object evaluate(SearchContext c) {
-			return map.get(evaluator.invoke(c.target, c.params, c.env));
+			Object key = evaluator.invoke(c.target, c.params, c.env);
+			if (key == null)
+				return null;
+			return map.get(key);
 		}
 		
 	}
@@ -70,6 +73,8 @@ public class ConditionDescriptor {
 		@Override
 		public Object evaluate(SearchContext c) {
 			Object x = evaluator.invoke(c.target, c.params, c.env);
+			if (x == null)
+				return null;
 			if (rangeAdaptor != null)
 				x = rangeAdaptor.adaptValueType(x);
 			

@@ -55,7 +55,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 			} else
 				scxt.setNextNode(next);
 
-			next = scxt.currentNode().findNextNodeOrValue(scxt);
+			next = scxt.currentNode().findFirstNodeOrValue(scxt);
 			if (next == null) {
 				--scxt.currentConditionIdx;
 				next = backtrack(scxt);
@@ -107,7 +107,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
 			IDecisionTableTraceObject traceObject) {
 		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	public final class SearchContext extends RuntimeContext {
