@@ -156,7 +156,7 @@ public class RangeNodeBuilder {
 			Comparable max = getMax(ruleN);
 
 			final int from = min == null ? 0 : rangeMap.findIndex(min);
-			final int to = max == null ? rangeMap.size() - 1  : rangeMap.findIndex(max);
+			final int to = max == null ? rangeMap.size()   : rangeMap.findIndex(max);
 
 			SearchNodeV vnode = (SearchNodeV) node;
 	
@@ -237,7 +237,7 @@ public class RangeNodeBuilder {
 			Comparable max = getMax(ruleN);
 
 			final int from = min == null ? 0 : rangeMap.findIndex(min);
-			final int to = max == null ? rangeMap.size() - 1  : rangeMap.findIndex(max);
+			final int to = max == null ? rangeMap.size()   : rangeMap.findIndex(max);
 
 			final SearchNodeN snode = (SearchNodeN) node;
 
