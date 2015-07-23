@@ -14,7 +14,11 @@ class GridTableCell implements ICell {
     private IGridTable table;
     private ICell cell;
 
-    public GridTableCell(int column, int row, IGridTable table) {
+    public ICell getTopLeftCellFromRegion() {
+		return cell.getTopLeftCellFromRegion();
+	}
+
+	public GridTableCell(int column, int row, IGridTable table) {
         this.column = column;
         this.row = row;
         this.table = table;

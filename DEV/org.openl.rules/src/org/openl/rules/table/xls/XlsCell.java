@@ -180,7 +180,8 @@ public class XlsCell implements ICell {
         return dataFormatterFactory.getFormatter(this);
     }
 
-    private ICell getTopLeftCellFromRegion() {
+    @Override
+    public ICell getTopLeftCellFromRegion() {
         // Gets the top left cell in this region
         int row = region.getTop();
         int col = region.getLeft();

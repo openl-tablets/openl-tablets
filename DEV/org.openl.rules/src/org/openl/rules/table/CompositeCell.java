@@ -14,7 +14,11 @@ class CompositeCell implements ICell {
     private IGridRegion region;
     private ICell delegate;
     
-    /**
+    public ICell getTopLeftCellFromRegion() {
+		return delegate.getTopLeftCellFromRegion();
+	}
+
+	/**
      * parameters column and row are different from inner column and row in cell delegate. 
      */
     public CompositeCell(int column, int row, IGridRegion region, ICell delegate) {

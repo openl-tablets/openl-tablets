@@ -194,18 +194,25 @@ public class RuleRowHelper {
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getSource().getCell(0, 0);
+        
+        ICell theValueCell = theCell;
+        
+        if (theCell.getRegion() != null)
+        {
+        	 theValueCell = theCell.getTopLeftCellFromRegion();
+        }	
 
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
-            String src = theCell.getStringValue();
+            String src = theValueCell.getStringValue();
             if (src != null) src = src.length() <=4 ? src.intern() : src;
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
         }
         
         // load value as native type
-        if (theCell.hasNativeType()) {
-            if (theCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-                Object res = loadNativeValue(theCell,
+        if (theValueCell.hasNativeType()) {
+            if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+                Object res = loadNativeValue(theValueCell,
                     paramType,
                     openlAdapter.getBindingContext(),
                     paramName,
@@ -229,7 +236,7 @@ public class RuleRowHelper {
         
         // don`t move it up, as this call will convert native values such as numbers and dates to strings, it 
         // has negative performance implication
-        String src = theCell.getStringValue();
+        String src = theValueCell.getStringValue();
 // TODO review our using of intern()        
 // @see http://java-performance.info/string-intern-in-java-6-7-8/        
 //        if (src != null) src = src.intern();
