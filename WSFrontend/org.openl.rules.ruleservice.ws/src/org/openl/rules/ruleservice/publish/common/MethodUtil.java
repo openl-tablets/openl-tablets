@@ -67,6 +67,9 @@ public final class MethodUtil {
                         }
                         i++;
                     }
+                    if (f && i != m.getSignature().getNumberOfParameters()){
+                        f = false;
+                    }
                     if (f) {
                         List<String> parameterNames = new ArrayList<String>();
                         if (service.isProvideRuntimeContext()) {
