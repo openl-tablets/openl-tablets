@@ -13,7 +13,11 @@ import org.openl.util.formatters.IFormatter;
 public class CellDelegate implements ICell {
     private final ICell delegate;
 
-    public CellDelegate(ICell delegate) {
+    public ICell getTopLeftCellFromRegion() {
+		return delegate.getTopLeftCellFromRegion();
+	}
+
+	public CellDelegate(ICell delegate) {
         this.delegate = delegate;
     }
 
