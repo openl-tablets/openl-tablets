@@ -146,9 +146,6 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
         }
 
         step = (T) rowExtractor.extract(spreadsheetResult, row);
-        if (step != null){
-            step.setStepName(spreadsheetResult.getRowName(row));
-        }
         return step;
     }
 
