@@ -2,9 +2,12 @@ package org.openl.rules.ruleservice.publish;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.jws.WebService;
 
 import net.sf.cglib.core.ReflectUtils;
 
@@ -75,6 +78,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         OpenLService service = frontend.findServiceByName("dynamic-interface-test2");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
+        
         String[] methods = {
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/generated/beans/MyType;)Lorg/openl/generated/beans/MyType;",
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;" };
@@ -102,6 +106,10 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         OpenLService service = frontend.findServiceByName("dynamic-interface-test3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
+        
+        Annotation webServiceAnn = service.getServiceClass().getAnnotation(WebService.class);
+        assertNotNull(webServiceAnn);
+        
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Class<?> myClassClass = service.getServiceClass().getClassLoader()
                 .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
