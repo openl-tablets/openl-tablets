@@ -31,6 +31,7 @@ public class RulesDeploy {
     private String serviceName;
     private PublisherType[] publishers;
     private String interceptingTemplateClassName;
+    private String annotationTemplateClassName;
     private String serviceClass;
     private String url;
     private Map<String, Object> configuration;
@@ -104,9 +105,17 @@ public class RulesDeploy {
     public String getInterceptingTemplateClassName() {
         return interceptingTemplateClassName;
     }
-
+    
     public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
         this.interceptingTemplateClassName = interceptingTemplateClassName;
+    }
+
+    public String getAnnotationTemplateClassName() {
+        return annotationTemplateClassName;
+    }
+    
+    public void setAnnotationTemplateClassName(String annotationTemplateClassName) {
+        this.annotationTemplateClassName = annotationTemplateClassName;
     }
 
     public WildcardPattern[] getLazyModulesForCompilationPatterns() {
