@@ -109,7 +109,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         service.setClassLoader(serviceClassLoader);
         if (serviceClassName != null) {
             try {
-                serviceClass = serviceClassLoader.loadClass(serviceClassName);
+                serviceClass = serviceClassLoader.loadClass(serviceClassName.trim());
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
                     serviceClass);
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
@@ -156,10 +156,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 service.getName());
             return serviceClass;
         } else {
-            String clazzName = serviceDescription.getInterceptorTemplateClassName();
+            String clazzName = serviceDescription.getAnnotationTemplateClassName();
             if (clazzName != null) {
                 try {
-                    Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName);
+                    Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName.trim());
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                         interceptingTemplateClass,
                         classLoader);

@@ -116,7 +116,10 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                     serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                                 }
                                 if (rulesDeploy.getInterceptingTemplateClassName() != null) {
-                                    serviceDescriptionBuilder.setInterceptingTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
+                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
+                                }
+                                if (rulesDeploy.getAnnotationTemplateClassName() != null) {
+                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getAnnotationTemplateClassName());
                                 }
                             }
                         } catch (ProjectException e) {

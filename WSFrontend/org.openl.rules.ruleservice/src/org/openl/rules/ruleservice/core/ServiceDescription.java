@@ -21,7 +21,7 @@ public final class ServiceDescription {
     private String name;
     private String url;
     private String serviceClassName;
-    private String interceptingTemplateClassName;
+    private String annotationTemplateClassName;
     private boolean provideRuntimeContext;
     private boolean useRuleServiceRuntimeContext;
     private boolean provideVariations;
@@ -43,7 +43,7 @@ public final class ServiceDescription {
     ServiceDescription(String name,
             String url,
             String serviceClassName,
-            String interceptingTemplateClassName,
+            String annotationTemplateClassName,
             boolean provideRuntimeContext,
             boolean useRuleServiceRuntimeContext,
             boolean provideVariations,
@@ -57,7 +57,7 @@ public final class ServiceDescription {
         this.provideRuntimeContext = provideRuntimeContext;
         this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
-        this.interceptingTemplateClassName = interceptingTemplateClassName;
+        this.annotationTemplateClassName = annotationTemplateClassName;
         if (configuration == null) {
             this.configuration = Collections.emptyMap();
         } else {
@@ -77,7 +77,7 @@ public final class ServiceDescription {
         this(builder.name,
             builder.url,
             builder.serviceClassName,
-            builder.interceptingTemplateClassName,
+            builder.annotationTemplateClassName,
             builder.provideRuntimeContext,
             builder.useRuleServiceRuntimeContext,
             builder.provideVariations,
@@ -88,12 +88,12 @@ public final class ServiceDescription {
     }
 
     /**
-     * Returns interceptor template class name
+     * Returns annotation template class name
      * 
      * @return class name
      */
-    public String getInterceptorTemplateClassName() {
-        return interceptingTemplateClassName;
+    public String getAnnotationTemplateClassName() {
+        return annotationTemplateClassName;
     }
 
     /**
@@ -218,7 +218,7 @@ public final class ServiceDescription {
         private String name;
         private String url;
         private String serviceClassName;
-        private String interceptingTemplateClassName;
+        private String annotationTemplateClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
         private boolean useRuleServiceRuntimeContext = false;
@@ -247,12 +247,12 @@ public final class ServiceDescription {
         }
 
         /**
-         * Sets intercepting template class name
+         * Sets annotation template class name
          * 
-         * @param interceptingTemplateClassName
+         * @param annotationTemplateClassName
          */
-        public ServiceDescriptionBuilder setInterceptingTemplateClassName(String interceptingTemplateClassName) {
-            this.interceptingTemplateClassName = interceptingTemplateClassName;
+        public ServiceDescriptionBuilder setAnnotationTemplateClassName(String annotationTemplateClassName) {
+            this.annotationTemplateClassName = annotationTemplateClassName;
             return this;
         }
 
