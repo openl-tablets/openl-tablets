@@ -5,6 +5,8 @@ jdk:
   - openjdk7
   - openjdk6
 
+sudo: required
+
 install: true
 
 script: mvn clean install
