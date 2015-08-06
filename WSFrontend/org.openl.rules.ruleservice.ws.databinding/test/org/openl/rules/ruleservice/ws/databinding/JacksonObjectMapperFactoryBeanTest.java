@@ -177,6 +177,9 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setEnableDefaultTyping(false);
         bean.setSupportVariations(true);
+        Set<String> overrideTypes = new HashSet<String>();
+        overrideTypes.add(CompoundStep.class.getName());
+        bean.setOverrideTypes(overrideTypes);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
 
         ArgumentReplacementVariation v = new ArgumentReplacementVariation("variationID", 1, new DoubleValue(123d));
@@ -208,7 +211,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Assert.assertTrue(variationsResult instanceof VariationsResult);
         Assert.assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
     }
-
+    
     @Test
     public void testSpreadsheetResult() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();

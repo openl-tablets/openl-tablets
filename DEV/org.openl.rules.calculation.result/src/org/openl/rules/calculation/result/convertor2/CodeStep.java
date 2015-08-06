@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  */
 
 @XmlRootElement
-@XmlSeeAlso({CalculationStep.class, SimpleStep.class})
+@XmlSeeAlso({CompoundStep.class, SimpleStep.class})
 public class CodeStep extends CalculationStep {
 
     private static final long serialVersionUID = 7372598798002605558L;
