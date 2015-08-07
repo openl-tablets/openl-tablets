@@ -8,24 +8,18 @@
             />
 
     <target name="change" description="Change Version">
-    	<echo>Updating openl.version.properties file</echo>
+        <echo>Updating openl.version.properties file</echo>
 
         <replaceregexp byline="true" description="Updates OpenL version">
             <regexp pattern="openl.version=(.*)"/>
             <substitution expression="openl.version=${version}"/>
-            <fileset refid="openl_version_file"/>
-        </replaceregexp>   	
-    	
-        <replaceregexp byline="true" description="Updates build number">
-            <regexp pattern="openl.build=(.*)"/>
-            <substitution expression="openl.build=${build}"/>
             <fileset refid="openl_version_file"/>
         </replaceregexp>
     </target>
 
     <target name="help">
         <echo>
-            1. Specify 'version' and 'build' properties in release.properties file.
+            1. Specify 'version' properties in release.properties file.
             2. Start this build script with target 'change'
 
             Note: it does not change version in pom.xml files
