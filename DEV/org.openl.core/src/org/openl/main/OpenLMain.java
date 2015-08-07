@@ -108,7 +108,7 @@ public class OpenLMain implements SourceCodeURLConstants {
      * Trivial 'main' - delegates to non-static 'run'.
      */
     public static void main(String[] args) throws Exception {
-        System.out.println("OpenL main(),  Version " + OpenLVersion.getVersion() + " Build " + OpenLVersion.getBuild()
+        System.out.println("OpenL main(),  Version " + OpenLVersion.getVersion()
                 + " " + OpenLVersion.getURL() + " (c) " + OpenLVersion.getCopyrightYear());
 
         new OpenLMain(null).run(args);

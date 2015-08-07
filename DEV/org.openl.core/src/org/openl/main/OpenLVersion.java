@@ -17,15 +17,10 @@ public class OpenLVersion {
 
     public static final String PROP_FILE_NAME = "openl.version.properties";
     public static final String PROP_VERSION_NAME = "openl.version";
-    public static final String PROP_BUILD_NAME = "openl.build";
     public static final String PROP_URL_NAME = "openl.url";
     public static final String PROP_YEAR_NAME = "openl.copyrightyear";
 
     private static Properties props = null;
-
-    public static String getBuild() {
-        return getProperties().getProperty(PROP_BUILD_NAME, "??");
-    }
 
     public static String getCopyrightYear() {
         return getProperties().getProperty(PROP_YEAR_NAME, "??");
