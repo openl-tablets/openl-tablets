@@ -5,8 +5,6 @@
 		all projects are placed into single workspace and full SVN project structure.
 	</description>
 
-	<import file="changeVersion.xml"/>
-
 	<property file="release.properties"/>
 
 	<!-- BEGIN M2 PRESET -->
@@ -45,11 +43,6 @@
 	</target>
 
 	<target name="changeVersionsBeforeCommit">
-        	<antcall target="change">
-			<param name="projects_root" value="${moduleFolder}"/>
-			<param name="previous_version" value="${current_version}"/>
-			<param name="version" value="${release_version}"/>
-		</antcall>
 		<!--<antcall target="commitModule"/>-->
 	</target>
 	
@@ -72,12 +65,6 @@
 	</target>
 	
 	<target name="changeVersionsAfterCommit">
-
-        <antcall target="change">
-			<param name="projects_root" value="${moduleFolder}"/>
-			<param name="previous_version" value="${release_version}"/>
-			<param name="version" value="${next_version}"/>
-		</antcall>
 		<antcall target="commitModule"/>
 	</target>
 
