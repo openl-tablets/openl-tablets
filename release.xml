@@ -1,100 +1,63 @@
 <project name="overallRelease" default="help" basedir=".">
 
-	<description>
-	    This script is designed to build all projects from base-pom in two ways:
-		all projects are placed into single workspace and full SVN project structure.
-	</description>
+    <description>
+        This script is designed to build all projects from base-pom in two ways:
+        all projects are placed into single workspace and full SVN project structure.
+    </description>
 
-	<import file="changeVersion.xml"/>
+    <property file="release.properties"/>
 
-	<property file="release.properties"/>
+    <!-- BEGIN M2 PRESET -->
+    <property name="maven.commoncmd" value=""/>
 
-	<!-- BEGIN M2 PRESET -->
- 	<property name="maven.commoncmd" value="" />
+    <condition property="maven.line" value="--offline ${maven.commoncmd}">
+        <istrue value="${offline}"/>
+    </condition>
+    <property name="maven.line" value="${maven.commoncmd}"/>
 
-	<condition property="maven.line" value="--offline ${maven.commoncmd}">
-		<istrue value="${offline}" />
-	</condition>
-    	<property name="maven.line" value="${maven.commoncmd}" />
+    <condition property="maven.executable" value="mvn.bat">
+        <os family="windows"/>
+    </condition>
+    <property name="maven.executable" value="mvn"/>
 
-    	<condition property="maven.executable" value="mvn.bat">
-        	<os family="windows" />
-	</condition>
-	<property name="maven.executable" value="mvn" />
+    <condition property="maven.executable.real" value="${m2.home}/bin/${maven.executable}">
+        <isset property="m2.home"/>
+    </condition>
+    <property name="maven.executable.real" value="${maven.executable}"/>
 
-	<condition property="maven.executable.real" value="${m2.home}/bin/${maven.executable}">
-		<isset property="m2.home" />
-	</condition>
-	<property name="maven.executable.real" value="${maven.executable}"/>
+    <presetdef name="maven">
+        <exec failonerror="true" executable="${maven.executable.real}">
+            <arg line="${maven.line}"/>
+        </exec>
+    </presetdef>
+    <!-- END M2 PRESET -->
 
-	<presetdef name="maven">
-		<exec failonerror="true" executable="${maven.executable.real}">
-			<arg line="${maven.line}" />
-		</exec>
-	</presetdef>
-	<!-- END M2 PRESET -->
-	
-	<target name="commitModule">
-		<echo>${moduleFolder}</echo>
-		<echo>${scmLogin}</echo>
-		<echo>${scmPassword}</echo>
-		<exec executable="hg">
-			<arg line="commit ${moduleFolder}"/>
-			<arg line="-m &quot;EPBDS Temporary changed versions for release.&quot;"/>
-		</exec>
-	</target>
+    <target name="releaseModule">
+        <!--<echo>release:prepare</echo>
+        <maven dir="${moduleFolder}">
+            <arg line="-B -X release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -DreleaseVersion=${release_version} -Dstaging.hg.repo.url=${local_staging_repo} -Darguments=&quot;-P internal-deploy&quot;"/>
+        </maven>-->
 
-	<target name="changeVersionsBeforeCommit">
-        	<antcall target="change">
-			<param name="projects_root" value="${moduleFolder}"/>
-			<param name="previous_version" value="${current_version}"/>
-			<param name="version" value="${release_version}"/>
-		</antcall>
-		<!--<antcall target="commitModule"/>-->
-	</target>
-	
-	<target name="releaseModule">
-		<!--<echo>Changing versions before the release</echo>
-		<antcall target="changeVersionsBeforeCommit"/>-->
+        <echo>release:perform</echo>
+        <maven dir="${moduleFolder}">
+            <arg line="-B release:perform -Darguments=&quot;-P internal-deploy,gpg-sign -Dgpg.passphrase=${passphrase} -Dstaging.hg.repo.url=${local_staging_repo}&quot;"/>
+        </maven>
+    </target>
 
-		<!--<echo>release:prepare</echo>		
-		<maven dir="${moduleFolder}">
-			<arg line="-B -X release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -DreleaseVersion=${release_version} -Dstaging.hg.repo.url=${local_staging_repo} -Darguments=&quot;-P internal-deploy&quot;"/>
-		</maven>-->
+    <target name="releaseAll">
+        <antcall target="releaseModule">
+            <param name="moduleFolder" value="${root_folder}"/>
+        </antcall>
+    </target>
 
-		<echo>release:perform</echo>
-		<maven dir="${moduleFolder}">
-			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy,gpg-sign -Dgpg.passphrase=${passphrase} -Dstaging.hg.repo.url=${local_staging_repo}&quot;" />
-		</maven>
-
-		<!--<echo>Changing versions after the release</echo>
-		<antcall target="changeVersionsAfterCommit"/>-->
-	</target>
-	
-	<target name="changeVersionsAfterCommit">
-
-        <antcall target="change">
-			<param name="projects_root" value="${moduleFolder}"/>
-			<param name="previous_version" value="${release_version}"/>
-			<param name="version" value="${next_version}"/>
-		</antcall>
-		<antcall target="commitModule"/>
-	</target>
-
-	<target name="releaseAll">
-		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}"/>
-		</antcall>
-	</target>
-	
-	<target name="help">
+    <target name="help">
         <echo>
-        	Run this script with predefined properties in release.properties file with target "fullRelease":
-        		current_version - current version
-				release_version - version which will be used for release
-	        	next_version - version to use for development
+            Run this script with predefined properties in release.properties file with target "fullRelease":
+            current_version - current version
+            release_version - version which will be used for release
+            next_version - version to use for development
         </echo>
-	</target>
+    </target>
 </project>
 
-<!-- http://weblogs.java.net/blog/fabriziogiudici/archive/2009/10/29/fixing-two-problems-maven-mercurial-hudson-->
+        <!-- http://weblogs.java.net/blog/fabriziogiudici/archive/2009/10/29/fixing-two-problems-maven-mercurial-hudson-->
