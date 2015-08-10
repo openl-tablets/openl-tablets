@@ -7,12 +7,14 @@ import javax.xml.bind.annotation.XmlElement;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
+import org.openl.util.generation.DefaultValue;
 
 /**
  * Writes getters to the generated bean class.
@@ -70,7 +72,12 @@ public class GettersWriter extends MethodWriter {
         
         AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(XmlElement.class), true);
         av.visit("name", elementName);
-        av.visit("nillable", true);
+        
+        if (fieldEntry.getValue().hasDefaultValue()){
+            av.visit("defaultValue", fieldEntry.getValue().getDefaultValueAsString());
+        }else{
+            av.visit("nillable", true);    
+        }
         av.visitEnd();
         
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
