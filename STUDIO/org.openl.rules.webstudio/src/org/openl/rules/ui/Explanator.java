@@ -63,10 +63,10 @@ public class Explanator {
         return rfTree;
     }
 
-    public static List<String[]> getExplainList(String rootID, String expandID, String fromID) {
+    public static List<String[]> getExplainList(String rootID, String expandID) {
         Explanator explanator = getCurrent();
         Explanation explanation = explanator.getExplanation(rootID);
-        List<String[]> result = explanation.getExplainList(expandID, fromID);
+        List<String[]> result = explanation.getExplainList(expandID);
         return result;
     }
 }
