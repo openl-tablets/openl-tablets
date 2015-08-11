@@ -30,17 +30,13 @@ public class Explanator {
         return explanator;
     }
 
-    public ExplanationNumberValue<?> find(String expandID) {
-        return id2value.get(Integer.parseInt(expandID));
-    }
-
-    public Explanation getExplanation(String rootID) {
+    private Explanation getExplanation(String rootID) {
         Explanation expl = explanators.get(rootID);
         if (expl == null) {
             int id = Integer.parseInt(rootID);
 
             ExplanationNumberValue<?> value = id2value.get(id);
-            expl = new Explanation(this, value);
+            expl = new Explanation(value, rootID);
             explanators.put(rootID, expl);
         }
         return expl;

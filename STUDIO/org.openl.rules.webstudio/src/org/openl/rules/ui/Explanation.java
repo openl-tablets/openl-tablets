@@ -2,6 +2,7 @@ package org.openl.rules.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,16 +20,13 @@ public class Explanation {
     private static final int MAX_LEVEL = 2; // Maximum expansion level for
                                             // formulas
 
-    private ExplanationNumberValue<?> root;
+    private String rootID;
 
     private List<ExplanationNumberValue<?>> expandedValues = new ArrayList<ExplanationNumberValue<?>>();
     private Map<Integer, Integer> expandLevels = new HashMap<Integer, Integer>();
 
-    private Explanator explanator;
-
-    public Explanation(Explanator explanator, ExplanationNumberValue<?> root) {
-        this.explanator = explanator;
-        this.root = root;
+    public Explanation(ExplanationNumberValue<?> root, String rootID) {
+        this.rootID = rootID;
         expandedValues.add(root);
     }
 
@@ -100,12 +98,12 @@ public class Explanation {
 
     private String expandValue(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
-        int id = explanator.getUniqueId(explanationValue);
+        int id = getUniqueId(explanationValue);
 
         if (isExpanded(explanationValue)) {
             return "<span class='expanded' data-id='" + id + "'>" + value + "</span>";
         } else {
-            String url = "?rootID=" + explanator.getUniqueId(root) + "&expandID=" + id + "&from=" + currentId;
+            String url = "?rootID=" + rootID + "&expandID=" + id + "&from=" + currentId;
             return HTMLHelper.urlLink(url, "Explain", value, null, "explain");
         }
     }
@@ -164,7 +162,7 @@ public class Explanation {
 
     private String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
-        int id = explanator.getUniqueId(explanationValue);
+        int id = getUniqueId(explanationValue);
         currentId = id;
 
         Integer level = expandLevels.get(id);
@@ -177,7 +175,7 @@ public class Explanation {
 
     public List<String[]> getExplainList(String expandID, String fromID) {
         if (expandID != null) {
-            ExplanationNumberValue<?> ev = explanator.find(expandID);
+            ExplanationNumberValue<?> ev = find(expandID);
 
             if (!isExpanded(ev)) {
                 expandedValues.add(ev);
@@ -201,5 +199,28 @@ public class Explanation {
 
         return expandedValuesList;
 
+    }
+
+    private int uniqueId = 0;
+
+    private IdentityHashMap<ExplanationNumberValue<?>, Integer> value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
+
+    private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
+
+    private ExplanationNumberValue<?> find(String expandID) {
+        return id2value.get(Integer.parseInt(expandID));
+    }
+
+    private int getUniqueId(ExplanationNumberValue<?> value) {
+        Integer id = value2id.get(value);
+
+        if (id != null) {
+            return id;
+        }
+
+        id = ++uniqueId;
+        value2id.put(value, id);
+        id2value.put(id, value);
+        return id;
     }
 }
