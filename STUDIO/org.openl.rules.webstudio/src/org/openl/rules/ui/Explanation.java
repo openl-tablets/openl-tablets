@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.meta.IMetaInfo;
-import org.openl.meta.ValueMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -42,39 +41,35 @@ public class Explanation {
 
     private String expandArgument(ExplanationNumberValue<?> value,
             boolean isMultiplicative,
-            String parentUrl,
             int level, Integer indent) {
 
         if (value == null) {
             return null;
         }
 
-        String url = findUrl(value, parentUrl);
         if (value.isFormula()) {
             if (value.getFormula().isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
-                return expandFormula(value, url, level + 1, indent);
+                return expandFormula(value, level + 1, indent);
             }
             return expandValue(value, indent);
         } else if (value.isCast()) {
-            return expandCast(value, isMultiplicative, url, level, indent);
+            return expandCast(value, isMultiplicative, level, indent);
         } else if (value.isFunction()) {
             return expandValue(value, indent);
         }
         return resultValue(value);
     }
 
-    private String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level, Integer indent) {
-        String url = findUrl(value, parentUrl);
+    private String expandFormula(ExplanationNumberValue<?> value, int level, Integer indent) {
 
-        String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level, indent);
-        String arg2 = expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), url, level, indent);
+        String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), level, indent);
+        String arg2 = expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), level, indent);
         String operand = value.getFormula().getOperand();
 
         return String.format("%s %s %s", arg1, operand, arg2);
     }
 
     private String expandFunction(ExplanationNumberValue<?> value, Integer indent) {
-        String url = findUrl(value, null);
         StringBuilder ret = new StringBuilder(value.getFunction().getFunctionName().toUpperCase()).append(" (");
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
@@ -83,17 +78,15 @@ public class Explanation {
                 ret.append(", ");
             }
             ExplanationNumberValue<?> param = params[i];
-            ret.append(expandArgument(param, true, url, 0, indent));
+            ret.append(expandArgument(param, true, 0, indent));
         }
         return ret.append(")").toString();
     }
 
-    private String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level, Integer indent) {
-        String url = findUrl(value, parentUrl);
-
+    private String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, int level, Integer indent) {
         CastOperand operand = value.getCast().getOperand();
 
-        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, url, level, indent);
+        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, level, indent);
 
         return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
@@ -116,7 +109,7 @@ public class Explanation {
 
         IMetaInfo mi = explanationValue.getMetaInfo();
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
-        String url = findUrl(explanationValue, null);
+        String url = mi != null ? mi.getSourceUrl() : null;
 
         if (url != null && name != null) {
             value = HTMLHelper.urlLink(WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool.encodeURL(url) + "&text=" + name,
@@ -133,30 +126,13 @@ public class Explanation {
         return FormattersManager.format(explanationValue);
     }
 
-    private String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
-        String url = null;
-
-        ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
-        if (mi != null) {
-            // Get cell uri
-            url = mi.getSourceUrl();
-        }
-
-        if (url == null) {
-            url = parentUrl;
-        }
-
-        return url;
-
-    }
-
     private String htmlString(ExplanationNumberValue<?> value, Integer indent) {
         if (value.isFormula()) {
-            return expandFormula(value, null, 0, indent);
+            return expandFormula(value, 0, indent);
         } else if (value.isFunction()) {
             return expandFunction(value, indent);
         } else if (value.isCast()) {
-            return expandCast(value, false, null, 0, indent);
+            return expandCast(value, false, 0, indent);
         }
         return resultValue(value);
     }
