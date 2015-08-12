@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.meta.IMetaInfo;
+import org.openl.meta.explanation.CastExplanationValue;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.explanation.FormulaExplanationValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
@@ -39,32 +41,35 @@ public class Explanation {
         return false;
     }
 
-    private String expandArgument(ExplanationNumberValue<?> value,
-            boolean isMultiplicative,
-            int level, Integer indent) {
+    private String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, int level, Integer indent) {
 
         if (value == null) {
             return null;
         }
 
-        if (value.isFormula()) {
-            if (value.getFormula().isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
-                return expandFormula(value, level + 1, indent);
-            }
-            return expandValue(value, indent);
-        } else if (value.isCast()) {
-            return expandCast(value, isMultiplicative, level, indent);
-        } else if (value.isFunction()) {
-            return expandValue(value, indent);
+        if (!value.isFunction() && !value.isFormula() && !value.isCast()) {
+            return resultValue(value);
         }
-        return resultValue(value);
+
+        if (value.isCast() && value.getCast().getOperand().isAutocast()) {
+            return expandCast(value, level, indent);
+        }
+
+        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || (value.isFormula() && value.getFormula().isMultiplicative() != isMultiplicative)) {
+            expandLevels.put(value, indent + 1);
+            return expandValue(value);
+        }
+
+        return expandFormula(value, level + 1, indent);
     }
 
     private String expandFormula(ExplanationNumberValue<?> value, int level, Integer indent) {
 
-        String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), level, indent);
-        String arg2 = expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), level, indent);
-        String operand = value.getFormula().getOperand();
+        FormulaExplanationValue<? extends ExplanationNumberValue<?>> formula = value.getFormula();
+        String arg1 = expandArgument(formula.getV1(), formula.isMultiplicative(), level, indent);
+        String arg2 = expandArgument(formula.getV2(), formula.isMultiplicative(), level, indent);
+        String operand = formula.getOperand();
+        formula.isMultiplicative();
 
         return String.format("%s %s %s", arg1, operand, arg2);
     }
@@ -78,27 +83,28 @@ public class Explanation {
                 ret.append(", ");
             }
             ExplanationNumberValue<?> param = params[i];
-            ret.append(expandArgument(param, true, 0, indent));
+            ret.append(expandArgument(param, false, MAX_LEVEL, indent));
         }
         return ret.append(")").toString();
     }
 
-    private String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, int level, Integer indent) {
-        CastOperand operand = value.getCast().getOperand();
+    private String expandCast(ExplanationNumberValue<?> value, int level, Integer indent) {
+        CastExplanationValue castExplanation = value.getCast();
+        CastOperand operand = castExplanation.getOperand();
+        boolean autocast = operand.isAutocast();
 
-        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, level, indent);
+        String argument = expandArgument(castExplanation.getValue(), autocast, level, indent);
 
-        return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
+        return autocast ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
 
-    private String expandValue(ExplanationNumberValue<?> explanationValue, Integer indent) {
+    private String expandValue(ExplanationNumberValue<?> explanationValue) {
         String value = getFormattedValue(explanationValue);
         int id = getUniqueId(explanationValue);
 
         if (isExpanded(explanationValue)) {
             return "<span class='expanded' data-id='" + id + "'>" + value + "</span>";
         } else {
-            expandLevels.put(explanationValue, indent + 1);
             String url = "?rootID=" + rootID + "&expandID=" + id;
             return HTMLHelper.urlLink(url, "Explain", value, null, "explain");
         }
@@ -132,7 +138,7 @@ public class Explanation {
         } else if (value.isFunction()) {
             return expandFunction(value, indent);
         } else if (value.isCast()) {
-            return expandCast(value, false, 0, indent);
+            return expandCast(value, 0, indent);
         }
         return resultValue(value);
     }
