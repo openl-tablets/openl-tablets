@@ -37,7 +37,6 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
     private int rmiPort = 1099; //Default RMI port
     private String rmiHost = "127.0.0.1"; //Default RMI host
-    private Registry registry;
     
     public void setRmiPort(int rmiPort) {
         this.rmiPort = rmiPort;
@@ -56,10 +55,18 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
     }
     
     public synchronized Registry getRegistry() throws RemoteException {
-        if (registry == null){
-            registry = LocateRegistry.createRegistry(getRmiPort());
+        synchronized (LocateRegistry.class) {
+            try {
+                // Retrieve existing registry.
+                Registry reg = LocateRegistry.getRegistry(getRmiPort());
+                reg.list();
+                return reg;
+            }
+            catch (RemoteException ex) {
+                // Assume no registry found -> create new one.
+                return LocateRegistry.createRegistry(getRmiPort());
+            }
         }
-        return registry;
     }
 
     public String getBaseAddress() {

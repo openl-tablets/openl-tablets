@@ -116,6 +116,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
             } catch (ClassNotFoundException e) {
                 log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
+            } catch (NoClassDefFoundError e) {
+                log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
             }
         }
         if (serviceClass == null) {
@@ -135,6 +137,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
             } catch (ClassNotFoundException e) {
+                log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
+            }catch (NoClassDefFoundError e) {
                 log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
             }
         }
@@ -188,6 +192,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         serviceDescription.getName());
                     return decoratedClass;
                 } catch (Exception e) {
+                    log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                        clazzName,
+                        e);
+                } catch (NoClassDefFoundError e) {
                     log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
                         clazzName,
                         e);
