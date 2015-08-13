@@ -9,6 +9,7 @@ import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.openl.extension.Deserializer;
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
 
 public class SingleFileXmlDeserializer implements Deserializer<ExtensionModule> {
@@ -54,8 +55,10 @@ public class SingleFileXmlDeserializer implements Deserializer<ExtensionModule> 
     @Override
     public ExtensionModule deserialize(InputStream source) {
         ExtensionModuleImpl extensionModule = (ExtensionModuleImpl) xstream.fromXML(source);
-        for (Sheet group : extensionModule.getSheets()) {
-            postProcess(group);
+        for (LazyWorkbook workbook : extensionModule.getWorkbooks()) {
+            for (Sheet group : workbook.getSheets()) {
+                postProcess(group);
+            }
         }
         return extensionModule;
     }
@@ -65,13 +68,13 @@ public class SingleFileXmlDeserializer implements Deserializer<ExtensionModule> 
             for (Table table : sheet.getTables()) {
                 TableImpl t = (TableImpl) table;
 
-                List<Condition> verticalConditions = t.getVerticalConditions();
+                List<ConditionImpl> verticalConditions = t.getVerticalConditions();
                 if (verticalConditions == null) {
-                    t.setVerticalConditions(Collections.<Condition>emptyList());
+                    t.setVerticalConditions(Collections.<ConditionImpl>emptyList());
                 }
-                List<Condition> horizontalConditions = table.getHorizontalConditions();
+                List<ConditionImpl> horizontalConditions = table.getHorizontalConditions();
                 if (horizontalConditions == null) {
-                    t.setHorizontalConditions(Collections.<Condition>emptyList());
+                    t.setHorizontalConditions(Collections.<ConditionImpl>emptyList());
                 }
             }
         }

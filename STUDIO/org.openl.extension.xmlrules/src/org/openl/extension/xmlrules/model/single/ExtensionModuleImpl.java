@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 
 public class ExtensionModuleImpl implements ExtensionModule {
     private String formatVersion;
     private String xlsFileName;
-    private List<Sheet> sheets = new ArrayList<Sheet>();
+    private List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
 
     @Override
     public String getFormatVersion() {
@@ -20,7 +21,7 @@ public class ExtensionModuleImpl implements ExtensionModule {
     }
 
     @Override
-    public String getXlsFileName() {
+    public String getFileName() {
         return xlsFileName;
     }
 
@@ -29,11 +30,7 @@ public class ExtensionModuleImpl implements ExtensionModule {
     }
 
     @Override
-    public List<Sheet> getSheets() {
-        return sheets;
-    }
-
-    public void setSheets(List<Sheet> sheets) {
-        this.sheets = sheets;
+    public List<LazyWorkbook> getWorkbooks() {
+        return workbooks;
     }
 }

@@ -1,7 +1,10 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.FunctionExpression;
 
+@XmlType(name = "function-expression")
 public class FunctionExpressionImpl implements FunctionExpression {
     private String stepName;
     private String stepType;

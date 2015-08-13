@@ -3,28 +3,26 @@ package org.openl.extension.xmlrules.model.lazy;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.thoughtworks.xstream.XStream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.apache.commons.io.IOUtils;
 import org.openl.extension.xmlrules.model.single.XlsRegionImpl;
 
 public abstract class BaseLazyItem<T> {
-    private final XStream xstream;
     private final File file;
     private final String entryName;
     private WeakReference<T> info = new WeakReference<T>(null);
 
-    public BaseLazyItem(XStream xstream, File file, String entryName) {
-        this.xstream = xstream;
+    public BaseLazyItem(File file, String entryName) {
         this.file = file;
         this.entryName = entryName;
-    }
-
-    protected XStream getXstream() {
-        return xstream;
     }
 
     protected File getFile() {
@@ -69,14 +67,22 @@ public abstract class BaseLazyItem<T> {
 
             InputStream inputStream = zipFile.getInputStream(entry);
             try {
+                JAXBContext context = JAXBContext.newInstance("org.openl.extension.xmlrules.model.single");
+                Unmarshaller m = context.createUnmarshaller();
                 @SuppressWarnings("unchecked")
-                T item = (T) xstream.fromXML(inputStream);
+                T item = (T) m.unmarshal(new InputStreamReader(inputStream, "UTF-8"));
                 return item;
+
+//                @SuppressWarnings("unchecked")
+//                T item = (T) xstream.fromXML(inputStream);
+//                return item;
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
+        } catch (JAXBException e) {
+            throw new IllegalStateException("Can't deserialize the file: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new IllegalStateException("Can't deserialize the file", e);
+            throw new IllegalStateException("Can't deserialize the file: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipFile);
         }

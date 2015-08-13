@@ -29,7 +29,7 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
     @Override
     public ICell getCell(int column, int row) {
         Map<Integer, ICell> columns = rows.get(row);
-        SimpleCell emptyCell = new SimpleCell(column, row, "");
+        SimpleCell emptyCell = new SimpleCell(column, row, null);
         ICell cell = columns == null ? emptyCell : columns.get(column);
         return cell == null ? emptyCell : cell;
     }

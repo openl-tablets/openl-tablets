@@ -11,9 +11,9 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.apache.commons.io.IOUtils;
 import org.openl.extension.Deserializer;
 import org.openl.extension.xmlrules.model.*;
-import org.openl.extension.xmlrules.model.lazy.ExtensionModuleInfo;
+import org.openl.extension.xmlrules.model.single.ExtensionModuleInfo;
 import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
-import org.openl.extension.xmlrules.model.lazy.SheetInfo;
+import org.openl.extension.xmlrules.model.single.SheetInfo;
 import org.openl.extension.xmlrules.model.single.*;
 
 public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
@@ -60,9 +60,11 @@ public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
         xstream.aliasField("data-instance-entries", SheetInfo.class, "dataInstanceEntries");
         xstream.aliasField("table-entries", SheetInfo.class, "tableEntries");
         xstream.aliasField("function-entries", SheetInfo.class, "functionEntries");
+        xstream.aliasField("data-instance", Reference.class, "dataInstance");
 
         xstream.aliasType(TYPE_TAG, TypeImpl.class);
         xstream.aliasType(DATA_INSTANCE_TAG, DataInstanceImpl.class);
+        xstream.aliasType("reference", Reference.class);
         xstream.aliasType(FIELD_TAG, FieldImpl.class);
         xstream.aliasType(TABLE_TAG, TableImpl.class);
         xstream.aliasType(FUNCTION_TAG, FunctionImpl.class);
@@ -72,11 +74,14 @@ public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
         xstream.aliasType(RETURN_TAG, ReturnValueImpl.class);
         xstream.aliasType(XLS_REGION_TAG, XlsRegionImpl.class);
         xstream.aliasType(PARAMETER_TAG, ParameterImpl.class);
+        xstream.aliasType("single-value", SingleValue.class);
+        xstream.aliasType("array-value", ArrayValue.class);
 
         xstream.useAttributeFor(ExpressionImpl.class, "value");
         xstream.useAttributeFor(ExpressionImpl.class, "width");
         xstream.useAttributeFor(ExpressionImpl.class, "height");
         xstream.useAttributeFor(ReturnValueImpl.class, "value");
+        xstream.useAttributeFor(SingleValue.class, "value");
 
         xstream.aliasType(SEGMENT_TAG, SegmentImpl.class);
     }
@@ -84,7 +89,7 @@ public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
     @Override
     public ExtensionModule deserialize(InputStream source) {
         IOUtils.closeQuietly(source); // TODO remove it
-        return new LazyExtensionModule(xstream, file, ENTRY_POINT);
+        return new LazyExtensionModule(file, ENTRY_POINT);
     }
 
 }

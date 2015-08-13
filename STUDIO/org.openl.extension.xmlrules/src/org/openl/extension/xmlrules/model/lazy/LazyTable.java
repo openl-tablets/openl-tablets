@@ -4,13 +4,16 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
-import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.Segment;
+import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.single.ConditionImpl;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
+import org.openl.extension.xmlrules.model.single.ReturnRow;
 import org.openl.extension.xmlrules.model.single.TableImpl;
 
 public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
-    public LazyTable(XStream xstream, File file, String entryName) {
-        super(xstream, file, entryName);
+    public LazyTable(File file, String entryName) {
+        super(file, entryName);
     }
 
     @Override
@@ -19,7 +22,7 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     }
 
     @Override
-    public List<Parameter> getParameters() {
+    public List<ParameterImpl> getParameters() {
         return getInfo().getParameters();
     }
 
@@ -29,17 +32,17 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     }
 
     @Override
-    public List<Condition> getHorizontalConditions() {
+    public List<ConditionImpl> getHorizontalConditions() {
         return getInfo().getHorizontalConditions();
     }
 
     @Override
-    public List<Condition> getVerticalConditions() {
+    public List<ConditionImpl> getVerticalConditions() {
         return getInfo().getVerticalConditions();
     }
 
     @Override
-    public List<List<Expression>> getReturnValues() {
+    public List<ReturnRow> getReturnValues() {
         return getInfo().getReturnValues();
     }
 
@@ -51,11 +54,11 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     @Override
     protected void postProcess(TableImpl info) {
         if (info.getHorizontalConditions() == null) {
-            info.setHorizontalConditions(Collections.<Condition>emptyList());
+            info.setHorizontalConditions(Collections.<ConditionImpl>emptyList());
         }
 
         if (info.getVerticalConditions() == null) {
-            info.setVerticalConditions(Collections.<Condition>emptyList());
+            info.setVerticalConditions(Collections.<ConditionImpl>emptyList());
         }
     }
 

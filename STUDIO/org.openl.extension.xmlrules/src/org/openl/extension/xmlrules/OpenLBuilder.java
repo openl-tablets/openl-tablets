@@ -16,4 +16,8 @@ public class OpenLBuilder extends ExtensionOpenLBuilder {
         return new XmlRulesParser();
     }
 
+    @Override
+    protected IOpenBinder getBinder() {
+        return new XmlRulesBinder(getUserEnvironmentContext());
+    }
 }

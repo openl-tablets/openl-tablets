@@ -3,14 +3,13 @@ package org.openl.extension.xmlrules.model.lazy;
 import java.io.File;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
-import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.single.FieldImpl;
 import org.openl.extension.xmlrules.model.single.TypeImpl;
 
 public class LazyType extends BaseLazyItem<TypeImpl> implements Type {
-    public LazyType(XStream xstream, File file, String entryName) {
-        super(xstream, file, entryName);
+    public LazyType(File file, String entryName) {
+        super(file, entryName);
     }
 
     @Override
@@ -19,7 +18,7 @@ public class LazyType extends BaseLazyItem<TypeImpl> implements Type {
     }
 
     @Override
-    public List<Field> getFields() {
+    public List<FieldImpl> getFields() {
         return getInfo().getFields();
     }
 

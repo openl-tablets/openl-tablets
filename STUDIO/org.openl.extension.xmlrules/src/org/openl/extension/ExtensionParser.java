@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.extension.xmlrules.XmlSheetSourceCodeModule;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -46,7 +48,7 @@ public abstract class ExtensionParser extends BaseParser {
                     workbookSourceCodeModule,
                     null,
                     null,
-                    Collections.<String>emptyList(),
+                    getImports(),
                     Collections.<IdentifierNode>emptyList());
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -67,17 +69,27 @@ public abstract class ExtensionParser extends BaseParser {
                 new IDependency[] {});
     }
 
+    protected List<String> getImports() {
+        return Collections.emptyList();
+    }
+
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module, XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
         TablePartProcessor tablePartProcessor = new TablePartProcessor();
 
+        List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<WorkbookSyntaxNode>();
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
-        List<Sheet> sheets = module.getSheets();
-        for (int i = 0; i < sheets.size(); i++) {
-            Sheet sheet = sheets.get(i);
-            // Sheet name is used as category name in WebStudio
-            XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceCodeModule);
-            sheetNodeList.add(getWorksheet(sheetSource, sheet, tablePartProcessor));
+
+        for (LazyWorkbook workbook : module.getWorkbooks()) {
+            List<Sheet> sheets = workbook.getSheets();
+            for (int i = 0; i < sheets.size(); i++) {
+                Sheet sheet = sheets.get(i);
+                // Sheet name is used as category name in WebStudio
+                XlsSheetSourceCodeModule sheetSource = new XmlSheetSourceCodeModule(i, workbookSourceCodeModule, workbook);
+                sheetNodeList.add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor));
+            }
         }
+
+        // TODO Treat each workbook as separate OpenL module (now it's one virtual module)
         WorksheetSyntaxNode[] sheetNodes = sheetNodeList.toArray(new WorksheetSyntaxNode[sheetNodeList.size()]);
 
         TableSyntaxNode[] mergedNodes = {};
@@ -93,11 +105,16 @@ public abstract class ExtensionParser extends BaseParser {
             OpenLMessagesUtils.addError(e);
         }
 
-        return new WorkbookSyntaxNode[] { new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule) };
+        workbookSyntaxNodes.add(new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule));
+
+        return workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[workbookSyntaxNodes.size()]);
     }
 
-    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource, Sheet sheet, TablePartProcessor tablePartProcessor) {
-        IGridTable[] tables = getAllGridTables(sheetSource, sheet);
+    protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource,
+            LazyWorkbook workbook, Sheet sheet,
+            ExtensionModule module,
+            TablePartProcessor tablePartProcessor) {
+        IGridTable[] tables = getAllGridTables(sheetSource, module, workbook, sheet);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
@@ -146,5 +163,7 @@ public abstract class ExtensionParser extends BaseParser {
     /**
      * Gets all grid tables from the sheet.
      */
-    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource, Sheet sheet);
+    protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource,
+            ExtensionModule module,
+            LazyWorkbook workbook, Sheet sheet);
 }

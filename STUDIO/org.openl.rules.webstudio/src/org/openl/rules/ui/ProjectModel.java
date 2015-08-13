@@ -27,6 +27,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
@@ -746,7 +747,7 @@ public class ProjectModel {
     }
 
     public boolean isEditableTable(String uri) {
-        return !isTablePart(uri) && isEditable();
+        return !isTablePart(uri) && !isExtensionGrid(uri) && isEditable();
     }
 
     /**
@@ -760,6 +761,11 @@ public class ProjectModel {
         }
 
         return false;
+    }
+
+    public boolean isExtensionGrid(String uri) {
+        IGridTable grid = getGridTable(uri);
+        return grid != null && grid.getGrid() instanceof ExtensionWrapperGrid;
     }
 
     public boolean isCanStartEditing() {

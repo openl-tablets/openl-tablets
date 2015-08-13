@@ -6,10 +6,19 @@ import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.single.SheetInfo;
 
 public class LazySheet extends BaseLazyItem<SheetInfo> implements Sheet {
-    public LazySheet(XStream xstream, File file, String entryName) {
-        super(xstream, file, entryName);
+    private final String workbookName;
+
+    public LazySheet(XStream xstream, File file, String entryName, String workbookName) {
+        super(file, entryName);
+        this.workbookName = workbookName;
+    }
+
+    @Override
+    public Integer getId() {
+        return getInfo().getId();
     }
 
     @Override
@@ -26,7 +35,7 @@ public class LazySheet extends BaseLazyItem<SheetInfo> implements Sheet {
             return null;
         }
         for (String entryName : entryNames) {
-            result.add(new LazyType(getXstream(), getFile(), entryName));
+            result.add(new LazyType(getFile(), entryName));
         }
         return result;
     }
@@ -40,7 +49,7 @@ public class LazySheet extends BaseLazyItem<SheetInfo> implements Sheet {
             return null;
         }
         for (String entryName : entryNames) {
-            result.add(new LazyDataInstance(getXstream(), getFile(), entryName));
+            result.add(new LazyDataInstance(getFile(), entryName));
         }
         return result;
     }
@@ -54,7 +63,7 @@ public class LazySheet extends BaseLazyItem<SheetInfo> implements Sheet {
             return null;
         }
         for (String entryName : entryNames) {
-            result.add(new LazyTable(getXstream(), getFile(), entryName));
+            result.add(new LazyTable(getFile(), entryName));
         }
         return result;
     }
@@ -68,7 +77,21 @@ public class LazySheet extends BaseLazyItem<SheetInfo> implements Sheet {
             return null;
         }
         for (String entryName : entryNames) {
-            result.add(new LazyFunction(getXstream(), getFile(), entryName));
+            result.add(new LazyFunction(getFile(), entryName));
+        }
+        return result;
+    }
+
+    @Override
+    public List<LazyCells> getCells() {
+        //TODO Add postProcess step
+        List<LazyCells> result = new ArrayList<LazyCells>();
+        List<String> entryNames = getInfo().getCellEntries();
+        if (entryNames == null) {
+            return null;
+        }
+        for (String entryName : entryNames) {
+            result.add(new LazyCells(getFile(), entryName, workbookName, getName()));
         }
         return result;
     }

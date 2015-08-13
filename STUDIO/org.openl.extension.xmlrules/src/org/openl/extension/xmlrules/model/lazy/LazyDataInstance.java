@@ -3,14 +3,14 @@ package org.openl.extension.xmlrules.model.lazy;
 import java.io.File;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
 import org.openl.extension.xmlrules.model.DataInstance;
-import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.single.DataInstanceImpl;
+import org.openl.extension.xmlrules.model.single.Reference;
+import org.openl.extension.xmlrules.model.single.ValuesRow;
 
 public class LazyDataInstance extends BaseLazyItem<DataInstanceImpl> implements DataInstance {
-    public LazyDataInstance(XStream xstream, File file, String entryName) {
-        super(xstream, file, entryName);
+    public LazyDataInstance(File file, String entryName) {
+        super(file, entryName);
     }
 
     @Override
@@ -24,12 +24,17 @@ public class LazyDataInstance extends BaseLazyItem<DataInstanceImpl> implements 
     }
 
     @Override
-    public List<Field> getFields() {
+    public List<String> getFields() {
         return getInfo().getFields();
     }
 
     @Override
-    public List<List<String>> getValues() {
+    public List<Reference> getReferences() {
+        return getInfo().getReferences();
+    }
+
+    @Override
+    public List<ValuesRow> getValues() {
         return getInfo().getValues();
     }
 }

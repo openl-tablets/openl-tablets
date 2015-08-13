@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
 import org.openl.extension.xmlrules.model.ExtensionModule;
-import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.single.ExtensionModuleInfo;
+import org.openl.extension.xmlrules.model.single.WorkbookInfo;
 
 public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> implements ExtensionModule {
-    public LazyExtensionModule(XStream xstream, File file, String mainEntryName) {
-        super(xstream, file, mainEntryName);
+    public LazyExtensionModule(File file, String mainEntryName) {
+        super(file, mainEntryName);
     }
 
     @Override
@@ -19,16 +19,26 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     }
 
     @Override
-    public String getXlsFileName() {
-        return getInfo().getXlsFileName();
+    public String getFileName() {
+        return getFile().getName();
     }
 
     @Override
-    public List<Sheet> getSheets() {
-        List<Sheet> sheets = new ArrayList<Sheet>();
-        for (String entryName : getInfo().getSheetEntries()) {
-            sheets.add(new LazySheet(getXstream(), getFile(), entryName));
+    public List<LazyWorkbook> getWorkbooks() {
+        List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
+        for (WorkbookInfo workbookInfo : getInfo().getWorkbooks()) {
+            workbooks.add(new LazyWorkbook(getFile(), "", workbookInfo));
         }
-        return sheets;
+
+        return workbooks;
     }
+
+//    @Override
+//    public List<Sheet> getSheets() {
+//        List<Sheet> sheets = new ArrayList<Sheet>();
+//        for (String entryName : getInfo().getSheetEntries()) {
+//            sheets.add(new LazySheet(getXstream(), getFile(), entryName));
+//        }
+//        return sheets;
+//    }
 }

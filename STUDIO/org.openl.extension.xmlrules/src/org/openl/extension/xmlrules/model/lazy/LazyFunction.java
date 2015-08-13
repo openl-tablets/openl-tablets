@@ -3,15 +3,13 @@ package org.openl.extension.xmlrules.model.lazy;
 import java.io.File;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
 import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.FunctionExpression;
-import org.openl.extension.xmlrules.model.Parameter;
 import org.openl.extension.xmlrules.model.single.FunctionImpl;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
 
 public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function {
-    public LazyFunction(XStream xstream, File file, String entryName) {
-        super(xstream, file, entryName);
+    public LazyFunction(File file, String entryName) {
+        super(file, entryName);
     }
 
     @Override
@@ -20,7 +18,7 @@ public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function
     }
 
     @Override
-    public List<Parameter> getParameters() {
+    public List<ParameterImpl> getParameters() {
         return getInfo().getParameters();
     }
 
@@ -30,8 +28,13 @@ public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function
     }
 
     @Override
-    public List<FunctionExpression> getExpressions() {
-        return getInfo().getExpressions();
+    public String getCellAddress() {
+        return getInfo().getCellAddress();
     }
+
+//    @Override
+//    public List<FunctionExpressionImpl> getExpressions() {
+//        return getInfo().getExpressions();
+//    }
 
 }

@@ -3,15 +3,22 @@ package org.openl.extension.xmlrules.model.single;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.*;
 
+@XmlRootElement(name="table")
+@XmlType(name = "table")
 public class TableImpl implements Table {
     private String name;
-    private List<Parameter> parameters = new ArrayList<Parameter>();
+    private List<ParameterImpl> parameters = new ArrayList<ParameterImpl>();
     private String returnType;
-    private List<Condition> horizontalConditions = new ArrayList<Condition>();
-    private List<Condition> verticalConditions = new ArrayList<Condition>();
-    private List<List<Expression>> returnValues = new ArrayList<List<Expression>>();
+    private List<ConditionImpl> horizontalConditions = new ArrayList<ConditionImpl>();
+    private List<ConditionImpl> verticalConditions = new ArrayList<ConditionImpl>();
+    private List<ReturnRow> returnValues = new ArrayList<ReturnRow>();
     private SegmentImpl segment;
 
     @Override
@@ -23,12 +30,14 @@ public class TableImpl implements Table {
         this.name = name;
     }
 
+    @XmlElementWrapper(name="parameters", required = true)
+    @XmlElement(name = "parameter")
     @Override
-    public List<Parameter> getParameters() {
+    public List<ParameterImpl> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<Parameter> parameters) {
+    public void setParameters(List<ParameterImpl> parameters) {
         this.parameters = parameters;
     }
 
@@ -41,30 +50,36 @@ public class TableImpl implements Table {
         this.returnType = returnType;
     }
 
+    @XmlElementWrapper(name="horizontalConditions", required = true)
+    @XmlElement(name = "condition")
     @Override
-    public List<Condition> getHorizontalConditions() {
+    public List<ConditionImpl> getHorizontalConditions() {
         return horizontalConditions;
     }
 
-    public void setHorizontalConditions(List<Condition> horizontalConditions) {
+    public void setHorizontalConditions(List<ConditionImpl> horizontalConditions) {
         this.horizontalConditions = horizontalConditions;
     }
 
+    @XmlElementWrapper(name="verticalConditions", required = true)
+    @XmlElement(name = "condition")
     @Override
-    public List<Condition> getVerticalConditions() {
+    public List<ConditionImpl> getVerticalConditions() {
         return verticalConditions;
     }
 
-    public void setVerticalConditions(List<Condition> verticalConditions) {
+    public void setVerticalConditions(List<ConditionImpl> verticalConditions) {
         this.verticalConditions = verticalConditions;
     }
 
+    @XmlElementWrapper(name="returnValues", required = true)
+    @XmlElement(name = "list")
     @Override
-    public List<List<Expression>> getReturnValues() {
+    public List<ReturnRow> getReturnValues() {
         return returnValues;
     }
 
-    public void setReturnValues(List<List<Expression>> returnValues) {
+    public void setReturnValues(List<ReturnRow> returnValues) {
         this.returnValues = returnValues;
     }
 
