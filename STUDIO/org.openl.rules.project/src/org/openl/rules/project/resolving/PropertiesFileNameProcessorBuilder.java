@@ -39,6 +39,9 @@ public final class PropertiesFileNameProcessorBuilder {
         } catch (Exception e) {
             String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface!";
             throw new InvalidFileNameProcessorException(message, e);
+        } catch (NoClassDefFoundError e) {
+            String message = "Properties file name processor class '" + projectDescriptor.getPropertiesFileNameProcessor() + "' wasn't load!";
+            throw new InvalidFileNameProcessorException(message, e);
         }
         return processor;
     }
