@@ -154,6 +154,12 @@
                                                             <a href="${contextPath}/${service.url}">${contextPath}/${service.url}</a>
                                                         </div>
                                                     </c:if>
+                                                    
+                                                    <c:if test="${!empty service.address}">
+                                                        <div class="url" >
+                                                            ${service.urlDescription}: ${service.address}
+                                                        </div>
+                                                    </c:if>
                                                 </td>
                                             </tr>
                                         </c:forEach>

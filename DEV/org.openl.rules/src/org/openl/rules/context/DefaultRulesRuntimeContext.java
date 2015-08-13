@@ -2,6 +2,7 @@ package org.openl.rules.context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -12,7 +13,9 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.apache.commons.collections4.MapUtils;
 import org.openl.runtime.IRuntimeContext;
 
-public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesRuntimeContextMutableUUID {
+public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesRuntimeContextMutableUUID, Serializable {
+    
+    private static final long serialVersionUID = 670283457423670894L;
     
     @XmlTransient
     UUID uuid = UUID.randomUUID();

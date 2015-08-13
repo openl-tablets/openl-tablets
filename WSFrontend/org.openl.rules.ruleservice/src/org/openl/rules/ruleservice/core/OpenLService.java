@@ -28,7 +28,9 @@ public final class OpenLService {
     private String name;
     private String url;
     private String serviceClassName;
+    private String rmiServiceClassName;
     private Class<?> serviceClass;
+    private Class<?> rmiServiceClass;
     private Object serviceBean;
     private IOpenClass openClass;
     private boolean provideRuntimeContext = false;
@@ -47,19 +49,19 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param modules a list of modules for load
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, String rmiServiceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             Set<String> publishers, Collection<Module> modules, ClassLoader classLoader) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules, classLoader);
+        this(name, url, serviceClassName, rmiServiceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules, classLoader);
     }
 
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, String rmiServiceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             Collection<Module> modules, ClassLoader classLoader) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, null, modules, classLoader);
+        this(name, url, serviceClassName, rmiServiceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, null, modules, classLoader);
     }
 
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, String rmiServiceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Collection<Module> modules, ClassLoader classLoader) {
-        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, provideVariations, null, modules, classLoader);
+        this(name, url, serviceClassName, rmiServiceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, provideVariations, null, modules, classLoader);
     }
     
     /**
@@ -80,7 +82,7 @@ public final class OpenLService {
      * @param provideVariations define is variations should be supported
      * @param modules a list of modules for load
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, String rmiServiceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Set<String> publishers, Collection<Module> modules, ClassLoader classLoader) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
@@ -93,6 +95,7 @@ public final class OpenLService {
             this.modules = Collections.emptyList();
         }
         this.serviceClassName = serviceClassName;
+        this.rmiServiceClassName = rmiServiceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
@@ -105,7 +108,7 @@ public final class OpenLService {
     }
 
     private OpenLService(OpenLServiceBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext,
+        this(builder.name, builder.url, builder.serviceClassName, builder.rmiServiceClassName, builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext,
                 builder.provideVariations, builder.publishers, builder.modules, builder.classLoader);
     }
 
@@ -163,6 +166,19 @@ public final class OpenLService {
     }
 
     /**
+     * Returns a rmi class name for service.
+     * 
+     * @return
+     */
+    public String getRmiServiceClassName() {
+        return rmiServiceClassName;
+    }
+    
+    void setRmiServiceClassName(String rmiServiceClassName) {
+        this.rmiServiceClassName = rmiServiceClassName;
+    }
+    
+    /**
      * Return provideRuntimeContext value. This value is define that service
      * methods first argument is IRulesRuntimeContext.
      * 
@@ -198,6 +214,15 @@ public final class OpenLService {
     public Class<?> getServiceClass() {
         return serviceClass;
     }
+
+    /**
+     * Returns rmi service class.
+     * 
+     * @return
+     */
+    public Class<?> getRmiServiceClass() {
+        return rmiServiceClass;
+    }
     
     void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -205,6 +230,10 @@ public final class OpenLService {
 
     void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
+    }
+    
+    void setRmiServiceClass(Class<?> rmiServiceClass) {
+        this.rmiServiceClass = rmiServiceClass;
     }
 
     public Object getServiceBean() {
@@ -278,6 +307,7 @@ public final class OpenLService {
         private String name;
         private String url;
         private String serviceClassName;
+        private String rmiServiceClassName;
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
         private boolean useRuleServiceRuntimeContext = false;
@@ -341,6 +371,17 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setServiceClassName(String serviceClassName) {
             this.serviceClassName = serviceClassName;
+            return this;
+        }
+        
+        /**
+         * Sets RMI class name to the builder.
+         * 
+         * @param serviceClassName
+         * @return
+         */
+        public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {
+            this.rmiServiceClassName = rmiServiceClassName;
             return this;
         }
 

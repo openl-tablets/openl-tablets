@@ -95,8 +95,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 AProjectResource resource = (AProjectResource) artifact;
                                 content = resource.getContent();
                                 rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                                if (rulesDeploy.getServiceClass() != null && !rulesDeploy.getServiceClass().isEmpty()) {
-                                    serviceDescriptionBuilder.setServiceClassName(rulesDeploy.getServiceClass());
+                                if (rulesDeploy.getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
+                                    serviceDescriptionBuilder.setServiceClassName(rulesDeploy.getServiceClass().trim());
+                                }
+                                if (rulesDeploy.getRmiServiceClass() != null && !rulesDeploy.getRmiServiceClass().trim().isEmpty()) {
+                                    serviceDescriptionBuilder.setRmiServiceClassName(rulesDeploy.getRmiServiceClass().trim());
                                 }
                                 if (rulesDeploy.isProvideRuntimeContext() != null) {
                                     serviceDescriptionBuilder.setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
@@ -115,11 +118,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 if (rulesDeploy.getConfiguration() != null) {
                                     serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                                 }
-                                if (rulesDeploy.getInterceptingTemplateClassName() != null) {
-                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
+                                if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy.getInterceptingTemplateClassName().trim().isEmpty()) {
+                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getInterceptingTemplateClassName().trim());
                                 }
-                                if (rulesDeploy.getAnnotationTemplateClassName() != null) {
-                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getAnnotationTemplateClassName());
+                                if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy.getAnnotationTemplateClassName().trim().isEmpty()) {
+                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(rulesDeploy.getAnnotationTemplateClassName().trim());
                                 }
                             }
                         } catch (ProjectException e) {

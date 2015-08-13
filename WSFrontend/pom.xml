@@ -14,6 +14,8 @@
     <modules>
         <module>org.openl.rules.ruleservice.context</module>
         <module>org.openl.rules.ruleservice</module>
+	<module>org.openl.rules.ruleservice.rmi.frontend</module>
+	<module>org.openl.rules.ruleservice.rmi</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>
         <module>org.openl.rules.ruleservice.ws</module>
     </modules>
@@ -59,6 +61,16 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.rmi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.rmi.frontend</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

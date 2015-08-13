@@ -61,6 +61,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         resolveInterfaceAndClassLoader(service, instantiationStrategy);
+        resolveRmiInterface(service);
         instantiateServiceBean(service, instantiationStrategy);
     }
 
@@ -124,6 +125,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             service.setServiceClassName(null); //Generated class is used.
         }
         service.setServiceClass(serviceClass);
+    }
+    
+    private void resolveRmiInterface(OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
+        String rmiServiceClassName = service.getRmiServiceClassName();
+        Class<?> serviceClass = null;
+        ClassLoader serviceClassLoader = service.getClassLoader();
+        if (rmiServiceClassName != null) {
+            try {
+                serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
+            } catch (ClassNotFoundException e) {
+                log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
+            }
+        }
+        if (serviceClass == null) {
+            log.info("Service class is undefined of service '{}'. Default RMI interface will be used.",
+                service.getName());
+            service.setRmiServiceClassName(null); // RMI default will be used
+        }
+        service.setRmiServiceClass(serviceClass);
     }
 
     private Class<?> processGeneratedServiceClass(RulesInstantiationStrategy instantiationStrategy, OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
@@ -189,6 +209,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             builder.setName(serviceDescription.getName())
                 .setUrl(serviceDescription.getUrl())
                 .setServiceClassName(serviceDescription.getServiceClassName())
+                .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
                 .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
                 .setProvideVariations(serviceDescription.isProvideVariations())
                 .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())

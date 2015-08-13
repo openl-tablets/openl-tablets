@@ -6,7 +6,8 @@ public class RulesDeploy {
 
     public enum PublisherType {
         WEBSERVICE,
-        RESTFUL
+        RESTFUL,
+        RMI
     }
 
     public static class WildcardPattern {
@@ -33,6 +34,7 @@ public class RulesDeploy {
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
     private String serviceClass;
+    private String rmiServiceClass;
     private String url;
     private Map<String, Object> configuration;
 
@@ -73,9 +75,17 @@ public class RulesDeploy {
     public String getServiceName() {
         return serviceName;
     }
-
+    
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public String getRmiServiceClass() {
+        return rmiServiceClass;
+    }
+
+    public void setRmiServiceClass(String rmiServiceClass) {
+        this.rmiServiceClass = rmiServiceClass;
     }
 
     public String getServiceClass() {

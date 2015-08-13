@@ -9,9 +9,14 @@ public class ServiceInfo {
     private final String name;
     private final List<String> methodNames;
     private final String url;
+    private final String address;
     private final String urlDescription;
 
     public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlDescription) {
+        this(startedTime, name, methodNames, url, urlDescription, null);
+    }
+    
+    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlDescription, String address) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters can't be null");
         }
@@ -23,6 +28,7 @@ public class ServiceInfo {
         this.methodNames = methodNames;
         this.url = url;
         this.urlDescription = urlDescription;
+        this.address = address;
     }
 
     public String getName() {
@@ -43,5 +49,9 @@ public class ServiceInfo {
 
     public List<String> getMethodNames() {
         return methodNames;
+    }
+    
+    public String getAddress() {
+        return address;
     }
 }
