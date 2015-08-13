@@ -5,21 +5,16 @@
  */
 package org.openl.rules.dt2;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt2.algorithm.DecisionTableAlgorithmBuilder;
+import org.openl.rules.dt2.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt2.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dt2.algorithm.IndexInfo;
-import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt2.data.DecisionTableDataType;
+import org.openl.rules.dt2.algorithm2.DecisionTableAlgorithmBuilder2;
 import org.openl.rules.dt2.element.ArrayHolder;
 import org.openl.rules.dt2.element.FunctionalRow;
 import org.openl.rules.dt2.element.IAction;
@@ -31,16 +26,11 @@ import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -197,62 +187,25 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return false;
     }
 
-    protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
-
-        algorithm = new DecisionTableAlgorithmBuilder(new IndexInfo().withTable(this), evs).buildAlgorithm();
-        
-    }
 
     private void prepare(IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
-        IMethodSignature signature = header.getSignature();
+        
+        algorithm = getAlgorithmBuilder(header, openl, module, bindingContextDelegator).prepareAndBuildAlgorithm();
 
-        IConditionEvaluator[] evaluators = prepareConditions(openl, module, bindingContextDelegator, signature);
-
-        prepareActions(header, openl, module, bindingContextDelegator, signature);
-
-        makeAlgorithm(evaluators);
     }
+    
+    
+    public static boolean ALG2 = false;
 
-    private void prepareActions(IOpenMethodHeader header, OpenL openl, ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
+    private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header, OpenL openl,
+			ComponentOpenClass module,
+			IBindingContextDelegator bindingContextDelegator) {
+		return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator) 
+		            : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
+	}
 
-        IBindingContextDelegator actionBindingContextDelegator = new ComponentBindingContext(bindingContextDelegator,
-                (ComponentOpenClass) getRuleExecutionType(openl));
-
-        for (int i = 0; i < actionRows.length; i++) {
-            IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            getAction(i).prepareAction(methodType, signature, openl, componentOpenClass,
-                    actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
-        }
-    }
-
-    private IConditionEvaluator[] prepareConditions(OpenL openl, ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
-        IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
-
-        List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-
-        for (int i = 0; i < conditionRows.length; i++) {
-            try {
-                evaluators[i] = getCondition(i).prepareCondition(signature, openl, componentOpenClass,
-                        bindingContextDelegator, ruleRow);
-            } catch (SyntaxNodeException e) {
-                errors.add(e);
-            } catch (CompositeSyntaxNodeException e) {
-                for (SyntaxNodeException syntaxNodeException : e.getErrors()) {
-                    errors.add(syntaxNodeException);
-                }
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
-        }
-
-        return evaluators;
-    }
 
     @Override
     public String toString() {
@@ -321,15 +274,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
     
     
-    IOpenClass ruleExecutionType;
-
-    private synchronized IOpenClass getRuleExecutionType(OpenL openl) {
-        if (ruleExecutionType == null) {
-            ruleExecutionType = new DecisionTableDataType(this, null, getName() + "Type", openl);
-        }
-        return ruleExecutionType;
-    }
-
+ 
 	public DTInfo getDtInfo() {
 		return dtInfo;
 	}
@@ -344,5 +289,11 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 		return conditionRows.length;
 	}
 
+	public int getNumberOfActions() {
+		
+		return actionRows.length;
+	}
+	
+	
 
 }

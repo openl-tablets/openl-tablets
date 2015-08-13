@@ -68,7 +68,9 @@ public abstract class RowExtractor<T extends CalculationStep> {
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
             extractor.convertAndStoreData(columnValue, rowInstance);
         }
-
+        
+        rowInstance.setStepName(spreadsheetResult.getRowName(rowIndex));
+        
         // additional processing for the extracted row
         //
         rowInstance = afterExtract(rowInstance);

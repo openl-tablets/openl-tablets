@@ -25,7 +25,11 @@ public class FormattedCell implements ICell {
 
     private ICell delegate;
 
-    private ICellFont font;
+    public ICell getTopLeftCellFromRegion() {
+		return delegate.getTopLeftCellFromRegion();
+	}
+
+	private ICellFont font;
 
     private ICellStyle style;
 

@@ -25,6 +25,7 @@ import org.openl.rules.dt2.IDecisionTableConstants;
 import org.openl.rules.dt2.storage.IStorage;
 import org.openl.rules.dt2.storage.IStorageBuilder;
 import org.openl.rules.dt2.storage.StorageFactory;
+import org.openl.rules.dt2.storage.StorageInfo;
 import org.openl.rules.dtx.IDecisionTableParameterInfo;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -53,6 +54,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  */
 public abstract class FunctionalRow implements IDecisionRow {
+
 
 	private static final String NO_PARAM = "P";
 
@@ -601,7 +603,6 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	}
 
-
 	@Override
 	public boolean hasFormulasInStorage() {
 		for (int i = 0; i < storage.length; i++) {
@@ -611,4 +612,71 @@ public abstract class FunctionalRow implements IDecisionRow {
 		return false;
 	}
 
+	public StorageInfo getStorageInfo(int paramN) {
+		return storage[paramN].getInfo();
+	}
+
+	@Override
+	public boolean isEqual(int rule1, int rule2) {
+		int n = getNumberOfParams();
+		for (int i = 0; i < n; i++) {
+			if (!objEquals(getParamValue(i, rule1), getParamValue(i, rule2)))
+				return false;
+		}
+		return true;
+	}
+
+	public static boolean objEquals(Object a, Object b) {
+		return (a == b) || (a != null && a.equals(b));
+	}
+
+	
+	@Override
+	public boolean hasEmptyRules() {
+		
+		int n = getNumberOfParams();
+		if (n  == 1)
+			return storage[0].getInfo().getNumberOfSpaces() > 0;
+		
+		boolean hasAnySpaces = false;	
+		for (int i = 0; i < n; i++) {
+			if (storage[i].getInfo().getNumberOfSpaces() > 0)
+			{
+				hasAnySpaces = true;
+				break;
+			}	
+		}	
+		if (!hasAnySpaces)
+			return false;
+		
+		int nRules = getNumberOfRules();
+		
+		for (int ruleN = 0; ruleN < nRules; ruleN++) {
+			boolean allSpaces = true;
+			for (int np = 0; np < n; np++) {
+				if (!storage[np].isSpace(ruleN))
+				{
+					allSpaces = false;
+					break;
+				}	
+			}
+			if (allSpaces)
+				return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean hasSpecialRules() {
+		int n = getNumberOfParams();
+		for (int i = 0; i < n; i++) {
+			if (storage[i].getInfo().getNumberOfFormulas() > 0 || storage[i].getInfo().getNumberOfElses() > 0)			{
+				return true;
+			}	
+		}
+		
+		return false;
+	}
+	
 }

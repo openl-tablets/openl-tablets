@@ -1,5 +1,6 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import org.objectweb.asm.ClassWriter;
@@ -26,6 +27,6 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     
     public void write(ClassWriter classWriter) {
         String parentName = getParentInternalName();
-        classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, null);
+        classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, new String[]{Serializable.class.getName().replace(".", "/")});
     }
 }

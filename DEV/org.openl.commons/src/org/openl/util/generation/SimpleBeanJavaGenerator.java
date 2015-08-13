@@ -116,7 +116,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
-
+        
         for (Method method : methods) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 String fieldName = getFieldName(method.getName(), datatypeAllFields.keySet());
@@ -129,7 +129,21 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                         fieldName = StringUtils.uncapitalize(fieldName);
                     }
                 }
-                buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
+                String defaultFieldValue = null;
+                try {
+                    Field field = getClassForGeneration().getDeclaredField(fieldName);
+                    DefaultValue defaultValueAnnotation = field.getAnnotation(DefaultValue.class);
+                    if (defaultValueAnnotation != null){
+                        defaultFieldValue = defaultValueAnnotation.value();
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+                if (defaultFieldValue != null){
+                    buf.append("\n  @XmlElement(name=\"" + fieldName + "\", defaultValue=\"" + defaultFieldValue + "\")");
+                }else{
+                    buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
+                }
                 addGetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().startsWith(JavaGenerator.SET)) {
                 addSetter(buf, method, datatypeAllFields.keySet());

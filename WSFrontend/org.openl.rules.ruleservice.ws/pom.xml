@@ -100,6 +100,11 @@
         </testResources>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <!-- CORE -->
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -118,6 +123,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.rmi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

@@ -1,12 +1,9 @@
 package org.openl.rules.dt2.element;
 
-import org.openl.OpenL;
-import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt2.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt2.storage.StorageInfo;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
 import org.openl.vm.IRuntimeEnv;
 
 public interface ICondition extends IBaseCondition, IDecisionRow {
@@ -17,11 +14,19 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     IMethodCaller getEvaluator();
     
-    IConditionEvaluator prepareCondition(IMethodSignature signature,
-            OpenL openl,
-            ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator cxtd,
-            RuleRow ruleRow) throws Exception;
+//    IConditionEvaluator prepareCondition(IMethodSignature signature,
+//            OpenL openl,
+//            ComponentOpenClass componentOpenClass,
+//            IBindingContextDelegator cxtd,
+//            RuleRow ruleRow) throws Exception;
 
+	boolean isDependentOnAnyParams();
+
+	void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
+
+	void setEvaluator(IMethodCaller iMethodCaller);
+
+	
+	StorageInfo getStorageInfo(int paramN);
 
 }

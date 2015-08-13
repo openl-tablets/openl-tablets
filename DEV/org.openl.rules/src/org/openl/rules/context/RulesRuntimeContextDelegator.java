@@ -92,6 +92,20 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
 		}
 		return super.getRegion();
 	}
+	@Override
+	public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
+	    if (super.getCaProvince() == null){
+			return delegate.getCaProvince();
+		}
+		return super.getCaProvince();
+	}
+	@Override
+	public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
+	    if (super.getCaRegion() == null){
+			return delegate.getCaRegion();
+		}
+		return super.getCaRegion();
+	}
 // <<< END INSERT >>>
 
 }

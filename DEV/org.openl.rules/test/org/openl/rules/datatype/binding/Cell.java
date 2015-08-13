@@ -203,4 +203,10 @@ public class Cell implements ICell {
         this.dataFormatter = dataFormatter;
     }
 
+	@Override
+	public ICell getTopLeftCellFromRegion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

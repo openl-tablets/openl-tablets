@@ -54,6 +54,11 @@
   </context-param>
 
   <context-param>
+    <param-name>org.eclipse.jetty.servlet.Default.welcomeServlets</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
     <param-name>org.richfaces.skin</param-name>
     <param-value>classic</param-value>
   </context-param>

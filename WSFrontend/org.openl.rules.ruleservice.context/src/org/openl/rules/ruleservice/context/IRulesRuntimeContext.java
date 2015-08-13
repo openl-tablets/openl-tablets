@@ -46,5 +46,9 @@ public interface IRulesRuntimeContext {
 	void setLang(org.openl.rules.ruleservice.context.enumeration.LanguagesEnum lang);	
 	org.openl.rules.ruleservice.context.enumeration.RegionsEnum getRegion();
 	void setRegion(org.openl.rules.ruleservice.context.enumeration.RegionsEnum region);	
+	org.openl.rules.ruleservice.context.enumeration.CaProvincesEnum getCaProvince();
+	void setCaProvince(org.openl.rules.ruleservice.context.enumeration.CaProvincesEnum caProvince);	
+	org.openl.rules.ruleservice.context.enumeration.CaRegionsEnum getCaRegion();
+	void setCaRegion(org.openl.rules.ruleservice.context.enumeration.CaRegionsEnum caRegion);	
 // <<< END INSERT >>>
 }

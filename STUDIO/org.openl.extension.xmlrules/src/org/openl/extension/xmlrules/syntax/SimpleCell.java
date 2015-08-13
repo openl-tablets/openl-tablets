@@ -156,4 +156,10 @@ public class SimpleCell implements ICell {
         return null;
     }
 
+	@Override
+	public ICell getTopLeftCellFromRegion() {
+		// TODO implementation should be updated once we support native types in SimpleCell
+		return this;
+	}
+
 }

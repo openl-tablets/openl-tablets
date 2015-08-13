@@ -36,8 +36,15 @@ public class PointType extends BeanType {
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
+    private static BeanTypeInfo getBeanTypeInfo(){
+        BeanTypeInfo bti = new BeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI());
+        bti.setExtensibleAttributes(false);
+        bti.setExtensibleElements(false);
+        return bti;
+    }
+    
     public PointType() {
-        super(new BeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI()));
+        super(getBeanTypeInfo());
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

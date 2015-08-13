@@ -34,8 +34,7 @@ public class NumberUtils {
 
     public static Double convertToDouble(Object object) {
 
-        if (float.class.equals(object.getClass())
-                || Float.class.equals(object.getClass())) {
+        if (Float.class.equals(object.getClass())) {
             return Double.valueOf(((Float) object).toString());
         }
         
@@ -43,8 +42,7 @@ public class NumberUtils {
             return Double.valueOf(((FloatValue) object).toString());
         }
 
-        if (double.class.equals(object.getClass())
-                || Double.class.equals(object.getClass())) {
+        if  (Double.class.equals(object.getClass())) {
             return (Double) object;
         }
 

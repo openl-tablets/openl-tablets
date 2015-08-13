@@ -4,13 +4,11 @@ package org.openl.rules.ruleservice.context.enumeration;
  * #%L
  * OpenL - RuleService - RuleService - Context
  * %%
- * Copyright (C) 2013 - 2014 OpenL Tablets
+ * Copyright (C) 2015 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-
-
 public enum OriginsEnum {
 
 	Base("Base"),

@@ -23,7 +23,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,8 +261,8 @@ public class TestBean {
     public boolean isComplexResult(Object objTestUnit) {
         Object actualValue = getActualResultInternal(objTestUnit);
         ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual",
-                actualValue,
-                IParameterDeclaration.OUT);
+                actualValue
+        );
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 

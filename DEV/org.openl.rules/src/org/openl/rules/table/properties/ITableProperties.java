@@ -192,6 +192,10 @@ public interface ITableProperties {
 	void setAutoType(java.lang.Boolean autoType);
 	org.openl.rules.enumeration.OriginsEnum getOrigin();
 	void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
+	org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions();
+	void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions);
+	org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces();
+	void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces);
 // <<< END INSERT >>>
 	
 	

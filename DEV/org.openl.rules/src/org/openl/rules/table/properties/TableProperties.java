@@ -77,242 +77,243 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     // <<< INSERT >>>
-    public java.lang.String getName() {
-        return (java.lang.String) getPropertyValue("name");
-    }
-    public void setName(java.lang.String name) {
-        setFieldValue("name", name);
+	public java.lang.String getName() {
+		return (java.lang.String) getPropertyValue("name"); 
+	}
+	public void setName(java.lang.String name) {
+		setFieldValue("name", name);
 		allProperties = null;
-    }
-    public java.lang.String getCategory() {
-        return (java.lang.String) getPropertyValue("category");
-    }
-    public void setCategory(java.lang.String category) {
-        setFieldValue("category", category);
+	}	
+	public java.lang.String getCategory() {
+		return (java.lang.String) getPropertyValue("category"); 
+	}
+	public void setCategory(java.lang.String category) {
+		setFieldValue("category", category);
 		allProperties = null;
-    }
-    public java.lang.String getDescription() {
-        return (java.lang.String) getPropertyValue("description");
-    }
-    public void setDescription(java.lang.String description) {
-        setFieldValue("description", description);
+	}	
+	public java.lang.String getDescription() {
+		return (java.lang.String) getPropertyValue("description"); 
+	}
+	public void setDescription(java.lang.String description) {
+		setFieldValue("description", description);
 		allProperties = null;
-    }
-    public java.lang.String[] getTags() {
-        return (java.lang.String[]) getPropertyValue("tags");
-    }
-    public void setTags(java.lang.String[] tags) {
-        setFieldValue("tags", tags);
+	}	
+	public java.lang.String[] getTags() {
+		return (java.lang.String[]) getPropertyValue("tags"); 
+	}
+	public void setTags(java.lang.String[] tags) {
+		setFieldValue("tags", tags);
 		allProperties = null;
-    }
-    public java.util.Date getEffectiveDate() {
-        return (java.util.Date) getPropertyValue("effectiveDate");
-    }
-    public void setEffectiveDate(java.util.Date effectiveDate) {
-        setFieldValue("effectiveDate", effectiveDate);
+	}	
+	public java.util.Date getEffectiveDate() {
+		return (java.util.Date) getPropertyValue("effectiveDate"); 
+	}
+	public void setEffectiveDate(java.util.Date effectiveDate) {
+		setFieldValue("effectiveDate", effectiveDate);
 		allProperties = null;
-    }
-    public java.util.Date getExpirationDate() {
-        return (java.util.Date) getPropertyValue("expirationDate");
-    }
-    public void setExpirationDate(java.util.Date expirationDate) {
-        setFieldValue("expirationDate", expirationDate);
+	}	
+	public java.util.Date getExpirationDate() {
+		return (java.util.Date) getPropertyValue("expirationDate"); 
+	}
+	public void setExpirationDate(java.util.Date expirationDate) {
+		setFieldValue("expirationDate", expirationDate);
 		allProperties = null;
-    }
-    public java.util.Date getStartRequestDate() {
-        return (java.util.Date) getPropertyValue("startRequestDate");
-    }
-    public void setStartRequestDate(java.util.Date startRequestDate) {
-        setFieldValue("startRequestDate", startRequestDate);
+	}	
+	public java.util.Date getStartRequestDate() {
+		return (java.util.Date) getPropertyValue("startRequestDate"); 
+	}
+	public void setStartRequestDate(java.util.Date startRequestDate) {
+		setFieldValue("startRequestDate", startRequestDate);
 		allProperties = null;
-    }
-    public java.util.Date getEndRequestDate() {
-        return (java.util.Date) getPropertyValue("endRequestDate");
-    }
-    public void setEndRequestDate(java.util.Date endRequestDate) {
-        setFieldValue("endRequestDate", endRequestDate);
+	}	
+	public java.util.Date getEndRequestDate() {
+		return (java.util.Date) getPropertyValue("endRequestDate"); 
+	}
+	public void setEndRequestDate(java.util.Date endRequestDate) {
+		setFieldValue("endRequestDate", endRequestDate);
 		allProperties = null;
-    }
-    public java.lang.String getCreatedBy() {
-        return (java.lang.String) getPropertyValue("createdBy");
-    }
-    public void setCreatedBy(java.lang.String createdBy) {
-        setFieldValue("createdBy", createdBy);
+	}	
+	public java.lang.String getCreatedBy() {
+		return (java.lang.String) getPropertyValue("createdBy"); 
+	}
+	public void setCreatedBy(java.lang.String createdBy) {
+		setFieldValue("createdBy", createdBy);
 		allProperties = null;
-    }
-    public java.util.Date getCreatedOn() {
-        return (java.util.Date) getPropertyValue("createdOn");
-    }
-    public void setCreatedOn(java.util.Date createdOn) {
-        setFieldValue("createdOn", createdOn);
+	}	
+	public java.util.Date getCreatedOn() {
+		return (java.util.Date) getPropertyValue("createdOn"); 
+	}
+	public void setCreatedOn(java.util.Date createdOn) {
+		setFieldValue("createdOn", createdOn);
 		allProperties = null;
-    }
-    public java.lang.String getModifiedBy() {
-        return (java.lang.String) getPropertyValue("modifiedBy");
-    }
-    public void setModifiedBy(java.lang.String modifiedBy) {
-        setFieldValue("modifiedBy", modifiedBy);
+	}	
+	public java.lang.String getModifiedBy() {
+		return (java.lang.String) getPropertyValue("modifiedBy"); 
+	}
+	public void setModifiedBy(java.lang.String modifiedBy) {
+		setFieldValue("modifiedBy", modifiedBy);
 		allProperties = null;
-    }
-    public java.util.Date getModifiedOn() {
-        return (java.util.Date) getPropertyValue("modifiedOn");
-    }
-    public void setModifiedOn(java.util.Date modifiedOn) {
-        setFieldValue("modifiedOn", modifiedOn);
+	}	
+	public java.util.Date getModifiedOn() {
+		return (java.util.Date) getPropertyValue("modifiedOn"); 
+	}
+	public void setModifiedOn(java.util.Date modifiedOn) {
+		setFieldValue("modifiedOn", modifiedOn);
 		allProperties = null;
-    }
-    public java.lang.String getId() {
-        return (java.lang.String) getPropertyValue("id");
-    }
-    public void setId(java.lang.String id) {
-        setFieldValue("id", id);
+	}	
+	public java.lang.String getId() {
+		return (java.lang.String) getPropertyValue("id"); 
+	}
+	public void setId(java.lang.String id) {
+		setFieldValue("id", id);
 		allProperties = null;
-    }
-    public java.lang.String getBuildPhase() {
-        return (java.lang.String) getPropertyValue("buildPhase");
-    }
-    public void setBuildPhase(java.lang.String buildPhase) {
-        setFieldValue("buildPhase", buildPhase);
+	}	
+	public java.lang.String getBuildPhase() {
+		return (java.lang.String) getPropertyValue("buildPhase"); 
+	}
+	public void setBuildPhase(java.lang.String buildPhase) {
+		setFieldValue("buildPhase", buildPhase);
 		allProperties = null;
-    }
-    public java.lang.String getValidateDT() {
-        return (java.lang.String) getPropertyValue("validateDT");
-    }
-    public void setValidateDT(java.lang.String validateDT) {
-        setFieldValue("validateDT", validateDT);
+	}	
+	public java.lang.String getValidateDT() {
+		return (java.lang.String) getPropertyValue("validateDT"); 
+	}
+	public void setValidateDT(java.lang.String validateDT) {
+		setFieldValue("validateDT", validateDT);
 		allProperties = null;
-    }
-    public java.lang.String getLob() {
-        return (java.lang.String) getPropertyValue("lob");
-    }
-    public void setLob(java.lang.String lob) {
-        setFieldValue("lob", lob);
+	}	
+	public java.lang.String getLob() {
+		return (java.lang.String) getPropertyValue("lob"); 
+	}
+	public void setLob(java.lang.String lob) {
+		setFieldValue("lob", lob);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
-        return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion");
-    }
-    public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
-        setFieldValue("usregion", usregion);
+	}	
+	public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion"); 
+	}
+	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
+		setFieldValue("usregion", usregion);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
-        return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
-    }
-    public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
-        setFieldValue("country", country);
+	}	
+	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
+	}
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
+		setFieldValue("country", country);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
-        return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency");
-    }
-    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
-        setFieldValue("currency", currency);
+	}	
+	public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency"); 
+	}
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
+		setFieldValue("currency", currency);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
-        return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang");
-    }
-    public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
-        setFieldValue("lang", lang);
+	}	
+	public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
+		return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang"); 
+	}
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
+		setFieldValue("lang", lang);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.UsStatesEnum[] getState() {
-        return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state");
-    }
-    public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
-        setFieldValue("state", state);
+	}	
+	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
+		return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state"); 
+	}
+	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
+		setFieldValue("state", state);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
-        return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region");
-    }
-    public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
-        setFieldValue("region", region);
+	}	
+	public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
+		return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region"); 
+	}
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
+		setFieldValue("region", region);
 		allProperties = null;
-    }
-    public java.lang.String getVersion() {
-        return (java.lang.String) getPropertyValue("version");
-    }
-    public void setVersion(java.lang.String version) {
-        setFieldValue("version", version);
+	}	
+	public java.lang.String getVersion() {
+		return (java.lang.String) getPropertyValue("version"); 
+	}
+	public void setVersion(java.lang.String version) {
+		setFieldValue("version", version);
 		allProperties = null;
-    }
-    public java.lang.Boolean getActive() {
-        return (java.lang.Boolean) getPropertyValue("active");
-    }
-    public void setActive(java.lang.Boolean active) {
-        setFieldValue("active", active);
+	}	
+	public java.lang.Boolean getActive() {
+		return (java.lang.Boolean) getPropertyValue("active"); 
+	}
+	public void setActive(java.lang.Boolean active) {
+		setFieldValue("active", active);
 		allProperties = null;
-    }
-    public java.lang.Boolean getFailOnMiss() {
-        return (java.lang.Boolean) getPropertyValue("failOnMiss");
-    }
-    public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-        setFieldValue("failOnMiss", failOnMiss);
+	}	
+	public java.lang.Boolean getFailOnMiss() {
+		return (java.lang.Boolean) getPropertyValue("failOnMiss"); 
+	}
+	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
+		setFieldValue("failOnMiss", failOnMiss);
 		allProperties = null;
-    }
-    public java.lang.String getScope() {
-        return (java.lang.String) getPropertyValue("scope");
-    }
-    public void setScope(java.lang.String scope) {
-        setFieldValue("scope", scope);
+	}	
+	public java.lang.String getScope() {
+		return (java.lang.String) getPropertyValue("scope"); 
+	}
+	public void setScope(java.lang.String scope) {
+		setFieldValue("scope", scope);
 		allProperties = null;
-    }
-    public java.lang.String getDatatypePackage() {
-        return (java.lang.String) getPropertyValue("datatypePackage");
-    }
-    public void setDatatypePackage(java.lang.String datatypePackage) {
-        setFieldValue("datatypePackage", datatypePackage);
+	}	
+	public java.lang.String getDatatypePackage() {
+		return (java.lang.String) getPropertyValue("datatypePackage"); 
+	}
+	public void setDatatypePackage(java.lang.String datatypePackage) {
+		setFieldValue("datatypePackage", datatypePackage);
 		allProperties = null;
-    }
-    public java.lang.String[] getTransaction() {
-        return (java.lang.String[]) getPropertyValue("transaction");
-    }
-    public void setTransaction(java.lang.String[] transaction) {
-        setFieldValue("transaction", transaction);
+	}	
+	public java.lang.String[] getTransaction() {
+		return (java.lang.String[]) getPropertyValue("transaction"); 
+	}
+	public void setTransaction(java.lang.String[] transaction) {
+		setFieldValue("transaction", transaction);
 		allProperties = null;
-    }
-    public java.lang.String[] getCustom1() {
-        return (java.lang.String[]) getPropertyValue("custom1");
-    }
-    public void setCustom1(java.lang.String[] custom1) {
-        setFieldValue("custom1", custom1);
+	}	
+	public java.lang.String[] getCustom1() {
+		return (java.lang.String[]) getPropertyValue("custom1"); 
+	}
+	public void setCustom1(java.lang.String[] custom1) {
+		setFieldValue("custom1", custom1);
 		allProperties = null;
-    }
-    public java.lang.String[] getCustom2() {
-        return (java.lang.String[]) getPropertyValue("custom2");
-    }
-    public void setCustom2(java.lang.String[] custom2) {
-        setFieldValue("custom2", custom2);
+	}	
+	public java.lang.String[] getCustom2() {
+		return (java.lang.String[]) getPropertyValue("custom2"); 
+	}
+	public void setCustom2(java.lang.String[] custom2) {
+		setFieldValue("custom2", custom2);
 		allProperties = null;
-    }
-    public java.lang.Boolean getCacheable() {
-        return (java.lang.Boolean) getPropertyValue("cacheable");
-    }
-    public void setCacheable(java.lang.Boolean cacheable) {
-        setFieldValue("cacheable", cacheable);
+	}	
+	public java.lang.Boolean getCacheable() {
+		return (java.lang.Boolean) getPropertyValue("cacheable"); 
+	}
+	public void setCacheable(java.lang.Boolean cacheable) {
+		setFieldValue("cacheable", cacheable);
 		allProperties = null;
-    }
-    public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
-        return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate");
-    }
-    public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
-        setFieldValue("recalculate", recalculate);
+	}	
+	public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
+		return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate"); 
+	}
+	public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
+		setFieldValue("recalculate", recalculate);
 		allProperties = null;
-    }
-    public java.lang.String getPrecision() {
-        return (java.lang.String) getPropertyValue("precision");
-    }
-    public void setPrecision(java.lang.String precision) {
-        setFieldValue("precision", precision);
+	}	
+	public java.lang.String getPrecision() {
+		return (java.lang.String) getPropertyValue("precision"); 
+	}
+	public void setPrecision(java.lang.String precision) {
+		setFieldValue("precision", precision);
 		allProperties = null;
-    }
-    public java.lang.Boolean getAutoType() {
-        return (java.lang.Boolean) getPropertyValue("autoType");
-    }
-    public void setAutoType(java.lang.Boolean autoType) {
-        setFieldValue("autoType", autoType);
+	}	
+	public java.lang.Boolean getAutoType() {
+		return (java.lang.Boolean) getPropertyValue("autoType"); 
+	}
+	public void setAutoType(java.lang.Boolean autoType) {
+		setFieldValue("autoType", autoType);
+		allProperties = null;
 	}	
 	public org.openl.rules.enumeration.OriginsEnum getOrigin() {
 		return (org.openl.rules.enumeration.OriginsEnum) getPropertyValue("origin"); 
@@ -320,7 +321,21 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setOrigin(org.openl.rules.enumeration.OriginsEnum origin) {
 		setFieldValue("origin", origin);
 		allProperties = null;
-    }
+	}	
+	public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
+		return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions"); 
+	}
+	public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions) {
+		setFieldValue("caRegions", caRegions);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
+		return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces"); 
+	}
+	public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces) {
+		setFieldValue("caProvinces", caProvinces);
+		allProperties = null;
+	}	
 // <<< END INSERT >>>
 
     /**

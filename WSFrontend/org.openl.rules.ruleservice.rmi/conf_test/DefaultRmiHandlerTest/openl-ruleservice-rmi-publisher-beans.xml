@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Initializes OpenL Engine instances according to web services configuration 
+		description and calls RuleServicePublisher to expose corresponding web service -->
+	<!-- Exposes web services. -->
+	<bean id="ruleServicePublisher"
+		class="org.openl.rules.ruleservice.publish.RmiRuleServicePublisher">
+		<property name="rmiPort" value="1099"/>
+		<property name="rmiHost" value="127.0.0.1"/>
+		<property name="baseAddress" value="" />
+	</bean>
+</beans>

@@ -61,6 +61,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         resolveInterfaceAndClassLoader(service, instantiationStrategy);
+        resolveRmiInterface(service);
         instantiateServiceBean(service, instantiationStrategy);
     }
 
@@ -109,7 +110,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         service.setClassLoader(serviceClassLoader);
         if (serviceClassName != null) {
             try {
-                serviceClass = serviceClassLoader.loadClass(serviceClassName);
+                serviceClass = serviceClassLoader.loadClass(serviceClassName.trim());
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
                     serviceClass);
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
@@ -120,20 +121,41 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (serviceClass == null) {
             log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
-            serviceClass = processGeneratedServiceClass(service, instanceClass, serviceClassLoader);
+            serviceClass = processGeneratedServiceClass(instantiationStrategy, service, instanceClass, serviceClassLoader);
             service.setServiceClassName(null); //Generated class is used.
         }
         service.setServiceClass(serviceClass);
     }
+    
+    private void resolveRmiInterface(OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
+        String rmiServiceClassName = service.getRmiServiceClassName();
+        Class<?> serviceClass = null;
+        ClassLoader serviceClassLoader = service.getClassLoader();
+        if (rmiServiceClassName != null) {
+            try {
+                serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
+            } catch (ClassNotFoundException e) {
+                log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
+            }
+        }
+        if (serviceClass == null) {
+            log.info("Service class is undefined of service '{}'. Default RMI interface will be used.",
+                service.getName());
+            service.setRmiServiceClassName(null); // RMI default will be used
+        }
+        service.setRmiServiceClass(serviceClass);
+    }
 
-    private Class<?> processGeneratedServiceClass(OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
+    private Class<?> processGeneratedServiceClass(RulesInstantiationStrategy instantiationStrategy, OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
         if (resultClass == null) {
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
             Class<?> decoratedClass = CustomSpreadsheetResultInterfaceEnhancerHelper.decorate(resultClass, classLoader);
-            return decoratedClass;
+            Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+                decoratedClass);
+            return interfaceForInstantiationStrategy;
         } catch (Exception e) {
             log.error("Failed to applying custom spreadsheet result convertor for class with name \"{}\"",
                 resultClass.getCanonicalName(),
@@ -154,10 +176,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 service.getName());
             return serviceClass;
         } else {
-            String clazzName = serviceDescription.getInterceptorTemplateClassName();
+            String clazzName = serviceDescription.getAnnotationTemplateClassName();
             if (clazzName != null) {
                 try {
-                    Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName);
+                    Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName.trim());
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                         interceptingTemplateClass,
                         classLoader);
@@ -187,6 +209,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             builder.setName(serviceDescription.getName())
                 .setUrl(serviceDescription.getUrl())
                 .setServiceClassName(serviceDescription.getServiceClassName())
+                .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
                 .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
                 .setProvideVariations(serviceDescription.isProvideVariations())
                 .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())

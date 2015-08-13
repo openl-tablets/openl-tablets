@@ -26,7 +26,9 @@ public class XmlRulesDeploySerializerTest {
         assertEquals(Boolean.TRUE, rulesDeploy.isUseRuleServiceRuntimeContext());
         assertEquals(Boolean.TRUE, rulesDeploy.isProvideVariations());
         assertEquals(String.class.getCanonicalName(), rulesDeploy.getServiceClass());
+        assertEquals(String.class.getCanonicalName(), rulesDeploy.getRmiServiceClass());
         assertEquals(String.class.getCanonicalName(), rulesDeploy.getInterceptingTemplateClassName());
+        assertEquals(String.class.getCanonicalName(), rulesDeploy.getAnnotationTemplateClassName());
         assertNotNull(rulesDeploy.getPublishers());
         assertEquals(1, rulesDeploy.getPublishers().length);
         assertEquals(RulesDeploy.PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
@@ -46,6 +48,7 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setLazyModulesForCompilationPatterns(new RulesDeploy.WildcardPattern[]{new RulesDeploy.WildcardPattern("some1*"), new RulesDeploy.WildcardPattern("some2*")});
         rulesDeploy.setUseRuleServiceRuntimeContext(true);
         rulesDeploy.setInterceptingTemplateClassName(String.class.getCanonicalName());
+        rulesDeploy.setAnnotationTemplateClassName(String.class.getCanonicalName());
         rulesDeploy.setServiceClass(String.class.getCanonicalName());
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{PublisherType.WEBSERVICE});
@@ -63,6 +66,7 @@ public class XmlRulesDeploySerializerTest {
                                 "    <publisher>WEBSERVICE</publisher>" + "\n" + 
                                 "  </publishers>"+ "\n" +
                                 "  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>"+ "\n" +
+                                "  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>"+ "\n" +
                                 "  <serviceClass>java.lang.String</serviceClass>"+ "\n" +
                                 "  <url>someURL</url>"+ "\n" +
                                 "  <configuration>"+ "\n" +

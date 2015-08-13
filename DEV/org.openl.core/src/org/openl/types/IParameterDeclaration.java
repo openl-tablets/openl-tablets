@@ -14,11 +14,5 @@ import org.openl.base.INamedThing;
  */
 public interface IParameterDeclaration extends INamedThing {
 
-    int IN = 0;
-    int OUT = 1;
-    int INOUT = 2;
-
-    int getDirection();
-
     IOpenClass getType();
 }

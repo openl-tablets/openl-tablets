@@ -23,7 +23,7 @@ public class JAXBAnnotationWriter implements BeanByteCodeWriter {
 
     @Override
     public void write(ClassWriter classWriter) {
-        String[] parts = beannameWithPackage.split("\\.");
+        String[] parts = beannameWithPackage.split("/");
         StringBuilder namespace = new StringBuilder("http://"); 
         for (int i = parts.length - 2; i >= 0; i--) {
             namespace.append(parts[i]);

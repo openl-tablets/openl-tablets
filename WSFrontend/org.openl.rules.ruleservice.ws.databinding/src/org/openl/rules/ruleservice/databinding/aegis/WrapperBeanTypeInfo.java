@@ -27,6 +27,8 @@ public class WrapperBeanTypeInfo extends BeanTypeInfo {
 
     public WrapperBeanTypeInfo(Class<?> typeClass, String defaultNamespace, List<String> ignoredProperties) {
         super(typeClass, defaultNamespace);
+        setExtensibleAttributes(false);
+        setExtensibleElements(false);
         this.ignoredProperties = ignoredProperties;
     }
 
