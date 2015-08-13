@@ -32,9 +32,7 @@ public class XmlRulesParser extends ExtensionParser {
     @Override
     protected ExtensionModule load(IOpenSourceCodeModule source) {
         String uri = source.getUri(0);
-        Deserializer<ExtensionModule> deserializer = uri.endsWith(".zip") ?
-                                                     new ZipFileXmlDeserializer(uri) :
-                                                     new SingleFileXmlDeserializer();
+        Deserializer<ExtensionModule> deserializer = new ZipFileXmlDeserializer(uri);
         return deserializer.deserialize(source.getByteStream());
     }
 

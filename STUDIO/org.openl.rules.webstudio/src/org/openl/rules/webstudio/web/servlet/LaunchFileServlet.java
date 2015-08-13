@@ -74,6 +74,10 @@ public class LaunchFileServlet extends HttpServlet {
         ExtensionWrapperGrid wrapperGrid = null;
         if (table.getGridTable().getGrid() instanceof ExtensionWrapperGrid) {
             wrapperGrid = (ExtensionWrapperGrid) table.getGridTable().getGrid();
+            if (wrapperGrid.isLaunchSupported()) {
+                wrapperGrid.getFileLauncher().launch();
+                return;
+            }
             file = wrapperGrid.getSourceFileName();
         }
 
