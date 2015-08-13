@@ -38,9 +38,10 @@ public class RuleServiceRuntimeContextBeanType extends BeanType {
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    public static BeanTypeInfo getBeanTypeInfo(){
+    private static BeanTypeInfo getBeanTypeInfo(){
         BeanTypeInfo bti = new BeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI());
         bti.setExtensibleAttributes(false);
+        bti.setExtensibleElements(false);
         return bti;
     }
     
