@@ -5,16 +5,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.apache.commons.io.IOUtils;
 import org.openl.extension.Deserializer;
-import org.openl.extension.xmlrules.model.*;
-import org.openl.extension.xmlrules.model.single.ExtensionModuleInfo;
+import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
-import org.openl.extension.xmlrules.model.single.SheetInfo;
-import org.openl.extension.xmlrules.model.single.*;
 
 public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
     public static final String ENTRY_POINT = "module.xml";
