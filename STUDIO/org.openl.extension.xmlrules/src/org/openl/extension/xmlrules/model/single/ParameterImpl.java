@@ -1,7 +1,10 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.Parameter;
 
+@XmlType(name = "parameter")
 public class ParameterImpl implements Parameter {
     private String type;
     private String name;

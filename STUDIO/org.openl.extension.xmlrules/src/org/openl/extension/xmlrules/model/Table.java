@@ -2,23 +2,25 @@ package org.openl.extension.xmlrules.model;
 
 import java.util.List;
 
+import org.openl.extension.xmlrules.model.single.ConditionImpl;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
+import org.openl.extension.xmlrules.model.single.ReturnRow;
+
 /**
  * @author nsamatov.
  */
 public interface Table {
     String getName();
 
-    List<Parameter> getParameters();
+    List<ParameterImpl> getParameters();
 
     String getReturnType();
 
-    List<Condition> getHorizontalConditions();
+    List<ConditionImpl> getHorizontalConditions();
 
-    List<Condition> getVerticalConditions();
+    List<ConditionImpl> getVerticalConditions();
 
-    XlsRegion getRegion();
-
-    List<List<ReturnValue>> getReturnValues();
+    List<ReturnRow> getReturnValues();
 
     Segment getSegment();
 }

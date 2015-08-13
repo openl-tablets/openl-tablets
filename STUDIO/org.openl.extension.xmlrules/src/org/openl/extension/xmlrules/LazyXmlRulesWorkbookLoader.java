@@ -11,9 +11,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.IOUtils;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.extension.xmlrules.model.ExtensionModule;
-import org.openl.rules.lang.xls.load.LazySheetLoader;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoader;
-import org.openl.rules.lang.xls.load.SheetLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,25 +26,25 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
         this.extensionModule = extensionModule;
     }
 
-    @Override
-    public SheetLoader getSheetLoader(final int sheetIndex) {
-        return new LazySheetLoader(this, sheetIndex) {
-            @Override
-            public String getSheetName() {
-                // Sheet name is used as category name in WebStudio
-                return extensionModule.getTableGroups().get(sheetIndex).getName();
-            }
-        };
-    }
+//    @Override
+//    public SheetLoader getSheetLoader(final int sheetIndex) {
+//        return new LazySheetLoader(this, sheetIndex) {
+//            @Override
+//            public String getSheetName() {
+//                // Sheet name is used as category name in WebStudio
+//                return extensionModule.getSheets().get(sheetIndex).getName();
+//            }
+//        };
+//    }
 
     @Override
     protected Workbook loadWorkbook() {
         InputStream is = null;
         Workbook workbook;
         try {
-            log.info("loading workbook {}...", extensionModule.getXlsFileName());
+            log.info("loading workbook {}...", extensionModule.getFileName());
 
-            is = new BufferedInputStream(new FileInputStream(new File(folder, extensionModule.getXlsFileName())));
+            is = new BufferedInputStream(new FileInputStream(new File(folder, extensionModule.getFileName())));
             workbook = WorkbookFactory.create(is);
             IOUtils.closeQuietly(is);
         } catch (Exception e) {

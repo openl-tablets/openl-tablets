@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.lazy.LazyCells;
 
-public class TableGroupImpl implements TableGroup {
+public class SheetImpl implements Sheet {
     private String name;
     private List<Type> types = new ArrayList<Type>();
     private List<DataInstance> dataInstances = new ArrayList<DataInstance>();
     private List<Table> tables = new ArrayList<Table>();
     private List<Function> functions = new ArrayList<Function>();
+
+    @Override
+    public Integer getId() {
+        return null;
+    }
 
     @Override
     public String getName() {
@@ -55,5 +61,11 @@ public class TableGroupImpl implements TableGroup {
 
     public void setFunctions(List<Function> functions) {
         this.functions = functions;
+    }
+
+    @Override
+    public List<LazyCells> getCells() {
+        // FIXME
+        throw new UnsupportedOperationException();
     }
 }

@@ -3,16 +3,23 @@ package org.openl.extension.xmlrules.model.single;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.FunctionExpression;
 import org.openl.extension.xmlrules.model.Parameter;
 
+@XmlRootElement(name="function")
+@XmlType(name = "function")
 public class FunctionImpl implements Function {
     private String name;
     private String returnType;
-    private List<Parameter> parameters = new ArrayList<Parameter>();
-    private List<FunctionExpression> expressions = new ArrayList<FunctionExpression>();
-    private XlsRegionImpl region;
+    private List<ParameterImpl> parameters = new ArrayList<ParameterImpl>();
+    private String cellAddress;
+//    private List<FunctionExpressionImpl> expressions = new ArrayList<FunctionExpressionImpl>();
 
     @Override
     public String getName() {
@@ -32,30 +39,36 @@ public class FunctionImpl implements Function {
         return returnType;
     }
 
+    @XmlElementWrapper(name="parameters", required = true)
+    @XmlElement(name = "parameter")
     @Override
-    public List<Parameter> getParameters() {
+    public List<ParameterImpl> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<Parameter> parameters) {
+    public void setParameters(List<ParameterImpl> parameters) {
         this.parameters = parameters;
     }
 
+    @XmlElement(name = "cell-address")
     @Override
-    public List<FunctionExpression> getExpressions() {
-        return expressions;
+    public String getCellAddress() {
+        return cellAddress;
     }
 
-    public void setExpressions(List<FunctionExpression> expressions) {
-        this.expressions = expressions;
+    public void setCellAddress(String cellAddress) {
+        this.cellAddress = cellAddress;
     }
 
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
+    //    @XmlElementWrapper(name="expressions", required = true)
+//    @XmlElement(name = "functionExpression")
+//    @Override
+//    public List<FunctionExpressionImpl> getExpressions() {
+//        return expressions;
+//    }
+//
+//    public void setExpressions(List<FunctionExpressionImpl> expressions) {
+//        this.expressions = expressions;
+//    }
 
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
-    }
 }

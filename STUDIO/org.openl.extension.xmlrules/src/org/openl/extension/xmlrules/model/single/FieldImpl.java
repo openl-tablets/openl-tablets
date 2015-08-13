@@ -1,12 +1,13 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.Field;
 
+@XmlType(name = "field")
 public class FieldImpl implements Field {
     private String typeName;
     private String name;
-    private XlsRegionImpl region;
-    private String reference;
 
     @Override
     public String getTypeName() {
@@ -26,21 +27,4 @@ public class FieldImpl implements Field {
         this.name = name;
     }
 
-    @Override
-    public XlsRegionImpl getRegion() {
-        return region;
-    }
-
-    public void setRegion(XlsRegionImpl region) {
-        this.region = region;
-    }
-
-    @Override
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
 }

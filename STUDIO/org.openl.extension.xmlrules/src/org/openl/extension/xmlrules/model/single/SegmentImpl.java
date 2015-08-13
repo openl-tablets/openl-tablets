@@ -1,7 +1,10 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.openl.extension.xmlrules.model.Segment;
 
+@XmlType(name = "segment")
 public class SegmentImpl implements Segment {
     private int segmentNumber;
     private int totalSegments;

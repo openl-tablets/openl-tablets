@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.extension.ExtensionWrapperGrid;
+import org.openl.extension.FileLauncher;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -27,9 +28,19 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
     }
 
     @Override
+    public boolean isLaunchSupported() {
+        return XmlRulesFileLauncher.isLaunchSupported();
+    }
+
+    @Override
+    public FileLauncher getFileLauncher() {
+        return new XmlRulesFileLauncher(uri, sourceFileName);
+    }
+
+    @Override
     public ICell getCell(int column, int row) {
         Map<Integer, ICell> columns = rows.get(row);
-        SimpleCell emptyCell = new SimpleCell(column, row, "");
+        SimpleCell emptyCell = new SimpleCell(column, row, null);
         ICell cell = columns == null ? emptyCell : columns.get(column);
         return cell == null ? emptyCell : cell;
     }
@@ -120,18 +131,12 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
 
         public SimpleGridBuilder addCell(ICell cell) {
             int row = cell.getRow();
-            int column = cell.getColumn();
 
             NavigableMap<Integer, ICell> columns = rows.get(row);
             if (columns == null) {
                 columns = new TreeMap<Integer, ICell>();
                 rows.put(row, columns);
             }
-
-            ICell previousValue = columns.put(column, cell);
-//            if (previousValue != null) {
-//                throw new IllegalStateException("This cell already contains value");
-//            }
 
             return this;
         }
@@ -140,4 +145,5 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
             return new SimpleGrid(rows, uri, sourceFileName);
         }
     }
+
 }

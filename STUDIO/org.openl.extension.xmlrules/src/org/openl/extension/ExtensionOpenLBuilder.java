@@ -5,7 +5,7 @@ import org.openl.conf.BaseOpenLBuilder;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.vm.SimpleVM;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.xls.RulesCompileContext;
 
 public abstract class ExtensionOpenLBuilder extends BaseOpenLBuilder {
@@ -28,7 +28,7 @@ public abstract class ExtensionOpenLBuilder extends BaseOpenLBuilder {
     }
 
     protected IOpenVM getOpenVM() {
-        return new SimpleVM();
+        return new SimpleRulesVM();
     }
 
     protected ICompileContext getCompileContext() {

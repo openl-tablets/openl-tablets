@@ -4,8 +4,4 @@ public interface Field {
     String getTypeName();
 
     String getName();
-
-    XlsRegion getRegion();
-
-    String getReference();
 }

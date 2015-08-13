@@ -3,20 +3,10 @@ package org.openl.extension.xmlrules.model.single;
 import org.openl.extension.xmlrules.model.XlsRegion;
 
 public class XlsRegionImpl implements XlsRegion {
-    private Integer sheetNumber;
     private int column;
     private int row;
     private Integer width;
     private Integer height;
-
-    @Override
-    public Integer getSheetNumber() {
-        return sheetNumber;
-    }
-
-    public void setSheetNumber(Integer sheetNumber) {
-        this.sheetNumber = sheetNumber;
-    }
 
     @Override
     public int getColumn() {
