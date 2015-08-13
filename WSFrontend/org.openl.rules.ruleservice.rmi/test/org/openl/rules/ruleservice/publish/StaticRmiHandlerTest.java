@@ -29,7 +29,7 @@ public class StaticRmiHandlerTest implements ApplicationContextAware{
         Assert.assertNotNull(serviceManager);
         serviceManager.start();
         
-        Registry registry = LocateRegistry.getRegistry(1099);
+        Registry registry = LocateRegistry.getRegistry(61099);
         StaticRmiHandler staticRmiHandler = (StaticRmiHandler) registry.lookup("staticRmiHandler");
         
         Assert.assertNotNull(staticRmiHandler);
