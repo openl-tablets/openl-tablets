@@ -31,9 +31,12 @@
                         <div class="rf-trn">
                             <a4j:commandLink render="objectParam" execute="@this"
                                 oncomplete="$j(#{rich:element('objectParam')}).find('.rf-trn-hnd:first').click()"
-                                style="font-family:Arial,Verdana,sans-serif">
-                                <a4j:param name="loaded" value="true" /><span class="rf-trn-hnd rf-trn-hnd-colps"></span>
-                            </a4j:commandLink><span class="rf-trn-cnt rf-trn-lbl">#{parameterTreeBuilder.getRoot(parameter)}</span>
+                                style="font-family:Arial,Verdana,sans-serif; color:inherit; text-decoration: none">
+                                <a4j:param name="loaded" value="true" /><span class="rf-trn-hnd rf-trn-hnd-colps">
+                                </span><span class="rf-trn-cnt rf-trn-lbl">
+                                    #{parameterTreeBuilder.getRoot(parameter)}
+                                </span>
+                            </a4j:commandLink>
                         </div>
                     </div>
                 </div>
@@ -42,7 +45,7 @@
             <rich:tree value="#{parameterTreeBuilder.getTree(parameter, empty hasExplainLinks or hasExplainLinks == 'true')}" var="node"
                 rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
                 rendered="#{!empty param.loaded or lazy == 'false'}" toggleType="client" selectionType="client"
-                styleClass="param-tree">
+                styleClass="param-tree" toggleNodeEvent="click">
                 <!-- rowKeyConverter is a temporary solution.
                  After migrating to the newer version of RichFaces it can be removed.
                  See: https://issues.jboss.org/browse/RF-11102 for details -->

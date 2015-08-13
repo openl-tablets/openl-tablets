@@ -7,7 +7,7 @@ import org.openl.types.java.JavaOpenClass;
 
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     private Object value;
-    
+
     public ParameterWithValueDeclaration(String paramName, Object value, IOpenClass parameterType) {
         super(parameterType, paramName);
         this.value = value;
@@ -17,7 +17,7 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
         super(getParamType(value), paramName);
         this.value = value;
     }
-    
+
     public static IOpenClass getParamType(Object value) {
         if (value == null) {
             return NullOpenClass.the;
@@ -30,7 +30,7 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
     public Object getValue() {
         return value;
     }
-    
+
     public void setValue(Object value) {
         this.value = value;
     }
