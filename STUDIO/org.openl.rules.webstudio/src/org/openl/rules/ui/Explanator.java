@@ -19,8 +19,6 @@ public class Explanator {
 
     private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
 
-    private Map<String, Explanation> explanators = new HashMap<String, Explanation>();
-
     public static Explanator getCurrent() {
         Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
         if (explanator == null) {
