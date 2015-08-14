@@ -20,16 +20,6 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     public SingleValueExplanation() {
     }
 
-    public SingleValueExplanation(IMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
-    public SingleValueExplanation(String name) {
-        ValueMetaInfo mi = new ValueMetaInfo();
-        mi.setShortName(name);
-        metaInfo = mi;
-    }
-
     public IMetaInfo getMetaInfo() {
         return metaInfo;
     }

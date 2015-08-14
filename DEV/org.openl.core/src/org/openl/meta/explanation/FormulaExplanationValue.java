@@ -1,15 +1,14 @@
 package org.openl.meta.explanation;
 
-import java.util.Arrays;
-
 import org.openl.meta.number.Formulas;
+
+import java.util.Arrays;
 
 /**
  * Explanation implementation for formulas.
- * 
- * @author DLiauchuk
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
+ * @author DLiauchuk
  */
 public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
@@ -45,7 +44,6 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
     }
 
     /**
-     *
      * @return true if formula is multiplicative.
      */
     public boolean isMultiplicative() {

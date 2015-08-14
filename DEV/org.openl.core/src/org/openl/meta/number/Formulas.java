@@ -9,15 +9,16 @@ public enum Formulas {
     
     private String operand;
     private boolean isMultiplicative;
-    
-    private Formulas(String operand, boolean isMultiplicative) {
+
+    Formulas(String operand, boolean isMultiplicative) {
         this.operand = operand;
+        this.isMultiplicative = isMultiplicative;
     }
     
     public boolean isMultiplicative() {
         return isMultiplicative;
     }
-    
+
     @Override
     public String toString() {
         return operand;
@@ -26,9 +27,4 @@ public enum Formulas {
     public String getName() {
         return name().toLowerCase();
     }
-    
-    public String getFullName() {
-        return this.getClass().getSimpleName() + "." + name();
-    }
-
 }

@@ -1,15 +1,15 @@
 package org.openl.rules.ui;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
+
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Explanator {
 
@@ -19,9 +19,7 @@ public class Explanator {
 
     private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
 
-    private Map<String, Explanation> explanators = new HashMap<String, Explanation>();
-
-    public static Explanator getCurrent() {
+    private static Explanator getCurrent() {
         Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
         if (explanator == null) {
             explanator = new Explanator();
@@ -30,32 +28,16 @@ public class Explanator {
         return explanator;
     }
 
-    public ExplanationNumberValue<?> find(String expandID) {
-        return id2value.get(Integer.parseInt(expandID));
-    }
-
-    public Explanation getExplanation(String rootID) {
-        Explanation expl = explanators.get(rootID);
-        if (expl == null) {
-            int id = Integer.parseInt(rootID);
-
-            ExplanationNumberValue<?> value = id2value.get(id);
-            expl = new Explanation(this, value);
-            explanators.put(rootID, expl);
-        }
-        return expl;
-    }
-
-    public int getUniqueId(ExplanationNumberValue<?> value) {
-        Integer id = value2id.get(value);
-
+    public static int getUniqueId(ExplanationNumberValue<?> value) {
+        Explanator explanator = getCurrent();
+        Integer id = explanator.value2id.get(value);
         if (id != null) {
             return id;
         }
 
         id = ++uniqueId;
-        value2id.put(value, id);
-        id2value.put(id, value);
+        explanator.value2id.put(value, id);
+        explanator.id2value.put(id, value);
         return id;
     }
 
@@ -67,10 +49,11 @@ public class Explanator {
         return rfTree;
     }
 
-    public static List<String[]> getExplainList(String rootID, String expandID, String fromID) {
+    public static List<String[]> getExplainList(String rootID) {
         Explanator explanator = getCurrent();
-        Explanation explanation = explanator.getExplanation(rootID);
-        List<String[]> result = explanation.getExplainList(expandID, fromID);
+        int id = Integer.parseInt(rootID);
+        ExplanationNumberValue<?> root = explanator.id2value.get(id);
+        List<String[]> result = new Explanation().build(root);
         return result;
     }
 }
