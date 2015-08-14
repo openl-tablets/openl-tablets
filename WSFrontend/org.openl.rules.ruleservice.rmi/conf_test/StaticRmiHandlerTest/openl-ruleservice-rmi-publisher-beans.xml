@@ -9,7 +9,7 @@
 	<!-- Exposes web services. -->
 	<bean id="ruleServicePublisher"
 		class="org.openl.rules.ruleservice.publish.RmiRuleServicePublisher">
-		<property name="rmiPort" value="1099"/>
+		<property name="rmiPort" value="61099"/>
 		<property name="rmiHost" value="127.0.0.1"/>
 		<property name="baseAddress" value="" />
 	</bean>

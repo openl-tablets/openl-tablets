@@ -85,10 +85,14 @@ public class TestUnit {
                     results = ((BeanResultComparator) testComparator).getComparisonResults();
                 }
                 for (ComparedResult comparedResult : results) {
-                    comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getActualValue()));
-                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                            comparedResult.getFieldName(), comparedResult.getExpectedValue()));
+                    if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
+                        comparedResult.setActualValue(new ParameterWithValueDeclaration(
+                                comparedResult.getFieldName(), comparedResult.getActualValue()));
+                    }
+                    if (!(comparedResult.getExpectedValue() instanceof ParameterWithValueDeclaration)) {
+                        comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
+                                comparedResult.getFieldName(), comparedResult.getExpectedValue()));
+                    }
                     params.add(comparedResult);
                 }
                 return params;
@@ -138,7 +142,7 @@ public class TestUnit {
     /**
      * Gets the value from the field by it`s fieldName.
      *
-     * @param fieldName
+     * @param fieldName field name
      * @return the value from the field.
      * @deprecated It would be better to retrieve test description and use it to get arguments.
      */
