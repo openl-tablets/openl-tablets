@@ -6,7 +6,6 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.explanation.FormulaExplanationValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
 
@@ -85,12 +84,9 @@ public class Explanation {
         String url = mi != null ? mi.getSourceUrl() : null;
 
         if (url != null && name != null) {
-            value = HTMLHelper.urlLink(WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool
-                            .encodeURL(url) + "&text=" + name,
-                    "Show in table",
-                    value,
-                    "mainFrame",
-                    "open");
+            String href = WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
+                    + StringTool.encodeURL(url) + "&text=" + name;
+            value = "<a href='" + href + "' title='Show in table' target='mainFrame' class='open'>" + value + "</a>";
         }
 
         return value;
