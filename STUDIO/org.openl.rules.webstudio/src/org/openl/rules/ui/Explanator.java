@@ -30,18 +30,6 @@ public class Explanator {
         return explanator;
     }
 
-    private Explanation getExplanation(String rootID) {
-        Explanation expl = explanators.get(rootID);
-        if (expl == null) {
-            int id = Integer.parseInt(rootID);
-
-            ExplanationNumberValue<?> value = id2value.get(id);
-            expl = new Explanation(value, rootID);
-            explanators.put(rootID, expl);
-        }
-        return expl;
-    }
-
     public int getUniqueId(ExplanationNumberValue<?> value) {
         Integer id = value2id.get(value);
 
@@ -63,10 +51,11 @@ public class Explanator {
         return rfTree;
     }
 
-    public static List<String[]> getExplainList(String rootID, String expandID) {
+    public static List<String[]> getExplainList(String rootID) {
         Explanator explanator = getCurrent();
-        Explanation explanation = explanator.getExplanation(rootID);
-        List<String[]> result = explanation.getExplainList(expandID);
+        int id = Integer.parseInt(rootID);
+        ExplanationNumberValue<?> root = explanator.id2value.get(id);
+        List<String[]> result = new Explanation().build(root);
         return result;
     }
 }
