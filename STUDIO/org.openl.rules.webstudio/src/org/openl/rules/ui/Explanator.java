@@ -1,15 +1,15 @@
 package org.openl.rules.ui;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
+
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Explanator {
 
@@ -19,7 +19,7 @@ public class Explanator {
 
     private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
 
-    public static Explanator getCurrent() {
+    private static Explanator getCurrent() {
         Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
         if (explanator == null) {
             explanator = new Explanator();
@@ -28,16 +28,16 @@ public class Explanator {
         return explanator;
     }
 
-    public int getUniqueId(ExplanationNumberValue<?> value) {
-        Integer id = value2id.get(value);
-
+    public static int getUniqueId(ExplanationNumberValue<?> value) {
+        Explanator explanator = getCurrent();
+        Integer id = explanator.value2id.get(value);
         if (id != null) {
             return id;
         }
 
         id = ++uniqueId;
-        value2id.put(value, id);
-        id2value.put(id, value);
+        explanator.value2id.put(value, id);
+        explanator.id2value.put(id, value);
         return id;
     }
 
