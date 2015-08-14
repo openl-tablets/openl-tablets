@@ -12,6 +12,9 @@
     <packaging>maven-archetype</packaging>
     <name>OpenL Simple Project</name>
     <url>http://openl-tablets.sourceforge.net/</url>
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
     <build>
         <extensions>
             <extension>
