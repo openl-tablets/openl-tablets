@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
-import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.calc.CellsHeaderExtractor;
@@ -14,9 +15,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  * 
  */
-public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
+public class SpreadsheetNodeSorter {
 
-    public int compare(TableSyntaxNode table1, TableSyntaxNode table2) {
+    private static boolean check(TableSyntaxNode table1, TableSyntaxNode table2) {
         if (isSpreadsheet(table1) && isSpreadsheet(table2)) {
             // Compare both spreadsheets table syntax nodes.
             // Check if there are usages of custom spreadsheet type
@@ -26,27 +27,59 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
             String methodName2 = getMethodName(table2);
             if (StringUtils.isNotBlank(methodName2)) {
                 if (extractor1.getDependentSpreadsheetTypes().contains(methodName2)) {
-                    return 1;
+                    return true;
                 }
             }
-            CellsHeaderExtractor extractor2 = extractNames(table2);
-
-            String methodName1 = getMethodName(table1);
-            if (StringUtils.isNotBlank(methodName1)) {
-                if (extractor2.getDependentSpreadsheetTypes().contains(methodName1)) {
-                    return -1;
-                }
-            }
-            return 0;
         }
-        return 0;
+        return false;
+    }
+    
+    public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes){
+        TableSyntaxNode[] result = new TableSyntaxNode[tableSyntaxNodes.length];
+        boolean[][] matrix = new boolean[tableSyntaxNodes.length][tableSyntaxNodes.length];
+        int[] c = new int[tableSyntaxNodes.length];
+        for (int i = 0; i < tableSyntaxNodes.length; i++) {
+            for (int j = 0; j < tableSyntaxNodes.length; j++) {
+                if (i != j && check(tableSyntaxNodes[i], tableSyntaxNodes[j])) {
+                    matrix[j][i] = true;
+                    c[i]++;
+                }
+            }
+        }
+        int n = 0;
+        Queue<Integer> q = new LinkedList<Integer>();
+        for (int i = 0; i < tableSyntaxNodes.length; i++) {
+            if (c[i] == 0) {
+                q.add(i);
+            }
+        }
+        while (!q.isEmpty()){
+            int t = q.poll();
+            result[n++] = tableSyntaxNodes[t];
+            for (int i = 0;i<tableSyntaxNodes.length;i++){
+                if (matrix[t][i]){
+                    c[i]--;
+                    if (c[i] == 0){
+                        q.add(i);
+                    }
+                }
+            }
+        }
+        if (n < tableSyntaxNodes.length){
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {
+                if (c[i] > 0) {
+                    result[n++] = tableSyntaxNodes[i];
+                }
+            }
+        }
+        return result;
     }
 
     // TODO: refactor
     // extract working with header to helper class
     // should be simple: Helper.getMethodName(tableHeader)
     //
-    private String getMethodName(TableSyntaxNode table) {
+    private static String getMethodName(TableSyntaxNode table) {
         String methodName = StringUtils.EMPTY;
 
         String[] tokens = getSignature(table).split(" ");
@@ -61,15 +94,15 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
         return methodName;
     }
 
-    private String getSignature(TableSyntaxNode table) {
+    private static String getSignature(TableSyntaxNode table) {
         return table.getHeader().getHeaderToken().getModule().getCode();
     }
 
-    private boolean isSpreadsheet(TableSyntaxNode o1) {
+    private static boolean isSpreadsheet(TableSyntaxNode o1) {
         return XlsNodeTypes.XLS_SPREADSHEET.equals(o1.getNodeType());
     }
 
-    private CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
+    private static CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
         CellsHeaderExtractor extractor = null;
 
         // try to get previously stored extractor

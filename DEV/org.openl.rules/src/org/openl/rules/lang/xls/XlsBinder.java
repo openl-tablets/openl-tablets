@@ -48,6 +48,7 @@ import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
+import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -68,6 +69,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ISelector;
@@ -350,7 +352,7 @@ public class XlsBinder implements IOpenBinder {
     /**
      * Bind the tables in next order:
      * 1) Get tables, excluding Properties, Datatype, Spreadsheet, Test, RunMethod tables
-     * 2) Get Spreadsheets, sort them (see {@link SpreadsheetNodeComparator}) and bind together with 1st point tables
+     * 2) Get Spreadsheets, sort them (see {@link SpreadsheetNodeSorter}) and bind together with 1st point tables
      * 3) Bind Test and RunMethod tables
      *
      * @param moduleNode                          Syntax node for the whole module
@@ -374,8 +376,7 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
 
         // Select and sort Spreadsheet tables
-        TableSyntaxNode[] spreadsheets = selectAndSortNodes(moduleNode, spreadsheetSelector,
-                new SpreadsheetNodeComparator());
+        TableSyntaxNode[] spreadsheets = selectAndSortSpreadsheetNodes(moduleNode, spreadsheetSelector);
 
         TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(commonTables, spreadsheets);
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
@@ -593,25 +594,74 @@ public class XlsBinder implements IOpenBinder {
         return tableSyntaxNodes;
     }
 
+    private TableSyntaxNode[] selectAndSortSpreadsheetNodes(XlsModuleSyntaxNode moduleSyntaxNode,
+            ISelector<ISyntaxNode> childSelector) {
+
+        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
+
+        for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
+
+            if (childSelector == null || childSelector.select(tsn)) {
+                childSyntaxNodes.add(tsn);
+            }
+        }
+
+        TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
+
+        return SpreadsheetNodeSorter.sort(tableSyntaxNodes);
+    }
+
+    private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode){
+        return tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT ||
+                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT2 ||
+                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_TBASIC ||
+                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_METHOD ||
+                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_COLUMN_MATCH ||
+                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_SPREADSHEET;
+    }
+    
     protected IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
                                       XlsModuleOpenClass module,
                                       TableSyntaxNode[] tableSyntaxNodes,
                                       OpenL openl,
                                       RulesModuleBindingContext moduleContext) {
 
-        IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length];
+        IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length]; 
 
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
-
-            IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
-            children[i] = child;
-
-            if (child != null) {
-                try {
-                    child.addTo(module);
-                } catch (OpenlNotCheckedException e) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
-                    processError(error, tableSyntaxNodes[i], moduleContext);
+            if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])){
+                AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory().get(tableSyntaxNodes[i].getType());
+                try{
+                    OpenMethodHeader openMethodHeader = aExecutableNodeBinder.createHeader(tableSyntaxNodes[i], openl, moduleContext);
+                    moduleContext.addPrebindMethod(new HeaderOpenMethod(openMethodHeader));
+                }catch(Exception e){
+                    //skip
+                }
+            }else{
+                IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
+                children[i] = child;
+                if (child != null) {
+                    try {
+                        child.addTo(module);
+                    } catch (OpenlNotCheckedException e) {
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                        processError(error, tableSyntaxNodes[i], moduleContext);
+                    }
+                }
+            }
+        }
+        
+        for (int i = 0; i < children.length; i++) {
+            if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
+                IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
+                children[i] = child;
+                if (child != null) {
+                    try {
+                        child.addTo(module);
+                    } catch (OpenlNotCheckedException e) {
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                        processError(error, tableSyntaxNodes[i], moduleContext);
+                    }
                 }
             }
         }
@@ -625,6 +675,8 @@ public class XlsBinder implements IOpenBinder {
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
         }
+        
+        moduleContext.clearPrebindMethods();
 
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }

@@ -48,6 +48,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
      */
     private List<IOpenMethod> internalMethods;
     
+    private List<IOpenMethod> internalPrebindMethods = new ArrayList<IOpenMethod>();
+    
     public RulesModuleBindingContext(IBindingContext delegate,
             ModuleOpenClass module) {
         super(delegate, module);
@@ -84,12 +86,21 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IMethodCaller findMethodCaller(String namespace, String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller method = super.findMethodCaller(namespace, methodName, parTypes);
-        if(method == null){
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, 
-            		
-            	OpenIterator.select(internalMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
+        if (method == null) {
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
+        }
+        if (method == null) {
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalPrebindMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
         }
         return method;
+    }
+    
+    public void addPrebindMethod(IOpenMethod method){
+        internalPrebindMethods.add(method);
+    }
+    
+    public void clearPrebindMethods(){
+        internalPrebindMethods.clear();
     }
 
     public final class CurrentRuntimeContextMethod implements IOpenMethod {

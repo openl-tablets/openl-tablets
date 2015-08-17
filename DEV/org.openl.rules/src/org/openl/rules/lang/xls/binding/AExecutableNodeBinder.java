@@ -22,6 +22,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.text.TextInfo;
@@ -47,7 +48,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         return createNode(tableSyntaxNode, openl, header, module);
     }
 
-    protected OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws Exception {
+    public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws SyntaxNodeException{
 
         IGridTable table = tableSyntaxNode.getGridTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
