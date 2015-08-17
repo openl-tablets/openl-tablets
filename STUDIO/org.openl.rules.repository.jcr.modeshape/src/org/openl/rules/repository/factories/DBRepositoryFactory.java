@@ -1,20 +1,5 @@
 package org.openl.rules.repository.factories;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.nodetype.NodeTypeManager;
-
 import org.apache.commons.lang3.StringUtils;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -30,9 +15,25 @@ import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
+import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeTypeManager;
+import javax.transaction.UserTransaction;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
@@ -40,11 +41,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
+public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
     private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("repository.jcr.nodetypes",
-        DEFAULT_NODETYPE_FILE);
+            DEFAULT_NODETYPE_FILE);
 
     private ConfigPropertyString url = new ConfigPropertyString("repository.db.url", "jdbc:mysql://localhost/repo");
 
@@ -97,9 +98,10 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
         setRepository(repository, config.getName());
     }
 
-    private RepositoryConfiguration getModeshapeConfiguration(String url, String user, String password) throws SQLException,
-                                                                                                       ParsingException,
-                                                                                                       FileNotFoundException {
+    private RepositoryConfiguration getModeshapeConfiguration(String url, String user, String password) throws
+                                                                                                        SQLException,
+                                                                                                        ParsingException,
+                                                                                                        FileNotFoundException {
         final String repoName = ("OPENL_" + url).replace('"', '_').replace('\'', '_').replace(':', '_');
         // Create a local environment that we'll set up to own the external
         // components ModeShape needs ...
@@ -142,26 +144,26 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.transaction().transactionMode(TransactionMode.TRANSACTIONAL);
         configurationBuilder.jmxStatistics()
-            .enable()
-            .clustering()
-            .cacheMode(CacheMode.REPL_SYNC)
-            .loaders()
-            .shared(true)
-            .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
-            .table()
-            .tableNamePrefix("CACHE")
-            .idColumnName("ID")
-            .idColumnType(types[0])
-            .dataColumnName("DATA")
-            .dataColumnType(types[1])
-            .timestampColumnName("TIMESTAMP")
-            .timestampColumnType(types[2])
-            .connectionPool()
-            .connectionUrl(url)
-            .username(user)
-            .password(password)
-            // Get a driver by url
-            .driverClass(driverClass);
+                .enable()
+                .clustering()
+                .cacheMode(CacheMode.REPL_SYNC)
+                .loaders()
+                .shared(true)
+                .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
+                .table()
+                .tableNamePrefix("CACHE")
+                .idColumnName("ID")
+                .idColumnType(types[0])
+                .dataColumnName("DATA")
+                .dataColumnType(types[1])
+                .timestampColumnName("TIMESTAMP")
+                .timestampColumnType(types[2])
+                .connectionPool()
+                .connectionUrl(url)
+                .username(user)
+                .password(password)
+                        // Get a driver by url
+                .driverClass(driverClass);
         return configurationBuilder.build();
     }
 
@@ -282,6 +284,16 @@ public class DBRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
         } catch (Exception e) {
             throw new RRepositoryException("Shutdown has failed.", e);
         }
+    }
+
+    @Override
+    public RTransactionManager getTrasactionManager(Session session) {
+        return new RTransactionManager() {
+            @Override
+            public UserTransaction getTransaction() {
+                return NO_TRANSACTION;
+            }
+        };
     }
 
     private void registerDrivers() {

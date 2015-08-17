@@ -75,26 +75,5 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.modeshape</groupId>
-            <artifactId>modeshape-jcr-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.modeshape</groupId>
-            <artifactId>modeshape-jcr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.modeshape</groupId>
-            <artifactId>modeshape-common</artifactId>
-        </dependency>
-        <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
-        <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-cachestore-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-        </dependency>
     </dependencies>
 </project>
