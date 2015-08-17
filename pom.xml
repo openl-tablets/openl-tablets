@@ -93,7 +93,6 @@
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
         <module>DEMO</module>
-        <module>Util/openl-sourceforge-publisher</module>
     </modules>
     <distributionManagement>
         <repository>
