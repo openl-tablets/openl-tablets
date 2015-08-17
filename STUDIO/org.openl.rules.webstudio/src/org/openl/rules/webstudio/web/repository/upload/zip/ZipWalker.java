@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.util.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

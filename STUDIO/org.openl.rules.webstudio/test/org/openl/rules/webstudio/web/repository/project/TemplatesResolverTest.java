@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import org.apache.commons.io.IOUtils;
+import org.openl.util.IOUtils;
 
 /**
  * Base class with helper methods

@@ -1,6 +1,6 @@
 package org.openl.codegen.tools.generator;
 
-import org.apache.commons.io.IOUtils;
+import org.openl.util.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

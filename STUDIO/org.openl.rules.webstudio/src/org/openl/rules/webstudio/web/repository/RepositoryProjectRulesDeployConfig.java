@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
@@ -11,6 +10,7 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

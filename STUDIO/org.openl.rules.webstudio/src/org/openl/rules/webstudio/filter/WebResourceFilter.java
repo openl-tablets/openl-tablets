@@ -17,8 +17,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.openl.util.IOUtils;
 
 /**
  * Servlet filter to load web resources (images, html, etc). First, attempt is
