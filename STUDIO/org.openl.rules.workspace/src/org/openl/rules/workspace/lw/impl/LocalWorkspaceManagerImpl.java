@@ -1,12 +1,11 @@
 package org.openl.rules.workspace.lw.impl;
 
-import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
-
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,7 +33,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     public void afterPropertiesSet() throws Exception {
         if (workspaceHome == null) {
             log.warn("workspaceHome isn't initialized. Default value is used.");
-            workspaceHome = getTempDirectoryPath() + "/rules-workspaces/";
+            workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
         if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);

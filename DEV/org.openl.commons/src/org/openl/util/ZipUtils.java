@@ -39,19 +39,15 @@ public class ZipUtils {
 
                 FileOutputStream fos = new FileOutputStream(unzipped);
 
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
+                IOUtils.copy(zis, fos, buffer);
 
                 fos.close();
                 ze = zis.getNextEntry();
             }
         } finally {
             zis.closeEntry();
-            zis.close();
+            IOUtils.closeQuietly(zis);
         }
-
     }
 }
 

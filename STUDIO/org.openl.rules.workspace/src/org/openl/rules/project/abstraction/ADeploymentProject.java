@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -17,6 +15,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +104,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        if (CollectionUtils.isEmpty(descriptors)) {
+        if (descriptors == null || descriptors.isEmpty()) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
             }
