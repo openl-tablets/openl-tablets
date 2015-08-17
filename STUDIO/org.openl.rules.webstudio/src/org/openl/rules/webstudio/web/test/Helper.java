@@ -41,6 +41,6 @@ public final class Helper {
 
     public int getExplanatorId(Object actualResult) {
         // We expect there ExplanationNumberValue.
-        return Explanator.getCurrent().getUniqueId((ExplanationNumberValue<?>) actualResult);
+        return Explanator.getUniqueId((ExplanationNumberValue<?>) actualResult);
     }
 }

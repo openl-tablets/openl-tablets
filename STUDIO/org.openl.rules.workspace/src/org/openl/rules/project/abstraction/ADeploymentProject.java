@@ -1,8 +1,6 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -112,20 +110,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
             }
         } else {
-            String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
-            try {
-                AProjectResource resource;
-                if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                    resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
-                    resource.setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
-                } else {
-                    resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
-                            descriptorsAsString.getBytes("UTF-8")));
-                }
-                resource.commit(user);
-            } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
+            InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+            AProjectResource resource;
+            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
+                resource.setContent(inputStream);
+            } else {
+                resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
             }
+            resource.commit(user);
         }
 
         modifiedDescriptors = false;

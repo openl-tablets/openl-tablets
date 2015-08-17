@@ -1,6 +1,5 @@
 package org.openl.rules.repository.factories;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -308,13 +307,12 @@ public class RepositoryConvertor {
                     if (!CollectionUtils.isEmpty(oldProject.getProjectDescriptors())) {
                         List<ProjectDescriptor> descriptors = new ArrayList<ProjectDescriptor>(
                                 oldProject.getProjectDescriptors());
-                        String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
+                        InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
                         if (!jcrDDproject.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                            jcrDDproject.addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
-                                    descriptorsAsString.getBytes("UTF-8")));
+                            jcrDDproject.addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
                         } else {
                             ((ResourceAPI) jcrDDproject.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                                    .setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                                    .setContent(inputStream);
                         }
                     } else {
                         if (jcrDDproject.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {

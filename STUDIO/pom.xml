@@ -17,6 +17,7 @@
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.jcr</module>
         <module>org.openl.rules.repository.jcr.jackrabbit</module>
+        <module>org.openl.rules.repository.jcr.modeshape</module>
         <module>org.openl.rules.workspace</module>
         <module>org.openl.commons.web</module>
         <module>org.openl.rules.webstudio</module>
@@ -85,6 +86,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

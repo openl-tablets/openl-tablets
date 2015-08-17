@@ -8,7 +8,7 @@ public enum SpreadsheetSymbols {
     
     private String symbols;
     
-    private SpreadsheetSymbols(String symbols) {
+    SpreadsheetSymbols(String symbols) {
         this.symbols = symbols;
     }
     
