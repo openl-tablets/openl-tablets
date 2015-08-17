@@ -1,10 +1,7 @@
 package org.openl.rules.security.common.spring;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -54,9 +51,9 @@ import java.util.Map;
  * @see java.util.regex.Pattern
  */
 public class ChooseObjectFactoryBean extends AbstractFactoryBean {
-    private static final char SEPARATOR_CHAR = ',';
+    private static final String SEPARATOR_CHAR = ",";
     private String testValue;
-    private Map casesMap;
+    private Map<String, Object> casesMap;
     private Object defaultObject = null;
 
     /**
@@ -73,7 +70,7 @@ public class ChooseObjectFactoryBean extends AbstractFactoryBean {
      * @throws Exception if any exception ocuurs
      */
     @Override
-    protected Object createInstance() throws IllegalStateException, Exception {
+    protected Object createInstance() throws IllegalStateException {
         Object instance = findMatch(testValue);
         if (instance == null) {
             throw new IllegalStateException("Unable to find find match for '" + testValue + "'");
@@ -85,19 +82,18 @@ public class ChooseObjectFactoryBean extends AbstractFactoryBean {
         Object resultCase = null;
 
         if ((casesMap != null) && (operator != null)) {
-            Iterator keys = casesMap.keySet().iterator();
-            for (; keys.hasNext();) {
-                String key = (String) keys.next();
-                String[] splitKeys = StringUtils.split(key, SEPARATOR_CHAR);
-                for (int i = 0; i < splitKeys.length; i++) {
-                    String splitKey = splitKeys[i];
+            for(Map.Entry<String, Object> entry: casesMap.entrySet() ) {
+
+                String key = entry.getKey();
+                String[] splitKeys = key.split(SEPARATOR_CHAR);
+                for(String splitKey : splitKeys) {
                     if (operator.matches(splitKey)) {
                         // check duplicate
                         if (resultCase != null) {
                             throw new IllegalStateException("More than single case findMatch with '" + operator
                                     + "', casesMap: " + casesMap);
                         }
-                        resultCase = casesMap.get(key);
+                        resultCase = entry.getValue();
                     }
                 }
             }
