@@ -45,9 +45,5 @@
             <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
     </dependencies>
 </project>

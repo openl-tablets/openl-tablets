@@ -17,14 +17,13 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEv
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import java.util.*;
 
 /**
  * @author Aleh Bykhavets
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, DisposableBean, RulesRepositoryFactoryAware {
+public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, RulesRepositoryFactoryAware {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private RulesRepositoryFactory rulesRepositoryFactory;
@@ -317,7 +316,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         this.rulesRepositoryFactory = rulesRepositoryFactory;
     }
 
-    @Override
+    /**
+     * destroy-method
+     */
     public void destroy() throws Exception {
         if (rulesRepository != null) {
             rulesRepository.removeRepositoryListener(this);

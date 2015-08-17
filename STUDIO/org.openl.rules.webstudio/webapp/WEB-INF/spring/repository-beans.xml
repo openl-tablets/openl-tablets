@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
        default-autowire="no">
 
-  <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
+  <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl" init-method="init">
     <property name="workspaceHome" value="#{systemConfig['user.workspace.home']}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
@@ -14,7 +14,7 @@
     <property name="config" value="#{systemConfig}" />
   </bean>
 
-  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl">
+  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" destroy-method="destroy">
     <property name="rulesRepositoryFactory" ref="rulesRepositoryFactory"/>
   </bean>
 
