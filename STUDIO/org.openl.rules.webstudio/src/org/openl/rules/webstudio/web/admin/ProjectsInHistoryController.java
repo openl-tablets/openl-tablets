@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.apache.commons.io.FileUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class ProjectsInHistoryController {
                 if (bean.isSelected()) {
                     try {
                         String projectPath = getProjectHistoryHome() + File.separator + bean.getProjectName();
-                        FileUtils.deleteDirectory(new File(projectPath));
+                        FileUtils.delete(new File(projectPath));
                     } catch (Exception e) {
                         msg = "Failed to clean history of project '" + bean.getProjectName() + "'!";
                         log.error(msg, e);

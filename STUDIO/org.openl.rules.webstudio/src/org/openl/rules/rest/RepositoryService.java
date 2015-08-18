@@ -19,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
@@ -36,6 +35,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.StringTool;
 import org.openl.util.ZipUtils;
 import org.springframework.security.core.Authentication;
@@ -171,19 +171,9 @@ public class RepositoryService {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         } finally {
             /* Clean up */
-            if (zipFile.exists()) {
-                zipFile.delete();
-            }
-            try {
-                FileUtils.deleteDirectory(zipFolder);
-            } catch (IOException e) {
-                // Nothing to do.
-            }
-            try {
-                FileUtils.deleteDirectory(workspaceLocation);
-            } catch (IOException e) {
-                // Nothing to do.
-            }
+            FileUtils.deleteQuietly(zipFile);
+            FileUtils.deleteQuietly(zipFolder);
+            FileUtils.deleteQuietly(workspaceLocation);
         }
     }
 
