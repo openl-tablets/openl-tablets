@@ -18,7 +18,6 @@ import org.openl.rules.repository.utils.UserUtil;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileCopyUtils;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -113,8 +112,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             String fullPath = tempRepositorySettings.getCanonicalPath();
 
             OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
-            FileCopyUtils.copy(url.openStream(), tempRepositorySettingsStream);
-            tempRepositorySettingsStream.close();
+            IOUtils.copyAndClose(url.openStream(), tempRepositorySettingsStream);
 
             createTransientRepo(fullPath);
 

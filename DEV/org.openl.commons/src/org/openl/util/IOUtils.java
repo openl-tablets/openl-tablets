@@ -32,6 +32,28 @@ public class IOUtils {
     }
 
     /**
+     * Copy bytes from <code>InputStream</code> to an <code>OutputStream</code> and close them after.
+     * <p/>
+     * This method uses the provided buffer, so there is no need to use a
+     * <code>BufferedInputStream</code>.
+     * <p/>
+     * The buffer size is given by {@link #DEFAULT_BUFFER_SIZE}.
+     *
+     * @param input  the <code>InputStream</code> to read from
+     * @param output the <code>OutputStream</code> to write to
+     * @throws NullPointerException if the input or output is null
+     * @throws IOException          if an I/O error occurs
+     */
+    public static void copyAndClose(InputStream input, OutputStream output) throws IOException {
+        try {
+            copy(input, output);
+        } finally {
+            closeQuietly(input);
+            closeQuietly(output);
+        }
+    }
+
+    /**
      * Copy bytes from <code>InputStream</code> to an <code>OutputStream</code>.
      * <p/>
      * This method uses the provided buffer, so there is no need to use a

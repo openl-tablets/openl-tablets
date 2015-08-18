@@ -48,9 +48,9 @@ import org.openl.rules.repository.jcr.JcrFileAPI;
 import org.openl.rules.repository.jcr.JcrFolderAPI;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.NodeUtil;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileCopyUtils;
 
 //FIXME refactor to use AProjectArtefacts
 public class RepositoryConvertor {
@@ -118,8 +118,7 @@ public class RepositoryConvertor {
         String fullPath = tempRepositorySettings.getCanonicalPath();
 
         OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
-        FileCopyUtils.copy(url.openStream(), tempRepositorySettingsStream);
-        tempRepositorySettingsStream.close();
+        IOUtils.copyAndClose(url.openStream(), tempRepositorySettingsStream);
 
         repo = new TransientRepository(fullPath, repHome);
         // TODO: schema
