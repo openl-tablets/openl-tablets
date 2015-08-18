@@ -45,6 +45,10 @@
             <artifactId>org.openl.commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.constrainer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
