@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,6 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -36,6 +36,7 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.api.ArtefactAPI;
@@ -304,9 +305,9 @@ public class RepositoryConvertor {
                 if (version.getRevision() != 0) {
                     RDeploymentDescriptorProject oldProject = project.getProjectVersion(version);
                     copyEntity(oldProject, jcrDDproject);
-                    if (!CollectionUtils.isEmpty(oldProject.getProjectDescriptors())) {
-                        List<ProjectDescriptor> descriptors = new ArrayList<ProjectDescriptor>(
-                                oldProject.getProjectDescriptors());
+                    Collection<RProjectDescriptor> projectDescriptors = oldProject.getProjectDescriptors();
+                    if (projectDescriptors != null && !projectDescriptors.isEmpty()) {
+                        List<ProjectDescriptor> descriptors = new ArrayList<ProjectDescriptor>(projectDescriptors);
                         InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
                         if (!jcrDDproject.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                             jcrDDproject.addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
