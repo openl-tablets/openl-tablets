@@ -1,5 +1,6 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -801,8 +802,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return null;
         }
 
-        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
-                scale)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
+        return new FloatValue(new FloatValue(MathUtils.round(value.floatValue(),
+                scale, BigDecimal.ROUND_HALF_UP)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
     }
 
     public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
@@ -810,7 +811,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return null;
         }
 
-        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
+        return new FloatValue(new FloatValue(MathUtils.round(value.floatValue(),
                     scale,
                     roundingMethod)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
     }
