@@ -1,7 +1,5 @@
 package org.openl.rules.security.standalone.persistence;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.io.Serializable;
 
 /**
@@ -73,11 +71,10 @@ public abstract class PersistentObject implements Serializable {
     }
 
     /**
-     *
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append(id).toString();
+        return super.toString()+ '[' + id + ']';
     }
 }

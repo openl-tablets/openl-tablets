@@ -1,6 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.*;
@@ -61,7 +60,8 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
         public String buildQuery(SearchParams params) {
             StringBuilder sb = new StringBuilder("SELECT * FROM [nt:base]");
-            if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
+            String lineOfBusiness = params.getLineOfBusiness();
+            if (lineOfBusiness != null && !lineOfBusiness.isEmpty()) {
                 if (firstCondition) {
                     firstCondition = false;
                     sb.append(" WHERE ");
@@ -69,7 +69,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     sb.append(" AND ");
                 }
                 // todo: check for injection
-                sb.append("[" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "]").append("=\"").append(params.getLineOfBusiness()).append("\"");
+                sb.append("[" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "]").append("=\"").append(lineOfBusiness).append("\"");
             }
 
             appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getLowerEffectiveDate(), ">=", sb);
@@ -404,14 +404,14 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 String versionStr;
 
                 if (deploymentName.indexOf('#') > deploymentName.lastIndexOf('.')) {
-                    versionStr = deploymentName.substring(deploymentName.indexOf('#') + 1, deploymentName.length());
+                    versionStr = deploymentName.substring(deploymentName.indexOf('#') + 1);
                 } else {
-                    versionStr = deploymentName.substring(deploymentName.lastIndexOf('.') + 1, deploymentName.length());
+                    versionStr = deploymentName.substring(deploymentName.lastIndexOf('.') + 1);
                 }
 
                 deploymentName = deploymentName.substring(0, deploymentName.indexOf('#'));
 
-                if (!StringUtils.isEmpty(versionStr)) {
+                if (!versionStr.isEmpty()) {
                     versionNum = Integer.valueOf(versionStr);
                 }
             }

@@ -14,6 +14,7 @@ import org.openl.util.math.MathUtils;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 @XmlRootElement
@@ -882,8 +883,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         // ULP is used for fix imprecise operations of double values
         double ulp = Math.ulp(value.getValue());
-        DoubleValue returnValue = new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue() + ulp,
-                scale)),
+        DoubleValue returnValue = new DoubleValue(new DoubleValue(MathUtils.round(value.doubleValue() + ulp,
+                scale, BigDecimal.ROUND_HALF_UP)),
                 NumberOperations.ROUND,
                 new DoubleValue[] { value, new DoubleValue(scale) });
 
@@ -895,7 +896,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
 
-        return new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue(),
+        return new DoubleValue(new DoubleValue(MathUtils.round(value.doubleValue(),
             scale,
             roundingMethod)), NumberOperations.ROUND, new DoubleValue[] { value, new DoubleValue(scale) });
     }
@@ -917,15 +918,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             scale = 0;
             preRoundedValue = d.doubleValue();
         } else {
-            scale = (int) org.apache.commons.math.util.MathUtils.round(-Math.log10(p.doubleValue()),
-                0,
-                java.math.BigDecimal.ROUND_HALF_UP);
+            scale = (int) MathUtils.round(-Math.log10(p.doubleValue()), 0, BigDecimal.ROUND_HALF_UP);
             preRoundedValue = d.doubleValue();
             // preRoundedValue = Math.round(d.doubleValue() / p.doubleValue()) *
             // p.doubleValue();
         }
 
-        double roundedValue = org.apache.commons.math.util.MathUtils.round(preRoundedValue, scale);
+        double roundedValue = MathUtils.round(preRoundedValue, scale, BigDecimal.ROUND_HALF_UP);
 
         return new DoubleValue(new DoubleValue(roundedValue), NumberOperations.ROUND, new DoubleValue[] { d, p });
     }

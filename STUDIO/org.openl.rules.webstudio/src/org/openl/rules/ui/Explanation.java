@@ -1,81 +1,58 @@
 package org.openl.rules.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.meta.IMetaInfo;
-import org.openl.meta.ValueMetaInfo;
+import org.openl.meta.explanation.CastExplanationValue;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.explanation.FormulaExplanationValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Explanation {
 
-    private static final int MAX_LEVEL = 2; // Maximum expansion level for
-                                            // formulas
-
-    private ExplanationNumberValue<?> root;
-
-    private List<ExplanationNumberValue<?>> expandedValues = new ArrayList<ExplanationNumberValue<?>>();
-    private Map<Integer, Integer> expandLevels = new HashMap<Integer, Integer>();
-
-    private Explanator explanator;
-
-    public Explanation(Explanator explanator, ExplanationNumberValue<?> root) {
-        this.explanator = explanator;
-        this.root = root;
-        expandedValues.add(root);
-    }
-
-    private boolean isExpanded(ExplanationNumberValue<?> v) {
-        for (ExplanationNumberValue value : expandedValues) {
-            if (value == v) { // Don't use equals
-                return true;
-            }
-        }
-        return false;
-    }
+    private static final int MAX_LEVEL = 2; // Maximum expansion level for  formulas
 
     private String expandArgument(ExplanationNumberValue<?> value,
             boolean isMultiplicative,
-            String parentUrl,
-            int level) {
+            int level,
+            Integer indent) {
 
         if (value == null) {
             return null;
         }
 
-        String url = findUrl(value, parentUrl);
-        if (value.isFormula()) {
-            if (value.getFormula().isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
-                return expandFormula(value, url, level + 1);
-            }
-            return expandValue(value);
-        } else if (value.isCast()) {
-            return expandCast(value, isMultiplicative, url, level);
-        } else if (value.isFunction()) {
-            return expandValue(value);
+        if (!value.isFunction() && !value.isFormula() && !value.isCast()) {
+            return resultValue(value);
         }
-        return resultValue(value);
+
+        if (value.isCast() && value.getCast().getOperand().isAutocast()) {
+            return expandCast(value, level, indent);
+        }
+
+        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || (value.isFormula() && value.getFormula()
+                .isMultiplicative() != isMultiplicative)) {
+            return explain(value, indent);
+        }
+
+        return expandFormula(value, level + 1, indent);
     }
 
-    private String expandFormula(ExplanationNumberValue<?> value, String parentUrl, int level) {
-        String url = findUrl(value, parentUrl);
+    private String expandFormula(ExplanationNumberValue<?> value, int level, Integer indent) {
 
-        String arg1 = expandArgument(value.getFormula().getV1(), value.getFormula().isMultiplicative(), url, level);
-        String arg2 = expandArgument(value.getFormula().getV2(), value.getFormula().isMultiplicative(), url, level);
-        String operand = value.getFormula().getOperand();
+        FormulaExplanationValue<? extends ExplanationNumberValue<?>> formula = value.getFormula();
+        String arg1 = expandArgument(formula.getV1(), formula.isMultiplicative(), level, indent);
+        String arg2 = expandArgument(formula.getV2(), formula.isMultiplicative(), level, indent);
+        String operand = formula.getOperand();
+        formula.isMultiplicative();
 
         return String.format("%s %s %s", arg1, operand, arg2);
     }
 
-    private String expandFunction(ExplanationNumberValue<?> value) {
-        String url = findUrl(value, null);
+    private String expandFunction(ExplanationNumberValue<?> value, Integer indent) {
         StringBuilder ret = new StringBuilder(value.getFunction().getFunctionName().toUpperCase()).append(" (");
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
@@ -83,31 +60,20 @@ public class Explanation {
             if (i > 0) {
                 ret.append(", ");
             }
-            ret.append(expandArgument(params[i], true, url, 0));
+            ExplanationNumberValue<?> param = params[i];
+            ret.append(expandArgument(param, false, MAX_LEVEL, indent));
         }
         return ret.append(")").toString();
     }
 
-    private String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
-        String url = findUrl(value, parentUrl);
+    private String expandCast(ExplanationNumberValue<?> value, int level, Integer indent) {
+        CastExplanationValue castExplanation = value.getCast();
+        CastOperand operand = castExplanation.getOperand();
+        boolean autocast = operand.isAutocast();
 
-        CastOperand operand = value.getCast().getOperand();
+        String argument = expandArgument(castExplanation.getValue(), autocast, level, indent);
 
-        String argument = expandArgument(value.getCast().getValue(), operand.isAutocast() && isMultiplicative, url, level);
-
-        return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
-    }
-
-    private String expandValue(ExplanationNumberValue<?> explanationValue) {
-        String value = getFormattedValue(explanationValue);
-        int id = explanator.getUniqueId(explanationValue);
-
-        if (isExpanded(explanationValue)) {
-            return "<span class='expanded' data-id='" + id + "'>" + value + "</span>";
-        } else {
-            String url = "?rootID=" + explanator.getUniqueId(root) + "&expandID=" + id + "&from=" + currentId;
-            return HTMLHelper.urlLink(url, "Explain", value, null, "explain");
-        }
+        return autocast ? argument : "(" + operand.getType() + ")(" + argument + ")";
     }
 
     private String resultValue(ExplanationNumberValue<?> explanationValue) {
@@ -115,14 +81,12 @@ public class Explanation {
 
         IMetaInfo mi = explanationValue.getMetaInfo();
         String name = mi != null ? mi.getDisplayName(IMetaInfo.LONG) : null;
-        String url = findUrl(explanationValue, null);
+        String url = mi != null ? mi.getSourceUrl() : null;
 
         if (url != null && name != null) {
-            value = HTMLHelper.urlLink(WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool.encodeURL(url) + "&text=" + name,
-                "Show in table",
-                value,
-                "mainFrame",
-                "open");
+            String href = WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
+                    + StringTool.encodeURL(url) + "&text=" + name;
+            value = "<a href='" + href + "' title='Show in table' target='mainFrame' class='open'>" + value + "</a>";
         }
 
         return value;
@@ -132,74 +96,35 @@ public class Explanation {
         return FormattersManager.format(explanationValue);
     }
 
-    private String findUrl(ExplanationNumberValue<?> value, String parentUrl) {
-        String url = null;
-
-        ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
-        if (mi != null) {
-            // Get cell uri
-            url = mi.getSourceUrl();
-        }
-
-        if (url == null) {
-            url = parentUrl;
-        }
-
-        return url;
-
-    }
-
-    private String htmlString(ExplanationNumberValue<?> value) {
+    private String htmlString(ExplanationNumberValue<?> value, Integer indent) {
         if (value.isFormula()) {
-            return expandFormula(value, null, 0);
+            return expandFormula(value, 0, indent);
         } else if (value.isFunction()) {
-            return expandFunction(value);
+            return expandFunction(value, indent);
         } else if (value.isCast()) {
-            return expandCast(value, false, null, 0);
+            return expandCast(value, 0, indent);
         }
         return resultValue(value);
     }
 
-    private int currentId;
+    private List<String[]> result = new ArrayList<String[]>();
+    private int counter = 0;
 
-    private String[] htmlTable(ExplanationNumberValue<?> explanationValue) {
-        String value = getFormattedValue(explanationValue);
-        int id = explanator.getUniqueId(explanationValue);
-        currentId = id;
-
-        Integer level = expandLevels.get(id);
-        if (level == null) {
-            level = 0;
-        }
-
-        return new String[] { String.valueOf(id), level.toString(), value, htmlString(explanationValue) };
+    private String explain(ExplanationNumberValue<?> explanationValue, int level) {
+        String id = "expl" + (counter++);
+        String formatted = getFormattedValue(explanationValue);
+        String[] item = new String[4];
+        result.add(item);
+        item[0] = id;
+        item[1] = String.valueOf(level);
+        item[2] = formatted;
+        item[3] = htmlString(explanationValue, level + 1);
+        return "<span class='explain' data-id='" + id + "'>" + formatted + "</span>";
     }
 
-    public List<String[]> getExplainList(String expandID, String fromID) {
-        if (expandID != null) {
-            ExplanationNumberValue<?> ev = explanator.find(expandID);
-
-            if (!isExpanded(ev)) {
-                expandedValues.add(ev);
-
-                int from = Integer.valueOf(fromID);
-                Integer levelFrom = expandLevels.get(from);
-                if (levelFrom != null) {
-                    expandLevels.put(Integer.valueOf(expandID), levelFrom + 1);
-                } else {
-                    expandLevels.put(levelFrom, 0);
-                    expandLevels.put(Integer.valueOf(expandID), 1);
-                }
-            }
-        }
-        List<String[]> expandedValuesList = new ArrayList<String[]>();
-
-        for (ExplanationNumberValue<?> explanationValue : expandedValues) {
-            String[] html = htmlTable(explanationValue);
-            expandedValuesList.add(html);
-        }
-
-        return expandedValuesList;
-
+    public List<String[]> build(ExplanationNumberValue<?> root) {
+        result = new ArrayList<String[]>();
+        explain(root, 0);
+        return result;
     }
 }

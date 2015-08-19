@@ -1,6 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
@@ -335,16 +334,16 @@ public class JcrRepository extends BaseJcrRepository {
         while (eventIterator.hasNext()) {
             Event event = eventIterator.nextEvent();
             try {
-                if (event.getPath().startsWith(defRulesLocation.getPath())) {
-                    String relativePath = StringUtils.removeStart(event.getPath(), defRulesLocation.getPath() + "/");
+                String path = event.getPath();
+                if (path.startsWith(defRulesLocation.getPath() + "/")) {
+                    String relativePath = path.substring(defRulesLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
                         for (RRepositoryListener listener : listeners) {
                             listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                         }
                     }
-                } else if (event.getPath().startsWith(defDeploymentsLocation.getPath())) {
-                    String relativePath = StringUtils.removeStart(event.getPath(), defDeploymentsLocation.getPath()
-                            + "/");
+                } else if (path.startsWith(defDeploymentsLocation.getPath() + "/")) {
+                    String relativePath = path.substring(defDeploymentsLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
                         for (RRepositoryListener listener : listeners) {
                             listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));

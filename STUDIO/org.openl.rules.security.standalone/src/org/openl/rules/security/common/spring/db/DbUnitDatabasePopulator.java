@@ -1,6 +1,5 @@
 package org.openl.rules.security.common.spring.db;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -54,7 +53,7 @@ public class DbUnitDatabasePopulator implements InitializingBean {
 
     private DatabaseConnection createDbUnitConnection(Connection connection) throws DatabaseUnitException {
         DatabaseConnection databaseConnection;
-        if (!StringUtils.isEmpty(dbSchema)) {
+        if (dbSchema != null && !dbSchema.isEmpty()) {
             databaseConnection = new DatabaseConnection(connection, dbSchema);
         } else {
             databaseConnection = new DatabaseConnection(connection);

@@ -10,8 +10,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.openl.util.ArrayTool;
 
 /**
@@ -789,37 +787,28 @@ public class MathUtils {
     // MEDIAN
     public static byte median(byte[] values) {
         double[] doubleArray = byteArrayToDouble(values);
-
-        Median median = new Median();
-        return (byte) median.evaluate(doubleArray, 0, doubleArray.length);
+        return (byte) median(doubleArray);
     }
 
     public static short median(short[] values) {
         double[] doubleArray = shortArrayToDouble(values);
-
-        Median median = new Median();
-        return (short) median.evaluate(doubleArray, 0, doubleArray.length);
+        return (short) median(doubleArray);
     }
 
     public static int median(int[] values) {
         double[] doubleArray = intArrayToDouble(values);
 
-        Median median = new Median();
-        return (int) median.evaluate(doubleArray, 0, doubleArray.length);
+        return (int) median(doubleArray);
     }
 
     public static long median(long[] values) {
         double[] doubleArray = longArrayToDouble(values);
-
-        Median median = new Median();
-        return (long) median.evaluate(doubleArray, 0, doubleArray.length);
+        return (long) median(doubleArray);
     }
 
     public static float median(float[] values) {
         double[] doubleArray = floatArrayToDouble(values);
-
-        Median median = new Median();
-        return (float) median.evaluate(doubleArray, 0, doubleArray.length);
+        return (float) median(doubleArray);
     }
 
     // MEDIAN for all wrapper types
@@ -1787,19 +1776,78 @@ public class MathUtils {
 
     // SUMMARY
     public static double sum(double[] values) {
-        // used commons function
-        return StatUtils.sum(values);
+        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        if (values.length == 0) {
+            return Double.NaN;
+        }
+        double res = 0.0;
+        for (double val : values) {
+            res += val;
+        }
+        return res;
     }
 
     // MEDIAN
     public static double median(double[] values) {
-        Median median = new Median();
-        return median.evaluate(values, 0, values.length);
+        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        int length = values.length;
+        if (length == 0) {
+            return Double.NaN;
+        } else if (length == 1) {
+            return values[0];
+        } else if (length == 2) {
+            return (values[0] + values[1]) * 0.5;
+        }
+        double[] copy = Arrays.copyOf(values, length);
+        Arrays.sort(copy);
+        length--;
+        int index = length >> 1;
+        if (length % 2 == 0) {
+            return copy[index];
+        } else {
+            return (copy[index] + copy[index + 1]) * 0.5;
+        }
     }
-
     // PRODUCT
     public static double product(double[] values) {
-        // used commons function
-        return StatUtils.product(values);
+        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        if (values.length == 0) {
+            return Double.NaN;
+        }
+        double res = 1.0;
+        for (double val : values) {
+            res *= val;
+        }
+        return res;
+    }
+
+    public static double round(double x, int scale, int roundingMethod) {
+        try {
+            return (new BigDecimal
+                    (Double.toString(x))
+                    .setScale(scale, roundingMethod))
+                    .doubleValue();
+        } catch (NumberFormatException ex) {
+            if (Double.isInfinite(x)) {
+                return x;
+            } else {
+                return Double.NaN;
+            }
+        }
+    }
+
+    public static float round(float x, int scale, int roundingMethod) {
+        try {
+            return (new BigDecimal
+                    (Float.toString(x))
+                    .setScale(scale, roundingMethod))
+                    .floatValue();
+        } catch (NumberFormatException ex) {
+            if (Float.isInfinite(x)) {
+                return x;
+            } else {
+                return Float.NaN;
+            }
+        }
     }
 }

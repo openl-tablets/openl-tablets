@@ -8,9 +8,9 @@ package org.openl.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Stack;
 
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
@@ -63,7 +63,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     @Override
     public String getMessage() {
-        StringBuilderWriter messageWriter = new StringBuilderWriter();
+        StringWriter messageWriter = new StringWriter();
         PrintWriter pw = new PrintWriter(messageWriter);
         pw.println(super.getMessage());
         if (node != null) {

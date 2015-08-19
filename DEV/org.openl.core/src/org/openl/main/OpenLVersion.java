@@ -6,7 +6,7 @@ package org.openl.main;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
+import org.openl.util.IOUtils;
 import org.openl.util.Log;
 
 /**

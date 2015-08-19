@@ -3521,18 +3521,18 @@ public class RulesUtilsTest {
     public void testRoundScaleRoundMethodFloatType() {
         assertEquals(5.7f,
                 instance.testFloatTypeRoundScaleRoundMethod(5.67f, 1, 0));
-        assertEquals(-0.0001f,
-                instance.testFloatTypeRoundScaleRoundMethod(0.0f, 4, 1));
+        assertEquals(0.0f,
+                instance.testFloatTypeRoundScaleRoundMethod(-0.0000999f, 4, 1));
         assertEquals(6.0f,
-                instance.testFloatTypeRoundScaleRoundMethod(5.99f, 2, 2));
+                instance.testFloatTypeRoundScaleRoundMethod(5.991f, 2, 2));
         assertEquals(5.29f,
-                instance.testFloatTypeRoundScaleRoundMethod(5.3f, 2, 3));
+                instance.testFloatTypeRoundScaleRoundMethod(5.299f, 2, 3));
         assertEquals(-5.9f,
                 instance.testFloatTypeRoundScaleRoundMethod(-5.9f, 3, 4));
         assertEquals(5.7f,
                 instance.testFloatTypeRoundScaleRoundMethod(5.67f, 1, 5));
         assertEquals(0.0f,
-                instance.testFloatTypeRoundScaleRoundMethod(0.0f, 4, 6));
+                instance.testFloatTypeRoundScaleRoundMethod(0.0005f, 3, 6));
         assertEquals(5.99f,
                 instance.testFloatTypeRoundScaleRoundMethod(5.99f, 2, 7));
     }

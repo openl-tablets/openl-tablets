@@ -19,10 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
@@ -39,7 +35,9 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.StringTool;
+import org.openl.util.ZipUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -153,8 +151,7 @@ public class RepositoryService {
                 return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
             }
 
-            ZipFile zip = new ZipFile(zipFile);
-            zip.extractAll(destPath);
+            ZipUtils.extractAll(zipFile, zipFolder);
 
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
@@ -166,7 +163,7 @@ public class RepositoryService {
             project.update(newProject, getUser());// updateProject(null,
 
             return Response.noContent().build();
-        } catch (ZipException ex) {
+        } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (PropertyException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
@@ -174,19 +171,9 @@ public class RepositoryService {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         } finally {
             /* Clean up */
-            if (zipFile.exists()) {
-                zipFile.delete();
-            }
-            try {
-                FileUtils.deleteDirectory(zipFolder);
-            } catch (IOException e) {
-                // Nothing to do.
-            }
-            try {
-                FileUtils.deleteDirectory(workspaceLocation);
-            } catch (IOException e) {
-                // Nothing to do.
-            }
+            FileUtils.deleteQuietly(zipFile);
+            FileUtils.deleteQuietly(zipFolder);
+            FileUtils.deleteQuietly(workspaceLocation);
         }
     }
 

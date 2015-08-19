@@ -79,7 +79,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Integer max(java.lang.Integer[] values) {
@@ -91,7 +91,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Long max(java.lang.Long[] values) {
@@ -103,7 +103,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Float max(java.lang.Float[] values) {
@@ -115,7 +115,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Double max(java.lang.Double[] values) {
@@ -127,7 +127,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.math.BigInteger max(java.math.BigInteger[] values) {
@@ -139,7 +139,7 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.math.BigDecimal max(java.math.BigDecimal[] values) {
@@ -151,11 +151,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static byte max(byte[] values) {
-        return (byte) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -163,11 +163,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static short max(short[] values) {
-        return (short) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -175,11 +175,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static int max(int[] values) {
-        return (int) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -187,11 +187,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static long max(long[] values) {
-        return (long) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -199,11 +199,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static float max(float[] values) {
-        return (float) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -211,11 +211,11 @@ public class RulesUtils {
      * Returns the maximum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static double max(double[] values) {
-        return (double) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     // MIN
@@ -225,7 +225,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Byte min(java.lang.Byte[] values) {
@@ -237,7 +237,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Short min(java.lang.Short[] values) {
@@ -249,7 +249,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Integer min(java.lang.Integer[] values) {
@@ -261,7 +261,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Long min(java.lang.Long[] values) {
@@ -273,7 +273,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Float min(java.lang.Float[] values) {
@@ -285,7 +285,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.lang.Double min(java.lang.Double[] values) {
@@ -297,7 +297,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.math.BigInteger min(java.math.BigInteger[] values) {
@@ -309,7 +309,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static java.math.BigDecimal min(java.math.BigDecimal[] values) {
@@ -321,7 +321,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static byte min(byte[] values) {
@@ -333,7 +333,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static short min(short[] values) {
@@ -345,7 +345,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static int min(int[] values) {
@@ -357,7 +357,7 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static long min(long[] values) {
@@ -369,11 +369,11 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static float min(float[] values) {
-        return (float) MathUtils.min(values);
+        return MathUtils.min(values);
     }
 
     /**
@@ -381,11 +381,11 @@ public class RulesUtils {
      * Returns the minimum value in an array.
      * </p>
      *
-     * @param array an array, must not be null or empty
+     * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
     public static double min(double[] values) {
-        return (double) MathUtils.min(values);
+        return MathUtils.min(values);
     }
 
     // SUM
@@ -543,7 +543,7 @@ public class RulesUtils {
      * @return the sum of the elements in the array
      */
     public static float sum(float[] values) {
-        return (float) MathUtils.sum(values);
+        return MathUtils.sum(values);
     }
 
     /**
@@ -555,7 +555,7 @@ public class RulesUtils {
      * @return the sum of the elements in the array
      */
     public static double sum(double[] values) {
-        return (double) MathUtils.sum(values);
+        return MathUtils.sum(values);
     }
 
     // AVERAGE
@@ -2719,7 +2719,7 @@ public class RulesUtils {
      * @return the rounded value.
      */
     public static double round(double value, int scale) {
-        return org.apache.commons.math.util.MathUtils.round(value, scale);
+        return MathUtils.round(value, scale, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -2731,7 +2731,7 @@ public class RulesUtils {
      * @return the rounded value.
      */
     public static float round(float value, int scale) {
-        return org.apache.commons.math.util.MathUtils.round(value, scale);
+        return MathUtils.round(value, scale, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -2746,7 +2746,7 @@ public class RulesUtils {
      * @return the rounded value.
      */
     public static double round(double value, int scale, int roundingMethod) {
-        return org.apache.commons.math.util.MathUtils.round(value, scale, roundingMethod);
+        return MathUtils.round(value, scale, roundingMethod);
     }
 
     /**
@@ -2761,7 +2761,7 @@ public class RulesUtils {
      * @return the rounded value.
      */
     public static float round(float value, int scale, int roundingMethod) {
-        return org.apache.commons.math.util.MathUtils.round(value, scale, roundingMethod);
+        return MathUtils.round(value, scale, roundingMethod);
     }
 
     // added for BA`s, who don`t know about the possibilities of

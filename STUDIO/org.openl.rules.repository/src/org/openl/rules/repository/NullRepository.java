@@ -1,8 +1,5 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 

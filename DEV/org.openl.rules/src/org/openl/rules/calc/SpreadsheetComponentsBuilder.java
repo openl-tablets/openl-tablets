@@ -277,10 +277,14 @@ public class SpreadsheetComponentsBuilder {
      */
     private IdentifierNode cutTypeIdentifier(IdentifierNode typeIdentifierNode) {
         try {
-            IdentifierNode[] nodes = Tokenizer.tokenize(typeIdentifierNode.getModule(),
-                    SpreadsheetSymbols.TYPE_DELIMETER + " []\n\r");
-            if (nodes.length > 1) {
-                return nodes[1];
+            IdentifierNode[] variableAndType = Tokenizer.tokenize(typeIdentifierNode.getModule(),
+                    SpreadsheetSymbols.TYPE_DELIMETER.toString());
+            if (variableAndType.length > 1) {
+                IdentifierNode[] nodes = Tokenizer.tokenize(typeIdentifierNode.getModule(),
+                        " []\n\r", variableAndType[1].getLocation());
+                if (nodes.length > 0) {
+                    return nodes[0];
+                }
             }
         } catch (OpenLCompilationException e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +20,7 @@ import org.junit.Test;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.util.FileUtils;
 
 public class XlsWorkbookSourceCodeModuleTest {
 

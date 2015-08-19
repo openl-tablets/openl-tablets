@@ -17,10 +17,8 @@ public class ExplainBean {
 
     public List<String[]> getExpandedValues() {
         String rootID = FacesUtils.getRequestParameter("rootID");
-        String expandID = FacesUtils.getRequestParameter("expandID");
-        String fromID = FacesUtils.getRequestParameter("from");
 
-        List<String[]> result = Explanator.getExplainList(rootID, expandID, fromID);
+        List<String[]> result = Explanator.getExplainList(rootID);
         return result;
     }
 }

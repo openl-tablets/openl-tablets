@@ -3,8 +3,8 @@ package org.openl.rules.tableeditor.model.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.ui.ICellFont;
-import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 
 public class CellModel implements ICellModel {
 
@@ -90,7 +90,7 @@ public class CellModel implements ICellModel {
             int width = (borderStyle[i] == null) ? 0 : borderStyle[i].getWidth();
             bwidth[i] = width + (width != 0 ? "px" : "");
         }
-        String widthStr = HTMLHelper.boxCSStoString(bwidth);
+        String widthStr = boxCSStoString(bwidth);
         if (!widthStr.equals(DEFAULT_CELL_STYLES.get("border-width"))) {
             buf.append("border-width:").append(widthStr).append(';');
         }
@@ -109,7 +109,7 @@ public class CellModel implements ICellModel {
             }
             styles[i] = style;
         }
-        String styleStr = HTMLHelper.boxCSStoString(styles);
+        String styleStr = boxCSStoString(styles);
         if (!styleStr.equals(DEFAULT_CELL_STYLES.get("border-style"))) {
             buf.append("border-style:").append(styleStr).append(';');
         }
@@ -118,17 +118,17 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             String color;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
-                color = (borderStyle[1] == null) ? "#000" : HTMLHelper.toHexColor(borderStyle[1].getRgb());
+                color = (borderStyle[1] == null) ? "#000" : toHexColor(borderStyle[1].getRgb());
             } else {
                 if (borderStyle[i] == null){
                     color = "#000";
                 }else{
-                    color = HTMLHelper.toHexColor(borderStyle[i].getRgb());
+                    color = toHexColor(borderStyle[i].getRgb());
                 }
             }
             colors[i] = color;
         }
-        String colorStr = HTMLHelper.boxCSStoString(colors);
+        String colorStr = boxCSStoString(colors);
         if (!colorStr.equals(DEFAULT_CELL_STYLES.get("border-color"))) {
             buf.append("border-color:").append(colorStr).append(";");
         }
@@ -204,7 +204,7 @@ public class CellModel implements ICellModel {
         }
 
         if (rgbBackground != null) {
-            String rgb = HTMLHelper.toHexColor(rgbBackground);
+            String rgb = toHexColor(rgbBackground);
             if (!rgb.equals(DEFAULT_CELL_STYLES.get("background"))) {
                 sb.append("background:").append(rgb).append(";");
             }
@@ -260,7 +260,7 @@ public class CellModel implements ICellModel {
 
         short[] color = font.getFontColor();
         if (color != null) {
-            String colorStr = HTMLHelper.toHexColor(color);
+            String colorStr = toHexColor(color);
             if (!colorStr.equals(DEFAULT_CELL_STYLES.get("color"))) {
                 buf.append("color:").append(colorStr).append(";");
             }
@@ -371,4 +371,49 @@ public class CellModel implements ICellModel {
         this.comment = comment;
     }
 
+
+    private static String boxCSStoString(String[] values) {
+        String result;
+
+        boolean evenSame = values[1].equals(values[3]);
+        boolean pairSame = evenSame && values[0].equals(values[2]);
+        boolean allSame  = pairSame && values[0].equals(values[1]);
+
+        if (allSame) {
+            result = values[0];
+        } else {
+            int endJoin = pairSame ? 2 : (evenSame ? 3 : 4);
+            result = StringUtils.join(values, ' ', 0, endJoin);
+        }
+
+        return result;
+    }
+
+    private static String toHex(short x) {
+        String s = Integer.toHexString(x);
+
+        switch (s.length()) {
+            case 1:
+                return "0" + s;
+            case 2:
+                return s;
+        }
+        return s.substring(s.length() - 2);
+    }
+
+    private static String toHexColor(short[] x) {
+        if (x == null) {
+            return "#000";
+        }
+
+        String hex1 = toHex(x[0]);
+        String hex2 = toHex(x[1]);
+        String hex3 = toHex(x[2]);
+
+        boolean dig3hex = (hex1.charAt(0) == hex1.charAt(1))
+                && (hex2.charAt(0) == hex2.charAt(1))
+                && (hex3.charAt(0) == hex3.charAt(1));
+
+        return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0) : hex3);
+    }
 }

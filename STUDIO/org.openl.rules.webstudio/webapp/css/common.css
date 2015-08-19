@@ -857,6 +857,12 @@ form .formfields {
     background: url(webresource/images/error.png) no-repeat;
 }
 
+.te_table i.case-success,
+.te_table i.case-error {
+    padding-left: 16px;
+    background-size: contain;
+}
+
 .param-tree .rf-trn-ico-lf {
     display: none;
 }

@@ -109,7 +109,7 @@ public class TableViewer {
             } else if (link(formattedValue)) {
                 // has Explanation link
                 content = formattedValue;
-            } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
+            } else if (isShowLinks() && CellMetaInfo.isCellContainsNodeUsages(cell)) {
                 // has method call
                 content = createFormulaCellWithLinks(cell, formattedValue);
             } else if (image(formattedValue)) {

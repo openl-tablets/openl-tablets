@@ -13,6 +13,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.cache.GenericKey;
+import org.openl.ie.constrainer.ConstrainerObject;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -177,7 +178,7 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
-        if (IgnoreJavaUpCast.class.isAssignableFrom(fromClass)) {
+        if (ConstrainerObject.class.isAssignableFrom(fromClass)) {
             return null;
         }
 
