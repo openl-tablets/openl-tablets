@@ -47,14 +47,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
         return rulesRepository;
     }
-
-    public boolean isFailed() {
-        if (rulesRepository == null) {
-            init();
-        }
-        return rulesRepositoryFactory.isBroken();
-    }
-
     private void init() {
         try {
             rulesRepository = rulesRepositoryFactory.getRulesRepositoryInstance();

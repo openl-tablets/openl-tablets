@@ -31,8 +31,6 @@ public class RulesRepositoryFactory {
 
     private RRepositoryFactory repFactory;
 
-    private boolean isFailed;
-
     private ConfigSet config;
 
     public synchronized RRepository getRulesRepositoryInstance() throws RRepositoryException {
@@ -68,31 +66,13 @@ public class RulesRepositoryFactory {
                 ((RulesRepositoryFactoryAware) repFactory).setRulesRepositoryFactory(this);
             }
         } catch (Exception e) {
-            isFailed = true;
             log.error(MSG_FAILED, e);
             throw new RRepositoryException(MSG_FAILED, e);
         } catch (UnsupportedClassVersionError e) {
-            isFailed = true;
             String message = "Library was compiled using newer version of JDK";
             log.error(message, e);
             throw new RRepositoryException(message, e);
         }
-
-        isFailed = false;
-    }
-
-    public boolean isBroken() {
-        if (!isFailed && repFactory == null) {
-            // first time, lets check
-            try {
-                initRepositoryFactory();
-            } catch (RRepositoryException e) {
-                // ignore
-                // isFailed = true;
-            }
-        }
-
-        return isFailed;
     }
 
     public synchronized void destroy() throws RRepositoryException {
