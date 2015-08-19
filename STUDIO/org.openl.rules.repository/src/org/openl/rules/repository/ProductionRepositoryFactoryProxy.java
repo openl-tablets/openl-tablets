@@ -98,12 +98,10 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
     }
 
     private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        config.addProperties(configurationManager.getProperties());
-        config.updateProperty(confRepositoryFactoryClass);
+        Map<String, Object> properties = configurationManager.getProperties();
 
-        return initRepositoryFactory(config);
+        return getFactory(properties);
     }
 
     public RRepositoryFactory getFactory(Map<String, Object> props) throws RRepositoryException {
