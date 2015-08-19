@@ -10,12 +10,8 @@
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>
 
-  <bean id="rulesRepositoryFactory" class="org.openl.rules.repository.RulesRepositoryFactory" destroy-method="destroy">
-    <property name="config" value="#{systemConfig}" />
-  </bean>
-
   <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" destroy-method="destroy">
-    <property name="rulesRepositoryFactory" ref="rulesRepositoryFactory"/>
+    <property name="config" value="#{systemConfig}" />
   </bean>
 
   <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">

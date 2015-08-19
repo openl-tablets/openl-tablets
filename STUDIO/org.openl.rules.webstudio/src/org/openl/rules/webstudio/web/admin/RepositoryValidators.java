@@ -13,11 +13,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 
 public final class RepositoryValidators {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
@@ -82,16 +80,11 @@ public final class RepositoryValidators {
     }
 
     public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig, DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
-        RulesRepositoryFactory factory = new RulesRepositoryFactory();
         try {
+            DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
             // Close connection to jcr before checking connection
-            if (designTimeRepository instanceof DisposableBean) {
-                ((DisposableBean) designTimeRepository).destroy();
-            }
-
-            factory.setConfig(repoConfig.getProperties());
-            RRepository rulesRepositoryInstance = factory.getRulesRepositoryInstance();
-
+            dtr.destroy();
+            RRepository rulesRepositoryInstance = dtr.createConnection(repoConfig.getProperties());
             // Close repo connection after validation
             rulesRepositoryInstance.release();
         } catch (Exception e) {
@@ -100,12 +93,6 @@ public final class RepositoryValidators {
                 resultException = e;
             }
             throw new RepositoryValidationException(resultException.getMessage(), resultException);
-        } finally {
-            try {
-                factory.destroy();
-            } catch (RRepositoryException e) {
-                LoggerFactory.getLogger(RepositoryValidators.class).error(e.getMessage(), e);
-            }
         }
     }
 
