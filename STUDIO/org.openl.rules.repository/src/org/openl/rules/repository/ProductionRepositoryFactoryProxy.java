@@ -17,7 +17,7 @@ import java.util.Map;
  * Takes actual factory description from <i>rules-production.properties</i>
  * file.
  */
-public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryAware {
+public class ProductionRepositoryFactoryProxy {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryFactoryProxy.class);
 
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
@@ -70,7 +70,6 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
         this.configManagerFactory = configManagerFactory;
     }
 
-    @Override
     public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
         this.rulesRepositoryFactory = rulesRepositoryFactory;
     }

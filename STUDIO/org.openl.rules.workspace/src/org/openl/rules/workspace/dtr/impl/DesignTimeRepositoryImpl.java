@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * @author Aleh Bykhavets
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, RulesRepositoryFactoryAware {
+public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private RulesRepositoryFactory rulesRepositoryFactory;
@@ -303,7 +303,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
     }
 
-    @Override
     public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
         this.rulesRepositoryFactory = rulesRepositoryFactory;
     }
