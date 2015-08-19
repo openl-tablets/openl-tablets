@@ -41,10 +41,6 @@ public class RulesRepositoryFactory {
         return repFactory.getRepositoryInstance();
     }
 
-    public RRepositoryFactory getRepositoryFactory() {
-        return repFactory;
-    }
-
     private void initRepositoryFactory() throws RRepositoryException {
         if (config == null) {
             config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
@@ -62,9 +58,6 @@ public class RulesRepositoryFactory {
             repFactory = (RRepositoryFactory) obj;
             // initialize
             repFactory.initialize(config);
-            if (repFactory instanceof RulesRepositoryFactoryAware) {
-                ((RulesRepositoryFactoryAware) repFactory).setRulesRepositoryFactory(this);
-            }
         } catch (Exception e) {
             log.error(MSG_FAILED, e);
             throw new RRepositoryException(MSG_FAILED, e);

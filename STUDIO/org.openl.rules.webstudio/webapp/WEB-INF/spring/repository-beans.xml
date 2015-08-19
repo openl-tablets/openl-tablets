@@ -25,7 +25,6 @@
 
   <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
     <property name="configManagerFactory" ref="productionRepositoryConfigManagerFactory"/>
-    <property name="rulesRepositoryFactory" ref="rulesRepositoryFactory"/>
   </bean>
 
   <bean id="productionDeployerFactory" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployerFactory">
