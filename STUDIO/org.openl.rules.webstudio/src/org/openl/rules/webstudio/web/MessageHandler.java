@@ -84,7 +84,7 @@ public class MessageHandler {
 
     private String getUrlToDependentModule(TableSyntaxNode node) {
         String url = WebStudioUtils.getWebStudio().url("table", node.getUri());
-        if (url.endsWith("table")) {
+        if (url != null && url.endsWith("table")) {
             url += "?" + Constants.REQUEST_PARAM_ID + "=" + node.getId();
         }
         return url;
