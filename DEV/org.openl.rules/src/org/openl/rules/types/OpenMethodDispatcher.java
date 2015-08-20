@@ -241,47 +241,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
 
                 if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
-                    // Modules to which methods belongs to
-                    List<String> modules = new ArrayList<String>();
-                    if (newMethod instanceof IModuleInfo) {
-                        // Get the name of the module for the newMethod
-                        String moduleName = ((IModuleInfo) newMethod).getModuleName();
-                        if (moduleName != null) {
-                            modules.add(moduleName);
-                        }
-                    }
-                    if (existedMethod instanceof IModuleInfo) {
-                        // Get the name of the module for the existedMethod
-                        String moduleName = ((IModuleInfo) existedMethod).getModuleName();
-                        if (moduleName != null) {
-                            modules.add(moduleName);
-                        }
-                    }
-
-                    if (modules.isEmpty()) {
-                        // Case module names where not set to the methods
-                        throw new DuplicatedMethodException(String.format(
-                                "Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
-                                existedMethod.getName()),
-                                existedMethod);
-                    } else {
-                        // Case when the module names where set to the methods
-                        String modulesString = modules.get(0);
-                        if (modules.size() > 1) {
-                            throw new DuplicatedMethodException(String.format(
-                                    "Method \"%s\" has already been used in modules \"%s\" and \"%s\" with the same version, active status, properties set and different method body!",
-                                    existedMethod.getName(),
-                                    modulesString,
-                                    modules.get(1)),
-                                    existedMethod);
-                        } else {
-                            throw new DuplicatedMethodException(String.format(
-                                    "Method \"%s\" has already been used in module \"%s\" with the same version, active status, properties set and different method body!",
-                                    existedMethod.getName(),
-                                    modulesString),
-                                    existedMethod);
-                        }
-                    }
+                    String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, newMethod);
+                    throw new DuplicatedMethodException(message, existedMethod);
                 }
             } else {
                 throw new IllegalStateException("Implementation supports only TableUriMethod!");
