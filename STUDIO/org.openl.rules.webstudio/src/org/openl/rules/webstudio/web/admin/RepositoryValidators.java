@@ -84,7 +84,7 @@ public final class RepositoryValidators {
             DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
             // Close connection to jcr before checking connection
             dtr.destroy();
-            RRepository rulesRepositoryInstance = dtr.createConnection(repoConfig.getProperties());
+            RRepositoryFactory rulesRepositoryInstance = dtr.createConnection(repoConfig.getProperties());
             // Close repo connection after validation
             rulesRepositoryInstance.release();
         } catch (Exception e) {

@@ -5,11 +5,9 @@ import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 import java.io.File;
 import java.io.IOException;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RTransactionManager;
@@ -41,10 +39,6 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         setPassword(password);
         setRepoConfigFile(repoConfigFile);
         setProductionRepositoryMode(true);
-    }
-
-    protected void createTransientRepo(String fullPath) throws RepositoryException {
-        repository = new TransientRepository(fullPath, repHome);
     }
 
     protected void convert() throws RRepositoryException {

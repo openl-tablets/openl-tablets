@@ -40,6 +40,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
      * Rules Repository
      */
     private RRepository rulesRepository;
+    private RRepositoryFactory repFactory;
     /**
      * Project Cache
      */
@@ -61,7 +62,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     }
     private void init() {
         try {
-            rulesRepository = createConnection(config);
+            repFactory = createConnection(config);
+            rulesRepository = repFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
             log.error("Cannot init DTR! {}", e.getMessage(), e);
             rulesRepository = new NullRepository();
@@ -70,7 +72,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         rulesRepository.addRepositoryListener(this);
     }
 
-    public RRepository createConnection(Map<String, Object> properties) throws RRepositoryException {
+    public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
         ConfigSet config = new ConfigSet();
         config.addProperties(properties);
 
@@ -96,7 +98,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             throw new RRepositoryException(message, e);
         }
 
-        return repFactory.getRepositoryInstance();
+        return repFactory;
     }
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
@@ -352,6 +354,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             rulesRepository.removeRepositoryListener(this);
             rulesRepository.release();
             rulesRepository = null;
+            repFactory.release();
+            repFactory = null;
         }
         projects.clear();
     }
