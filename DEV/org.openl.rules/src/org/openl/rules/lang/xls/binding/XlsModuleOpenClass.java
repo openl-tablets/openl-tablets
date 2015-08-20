@@ -238,9 +238,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openMethod instanceof ColumnMatch) {
             return new ColumnMatchWrapper(this, (ColumnMatch) openMethod); 
         }
-        if (openMethod instanceof TestSuiteMethod) {
-            return new TestSuiteMethodWrapper(this, (TestSuiteMethod) openMethod);
-        }
         if (openMethod instanceof Spreadsheet) {
             return new SpreadsheetWrapper(this, (Spreadsheet) openMethod);
         }
