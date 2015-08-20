@@ -1,6 +1,5 @@
 package org.openl.rules.repository.factories;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +18,6 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -37,6 +36,7 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.api.ArtefactAPI;
@@ -48,9 +48,9 @@ import org.openl.rules.repository.jcr.JcrFileAPI;
 import org.openl.rules.repository.jcr.JcrFolderAPI;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.NodeUtil;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileCopyUtils;
 
 //FIXME refactor to use AProjectArtefacts
 public class RepositoryConvertor {
@@ -118,8 +118,7 @@ public class RepositoryConvertor {
         String fullPath = tempRepositorySettings.getCanonicalPath();
 
         OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
-        FileCopyUtils.copy(url.openStream(), tempRepositorySettingsStream);
-        tempRepositorySettingsStream.close();
+        IOUtils.copyAndClose(url.openStream(), tempRepositorySettingsStream);
 
         repo = new TransientRepository(fullPath, repHome);
         // TODO: schema
@@ -305,16 +304,15 @@ public class RepositoryConvertor {
                 if (version.getRevision() != 0) {
                     RDeploymentDescriptorProject oldProject = project.getProjectVersion(version);
                     copyEntity(oldProject, jcrDDproject);
-                    if (!CollectionUtils.isEmpty(oldProject.getProjectDescriptors())) {
-                        List<ProjectDescriptor> descriptors = new ArrayList<ProjectDescriptor>(
-                                oldProject.getProjectDescriptors());
-                        String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
+                    Collection<RProjectDescriptor> projectDescriptors = oldProject.getProjectDescriptors();
+                    if (projectDescriptors != null && !projectDescriptors.isEmpty()) {
+                        List<ProjectDescriptor> descriptors = new ArrayList<ProjectDescriptor>(projectDescriptors);
+                        InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
                         if (!jcrDDproject.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                            jcrDDproject.addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
-                                    descriptorsAsString.getBytes("UTF-8")));
+                            jcrDDproject.addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
                         } else {
                             ((ResourceAPI) jcrDDproject.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                                    .setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
+                                    .setContent(inputStream);
                         }
                     } else {
                         if (jcrDDproject.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {

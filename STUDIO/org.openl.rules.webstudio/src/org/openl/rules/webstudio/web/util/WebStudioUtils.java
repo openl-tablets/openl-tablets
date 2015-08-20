@@ -65,12 +65,6 @@ public abstract class WebStudioUtils {
         return studio;
     }
 
-    public static boolean isRepositoryFailed() {
-        UserWorkspace userWorkspace = getUserWorkspace(FacesUtils.getSession());
-        DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
-        return designTimeRepository.isFailed();
-    }
-
     public static boolean isStudioReady() {
         WebStudio webStudio = getWebStudio();
         return webStudio != null && webStudio.getModel().isReady();

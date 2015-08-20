@@ -17,7 +17,7 @@ import java.util.Map;
  * Takes actual factory description from <i>rules-production.properties</i>
  * file.
  */
-public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryAware {
+public class ProductionRepositoryFactoryProxy {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryFactoryProxy.class);
 
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
@@ -32,8 +32,6 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
             "production-repository.factory", null);
 
     private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
-
-    private RulesRepositoryFactory rulesRepositoryFactory;
 
     public RProductionRepository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
@@ -70,11 +68,6 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
         this.configManagerFactory = configManagerFactory;
     }
 
-    @Override
-    public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
-        this.rulesRepositoryFactory = rulesRepositoryFactory;
-    }
-
     private RRepositoryFactory initRepositoryFactory(ConfigSet config) throws RRepositoryException {
         String className = confRepositoryFactoryClass.getValue();
         // TODO: check that className is not null otherwise throw meaningful
@@ -86,9 +79,6 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
             repFactory = (RRepositoryFactory) obj;
             // initialize
             repFactory.initialize(config);
-            if (rulesRepositoryFactory != null && repFactory instanceof RulesRepositoryFactoryAware) {
-                ((RulesRepositoryFactoryAware) repFactory).setRulesRepositoryFactory(rulesRepositoryFactory);
-            }
             return repFactory;
         } catch (Exception e) {
             String msg = "Failed to initialize ProductionRepositoryFactory!";
@@ -98,12 +88,10 @@ public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryA
     }
 
     private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        config.addProperties(configurationManager.getProperties());
-        config.updateProperty(confRepositoryFactoryClass);
+        Map<String, Object> properties = configurationManager.getProperties();
 
-        return initRepositoryFactory(config);
+        return getFactory(properties);
     }
 
     public RRepositoryFactory getFactory(Map<String, Object> props) throws RRepositoryException {

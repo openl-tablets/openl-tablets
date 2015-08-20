@@ -12,8 +12,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.io.IOUtils;
 import org.openl.extension.xmlrules.model.single.XlsRegionImpl;
+import org.openl.util.IOUtils;
 
 public abstract class BaseLazyItem<T> {
     private final File file;

@@ -49,6 +49,10 @@
             <artifactId>org.openl.rules.workspace</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
         <!-- OpenL Tablets WebStudio dependency -->
         <dependency>
             <groupId>org.openl.rules</groupId>

@@ -1,4 +1,4 @@
-package org.openl.util;
+package org.openl.ie.constrainer.consistencyChecking;
 
 public class IntPair {
 

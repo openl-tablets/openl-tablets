@@ -9,7 +9,6 @@ import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.db.utils.DBUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.*;
 import org.slf4j.Logger;
@@ -85,7 +84,6 @@ public class InstallWizard {
     private RepositoryConfiguration designRepositoryConfiguration;
     private ProductionRepositoryEditor productionRepositoryEditor;
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
-    private RulesRepositoryFactory rulesRepositoryFactory;
 
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
@@ -655,11 +653,8 @@ public class InstallWizard {
                 System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
                 workingDir + "/system-settings/"
         );
-        rulesRepositoryFactory = new RulesRepositoryFactory();
-        rulesRepositoryFactory.setConfig(systemConfig.getProperties());
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
         productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
-        productionRepositoryFactoryProxy.setRulesRepositoryFactory(rulesRepositoryFactory);
         productionRepositoryEditor = new ProductionRepositoryEditor(
                 systemConfig,
                 productionConfigManagerFactory,
@@ -685,15 +680,6 @@ public class InstallWizard {
                 log.error(e.getMessage(), e);
             }
             productionRepositoryFactoryProxy = null;
-        }
-
-        if (rulesRepositoryFactory != null) {
-            try {
-                rulesRepositoryFactory.destroy();
-            } catch (RRepositoryException e) {
-                log.error(e.getMessage(), e);
-            }
-            rulesRepositoryFactory = null;
         }
     }
 }

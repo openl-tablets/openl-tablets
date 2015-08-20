@@ -2,10 +2,10 @@ package org.openl.rules.project.abstraction;
 
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.util.IOUtils;
 
 public class AProjectResource extends AProjectArtefact {
     private ResourceTransformer resourceTransformer;

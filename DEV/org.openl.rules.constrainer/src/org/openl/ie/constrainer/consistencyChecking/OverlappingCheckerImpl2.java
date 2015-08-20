@@ -14,7 +14,6 @@ import org.openl.ie.constrainer.GoalImpl;
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
-import org.openl.util.IntPair;
 
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 

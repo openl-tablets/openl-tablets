@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
@@ -25,6 +24,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.util.IOUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 

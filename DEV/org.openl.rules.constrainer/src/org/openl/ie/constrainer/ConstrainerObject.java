@@ -15,8 +15,6 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 
-import org.openl.binding.impl.cast.IgnoreJavaUpCast;
-
 /**
  * An interface for constrainer object. Constrained variables, expressions,
  * constraints, and goals implement that interface.
@@ -27,7 +25,7 @@ import org.openl.binding.impl.cast.IgnoreJavaUpCast;
  * @see Goal
  * @see Constrainer
  */
-public interface ConstrainerObject extends java.io.Serializable, IgnoreJavaUpCast {
+public interface ConstrainerObject extends java.io.Serializable {
     /**
      * Returns the constrainer the object belongs to. Constrainer object belongs
      * to one and only one constrainer.

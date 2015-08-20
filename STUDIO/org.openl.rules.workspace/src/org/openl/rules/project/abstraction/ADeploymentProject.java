@@ -1,14 +1,10 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -19,6 +15,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,25 +104,20 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        if (CollectionUtils.isEmpty(descriptors)) {
+        if (descriptors == null || descriptors.isEmpty()) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
             }
         } else {
-            String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
-            try {
-                AProjectResource resource;
-                if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                    resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
-                    resource.setContent(new ByteArrayInputStream(descriptorsAsString.getBytes("UTF-8")));
-                } else {
-                    resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
-                            descriptorsAsString.getBytes("UTF-8")));
-                }
-                resource.commit(user);
-            } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
+            InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+            AProjectResource resource;
+            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
+                resource.setContent(inputStream);
+            } else {
+                resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
             }
+            resource.commit(user);
         }
 
         modifiedDescriptors = false;

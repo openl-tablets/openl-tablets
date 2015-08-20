@@ -20,7 +20,6 @@ import javax.jcr.nodetype.NodeTypeManager;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -33,6 +32,7 @@ import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.FileUtils;
 
 public class JcrProductionRepositoryTestCase extends TestCase {
     private static final String TEST_FOLDER = "target/test_work";
@@ -194,7 +194,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     @Override
   //FIXME refactor to use AProjectArtefacts
     protected void setUp() throws Exception {
-        FileUtils.deleteDirectory(new File(TEST_FOLDER));
+        FileUtils.deleteQuietly(new File(TEST_FOLDER));
 
         String repConf = "/jackrabbit-repository.xml";
 

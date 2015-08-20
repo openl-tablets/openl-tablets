@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.diff;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -14,6 +13,7 @@ import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

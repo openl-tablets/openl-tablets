@@ -9,18 +9,18 @@ import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.File;
 
-import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 import static org.apache.commons.io.FilenameUtils.concat;
 
 public class TemporaryRevisionsStorage implements DisposableBean {
     private final Logger log = LoggerFactory.getLogger(TemporaryRevisionsStorage.class);
-    private static final String DEFAULT_STORAGE_PATH = concat(getTempDirectoryPath() + "/", "openl_repo/");
+    private static final String DEFAULT_STORAGE_PATH = concat(FileUtils.getTempDirectoryPath() + "/", "openl_repo/");
 
     private final Object lock = new Object();
 

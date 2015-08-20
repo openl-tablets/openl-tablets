@@ -1,12 +1,12 @@
 package org.openl.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public final class FileTool {
         File file = null;
         try {
             file = File.createTempFile(fileName, null);
-            FileUtils.copyInputStreamToFile(source, file);
+            IOUtils.copyAndClose(source, new FileOutputStream(file));
         } catch (IOException e) {
             final Logger log = LoggerFactory.getLogger(FileTool.class);
             log.error("Error when creating file: {}", fileName, e);

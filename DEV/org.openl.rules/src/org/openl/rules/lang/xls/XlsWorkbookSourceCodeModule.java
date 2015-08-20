@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -13,6 +12,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
+import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

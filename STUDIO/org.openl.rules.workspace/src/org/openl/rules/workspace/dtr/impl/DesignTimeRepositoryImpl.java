@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.config.ConfigPropertyString;
+import org.openl.config.ConfigSet;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -7,7 +9,10 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.repository.*;
+import org.openl.rules.repository.NullRepository;
+import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -17,21 +22,25 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEv
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Aleh Bykhavets
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, DisposableBean, RulesRepositoryFactoryAware {
+public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    private RulesRepositoryFactory rulesRepositoryFactory;
     /**
      * Rules Repository
      */
     private RRepository rulesRepository;
+    private RRepositoryFactory repFactory;
     /**
      * Project Cache
      */
@@ -39,7 +48,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
 
-    public DesignTimeRepositoryImpl() {
+    private Map<String, Object> config;
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
     }
 
     private RRepository getRepo() {
@@ -48,23 +60,45 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
         return rulesRepository;
     }
-
-    public boolean isFailed() {
-        if (rulesRepository == null) {
-            init();
-        }
-        return rulesRepositoryFactory.isBroken();
-    }
-
     private void init() {
         try {
-            rulesRepository = rulesRepositoryFactory.getRulesRepositoryInstance();
+            repFactory = createConnection(config);
+            rulesRepository = repFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
             log.error("Cannot init DTR! {}", e.getMessage(), e);
             rulesRepository = new NullRepository();
         }
 
         rulesRepository.addRepositoryListener(this);
+    }
+
+    public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
+        ConfigSet config = new ConfigSet();
+        config.addProperties(properties);
+
+        // default value is <code>null</code> -- fail first
+        ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString("design-repository.factory", null);
+        config.updateProperty(confRepositoryFactoryClass);
+        String className = confRepositoryFactoryClass.getValue();
+
+        RRepositoryFactory repFactory;
+        try {
+            Class<?> c = Class.forName(className);
+            Object obj = c.newInstance();
+            repFactory = (RRepositoryFactory) obj;
+            // initialize
+            repFactory.initialize(config);
+        } catch (Exception e) {
+            String message = "Failed to initialize repository: " + className;
+            log.error(message, e);
+            throw new RRepositoryException(message, e);
+        } catch (UnsupportedClassVersionError e) {
+            String message = "Library was compiled using newer version of JDK";
+            log.error(message, e);
+            throw new RRepositoryException(message, e);
+        }
+
+        return repFactory;
     }
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
@@ -312,17 +346,18 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
     }
 
-    @Override
-    public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
-        this.rulesRepositoryFactory = rulesRepositoryFactory;
-    }
-
-    @Override
+    /**
+     * destroy-method
+     */
     public void destroy() throws Exception {
         if (rulesRepository != null) {
             rulesRepository.removeRepositoryListener(this);
             rulesRepository.release();
             rulesRepository = null;
+        }
+        if (repFactory != null) {
+            repFactory.release();
+            repFactory = null;
         }
         projects.clear();
     }

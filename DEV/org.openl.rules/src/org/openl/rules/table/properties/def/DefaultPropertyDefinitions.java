@@ -498,7 +498,7 @@ public class DefaultPropertyDefinitions
 		definitions[35].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caRegions"));
 		definitions[35].setDescription("Région d\'opération pour laquelle la table devrait être utilisée");
 		definitions[35].setDimensional(true);
-		definitions[35].setDisplayName("Region");
+		definitions[35].setDisplayName("Canada Region");
 		definitions[35].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caRegion)"));
 		definitions[35].setGroup("Business Dimension");
 		definitions[35].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
