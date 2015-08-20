@@ -6,11 +6,7 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -29,20 +25,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.TestSuiteMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
@@ -54,18 +37,15 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.types.ValidationMessages;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IModuleInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
+import org.openl.types.*;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
@@ -77,6 +57,7 @@ import org.openl.types.java.JavaOpenMethod;
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
+    protected Set<String> duplicatedMethodUrls = new HashSet<String>();
     private IDataBase dataBase = null;
 
     /**
@@ -174,14 +155,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         for (String key : fieldsMap.keySet()) {
             IOpenField field = fieldsMap.get(key);
             if (field instanceof DataOpenField) {
+                DataOpenField dataOpenField = (DataOpenField) field;
                 try {
-                    String tableUrl = ((DataOpenField) field).getTableUri();
-                    if (!tableUrls.contains(tableUrl)) {
+                    String tableUrl = dataOpenField.getTableUri();
+                    // Test tables are added both as methods and variables.
+                    if (!tableUrls.contains(tableUrl) && !duplicatedMethodUrls.contains(tableUrl)) {
                         addField(field);
                         tableUrls.add(tableUrl);
                     }
                 } catch (OpenlNotCheckedException e) {
-                    addError(e);
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(), e,
+                            dataOpenField.getTable().getTableSyntaxNode());
+                    addError(error);
                 }
             }
         }
@@ -253,9 +238,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openMethod instanceof ColumnMatch) {
             return new ColumnMatchWrapper(this, (ColumnMatch) openMethod); 
         }
-        if (openMethod instanceof TestSuiteMethod) {
-            return new TestSuiteMethodWrapper(this, (TestSuiteMethod) openMethod);
-        }
         if (openMethod instanceof Spreadsheet) {
             return new SpreadsheetWrapper(this, (Spreadsheet) openMethod);
         }
@@ -323,6 +305,27 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     method.getType().getDisplayName(0),
                     existedMethod.getType().getDisplayName(0)),
                     method);
+            }
+
+            if (method != existedMethod && method instanceof TestSuiteMethod) {
+                duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
+                String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
+
+                ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
+                if (newMethodSyntaxNode instanceof TableSyntaxNode) {
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);
+                    ((TableSyntaxNode) newMethodSyntaxNode).addError(error);
+                    TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
+                    if (existedMethodSyntaxNode != null) {
+                        existedMethodSyntaxNode.addError(error);
+                    }
+
+                    addError(error);
+                } else {
+                    addError(new DuplicatedMethodException(message, method));
+                }
+
+                return;
             }
 
             // Checks the instance of existed method. If it's the

@@ -1,11 +1,13 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
 
@@ -15,19 +17,12 @@ import static org.junit.Assert.assertTrue;
 import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
 import static org.openl.rules.ruleservice.Constants.VERSION;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class JcrDataSourceTest {
 
+    @Autowired
     private JcrDataSource dataSource;
-
-    @Before
-    public void setDataSource() throws Exception {
-        dataSource = new JcrDataSource();
-    }
-
-    @After
-    public void releaseDataSource() throws Exception {
-        dataSource.destroy();
-    }
 
     @Test
     public void testJcrDataSource() {

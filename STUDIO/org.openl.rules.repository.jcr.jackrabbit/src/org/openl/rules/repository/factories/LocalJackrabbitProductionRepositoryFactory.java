@@ -5,23 +5,18 @@ import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
 import java.io.File;
 import java.io.IOException;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.RulesRepositoryFactory;
-import org.openl.rules.repository.RulesRepositoryFactoryAware;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory implements RulesRepositoryFactoryAware {
+public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory {
 
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitProductionRepositoryFactory.class);
 
@@ -36,8 +31,6 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
     private final ConfigPropertyString repoConfigFile = new ConfigPropertyString("production-repository.config",
         "/jackrabbit-repository.xml");
 
-    private RulesRepositoryFactory rulesRepositoryFactory;
-
     public LocalJackrabbitProductionRepositoryFactory() {
         setConfRepositoryHome(confRepositoryHome);
         setConfNodeTypeFile(confNodeTypeFile);
@@ -46,38 +39,6 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         setPassword(password);
         setRepoConfigFile(repoConfigFile);
         setProductionRepositoryMode(true);
-    }
-
-    /**
-     * Checks whether jcr repository on filesystem will be used by production
-     * and design repositories simultaneously.
-     *
-     * @return <code>true</code> if repository is used by local design
-     *         repository from current process.
-     */
-    private boolean isUsedByMyLocalDesignRepository() {
-        if (rulesRepositoryFactory == null) {
-            return false;
-        }
-
-        RRepositoryFactory repFactory = rulesRepositoryFactory.getRepositoryFactory();
-        if (repFactory instanceof LocalJackrabbitDesignRepositoryFactory) {
-            return this.repHome.equals(((LocalJackrabbitDesignRepositoryFactory) repFactory).repHome);
-        }
-        return false;
-
-    }
-
-    protected void createTransientRepo(String fullPath) throws RepositoryException {
-        if (isRepositoryLocked(repHome)) {
-            if (isUsedByMyLocalDesignRepository()) {
-                repository = ((LocalJackrabbitDesignRepositoryFactory) rulesRepositoryFactory.getRepositoryFactory()).repository;
-            } else {
-                throw new RepositoryException("Repository is already locked.");
-            }
-        } else {
-            repository = new TransientRepository(fullPath, repHome);
-        }
     }
 
     protected void convert() throws RRepositoryException {
@@ -110,10 +71,5 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         } finally {
             FileUtils.deleteQuietly(tmpRepoHome);
         }
-    }
-
-    @Override
-    public void setRulesRepositoryFactory(RulesRepositoryFactory factory) {
-        this.rulesRepositoryFactory = factory;
     }
 }

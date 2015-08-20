@@ -10,8 +10,8 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Marat Kamalov
  */
-public class JcrDataSource implements DataSource, DisposableBean {
+public class JcrDataSource implements DataSource {
     private final Logger log = LoggerFactory.getLogger(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
@@ -36,7 +36,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
     // backward
     // compatibility
-    private boolean shouldDestroyProxy = false;
 
     /**
      * {@inheritDoc}
@@ -93,11 +92,8 @@ public class JcrDataSource implements DataSource, DisposableBean {
     }
 
     private RProductionRepository getRProductionRepository() {
-        RProductionRepository rProductionRepository = null;
         try {
-            rProductionRepository = getProductionRepositoryFactoryProxy().getRepositoryInstance(
-                    getRepositoryPropertiesFile());
-            return rProductionRepository;
+            return productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
         } catch (RRepositoryException e) {
             throw new DataSourceException(e);
         }
@@ -146,40 +142,21 @@ public class JcrDataSource implements DataSource, DisposableBean {
         }
     }
 
+    /**
+     * For Spring framework
+     */
+    @PreDestroy
     public void destroy() throws Exception {
         log.debug("JCR data source releasing");
-        if (productionRepositoryFactoryProxy == null) {
-            // a proxy  has not been initialized yet
-            return;
-        }
         productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
-
-        if (shouldDestroyProxy) {
-            productionRepositoryFactoryProxy.destroy();
-        }
     }
 
     public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 
-    public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
-        if (productionRepositoryFactoryProxy == null) {
-            // Lazy initialization for backward compatibility
-            productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-            // We create a proxy (not spring container) - that's why we should
-            // destroy it
-            shouldDestroyProxy = true;
-        }
-        return productionRepositoryFactoryProxy;
-    }
-
     public void setRepositoryPropertiesFile(String repositoryPropertiesFile) {
         this.repositoryPropertiesFile = repositoryPropertiesFile;
-    }
-
-    public String getRepositoryPropertiesFile() {
-        return repositoryPropertiesFile;
     }
 
     private RDeploymentListener buildRDeploymentListener(DataSourceListener dataSourceListener) {
