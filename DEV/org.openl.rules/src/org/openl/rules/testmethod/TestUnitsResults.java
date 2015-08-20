@@ -124,7 +124,7 @@ public class TestUnitsResults implements INamedThing {
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         Integer precision = null;
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
-
+            Integer fieldPrecision = null;
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
                 if (nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
@@ -195,7 +195,8 @@ public class TestUnitsResults implements INamedThing {
                             if (fieldSequence[i] == null) {
                                 if (nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                                    precision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
+                                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
+                                    precision = fieldPrecision;
                                     fieldSequence = ArrayUtils.remove(fieldSequence, i);
                                     break;
                                 }
@@ -208,9 +209,9 @@ public class TestUnitsResults implements INamedThing {
                             }
                         }
                         if (fieldSequence.length > 0) {
-                            if (fieldSequence.length > 1 || precision != null) {
-                                if (precision != null) {
-                                    fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, precision));
+                            if (fieldSequence.length > 1 || fieldPrecision != null) {
+                                if (fieldPrecision != null) {
+                                    fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
                                 } else {
                                     fieldsToTest.add(new FieldChain(currentType, fieldSequence));
                                 }
