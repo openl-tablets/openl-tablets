@@ -354,6 +354,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             rulesRepository.removeRepositoryListener(this);
             rulesRepository.release();
             rulesRepository = null;
+        }
+        if (repFactory != null) {
             repFactory.release();
             repFactory = null;
         }
