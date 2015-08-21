@@ -296,6 +296,9 @@ public class PoiExcelHelper {
 
         } else if (color instanceof XSSFColor) {
             byte[] rgb = ((XSSFColor) color).getRgbWithTint();
+            if (rgb == null) {
+                rgb = ((XSSFColor) color).getRgb();
+            }
 
             // Byte to short
             if (rgb != null) {
