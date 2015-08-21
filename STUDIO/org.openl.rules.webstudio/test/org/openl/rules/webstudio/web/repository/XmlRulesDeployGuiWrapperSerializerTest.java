@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.web.repository;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -72,7 +70,7 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
                 "\n" + 
                 "</rules-deploy>";
         
-        RulesDeployGuiWrapper wrapper = new XmlRulesDeployGuiWrapperSerializer().deserialize(new ByteArrayInputStream(value.getBytes()));
+        RulesDeployGuiWrapper wrapper = new XmlRulesDeployGuiWrapperSerializer().deserialize(value);
         String expected = "<configuration>\n" + 
                 "    <entry>\n" + 
                 "      <string>key2</string>\n" + 

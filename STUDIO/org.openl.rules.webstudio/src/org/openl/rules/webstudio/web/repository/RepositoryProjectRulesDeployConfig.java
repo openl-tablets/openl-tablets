@@ -19,10 +19,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 @ManagedBean
 @ViewScoped
@@ -90,7 +88,7 @@ public class RepositoryProjectRulesDeployConfig {
     public void saveRulesDeploy() {
         try {
             UserWorkspaceProject project = getProject();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(serializer.serialize(rulesDeploy).getBytes("UTF-8"));
+            InputStream inputStream = IOUtils.toInputStream(serializer.serialize(rulesDeploy));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -102,9 +100,6 @@ public class RepositoryProjectRulesDeployConfig {
             }
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
-            log.error(e.getMessage(), e);
-        } catch (UnsupportedEncodingException e) {
-            FacesUtils.addErrorMessage("UTF-8 charset is not supported. Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
         }
     }
@@ -118,19 +113,20 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private RulesDeployGuiWrapper loadRulesDeploy(UserWorkspaceProject project) {
-        InputStream content = null;
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-            content = artefact.getContent();
-            return serializer.deserialize(content);
+            InputStream content = artefact.getContent();
+            String sourceString = IOUtils.toStringAndClose(content);
+            return serializer.deserialize(sourceString);
+        } catch (IOException e) {
+            FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+            log.error(e.getMessage(), e);
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
         } catch (XStreamException e) {
             FacesUtils.addErrorMessage("Cannot parse " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(content);
         }
 
         return null;

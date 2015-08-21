@@ -3,11 +3,11 @@ package org.openl.rules.project.xml;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.Property;
+import org.openl.util.IOUtils;
 
 public class XmlProjectDescriptorSerializerTest {
 
@@ -23,7 +23,7 @@ public class XmlProjectDescriptorSerializerTest {
 		
 		String newRulesXML = new XmlProjectDescriptorSerializer().serialize(pd);
 		
-		ProjectDescriptor pd1 = new XmlProjectDescriptorSerializer().deserialize(new StringInputStream(newRulesXML, "UTF-8"));
+		ProjectDescriptor pd1 = new XmlProjectDescriptorSerializer().deserialize(IOUtils.toInputStream(newRulesXML));
 		
 		Assert.assertEquals(2, pd1.getProperties().size());
 		

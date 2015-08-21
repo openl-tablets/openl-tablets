@@ -10,7 +10,6 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -84,13 +83,15 @@ public abstract class AProjectCreator {
                 XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
                 ProjectDescriptor projectDescriptor = serializer.deserialize(inputStream);
                 projectDescriptor.setName(getProjectName());
-                inputStream = new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
+                // FIXME: This steram will be closed at exit from try/finally
+                inputStream = IOUtils.toInputStream(serializer.serialize(projectDescriptor));
             } catch (XStreamException e) {
                 throw new ProjectException(ProjectDescriptorUtils.getErrorMessage(e), e);
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
         }
+        // FIXME: Returns CLOSED stream
         return inputStream;
     }
 

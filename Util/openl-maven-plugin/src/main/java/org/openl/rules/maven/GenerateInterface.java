@@ -1,6 +1,5 @@
 package org.openl.rules.maven;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
@@ -12,6 +11,7 @@ import org.apache.velocity.runtime.resource.util.StringResourceRepository;
 import org.openl.conf.ant.JavaInterfaceAntTask;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.types.IOpenMethod;
+import org.openl.util.IOUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -167,16 +167,12 @@ public class GenerateInterface extends JavaInterfaceAntTask {
     }
 
     private String getTemplateFromResource(final String templatePath) throws IOException {
-        InputStream inputStream = null;
-        try {
-            if (new File(templatePath).exists()) {
-                inputStream = new FileInputStream(templatePath);
-            } else {
-                inputStream = getClass().getClassLoader().getResourceAsStream(templatePath);
-            }
-            return IOUtils.toString(inputStream, "UTF-8");
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+        InputStream inputStream;
+        if (new File(templatePath).exists()) {
+            inputStream = new FileInputStream(templatePath);
+        } else {
+            inputStream = getClass().getClassLoader().getResourceAsStream(templatePath);
         }
+        return IOUtils.toStringAndClose(inputStream);
     }
 }
