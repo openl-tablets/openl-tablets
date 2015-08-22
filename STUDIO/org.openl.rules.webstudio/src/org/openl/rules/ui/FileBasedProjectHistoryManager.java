@@ -7,7 +7,6 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
-import org.openl.util.file.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
