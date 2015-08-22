@@ -62,6 +62,11 @@ public class TableSyntaxNode extends NaryNode {
         if (errors == null) {
             errors = new ArrayList<SyntaxNodeException>();
         }
+        for (SyntaxNodeException exception : errors) {
+            if (exception.getMessage().equals(error.getMessage())) {
+                return;
+            }
+        }
         errors.add(error);
     }
 

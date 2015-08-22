@@ -37,7 +37,7 @@ public class XmlRulesBinder extends XlsBinder {
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies,
             IBindingContext bindingContext) {
-        XlsModuleOpenClass module = new XlsModuleOpenClass(null,
+        return new XlsModuleOpenClass(null,
                 XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
@@ -94,7 +94,5 @@ public class XmlRulesBinder extends XlsBinder {
             }
 
         };
-        processErrors(module.getErrors(), bindingContext);
-        return module;
     }
 }

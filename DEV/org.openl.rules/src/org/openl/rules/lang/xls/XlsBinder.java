@@ -221,7 +221,7 @@ public class XlsBinder implements IOpenBinder {
 
         RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode,
                 bindingContext, moduleDependencies, moduleOpenClass);
-        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass);
+        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
     }
 
     protected IDataBase getModuleDatabase() {
@@ -282,7 +282,7 @@ public class XlsBinder implements IOpenBinder {
 
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
 
-        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass);
+        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
     }
 
     /**
@@ -292,12 +292,13 @@ public class XlsBinder implements IOpenBinder {
      * @param openl
      * @param moduleContext
      * @param moduleOpenClass
+     * @param bindingContext
      * @return
      */
     private IBoundNode processBinding(XlsModuleSyntaxNode moduleNode,
-                                      OpenL openl,
-                                      RulesModuleBindingContext moduleContext,
-                                      XlsModuleOpenClass moduleOpenClass) {
+            OpenL openl,
+            RulesModuleBindingContext moduleContext,
+            XlsModuleOpenClass moduleOpenClass, IBindingContext bindingContext) {
         processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes(), moduleContext);
 
         IVocabulary vocabulary = makeVocabulary(moduleNode);
@@ -345,6 +346,8 @@ public class XlsBinder implements IOpenBinder {
         DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder((XlsModuleOpenClass) topNode.getType(),
                 moduleContext);
         dispTableBuilder.build();
+
+        processErrors(moduleOpenClass.getErrors(), bindingContext);
 
         return topNode;
     }
@@ -408,10 +411,8 @@ public class XlsBinder implements IOpenBinder {
                                                        IDataBase dbase,
                                                        Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
+        return new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
-        processErrors(module.getErrors(), bindingContext);
-        return module;
     }
 
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext) {
