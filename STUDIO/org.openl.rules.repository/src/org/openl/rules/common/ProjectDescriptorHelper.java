@@ -3,10 +3,9 @@ package org.openl.rules.common;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.util.IOUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -24,8 +23,7 @@ public class ProjectDescriptorHelper {
 
     public static InputStream serialize(List<ProjectDescriptor> descriptors) {
         String xml = XSTREAM.toXML(descriptors);
-        byte[] bytes = xml.getBytes(Charset.forName("UTF-8"));
-        return new ByteArrayInputStream(bytes);
+        return IOUtils.toInputStream(xml);
     }
 
     @SuppressWarnings("unchecked")

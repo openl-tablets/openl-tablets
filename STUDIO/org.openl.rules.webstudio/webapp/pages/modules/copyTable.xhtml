@@ -7,11 +7,16 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
+    <style>
+        #copyPropertiesTable select {
+            width: 121px;
+        }
+    </style>
+
     #{tableCopierWizardManager.start()}
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
     <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
-
 
     <div class="page">
         <h1 class="page-header">#{msg['ws.copy.header']} #{wizard.tableTechnicalName}</h1>
@@ -70,6 +75,10 @@
                                         <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
                                             rendered="#{prop.enumArray}"
                                             id="multiselect"/>
+
+                                        <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
+                                            <f:selectItems value="#{prop.enumArrayItems}" />
+                                        </h:selectOneMenu>
 
                                         <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}" >
                                             <table>

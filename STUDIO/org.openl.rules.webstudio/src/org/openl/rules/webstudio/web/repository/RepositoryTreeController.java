@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tools.ant.filters.StringInputStream;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -59,12 +58,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -461,15 +458,10 @@ public class RepositoryTreeController {
                             content = resource.getContent();
                             ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                             projectDescriptor.setName(newProjectName);
-                            return new ByteArrayInputStream(serializer.serialize(projectDescriptor).getBytes("UTF-8"));
+                            return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
                         } catch (XStreamException e) {
                             // Can't parse rules.xml. Don't modify it.
                             log.error(e.getMessage(), e);
-                        } catch (UnsupportedEncodingException e) {
-                            // Should not occur. Otherwise - don't
-                            // continue.
-                            log.error(e.getMessage(), e);
-                            throw new ProjectException("UTF-8 charset is not supported", e);
                         } finally {
                             IOUtils.closeQuietly(content);
                         }
@@ -662,7 +654,7 @@ public class RepositoryTreeController {
                 }
             }
             String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-            StringInputStream newContent = new StringInputStream(xmlString, "UTF-8");
+            InputStream newContent = IOUtils.toInputStream(xmlString);
             resource.setContent(newContent);
         }
     }
@@ -1647,7 +1639,7 @@ public class RepositoryTreeController {
                     module.setRulesRootPath(new PathEntry(modulePath));
                     projectDescriptor.getModules().add(module);
                     String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
-                    StringInputStream newContent = new StringInputStream(xmlString, "UTF-8");
+                    InputStream newContent = IOUtils.toInputStream(xmlString);
                     resource.setContent(newContent);
                 }
             } catch (ProjectException ex) {
