@@ -301,32 +301,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenMethod existedMethod = methods.get(key);
 
             if (!existedMethod.getType().equals(method.getType())) {
-                throw new DuplicatedMethodException(String.format("Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
-                    method.getName(),
-                    method.getType().getDisplayName(0),
-                    existedMethod.getType().getDisplayName(0)),
-                    method);
+                String message = String.format(
+                        "Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
+                        method.getName(),
+                        method.getType().getDisplayName(0),
+                        existedMethod.getType().getDisplayName(0));
+                addDuplicatedMethodError(message, method, existedMethod);
+                return;
             }
 
             if (method != existedMethod && method instanceof TestSuiteMethod) {
                 duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
                 String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
 
-                ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
-                if (newMethodSyntaxNode instanceof TableSyntaxNode) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);
-                    ((TableSyntaxNode) newMethodSyntaxNode).addError(error);
-
-                    TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
-                    if (existedMethodSyntaxNode != null) {
-                        existedMethodSyntaxNode.addError(SyntaxNodeExceptionUtils.createError(message, existedMethodSyntaxNode));
-                    }
-
-                    addError(error);
-                } else {
-                    addError(new DuplicatedMethodException(message, method));
-                }
-
+                addDuplicatedMethodError(message, method, existedMethod);
                 return;
             }
 
@@ -454,5 +442,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
 
         super.addError(error);
+    }
+
+    private void addDuplicatedMethodError(String message, IOpenMethod method, IOpenMethod existedMethod) {
+        ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
+        if (newMethodSyntaxNode instanceof TableSyntaxNode) {
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);
+            ((TableSyntaxNode) newMethodSyntaxNode).addError(error);
+
+            TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
+            if (existedMethodSyntaxNode != null) {
+                existedMethodSyntaxNode.addError(SyntaxNodeExceptionUtils.createError(message, existedMethodSyntaxNode));
+            }
+
+            addError(error);
+        } else {
+            addError(new DuplicatedMethodException(message, method));
+        }
     }
 }
