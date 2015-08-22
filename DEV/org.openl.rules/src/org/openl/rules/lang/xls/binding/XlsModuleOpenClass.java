@@ -18,6 +18,9 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.data.DataOpenField;
@@ -161,8 +164,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     String tableUrl = dataOpenField.getTableUri();
                     // Test tables are added both as methods and variables.
                     if (!tableUrls.contains(tableUrl) && !duplicatedMethodUrls.contains(tableUrl)) {
-                        addField(field);
-                        tableUrls.add(tableUrl);
+                        boolean containsInDependency = false;
+                        if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
+                            for (CompiledDependency d : getDependencies()) {
+                                IOpenClass dependentModuleClass = d.getCompiledOpenClass().getOpenClassWithErrors();
+                                if (dependentModuleClass instanceof XlsModuleOpenClass) {
+                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedMethodUrls.contains(tableUrl)) {
+                                        containsInDependency = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!containsInDependency) {
+                            addField(field);
+                            tableUrls.add(tableUrl);
+                        }
                     }
                 } catch (OpenlNotCheckedException e) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(), e,
@@ -437,7 +454,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 error instanceof DuplicatedTableException || error instanceof SyntaxNodeException) {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
                 // Avoid duplication of error messages. This error was defined in dependent module already.
-                return;
+                for (CompiledDependency dependency : getDependencies()) {
+                    List<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(dependency.getCompiledOpenClass()
+                            .getMessages(),
+                            Severity.ERROR);
+                    for (OpenLMessage message : errors) {
+                        if (message.getSummary() != null && message.getSummary().equals(error.getMessage())) {
+                            return;
+                        }
+                    }
+                }
             }
         }
 
