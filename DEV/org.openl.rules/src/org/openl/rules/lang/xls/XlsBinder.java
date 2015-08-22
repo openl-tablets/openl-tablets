@@ -410,7 +410,7 @@ public class XlsBinder implements IOpenBinder {
 
         XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
-        processErrors(module.getErrors(), moduleNode, bindingContext);
+        processErrors(module.getErrors(), bindingContext);
         return module;
     }
 
@@ -767,7 +767,7 @@ public class XlsBinder implements IOpenBinder {
         BindHelper.processError(error, moduleContext);
     }
 
-    protected void processErrors(List<Throwable> errors, ISyntaxNode node, IBindingContext bindingContext) {
+    protected void processErrors(List<Throwable> errors, IBindingContext bindingContext) {
         if (errors != null) {
             for (Throwable error : errors) {
                 if (error instanceof SyntaxNodeException) {
@@ -775,7 +775,7 @@ public class XlsBinder implements IOpenBinder {
                 } else if (error instanceof CompositeSyntaxNodeException) {
                     BindHelper.processError((CompositeSyntaxNodeException) error, bindingContext);
                 } else {
-                    BindHelper.processError(error, node, bindingContext);
+                    BindHelper.processError(error, null, bindingContext);
                 }
             }
         }
