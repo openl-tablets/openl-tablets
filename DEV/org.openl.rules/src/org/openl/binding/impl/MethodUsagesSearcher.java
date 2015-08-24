@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.lang.xls.HeaderOpenMethod;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
@@ -56,7 +57,9 @@ public class MethodUsagesSearcher {
 
         private static String getTableUri(IOpenMethod method) {
             try {
-                if (method instanceof ExecutableRulesMethod) {
+                if (method instanceof HeaderOpenMethod){
+                    return ((HeaderOpenMethod) method).getSyntaxNode().getUri();
+                } else if (method instanceof ExecutableRulesMethod) {
                     return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
                 } else if (method instanceof OverloadedMethodsDispatcherTable) {
                     return ((OverloadedMethodsDispatcherTable) method).getDispatcherTable().getUri();
@@ -136,7 +139,7 @@ public class MethodUsagesSearcher {
                 }
                 int pstart;
                 int pend;
-                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location.isTextLocation()) {
+                if ((method instanceof HeaderOpenMethod || method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location.isTextLocation()) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;
                     pend = pstart + method.getName().length() - 1;
