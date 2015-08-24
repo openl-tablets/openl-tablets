@@ -34,9 +34,13 @@ public class ExpectedResultFilter extends AGridFilter {
                     expectedValue = declaration.getValue();
                 }
                 String formattedExpectedValue = FormattersManager.format(expectedValue);
+                if (formattedExpectedValue == null || formattedExpectedValue.isEmpty() || expectedValue == null) {
+                    formattedExpectedValue = "<span class=\"case-empty\">Empty</span>";
+                }
                 formattedValue.append("<i class=\"case-error\"></i> ")
                     .append(cell.getFormattedValue())
                     .append(' ')
+                    .append("<span class=\"case-expected\">Expected: </span>")
                     .append(formattedExpectedValue);
             }
             cell.setFormattedValue(formattedValue.toString());
