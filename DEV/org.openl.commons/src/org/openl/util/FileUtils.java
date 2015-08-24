@@ -85,4 +85,35 @@ public class FileUtils {
             // ignore
         }
     }
+
+    /**
+     * Gets the base name, minus the full path and extension, from a full filename.
+     * <p/>
+     * This method will handle a file in either Unix or Windows format.
+     * The text after the last forward or backslash and before the last dot is returned.
+     * <pre>
+     * a/b/c.txt --> c
+     * a.b.txt   --> a.b
+     * a/b/c     --> c
+     * a/b/c/    --> ""
+     * </pre>
+     * <p/>
+     *
+     * @param filename the filename to query, null returns null
+     * @return the name of the file without the path, or an empty string if none exists
+     */
+    public static String getBaseName(String filename) {
+        if (filename == null) {
+            return null;
+        }
+        int winSep = filename.lastIndexOf('\\');
+        int unixSep = filename.lastIndexOf('/');
+        int dot = filename.lastIndexOf('.');
+        int sep = winSep > unixSep ? winSep : unixSep;
+        if (dot > sep) {
+            return filename.substring(sep + 1, dot);
+        } else {
+            return filename.substring(sep + 1);
+        }
+    }
 }
