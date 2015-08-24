@@ -20,6 +20,27 @@ public class FileUtils {
     }
 
     /**
+     * Creates an empty directory in the default temporary-file directory.
+     *
+     * @return An abstract pathname denoting a newly-created empty directory
+     * @throws IOException If a file could not be created
+     */
+    public static File createTempDirectory() throws IOException {
+        final File temp = File.createTempFile("openl", ".tmp");
+
+        if (!(temp.delete())) {
+            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+        }
+
+        if (!(temp.mkdir())) {
+            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+        }
+
+        temp.deleteOnExit();
+        return temp;
+    }
+
+    /**
      * Deletes a file. If file is a directory, delete it and all sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
