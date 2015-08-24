@@ -65,7 +65,8 @@ public class XlsPreBinder extends XlsBinder {
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
-        XlsLazyModuleOpenClass module = new XlsLazyModuleOpenClass(null,
+
+        return new XlsLazyModuleOpenClass(null,
                 XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
@@ -73,9 +74,5 @@ public class XlsPreBinder extends XlsBinder {
                 prebindHandler,
                 moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
                 OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())));
-
-        processErrors(module.getErrors(), moduleNode, bindingContext);
-
-        return module;
     }
 }

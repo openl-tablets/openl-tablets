@@ -7,9 +7,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.extension.xmlrules.java.*;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.dt2.DecisionTable;
 import org.openl.rules.lang.xls.XlsBinder;
@@ -17,7 +15,6 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
-import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
@@ -40,7 +37,7 @@ public class XmlRulesBinder extends XlsBinder {
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies,
             IBindingContext bindingContext) {
-        XlsModuleOpenClass module = new XlsModuleOpenClass(null,
+        return new XlsModuleOpenClass(null,
                 XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
@@ -97,7 +94,5 @@ public class XmlRulesBinder extends XlsBinder {
             }
 
         };
-        processErrors(module.getErrors(), moduleNode, bindingContext);
-        return module;
     }
 }

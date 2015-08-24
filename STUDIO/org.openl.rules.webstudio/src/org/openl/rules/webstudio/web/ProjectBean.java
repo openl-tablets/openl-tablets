@@ -15,7 +15,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -38,6 +37,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,19 +331,13 @@ public class ProjectBean {
         try {
             outputStream = new FileOutputStream(outputFile);
             inputStream = new FileInputStream(new File(projectFolder, oldPath));
-            IOUtils.copy(inputStream, outputStream);
-
-            outputStream.close();
-            inputStream.close();
+            IOUtils.copyAndClose(inputStream, outputStream);
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
             FileUtils.deleteQuietly(outputFile);
             throw new Message("Error while project copying");
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
         }
 
 
@@ -623,20 +617,17 @@ public class ProjectBean {
 
             Class<? extends PropertiesFileNameProcessor> processorClass = processor.getClass();
             String fileName = "/" + processorClass.getName().replace(".", "/") + ".info";
-            InputStream inputStream = null;
             try {
-                inputStream = processorClass.getResourceAsStream(fileName);
+                InputStream inputStream = processorClass.getResourceAsStream(fileName);
                 if (inputStream == null) {
                     throw new FileNotFoundException("File " + fileName + " not found");
                 }
-                return IOUtils.toString(inputStream, "UTF-8");
+                return IOUtils.toStringAndClose(inputStream);
             } catch (FileNotFoundException e) {
                 return "Description file " + fileName + " is absent";
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
                 return "Can't load the file " + fileName;
-            } finally {
-                IOUtils.closeQuietly(inputStream);
             }
         } catch (InvalidFileNameProcessorException e) {
             return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";

@@ -5,12 +5,12 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 
 import com.thoughtworks.xstream.XStreamException;
+import org.openl.util.IOUtils;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
@@ -43,22 +43,16 @@ public class XmlRulesDeployGuiWrapperSerializer {
         return rulesDeploy;
     }
 
-    public RulesDeployGuiWrapper deserialize(InputStream source) {
-        String sourceString;
-        try {
-            sourceString = IOUtils.toString(source);
-        } catch (IOException e) {
-            throw new XStreamException(e.getMessage(), e);
-        }
-
-        Matcher matcher = CONFIGURATION_PATTERN.matcher(sourceString);
+    public RulesDeployGuiWrapper deserialize(String source) {
+        Matcher matcher = CONFIGURATION_PATTERN.matcher(source);
         String configuration = null;
+
         if (matcher.find()) {
             configuration = matcher.group();
-            sourceString = matcher.replaceFirst("");
+            source = matcher.replaceFirst("");
         }
 
-        RulesDeploy rulesDeploy = serializer.deserialize(sourceString);
+        RulesDeploy rulesDeploy = serializer.deserialize(source);
         RulesDeployGuiWrapper result = new RulesDeployGuiWrapper(rulesDeploy);
         result.setConfiguration(configuration);
         return result;
