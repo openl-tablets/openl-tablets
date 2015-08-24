@@ -16,6 +16,9 @@ public class SpreadsheetResultField extends AOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
         String name = getName();
 
