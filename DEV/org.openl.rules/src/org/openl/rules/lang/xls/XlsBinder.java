@@ -633,7 +633,7 @@ public class XlsBinder implements IOpenBinder {
                 AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory().get(tableSyntaxNodes[i].getType());
                 try{
                     OpenMethodHeader openMethodHeader = aExecutableNodeBinder.createHeader(tableSyntaxNodes[i], openl, moduleContext);
-                    moduleContext.addPrebindMethod(new HeaderOpenMethod(openMethodHeader));
+                    moduleContext.addPrebindMethod(new HeaderOpenMethod(openMethodHeader, tableSyntaxNodes[i]));
                 }catch(Exception e){
                     //skip
                 }
