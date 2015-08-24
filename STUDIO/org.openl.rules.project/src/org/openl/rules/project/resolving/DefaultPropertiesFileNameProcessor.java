@@ -18,20 +18,6 @@ import java.util.regex.PatternSyntaxException;
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
     private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
 
-    private static Pattern pathPattern = Pattern.compile(".*[^A-Za-z0-9-_,\\s]([A-Za-z0-9-_,\\s]+)\\..*");
-
-    private String extractFileNameFromModule(Module module) {
-        if (module.getRulesRootPath() == null) {
-            return module.getName();
-        }
-        String path = module.getRulesRootPath().getPath();
-        Matcher matcher = pathPattern.matcher(path);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return module.getName();
-    }
-
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
             InvalidFileNamePatternException {
@@ -48,14 +34,18 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         } catch (PatternSyntaxException e) {
             throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid at: " + fileNamePattern);
         }
-        String fileName = extractFileNameFromModule(module);
+        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
         Matcher fileNameMatcher = p.matcher(fileName);
         if (fileNameMatcher.matches()) {
             int n = fileNameMatcher.groupCount();
-            for (int i = 0; i < n; i++) {
-                String group = fileNameMatcher.group(i + 1);
-                String propertyName = propertyNames.get(i);
-                setProperty(propertyName, group, props, dateFormats.get(propertyName));
+            try{
+                for (int i = 0; i < n; i++) {
+                    String group = fileNameMatcher.group(i + 1);
+                    String propertyName = propertyNames.get(i);
+                    setProperty(propertyName, group, props, dateFormats.get(propertyName));
+                }
+            }catch(NoMatchFileNameException e){
+                throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern + ". " + e.getMessage());
             }
         } else {
             throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);

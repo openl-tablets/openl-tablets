@@ -52,15 +52,26 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                                 projectDescriptor.getPropertiesFileNamePattern());
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
-                        log.warn("Module file name doesn't match to file name pattern!");
-                        if (e.getMessage() != null) {
-                            log.warn(e.getMessage());
+                        String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
+                        String defaultMessage = null;
+                        if (projectDescriptor.getPropertiesFileNamePattern() != null){
+                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern! File name pattern: " + projectDescriptor.getPropertiesFileNamePattern();
+                        }else{
+                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern!";
+                        }
+
+                        if (log.isWarnEnabled()){
+                            if (e.getMessage() != null) {
+                                log.warn(e.getMessage());
+                            }else{
+                                log.warn(defaultMessage);
+                            }
                         }
                         if (e.getMessage() == null) {
-                            moduleWarnMessages.add("Module file name doesn't match to file name pattern!");
+                            moduleWarnMessages.add(defaultMessage);
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleWarnMessages.add("Module file name doesn't match to file name pattern! " + e.getMessage());
+                                moduleWarnMessages.add("Module file name '" + moduleFileName + "' doesn't match to file name pattern! " + e.getMessage());
                             } else {
                                 moduleWarnMessages.add(e.getMessage());
                             }
