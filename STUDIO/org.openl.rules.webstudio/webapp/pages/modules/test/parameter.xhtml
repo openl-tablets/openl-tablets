@@ -5,7 +5,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
     <h:outputText rendered="#{empty parameter or empty parameter.value}" value="Empty"
-        style="color:#588;font-style:italic" />
+        styleClass="case-empty" />
     <h:panelGroup rendered="#{!empty parameter and !empty parameter.value}">
         <h:panelGroup rendered="#{parameter.type.simple}">
             <h:outputText value="#{helper.format(parameter.value)}"

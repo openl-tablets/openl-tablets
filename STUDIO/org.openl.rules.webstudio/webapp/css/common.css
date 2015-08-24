@@ -857,6 +857,15 @@ form .formfields {
     background: url(webresource/images/error.png) no-repeat;
 }
 
+.case-expected {
+    color: #aaa;
+}
+
+.case-empty {
+    color: #588;
+    font-style: italic;
+}
+
 .te_table i.case-success,
 .te_table i.case-error {
     padding-left: 16px;
