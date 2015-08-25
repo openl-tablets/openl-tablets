@@ -102,7 +102,8 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                                                                                                         SQLException,
                                                                                                         ParsingException,
                                                                                                         FileNotFoundException {
-        final String repoName = ("OPENL_" + url).replace('"', '_').replace('\'', '_').replace(':', '_');
+        final String repoName = ("OPENL_" + url)
+                .replace('"', '_').replace('\'', '_').replace(':', '_').replace('\\', '_').replace('/', '_');
         // Create a local environment that we'll set up to own the external
         // components ModeShape needs ...
         LocalEnvironment environment = new LocalEnvironment() {
