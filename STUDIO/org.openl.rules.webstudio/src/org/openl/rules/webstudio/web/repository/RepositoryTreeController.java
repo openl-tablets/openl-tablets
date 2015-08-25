@@ -1542,7 +1542,7 @@ public class RepositoryTreeController {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
-                FacesUtils.addInfoMessage("Project was uploaded successfully.");
+                FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
