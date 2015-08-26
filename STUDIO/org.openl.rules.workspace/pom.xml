@@ -15,11 +15,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
+                <directory>resources</directory>
             </resource>
         </resources>
         <testResources>

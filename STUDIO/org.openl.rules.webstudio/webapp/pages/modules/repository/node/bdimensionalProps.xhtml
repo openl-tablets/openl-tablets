@@ -97,7 +97,11 @@
                     <oh:multiselect id="multiselect" items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
                             rendered="#{prop.enumArray}" />
 
-                    <h:inputText value="#{prop.value}" id="text" 
+                    <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
+                        <f:selectItems value="#{prop.enumArrayItems}" />
+                    </h:selectOneMenu>
+
+                    <h:inputText value="#{prop.value}" id="text"
                         rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
 
                     <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />

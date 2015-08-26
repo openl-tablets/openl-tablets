@@ -210,7 +210,7 @@
                                             </td>
                                             <td style="padding-left:0">
                                                 <div class="case-result">
-                                                    <h:panelGroup rendered="#{resultParam.status.status == 1}"><span style="color:#aaa">Expected: </span>
+                                                    <h:panelGroup rendered="#{resultParam.status.status == 1}"><span class="case-expected">Expected: </span>
                                                         <ui:repeat value="" var="dontRemove!!!">
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                                             <ui:param name="parameter" value="#{resultParam.expectedValue}" />

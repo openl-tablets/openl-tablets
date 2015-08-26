@@ -31,17 +31,18 @@ public class ZipUtils {
 
             while (ze != null) {
 
-                String fileName = ze.getName();
-                File unzipped = new File(outputFolder, fileName);
+                if (!ze.isDirectory()) {
+                    String fileName = ze.getName();
+                    File unzipped = new File(outputFolder, fileName);
+                    //create all non exists folders
+                    new File(unzipped.getParent()).mkdirs();
+                    FileOutputStream fos = new FileOutputStream(unzipped);
 
-                //create all non exists folders
-                new File(unzipped.getParent()).mkdirs();
+                    IOUtils.copy(zis, fos, buffer);
 
-                FileOutputStream fos = new FileOutputStream(unzipped);
+                    fos.close();
+                }
 
-                IOUtils.copy(zis, fos, buffer);
-
-                fos.close();
                 ze = zis.getNextEntry();
             }
         } finally {
