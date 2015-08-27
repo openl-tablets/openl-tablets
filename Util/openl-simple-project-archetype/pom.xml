@@ -11,7 +11,7 @@
     <version>5.15.3-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
     <name>OpenL Simple Project</name>
-    <url>http://openl-tablets.sourceforge.net/</url>
+    <url>//openl-tablets.org</url>
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>

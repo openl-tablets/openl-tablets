@@ -10,7 +10,7 @@
     <packaging>war</packaging>
     <name>OpenL - STUDIO - WebStudio</name>
     <description>OpenL WebStudio</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <sonar.sources>src,webapp</sonar.sources>

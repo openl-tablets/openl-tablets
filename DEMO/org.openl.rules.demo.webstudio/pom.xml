@@ -10,7 +10,7 @@
     <packaging>war</packaging>
     <name>OpenL Tablets - DEMO - WebStudio</name>
     <description>WebStudio for OpenL Tablets demo application</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <properties>
         <war.name>webstudio</war.name>
     </properties>

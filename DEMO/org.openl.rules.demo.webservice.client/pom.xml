@@ -10,7 +10,7 @@
     <packaging>war</packaging>
     <name>OpenL Tablets - DEMO - Web Services Client</name>
     <description>Web Services Client for OpenL Tablets demo application</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <finalName>webservice-client</finalName>
