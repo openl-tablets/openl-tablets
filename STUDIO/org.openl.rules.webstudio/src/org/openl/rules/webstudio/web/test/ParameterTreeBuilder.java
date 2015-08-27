@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -88,13 +89,16 @@ public class ParameterTreeBuilder {
      * TODO: Refactor. Not a good way to check if it is possible to instantiate
      */
     public static boolean canConstruct(IOpenClass type) {
-        boolean result = true;
+        if (type instanceof SpreadsheetResultOpenClass) {
+            return false;
+        }
+
         try {
             type.newInstance(new SimpleVM().getRuntimeEnv());
+            return true;
         } catch (Exception ex) {
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public static ParameterDeclarationTreeNode createSimpleNode(IOpenClass fieldType,
