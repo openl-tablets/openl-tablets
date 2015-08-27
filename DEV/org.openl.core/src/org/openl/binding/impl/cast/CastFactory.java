@@ -187,7 +187,7 @@ public class CastFactory implements ICastFactory {
         }
 
         if (isAllowJavaDowncast(fromClass, toClass)) {
-            return new JavaDownCast(to);
+            return new JavaDownCast(to, this);
         }
 
         return null;
