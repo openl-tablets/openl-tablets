@@ -258,7 +258,7 @@ public class SpreadsheetStructureBuilder {
                         signature,
                         declaringClass,
                         columnBindingContext);
-                    spreadsheetCell.setType(method.getType());
+                    spreadsheetCell.setType(method.getType()); 
                 } else
                     method = OpenLCellExpressionsCompiler.makeMethod(openl, srcCode, header, columnBindingContext);
                 spreadsheetCell.setValue(method);

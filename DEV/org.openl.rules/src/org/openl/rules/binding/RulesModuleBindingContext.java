@@ -17,12 +17,15 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.PrebindOpenMethod;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.Invokable;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenIterator;
@@ -95,11 +98,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         return method;
     }
     
-    public void addPrebindMethod(IOpenMethod method){
+    public void addPrebindMethod(PrebindOpenMethod method){
         internalPrebindMethods.add(method);
     }
     
     public void clearPrebindMethods(){
+        for (IOpenMethod openMethod : internalPrebindMethods){
+            PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) openMethod;
+            Invokable bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
+            prebindOpenMethod.setInvokable(bindedMethod);
+        }
+        
         internalPrebindMethods.clear();
     }
 
