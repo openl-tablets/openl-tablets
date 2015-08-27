@@ -12,4 +12,4 @@ For Java developers, OpenL Tablets provides many rich usage scenarios in which a
 
 All of OpenL Tablets is open sourced under **LGPL** license.
 
-[Visit our website](http://openl-tablets.sourceforge.net/)
+[Visit our website](//openl-tablets.org)

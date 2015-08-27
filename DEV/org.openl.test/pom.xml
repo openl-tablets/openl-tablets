@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - DEV - Tests</name>
     <description>Tests for OpenL core functionality</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <build>
         <testSourceDirectory>test/java</testSourceDirectory>
         <plugins>

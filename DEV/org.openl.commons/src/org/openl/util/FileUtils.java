@@ -22,8 +22,12 @@ public class FileUtils {
     /**
      * Creates an empty directory in the default temporary-file directory.
      *
+     * For Java 6 compatibility.
+     *
      * @return An abstract pathname denoting a newly-created empty directory
      * @throws IOException If a file could not be created
+     *
+     * @see java.nio.file.Files#createTempDirectory
      */
     public static File createTempDirectory() throws IOException {
         final File temp = File.createTempFile("openl", ".tmp");
@@ -35,8 +39,6 @@ public class FileUtils {
         if (!(temp.mkdir())) {
             throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
         }
-
-        temp.deleteOnExit();
         return temp;
     }
 
