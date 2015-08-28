@@ -32,9 +32,4 @@ public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function
         return getInfo().getCellAddress();
     }
 
-//    @Override
-//    public List<FunctionExpressionImpl> getExpressions() {
-//        return getInfo().getExpressions();
-//    }
-
 }

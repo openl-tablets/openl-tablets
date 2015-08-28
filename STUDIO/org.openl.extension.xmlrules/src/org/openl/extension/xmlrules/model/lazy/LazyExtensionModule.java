@@ -32,13 +32,4 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
 
         return workbooks;
     }
-
-//    @Override
-//    public List<Sheet> getSheets() {
-//        List<Sheet> sheets = new ArrayList<Sheet>();
-//        for (String entryName : getInfo().getSheetEntries()) {
-//            sheets.add(new LazySheet(getXstream(), getFile(), entryName));
-//        }
-//        return sheets;
-//    }
 }

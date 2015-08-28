@@ -14,10 +14,10 @@ public class CellDelegate implements ICell {
     private final ICell delegate;
 
     public ICell getTopLeftCellFromRegion() {
-		return delegate.getTopLeftCellFromRegion();
-	}
+        return delegate.getTopLeftCellFromRegion();
+    }
 
-	public CellDelegate(ICell delegate) {
+    public CellDelegate(ICell delegate) {
         this.delegate = delegate;
     }
 

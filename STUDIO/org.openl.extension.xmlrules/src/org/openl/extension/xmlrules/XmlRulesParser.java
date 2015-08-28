@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.extension.Deserializer;
 import org.openl.extension.ExtensionParser;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
@@ -32,8 +31,7 @@ public class XmlRulesParser extends ExtensionParser {
     @Override
     protected ExtensionModule load(IOpenSourceCodeModule source) {
         String uri = source.getUri(0);
-        Deserializer<ExtensionModule> deserializer = new ZipFileXmlDeserializer(uri);
-        return deserializer.deserialize(source.getByteStream());
+        return new ZipFileXmlDeserializer(uri).deserialize();
     }
 
     /**
@@ -63,7 +61,6 @@ public class XmlRulesParser extends ExtensionParser {
             LazyWorkbook workbook,
             Sheet sheet) {
         String uri = sheetSource.getUri();
-        // TODO Improve LaunchFileServlet to support real ranges
         LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource()
                 .getWorkbookLoader();
 
@@ -170,14 +167,10 @@ public class XmlRulesParser extends ExtensionParser {
             gridBuilder.nextRow();
 
             for (ValuesRow row : dataInstance.getValues()) {
-                for (Object value : row.getList()) {
-                    if (value instanceof SingleValue) {
-                        gridBuilder.addCell(((SingleValue) value).getValue());
-                    } else if (value instanceof ArrayValue) {
-                        List<String> arrayValues = ((ArrayValue) value).getValues();
-                        for (String arrayValue : arrayValues) {
-                            gridBuilder.addCell(arrayValue);
-                        }
+                for (ArrayValue value : row.getList()) {
+                    List<String> arrayValues = value.getValues();
+                    for (String arrayValue : arrayValues) {
+                        gridBuilder.addCell(arrayValue);
                     }
                 }
                 gridBuilder.nextRow();

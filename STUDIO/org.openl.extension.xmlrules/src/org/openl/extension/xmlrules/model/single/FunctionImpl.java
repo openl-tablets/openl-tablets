@@ -19,7 +19,6 @@ public class FunctionImpl implements Function {
     private String returnType;
     private List<ParameterImpl> parameters = new ArrayList<ParameterImpl>();
     private String cellAddress;
-//    private List<FunctionExpressionImpl> expressions = new ArrayList<FunctionExpressionImpl>();
 
     @Override
     public String getName() {
@@ -59,16 +58,5 @@ public class FunctionImpl implements Function {
     public void setCellAddress(String cellAddress) {
         this.cellAddress = cellAddress;
     }
-
-    //    @XmlElementWrapper(name="expressions", required = true)
-//    @XmlElement(name = "functionExpression")
-//    @Override
-//    public List<FunctionExpressionImpl> getExpressions() {
-//        return expressions;
-//    }
-//
-//    public void setExpressions(List<FunctionExpressionImpl> expressions) {
-//        this.expressions = expressions;
-//    }
 
 }
