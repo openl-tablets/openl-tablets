@@ -9,7 +9,7 @@ public class TestResultComparatorFactory {
     private TestResultComparatorFactory(){}
 
     public static TestResultComparator getComparator(Object actualResult, Object expectedResult) {
-        if (NumberUtils.isFloatPointNumber(actualResult)) {
+        if (NumberUtils.isFloatPointNumber(actualResult) && NumberUtils.isFloatPointNumber(expectedResult)) {
             return new NumberComparator();
         }
         //Expected result and actual result can be different types (StubSpreadsheet)
