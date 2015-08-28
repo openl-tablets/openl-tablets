@@ -1,16 +1,23 @@
 package org.openl.binding.impl.cast;
 
+import org.openl.binding.ICastFactory;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 public class JavaDownCast implements IOpenCast {
     
     private IOpenClass to;
+    private ICastFactory castFactory;
 
-    public JavaDownCast(IOpenClass to) {
+    public JavaDownCast(IOpenClass to, ICastFactory castFactory) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
+        if (castFactory == null){
+            throw new IllegalArgumentException("castFactory arg can't be null!");
+        }
         this.to = to;
+        this.castFactory = castFactory;
     }
 
     public Object convert(Object from) {
@@ -24,6 +31,10 @@ public class JavaDownCast implements IOpenCast {
             if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
                 return from;    
             }else{
+                IOpenCast openCast = castFactory.getCast(JavaOpenClass.getOpenClass(from.getClass()), to);
+                if (openCast != null && !(openCast instanceof JavaDownCast)){
+                    return openCast.convert(from);
+                }
                 throw new ClassCastException("Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
             }
         }

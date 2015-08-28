@@ -10,7 +10,7 @@
     <packaging>war</packaging>
     <name>OpenL Tablets - DEMO - Web Services</name>
     <description>Web Services for OpenL Tablets demo application</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <properties>
         <war.name>webservice</war.name>
     </properties>

@@ -512,7 +512,7 @@ public class DefaultPropertyDefinitions
 		definitions[36].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caProvinces"));
 		definitions[36].setDescription("Province pour laquelle la table devrait être utilisée");
 		definitions[36].setDimensional(true);
-		definitions[36].setDisplayName("Province");
+		definitions[36].setDisplayName("Canada Province");
 		definitions[36].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(caProvince)"));
 		definitions[36].setGroup("Business Dimension");
 		definitions[36].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});

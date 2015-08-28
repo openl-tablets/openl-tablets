@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - DEV - Grammar</name>
     <description>OpenL parsing Grammars</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <build>
         <resources>
             <resource>

@@ -10,7 +10,7 @@
     <packaging>war</packaging>
     <name>OpenL Tablets - DEMO - Remote repository</name>
     <description>Jackrabbit JCR web application with a demo configuration for a production repository</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-remote-repository-server-${project.version}</war.name>
     </properties>
