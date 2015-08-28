@@ -822,7 +822,11 @@ public class RepositoryTreeController {
     public void deleteProjectHistory(String projectName) {
         try {
             String projectHistoryPath = studio.getSystemConfigManager().getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
-            FileUtils.delete(new File(projectHistoryPath));
+            File dir = new File(projectHistoryPath);
+            // Project can contain no history
+            if (dir.exists()) {
+                FileUtils.delete(dir);
+            }
         } catch (Exception e) {
             String msg = "Failed to clean history of project '" + projectName + "'!";
             log.error(msg, e);
