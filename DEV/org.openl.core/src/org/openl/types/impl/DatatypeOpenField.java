@@ -33,9 +33,9 @@ public class DatatypeOpenField extends AOpenField {
 
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String
-                    .format("Can not get [%s] field from \"null\" object", this.getName()));
+            return null;
         }
+
         Object res = null;
         Class<?> targetClass = target.getClass();
         try {

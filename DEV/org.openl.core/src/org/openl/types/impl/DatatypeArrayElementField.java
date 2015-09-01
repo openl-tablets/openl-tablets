@@ -36,8 +36,7 @@ public class DatatypeArrayElementField extends AOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String
-                    .format("Can not get [%s] field from \"null\" object", this.getName()));
+            return null;
         }
 
         Object res = null;
@@ -59,7 +58,7 @@ public class DatatypeArrayElementField extends AOpenField {
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
             throw new OpenLRuntimeException(String
-                    .format("Can not get [%s] field from \"null\" object", this.getName()));
+                    .format("Can not set [%s] field to \"null\" object", this.getName()));
         }
 
         try {
