@@ -252,7 +252,12 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             if (ClassUtils.isAssignable(fieldValueClass, Number.class)) {
                 writer = initializationWriters.get(Number.class);
             }
-            if (fieldValueClass.getSimpleName().equalsIgnoreCase(field.getName())) {
+            DefaultValue defaultValueAnnotation = field.getAnnotation(DefaultValue.class);
+            String defaultFieldValue = null;
+            if (defaultValueAnnotation != null){
+                defaultFieldValue = defaultValueAnnotation.value();
+            }
+            if ("_DEFAULT_".equals(defaultFieldValue)) {
                 writer = initializationWriters.get(MarkerClass.class);
             }
         }
