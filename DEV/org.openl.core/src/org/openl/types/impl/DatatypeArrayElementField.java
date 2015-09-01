@@ -98,10 +98,7 @@ public class DatatypeArrayElementField extends AOpenField {
     }
 
     private static String getName(String name, int index) {
-        StringBuffer strBuf = new StringBuffer();
-        strBuf.append(name).append("[").append(index).append("]");
-
-        return strBuf.toString();
+        return name + "[" + index + "]";
     }
 
     private void setArrayIntoTarget(Object target, Object array, IRuntimeEnv env) {
