@@ -5,12 +5,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.openl.extension.Deserializer;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
 import org.openl.util.IOUtils;
 
-public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
+public class ZipFileXmlDeserializer {
     public static final String ENTRY_POINT = "module.xml";
 
     private final File file;
@@ -28,9 +27,7 @@ public class ZipFileXmlDeserializer implements Deserializer<ExtensionModule> {
         file = sourceFile;
    }
 
-    @Override
-    public ExtensionModule deserialize(InputStream source) {
-        IOUtils.closeQuietly(source); // TODO remove it
+    public ExtensionModule deserialize() {
         return new LazyExtensionModule(file, ENTRY_POINT);
     }
 

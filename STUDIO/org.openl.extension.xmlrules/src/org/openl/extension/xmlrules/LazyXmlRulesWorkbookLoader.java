@@ -26,17 +26,6 @@ public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
         this.extensionModule = extensionModule;
     }
 
-//    @Override
-//    public SheetLoader getSheetLoader(final int sheetIndex) {
-//        return new LazySheetLoader(this, sheetIndex) {
-//            @Override
-//            public String getSheetName() {
-//                // Sheet name is used as category name in WebStudio
-//                return extensionModule.getSheets().get(sheetIndex).getName();
-//            }
-//        };
-//    }
-
     @Override
     protected Workbook loadWorkbook() {
         InputStream is = null;

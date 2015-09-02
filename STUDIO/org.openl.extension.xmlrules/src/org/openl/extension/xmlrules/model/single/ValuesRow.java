@@ -10,10 +10,6 @@ import javax.xml.bind.annotation.XmlType;
 public class ValuesRow {
     private List<ArrayValue> list = new ArrayList<ArrayValue>();
 
-//    @XmlElements({
-//            @XmlElement(name = "single-value", type = SingleValue.class, required = true),
-//            @XmlElement(name = "array-value", type = ArrayValue.class, required = true)
-//    })
     @XmlElement(name = "value", type = ArrayValue.class, required = true)
     public List<ArrayValue> getList() {
         return list;

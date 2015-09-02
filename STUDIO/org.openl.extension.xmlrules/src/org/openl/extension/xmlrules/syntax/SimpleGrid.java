@@ -131,6 +131,7 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
 
         public SimpleGridBuilder addCell(ICell cell) {
             int row = cell.getRow();
+            int column = cell.getColumn();
 
             NavigableMap<Integer, ICell> columns = rows.get(row);
             if (columns == null) {
@@ -138,6 +139,7 @@ public class SimpleGrid extends AGrid implements ExtensionWrapperGrid {
                 rows.put(row, columns);
             }
 
+            columns.put(column, cell);
             return this;
         }
 

@@ -72,10 +72,6 @@ public abstract class BaseLazyItem<T> {
                 @SuppressWarnings("unchecked")
                 T item = (T) m.unmarshal(new InputStreamReader(inputStream, "UTF-8"));
                 return item;
-
-//                @SuppressWarnings("unchecked")
-//                T item = (T) xstream.fromXML(inputStream);
-//                return item;
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
