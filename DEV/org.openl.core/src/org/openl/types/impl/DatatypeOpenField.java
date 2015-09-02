@@ -1,6 +1,5 @@
 package org.openl.types.impl;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringTool;
@@ -33,16 +32,16 @@ public class DatatypeOpenField extends AOpenField {
 
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String
-                    .format("Can not get [%s] field from \"null\" object", this.getName()));
+            return null;
         }
+
         Object res = null;
         Class<?> targetClass = target.getClass();
         try {
             Method method;
             try {
-                method = targetClass.getMethod(StringTool.getGetterName(getName()), new Class<?>[0]);
-                res = method.invoke(target, new Object[0]);
+                method = targetClass.getMethod(StringTool.getGetterName(getName()));
+                res = method.invoke(target);
             } catch (NoSuchMethodException e1) {
                 processError(e1);
             } catch (IllegalArgumentException e) {
