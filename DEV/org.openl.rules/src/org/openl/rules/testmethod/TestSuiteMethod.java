@@ -23,10 +23,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     private TestDescription[] tests;
     private Map<String, Integer> indeces;
 
-    public TestSuiteMethod() {
-        super(null, null);
-    }
-    
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
             TestMethodBoundNode boundNode) {
         super(header, boundNode);
