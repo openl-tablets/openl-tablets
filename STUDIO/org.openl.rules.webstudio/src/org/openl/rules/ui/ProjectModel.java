@@ -81,7 +81,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
-import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
@@ -171,13 +170,6 @@ public class ProjectModel {
                     public void runNtimes(long times) throws Exception {
                         testSuite.invoke(target, env, times);
                     }
-
-                    @Override
-                    public String[] unitName() {
-                        // FIXME
-                        return testSuite.getTestSuiteMethod().unitName();
-                    }
-
                 };
                 return new Benchmark().runUnit(bu, ms);
 
@@ -218,102 +210,10 @@ public class ProjectModel {
                     throw RuntimeExceptionWrapper.wrap(t);
                 }
             }
-
-            @Override
-            public String[] unitName() {
-                return new String[]{testSuite.getName() + ":" + testIndex};
-            }
-
         };
 
         return new Benchmark().runUnit(bu, ms);
 
-    }
-
-    public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception {
-        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-
-        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-
-            final Object[] params = {};
-
-            // Object res = null;
-            BenchmarkUnit bu = null;
-
-            try {
-                if (m instanceof IBenchmarkableMethod) {
-                    final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
-                    bu = new BenchmarkUnit() {
-                        @Override
-                        public String getName() {
-                            return bm.getBenchmarkName();
-                        }
-
-                        @Override
-                        public int nUnitRuns() {
-                            return bm.nUnitRuns();
-                        }
-
-                        @Override
-                        protected void run() throws Exception {
-                            throw new RuntimeException();
-                        }
-
-                        @Override
-                        public void runNtimes(long times) throws Exception {
-                            bm.invokeBenchmark(target, params, env, times);
-                        }
-
-                        @Override
-                        public String[] unitName() {
-                            return bm.unitName();
-                        }
-
-                    };
-
-                } else {
-                    bu = new BenchmarkUnit() {
-
-                        @Override
-                        public String getName() {
-                            return m.getName();
-                        }
-
-                        @Override
-                        protected void run() throws Exception {
-                            m.invoke(target, params, env);
-                        }
-
-                    };
-
-                }
-
-                return new Benchmark().runUnit(bu, ms);
-
-            } catch (Throwable t) {
-                Log.error("Run Error:", t);
-                return new BenchmarkInfo(t, bu, bu != null ? bu.getName() : null);
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-        }
-
-    }
-
-    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {
-        TableSyntaxNode[] nodes = getTableSyntaxNodes();
-
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i].getType().equals(XlsNodeTypes.XLS_DT.toString())
-                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getGridTable().getUri())) {
-                return nodes[i];
-            }
-        }
-
-        return null;
     }
 
     public TableSyntaxNode findNode(String url) {

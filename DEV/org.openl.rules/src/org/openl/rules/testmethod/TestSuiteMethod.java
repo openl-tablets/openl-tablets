@@ -68,14 +68,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return (TestMethodBoundNode) super.getBoundNode();
     }
 
-    public String[] unitName() {
-        return new String[] { "Test Unit", "Test Units" };
-    }
-
-    public String getBenchmarkName() {
-        return "Test " + testedMethod.getName();
-    }
-
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
 

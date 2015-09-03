@@ -23,11 +23,5 @@ import org.openl.vm.IRuntimeEnv;
 
 public interface IBenchmarkableMethod extends IOpenMethod {
 
-    String getBenchmarkName();
-
     Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, long ntimes);
-
-    int nUnitRuns();
-
-    String[] unitName();
 }

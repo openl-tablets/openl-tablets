@@ -130,8 +130,4 @@ public class BenchmarkInfo {
     public String toString() {
         return getName() + " = \t" + msrun() + " ms/run\t" + runssec() + " runs/sec\t First Run: " + firstRunms + "ms";
     }
-
-    public String unitName() {
-        return unit.nUnitRuns() == 1 ? unit.unitName()[0] : unit.unitName()[1];
-    }
 }

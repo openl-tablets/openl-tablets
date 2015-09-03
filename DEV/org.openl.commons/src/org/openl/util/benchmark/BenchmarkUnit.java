@@ -70,8 +70,4 @@ public abstract class BenchmarkUnit {
             run();
         }
     }
-
-    public String[] unitName() {
-        return new String[] { "Run", "Runs" };
-    }
 }
