@@ -141,7 +141,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        return new TestSuite(this).invoke(target, env, 1);
+        return new TestSuite(this).invoke(target, env);
     }
 
     public boolean isRunmethod() {

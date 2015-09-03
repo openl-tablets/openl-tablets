@@ -69,7 +69,6 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
@@ -138,8 +137,7 @@ public class ProjectModel {
     }
 
     public BenchmarkInfo benchmarkTestsSuite(final TestSuite testSuite, int ms) throws Exception {
-        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        final IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -168,7 +166,7 @@ public class ProjectModel {
 
                     @Override
                     public void runNtimes(long times) throws Exception {
-                        testSuite.invoke(target, env, times);
+                        testSuite.invokeSequentially(openClass, times);
                     }
                 };
                 return new Benchmark().runUnit(bu, ms);
@@ -904,24 +902,17 @@ public class ProjectModel {
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         if (!isParallel) {
-            return test.invoke(target, env, 1);
+            return test.invokeSequentially(openClass, 1);
         } else {
-            return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
-                @Override
-                public IRuntimeEnv buildIRuntimeEnv() {
-                    return new SimpleRulesVM().getRuntimeEnv();
-                }
-            }, 1);
+            return test.invokeParallel(openClass, 1);
         }
     }
 
     public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
         List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
-        List<TableSyntaxNode> foundTables = new ArrayList<TableSyntaxNode>();
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode table : tables) {
