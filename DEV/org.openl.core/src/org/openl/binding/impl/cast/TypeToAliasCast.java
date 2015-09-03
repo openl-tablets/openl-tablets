@@ -60,6 +60,10 @@ public class TypeToAliasCast implements IOpenCast {
 
     @SuppressWarnings("rawtypes")
 	protected Object convertSingle(Object from) {
+        if (from == null) {
+            return null;
+        }
+
         IDomain domain = toClass.getDomain();
 
         // Try to get given object from type domain. If object belongs to domain
