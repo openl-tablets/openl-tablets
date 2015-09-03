@@ -4,7 +4,6 @@
 package org.openl.types.impl;
 
 import org.openl.types.IOpenMethod;
-import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -31,51 +30,4 @@ public interface IBenchmarkableMethod extends IOpenMethod {
     int nUnitRuns();
 
     String[] unitName();
-    
-    
-    static public class BMBenchmarkUnit extends BenchmarkUnit 
-    {
-
-    	public BMBenchmarkUnit(IBenchmarkableMethod bm, Object target,
-				Object[] params, IRuntimeEnv env) {
-			super();
-			this.benchmarkableMethod = bm;
-			this.target = target;
-			this.params = params;
-			this.env = env;
-		}
-
-    	IBenchmarkableMethod benchmarkableMethod;
-		Object target;
-    	Object[] params;
-    	IRuntimeEnv env;
-    
-    	
-        @Override
-        public String getName() {
-            return benchmarkableMethod.getBenchmarkName();
-        }
-
-        @Override
-        public int nUnitRuns() {
-            return benchmarkableMethod.nUnitRuns();
-        }
-
-        @Override
-        protected void run() throws Exception {
-            throw new RuntimeException();
-        }
-
-        @Override
-        public void runNtimes(long times) throws Exception {
-            benchmarkableMethod.invokeBenchmark(target, params, env, times);
-        }
-
-        @Override
-        public String[] unitName() {
-            return benchmarkableMethod.unitName();
-        }
-    	
-    }
-
 }
