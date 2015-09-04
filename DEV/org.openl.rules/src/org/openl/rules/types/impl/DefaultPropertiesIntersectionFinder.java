@@ -25,27 +25,27 @@ public class DefaultPropertiesIntersectionFinder {
 
     protected void initilaize() {
 // <<< INSERT >>>
-        constraints.put("lob", new IntersectionConstraint<java.lang.String>() { 
+        constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() { 
 
             @Override
-            protected java.lang.String getPropertyValue(ITableProperties properties) {
-                return properties.getLob();
+            protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getCaRegions();
             }
 
             @Override
-            protected IntersectionType matchNotNulls(java.lang.String firstValue, java.lang.String secondValue) {
-                return intersectionForEQ(firstValue, secondValue);
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] firstValue, org.openl.rules.enumeration.CaRegionsEnum[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() { 
+        constraints.put("caProvinces", new IntersectionConstraint<org.openl.rules.enumeration.CaProvincesEnum[]>() { 
 
             @Override
-            protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
-                return properties.getUsregion();
+            protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getCaProvinces();
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] firstValue, org.openl.rules.enumeration.UsRegionsEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] firstValue, org.openl.rules.enumeration.CaProvincesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -58,6 +58,18 @@ public class DefaultPropertiesIntersectionFinder {
 
             @Override
             protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] firstValue, org.openl.rules.enumeration.CountriesEnum[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
+            }
+        });
+        constraints.put("region", new IntersectionConstraint<org.openl.rules.enumeration.RegionsEnum[]>() { 
+
+            @Override
+            protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getRegion();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] firstValue, org.openl.rules.enumeration.RegionsEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -85,6 +97,30 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
+        constraints.put("lob", new IntersectionConstraint<java.lang.String>() { 
+
+            @Override
+            protected java.lang.String getPropertyValue(ITableProperties properties) {
+                return properties.getLob();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(java.lang.String firstValue, java.lang.String secondValue) {
+                return intersectionForEQ(firstValue, secondValue);
+            }
+        });
+        constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() { 
+
+            @Override
+            protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
+                return properties.getUsregion();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] firstValue, org.openl.rules.enumeration.UsRegionsEnum[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
+            }
+        });
         constraints.put("state", new IntersectionConstraint<org.openl.rules.enumeration.UsStatesEnum[]>() { 
 
             @Override
@@ -94,42 +130,6 @@ public class DefaultPropertiesIntersectionFinder {
 
             @Override
             protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsStatesEnum[] firstValue, org.openl.rules.enumeration.UsStatesEnum[] secondValue) {
-                return intersectionForCONTAINS(firstValue, secondValue);
-            }
-        });
-        constraints.put("region", new IntersectionConstraint<org.openl.rules.enumeration.RegionsEnum[]>() { 
-
-            @Override
-            protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
-                return properties.getRegion();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] firstValue, org.openl.rules.enumeration.RegionsEnum[] secondValue) {
-                return intersectionForCONTAINS(firstValue, secondValue);
-            }
-        });
-        constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() { 
-
-            @Override
-            protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
-                return properties.getCaRegions();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] firstValue, org.openl.rules.enumeration.CaRegionsEnum[] secondValue) {
-                return intersectionForCONTAINS(firstValue, secondValue);
-            }
-        });
-        constraints.put("caProvinces", new IntersectionConstraint<org.openl.rules.enumeration.CaProvincesEnum[]>() { 
-
-            @Override
-            protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
-                return properties.getCaProvinces();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] firstValue, org.openl.rules.enumeration.CaProvincesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });

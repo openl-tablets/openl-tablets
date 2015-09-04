@@ -84,26 +84,26 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getEndRequestDate();
 			}
 		});
-		put("lob", new PropertyAccessDelegation<java.lang.String, java.lang.String>() { 
+		put("caRegions", new PropertyAccessDelegation<org.openl.rules.enumeration.CaRegionsEnum[], org.openl.rules.enumeration.CaRegionsEnum>() { 
 			@Override
-			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
-			    return context.getLob();
+			protected org.openl.rules.enumeration.CaRegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaRegion();
 			}
 	
 			@Override
-			protected java.lang.String getPropertyValue(ITableProperties properties) {
-			    return properties.getLob();
+			protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaRegions();
 			}
 		});
-		put("usregion", new PropertyAccessDelegation<org.openl.rules.enumeration.UsRegionsEnum[], org.openl.rules.enumeration.UsRegionsEnum>() { 
+		put("caProvinces", new PropertyAccessDelegation<org.openl.rules.enumeration.CaProvincesEnum[], org.openl.rules.enumeration.CaProvincesEnum>() { 
 			@Override
-			protected org.openl.rules.enumeration.UsRegionsEnum getContextValue(IRulesRuntimeContext context) {
-			    return context.getUsRegion();
+			protected org.openl.rules.enumeration.CaProvincesEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getCaProvince();
 			}
 	
 			@Override
-			protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
-			    return properties.getUsregion();
+			protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getCaProvinces();
 			}
 		});
 		put("country", new PropertyAccessDelegation<org.openl.rules.enumeration.CountriesEnum[], org.openl.rules.enumeration.CountriesEnum>() { 
@@ -115,6 +115,17 @@ public class MatchingOpenMethodDispatcherHelper {
 			@Override
 			protected org.openl.rules.enumeration.CountriesEnum[] getPropertyValue(ITableProperties properties) {
 			    return properties.getCountry();
+			}
+		});
+		put("region", new PropertyAccessDelegation<org.openl.rules.enumeration.RegionsEnum[], org.openl.rules.enumeration.RegionsEnum>() { 
+			@Override
+			protected org.openl.rules.enumeration.RegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getRegion();
+			}
+	
+			@Override
+			protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getRegion();
 			}
 		});
 		put("currency", new PropertyAccessDelegation<org.openl.rules.enumeration.CurrenciesEnum[], org.openl.rules.enumeration.CurrenciesEnum>() { 
@@ -139,6 +150,28 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getLang();
 			}
 		});
+		put("lob", new PropertyAccessDelegation<java.lang.String, java.lang.String>() { 
+			@Override
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			    return context.getLob();
+			}
+	
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getLob();
+			}
+		});
+		put("usregion", new PropertyAccessDelegation<org.openl.rules.enumeration.UsRegionsEnum[], org.openl.rules.enumeration.UsRegionsEnum>() { 
+			@Override
+			protected org.openl.rules.enumeration.UsRegionsEnum getContextValue(IRulesRuntimeContext context) {
+			    return context.getUsRegion();
+			}
+	
+			@Override
+			protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
+			    return properties.getUsregion();
+			}
+		});
 		put("state", new PropertyAccessDelegation<org.openl.rules.enumeration.UsStatesEnum[], org.openl.rules.enumeration.UsStatesEnum>() { 
 			@Override
 			protected org.openl.rules.enumeration.UsStatesEnum getContextValue(IRulesRuntimeContext context) {
@@ -148,39 +181,6 @@ public class MatchingOpenMethodDispatcherHelper {
 			@Override
 			protected org.openl.rules.enumeration.UsStatesEnum[] getPropertyValue(ITableProperties properties) {
 			    return properties.getState();
-			}
-		});
-		put("region", new PropertyAccessDelegation<org.openl.rules.enumeration.RegionsEnum[], org.openl.rules.enumeration.RegionsEnum>() { 
-			@Override
-			protected org.openl.rules.enumeration.RegionsEnum getContextValue(IRulesRuntimeContext context) {
-			    return context.getRegion();
-			}
-	
-			@Override
-			protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
-			    return properties.getRegion();
-			}
-		});
-		put("caRegions", new PropertyAccessDelegation<org.openl.rules.enumeration.CaRegionsEnum[], org.openl.rules.enumeration.CaRegionsEnum>() { 
-			@Override
-			protected org.openl.rules.enumeration.CaRegionsEnum getContextValue(IRulesRuntimeContext context) {
-			    return context.getCaRegion();
-			}
-	
-			@Override
-			protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
-			    return properties.getCaRegions();
-			}
-		});
-		put("caProvinces", new PropertyAccessDelegation<org.openl.rules.enumeration.CaProvincesEnum[], org.openl.rules.enumeration.CaProvincesEnum>() { 
-			@Override
-			protected org.openl.rules.enumeration.CaProvincesEnum getContextValue(IRulesRuntimeContext context) {
-			    return context.getCaProvince();
-			}
-	
-			@Override
-			protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
-			    return properties.getCaProvinces();
 			}
 		});
 // <<< END INSERT >>>
