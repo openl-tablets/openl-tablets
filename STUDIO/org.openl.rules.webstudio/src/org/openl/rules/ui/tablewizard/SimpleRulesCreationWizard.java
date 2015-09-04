@@ -1,10 +1,35 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
+import javax.faces.validator.ValidatorException;
+import javax.validation.constraints.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -25,19 +50,6 @@ import org.openl.types.impl.OpenClassDelegator;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
-import javax.faces.validator.ValidatorException;
-import javax.validation.constraints.Pattern;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     private static final String TABLE_TYPE = "xls.dt";
@@ -130,9 +142,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
-        Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
+        Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
                 .groupProperties(propDefinitions);
-        for (Map.Entry<String, Set<TablePropertyDefinition>> entry : propGroups.entrySet()) {
+        for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<SelectItem>();
 
             for (TablePropertyDefinition propDefinition : entry.getValue()) {

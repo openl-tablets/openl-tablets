@@ -172,9 +172,9 @@ public class TableDetailsBean {
             }
         }
 
-        Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
+        Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
                 .groupProperties(propDefinitions);
-        for (Map.Entry<String, Set<TablePropertyDefinition>> entry : propGroups.entrySet()) {
+        for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<SelectItem>();
 
             for (TablePropertyDefinition propDefinition : entry.getValue()) {
