@@ -810,6 +810,7 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateSelection();
 
             resetStudioModel();
+            FacesUtils.addInfoMessage("Project was erased successfully.");
         } catch (ProjectException e) {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
