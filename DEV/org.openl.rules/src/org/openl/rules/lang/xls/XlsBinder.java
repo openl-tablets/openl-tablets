@@ -46,8 +46,6 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
-import org.openl.rules.extension.bind.IExtensionBinder;
-import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -299,7 +297,6 @@ public class XlsBinder implements IOpenBinder {
             OpenL openl,
             RulesModuleBindingContext moduleContext,
             XlsModuleOpenClass moduleOpenClass, IBindingContext bindingContext) {
-        processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes(), moduleContext);
 
         IVocabulary vocabulary = makeVocabulary(moduleNode);
 
@@ -458,25 +455,6 @@ public class XlsBinder implements IOpenBinder {
                 } catch (Throwable t) {
                     BindHelper.processError(null, t, moduleContext);
                 }
-            }
-        }
-    }
-
-    /**
-     * @deprecated Will be deleted soon. Now extension is declared in rules.xml.
-     */
-    @Deprecated
-    private void processExtensions(XlsModuleOpenClass module,
-                                   XlsModuleSyntaxNode moduleNode,
-                                   List<IdentifierNode> extensionNodes, RulesModuleBindingContext moduleContext) {
-
-        for (int i = 0; i < extensionNodes.size(); i++) {
-
-            IdentifierNode identifierNode = extensionNodes.get(i);
-            IExtensionBinder binder = NameConventionBinderFactory.INSTANCE.getNodeBinder(identifierNode);
-
-            if (binder != null && binder.getNodeType().equals(identifierNode.getType())) {
-                binder.bind(module, moduleNode, identifierNode, moduleContext);
             }
         }
     }

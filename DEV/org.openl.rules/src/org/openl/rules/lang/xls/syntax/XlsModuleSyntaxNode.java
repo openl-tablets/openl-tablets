@@ -24,9 +24,6 @@ import org.openl.syntax.impl.NaryNode;
  */
 public class XlsModuleSyntaxNode extends NaryNode {
 
-    @Deprecated
-    private List<IdentifierNode> extensionNodes;
-
     private OpenlSyntaxNode openlNode;
 
     private IdentifierNode vocabularyNode;
@@ -37,14 +34,12 @@ public class XlsModuleSyntaxNode extends NaryNode {
             IOpenSourceCodeModule module,
             OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode,
-            Collection<String> imports,
-            List<IdentifierNode> extensionNodes) {
+            Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
         this.imports.addAll(imports);
-        this.extensionNodes = extensionNodes;
     }
 
     public Collection<String> getImports() {
@@ -77,10 +72,6 @@ public class XlsModuleSyntaxNode extends NaryNode {
             }
         }
         return tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
-    }
-
-    public List<IdentifierNode> getExtensionNodes() {
-        return extensionNodes;
     }
 
     public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {

@@ -24,7 +24,6 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +50,8 @@ public abstract class ExtensionParser extends BaseParser {
                     workbookSourceCodeModule,
                     null,
                     null,
-                    getImports(),
-                    Collections.<IdentifierNode>emptyList());
+                    getImports()
+            );
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
