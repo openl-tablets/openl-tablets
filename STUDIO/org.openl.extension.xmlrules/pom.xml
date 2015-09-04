@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
+            <artifactId>org.openl.rules.project</artifactId>
         </dependency>
     </dependencies>
 

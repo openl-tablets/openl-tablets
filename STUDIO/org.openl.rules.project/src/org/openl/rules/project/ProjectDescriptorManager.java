@@ -1,34 +1,21 @@
 package org.openl.rules.project;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
+import com.rits.cloning.Cloner;
 import org.apache.commons.io.FilenameUtils;
-import org.openl.rules.project.model.MethodFilter;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
+import org.openl.rules.extension.instantiation.IExtensionDescriptor;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.IOUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-
-import com.rits.cloning.Cloner;
 
 public class ProjectDescriptorManager {
 
@@ -176,7 +163,7 @@ public class ProjectDescriptorManager {
         List<Module> processedModules = new ArrayList<Module>(modulesWasRead.size());
         // Process modules without wildcard path
         for (Module module : modulesWasRead) {
-            if (!isModuleWithWildcard(module)) {
+            if (!isModuleWithWildcard(module) && module.getExtension() == null) {
                 processedModules.add(module);
             }
         }
@@ -192,6 +179,18 @@ public class ProjectDescriptorManager {
                     }
                 }
                 processedModules.addAll(newModules);
+            }
+        }
+        // Process extension modules
+        for (Module module : modulesWasRead) {
+            if (module.getExtension() != null) {
+                ClassLoader classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory.getExtensionDescriptor(
+                        module.getExtension(),
+                        classLoader);
+                module.setProject(descriptor);
+                processedModules.addAll(extensionDescriptor.getInternalModules(module));
+                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
             }
         }
 

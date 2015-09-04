@@ -1,0 +1,43 @@
+package org.openl.rules.extension.instantiation;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.project.model.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class ExtensionDescriptorFactory {
+    private ExtensionDescriptorFactory() {
+    }
+
+    public static IExtensionDescriptor getExtensionDescriptor(Extension extension, ClassLoader classLoader) throws
+                                                                                                            ExtensionRuntimeException {
+        IExtensionDescriptor descriptor;
+        try {
+            String extensionPackage;
+            extensionPackage = extension.getExtensionPackage();
+            if (StringUtils.isBlank(extensionPackage)) {
+                // Get extension package using convention
+                extensionPackage = "org.openl.extension." + StringUtils.lowerCase(extension.getName());
+            }
+
+            Class<?> extensionClass = classLoader.loadClass(extensionPackage + ".ExtensionDescriptor");
+
+            descriptor = (IExtensionDescriptor) extensionClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            log.error(e.getMessage(), e);
+            throw new ExtensionRuntimeException(String.format("Extension \"%s\" doesn't exist", extension.getName()));
+        } catch (InstantiationException e) {
+            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            log.error(e.getMessage(), e);
+            throw new ExtensionRuntimeException(String.format("Can't instantiate extension \"%s\"",
+                    extension.getName()));
+        } catch (IllegalAccessException e) {
+            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            log.error(e.getMessage(), e);
+            throw new ExtensionRuntimeException(String.format("Extension \"%s\" isn't accessible",
+                    extension.getName()));
+        }
+        return descriptor;
+    }
+}

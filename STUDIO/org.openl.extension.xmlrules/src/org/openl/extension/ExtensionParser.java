@@ -9,6 +9,7 @@ import org.openl.extension.xmlrules.XmlSheetSourceCodeModule;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -29,12 +30,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base extension parser
+ * TODO: Merge this class with extended one
  */
 public abstract class ExtensionParser extends BaseParser {
     private final Logger log = LoggerFactory.getLogger(ExtensionParser.class);
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
+        String internalWorkbookPath = ((XmlRulesModuleSourceCodeModule) source).getInternalModulePath();
         ExtensionModule module = load(source);
 
         ISyntaxNode syntaxNode = null;
@@ -43,7 +46,7 @@ public abstract class ExtensionParser extends BaseParser {
         try {
             XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
 
-            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule);
+            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule, internalWorkbookPath);
             syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                     workbookSourceCodeModule,
                     null,
@@ -73,23 +76,29 @@ public abstract class ExtensionParser extends BaseParser {
         return Collections.emptyList();
     }
 
-    protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module, XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+    protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,
+            XlsWorkbookSourceCodeModule workbookSourceCodeModule,
+            String internalWorkbookPath) {
         TablePartProcessor tablePartProcessor = new TablePartProcessor();
 
         List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<WorkbookSyntaxNode>();
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
 
         for (LazyWorkbook workbook : module.getWorkbooks()) {
+            if (!internalWorkbookPath.equals(workbook.getXlsFileName())) {
+                continue;
+            }
             List<Sheet> sheets = workbook.getSheets();
             for (int i = 0; i < sheets.size(); i++) {
                 Sheet sheet = sheets.get(i);
                 // Sheet name is used as category name in WebStudio
-                XlsSheetSourceCodeModule sheetSource = new XmlSheetSourceCodeModule(i, workbookSourceCodeModule, workbook);
+                XlsSheetSourceCodeModule sheetSource = new XmlSheetSourceCodeModule(i,
+                        workbookSourceCodeModule,
+                        workbook);
                 sheetNodeList.add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor));
             }
         }
 
-        // TODO Treat each workbook as separate OpenL module (now it's one virtual module)
         WorksheetSyntaxNode[] sheetNodes = sheetNodeList.toArray(new WorksheetSyntaxNode[sheetNodeList.size()]);
 
         TableSyntaxNode[] mergedNodes = {};

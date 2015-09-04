@@ -1,6 +1,5 @@
 package org.openl.rules.extension.instantiation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.model.Extension;
@@ -14,21 +13,13 @@ public final class ExtensionInstantiationStrategyFactory {
             boolean executionMode,
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
-        String openlName;
+
         try {
-            openlName = extension.getExtensionPackage();
-            if (StringUtils.isBlank(openlName)) {
-                // Get OpenL name using convention
-                openlName = "org.openl.extension." + StringUtils.lowerCase(extension.getName());
-            }
-
-            // TODO Check that OpenLBuilder for openlName exists, otherwise show meaningful message
-
             return new ExtensionInstantiationStrategy(moduleInfo,
                     executionMode,
                     dependencyManager,
                     classLoader,
-                    openlName);
+                    extension);
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
             log.error(e.getMessage(), e);
