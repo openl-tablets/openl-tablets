@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -188,15 +186,15 @@ public class TablePropertyDefinitionUtils {
         return resultDefinitions.toArray(new TablePropertyDefinition[resultDefinitions.size()]);
     }
 
-    public static Map<String, Set<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {
-        Map<String, Set<TablePropertyDefinition>> groups = new LinkedHashMap<String, Set<TablePropertyDefinition>>();
+    public static Map<String, List<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {
+        Map<String, List<TablePropertyDefinition>> groups = new LinkedHashMap<String, List<TablePropertyDefinition>>();
 
         for (TablePropertyDefinition property : properties) {
             String groupName = property.getGroup();
 
-            Set<TablePropertyDefinition> group = groups.get(groupName);
+            List<TablePropertyDefinition> group = groups.get(groupName);
             if (group == null) {
-                group = new TreeSet<TablePropertyDefinition>();
+                group = new ArrayList<TablePropertyDefinition>();
                 groups.put(groupName, group);
             }
             group.add(property);

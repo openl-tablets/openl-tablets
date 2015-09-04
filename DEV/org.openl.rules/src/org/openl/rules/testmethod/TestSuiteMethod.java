@@ -14,19 +14,14 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
-import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
+public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indeces;
 
-    public TestSuiteMethod() {
-        super(null, null);
-    }
-    
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
             TestMethodBoundNode boundNode) {
         super(header, boundNode);
@@ -70,14 +65,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     @Override
     public TestMethodBoundNode getBoundNode() {
         return (TestMethodBoundNode) super.getBoundNode();
-    }
-
-    public String[] unitName() {
-        return new String[] { "Test Unit", "Test Units" };
-    }
-
-    public String getBenchmarkName() {
-        return "Test " + testedMethod.getName();
     }
 
     public BindingDependencies getDependencies() {
@@ -154,11 +141,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        return invokeBenchmark(target, params, env, 1);
-    }
-
-    public TestUnitsResults invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, long ntimes) {
-        return new TestSuite(this).invoke(target, env, ntimes);
+        return new TestSuite(this).invoke(target, env);
     }
 
     public boolean isRunmethod() {

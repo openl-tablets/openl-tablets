@@ -134,9 +134,4 @@ public class BenchmarkInfoView {
     public String runsunitsec() {
         return benchmarkInfo.runsunitsec();
     }
-
-    public String unitName() {
-        return benchmarkInfo.unitName();
-    }
-
 }

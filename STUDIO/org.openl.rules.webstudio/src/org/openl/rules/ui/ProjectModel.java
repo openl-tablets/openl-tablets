@@ -69,7 +69,6 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
@@ -81,7 +80,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
-import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
@@ -139,8 +137,7 @@ public class ProjectModel {
     }
 
     public BenchmarkInfo benchmarkTestsSuite(final TestSuite testSuite, int ms) throws Exception {
-        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        final IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -169,15 +166,8 @@ public class ProjectModel {
 
                     @Override
                     public void runNtimes(long times) throws Exception {
-                        testSuite.invoke(target, env, times);
+                        testSuite.invokeSequentially(openClass, times);
                     }
-
-                    @Override
-                    public String[] unitName() {
-                        // FIXME
-                        return testSuite.getTestSuiteMethod().unitName();
-                    }
-
                 };
                 return new Benchmark().runUnit(bu, ms);
 
@@ -218,102 +208,10 @@ public class ProjectModel {
                     throw RuntimeExceptionWrapper.wrap(t);
                 }
             }
-
-            @Override
-            public String[] unitName() {
-                return new String[]{testSuite.getName() + ":" + testIndex};
-            }
-
         };
 
         return new Benchmark().runUnit(bu, ms);
 
-    }
-
-    public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception {
-        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-
-        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-
-            final Object[] params = {};
-
-            // Object res = null;
-            BenchmarkUnit bu = null;
-
-            try {
-                if (m instanceof IBenchmarkableMethod) {
-                    final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
-                    bu = new BenchmarkUnit() {
-                        @Override
-                        public String getName() {
-                            return bm.getBenchmarkName();
-                        }
-
-                        @Override
-                        public int nUnitRuns() {
-                            return bm.nUnitRuns();
-                        }
-
-                        @Override
-                        protected void run() throws Exception {
-                            throw new RuntimeException();
-                        }
-
-                        @Override
-                        public void runNtimes(long times) throws Exception {
-                            bm.invokeBenchmark(target, params, env, times);
-                        }
-
-                        @Override
-                        public String[] unitName() {
-                            return bm.unitName();
-                        }
-
-                    };
-
-                } else {
-                    bu = new BenchmarkUnit() {
-
-                        @Override
-                        public String getName() {
-                            return m.getName();
-                        }
-
-                        @Override
-                        protected void run() throws Exception {
-                            m.invoke(target, params, env);
-                        }
-
-                    };
-
-                }
-
-                return new Benchmark().runUnit(bu, ms);
-
-            } catch (Throwable t) {
-                Log.error("Run Error:", t);
-                return new BenchmarkInfo(t, bu, bu != null ? bu.getName() : null);
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-        }
-
-    }
-
-    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {
-        TableSyntaxNode[] nodes = getTableSyntaxNodes();
-
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i].getType().equals(XlsNodeTypes.XLS_DT.toString())
-                    && XlsUrlUtils.intersectsByLocation(p1, nodes[i].getGridTable().getUri())) {
-                return nodes[i];
-            }
-        }
-
-        return null;
     }
 
     public TableSyntaxNode findNode(String url) {
@@ -1004,24 +902,17 @@ public class ProjectModel {
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         if (!isParallel) {
-            return test.invoke(target, env, 1);
+            return test.invokeSequentially(openClass, 1);
         } else {
-            return test.invokeParallel(target, new TestSuite.IRuntimeEnvFactory() {
-                @Override
-                public IRuntimeEnv buildIRuntimeEnv() {
-                    return new SimpleRulesVM().getRuntimeEnv();
-                }
-            }, 1);
+            return test.invokeParallel(openClass, 1);
         }
     }
 
     public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
         List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
-        List<TableSyntaxNode> foundTables = new ArrayList<TableSyntaxNode>();
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode table : tables) {

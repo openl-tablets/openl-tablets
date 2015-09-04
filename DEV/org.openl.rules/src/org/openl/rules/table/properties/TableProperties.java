@@ -91,6 +91,34 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("category", category);
 		allProperties = null;
 	}	
+	public java.lang.String getCreatedBy() {
+		return (java.lang.String) getPropertyValue("createdBy"); 
+	}
+	public void setCreatedBy(java.lang.String createdBy) {
+		setFieldValue("createdBy", createdBy);
+		allProperties = null;
+	}	
+	public java.util.Date getCreatedOn() {
+		return (java.util.Date) getPropertyValue("createdOn"); 
+	}
+	public void setCreatedOn(java.util.Date createdOn) {
+		setFieldValue("createdOn", createdOn);
+		allProperties = null;
+	}	
+	public java.lang.String getModifiedBy() {
+		return (java.lang.String) getPropertyValue("modifiedBy"); 
+	}
+	public void setModifiedBy(java.lang.String modifiedBy) {
+		setFieldValue("modifiedBy", modifiedBy);
+		allProperties = null;
+	}	
+	public java.util.Date getModifiedOn() {
+		return (java.util.Date) getPropertyValue("modifiedOn"); 
+	}
+	public void setModifiedOn(java.util.Date modifiedOn) {
+		setFieldValue("modifiedOn", modifiedOn);
+		allProperties = null;
+	}	
 	public java.lang.String getDescription() {
 		return (java.lang.String) getPropertyValue("description"); 
 	}
@@ -133,32 +161,88 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("endRequestDate", endRequestDate);
 		allProperties = null;
 	}	
-	public java.lang.String getCreatedBy() {
-		return (java.lang.String) getPropertyValue("createdBy"); 
+	public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
+		return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions"); 
 	}
-	public void setCreatedBy(java.lang.String createdBy) {
-		setFieldValue("createdBy", createdBy);
+	public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions) {
+		setFieldValue("caRegions", caRegions);
 		allProperties = null;
 	}	
-	public java.util.Date getCreatedOn() {
-		return (java.util.Date) getPropertyValue("createdOn"); 
+	public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
+		return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces"); 
 	}
-	public void setCreatedOn(java.util.Date createdOn) {
-		setFieldValue("createdOn", createdOn);
+	public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces) {
+		setFieldValue("caProvinces", caProvinces);
 		allProperties = null;
 	}	
-	public java.lang.String getModifiedBy() {
-		return (java.lang.String) getPropertyValue("modifiedBy"); 
+	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
 	}
-	public void setModifiedBy(java.lang.String modifiedBy) {
-		setFieldValue("modifiedBy", modifiedBy);
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
+		setFieldValue("country", country);
 		allProperties = null;
 	}	
-	public java.util.Date getModifiedOn() {
-		return (java.util.Date) getPropertyValue("modifiedOn"); 
+	public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
+		return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region"); 
 	}
-	public void setModifiedOn(java.util.Date modifiedOn) {
-		setFieldValue("modifiedOn", modifiedOn);
+	public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
+		setFieldValue("region", region);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency"); 
+	}
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
+		setFieldValue("currency", currency);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
+		return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang"); 
+	}
+	public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
+		setFieldValue("lang", lang);
+		allProperties = null;
+	}	
+	public java.lang.String getLob() {
+		return (java.lang.String) getPropertyValue("lob"); 
+	}
+	public void setLob(java.lang.String lob) {
+		setFieldValue("lob", lob);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.OriginsEnum getOrigin() {
+		return (org.openl.rules.enumeration.OriginsEnum) getPropertyValue("origin"); 
+	}
+	public void setOrigin(org.openl.rules.enumeration.OriginsEnum origin) {
+		setFieldValue("origin", origin);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
+		return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion"); 
+	}
+	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
+		setFieldValue("usregion", usregion);
+		allProperties = null;
+	}	
+	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
+		return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state"); 
+	}
+	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
+		setFieldValue("state", state);
+		allProperties = null;
+	}	
+	public java.lang.String getVersion() {
+		return (java.lang.String) getPropertyValue("version"); 
+	}
+	public void setVersion(java.lang.String version) {
+		setFieldValue("version", version);
+		allProperties = null;
+	}	
+	public java.lang.Boolean getActive() {
+		return (java.lang.Boolean) getPropertyValue("active"); 
+	}
+	public void setActive(java.lang.Boolean active) {
+		setFieldValue("active", active);
 		allProperties = null;
 	}	
 	public java.lang.String getId() {
@@ -180,69 +264,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	}
 	public void setValidateDT(java.lang.String validateDT) {
 		setFieldValue("validateDT", validateDT);
-		allProperties = null;
-	}	
-	public java.lang.String getLob() {
-		return (java.lang.String) getPropertyValue("lob"); 
-	}
-	public void setLob(java.lang.String lob) {
-		setFieldValue("lob", lob);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
-		return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion"); 
-	}
-	public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
-		setFieldValue("usregion", usregion);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
-		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
-	}
-	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
-		setFieldValue("country", country);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
-		return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency"); 
-	}
-	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
-		setFieldValue("currency", currency);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
-		return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang"); 
-	}
-	public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
-		setFieldValue("lang", lang);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.UsStatesEnum[] getState() {
-		return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state"); 
-	}
-	public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
-		setFieldValue("state", state);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
-		return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region"); 
-	}
-	public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
-		setFieldValue("region", region);
-		allProperties = null;
-	}	
-	public java.lang.String getVersion() {
-		return (java.lang.String) getPropertyValue("version"); 
-	}
-	public void setVersion(java.lang.String version) {
-		setFieldValue("version", version);
-		allProperties = null;
-	}	
-	public java.lang.Boolean getActive() {
-		return (java.lang.Boolean) getPropertyValue("active"); 
-	}
-	public void setActive(java.lang.Boolean active) {
-		setFieldValue("active", active);
 		allProperties = null;
 	}	
 	public java.lang.Boolean getFailOnMiss() {
@@ -313,27 +334,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	}
 	public void setAutoType(java.lang.Boolean autoType) {
 		setFieldValue("autoType", autoType);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.OriginsEnum getOrigin() {
-		return (org.openl.rules.enumeration.OriginsEnum) getPropertyValue("origin"); 
-	}
-	public void setOrigin(org.openl.rules.enumeration.OriginsEnum origin) {
-		setFieldValue("origin", origin);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
-		return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions"); 
-	}
-	public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions) {
-		setFieldValue("caRegions", caRegions);
-		allProperties = null;
-	}	
-	public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
-		return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces"); 
-	}
-	public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces) {
-		setFieldValue("caProvinces", caProvinces);
 		allProperties = null;
 	}	
 // <<< END INSERT >>>

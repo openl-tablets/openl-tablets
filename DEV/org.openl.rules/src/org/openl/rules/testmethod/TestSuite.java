@@ -4,6 +4,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.vm.SimpleRulesVM;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
@@ -41,7 +43,7 @@ public class TestSuite implements INamedThing {
         return tests[testNumber];
     }
 
-    public TestUnitsResults invokeParallel(final Object target, final IRuntimeEnvFactory envFactory, final long ntimes) {
+    public TestUnitsResults invokeParallel(final IOpenClass openClass, final long ntimes) {
         TestSuiteExecutor testSuiteExecutor = TestSuiteExecutor.getInstance();
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
@@ -57,10 +59,7 @@ public class TestSuite implements INamedThing {
                     try {
                         for (int j = 0; j < getNumberOfTests(); j++) {
                             if (j % THREAD_COUNT == numThread) {
-                                final TestDescription currentTest = getTest(j);
-                                testUnitResultsArray[j] = currentTest.runTest(target,
-                                    envFactory.buildIRuntimeEnv(),
-                                    ntimes);
+                                testUnitResultsArray[j] = executeTest(openClass, j, ntimes);
                             }
                         }
                     } finally {
@@ -80,12 +79,30 @@ public class TestSuite implements INamedThing {
         return testUnitResults;
     }
 
-    public TestUnitsResults invoke(Object target, IRuntimeEnv env, long ntimes) {
+    public TestUnitsResults invokeSequentially(final IOpenClass openClass, long ntimes) {
+
+        TestUnitsResults testUnitResults = new TestUnitsResults(this);
+        for (int i = 0; i < getNumberOfTests(); i++) {
+            final TestUnit testUnit = executeTest(openClass, i, ntimes);
+            testUnitResults.addTestUnit(testUnit);
+        }
+
+        return testUnitResults;
+    }
+
+    private TestUnit executeTest(IOpenClass openClass, int test, long ntimes) {
+        TestDescription currentTest = getTest(test);
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        final Object target = openClass.newInstance(env);
+        return currentTest.runTest(target, env, ntimes);
+    }
+
+    public TestUnitsResults invoke(Object target, IRuntimeEnv env) {
         TestUnitsResults testUnitResults = new TestUnitsResults(this);
 
         for (int i = 0; i < getNumberOfTests(); i++) {
             TestDescription currentTest = getTest(i);
-            testUnitResults.addTestUnit(currentTest.runTest(target, env, ntimes));
+            testUnitResults.addTestUnit(currentTest.runTest(target, env, 1L));
         }
 
         return testUnitResults;
