@@ -339,14 +339,17 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (context.getRequestDate() != null) {
             propNames.add("endRequestDate");
         }
-        if (context.getLob() != null) {
-            propNames.add("lob");
+        if (context.getCaRegion() != null) {
+            propNames.add("caRegions");
         }
-        if (context.getUsRegion() != null) {
-            propNames.add("usregion");
+        if (context.getCaProvince() != null) {
+            propNames.add("caProvinces");
         }
         if (context.getCountry() != null) {
             propNames.add("country");
+        }
+        if (context.getRegion() != null) {
+            propNames.add("region");
         }
         if (context.getCurrency() != null) {
             propNames.add("currency");
@@ -354,17 +357,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (context.getLang() != null) {
             propNames.add("lang");
         }
+        if (context.getLob() != null) {
+            propNames.add("lob");
+        }
+        if (context.getUsRegion() != null) {
+            propNames.add("usregion");
+        }
         if (context.getUsState() != null) {
             propNames.add("state");
-        }
-        if (context.getRegion() != null) {
-            propNames.add("region");
-        }
-        if (context.getCaRegion() != null) {
-            propNames.add("caRegions");
-        }
-        if (context.getCaProvince() != null) {
-            propNames.add("caProvinces");
         }
 
         return propNames;
