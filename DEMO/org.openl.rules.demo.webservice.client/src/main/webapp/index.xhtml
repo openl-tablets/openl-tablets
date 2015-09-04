@@ -92,7 +92,7 @@
                 color: #444;
             }
             .result {
-                margin-top: 27px;
+                margin-top: 10px;
                 border-top: 1px solid #eee;
             }
             .result table td {
@@ -178,6 +178,9 @@
                         <div class="messages">
                             <h:messages errorClass="error" />
                         </div>
+                        <script>
+                            document.getElementsByClassName('result')[0].scrollIntoView();
+                        </script>
                     </h:panelGroup>
                 </h:form>
             </div>
