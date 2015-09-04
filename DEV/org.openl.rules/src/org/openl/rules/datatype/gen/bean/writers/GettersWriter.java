@@ -74,7 +74,16 @@ public class GettersWriter extends MethodWriter {
         av.visit("name", elementName);
         
         if (fieldEntry.getValue().hasDefaultValue()){
-            av.visit("defaultValue", fieldEntry.getValue().getDefaultValueAsString());
+            String defaultFieldValue = fieldEntry.getValue().getDefaultValueAsString();
+            if (Boolean.class.equals(fieldEntry.getValue().getType()) || boolean.class.equals(fieldEntry.getValue().getType())){
+                if (defaultFieldValue.equalsIgnoreCase("no")){
+                    defaultFieldValue = "false";
+                }
+                if (defaultFieldValue.equalsIgnoreCase("yes")){
+                    defaultFieldValue = "true";
+                }
+            }
+            av.visit("defaultValue", defaultFieldValue);
         }else{
             av.visit("nillable", true);    
         }
