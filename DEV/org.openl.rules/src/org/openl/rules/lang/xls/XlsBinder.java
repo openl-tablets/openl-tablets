@@ -412,7 +412,7 @@ public class XlsBinder implements IOpenBinder {
                                                        Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
         return new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
+                openl, dbase, moduleDependencies, Thread.currentThread().getContextClassLoader(), OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
     }
 
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode, XlsModuleOpenClass module, OpenL openl, RulesModuleBindingContext bindingContext) {

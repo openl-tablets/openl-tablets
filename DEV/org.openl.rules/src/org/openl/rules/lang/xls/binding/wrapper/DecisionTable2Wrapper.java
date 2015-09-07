@@ -26,7 +26,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrapper{
+public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper{
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -36,7 +36,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements DispatchWrap
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public IOpenClass getDeclaringClass() {

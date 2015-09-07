@@ -28,9 +28,10 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             OpenL openl,
             IDataBase dbase,
             IPrebindHandler prebindHandler,
+            ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
             boolean dispatchingValidationEnabled) {
-        this(schema, name, metaInfo, openl, dbase, prebindHandler, null, useDescisionTableDispatcher, dispatchingValidationEnabled);
+        this(schema, name, metaInfo, openl, dbase, prebindHandler, null, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
     }
 
     public XlsLazyModuleOpenClass(IOpenSchema schema,
@@ -40,9 +41,10 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             IDataBase dbase,
             IPrebindHandler prebindHandler,
             Set<CompiledDependency> usingModules,
+            ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
             boolean dispatchingValidationEnabled) {
-        super(schema, name, metaInfo, openl, dbase, usingModules, useDescisionTableDispatcher, dispatchingValidationEnabled);
+        super(schema, name, metaInfo, openl, dbase, usingModules, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
         this.prebindHandler = prebindHandler;
     }
 

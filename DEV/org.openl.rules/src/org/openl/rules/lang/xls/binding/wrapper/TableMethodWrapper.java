@@ -17,7 +17,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class TableMethodWrapper extends TableMethod implements DispatchWrapper{
+public class TableMethodWrapper extends TableMethod implements IOpenMethodWrapper{
     TableMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -27,7 +27,7 @@ public class TableMethodWrapper extends TableMethod implements DispatchWrapper{
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public String toString() {

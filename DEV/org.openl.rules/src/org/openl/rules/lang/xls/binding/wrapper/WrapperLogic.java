@@ -11,13 +11,13 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 
-public final class DispatcherLogic {
+public final class WrapperLogic {
 
-    private DispatcherLogic() {
+    private WrapperLogic() {
     }
 
-    public static Object dispatch(XlsModuleOpenClass xlsModuleOpenClass,
-            DispatchWrapper wrapper,
+    public static Object invoke(XlsModuleOpenClass xlsModuleOpenClass,
+            IOpenMethodWrapper wrapper,
             Object target,
             Object[] params,
             IRuntimeEnv env) {
@@ -34,6 +34,7 @@ public final class DispatcherLogic {
 
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 IOpenClass typeClass;
                 if (target instanceof IDynamicObject) {
@@ -57,9 +58,11 @@ public final class DispatcherLogic {
                     throw new IllegalStateException("Can't define openl class from target object");
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
+                Thread.currentThread().setContextClassLoader(xlsModuleOpenClass.getClassLoader());
                 return wrapper.getDelegate().invoke(target, params, env);
             } finally {
                 simpleRulesRuntimeEnv.setTopClass(null);
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         } else {
             if (topClass != xlsModuleOpenClass) {

@@ -17,7 +17,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmWrapper extends Algorithm implements DispatchWrapper{
+public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
     Algorithm delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -27,7 +27,7 @@ public class AlgorithmWrapper extends Algorithm implements DispatchWrapper{
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public String toString() {

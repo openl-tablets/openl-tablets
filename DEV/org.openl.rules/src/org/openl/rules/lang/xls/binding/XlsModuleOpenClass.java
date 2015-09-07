@@ -6,7 +6,11 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -17,7 +21,6 @@ import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -28,9 +31,20 @@ import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt2.DecisionTable;
-import org.openl.rules.lang.xls.PrebindOpenMethod;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.*;
+import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
@@ -51,7 +65,12 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IModuleInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
@@ -76,14 +95,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private boolean dispatchingValidationEnabled;
 
     private Collection<String> imports = new HashSet<String>();
+    
+    private ClassLoader classLoader;
 
     public XlsModuleOpenClass(IOpenSchema schema,
             String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
+            ClassLoader classLoader,
             boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
-        this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher, dispatchingValidationEnabled);
+        this(schema, name, metaInfo, openl, dbase, null, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
     }
 
     /**
@@ -96,18 +118,24 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
+            ClassLoader classLoader,
             boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
         super(schema, name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
         this.dispatchingValidationEnabled = dispatchingValidationEnabled;
+        this.classLoader = classLoader;
         if (usingModules != null) {
             setDependencies(usingModules);
             initDependencies();
         }
         initImports(metaInfo.getXlsModuleNode());
         additionalInitDependencies(); // Required for data tables.
+    }
+    
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {
@@ -217,8 +245,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // fix
         // for
         // mul1ti-module
-        if (openMethod instanceof DispatchWrapper){
-            DispatchWrapper dispatchWrapper = (DispatchWrapper) openMethod;
+        if (openMethod instanceof IOpenMethodWrapper){
+            IOpenMethodWrapper dispatchWrapper = (IOpenMethodWrapper) openMethod;
             return dispatchWrapper.getDelegate();
         }
         return openMethod;
@@ -228,7 +256,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                                                           // fix
                                                                                           // for
                                                                                           // mul1ti-module
-        if (openMethod instanceof DispatchWrapper || openMethod instanceof TestSuiteMethod) {
+        if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {

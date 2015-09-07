@@ -15,7 +15,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
-import org.openl.rules.lang.xls.binding.wrapper.DispatchWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
@@ -212,8 +212,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             }
         }
         
-        if (method instanceof DispatchWrapper){
-            method = ((DispatchWrapper) method).getDelegate();
+        if (method instanceof IOpenMethodWrapper){
+            method = ((IOpenMethodWrapper) method).getDelegate();
         }
         
         return method.invoke(target, params, env);

@@ -1296,12 +1296,12 @@ public class ProjectModel {
         clearModuleInfo();
     }
 
-    private void clearModuleResources() {
+    private void clearModuleResources() { 
         removeListeners();
 
-        if (compiledOpenClass != null) {
-            releaseClassLoader(compiledOpenClass.getClassLoader());
-        }
+        //if (compiledOpenClass != null) {
+            //releaseClassLoader(compiledOpenClass.getClassLoader());
+        //}
     }
 
     /**

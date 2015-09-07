@@ -21,7 +21,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapper{
+public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper{
     ColumnMatch delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -31,7 +31,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements DispatchWrapper{
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public String toString() {

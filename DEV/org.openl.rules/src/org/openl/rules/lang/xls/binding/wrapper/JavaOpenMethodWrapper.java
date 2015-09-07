@@ -8,7 +8,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWrapper{
+public class JavaOpenMethodWrapper extends JavaOpenMethod implements IOpenMethodWrapper{
     JavaOpenMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -19,7 +19,7 @@ public class JavaOpenMethodWrapper extends JavaOpenMethod implements DispatchWra
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public IOpenClass getDeclaringClass() {

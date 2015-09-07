@@ -30,6 +30,7 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                 openl,
                 dbase,
                 moduleDependencies,
+                Thread.currentThread().getContextClassLoader(),
                 OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
                 OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
     }

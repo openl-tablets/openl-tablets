@@ -11,7 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements DispatchWrapper{
+public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper{
     OverloadedMethodsDispatcherTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -21,7 +21,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
     
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return DispatcherLogic.dispatch(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
     public IOpenMethod getDispatchingOpenMethod() {
