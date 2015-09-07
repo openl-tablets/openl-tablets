@@ -9,10 +9,6 @@ optgroup {
     font-style: normal;
 }
 
-table, input, textarea {
-    font-size: 100%;
-}
-
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px;
     border-style: solid;
@@ -22,15 +18,19 @@ input[type='text'], input[type='password'], textarea, select {
     color: #333;
     margin-left: 0;
     margin-right: 0;
+    padding: 3px;
+    width:138px;
+    height: 15px;
+    font-size: 100%;
+    box-sizing:content-box;
+    -ms-box-sizing:content-box;
+    -moz-box-sizing:content-box;
+    -webkit-box-sizing:content-box;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
     border: 1px solid #39c;
     outline: none;
-}
-
-input[type='text'], input[type='password'], textarea {
-    padding: 3px;
 }
 
 /* Removing clear button (x) from input text element for MS IE 10 */

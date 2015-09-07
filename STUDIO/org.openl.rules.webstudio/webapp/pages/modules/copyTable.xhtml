@@ -7,12 +7,6 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
-    <style>
-        #copyPropertiesTable select {
-            width: 121px;
-        }
-    </style>
-
     #{tableCopierWizardManager.start()}
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
@@ -39,7 +33,7 @@
                     <h:panelGroup id="technicalNamePanel">
                         <table style="background: #fafafa; padding: 3px 0; margin-bottom: 5px">
                             <tr>
-                                <td style="min-width: 100px">
+                                <td style="min-width: 120px">
                                     <h:outputText value="#{msg['ws.copy.name']}" styleClass="required" />
                                 </td>
                                 <td>
@@ -63,10 +57,10 @@
                         <table>
                             <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop" id="prop-values">
                                 <tr>
-                                    <td style="min-width: 97px">
+                                    <td style="min-width: 120px">
                                         <h:outputText value="#{prop.displayName}" />
                                     </td>
-                                    <td style="width: 156px">
+                                    <td>
                                         <rich:calendar value="#{prop.value}" datePattern="#{prop.format}" onchange="updateCopyButtonState();"
                                             rendered="#{prop.dateType}" id="calendar"/>
 
@@ -81,30 +75,14 @@
                                             <f:selectItems value="#{prop.enumArrayItems}" />
                                         </h:selectOneMenu>
 
-                                        <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}" >
-                                            <table>
-                                                <tr>
-                                                    <td><oh:inputVersion value="#{prop.value}" id="input-version"/></td>
-                                                    <td>#{msg['ws.copy.version.current']}:</td>
-                                                    <td><h:outputText value="#{wizard.originalVersion}"/></td>
-                                                </tr>
-                                            </table>
+                                        <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}" style="white-space: nowrap;">
+                                            <oh:inputVersion value="#{prop.value}" id="input-version"/>
+                                            #{msg['ws.copy.version.current']}:
+                                            <h:outputText value="#{wizard.originalVersion}"/>
                                         </h:panelGroup>
 
                                         <h:inputText value="#{prop.value}" id="input-prop-text"
                                             rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
-                                    </td>
-                                    <td>
-                                        <ui:remove><!--
-                                        <a4j:commandLink action="#{propertiesManager.removeProperty}" id="remove-prop-btn"
-                                            render="copyPropertiesTable newPropertySelect"
-                                            rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
-                                            <h:graphicImage value="/images/delete.png"
-                                                alt="#{msg['ws.copy.props.remove']}" title="#{msg['ws.copy.props.remove']}" />
-                                            <f:setPropertyActionListener value="#{prop}"
-                                                target="#{propertiesManager.propToRemove}" />
-                                        </a4j:commandLink>
-                                        --></ui:remove>
                                     </td>
                                 </tr>
                             </a4j:repeat>
