@@ -1,4 +1,4 @@
-package template;
+package com.example.openl;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
@@ -13,9 +13,11 @@ public class Main {
     public static void main(String[] args) {
         File xlsFile = new File("rules/TemplateRules.xls");
 
+        // Wrapper - is generated interface from TemplateRules.xls using maven openl:generate goal.
         RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>(xlsFile, Wrapper.class);
 
         Wrapper instance = engineFactory.newEngineInstance();
-        instance.hello1(10);
+        String result = instance.hello(10);
+        System.out.println(result);
     }
 }

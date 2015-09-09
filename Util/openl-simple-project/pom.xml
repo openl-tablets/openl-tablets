@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openl.rules</groupId>
+    <groupId>org.openl.example</groupId>
     <artifactId>openl-simple-project</artifactId>
+    <version>2.0</version>
     <packaging>jar</packaging>
-    <version>1.0.0</version>
     <name>OpenL Simple Project</name>
     <properties>
-        <openl.rules.version>5.15.0-SNAPSHOT</openl.rules.version>
+        <openl.rules.version>${openlVersion}</openl.rules.version>
+        <package>com.example.openl</package> <!-- A fix to resolve issue with archetype filtering in this pom.xml -->
     </properties>
     <dependencies>
         <dependency>
@@ -18,8 +19,28 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/wrappers</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -41,9 +62,11 @@
                     <generateInterfaces>
                         <generateInterface>
                             <displayName>Template Rules</displayName>
-                            <targetClass>template.Wrapper</targetClass>
+                            <targetClass>${package}.Wrapper</targetClass>
+                            <targetSrcDir>${project.build.directory}/generated-sources/wrappers</targetSrcDir>
+                            <resourcesPath>${project.basedir}/src/main/openl</resourcesPath>
                             <!-- Rules root document. Usually excel file on file system. -->
-                            <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
+                            <srcFile>rules/TemplateRules.xls</srcFile>
                         </generateInterface>
                     </generateInterfaces>
                 </configuration>
