@@ -13,6 +13,9 @@
         padding: 0;
         list-style-type: none;
       }
+        select, input[type='text'], input[type='password'] {
+            width: 20em;
+        }
     </style>
 
         <div class="wizard-page">
@@ -71,7 +74,7 @@
                                 <tr>
                                     <td><label>Database type</label></td>
                                     <td>
-                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true" style="width:236px;">
+                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true">
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
                                             <f:selectItems value="#{installWizard.DBVendors}" />
                                             <f:ajax  listener="#{installWizard.dbVendorChanged}" />
