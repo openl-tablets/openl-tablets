@@ -169,7 +169,10 @@ public class OpenLSourceManager extends OpenLHolder {
                 }
             }
         }
-
+        
+        //Requires to support java packages. BEX grammar doesn't support to use binding context to define java packages.
+        FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContextDelegator, parsedCode);
+        
         IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
