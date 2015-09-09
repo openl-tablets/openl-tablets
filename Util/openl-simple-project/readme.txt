@@ -5,33 +5,32 @@ PROJECT STRUCTURE
 Project structure uses default Maven project structure and contains the following files:
 
         |-- openl-simple-project                        Project root folder
-        |  |-- pom.xml                                  Maven project file
-        |  |  
-        |  |-- assembly                                 Maven assembly plugin configurations
-        |  |
-        |  |  |-- runnable-zip.xml                      Assembly configuration for runnable console application
-        |  |  |-- deployable-zip.xml                    Assembly configuration for deployable to WebStudio zip
-        |  
-        |  |-- src
-        |  |  
-        |  |  |-- main
-        |  |  |  
-        |  |  |  |-- java
-        |  |  |  |  
-        |  |  |  |  |-- template
-        |  |  |  |  |  |-- Main.java                    Sample class which uses wrapper class
-        |  |  |  |  |  |-- Wrapper.java                 An interface class which holds rules method definitions
-        |  |  |  
-        |  |  |  |-- openl                              This folder contains all OpenL-related resources (rules, xml etc.)
-        |  |  |  |  
-        |  |  |  |  |-- rules.xml                       OpenL project descriptor (for OpenL only)
-        |  |  |  |  |-- rules
-        |  |  |  |  |  |-- TemplateRules.xls            File with rules
-        |  |  |  
-        |  |  |  |-- scripts
-        |  |  |  |  
-        |  |  |  |  |-- start.cmd                       Script that runs the Main class for Windows
-        |  |  |  |  |-- start.sh                        Script that runs the Main class for Linux
+           |-- pom.xml                                  Maven project file
+           |
+           |-- assembly                                 Maven assembly plugin configurations
+           |  |-- runnable-zip.xml                      Assembly configuration for runnable console application
+           |  |-- deployable-zip.xml                    Assembly configuration for deployable to WebStudio zip
+           |
+           |-- src
+           |  |-- main
+           |     |
+           |     |-- java
+           |     |  |-- com.example.openl
+           |     |     |-- Main.java                    Sample class which uses wrapper class
+           |     |
+           |     |-- openl                              This folder contains all OpenL-related resources (rules, xml etc.)
+           |     |  |-- rules.xml                       OpenL project descriptor (for OpenL only, generated in openl:generate maven goal)
+           |     |  |-- rules
+           |     |     |-- TemplateRules.xls            File with rules
+           |     |
+           |     |-- scripts
+           |        |-- start.cmd                       Script that runs the Main class for Windows
+           |        |-- start.sh                        Script that runs the Main class for Linux
+           |
+           |-- target/generated-sources/wrappers
+              |-- com.example.openl
+                 |-- Wrapper.java                       An interface class which holds rules method definitions,WRAPPER CLASS
+                                                        generated in openl:generate maven goal, used in Main.java
 
 
 WRAPPER CLASS

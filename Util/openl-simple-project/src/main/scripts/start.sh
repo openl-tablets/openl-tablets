@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -classpath lib/* template.Main
+java -classpath lib/* com.example.openl.Main
