@@ -86,12 +86,13 @@
         <!-- By default empty mercurial revision url -->
         <changeSetUrlPrefix>https://sourceforge.net/p/openl-tablets/openl/ci/</changeSetUrlPrefix>
     </properties>
+
     <modules>
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
         <module>Util/openl-maven-plugin</module>
-        <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-simple-project/archetype-pom.xml</module>
         <module>DEMO</module>
     </modules>
     <distributionManagement>
