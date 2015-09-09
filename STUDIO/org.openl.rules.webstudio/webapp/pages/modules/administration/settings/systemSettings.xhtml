@@ -66,10 +66,6 @@
             margin-top: 2px;
         }
 
-        .repoFieldWidth {
-            width: 125px !important;
-        }
-
     </style>
 
     <script>
@@ -280,7 +276,7 @@
                                 <table><tr><td>
                                     <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Name:" />
-                                        <h:inputText value="#{designRepository.name}" disabled="true" styleClass="repoFieldWidth"/>
+                                        <h:inputText value="#{designRepository.name}" disabled="true"/>
                                         <h:outputText value="Type:" />
                                         <h:selectOneMenu value="#{designRepository.type}">
                                             <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
@@ -299,10 +295,10 @@
                                             <f:ajax event="change" execute="@form" render="designInfoPanel" />
                                         </h:selectBooleanCheckbox>
                                         <h:outputText value="Login:" rendered="#{designRepository.secure}"/>
-                                        <h:inputText value="#{designRepository.login}" styleClass="repoFieldWidth"
+                                        <h:inputText value="#{designRepository.login}"
                                             rendered="#{designRepository.secure}"/>
                                         <h:outputText value="Password:" rendered="#{designRepository.secure}"/>
-                                        <h:inputSecret value="#{designRepository.password}" styleClass="repoFieldWidth"
+                                        <h:inputSecret value="#{designRepository.password}"
                                             rendered="#{designRepository.secure}"/>
                                     </h:panelGrid>
                                 </td></tr></table>
@@ -319,7 +315,7 @@
                                         <td>
                                         <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
                                             <h:outputText value="Name:" />
-                                            <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
+                                            <h:inputText value="#{repository.name}"/>
                                             <h:outputText value="Type:" />
                                             <h:selectOneMenu value="#{repository.type}">
                                                 <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
@@ -339,9 +335,9 @@
                                                 <f:ajax event="change" execute="@form" render="repoInfoPanel" />
                                             </h:selectBooleanCheckbox>
                                             <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
-                                            <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
+                                            <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}"/>
                                             <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
-                                            <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
+                                            <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}"/>
                                         </h:panelGrid>
                                         </td>
                                         <td class="repositoryConfigButton">
