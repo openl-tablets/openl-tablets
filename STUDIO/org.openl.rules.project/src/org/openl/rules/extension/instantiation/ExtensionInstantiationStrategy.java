@@ -1,16 +1,14 @@
 package org.openl.rules.extension.instantiation;
 
-import java.io.File;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
+import org.openl.rules.project.model.Extension;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +19,15 @@ public class ExtensionInstantiationStrategy extends SingleModuleInstantiationStr
      * Rules engine factory for module that contains only Excel file.
      */
     private ExtensionEngineFactory<?> engineFactory;
-    private final String openlName;
+    private final Extension extension;
 
     public ExtensionInstantiationStrategy(Module module,
             boolean executionMode,
             IDependencyManager dependencyManager,
             ClassLoader classLoader,
-            String openlName) {
+            Extension extension) {
         super(module, executionMode, dependencyManager, classLoader);
-        this.openlName = openlName;
+        this.extension = extension;
     }
 
     @Override
@@ -75,10 +73,13 @@ public class ExtensionInstantiationStrategy extends SingleModuleInstantiationStr
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
                 .equals(serviceClass))) {
-            File sourceFile = new File(getModule().getRulesRootPath().getPath());
-            IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
+            IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory.getExtensionDescriptor(extension,
+                    getClassLoader());
+
+            IOpenSourceCodeModule source = extensionDescriptor.getSourceCode(getModule());
             source.setParams(prepareExternalParameters());
 
+            String openlName = extensionDescriptor.getOpenLName();
             engineFactory = new ExtensionEngineFactory<Object>(openlName, source, serviceClass);
 
             // Information for interface generation, if generation required.

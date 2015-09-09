@@ -10,8 +10,6 @@ import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTableHelper;
-import org.openl.rules.extension.load.IExtensionLoader;
-import org.openl.rules.extension.load.NameConventionLoaderFactory;
 import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -56,8 +54,6 @@ public class XlsLoader {
 
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
-    private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
-
     private HashSet<String> preprocessedWorkBooks = new HashSet<String>();
 
     private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
@@ -81,10 +77,6 @@ public class XlsLoader {
         errors.add(error);
     }
 
-    public void addExtensionNode(IdentifierNode node) {
-        extensionNodes.add(node);
-    }
-
     public Set<String> getPreprocessedWorkBooks() {
         return preprocessedWorkBooks;
     }
@@ -100,8 +92,8 @@ public class XlsLoader {
                 source,
                 openl,
                 vocabulary,
-                Collections.unmodifiableCollection(imports),
-                extensionNodes);
+                Collections.unmodifiableCollection(imports)
+        );
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
@@ -147,17 +139,9 @@ public class XlsLoader {
                 // methods
                 // ignore comment
             } else {
-                // TODO: why do we consider everything else an extension?
-                IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
-
-                if (loader != null) {
-                    loader.process(this, tableSyntaxNode, row.getSource(), source);
-                } else {
-                    String message = String.format("Error in Environment table: can't find extension loader for '%s' keyword",
-                            name);
-                    log.warn(message);
-                    OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
-                }
+                String message = String.format("Error in Environment table: unrecognized keyword '%s'", name);
+                log.warn(message);
+                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
             }
         }
     }
