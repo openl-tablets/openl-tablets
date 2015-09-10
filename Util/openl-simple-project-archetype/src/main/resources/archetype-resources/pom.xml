@@ -1,19 +1,21 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openl.example</groupId>
-    <artifactId>openl-simple-project</artifactId>
-    <version>2.0</version>
+    <groupId>\${groupId}</groupId>
+    <artifactId>\${artifactId}</artifactId>
+    <version>\${version}</version>
     <packaging>jar</packaging>
     <name>OpenL Simple Project</name>
     <properties>
-        <openl.rules.version>${openlVersion}</openl.rules.version>
-        <package>com.example.openl</package> <!-- A fix to resolve issue with archetype filtering in this pom.xml -->
+        <openl.rules.version>${project.version}</openl.rules.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
-            <version>${openl.rules.version}</version>
+            <version>${symbol_dollar}{openl.rules.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -31,7 +33,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.build.directory}/generated-sources/wrappers</source>
+                                <source>${symbol_dollar}{project.build.directory}/generated-sources/wrappers</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -49,22 +51,22 @@
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>${openl.rules.version}</version>
+                <version>${symbol_dollar}{openl.rules.version}</version>
                 <configuration>
                     <!-- Project name. -->
                     <projectName>OpenL Rules Simple Project</projectName>
                     <!-- Project's classpath. -->
                     <classpaths>
                         <param>.</param>
-                        <param>lib/${project.build.finalName}.jar</param>
+                        <param>lib/${symbol_dollar}{project.build.finalName}.jar</param>
                     </classpaths>
                     <!-- OpenL project includes one or more modules. -->
                     <generateInterfaces>
                         <generateInterface>
                             <displayName>Template Rules</displayName>
                             <targetClass>${package}.Wrapper</targetClass>
-                            <targetSrcDir>${project.build.directory}/generated-sources/wrappers</targetSrcDir>
-                            <resourcesPath>${project.basedir}/src/main/openl</resourcesPath>
+                            <targetSrcDir>${symbol_dollar}{project.build.directory}/generated-sources/wrappers</targetSrcDir>
+                            <resourcesPath>${symbol_dollar}{project.basedir}/src/main/openl</resourcesPath>
                             <!-- Rules root document. Usually excel file on file system. -->
                             <srcFile>rules/TemplateRules.xls</srcFile>
                         </generateInterface>

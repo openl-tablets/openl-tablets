@@ -1,10 +1,13 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
 OpenL simple project.
 
 PROJECT STRUCTURE
 
 Project structure uses default Maven project structure and contains the following files:
 
-        |-- openl-simple-project                        Project root folder
+        |-- ${artifactId}                        Project root folder
            |-- pom.xml                                  Maven project file
            |
            |-- assembly                                 Maven assembly plugin configurations
@@ -15,7 +18,7 @@ Project structure uses default Maven project structure and contains the followin
            |  |-- main
            |     |
            |     |-- java
-           |     |  |-- com.example.openl
+           |     |  |-- ${package}
            |     |     |-- Main.java                    Sample class which uses wrapper class
            |     |
            |     |-- openl                              This folder contains all OpenL-related resources (rules, xml etc.)
@@ -28,7 +31,7 @@ Project structure uses default Maven project structure and contains the followin
            |        |-- start.sh                        Script that runs the Main class for Linux
            |
            |-- target/generated-sources/wrappers
-              |-- com.example.openl
+              |-- ${package}
                  |-- Wrapper.java                       An interface class which holds rules method definitions,WRAPPER CLASS
                                                         generated in openl:generate maven goal, used in Main.java
 
