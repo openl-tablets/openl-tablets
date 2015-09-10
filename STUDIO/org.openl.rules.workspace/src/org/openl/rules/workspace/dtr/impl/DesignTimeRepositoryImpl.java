@@ -60,7 +60,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
         return rulesRepository;
     }
-    private void init() {
+    private synchronized void init() {
+        if (rulesRepository != null) {
+            return;
+        }
         try {
             repFactory = createConnection(config);
             rulesRepository = repFactory.getRepositoryInstance();
@@ -349,7 +352,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     /**
      * destroy-method
      */
-    public void destroy() throws Exception {
+    public synchronized void destroy() throws Exception {
         if (rulesRepository != null) {
             rulesRepository.removeRepositoryListener(this);
             rulesRepository.release();
