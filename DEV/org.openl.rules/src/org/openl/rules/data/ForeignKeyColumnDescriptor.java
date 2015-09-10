@@ -2,7 +2,12 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -48,6 +53,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private String[] foreignKeyColumnChainTokens = {};
 
     private ICell foreignKeyCell;
+    
+    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
 
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
@@ -372,7 +379,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             try {
                                 Object result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                                 ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
-                                if (chainRes.instanceClass.isArray()) {
+                                if (chainRes.instanceClass.isArray()) { 
                                     String message = String.format("Wrong types: Field '%s' has type [%s], but tried to convert into [%s]",
                                             getField().getName(),
                                             getField().getType(),
@@ -461,6 +468,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              */
         }
     }
+    
+    private static int getArrayIndex(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
+
+        return Integer.parseInt(txtIndex);
+    }
+
+    private static String getArrayName(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        return fieldName.substring(0, fieldName.indexOf("["));
+    }
 
     private ResultChainObject getChainObject(Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
         Object resObj = parentObj;
@@ -474,14 +493,34 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         resInctClass);
                 throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
+            
+            boolean arrayAccess = token.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
+            
             try {
-                Method method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
+                Method method = null; 
+                Object prevResObj = resObj;
+                if (arrayAccess){
+                    method = resObj.getClass().getMethod(StringTool.getGetterName(getArrayName(token)));
+                }else{
+                    method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
+                }
                 resObj = method.invoke(resObj);
-
+                
                 /*Get null object information from method description*/
                 if (resObj == null) {
-                    resInctClass = method.getReturnType();
+                    if (arrayAccess){
+                        String message = String.format("Incorrect array access in field '%s' of type [%s]",
+                            token.getIdentifier(),
+                            prevResObj.getClass());
+                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                    }else{
+                        resInctClass = method.getReturnType();
+                    }
                 } else {
+                    if (arrayAccess){
+                        int arrayIndex = getArrayIndex(token);
+                        resObj = Array.get(resObj, arrayIndex);
+                    }
                     resInctClass = resObj.getClass();
                 }
             } catch (Exception e) {
