@@ -257,7 +257,7 @@ public class XmlRulesParser extends ExtensionParser {
             }
             int tableRow = gridBuilder.getRow();
 
-            String tableType = "Rules";
+            String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
             StringBuilder header = new StringBuilder();
             String returnType = table.getReturnType();
             if (StringUtils.isBlank(returnType)) {
@@ -282,38 +282,6 @@ public class XmlRulesParser extends ExtensionParser {
                 gridBuilder.addCell(header.toString(), tableWidth);
                 gridBuilder.nextRow();
                 headerHeight++;
-
-                for (int i = 0; i < table.getVerticalConditions().size(); i++) {
-                    gridBuilder.addCell("C" + (i + 1));
-                }
-                for (int i = 0; i < table.getHorizontalConditions().size(); i++) {
-                    gridBuilder.addCell("HC" + (i + 1));
-                }
-                gridBuilder.addCell("RET");
-                gridBuilder.nextRow();
-                headerHeight++;
-
-                for (ParameterImpl parameter : table.getParameters()) {
-                    gridBuilder.addCell(parameter.getName());
-                }
-                gridBuilder.nextRow();
-                headerHeight++;
-
-                for (ParameterImpl parameter : table.getParameters()) {
-                    String type = parameter.getType();
-                    if (StringUtils.isBlank(type)) {
-                        type = "String";
-                    }
-                    if ("Double".equals(type)) {
-                        type = "DoubleRange";
-                    }
-                    if ("Integer".equals("type")) {
-                        type = "IntRange";
-                    }
-                    gridBuilder.addCell(type);
-                }
-                gridBuilder.nextRow();
-                headerHeight++;
             }
 
             int startColumn = gridBuilder.getStartColumn();
@@ -336,7 +304,7 @@ public class XmlRulesParser extends ExtensionParser {
             if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
                 if (isSimpleRules) {
                     for (Parameter parameter : table.getParameters()) {
-                        gridBuilder.addCell(parameter.getName());
+                        gridBuilder.addCell(parameter.getName().toUpperCase());
                     }
                     gridBuilder.addCell("Return");
                     gridBuilder.nextRow();
@@ -349,10 +317,10 @@ public class XmlRulesParser extends ExtensionParser {
                         }
                         Parameter parameter = parameters.get(i);
                         gridBuilder.setCell(gridBuilder.getColumn(),
-                                tableRow + 4,
+                                tableRow + 1,
                                 1,
                                 table.getHorizontalConditions().size(),
-                                parameter.getName());
+                                parameter.getName().toUpperCase());
                         headerWidth++;
                     }
                 }
@@ -497,7 +465,7 @@ public class XmlRulesParser extends ExtensionParser {
 
         List<List<String>> conditions = new ArrayList<List<String>>();
         List<String> columnNumbers = new ArrayList<String>();
-        columnNumbers.add("Row");
+        columnNumbers.add("-");
         conditions.add(columnNumbers);
         for (LazyCells cells : sheet.getCells()) {
             for (Cell cell : cells.getCells()) {
@@ -568,10 +536,7 @@ public class XmlRulesParser extends ExtensionParser {
 
     private void addCells(StringGridBuilder gridBuilder, String cellsOnSheetName, List<List<String>> conditions) {
         int columnsCount = conditions.get(0).size();
-        gridBuilder.addCell("Rules String " + cellsOnSheetName + "(String row, String column)", columnsCount).nextRow();
-        gridBuilder.addCell("C1").addCell("HC1").addCell("RET").nextRow();
-        gridBuilder.addCell("row").addCell("column").nextRow();
-        gridBuilder.addCell("String").addCell("String").nextRow();
+        gridBuilder.addCell("SimpleLookup String " + cellsOnSheetName + "(String row, String column)", columnsCount).nextRow();
 
         for (List<String> row : conditions) {
             for (String cell : row) {
