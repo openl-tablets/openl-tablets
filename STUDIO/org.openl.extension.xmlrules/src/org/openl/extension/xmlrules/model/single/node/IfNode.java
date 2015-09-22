@@ -70,6 +70,7 @@ public class IfNode extends Node {
 
     @Override
     public String toOpenLString() {
-        return "(" + condition.toOpenLString() + "?" + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
+        String conditionCast = condition instanceof RangeNode ? "(Boolean) " : "";
+        return "(" + conditionCast + condition.toOpenLString() + "?" + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
     }
 }

@@ -29,7 +29,6 @@ public class RangeNode extends Node {
     @Override
     public String toOpenLString() {
         String cell = CellReference.parse(currentWorkbook, currentSheet, range).getStringValue();
-        // FIXME Remove this cast to String
-        return String.format("(String) Cell(\"%s\")", cell);
+        return String.format("Cell(\"%s\")", cell);
     }
 }

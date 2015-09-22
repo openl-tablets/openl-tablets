@@ -62,6 +62,8 @@ public class ExpressionNode extends Node {
     @Override
     public String toOpenLString() {
         // TODO Support fixed number of Excel operators
-        return leftNode.toOpenLString() + " " + operator + " " + rightNode.toOpenLString();
+        String leftCast = leftNode instanceof RangeNode ? "(String) " : "";
+        String rightCast = rightNode instanceof RangeNode ? " (String) " : "";
+        return leftCast + leftNode.toOpenLString() + " " + operator + rightCast + rightNode.toOpenLString();
     }
 }
