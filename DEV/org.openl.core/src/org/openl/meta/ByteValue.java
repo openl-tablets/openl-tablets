@@ -281,12 +281,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return new org.openl.meta.ByteValue(new ByteValue(v), value2, Operators.add(v, value2.getValue()),
             Formulas.ADD);
     }
-    
-    public static byte add(String x, byte y) {
-        return (byte) (y + Byte.valueOf(x));
-    }
 
-    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.ByteValue

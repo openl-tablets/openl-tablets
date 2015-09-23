@@ -86,10 +86,6 @@ public class Operators {
         return x + y;
     }
 
-    public static String add(String x, Double y) {
-        return x + y;
-    }
-
     public static String add(String x, Object y) {
         return x + y;
     }
