@@ -252,36 +252,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     //ADD
-    public static ByteValue add(ByteValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new ByteValue(Byte.valueOf(value2));
-        }
-        
-        byte v = Byte.valueOf(value2);
-
-        return new org.openl.meta.ByteValue(value1, new ByteValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
-    }
-    
-    public static ByteValue add(String value1, ByteValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new ByteValue(Byte.valueOf(value1));
-        }
-        
-        byte v = Byte.valueOf(value1);
-        
-        return new org.openl.meta.ByteValue(new ByteValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
-    }
-
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.ByteValue

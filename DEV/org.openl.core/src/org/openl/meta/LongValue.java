@@ -253,36 +253,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     //ADD
-    public static LongValue add(LongValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new LongValue(Long.valueOf(value2));
-        }
-        
-        long v = Long.valueOf(value2);
-
-        return new org.openl.meta.LongValue(value1, new LongValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
-    }
-    
-    public static LongValue add(String value1, LongValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new LongValue(Long.valueOf(value1));
-        }
-        
-        long v = Long.valueOf(value1);
-        
-        return new org.openl.meta.LongValue(new LongValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
-    }   
-    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.LongValue
