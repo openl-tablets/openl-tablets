@@ -254,36 +254,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     //ADD
-    public static FloatValue add(FloatValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new FloatValue(Float.valueOf(value2));
-        }
-        
-        float v = Float.valueOf(value2);
-
-        return new org.openl.meta.FloatValue(value1, new FloatValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
-    }
-    
-    public static FloatValue add(String value1, FloatValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new FloatValue(Float.valueOf(value1));
-        }
-        
-        float v = Float.valueOf(value1);
-        
-        return new org.openl.meta.FloatValue(new FloatValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
-    }   
-    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.FloatValue

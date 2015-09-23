@@ -252,36 +252,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     //ADD
-    public static BigDecimalValue add(BigDecimalValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new BigDecimalValue(new BigDecimal(value2));
-        }
-        
-        BigDecimal v = new BigDecimal(value2);
-
-        return new org.openl.meta.BigDecimalValue(value1, new BigDecimalValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
-    }
-    
-    public static BigDecimalValue add(String value1, BigDecimalValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new BigDecimalValue(new BigDecimal(value1));
-        }
-        
-        BigDecimal v = new BigDecimal(value1);
-        
-        return new org.openl.meta.BigDecimalValue(new BigDecimalValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
-    }
-    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.BigDecimalValue

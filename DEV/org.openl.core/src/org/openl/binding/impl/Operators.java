@@ -101,68 +101,68 @@ public class Operators {
     }
     
     //Add for Strings
-    public static byte add(byte x, String y) {
-        return (byte) (x + Byte.valueOf(y));
+    public static String add(byte x, String y) {
+        return x + y;
     }
     
-    public static byte add(String x, byte y) {
-        return (byte) (y + Byte.valueOf(x));
+    public static String add(String x, byte y) {
+        return x + y;
     }
     
-    public static short add(short x, String y) {
-        return (short) (x + Short.valueOf(y));
+    public static String add(short x, String y) {
+        return x + y;
     }
     
-    public static short add(String x, short y) {
-        return (short) (y + Short.valueOf(x));
+    public static String add(String x, short y) {
+        return x + y;
     }
 
-    public static int add(int x, String y) {
-        return (int) (x + Integer.valueOf(y));
+    public static String add(int x, String y) {
+        return x + y;
     }
     
-    public static int add(String x, int y) {
-        return (int) (y + Integer.valueOf(x));
+    public static String add(String x, int y) {
+        return x + y;
     }
     
-    public static long add(long x, String y) {
-        return (long) (x + Long.valueOf(y));
+    public static String add(long x, String y) {
+        return x + y;
     }
     
-    public static long add(String x, long y) {
-        return y + Long.valueOf(x);
+    public static String add(String x, long y) {
+        return x + y;
     }
     
-    public static float add(float x, String y) {
-        return x + Float.valueOf(y);
+    public static String add(float x, String y) {
+        return x + y;
     }
     
-    public static float add(String x, float y) {
-        return (y + Float.valueOf(x));
+    public static String add(String x, float y) {
+        return x + y;
     }
 
-    public static double add(double x, String y) {
-        return x + Double.valueOf(y);
+    public static String add(double x, String y) {
+        return x + y;
     }
     
-    public static double add(String x, double y) {
-        return y + Double.valueOf(x);
+    public static String add(String x, double y) {
+        return x + y;
     }
     
-    public static BigInteger add(String x, BigInteger y) {
-        return new BigInteger(x).add(y);
+    public static String add(String x, BigInteger y) {
+        return x + y;
     }
     
-    public static BigInteger add(BigInteger x, String y) {
-        return new BigInteger(y).add(x);
+    public static String add(BigInteger x, String y) {
+        return x + y;
     }
 
-    public static BigDecimal add(String x, BigDecimal y) {
-        return new BigDecimal(x).add(y);
+    public static String add(String x, BigDecimal y) {
+        return x + y;
     }
     
-    public static BigDecimal add(BigDecimal x, String y) {
-        return new BigDecimal(y).add(x);
+    public static String add(BigDecimal x, String y) {
+        return x + y;
     }
 
     // Subtract

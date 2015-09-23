@@ -252,36 +252,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     //ADD
-    public static IntValue add(IntValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new IntValue(Integer.valueOf(value2));
-        }
-        
-        int v = Integer.valueOf(value2);
-
-        return new org.openl.meta.IntValue(value1, new IntValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
-    }
-    
-    public static IntValue add(String value1, IntValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new IntValue(Integer.valueOf(value1));
-        }
-        
-        int v = Integer.valueOf(value1);
-        
-        return new org.openl.meta.IntValue(new IntValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
-    }    
-    
      /**
      * Adds left hand operand to right hand operand
      * @param value1 org.openl.meta.IntValue
