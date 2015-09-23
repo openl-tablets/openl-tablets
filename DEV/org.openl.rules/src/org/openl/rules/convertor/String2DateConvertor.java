@@ -1,13 +1,13 @@
 package org.openl.rules.convertor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class String2DateConvertor implements IString2DataConvertor<Date> {
 
@@ -16,15 +16,20 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
 
     @Override
     public String format(Date data, String format) {
-        if (data == null) return null;
+        if (data == null) {
+            return null;
+        }
         DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
         return df.format(data);
     }
 
     @Override
     public Date parse(String data, String format) {
-        if (data == null) return null;
-        if (data.length() == 0) throw new IllegalArgumentException("Cannot convert an empty String to date type");
+        if (data == null) {
+            return null;
+        }
+        if (data.length() == 0)
+            throw new IllegalArgumentException("Cannot convert an empty String to date type");
 
         DateFormat df;
         if (format == null) {
@@ -33,6 +38,8 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             df = new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
         }
         df.setLenient(false);
+        df.getCalendar().set(0, 0, 0, 0, 0, 0);
+        df.getCalendar().set(Calendar.MILLISECOND, 0);
 
         try {
             return df.parse(data);
