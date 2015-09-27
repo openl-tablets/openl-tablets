@@ -315,12 +315,38 @@ public class FileUtils {
     }
 
     /**
+     * Gets the name minus the path from a full filename.
+     * <p>
+     * This method will handle a file in either Unix or Windows format. The text
+     * after the last forward or backslash is returned.
+     * 
+     * <pre>
+     * a/b/c.txt --> c.txt
+     * a.txt     --> a.txt
+     * a/b/c     --> c
+     * a/b/c/    --> ""
+     * </pre>
+     * <p>
+     *
+     * @param filename the filename to query, null returns null
+     * @return the name of the file without the path, or an empty string if none
+     *         exists
+     */
+    public static String getName(String filename) {
+        if (filename == null) {
+            return null;
+        }
+        int sep = getSeparatorIndex(filename);
+        return filename.substring(sep + 1);
+    }
+
+    /**
      * Gets the base name, minus the full path and extension, from a full
      * filename.
      * <p/>
      * This method will handle a file in either Unix or Windows format. The text
      * after the last forward or backslash and before the last dot is returned.
-     * 
+     *
      * <pre>
      * a/b/c.txt --> c
      * a.b.txt   --> a.b
@@ -337,14 +363,54 @@ public class FileUtils {
         if (filename == null) {
             return null;
         }
-        int winSep = filename.lastIndexOf('\\');
-        int unixSep = filename.lastIndexOf('/');
+
         int dot = filename.lastIndexOf('.');
-        int sep = winSep > unixSep ? winSep : unixSep;
+        int sep = getSeparatorIndex(filename);
         if (dot > sep) {
             return filename.substring(sep + 1, dot);
         } else {
             return filename.substring(sep + 1);
         }
+    }
+
+    /**
+     * Removes the extension from a filename.
+     * <p>
+     * This method returns the textual part of the filename before the last dot.
+     * There must be no directory separator after the dot.
+     * 
+     * <pre>
+     * foo.txt    --> foo
+     * a\b\c.jpg  --> a\b\c
+     * a\b\c      --> a\b\c
+     * a.b\c      --> a.b\c
+     * </pre>
+     * <p>
+     *
+     * @param filename the filename to query, null returns null
+     * @return the filename minus the extension
+     */
+    public static String removeExtension(String filename) {
+        if (filename == null) {
+            return null;
+        }
+
+        int dot = filename.lastIndexOf('.');
+        if (dot == -1) {
+            return filename;
+        }
+
+        int sep = getSeparatorIndex(filename);
+        if (sep > dot) {
+            return filename;
+        } else {
+            return filename.substring(0, dot);
+        }
+    }
+
+    private static int getSeparatorIndex(String filename) {
+        int winSep = filename.lastIndexOf('\\');
+        int unixSep = filename.lastIndexOf('/');
+        return winSep > unixSep ? winSep : unixSep;
     }
 }
