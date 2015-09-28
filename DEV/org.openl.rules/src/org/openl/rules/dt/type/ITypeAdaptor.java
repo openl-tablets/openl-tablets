@@ -59,6 +59,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return sb.toString();
         }
 
+		@Override
+		public Class<String> getTargetType() {
+			return String.class;
+		}
+
     };
 
     static public ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
@@ -72,6 +77,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             }
             return (byte) (value + 1);
         }
+
+		@Override
+		public Class<Byte> getTargetType() {
+			return Byte.class;
+		}
 
     };
 
@@ -96,6 +106,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return (byte) (value + 1);
         }
 
+		@Override
+		public Class<Byte> getTargetType() {
+			return Byte.class;
+		}
+
     };
 
     static public ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
@@ -110,6 +125,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
             return (short) (value + 1);
         }
+
+		@Override
+		public Class<Short> getTargetType() {
+			return Short.class;
+		}
     };
 
     static public ITypeAdaptor<ShortValue, Short> SHORT_VALUE = new NumberTypeAdaptor<ShortValue, Short>() {
@@ -132,6 +152,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
             return (short) (value + 1);
         }
+
+		@Override
+		public Class<Short> getTargetType() {
+			return Short.class;
+		}
     };
 
     static public ITypeAdaptor<Long, Long> LONG = new NumberTypeAdaptor<Long, Long>() {
@@ -146,6 +171,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             }
             return value + 1;
         }
+
+		@Override
+		public Class<Long> getTargetType() {
+			return Long.class;
+		}
 
     };
 
@@ -171,6 +201,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + 1;
         }
 
+		@Override
+		public Class<Long> getTargetType() {
+			return Long.class;
+		}
+
     };
 
     static public ITypeAdaptor<Double, Double> DOUBLE = new NumberTypeAdaptor<Double, Double>() {
@@ -185,6 +220,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             }
             return value + Math.ulp(value);
         }
+
+		@Override
+		public Class<Double> getTargetType() {
+			return Double.class;
+		}
 
     };
 
@@ -209,6 +249,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + Math.ulp(value);
         }
 
+		@Override
+		public Class<Double> getTargetType() {
+			return Double.class;
+		}
+
     };
 
     static public ITypeAdaptor<Float, Float> FLOAT = new NumberTypeAdaptor<Float, Float>() {
@@ -224,6 +269,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + Math.ulp(value);
         }
 
+		@Override
+		public Class<Float> getTargetType() {
+			return Float.class;
+		}
+
     };
 
     static public ITypeAdaptor<BigInteger, BigInteger> BIGINTEGER = new NumberTypeAdaptor<BigInteger, BigInteger>() {
@@ -232,6 +282,10 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value.add(BigInteger.ONE);
         }
 
+		@Override
+		public Class<BigInteger> getTargetType() {
+			return BigInteger.class;
+		}
     };
 
     static public ITypeAdaptor<BigIntegerValue, BigInteger> BIGINTEGER_VALUE = new NumberTypeAdaptor<BigIntegerValue, BigInteger>() {
@@ -247,6 +301,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         public BigInteger increment(BigInteger value) {
             return value.add(BigInteger.ONE);
         }
+
+		@Override
+		public Class<BigInteger> getTargetType() {
+			return BigInteger.class;
+		}
     };
 
     static public ITypeAdaptor<BigDecimal, BigDecimal> BIGDECIMAL = new NumberTypeAdaptor<BigDecimal, BigDecimal>() {
@@ -254,6 +313,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         public BigDecimal increment(BigDecimal value) {
             return value.add(value.ulp());
         }
+
+		@Override
+		public Class<BigDecimal> getTargetType() {
+			return BigDecimal.class;
+		}
 
     };
 
@@ -270,6 +334,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         public BigDecimal increment(BigDecimal value) {
             return value.add(value.ulp());
         }
+
+		@Override
+		public Class<BigDecimal> getTargetType() {
+			return BigDecimal.class;
+		}
     };
 
     static public ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
@@ -293,6 +362,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + Math.ulp(value);
         }
 
+		@Override
+		public Class<Float> getTargetType() {
+			return Float.class;
+		}
+
     };
 
     static public ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
@@ -307,6 +381,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             }
             return value + 1;
         }
+
+		@Override
+		public Class<Integer> getTargetType() {
+			return Integer.class;
+		}
 
     };
 
@@ -331,6 +410,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + 1;
         }
 
+		@Override
+		public Class<Integer> getTargetType() {
+			return Integer.class;
+		}
+
     };
 
     static public ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {
@@ -348,6 +432,13 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return value + 1;
         }
 
+		@Override
+		public Class<Integer> getTargetType() {
+			return Integer.class;
+		}
+
     };
+
+	public Class<C> getTargetType();
 
 }

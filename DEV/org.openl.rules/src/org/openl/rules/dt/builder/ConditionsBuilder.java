@@ -1,11 +1,10 @@
 package org.openl.rules.dt.builder;
 
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.validation.properties.dimentional.DispatcherTableColumnMaker;
-import org.openl.rules.validation.properties.dimentional.IDecisionTableColumn;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.validation.properties.dimentional.IDecisionTableColumn;
 
 /**
  * Aggregate builder to build the number of conditions to the source sheet. 
@@ -23,7 +22,6 @@ public class ConditionsBuilder implements IDecisionTableColumnBuilder {
     
     /**
      * Build the conditions to the sheet with the given number of rules and start writing from the given column index.
-     *
      * @param numberOfRules number of rules that will be written
      * @param columnStartIndex the index of the column on the sheet to start writing
      * @param sheet the place for writing conditions
@@ -45,16 +43,20 @@ public class ConditionsBuilder implements IDecisionTableColumnBuilder {
      * @param conditions
      */
     private void initConditionBuilders(List<IDecisionTableColumn> conditions) { 
-        int conditionNumber = 0;
+        int conditionsNumber = 0;
         conditionBuilders = new ArrayList<IDecisionTableColumnBuilder>();
         for (int i = 0; i < conditions.size(); i++) {
-            IDecisionTableColumn condition = conditions.get(i);
-            if (condition.getNumberOfLocalParameters() > 0) {
-                // Process only conditions that have local parameters, and skip others
+            if (conditions.get(i).getNumberOfLocalParameters() > 0) {
+                // process only conditions that have local parameters, other ones skip
                 //
-                conditionNumber++;
-                conditionBuilders.add(DispatcherTableColumnMaker.getConditionBuilder(condition, conditionNumber));
+                conditionsNumber++;
+                if (conditions.get(i).getNumberOfLocalParameters() > 1) {
+                    conditionBuilders.add(new ArrayConditionBuilder(conditions.get(i), conditionsNumber));
+                } else {
+                    conditionBuilders.add(new SimpleConditionBuilder(conditions.get(i), conditionsNumber));
+                }
             }
+            
         }
     }
 

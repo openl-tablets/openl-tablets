@@ -13,29 +13,29 @@ public class SimpleConditionBuilder extends AConditionBuilder {
     public SimpleConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {        
         super(condition, conditionNumber);
     }
-
-    protected void writeColumnType(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
+    
+    public void writeColumnType(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.COLUMN_TYPE_ROW_INDEX, 
             String.format("%s%s", getCondition().getColumnType(), getConditionNumber()));        
     }
-
-    protected void writeCodeExpression(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
+    
+    public void writeCodeExpression(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.CODE_EXPRESSION_ROW_INDEX, 
             getCondition().getCodeExpression());
     }
-
-    protected void writeParameterDeclaration(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
+    
+    public void writeParameterDeclaration(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX, 
             getCondition().getParameterDeclaration());
     }
-
-    protected void writeTitle(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
+    
+    public void writeTitle(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.CONDITION_TITLE_ROW_INDEX, 
             getCondition().getTitle());
     }
+    
 
-
-    protected void writeRuleValue(IWritableGrid sheet, int numberOfRules, int columnStartIndex, int rowStartIndex) {
+    public void writeRuleValue(IWritableGrid sheet, int numberOfRules, int columnStartIndex, int rowStartIndex) {
         for (int i = 0; i < numberOfRules; i++) {
             sheet.setCellValue(columnStartIndex, rowStartIndex + 
                 DecisionTableBuilder.DECISION_TABLE_HEADER_ROWS_NUMBER + i, 

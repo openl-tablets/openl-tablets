@@ -8,7 +8,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.data.IDataBase;
-import org.openl.rules.dt2.DecisionTable;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;

@@ -44,4 +44,9 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
 		return false;
 	}
 
+	@Override
+	public Class<?> getIndexType() {
+		return Integer.class;
+	}
+
 }

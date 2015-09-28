@@ -30,7 +30,7 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
-import org.openl.rules.dt2.DecisionTable;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;

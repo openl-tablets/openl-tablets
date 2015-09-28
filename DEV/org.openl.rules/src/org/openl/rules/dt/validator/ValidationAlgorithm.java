@@ -36,7 +36,6 @@ import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTable
 public class ValidationAlgorithm {
 
     private IDecisionTableValidatedObject decisionTableToValidate;
-    private ICondition[] originalDecisionTableConditions;
     private IntExpArray vars;
     private OpenL openl;
 
@@ -44,7 +43,6 @@ public class ValidationAlgorithm {
 
     public ValidationAlgorithm(IDecisionTableValidatedObject validatedObject, OpenL openl) {
         this.decisionTableToValidate = validatedObject;
-        this.originalDecisionTableConditions = validatedObject.getDecisionTable().getConditionRows();
         this.openl = openl;
     }
 
@@ -56,10 +54,11 @@ public class ValidationAlgorithm {
         DesionTableValidationResult result = null;
         
         if(canValidateDecisionTable(decisionTable, analyzer)) {
-            IOpenMethod[] methodsForConditionValidation = new IOpenMethod[originalDecisionTableConditions.length];
+        	int n = decisionTable.getNumberOfConditions();
+            IOpenMethod[] methodsForConditionValidation = new IOpenMethod[n];
 
-            for (int i = 0; i < originalDecisionTableConditions.length; i++) {
-                methodsForConditionValidation[i] = makeConditionMethod(originalDecisionTableConditions[i], analyzer);
+            for (int i = 0; i < n; i++) {
+                methodsForConditionValidation[i] = makeConditionMethod(decisionTable.getCondition(i), analyzer);
             }
 
             vars = makeVars(analyzer);
@@ -91,13 +90,15 @@ public class ValidationAlgorithm {
     private boolean canValidateDecisionTable(DecisionTable decisionTable, DecisionTableAnalyzer analyzer) {        
         
         // if there is no conditions in validated decision table, we don`t need to validate anything.
-        if (originalDecisionTableConditions.length == 0) {
+    	int ncond = decisionTable.getNumberOfConditions(); 
+        if (ncond == 0) {
             return false;
         }        
         
         // if any value of a condition contains OpenL formula, we don`t validate anything! (we don't know how to do it now)
-        for (ICondition condition : originalDecisionTableConditions) {
-            if (analyzer.containsFormula(condition)) {
+        
+        for (int i = 0; i < ncond ; ++i) {
+            if (analyzer.containsFormula(decisionTable.getCondition(i))) {
                 return false;
             }
         }
@@ -152,7 +153,7 @@ public class ValidationAlgorithm {
             expressions[i] = ruleExpression;
 
             for (int j = 0; j < methodsForConditionValidation.length; j++) {
-                ruleExpression[j] = makeExpression(i, originalDecisionTableConditions[j], analyzer, 
+                ruleExpression[j] = makeExpression(i, decisionTableToValidate.getDecisionTable().getCondition(j), analyzer, 
                         methodsForConditionValidation[j]);
             }
         }
@@ -160,12 +161,11 @@ public class ValidationAlgorithm {
         return expressions;
     }
 
-    private IntBoolExp makeExpression(int rule, ICondition conditionToValidate, DecisionTableAnalyzer analyzer, 
+    private IntBoolExp makeExpression(int ruleN, ICondition conditionToValidate, DecisionTableAnalyzer analyzer, 
             IOpenMethod methodForConditionValidation) {
         
-        Object[] values = conditionToValidate.getParamValues()[rule];
 
-        if (values == null) {
+        if (conditionToValidate.isEmpty(ruleN)) {
             return new IntBoolExpConst(constrainer, true);
         }
 
@@ -173,7 +173,7 @@ public class ValidationAlgorithm {
 
         Object[] args = new Object[paramsNum];
 
-        int tableArgsCount = paramsNum - values.length;
+        int tableArgsCount = paramsNum - conditionToValidate.getNumberOfParams();
 
         for (int i = 0; i < paramsNum; i++) {
 
@@ -182,7 +182,7 @@ public class ValidationAlgorithm {
             if (i < tableArgsCount) {
                 args[i] = findVar(vars, name);
             } else {
-                args[i] = transformValue(name, conditionToValidate, values[i - tableArgsCount], analyzer);
+                args[i] = transformValue(name, conditionToValidate, conditionToValidate.getParamValue(i - tableArgsCount, ruleN), analyzer);
             }
         }
 

@@ -8,7 +8,7 @@ import org.openl.types.impl.ParameterMethodCaller;
 
 public abstract class AConditionEvaluator implements IConditionEvaluator {
 
-    public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
+    public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined  {
         IMethodCaller mc = condition.getEvaluator();
         if (mc instanceof ParameterMethodCaller)
             return indexedDomain(condition);

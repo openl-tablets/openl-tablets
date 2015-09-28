@@ -6,12 +6,17 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.data.RuleExecutionObject;
+import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.*;
+import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
@@ -22,8 +27,8 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam = false;
     private IOpenClass ruleExecutionType;
 
-    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction) {
-        super(name, row, decisionTable);
+    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction, DTScale.RowScale scale) {
+        super(name, row, decisionTable, scale);
         this.isReturnAction = isReturnAction;
     }
 
@@ -39,24 +44,24 @@ public class Action extends FunctionalRow implements IAction {
         return isReturnAction;
     }
 
-    public Object executeAction(int column, Object target, Object[] params, IRuntimeEnv env) {
+    public Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
         if (target instanceof IDynamicObject) {
-            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, column);
+            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
         }
 
         if (isSingleReturnParam) {
 
-            Object[] values = getParamValues()[column];
 
-            if (values == null) {
+            if (isEmpty(ruleN)) {
                 return null;
             }
 
-            Object[] array = new Object[values.length];
-            RuleRowHelper.loadParams(array, 0, values, target, params, env);
+            Object[] dest = new Object[getNumberOfParams()];
+//            RuleRowHelper.loadParams(array, 0, values, target, params, env);
+            loadValues(dest, 0, ruleN, target, params, env);
 
-            Object returnValue = array[0];
+            Object returnValue = dest[0];
             IOpenMethod method = getMethod();
             IOpenClass returnType = method.getType();
 
@@ -74,27 +79,21 @@ public class Action extends FunctionalRow implements IAction {
             // has different type than return type of method. We should skip
             // optimization for this step and invoke method.
             //
-            return executeActionInternal(column, target, params, env);
+            return executeActionInternal(ruleN, target, params, env);
         }
 
-        return executeActionInternal(column, target, params, env);
+        return executeActionInternal(ruleN, target, params, env);
     }
 
-    private Object executeActionInternal(int ruleNum, Object target, Object[] params, IRuntimeEnv env) {
+    private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
-        Object[][] values = getParamValues();
 
-        if (values == null) {
+        if (isEmpty(ruleN)) {
             return null;
         }
 
-        Object value = getParamValues()[ruleNum];
 
-        if (value == null) {
-            return null;
-        }
-
-        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
+        return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
     public void prepareAction(IOpenClass methodType,
@@ -150,10 +149,11 @@ public class Action extends FunctionalRow implements IAction {
     @Override
     public void removeDebugInformation() {
         getMethod().removeDebugInformation();
-        Object[][] paramValues = getParamValues();
-        if (paramValues != null) {
-            for (Object[] paramValueColumn : paramValues) {
-                for (Object paramValue : paramValueColumn) {
+        if (storage != null) {
+            for(IStorage st: storage) {
+                int rules = st.size();
+                for (int i = 0; i < rules; i++) {
+                    Object paramValue = st.getValue(i);
                     if (paramValue instanceof CompositeMethod) {
                         ((CompositeMethod) paramValue).removeDebugInformation();
                     }
@@ -161,4 +161,5 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
     }
+
 }

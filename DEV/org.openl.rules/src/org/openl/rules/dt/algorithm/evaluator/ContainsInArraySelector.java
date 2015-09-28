@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import org.openl.domain.IIntSelector;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.util.ArrayTool;
 import org.openl.vm.IRuntimeEnv;
@@ -22,23 +21,21 @@ public class ContainsInArraySelector implements IIntSelector {
         this.target = target;
     }
 
-    public boolean select(int rule) {
+    public boolean select(int ruleN) {
 
-        Object[][] params = condition.getParamValues();
-        Object[] ruleParams = params[rule];
 
-        if (ruleParams == null) {
+        if (condition.isEmpty(ruleN)) {
             return true;
         }
 
-        Object[] realParams = new Object[params.length];
+        Object[] realParams = new Object[condition.getNumberOfParams()];
 
-        RuleRowHelper.loadParams(realParams, 0, ruleParams, target, this.params, env);
+        condition.loadValues(realParams, 0, ruleN, target, this.params, env);
 
-        if (ruleParams[0] == null) {
+        if (realParams[0] == null) {
             return true;
         }
 
-        return ArrayTool.contains(ruleParams[0], value);
+        return ArrayTool.contains(realParams[0], value);
     }
 }

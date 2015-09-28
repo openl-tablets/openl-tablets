@@ -3,7 +3,10 @@
  */
 package org.openl.rules.dt.index;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 
@@ -13,15 +16,15 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  */
 public abstract class ARuleIndex {
 	
-	boolean hasMetaInfo = false;
-
-    public boolean isHasMetaInfo() {
-		return hasMetaInfo;
-	}
-
-	public void setHasMetaInfo(boolean hasMetaInfo) {
-		this.hasMetaInfo = hasMetaInfo;
-	}
+//	boolean hasMetaInfo = false;
+//
+//    public boolean isHasMetaInfo() {
+//		return hasMetaInfo;
+//	}
+//
+//	public void setHasMetaInfo(boolean hasMetaInfo) {
+//		this.hasMetaInfo = hasMetaInfo;
+//	}
 
 	protected DecisionTableRuleNode emptyOrFormulaNodes;
 
@@ -46,5 +49,40 @@ public abstract class ARuleIndex {
     public abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
     public abstract Iterator<DecisionTableRuleNode> nodes();
+
+	public int[] collectRules() {
+		Set<Integer> set = new HashSet<Integer>();
+
+		for (Iterator<DecisionTableRuleNode> iterator = nodes(); iterator.hasNext();) {
+			DecisionTableRuleNode node = (DecisionTableRuleNode) iterator.next();
+			
+			int[] rules = node.getRules();
+			for (int i = 0; i < rules.length; i++) {
+				set.add(rules[i]);
+			}
+		} 
+	
+		if (emptyOrFormulaNodes != null)
+		{
+			int[] rules = emptyOrFormulaNodes.getRules();
+			for (int i = 0; i < rules.length; i++) {
+				set.add(rules[i]);
+			}
+			
+		}	
+		
+		
+		int[] res = new int[ set.size()];
+		
+		Iterator<Integer> it = set.iterator();
+		
+		for (int i = 0; i < res.length && it.hasNext(); i++) {
+			res[i] = it.next();
+		}
+		
+		Arrays.sort(res);
+		
+		return res;
+	}
 
 }

@@ -3,6 +3,7 @@ package org.openl.rules.dt;
 public enum DecisionTableColumnHeaders {
     CONDITION("C"),
     HORIZONTAL_CONDITION("HC"),
+    MERGED_CONDITION("MC"),
     ACTION("A"),
     RULE("RULE"),
     RETURN("RET");

@@ -8,7 +8,7 @@ import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.IAction;
+import org.openl.rules.dtx.IBaseAction;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -50,7 +50,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         IOpenMethod method = getJavaWrapper().getOpenClass()
                 .getMethod("testDT", new IOpenClass[] { JavaOpenClass.INT });
         TableSyntaxNode dispatcherTable = ((MatchingOpenMethodDispatcher) method).getDispatcherTable();
-        IAction returnColumn = ((DecisionTable) dispatcherTable.getMember()).getActionRows()[0];
+        IBaseAction returnColumn = ((DecisionTable) dispatcherTable.getMember()).getActionRows()[0];
         ICell firstMethodCell = returnColumn.getValueCell(0).getSource().getCell(0, 0);
         IOpenMethod firstMethodInOveloading = ((MethodUsage) firstMethodCell.getMetaInfo().getUsedNodes().get(0)).getMethod();
         ICell secondMethodCell = returnColumn.getValueCell(1).getSource().getCell(0, 0);

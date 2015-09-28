@@ -1,6 +1,6 @@
 package org.openl.rules.dt.data;
 
-import org.openl.rules.dt.element.IDecisionRow;
+import org.openl.rules.dtx.IBaseDecisionRow;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -8,10 +8,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConditionOrActionParameterField implements IOpenField {
 
-    private IDecisionRow conditionOrAction; 
+    private IBaseDecisionRow conditionOrAction; 
     private int paramNum;
     
-    public ConditionOrActionParameterField(IDecisionRow conditionOrAction, int paramNum) {
+    public ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
         super();
         this.conditionOrAction = conditionOrAction;
         this.paramNum = paramNum;
@@ -24,7 +24,7 @@ public class ConditionOrActionParameterField implements IOpenField {
         return params[paramNum];
     }
 
-    public IDecisionRow getConditionOrAction() {
+    public IBaseDecisionRow getConditionOrAction() {
         return conditionOrAction;
     }
 

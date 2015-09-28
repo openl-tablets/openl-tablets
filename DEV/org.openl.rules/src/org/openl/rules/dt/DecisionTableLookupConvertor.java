@@ -43,6 +43,7 @@ public class DecisionTableLookupConvertor {
     
     private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
     private ILogicalTable retTable;
+	private DTScale scale;
 
     public IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
         ILogicalTable headerRow = table.getRow(HEADER_ROW);
@@ -90,6 +91,9 @@ public class DecisionTableLookupConvertor {
         int retColumnStart = findRetColumnStart(headerRow);
         int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
         int retTableWidth = retTable.getSource().getWidth();
+        
+        
+        scale = new DTScale(lookupValuesTable.getHeight(), lookupValuesTable.getWidth()/retTableWidth);
         
         if (isRetLastColumn(retColumnStart, retTableWidth, firstEmptyCell)) {
             return new TwoDimensionDecisionTableTranformer(table.getSource(), lookupValuesTable, retTableWidth);
@@ -314,5 +318,10 @@ public class DecisionTableLookupConvertor {
 
         throw new OpenLCompilationException(String.format("Column %s must have width=%s", type, w));
     }
+
+
+	public DTScale getScale() {
+		return scale;
+	}
 
 }

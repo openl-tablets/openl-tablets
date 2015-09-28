@@ -12,7 +12,6 @@ import org.openl.rules.dt.index.TraceableEqualsIndex;
 import org.openl.rules.dt.index.TraceableRangeIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ChildTraceStack;
 import org.openl.vm.trace.TraceStack;
@@ -23,8 +22,8 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
     private final TraceStack conditionsStack;
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
-            TraceStack conditionsStack, IDecisionTableTraceObject baseTraceObject) {
-        super(delegate.getEvaluators(), delegate.getTable());
+            TraceStack conditionsStack, IDecisionTableTraceObject baseTraceObject, IndexInfo info) {
+        super(delegate.getEvaluators(), delegate.getTable(), info, delegate.getIndexRoot());
         this.algorithmDelegate = delegate;
         this.baseTraceObject = baseTraceObject;
         this.conditionsStack = conditionsStack;
@@ -50,9 +49,6 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
         return algorithmDelegate.getTable();
     }
 
-    public void buildIndex() throws SyntaxNodeException {
-        algorithmDelegate.buildIndexInternal(true);
-    }
 
     public void removeParamValuesForIndexedConditions() {
         algorithmDelegate.removeParamValuesForIndexedConditions();

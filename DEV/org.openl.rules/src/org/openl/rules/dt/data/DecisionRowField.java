@@ -22,12 +22,11 @@ public class DecisionRowField implements IOpenField {
     public Object get(Object target, IRuntimeEnv env) {
         RuleExecutionObject reo = (RuleExecutionObject)target;
         int ruleNum = reo.getRuleNum();
+
         
-        Object[] res = conditionOrAction.getParamValues()[ruleNum];
+        Object[] res = new Object[conditionOrAction.getNumberOfParams()]; 
+        conditionOrAction.loadValues(res, 0, ruleNum, target, null, env); //TODO does not work for methods in conditions!!!
         
-        if (res == null) {
-            res = new Object[conditionOrAction.getParams().length];
-        }
         
         return res;
     }
@@ -69,7 +68,7 @@ public class DecisionRowField implements IOpenField {
     }
 
     public String getName() {
-        return (SpreadsheetStructureBuilder.DOLLAR_SIGN + conditionOrAction.getName()).intern();
+        return SpreadsheetStructureBuilder.DOLLAR_SIGN + conditionOrAction.getName();
     }
 
 }

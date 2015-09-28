@@ -13,13 +13,13 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableLoader;
-import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dt.element.IAction;
-import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
+import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -140,7 +140,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private void removeDebugInformation(DecisionTable decisionTable, TableSyntaxNode tsn) {
         decisionTable.setBoundNode(null);
 
-        DecisionTableOptimizedAlgorithm algorithm = decisionTable.getAlgorithm();
+        IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
         if (algorithm != null) {
             algorithm.removeParamValuesForIndexedConditions();
         }
@@ -154,11 +154,11 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private void clearCompositeMethods(DecisionTable decisionTable) {
         // TODO consider more understandable implementation
-        for (ICondition condition : decisionTable.getConditionRows()) {
+        for (IBaseCondition condition : decisionTable.getConditionRows()) {
             condition.removeDebugInformation();
         }
 
-        for (IAction action : decisionTable.getActionRows()) {
+        for (IBaseAction action : decisionTable.getActionRows()) {
             action.removeDebugInformation();
         }
     }

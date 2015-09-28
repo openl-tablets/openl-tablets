@@ -36,7 +36,8 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
     private IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
-    int nparams; // 1 or 2
+ 
+	int nparams; // 1 or 2
 
     public RangeIndexedEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor, int nparams) {
         this.rangeAdaptor = adaptor;
@@ -72,7 +73,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     @SuppressWarnings("unchecked")
-    public ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator iterator) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
             return null;
@@ -90,7 +91,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
             int i = iterator.nextInt();
 
-            if (isEmptyParameter(indexedparams, i)) {
+            if (condition.isEmpty(i)) {
                 emptyBuilder.addRule(i);
                 continue;
             }
@@ -100,22 +101,22 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
             if (nparams == 2) {
                 if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) indexedparams[i][0];
-                    vTo = (Comparable<Object>) indexedparams[i][1];
+                    vFrom = (Comparable<Object>) condition.getParamValue(0, i);
+                    vTo = (Comparable<Object>) condition.getParamValue(1, i);
                 } else {
-                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
-                    vTo = rangeAdaptor.getMax(indexedparams[i][1]);
+                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, i));
+                    vTo = rangeAdaptor.getMax(condition.getParamValue(1, i));
                 }
             } else {
                 // adapt border values for usage in IntervalMap
                 // see IntervalMap description
                 //
                 if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) indexedparams[i][0];
-                    vTo = (Comparable<Object>) indexedparams[i][0];
+                    vFrom = (Comparable<Object>) condition.getParamValue(0, i);
+                    vTo = (Comparable<Object>) condition.getParamValue(0, i);
                 } else {
-                    vFrom = rangeAdaptor.getMin(indexedparams[i][0]);
-                    vTo = rangeAdaptor.getMax(indexedparams[i][0]);
+                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, i));
+                    vTo = rangeAdaptor.getMax(condition.getParamValue(0, i));
                 }
             }
             Integer v = Integer.valueOf(i);
@@ -207,6 +208,13 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         public boolean useOriginalSource() {
             throw new UnsupportedOperationException("Operation not supported!");
         }
+
+		@Override
+		public Class<?> getIndexType() {
+//			if (rangeAdaptor != null) 
+//					return rangeAdaptor.getIndexType(); 
+			throw new UnsupportedOperationException("getIndexType fpr empty rangeAdaptors") ;
+		}
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
@@ -222,9 +230,6 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return rulesIndexesArray;
     }
 
-    private boolean isEmptyParameter(Object[][] indexedparams, int i) {
-        return indexedparams[i] == null || indexedparams[i][0] == null;
-    }
 
     private int[] merge(Collection<Integer> collection, int[] rules) {
         if (collection.isEmpty()) {
@@ -266,7 +271,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return result;
     }
 
-    public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
+    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
@@ -274,14 +279,9 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
-        
-        
-        Object[][] params = ((ICondition)condition).getParamValues();
-        
-        
-        for (int i = 0; i < params.length; i++) {
-            Object[] pi = params[i];
-            if (pi == null)
+        int nRules = condition.getNumberOfRules();
+        for (int ruleN = 0; ruleN < nRules; ruleN++) {
+            if (condition.isEmpty(ruleN))
                 continue;
 
             Comparable<?> vFrom = null;
@@ -289,16 +289,17 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
             if (nparams == 2) {
                 if (rangeAdaptor == null) {
-                    vFrom = (Comparable<?>) pi[0];
-                    vTo = (Comparable<?>) pi[1];
+                    vFrom = (Comparable<?>) condition.getParamValue(0, ruleN);
+                    vTo = (Comparable<?>) condition.getParamValue(1, ruleN);
                 } else {
-                    vFrom = rangeAdaptor.getMin(pi[0]);
-                    vTo = rangeAdaptor.getMax(pi[1]);
+                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, ruleN));
+                    vTo = rangeAdaptor.getMax(condition.getParamValue(1, ruleN));
                 }
 
             } else {
-                vFrom = rangeAdaptor.getMin(pi[0]);
-                vTo = rangeAdaptor.getMax(pi[0]);
+            	Object range = condition.getParamValue(0, ruleN);
+                vFrom = rangeAdaptor.getMin(range);
+                vTo = rangeAdaptor.getMax(range);
             }
 
             if (!(vFrom instanceof Integer)) {
@@ -349,4 +350,13 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             return this.v.compareTo(o.v);
         }
     }
+    
+    public IRangeAdaptor<Object, ? extends Comparable<Object>> getRangeAdaptor() {
+ 		return rangeAdaptor;
+ 	}
+
+ 	public int getNparams() {
+ 		return nparams;
+ 	}
+    
 }
