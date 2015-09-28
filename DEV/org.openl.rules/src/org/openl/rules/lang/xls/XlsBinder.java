@@ -97,7 +97,6 @@ public class XlsBinder implements IOpenBinder {
     private static final String[][] BINDERS = {{XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_DT.toString(), USE_DT2_ONLY ? org.openl.rules.dt2.DecisionTableNodeBinder.class.getName() :  org.openl.rules.dt.DecisionTableNodeBinder.class.getName()},
-            {XlsNodeTypes.XLS_DT2.toString(), org.openl.rules.dt2.DecisionTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName()},
@@ -592,7 +591,6 @@ public class XlsBinder implements IOpenBinder {
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode){
         return tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT ||
-                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT2 ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_TBASIC ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_METHOD ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_COLUMN_MATCH ||

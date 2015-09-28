@@ -19,8 +19,6 @@ public enum XlsNodeTypes {
     
     // executable tables
     XLS_DT("xls.dt"),
-    XLS_DT2("xls.dt2"), //temporary adding new DT implementation
-    
     XLS_SPREADSHEET("xls.spreadsheet"),
     XLS_TBASIC("xls.tbasic"),
     XLS_COLUMN_MATCH("xls.columnmatch"),
