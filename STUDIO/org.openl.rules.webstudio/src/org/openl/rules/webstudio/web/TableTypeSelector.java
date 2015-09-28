@@ -6,7 +6,7 @@ import org.openl.util.ASelector;
 
 /**
  * Handles array of table types (e.g. rules, spreadsheet, etc. see
- * {@code ITableNodeTypes} constant for supported types). Checks if given table
+ * {@code XlsNodeTypes} constant for supported types). Checks if given table
  * type exists in current array.
  *
  * @author snshor
