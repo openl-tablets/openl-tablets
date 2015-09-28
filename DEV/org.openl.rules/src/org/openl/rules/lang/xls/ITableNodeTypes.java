@@ -33,7 +33,6 @@ public interface ITableNodeTypes {
     String XLS_DATATYPE = XlsNodeTypes.XLS_DATATYPE.toString();
     String XLS_OPENL = XlsNodeTypes.XLS_OPENL.toString();
     String XLS_ENVIRONMENT = XlsNodeTypes.XLS_ENVIRONMENT.toString();
-    String XLS_PERSISTENT = XlsNodeTypes.XLS_PERSISTENT.toString();
     String XLS_OTHER = XlsNodeTypes.XLS_OTHER.toString();
     String XLS_PROPERTIES = XlsNodeTypes.XLS_PROPERTIES.toString();
 }
