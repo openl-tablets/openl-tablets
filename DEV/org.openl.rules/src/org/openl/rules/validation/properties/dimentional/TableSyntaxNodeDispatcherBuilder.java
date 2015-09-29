@@ -20,7 +20,6 @@ import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -41,7 +40,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -157,29 +155,11 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private void clearCompositeMethods(DecisionTable decisionTable) {
         // TODO consider more understandable implementation
         for (ICondition condition : decisionTable.getConditionRows()) {
-            clearDecisionRow(condition);
+            condition.removeDebugInformation();
         }
 
         for (IAction action : decisionTable.getActionRows()) {
-            clearDecisionRow(action);
-
-            Object[][] paramValues = action.getParamValues();
-            if (paramValues != null) {
-                for (Object[] paramValueColumn : paramValues) {
-                    for (Object paramValue : paramValueColumn) {
-                        if (paramValue instanceof CompositeMethod) {
-                            ((CompositeMethod) paramValue).removeDebugInformation();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void clearDecisionRow(IDecisionRow decisionRow) {
-        IOpenMethod method = decisionRow.getMethod();
-        if (method instanceof CompositeMethod) {
-            ((CompositeMethod) method).removeDebugInformation();
+            action.removeDebugInformation();
         }
     }
 

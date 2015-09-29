@@ -8,6 +8,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt2.DTScale;
 import org.openl.rules.dt2.data.RuleExecutionObject;
+import org.openl.rules.dt2.storage.IStorage;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -143,6 +144,22 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         return super.getExpressionSource(bindingContext);
+    }
+
+    @Override
+    public void removeDebugInformation() {
+        getMethod().removeDebugInformation();
+        if (storage != null) {
+            for(IStorage st: storage) {
+                int rules = st.size();
+                for (int i = 0; i < rules; i++) {
+                    Object paramValue = st.getValue(i);
+                    if (paramValue instanceof CompositeMethod) {
+                        ((CompositeMethod) paramValue).removeDebugInformation();
+                    }
+                }
+            }
+        }
     }
 
 }

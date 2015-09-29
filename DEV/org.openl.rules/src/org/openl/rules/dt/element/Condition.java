@@ -241,4 +241,8 @@ public class Condition extends FunctionalRow implements ICondition {
         return null;
     }
 
+    @Override
+    public void removeDebugInformation() {
+        getMethod().removeDebugInformation();
+    }
 }

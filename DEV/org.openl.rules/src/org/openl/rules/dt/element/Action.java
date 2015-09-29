@@ -147,4 +147,18 @@ public class Action extends FunctionalRow implements IAction {
         return super.getExpressionSource(bindingContext);
     }
 
+    @Override
+    public void removeDebugInformation() {
+        getMethod().removeDebugInformation();
+        Object[][] paramValues = getParamValues();
+        if (paramValues != null) {
+            for (Object[] paramValueColumn : paramValues) {
+                for (Object paramValue : paramValueColumn) {
+                    if (paramValue instanceof CompositeMethod) {
+                        ((CompositeMethod) paramValue).removeDebugInformation();
+                    }
+                }
+            }
+        }
+    }
 }

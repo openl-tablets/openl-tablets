@@ -120,6 +120,8 @@ public class Condition extends FunctionalRow implements ICondition {
         return false;
     }
 
-
-
+    @Override
+    public void removeDebugInformation() {
+        getMethod().removeDebugInformation();
+    }
 }

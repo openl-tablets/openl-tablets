@@ -64,7 +64,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 	private CompositeMethod method;
 
 	private IParameterDeclaration[] params;
-	private IStorage<?>[] storage;
+	protected IStorage<?>[] storage;
 
 	private ILogicalTable decisionTable;
 	private ILogicalTable paramsTable;
