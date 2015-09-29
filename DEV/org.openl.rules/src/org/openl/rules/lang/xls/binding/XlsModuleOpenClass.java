@@ -37,7 +37,6 @@ import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
@@ -279,9 +278,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         if (openMethod instanceof DecisionTable) {
             return new DecisionTable2Wrapper(this, (DecisionTable) openMethod);
-        }
-        if (openMethod instanceof org.openl.rules.dt.DecisionTable) {
-            return new DecisionTableWrapper(this, (org.openl.rules.dt.DecisionTable) openMethod);
         }
         if (openMethod instanceof ColumnMatch) {
             return new ColumnMatchWrapper(this, (ColumnMatch) openMethod);
