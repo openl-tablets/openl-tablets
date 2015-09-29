@@ -32,8 +32,6 @@ public interface IDecisionRow  extends IBaseDecisionRow{
     String[] getParamPresentation();
 
 
-    ILogicalTable getValueCell(int column);
-    
     Object getParamValue(int paramIndex, int ruleN);
 	boolean hasFormula(int ruleN);
 

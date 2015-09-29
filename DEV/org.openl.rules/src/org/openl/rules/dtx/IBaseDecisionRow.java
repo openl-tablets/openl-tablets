@@ -30,6 +30,7 @@ public interface IBaseDecisionRow {
 	boolean isEmpty(int ruleN);
 	boolean hasFormula(int ruleN);
 	Object getParamValue(int paramIdx, int ruleN);
+    ILogicalTable getValueCell(int column);
 
 
     IOpenMethod getMethod();

@@ -38,8 +38,6 @@ public interface IDecisionRow extends IBaseDecisionRow{
 
     IParameterDeclaration[] getParams();
 
-    ILogicalTable getValueCell(int column);
-    
     Object[][] getParamValues();
     
     
