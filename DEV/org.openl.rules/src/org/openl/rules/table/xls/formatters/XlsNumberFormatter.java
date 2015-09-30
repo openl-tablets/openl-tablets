@@ -16,7 +16,7 @@ import java.util.Locale;
  *
  * @author snshor
  */
-public class XlsNumberFormatter implements IFormatter {
+class XlsNumberFormatter implements IFormatter {
 
     private final Logger log = LoggerFactory.getLogger(XlsNumberFormatter.class);
 
@@ -24,10 +24,6 @@ public class XlsNumberFormatter implements IFormatter {
     private String format;
     private DataFormatter dataFormatter;
     private Locale locale;
-
-    public XlsNumberFormatter(int xlsFormatIndex, String xlsFormat, DataFormatter xlsDataFormatter) {
-        this(xlsFormatIndex, xlsFormat, xlsDataFormatter, null);
-    }
 
     public XlsNumberFormatter(int xlsFormatIndex, String xlsFormat, DataFormatter xlsDataFormatter, Locale locale) {
         this.formatIndex = xlsFormatIndex;

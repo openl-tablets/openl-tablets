@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +46,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
@@ -74,16 +72,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
 
-    private XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
-
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
-
-        dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
-    }
-
-    public XlsDataFormatterFactory getDataFormatterFactory() {
-        return dataFormatterFactory;
     }
 
     private void extractMergedRegions() {

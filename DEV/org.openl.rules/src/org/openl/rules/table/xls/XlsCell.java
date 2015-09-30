@@ -176,8 +176,7 @@ public class XlsCell implements ICell {
     }
 
     public IFormatter getDataFormatter() {
-        XlsDataFormatterFactory dataFormatterFactory = gridModel.getDataFormatterFactory();
-        return dataFormatterFactory.getFormatter(this);
+        return XlsDataFormatterFactory.getFormatter(this);
     }
 
     @Override
