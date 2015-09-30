@@ -99,7 +99,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 			// Return bound node.
 			//
-			return new AliasDatatypeBoundNode(tsn, tableType, module,table, openl);
+			return new AliasDatatypeBoundNode(tsn, tableType, module);
 		} else {
 
 			if (parsedHeader.length != 2
