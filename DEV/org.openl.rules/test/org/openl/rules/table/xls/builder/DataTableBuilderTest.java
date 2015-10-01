@@ -15,9 +15,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
+import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField.PredefinedTypeChecker;
 import org.openl.types.IOpenClass;
@@ -27,17 +27,13 @@ public class DataTableBuilderTest {
     private static final String CLASS_NAME = "Policy";
     private static final String TABLE_NAME = "testPolicy";
     private static final String FILE_NAME = "MyHello.xls";
-    private static final String SHEET_NAME = "Test";
     private static final String TEST_FOLDER = "unit_tests";
     private static final String DATA_TABLE_POLICY = "Data " + CLASS_NAME + " " + TABLE_NAME;
     
     @Test
     public void testDataWithForeignKey() throws Exception {
         String fileName = String.format("%s/test1%s", TEST_FOLDER, FILE_NAME);
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        workbook.createSheet(SHEET_NAME);
-        Sheet policySheet = workbook.getSheet(SHEET_NAME);
-        XlsSheetGridModel openlSheet = XlsSheetGridHelper.createVirtualGrid(policySheet);
+        XlsSheetGridModel openlSheet = DecisionTableHelper.createVirtualGrid();
         
         DataTableBuilder builder = new DataTableBuilder(openlSheet);
         builder.beginTable(5, 4);
@@ -119,10 +115,7 @@ public class DataTableBuilderTest {
     @Test
     public void testDataWithoutForeignKey() throws Exception {
         String fileName = String.format("%s/test1%s", TEST_FOLDER, FILE_NAME);
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        workbook.createSheet(SHEET_NAME);
-        Sheet policySheet = workbook.getSheet(SHEET_NAME);
-        XlsSheetGridModel openlSheet = XlsSheetGridHelper.createVirtualGrid(policySheet);
+        XlsSheetGridModel openlSheet = DecisionTableHelper.createVirtualGrid();
         
         DataTableBuilder builder = new DataTableBuilder(openlSheet);
         builder.beginTable(5, 4);

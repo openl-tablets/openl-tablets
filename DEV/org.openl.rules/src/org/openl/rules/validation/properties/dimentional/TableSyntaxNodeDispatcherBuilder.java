@@ -63,7 +63,6 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
     public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
-    private static final String VIRTUAL_EXCEL_FILE = "/VIRTUAL_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
 
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
 
@@ -223,8 +222,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
         // TODO Excel has a maximum sheet name length limit. Find a solution for case when name is longer.
         String sheetName = String.format(DISPATCHER_TABLES_SHEET_FORMAT, getMethodName());
-        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, sheetName,
-                numberOfColumns);
+        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(sheetName, numberOfColumns);
 
         DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher);
 

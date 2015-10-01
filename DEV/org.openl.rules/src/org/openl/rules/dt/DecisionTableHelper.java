@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
@@ -14,6 +15,10 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
@@ -23,10 +28,11 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.xls.XlsSheetGridHelper;
+import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.source.impl.FileSourceCodeModule;
 
 public class DecisionTableHelper {
-    
+
     /**
      * Check if table is vertical.<br>
      * Vertical table is when conditions are represented from left to right, table is reading from top to bottom.</br> 
@@ -390,55 +396,14 @@ public class DecisionTableHelper {
         //
         return decisionTable.getSignature().getNumberOfParameters();        
     }
-    /**
-     * Creates not-existing virtual grid.
-     * 
-     * @return virtual {@link IWritableGrid}.
-     */
-    public static IWritableGrid createVirtualGrid() {
-        return XlsSheetGridHelper.createVirtualGrid(getPOIHSSFSheet());
-    }
-    
-    /**
-     * @deprecated 26.12.2011
-     * As always creates workbooks for excel before 2007
-     */
-    @Deprecated    
-    public static IWritableGrid createVirtualGrid(String gridName, String poiSheetName) {
-        return XlsSheetGridHelper.createVirtualGrid(getPOIHSSFSheet(poiSheetName), gridName);
-    }
-    
-    public static IWritableGrid createVirtualGrid(String gridName, String poiSheetName, int numberOfColumns) {
-        return XlsSheetGridHelper.createVirtualGrid(getPOISheet(poiSheetName, numberOfColumns), gridName);
+
+    public static IWritableGrid createVirtualGrid(String poiSheetName, int numberOfColumns) {
+        // Pre-2007 excel sheets had a limitation of 256 columns.
+        Workbook workbook = (numberOfColumns > 256) ? new XSSFWorkbook() : new HSSFWorkbook();
+        final Sheet sheet = workbook.createSheet(poiSheetName);
+        return createVirtualGrid(sheet, "/VIRTUAL_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls");
     }
 
-    private static Sheet getPOISheet(String poiSheetName, int numberOfColumns) {
-        Sheet sheet = null;
-        
-        if (numberOfColumns > 256) {
-             sheet = getPOIXSSFSheet(poiSheetName);
-        } else {
-            // Pre-2007 excel sheets had a limitation of 256 columns.
-            sheet = getPOIHSSFSheet(poiSheetName);
-        }
-        return sheet;
-    }
-    
-    private static Sheet getPOIHSSFSheet() {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        return workbook.createSheet();
-    }
-    
-    private static Sheet getPOIHSSFSheet(String poiSheetName) {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        return workbook.createSheet(poiSheetName);
-    }
-    
-    private static Sheet getPOIXSSFSheet(String poiSheetName) {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        return workbook.createSheet(poiSheetName);
-    }
- 
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
         
@@ -500,6 +465,28 @@ public class DecisionTableHelper {
         return cnt;
 	}
 
+    /**
+     * Creates virtual {@link XlsSheetGridModel} with poi source sheet.
+     */
+    public static XlsSheetGridModel createVirtualGrid() {
+        Sheet sheet = new HSSFWorkbook().createSheet();
+        return createVirtualGrid(sheet, "/VIRTUAL_EXCEL_FILE.xls");
+    }
 
+    /**
+     * Creates virtual {@link XlsSheetGridModel} from poi source sheet.
+     *
+     * @param sheet poi sheet source
+     * @param virtualExcelFile file name, if null or blank will be used default name.
+     * @return
+     */
+    private static XlsSheetGridModel createVirtualGrid(Sheet sheet, String virtualExcelFile) {
+        final FileSourceCodeModule sourceCodeModule = new FileSourceCodeModule(virtualExcelFile, null);
+        final SimpleWorkbookLoader workbookLoader = new SimpleWorkbookLoader(sheet.getWorkbook());
+        XlsWorkbookSourceCodeModule mockWorkbookSource = new XlsWorkbookSourceCodeModule(sourceCodeModule, workbookLoader);
+        XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), mockWorkbookSource);
+
+        return new XlsSheetGridModel(mockSheetSource);
+    }
 
 }
