@@ -7,8 +7,6 @@
 package org.openl.rules.table.xls;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +30,6 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -582,29 +579,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             }
         }
         return result;
-    }
-
-    @Override
-    public void write(OutputStream out) {
-        try {
-            sheetSource.getSheet().getWorkbook().write(out);
-        } catch (IOException e) {
-            throw new OpenlNotCheckedException("Cannot write model to the stream");
-        }
-    }
-
-    @Override
-    public IWritableGrid createGrid(String name) {
-        try {
-            return XlsSheetGridHelper.createVirtualGrid(
-                    getSheet().getWorkbook().createSheet(name),
-                    sheetSource.getWorkbookSource().getSourceFile().getName());
-        } catch (IllegalArgumentException ex) {
-            // Such sheet already exists
-            return XlsSheetGridHelper.createVirtualGrid(
-                    getSheet().getWorkbook().getSheet(name),
-                    sheetSource.getWorkbookSource().getSourceFile().getName());
-        }
     }
 
     private Sheet getSheet() {
