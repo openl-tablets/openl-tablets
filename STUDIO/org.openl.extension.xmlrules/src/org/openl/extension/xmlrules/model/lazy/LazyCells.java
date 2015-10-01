@@ -23,6 +23,9 @@ public class LazyCells extends BaseLazyItem<Cells> {
     @Override
     protected void postProcess(Cells info) {
         for (Cell cell : info.getCells()) {
+            if (cell.getNode() == null) {
+                throw new IllegalArgumentException("Cell node isn't initialized");
+            }
             cell.getNode().configure(workbookName, sheetName);
         }
     }

@@ -16,7 +16,7 @@ public class Reference {
         this.field = field;
     }
 
-    @XmlElement(name = "data-instance")
+    @XmlElement(name = "dataInstance")
     public String getDataInstance() {
         return dataInstance;
     }

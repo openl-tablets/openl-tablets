@@ -36,6 +36,9 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
                         module.getRulesRootPath().getPath()).getPath());
 
                 String xlsFileName = workbook.getXlsFileName();
+                if (xlsFileName == null || xlsFileName.isEmpty()) {
+                    throw new IllegalArgumentException("Empty xls-file");
+                }
                 String internalModuleName = xlsFileName.substring(xlsFileName.lastIndexOf('/') + 1,
                         xlsFileName.lastIndexOf('.'));
 

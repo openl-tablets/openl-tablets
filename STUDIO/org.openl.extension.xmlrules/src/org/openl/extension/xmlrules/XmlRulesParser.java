@@ -249,6 +249,9 @@ public class XmlRulesParser extends ExtensionParser {
             int headerWidth = 0;
 
             Segment segment = table.getSegment();
+            if (segment != null && segment.getTotalSegments() == 1) {
+                segment = null;
+            }
             if (segment != null) {
                 String tablePartHeader = "TablePart " + table.getName() +
                         (segment.isColumnSegment() ? " column " : " row ")
@@ -349,16 +352,25 @@ public class XmlRulesParser extends ExtensionParser {
                 gridBuilder.setRow(tableRow + headerHeight);
                 gridBuilder.setStartColumn(conditionColumn);
                 for (Expression returnValue : table.getReturnValues().get(0).getList()) {
-                    String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue()).getStringValue();
-                    gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", table.getReturnType(), cell)).nextRow();
+                    if (returnValue.getReference()) {
+                        String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue()).getStringValue();
+                        gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell)).nextRow();
+                    } else {
+                        gridBuilder.addCell(returnValue.getValue()).nextRow();
+                    }
                 }
             } else {
                 gridBuilder.setRow(tableRow + headerHeight);
                 gridBuilder.setStartColumn(startColumn + headerWidth);
                 for (ReturnRow returnValues : table.getReturnValues()) {
                     for (Expression returnValue : returnValues.getList()) {
-                        String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue()).getStringValue();
-                        gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", table.getReturnType(), cell));
+                        if (returnValue.getReference()) {
+                            String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
+                                    .getStringValue();
+                            gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                        } else {
+                            gridBuilder.addCell(returnValue.getValue());
+                        }
                     }
                     gridBuilder.nextRow();
                 }
@@ -421,7 +433,7 @@ public class XmlRulesParser extends ExtensionParser {
                     type = "String";
                 }
                 CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                headerBuilder.append(type).append(" ").append(cellReference.getRow()).append(cellReference.getColumn());
+                headerBuilder.append(type).append(" ").append(cellReference.getColumn()).append(cellReference.getRow());
             }
             headerBuilder.append(')');
             gridBuilder.addCell(headerBuilder.toString()).nextRow();
@@ -430,8 +442,8 @@ public class XmlRulesParser extends ExtensionParser {
                 CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
                 String cell = String.format("Push(\"%s\", %s%s);",
                         reference.getStringValue(),
-                        reference.getRow(),
-                        reference.getColumn());
+                        reference.getColumn(),
+                        reference.getRow());
                 gridBuilder.addCell(cell).nextRow();
             }
 

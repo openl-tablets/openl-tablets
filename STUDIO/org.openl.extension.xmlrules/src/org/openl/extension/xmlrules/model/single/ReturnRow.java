@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "return-row")
 public class ReturnRow {
     private List<ExpressionImpl> list = new ArrayList<ExpressionImpl>();
 
-    @XmlElements({
-            @XmlElement(name = "expression", type = ExpressionImpl.class, required = true)
-    })
+    @XmlElementWrapper(name="expressions", required = true)
+    @XmlElement(name = "expression")
     public List<ExpressionImpl> getList() {
         return list;
     }

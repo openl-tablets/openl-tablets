@@ -25,6 +25,10 @@ public abstract class BaseLazyItem<T> {
         this.entryName = entryName;
     }
 
+    protected String getEntryName() {
+        return entryName;
+    }
+
     protected File getFile() {
         return file;
     }

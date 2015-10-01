@@ -5,7 +5,7 @@
 
   <xs:complexType name="function">
     <xs:sequence>
-      <xs:element name="cell-address" type="xs:string" minOccurs="0"/>
+      <xs:element name="cellAddress" type="xs:string" minOccurs="0"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="parameters">
         <xs:complexType>
@@ -20,8 +20,8 @@
 
   <xs:complexType name="parameter">
     <xs:sequence>
-      <xs:element name="name" type="xs:string" minOccurs="0"/>
-      <xs:element name="type" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="xs:string" default="String" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

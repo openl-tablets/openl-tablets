@@ -26,7 +26,11 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     @Override
     public List<LazyWorkbook> getWorkbooks() {
         List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
-        for (WorkbookInfo workbookInfo : getInfo().getWorkbooks()) {
+        ExtensionModuleInfo info = getInfo();
+        if (info == null) {
+            throw new IllegalArgumentException("There is no " + getEntryName() + " file");
+        }
+        for (WorkbookInfo workbookInfo : info.getWorkbooks()) {
             workbooks.add(new LazyWorkbook(getFile(), "", workbookInfo));
         }
 

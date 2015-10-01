@@ -20,7 +20,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="returnType" type="xs:string" minOccurs="0"/>
+      <xs:element name="returnType" type="xs:string" default="String" minOccurs="0"/>
       <xs:element name="returnValues">
         <xs:complexType>
           <xs:sequence>
@@ -52,22 +52,30 @@
   </xs:complexType>
 
   <xs:complexType name="expression">
-    <xs:sequence/>
-    <xs:attribute name="height" type="xs:int" use="required"/>
-    <xs:attribute name="value" type="xs:string"/>
-    <xs:attribute name="width" type="xs:int" use="required"/>
+    <xs:sequence>
+      <xs:element name="height" type="xs:int" default="1" minOccurs="0"/>
+      <xs:element name="reference" type="xs:boolean" default="false" minOccurs="0"/>
+      <xs:element name="value" type="xs:string"/>
+      <xs:element name="width" type="xs:int" default="1" minOccurs="0"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="parameter">
     <xs:sequence>
-      <xs:element name="name" type="xs:string" minOccurs="0"/>
-      <xs:element name="type" type="xs:string" minOccurs="0"/>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="xs:string" default="String" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="return-row">
     <xs:sequence>
-      <xs:element name="expression" type="expression" maxOccurs="unbounded"/>
+      <xs:element name="expressions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="expression" type="expression" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 

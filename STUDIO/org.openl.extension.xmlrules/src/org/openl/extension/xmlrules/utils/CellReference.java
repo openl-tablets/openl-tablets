@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CellReference {
-    private static final Pattern PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!)?([A-Z]+)(\\d+)");
+    private static final Pattern PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!)?\\$?([A-Z]+)\\$?(\\d+)");
     private final String workbook;
     private final String sheet;
     private final String row;
@@ -15,6 +15,9 @@ public class CellReference {
     }
 
     public static CellReference parse(String currentWorkbook, String currentSheet, String reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("Empty cell reference");
+        }
         Matcher matcher = PATTERN.matcher(reference);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Incorrect cell reference '" + reference + "'");
@@ -28,7 +31,7 @@ public class CellReference {
         if (sheet == null) {
             sheet = currentSheet;
         }
-        return new CellReference(workbook, sheet, matcher.group(5), matcher.group(6));
+        return new CellReference(workbook, sheet, matcher.group(6), matcher.group(5));
     }
 
     public CellReference(String workbook, String sheet, String row, String column) {
@@ -55,6 +58,6 @@ public class CellReference {
     }
 
     public String getStringValue() {
-        return String.format("[%s]%s!%s%s", workbook, sheet, row, column);
+        return String.format("[%s]%s!%s%s", workbook, sheet, column, row);
     }
 }

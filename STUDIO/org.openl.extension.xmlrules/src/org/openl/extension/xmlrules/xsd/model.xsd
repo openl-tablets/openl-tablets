@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:element name="module" type="module"/>
+  <xs:element name="model" type="model"/>
 
   <xs:element name="sheet" type="sheet"/>
 
   <xs:element name="workbook" type="workbook"/>
 
-  <xs:complexType name="module">
+  <xs:complexType name="model">
     <xs:sequence>
-      <xs:element name="format-version" type="xs:string"/>
+      <xs:element name="formatVersion" type="xs:string"/>
       <xs:element ref="workbook" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
@@ -17,7 +17,7 @@
   <xs:complexType name="workbook">
     <xs:sequence>
       <xs:element ref="sheet" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="xls-file" type="xs:string"/>
+      <xs:element name="xlsFile" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
 

@@ -41,6 +41,7 @@ public class TableImpl implements Table {
         this.parameters = parameters;
     }
 
+    @XmlElement(defaultValue = "String")
     @Override
     public String getReturnType() {
         return returnType;

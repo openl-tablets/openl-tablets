@@ -27,3 +27,7 @@ rename schema1.xsd function.xsd
 schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.Cells
 IF EXIST cells.xsd del /F cells.xsd
 rename schema1.xsd cells.xsd
+
+schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.PredefinedType
+IF EXIST predefined-type.xsd del /F predefined-type.xsd
+rename schema1.xsd predefined-type.xsd
