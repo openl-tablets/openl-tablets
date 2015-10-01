@@ -12,6 +12,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
+import org.openl.rules.utils.ParserUtils;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup
@@ -240,9 +241,9 @@ public class DecisionTableLookupConvertor {
     }
         
     private boolean isValidSimpleDecisionTableHeader(String headerStr) {
-        if (DecisionTableHelper.isValidRuleHeader(headerStr) || 
-                DecisionTableHelper.isValidConditionHeader(headerStr) || 
-                DecisionTableHelper.isValidCommentHeader(headerStr)) {
+        if (DecisionTableHelper.isValidRuleHeader(headerStr) ||
+                DecisionTableHelper.isValidConditionHeader(headerStr) ||
+                ParserUtils.isBlankOrCommented(headerStr)) {
             return true;
         }
         return false;

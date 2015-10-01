@@ -28,6 +28,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
@@ -266,7 +267,7 @@ public class DecisionTableLoader {
             addRule(row, table, bindingContext);
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             addReturnAction(header, row, table);
-        } else if (DecisionTableHelper.isValidCommentHeader(header)) {
+        } else if (ParserUtils.isBlankOrCommented(header)) {
             // do nothing
         } else {
             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + header,

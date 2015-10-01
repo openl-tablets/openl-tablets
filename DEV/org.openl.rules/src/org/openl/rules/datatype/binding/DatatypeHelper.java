@@ -147,7 +147,4 @@ public class DatatypeHelper {
         return parsedHeader;
     }
 
-    public static boolean isCommented(String s) {
-        return s.startsWith("//");
-    }
 }

@@ -24,6 +24,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -298,7 +299,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
-        if (!DatatypeHelper.isCommented(defaultValueSrc.getCode())) {
+        if (!ParserUtils.isCommented(defaultValueSrc.getCode())) {
             IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
             if (idn.length > 0) {
                 // if there is any valid identifier, consider it is a default value
@@ -329,9 +330,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @return false if row content is empty, or was commented with special symbols.
      */
     public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
-        String srcCode = rowSrc.getCode().trim();
-
-        return !(srcCode.length() == 0 || DatatypeHelper.isCommented(srcCode));
+        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
     }
 
     private IOpenClass getFieldType(IBindingContext cxt, ILogicalTable row, GridCellSourceCodeModule tableSrc) 

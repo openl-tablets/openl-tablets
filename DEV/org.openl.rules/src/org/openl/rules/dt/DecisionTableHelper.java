@@ -9,7 +9,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.RulesCommons;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
@@ -125,10 +124,6 @@ public class DecisionTableHelper {
 
     public static boolean isValidRuleHeader(String s) {
         return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
-    }
-
-    public static boolean isValidCommentHeader(String s) {
-        return s.trim().length() == 0 || s.startsWith(RulesCommons.COMMENT_SYMBOLS.toString());
     }
 
     public static boolean isActionHeader(String s) {
@@ -309,8 +304,8 @@ public class DecisionTableHelper {
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, boolean lastCondition, int vColumnCounter) {
-        final List<String> intType = Arrays.asList("byte","short","int","java.lang.Byte",
-                "org.openl.meta.ByteValue","org.openl.meta.ShortValue","org.openl.meta.IntValue",
+        final List<String> intType = Arrays.asList("byte", "short", "int", "java.lang.Byte",
+                "org.openl.meta.ByteValue", "org.openl.meta.ShortValue", "org.openl.meta.IntValue",
                 "org.openl.meta.BigIntegerValue", "java.lang.Integer", "org.openl.meta.IntegerValue");
         final List<String> doubleType = Arrays.asList("long","float","double","java.lang.Long","java.lang.Float",
                 "java.lang.Double", "org.openl.meta.LongValue","org.openl.meta.FloatValue","org.openl.meta.DoubleValue",
