@@ -428,9 +428,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
             // Xls
         } else {
-            HSSFColor color = findIndexedColor(rgb);
+            Short color = findIndexedColor(rgb);
             if (color != null) {
-                dest.setFillForegroundColor(color.getIndex());
+                dest.setFillForegroundColor(color);
             }
         }
     }
@@ -459,14 +459,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
             // Xls
         } else {
-            HSSFColor color = findIndexedColor(rgb);
+            Short color = findIndexedColor(rgb);
             if (color != null) {
-                dest.setColor(color.getIndex());
+                dest.setColor(color);
             }
         }
     }
 
-    private HSSFColor findIndexedColor(short[] rgb) {
+    private Short findIndexedColor(short[] rgb) {
         HSSFPalette palette = ((HSSFWorkbook) getSheet().getWorkbook()).getCustomPalette();
         HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
 
@@ -487,7 +487,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
             }
         }
-        return color;
+        return color == null ? null : color.getIndex();
     }
 
     public void setCellFontBold(int col, int row, boolean bold) {
