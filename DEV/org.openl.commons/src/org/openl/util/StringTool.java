@@ -1,15 +1,19 @@
 package org.openl.util;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class StringTool {
 
@@ -568,50 +572,20 @@ public class StringTool {
     }
 
     public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
-        if (ArrayUtils.isNotEmpty(values)) {
-            List<String> objectStrings = new ArrayList<String>();
-            for (Object value : values) {
-                objectStrings.add(value.toString());
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        boolean prependComma = false;
+        for (Object value : values) {
+            if (prependComma) {
+                builder.append(symbol);
             }
-            return listToStringThroughSymbol(objectStrings, symbol);
+            builder.append(value);
+            prependComma = true;
         }
-        return null;
+        return builder.toString();
     }
-
-    public static String listToStringThroughSymbol(List<String> values, String symbol) {
-        String result = StringUtils.EMPTY;
-        if (StringUtils.isBlank(symbol)) {
-            symbol = COMMA;
-        }
-        if (values != null && !values.isEmpty()) {
-            StringBuilder strBuf = new StringBuilder();
-            int paramNum = values.size();
-            for (String value : values) {
-                paramNum--;
-                strBuf.append(value);
-                if (paramNum > 0) {
-                    strBuf.append(symbol).append(' ');
-                }
-            }
-            result = strBuf.toString();
-        }
-        return result;
-    }
-
-    public static String listObjectToStringThroughSymbol(List<?> values, String symbol) {
-        if (values == null || values.isEmpty()) {
-            return StringUtils.EMPTY;
-        }
-
-        List<String> strList = new ArrayList<String>(values.size());
-        for (Object obj : values) {
-            if (obj != null) {
-                strList.add(obj.toString());
-            }
-        }
-        return listToStringThroughSymbol(strList, symbol);
-    }
-
 
     /**
      * Returns the setter name, by adding set, to the field name, and upper case
