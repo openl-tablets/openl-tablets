@@ -16,13 +16,9 @@ schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.DataIn
 IF EXIST data-instance.xsd del /F data-instance.xsd
 rename schema1.xsd data-instance.xsd
 
-schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.TableImpl
-IF EXIST table.xsd del /F table.xsd
-rename schema1.xsd table.xsd
-
-schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.FunctionImpl
-IF EXIST function.xsd del /F function.xsd
-rename schema1.xsd function.xsd
+schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.TableImpl org.openl.extension.xmlrules.model.single.FunctionImpl
+IF EXIST table-function.xsd del /F table-function.xsd
+rename schema1.xsd table-function.xsd
 
 schemagen.exe -cp %CP% -d %OUT% org.openl.extension.xmlrules.model.single.Cells
 IF EXIST cells.xsd del /F cells.xsd
