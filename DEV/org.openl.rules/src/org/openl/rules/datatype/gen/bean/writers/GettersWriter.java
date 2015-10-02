@@ -54,9 +54,10 @@ public class GettersWriter extends MethodWriter {
         String fieldName = fieldEntry.getKey();
         FieldDescription field = fieldEntry.getValue();
         String getterName = StringTool.getGetterName(fieldName);
-        
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, String.format("()%s",
-            ByteCodeGeneratorHelper.getJavaType(field)), null, null);
+
+        final String javaType = ByteCodeGeneratorHelper.getJavaType(field);
+        final String format = new StringBuilder(64).append("()").append(javaType).toString();
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, format, null, null);
         
         
         String elementName = fieldName;
@@ -91,7 +92,7 @@ public class GettersWriter extends MethodWriter {
         
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName,
-                ByteCodeGeneratorHelper.getJavaType(field));
+                javaType);
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(field));
         
         // long and double types are the biggest ones, so they use a maximum of two stack  

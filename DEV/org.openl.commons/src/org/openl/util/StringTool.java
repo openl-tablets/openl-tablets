@@ -590,7 +590,7 @@ public class StringTool {
                 paramNum--;
                 strBuf.append(value);
                 if (paramNum > 0) {
-                    strBuf.append(String.format("%s ", symbol));
+                    strBuf.append(symbol).append(' ');
                 }
             }
             result = strBuf.toString();
@@ -621,11 +621,13 @@ public class StringTool {
      * @return setFieldName
      */
     public static String getSetterName(String fieldName) {
-        return String.format("set%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
+        final StringBuilder builder = new StringBuilder(64);
+        return builder.append("set").append(Character.toUpperCase(fieldName.charAt(0))).append(fieldName.substring(1)).toString();
     }
 
     public static String getGetterName(String fieldName) {
-        return String.format("get%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
+        final StringBuilder builder = new StringBuilder(64);
+        return builder.append("get").append(Character.toUpperCase(fieldName.charAt(0))).append(fieldName.substring(1)).toString();
     }
 
     /**
@@ -636,7 +638,8 @@ public class StringTool {
      * @return namespace::typeName
      */
     public static final String buildTypeName(String namespace, String typeName) {
-        return String.format("%s::%s", namespace, typeName);
+        final StringBuilder builder = new StringBuilder(64);
+        return builder.append(namespace).append("::").append(typeName).toString();
     }
 
 }

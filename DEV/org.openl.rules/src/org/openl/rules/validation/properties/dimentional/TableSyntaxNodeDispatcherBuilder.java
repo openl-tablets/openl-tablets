@@ -1,5 +1,12 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
@@ -13,11 +20,11 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dtx.IBaseAction;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -40,15 +47,12 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * Builder for {@link TableSyntaxNode} that is wrapping generated dispatcher decision table.
@@ -237,37 +241,53 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     }
 
     private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
-        String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2,
-                returnColumn.getReturnType().getDisplayName(0), tableName);
 
-        StringBuilder strBuf = new StringBuilder();
-        strBuf.append(start);
-        strBuf.append(getParams(returnColumn));
-        strBuf.append(")");
+        final IMethodSignature originalSignature = returnColumn.getOriginalSignature();
+        final StringBuilder builder = new StringBuilder(64);
+        builder.append(IXlsTableNames.DECISION_TABLE2)
+            .append(' ')
+            .append(returnColumn.getReturnType().getDisplayName(0))
+            .append(' ')
+            .append(tableName)
+            .append('(');
 
-
-        return strBuf.toString();
-    }
-
-    private String getParams(DispatcherTableReturnColumn returnColumn) {
-        List<String> values = new ArrayList<String>();
-        String originalParamsThroughComma = returnColumn.paramsThroughComma();
-
+        boolean prependComma = false;
         // add original parameters of the method
         //
-        if (StringUtils.isNotBlank(originalParamsThroughComma)) {
-            values.add(originalParamsThroughComma);
+        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
+            final IOpenClass parameterType = originalSignature.getParameterType(j);
+            if (!(parameterType instanceof NullOpenClass)) {
+                /*
+                 * on compare in repository tutorial10, all original parameter
+                 * types are instances of NullOpenClass. it causes
+                 * NullPointerException. On compare we don`t need to build and
+                 * execute validation tables at all during binding.
+                 */
+                if (prependComma) {
+                    builder.append(',');
+                }
+                final String type = parameterType.getInstanceClass().getSimpleName();
+                final String name = getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j));
+                builder.append(type).append(' ').append(name);
+                prependComma = true;
+            }
         }
 
         // add new income parameters
         //
         for (Map.Entry<String, IOpenClass> param : incomeParams.entrySet()) {
-            values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
+            if (prependComma) {
+                builder.append(',');
+            }
+            final String type = param.getValue().getInstanceClass().getSimpleName();
+            final String name = param.getKey();
+            builder.append(type).append(' ').append(name);
+            prependComma = true;
         }
 
-        return StringTool.listToStringThroughSymbol(values, ",");
+        builder.append(')');
+        return builder.toString();
     }
-
 
     private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods,
                                                      DispatcherTableRules rules) {

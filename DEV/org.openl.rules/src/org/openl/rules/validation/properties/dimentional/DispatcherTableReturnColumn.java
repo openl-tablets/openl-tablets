@@ -60,53 +60,40 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     public String getTitle() {
         return getCodeExpression().toUpperCase();
     }
-    
-    public String getRuleValue(int ruleIndex, int elementNum) {        
-        return String.format("=%s%s%d(%s)",
-            methodName,
-            TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER,
-            ruleIndex,
-            originalParamsThroughComma());
+
+    public String getRuleValue(int ruleIndex, int elementNum) {
+        final StringBuilder builder = new StringBuilder(128);
+        builder.append('=')
+            .append(methodName)
+            .append(TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER)
+            .append(ruleIndex)
+            .append('(');
+
+        boolean prependComma = false;
+        final int numberOfParameters = originalSignature.getNumberOfParameters();
+        for (int i = 0; i < numberOfParameters; i++) {
+            final String parameterName = originalSignature.getParameterName(i);
+            final String parameter = TableSyntaxNodeDispatcherBuilder
+                .getDispatcherParameterNameForOriginalParameter(parameterName);
+            if (prependComma) {
+                builder.append(',');
+            }
+            builder.append(parameter);
+            prependComma = true;
+        }
+
+        builder.append(')');
+        return builder.toString();
     }
 
     public IOpenClass getReturnType() {
         return originalReturnType;
     }
-    
-    private String originalParamsThroughComma() {
-        String result = StringUtils.EMPTY;
-        List<String> values = new ArrayList<String>();        
-        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {
-            values.add(TableSyntaxNodeDispatcherBuilder.getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(i)));
-        }
-        if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughSymbol(values, ","); 
-        }
-        return result; 
+
+    public IMethodSignature getOriginalSignature() {
+        return originalSignature;
     }
 
-    public String paramsThroughComma() {
-        String result = StringUtils.EMPTY;
-        List<String> values = new ArrayList<String>();        
-        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) { 
-            if (!(originalSignature.getParameterType(j) instanceof NullOpenClass)) { // on compare in repository tutorial10,
-                                                                                     // all original parameter types are 
-                                                                                     // instances of NullOpenClass.
-                                                                                     // it causes NullPointerException. 
-                                                                                     // On compare we don`t need to build
-                                                                                     // and execute validation tables at 
-                                                                                     // all during binding.
-                values.add(String.format("%s %s",
-                    originalSignature.getParameterType(j).getInstanceClass().getSimpleName(),
-                    TableSyntaxNodeDispatcherBuilder.getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j))));
-            }           
-        }   
-        if (values.size() > 0) {
-            result = StringTool.listToStringThroughSymbol(values, ","); 
-        }
-        return result; 
-    }
-    
     public int getNumberOfLocalParameters() {
         /**
          * For return column only one local parameter is possible.

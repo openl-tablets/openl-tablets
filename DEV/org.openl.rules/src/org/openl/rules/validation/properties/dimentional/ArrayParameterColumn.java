@@ -51,7 +51,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
                     if (i > 1){
                         codeExpression.append(LOGICAL_OR);
                     }
-                    String parameterName = getLocalParameterName(i);                    
+                    String parameterName = (getLocalParameterName() + i).intern();
                     codeExpression.append(createCodeExpression(matchExpression, parameterName));
                 }
                 result += codeExpression.toString();
@@ -70,7 +70,9 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     public String getParameterDeclaration() {
         Class<?> componentType = getProperty().getType().getInstanceClass().getComponentType();
-        return String.format("%s %s", componentType.getSimpleName(), getLocalParameterName()).intern();
+        final String simpleName = componentType.getSimpleName();
+        final String localParameterName = getLocalParameterName();
+        return new StringBuilder(64).append(simpleName).append(' ').append(localParameterName).toString().intern();
     }
     
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
@@ -104,20 +106,11 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     }
     
     private String getLocalParameterName() {
-        return String.format("%s%s", getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX).intern();
+        return (getProperty().getName() + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX).intern();
     }
     
     private String createCodeExpression(MatchingExpression matchExpression, String parameterName) {        
         return matchExpression.getMatchExpression().getCodeExpression(parameterName);
     }
-    
-    /**
-     * Creates code expression for appropriate local parameter.
-     * 
-     * @param numberOfLocalParameter number of local paramter
-     * @return code expression like "<propertyName>Local1"
-     */
-    private String getLocalParameterName(int numberOfLocalParameter) {
-        return String.format("%s%d", getLocalParameterName(), numberOfLocalParameter).intern();
-    }
+
 }

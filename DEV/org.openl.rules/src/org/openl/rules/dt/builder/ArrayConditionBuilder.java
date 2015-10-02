@@ -29,9 +29,12 @@ public class ArrayConditionBuilder extends AConditionBuilder {
     }    
 
     public void writeParameterDeclaration(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
-        for (int i = 0; i < getCondition().getNumberOfLocalParameters(); i ++) {
-            sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX, 
-                String.format("%s%d", getCondition().getParameterDeclaration(), (i + 1)));
+        final IDecisionTableColumn condition = getCondition();
+        final int numberOfLocalParameters = condition.getNumberOfLocalParameters();
+        final String parameterDeclaration = condition.getParameterDeclaration();
+        for (int i = 1; i <= numberOfLocalParameters; i ++) {
+            final String value = new StringBuilder(64).append(parameterDeclaration).append(i).toString();
+            sheet.setCellValue(columnStartIndex, rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX, value);
             
             columnStartIndex++;
         }        
