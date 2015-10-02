@@ -258,7 +258,21 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public boolean isEmpty(int x, int y) {
-        return PoiExcelHelper.isEmptyCell(x, y, getSheet());
+        Cell cell = PoiExcelHelper.getCell(x, y, getSheet());
+        if (cell == null) {
+            return true;
+        }
+
+        final int cellType = cell.getCellType();
+        if (cellType == Cell.CELL_TYPE_BLANK) {
+            return true;
+        }
+
+        if (cellType == Cell.CELL_TYPE_STRING) {
+            String v = cell.getStringCellValue();
+            return StringUtils.isBlank(v);
+        }
+        return false;
     }
 
     public void removeMergedRegion(IGridRegion remove) {
