@@ -8,16 +8,15 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.asm.invoker.Invokers;
+import org.openl.rules.asm.invoker.StringBuilderInvoker;
+
 import static  org.openl.rules.datatype.gen.ByteCodeGeneratorHelper.*;
 
 public class ToStringWriter extends MethodWriter {
 
-    public static final String METHOD_NAME_APPEND = "append";
     public static final String METHOD_NAME_TO_STRING = "toString";
-    public static final String METHOD_NAME_INT_VALUE = "intValue";
     public static final String METHOD_NAME_VALUE_OF = "valueOf";
-    public static final String METHOD_NAME_GET_CLASS = "getClass";
-    public static final String METHOD_NAME_GET_SIMPLE_NAME = "getSimpleName";
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
@@ -41,21 +40,17 @@ public class ToStringWriter extends MethodWriter {
 
         // write ClassName
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        invokeVirtual(methodVisitor, Object.class, METHOD_NAME_GET_CLASS, new Class<?>[] {});
-        invokeVirtual(methodVisitor, Class.class, METHOD_NAME_GET_SIMPLE_NAME,
-                new Class<?>[] {});
-        invokeVirtual(
-                methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
+        Invokers.GET_CLASS.invoke(methodVisitor);
+        Invokers.GET_CLASS_NAME.invoke(methodVisitor);
+        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
 
         // write fields
         methodVisitor.visitLdcInsn("{ ");
-        invokeVirtual(
-                methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
+        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
 
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             methodVisitor.visitLdcInsn(field.getKey() + "=");
-            invokeVirtual(
-                    methodVisitor, StringBuilder.class, METHOD_NAME_APPEND, new Class<?>[] { String.class });
+            StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
@@ -67,27 +62,21 @@ public class ToStringWriter extends MethodWriter {
             if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
             	invokeStatic(methodVisitor, Integer.class, METHOD_NAME_VALUE_OF,
                         new Class<?>[] { field.getValue().getType() });
-            	invokeVirtual(methodVisitor, Integer.class, METHOD_NAME_INT_VALUE,
-                        new Class<?>[] {});
-            	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
-                        new Class<?>[] { int.class });
+                Invokers.INT_VALUE.invoke(methodVisitor);
+                StringBuilderInvoker.getAppend(int.class).invoke(methodVisitor);
             }
             else {
-            	invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
-                        new Class<?>[] { field.getValue().getType() });
+                StringBuilderInvoker.getAppend(field.getValue().getType()).invoke(methodVisitor);
             }
             
             methodVisitor.visitLdcInsn(" ");
-            invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
-                    new Class<?>[] { String.class });
+            StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
         }
         methodVisitor.visitLdcInsn("}");
-        invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_APPEND,
-                new Class<?>[] { String.class });
-		
+        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+
         // return
-        invokeVirtual(methodVisitor, StringBuilder.class, METHOD_NAME_TO_STRING,
-                new Class<?>[] {});
+        StringBuilderInvoker.getToString().invoke(methodVisitor);
         methodVisitor.visitInsn(getConstantForReturn(String.class));
         if (getTwoStackElementFieldsCount() > 0) {
             methodVisitor.visitMaxs(3, 1);

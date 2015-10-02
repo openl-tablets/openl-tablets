@@ -7,6 +7,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.rules.asm.invoker.SpreadsheetResultInvoker;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -71,10 +72,7 @@ public class DecoratorMethodWriter extends GettersWriter {
         methodVisitor.visitLdcInsn(fieldName);
 
         /** call method **/
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor,
-            SpreadsheetResult.class,
-            nameOfTheMethodToCall,
-            new Class[] { String.class });
+        SpreadsheetResultInvoker.getMethod(nameOfTheMethodToCall).invoke(methodVisitor);
 
         String typeNameForCast = null;
 

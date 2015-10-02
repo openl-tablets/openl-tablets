@@ -134,12 +134,7 @@ public class ByteCodeGeneratorHelper {
         } 
         return 0;
     }
-    
-    public static void invokeVirtual(MethodVisitor methodVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);        
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(methodOwner), methodName, signatureBuilder);
-    }
-    
+
     public static String getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
         Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
         StringBuilder signatureBuilder = new StringBuilder();
