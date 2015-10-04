@@ -1,6 +1,7 @@
 package org.openl.rules.runtime;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -32,6 +33,7 @@ public class InterfaceGenerator {
             + Opcodes.ACC_INTERFACE;
     public static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
+    private static final RuleInfo[] EMPTY_RULES = new RuleInfo[0];
 
     /**
      * Generates interface class using collection of rules.
@@ -75,73 +77,67 @@ public class InterfaceGenerator {
      * 
      * @throws Exception if an error has occurred
      */
-    public static Class<?> generateInterface(String className, IOpenClass openClass, ClassLoader classLoader,
-            String[] includes, String[] excludes) throws Exception {
+    public static Class<?> generateInterface(String className,
+            IOpenClass openClass,
+            ClassLoader classLoader,
+            String[] includes,
+            String[] excludes) throws Exception {
+
+        if (openClass == null) {
+            return generateInterface(className, EMPTY_RULES, classLoader);
+        }
 
         List<RuleInfo> rules = new ArrayList<RuleInfo>();
-        IOpenMember[] members = OpenClassHelper.getClassMembers(openClass);
 
-        for (IOpenMember member : members) {
+        final Collection<IOpenMethod> methods = openClass.getMethods();
+        for (IOpenMethod method : methods) {
 
-            if (!isIgnoredMember(member)) {
+            if (!isIgnoredMember(method)) {
+                RuleInfo ruleInfo = getRuleInfoForMethod(method);
+                boolean isMember = isMember(ruleInfo, includes, excludes);
+                if (isMember) {
+                    rules.add(ruleInfo);
+                }
+            }
+        }
 
-                if (member instanceof IOpenMethod) {
-                    IOpenMethod method = (IOpenMethod) member;
-                    RuleInfo ruleInfo = getRuleInfoForMethod(method);
-                    boolean isMember = true;
-                    String methodSignature = getRuleInfoSignature(ruleInfo);
-                    if (includes !=null && includes.length > 0){
-                        isMember = false;
-                        for (String pattern : includes){
-                            if (Pattern.matches(pattern, methodSignature)){
-                                isMember = true;
-                            }
-                        }
-                    }
-                    if (excludes != null && excludes.length > 0 && isMember){
-                        for (String pattern : excludes){
-                            if (Pattern.matches(pattern, methodSignature)){
-                                isMember = false;
-                            }
-                        }                        
-                    }
+        final Collection<IOpenField> fields = openClass.getFields().values();
+        for (IOpenField field : fields) {
+
+            if (!isIgnoredMember(field)) {
+
+                if (field.isReadable()) {
+                    RuleInfo ruleInfo = getRuleInfoForField(field);
+                    boolean isMember = isMember(ruleInfo, includes, excludes);
                     if (isMember) {
                         rules.add(ruleInfo);
-                    } 
-                }
-
-                if (member instanceof IOpenField) {
-
-                    IOpenField field = (IOpenField) member;
-
-                    if (field.isReadable()) {
-                        RuleInfo ruleInfo = getRuleInfoForField(field);
-                        boolean isMember = true;
-                        String methodSignature = getRuleInfoSignature(ruleInfo);
-                        if (includes !=null && includes.length > 0){
-                            isMember = false;
-                            for (String pattern : includes){
-                                if (Pattern.matches(pattern, methodSignature)){
-                                    isMember = true;
-                                }
-                            }
-                        }
-                        if (excludes != null && excludes.length > 0 && isMember){
-                            for (String pattern : excludes){
-                                if (Pattern.matches(pattern, methodSignature)){
-                                    isMember = false;
-                                }
-                            }                        
-                        }
-                        if (isMember) {
-                            rules.add(ruleInfo);
-                        } 
                     }
                 }
             }
         }
 
         return generateInterface(className, rules.toArray(new RuleInfo[rules.size()]), classLoader);
+    }
+
+    private static boolean isMember(RuleInfo ruleInfo, String[] includes, String[] excludes) {
+        boolean isMember = true;
+        String methodSignature = getRuleInfoSignature(ruleInfo);
+        if (includes != null && includes.length > 0) {
+            isMember = false;
+            for (String pattern : includes) {
+                if (Pattern.matches(pattern, methodSignature)) {
+                    isMember = true;
+                }
+            }
+        }
+        if (excludes != null && excludes.length > 0 && isMember) {
+            for (String pattern : excludes) {
+                if (Pattern.matches(pattern, methodSignature)) {
+                    isMember = false;
+                }
+            }
+        }
+        return isMember;
     }
 
     private static String getRuleInfoSignature(RuleInfo ruleInfo){

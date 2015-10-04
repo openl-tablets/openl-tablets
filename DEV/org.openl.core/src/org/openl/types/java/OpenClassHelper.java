@@ -1,16 +1,11 @@
 package org.openl.types.java;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.base.INameSpacedThing;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMember;
-import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
 
 public class OpenClassHelper {
@@ -60,27 +55,6 @@ public class OpenClassHelper {
         }
         return openClassList.toArray(new IOpenClass[openClassList.size()]);
 
-    }
-
-    /**
-     * Gets members (fields and methods) of given IOpenClass instance.
-     * 
-     * @param openClass IOpenClass instance
-     * @return array of members
-     */
-    public static IOpenMember[] getClassMembers(IOpenClass openClass) {
-
-        List<IOpenMember> members = new ArrayList<IOpenMember>();
-
-        if (openClass != null) {
-            Collection<IOpenMethod> methods = openClass.getMethods();
-            CollectionUtils.addAll(members, methods.iterator());
-
-            Collection<IOpenField> fields = openClass.getFields().values();
-            CollectionUtils.addAll(members, fields.iterator());
-        }
-
-        return members.toArray(new IOpenMember[members.size()]);
     }
 
     /**
