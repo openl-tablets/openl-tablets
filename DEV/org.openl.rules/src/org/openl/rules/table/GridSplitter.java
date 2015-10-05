@@ -107,14 +107,13 @@ public class GridSplitter {
 
             for (int col = grid.getMinColumnIndex(row); col < ncells; col++) {
 
-                // skip empty cell
-                if (grid.isEmpty(col, row)) {
+                // check if this cell was used
+                if (cellIsUsed(col, row)) {
                     continue;
                 }
 
-                // check if this cell was used
-
-                if (cellIsUsed(col, row)) {
+                // skip empty cell
+                if (grid.isEmpty(col, row)) {
                     continue;
                 }
 
