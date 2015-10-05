@@ -46,24 +46,6 @@ public class DatatypeHelper {
         return RuleRowHelper.loadParam(table, type, "Values", "", openlAdaptor, true);
     }
 
-//    public static boolean isAliasDatatype(ILogicalTable table, OpenL openl, IBindingContext cxt) {
-//
-//        ILogicalTable dataPart = getNormalizedDataPartTable(table, openl, cxt);
-//
-//        int height = dataPart.getHeight();
-//        int typesCount1 = countTypes(dataPart, openl, cxt);
-//        int typesCount2 = countTypes(dataPart.transpose(), openl, cxt);
-//        int width = dataPart.getWidth();
-//
-//        if (typesCount1 == 0 && typesCount2 == 0 && (height == 0 // values are
-//                // not provided
-//                || width == 1 || height == 1)) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
-
     public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
         
         ILogicalTable dataPart = null;

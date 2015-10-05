@@ -256,39 +256,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         
         return currentModuleDatatypes;
     }
-    
-    /**
-     * Finds type with given name in internal type list. If type with given name
-     * exists in list it will be returned; <code>null</code> - otherwise.
-     * 
-     * @param typeName
-     *            name of type to search
-     * @return {@link IOpenClass} instance or <code>null</code>
-     */
-    @Override
-    public IOpenClass findType(String namespace, String typeName) {
-        
-        String name = StringTool.buildTypeName(namespace, typeName);
-        // it will contain types from current module.
-        //
-        if (internalTypes.containsKey(name)) {
-            return internalTypes.get(name);
-        }
-        
-        // try to find type which is declared in dependency module
-        //
-        for (CompiledDependency dependency : usingModules) {
-            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-            if (!compiledOpenClass.hasErrors()) {
-                IOpenClass type = compiledOpenClass.getOpenClass().findType(namespace, typeName);
-                if (type != null) {
-                    return type;
-                }
-            }
-        }
-        return null;
-    }
-    
+
     /**
      * Add new type to internal types list. If the type with the same name
      * already exists exception will be thrown.

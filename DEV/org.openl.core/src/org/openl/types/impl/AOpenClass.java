@@ -373,19 +373,6 @@ public abstract class AOpenClass implements IOpenClass {
     /**
      * Default implementation. Always returns <code>null</code>.
      * 
-     * @param typeName name of type to search
-     * @return {@link IOpenClass} instance or <code>null</code>
-     */
-    public IOpenClass findType(String namespace, String typeName) {
-
-        // Default implementation.
-
-        return null;
-    }
-
-    /**
-     * Default implementation. Always returns <code>null</code>.
-     * 
      */
     public Map<String, IOpenClass> getTypes() {
         // Default implementation.
