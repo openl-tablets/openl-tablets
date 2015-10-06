@@ -324,7 +324,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
         methods.putAll(methodMap());
-        return new ArrayList<IOpenMethod>(methods.values());
+        return Collections.unmodifiableList(new ArrayList<IOpenMethod>(methods.values()));
     }
     
     public List<IOpenMethod> getDeclaredMethods() {

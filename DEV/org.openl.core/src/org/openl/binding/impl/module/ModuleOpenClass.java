@@ -168,44 +168,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
         return fields;
     }
-    
-//    @Override
-//    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-//        
-//        IOpenMethod method = super.getMethod(name, classes);
-//        if (method != null) {
-//            return method;
-//        } /*else {
-//            // if can`t find, search in dependencies.
-//            //
-//            for (CompiledOpenClass dependency : usingModules) {
-//                method = dependency.getOpenClass().getMethod(name, classes);
-//                if (method != null) {
-//                    return method;
-//                }
-//            }
-//        }*/
-//        
-//        return null;
-//    }
-
-    @Override
-    public List<IOpenMethod> getMethods() {
-
-        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
-
-        /**
-         * All methods from dependent modules  will exist in internal methods map.
-         * It was processed during constructing of current ModuleOpenClass. see
-         * initDependencies() method.
-         */
-
-        for (IOpenMethod method : super.getMethods()) {
-            methods.put(new MethodKey(method), method);
-        }
-
-        return new ArrayList<IOpenMethod>(methods.values());
-    }
 
     /**
      * Set compiled module dependencies for current module.
