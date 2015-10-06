@@ -69,7 +69,6 @@ import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
@@ -97,29 +96,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     
     private ClassLoader classLoader;
 
-    public XlsModuleOpenClass(IOpenSchema schema,
-            String name,
-            XlsMetaInfo metaInfo,
-            OpenL openl,
-            IDataBase dbase,
-            ClassLoader classLoader,
-            boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
-        this(schema, name, metaInfo, openl, dbase, null, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
-    }
-
     /**
      * Constructor for module with dependent modules
      *
      */
-    public XlsModuleOpenClass(IOpenSchema schema,
-            String name,
+    public XlsModuleOpenClass(String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
-        super(schema, name, openl);
+        super(name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
@@ -132,7 +120,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(metaInfo.getXlsModuleNode());
         additionalInitDependencies(); // Required for data tables.
     }
-    
+
     public ClassLoader getClassLoader() {
         return classLoader;
     }

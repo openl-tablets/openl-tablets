@@ -400,7 +400,7 @@ public class XlsBinder implements IOpenBinder {
                                                        IDataBase dbase,
                                                        Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
-        return new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
+        return new XlsModuleOpenClass(XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, Thread.currentThread().getContextClassLoader(), OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
     }
 

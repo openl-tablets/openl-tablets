@@ -112,7 +112,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			}
 			
 			String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
-            DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName, packageName);
+			DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
             
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //

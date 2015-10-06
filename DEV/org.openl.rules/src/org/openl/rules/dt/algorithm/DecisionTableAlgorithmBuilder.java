@@ -176,7 +176,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 	}
 
 	protected DecisionTableDataType getRuleExecutionType(OpenL openl) {
-		return new DecisionTableDataType(table, null, table.getName() + "Type",
+		return new DecisionTableDataType(table, table.getName() + "Type",
 				openl);
 	}
 

@@ -10,7 +10,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 
 /**
  * ModuleOpenClass for prebinding that uses {@link IPrebindHandler} to convert
@@ -22,20 +21,7 @@ import org.openl.types.IOpenSchema;
 public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     private IPrebindHandler prebindHandler;
 
-    public XlsLazyModuleOpenClass(IOpenSchema schema,
-            String name,
-            XlsMetaInfo metaInfo,
-            OpenL openl,
-            IDataBase dbase,
-            IPrebindHandler prebindHandler,
-            ClassLoader classLoader,
-            boolean useDescisionTableDispatcher,
-            boolean dispatchingValidationEnabled) {
-        this(schema, name, metaInfo, openl, dbase, prebindHandler, null, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
-    }
-
-    public XlsLazyModuleOpenClass(IOpenSchema schema,
-            String name,
+    public XlsLazyModuleOpenClass(String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
@@ -44,7 +30,7 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
             boolean dispatchingValidationEnabled) {
-        super(schema, name, metaInfo, openl, dbase, usingModules, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
+        super(name, metaInfo, openl, dbase, usingModules, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
         this.prebindHandler = prebindHandler;
     }
 

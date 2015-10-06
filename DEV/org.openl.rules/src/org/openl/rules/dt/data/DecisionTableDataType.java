@@ -4,7 +4,6 @@ import org.openl.OpenL;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.element.IDecisionRow;
-import org.openl.types.IOpenSchema;
 
 /**
  * 
@@ -30,8 +29,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
 
     private DecisionTable dtable;
     
-    public DecisionTableDataType(DecisionTable dtable, IOpenSchema schema, String name, OpenL openl) {
-        super(schema, name, openl);
+    public DecisionTableDataType(DecisionTable dtable, String name, OpenL openl) {
+        super(name, openl);
         this.dtable = dtable;
         initFileds();
     }
@@ -43,7 +42,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
     }
 
     private void addDecisionRow(IDecisionRow condOrAction) {
-        addField(new DecisionRowField(condOrAction, new ConditionOrActionDataType(condOrAction, this.getSchema(), this.getOpenl()), this));
+        addField(new DecisionRowField(condOrAction, new ConditionOrActionDataType(condOrAction, this.getOpenl()), this));
     }
     
 }

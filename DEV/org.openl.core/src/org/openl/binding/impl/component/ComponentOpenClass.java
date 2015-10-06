@@ -11,7 +11,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
@@ -32,18 +31,18 @@ public class ComponentOpenClass extends ADynamicClass {
 
     private OpenL openl;
 
-    public ComponentOpenClass(IOpenSchema schema, String name, OpenL openl) {
-        super(schema, name, DynamicObject.class);
+    public ComponentOpenClass(String name, OpenL openl) {
+        super(name, DynamicObject.class);
         this.openl = openl;
         this.init = new DefaultInitializer();
-        
+
         /**
          * TODO: fixme. Calling method in constructor that is overloaded in childs.
          * At this time childs are not built yet.
          */
         addField(new ThisField());
         addMethod(new GetOpenClass());
-    }    
+    }
 
     /**
      * Clears all unnecessary data for "Execution Mode"

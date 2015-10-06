@@ -14,7 +14,6 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.vm.IRuntimeEnv;
 
 public class OpenClassDelegator implements IOpenClass {
@@ -90,10 +89,6 @@ public class OpenClassDelegator implements IOpenClass {
 
     public IOpenClass getOpenClass() {
         return this;
-    }
-
-    public IOpenSchema getSchema() {
-        return baseClass.getSchema();
     }
 
     public IOpenField getVar(String vname, boolean strictMatch) {

@@ -24,7 +24,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.Log;
@@ -61,22 +60,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     private List<Throwable> errors = new ArrayList<Throwable>();
 
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
-        this(schema, name, openl, null);
+    public ModuleOpenClass(String name, OpenL openl) {
+        super(name, openl);
     }
-    
-    /**
-     * Constructor for module with dependent modules
-     *
-     */
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl, Set<CompiledDependency> usingModules) {
-        super(schema, name, openl);
-        if (usingModules != null) {
-            this.usingModules = new HashSet<CompiledDependency>(usingModules);
-            initDependencies();
-        }
-    }
-    
+
     /**
      * Populate current module fields with data from dependent modules. 
      */

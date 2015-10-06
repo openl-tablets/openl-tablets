@@ -38,14 +38,14 @@ public class DatatypeOpenClass extends ADynamicClass {
      */
     private String packageName;
 
-    public DatatypeOpenClass(IOpenSchema schema, String name, String packageName) {
+    public DatatypeOpenClass(String name, String packageName) {
         // NOTE! The instance class during the construction is null.
         // It will be set after the generating the appropriate byte code for the datatype.
         // See {@link org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
         //
         // @author Denis Levchuk
         //
-        super(schema, name, null);
+        super(name, null);
         addMethod(new EqualsMethod(this));
         addMethod(new HashCodeMethod(this));
         addMethod(new ToStringMethod(this));

@@ -115,10 +115,6 @@ public class NullOpenClass implements IOpenClass {
         return this;
     }
 
-    public IOpenSchema getSchema() {
-        return null;
-    }
-
     public IOpenField getVar(String fname, boolean strictMatch) {
         return null;
     }

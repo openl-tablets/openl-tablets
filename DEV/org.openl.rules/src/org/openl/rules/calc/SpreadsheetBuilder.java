@@ -22,7 +22,7 @@ public class SpreadsheetBuilder {
         this.bindingContext = bindingContext;
         OpenL openl = bindingContext.getOpenL();
         String type = header.getName() + "Type";
-        this.spreadsheetOpenClass = new SpreadsheetOpenClass(null, type, openl);
+        this.spreadsheetOpenClass = new SpreadsheetOpenClass(type, openl);
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         this.structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, autoType);
     }

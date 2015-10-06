@@ -77,11 +77,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 
     IOpenMethod getMethod(String name, IOpenClass[] classes);
 
-    /**
-     * @return the schema it has been created with
-     */
-    IOpenSchema getSchema();
-
     // ********* instance related methods ***********//
 
     /**

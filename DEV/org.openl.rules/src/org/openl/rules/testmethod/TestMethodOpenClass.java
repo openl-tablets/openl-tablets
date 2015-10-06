@@ -15,7 +15,7 @@ public class TestMethodOpenClass extends ADynamicClass {
 
     public TestMethodOpenClass(String tableName, IOpenMethod testedMethod) {
 
-        super(null, tableName + "TestClass", DynamicObject.class);
+        super(tableName + "TestClass", DynamicObject.class);
 
         init(testedMethod);
     }

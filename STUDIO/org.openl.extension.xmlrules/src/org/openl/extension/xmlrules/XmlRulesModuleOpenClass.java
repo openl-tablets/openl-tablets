@@ -24,8 +24,7 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
-        super(null,
-                XlsHelper.getModuleName(moduleNode),
+        super(XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
                 dbase,

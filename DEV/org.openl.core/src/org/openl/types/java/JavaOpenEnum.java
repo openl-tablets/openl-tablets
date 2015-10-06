@@ -1,12 +1,11 @@
 package org.openl.types.java;
 
 import org.openl.domain.IDomain;
-import org.openl.types.IOpenSchema;
 
 public class JavaOpenEnum extends JavaOpenClass {
 
-    protected JavaOpenEnum(Class<?> instanceClass, IOpenSchema schema) {
-        super(instanceClass, schema, true);
+    protected JavaOpenEnum(Class<?> instanceClass) {
+        super(instanceClass, true);
         domain = new JavaEnumDomain(this);
     }
 
