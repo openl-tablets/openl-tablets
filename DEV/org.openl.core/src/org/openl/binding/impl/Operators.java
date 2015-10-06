@@ -6,17 +6,16 @@
 
 package org.openl.binding.impl;
 
+import org.openl.util.ArrayTool;
+import org.openl.util.DateDifference;
+import org.openl.util.math.MathUtils;
+
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.openl.meta.StringValue;
-import org.openl.util.ArrayTool;
-import org.openl.util.DateDifference;
-import org.openl.util.math.MathUtils;
 
 /**
  * @author snshor
@@ -84,10 +83,6 @@ public class Operators {
     }
 
     public static String add(String x, char y) {
-        return x + y;
-    }
-
-    public static String add(String x, Double y) {
         return x + y;
     }
 
@@ -1412,10 +1407,6 @@ public class Operators {
 
     public static BigDecimal autocast(long x, BigDecimal y) {
         return new BigDecimal(x);
-    }
-
-    public static String autocast(StringValue x, String y) {
-        return x.getValue();
     }
 
     public static BigDecimal autocast(BigInteger x, BigDecimal y) {

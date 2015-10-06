@@ -43,7 +43,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     
     public String getCodeExpression(String param) {
         if (StringUtils.isNotEmpty(param)) {
-            return String.format("%s %s %s", param, getOperation(), contextAttribute); 
+            return new StringBuilder(64).append(param).append(' ').append(getOperation()).append(' ').append(contextAttribute).toString();
         }
         return null;
     }

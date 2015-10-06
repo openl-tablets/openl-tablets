@@ -99,7 +99,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 			// Return bound node.
 			//
-			return new AliasDatatypeBoundNode(tsn, tableType, module,table, openl);
+			return new AliasDatatypeBoundNode(tsn, tableType, module);
 		} else {
 
 			if (parsedHeader.length != 2
@@ -112,7 +112,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			}
 			
 			String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
-            DatatypeOpenClass tableType = new DatatypeOpenClass(module.getSchema(), typeName, packageName);
+			DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
             
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //

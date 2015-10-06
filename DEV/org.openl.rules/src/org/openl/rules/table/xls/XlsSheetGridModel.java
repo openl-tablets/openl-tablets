@@ -7,11 +7,8 @@
 package org.openl.rules.table.xls;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +30,6 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -47,7 +43,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
@@ -74,16 +69,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
 
-    private XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
-
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
-
-        dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
-    }
-
-    public XlsDataFormatterFactory getDataFormatterFactory() {
-        return dataFormatterFactory;
     }
 
     private void extractMergedRegions() {
@@ -271,7 +258,21 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public boolean isEmpty(int x, int y) {
-        return PoiExcelHelper.isEmptyCell(x, y, getSheet());
+        Cell cell = PoiExcelHelper.getCell(x, y, getSheet());
+        if (cell == null) {
+            return true;
+        }
+
+        final int cellType = cell.getCellType();
+        if (cellType == Cell.CELL_TYPE_BLANK) {
+            return true;
+        }
+
+        if (cellType == Cell.CELL_TYPE_STRING) {
+            String v = cell.getStringCellValue();
+            return StringUtils.isBlank(v);
+        }
+        return false;
     }
 
     public void removeMergedRegion(IGridRegion remove) {
@@ -441,9 +442,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
             // Xls
         } else {
-            HSSFColor color = findIndexedColor(rgb);
+            Short color = findIndexedColor(rgb);
             if (color != null) {
-                dest.setFillForegroundColor(color.getIndex());
+                dest.setFillForegroundColor(color);
             }
         }
     }
@@ -472,14 +473,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
             // Xls
         } else {
-            HSSFColor color = findIndexedColor(rgb);
+            Short color = findIndexedColor(rgb);
             if (color != null) {
-                dest.setColor(color.getIndex());
+                dest.setColor(color);
             }
         }
     }
 
-    private HSSFColor findIndexedColor(short[] rgb) {
+    private Short findIndexedColor(short[] rgb) {
         HSSFPalette palette = ((HSSFWorkbook) getSheet().getWorkbook()).getCustomPalette();
         HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
 
@@ -500,7 +501,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 color = palette.findSimilarColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
             }
         }
-        return color;
+        return color == null ? null : color.getIndex();
     }
 
     public void setCellFontBold(int col, int row, boolean bold) {
@@ -592,29 +593,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             }
         }
         return result;
-    }
-
-    @Override
-    public void write(OutputStream out) {
-        try {
-            sheetSource.getSheet().getWorkbook().write(out);
-        } catch (IOException e) {
-            throw new OpenlNotCheckedException("Cannot write model to the stream");
-        }
-    }
-
-    @Override
-    public IWritableGrid createGrid(String name) {
-        try {
-            return XlsSheetGridHelper.createVirtualGrid(
-                    getSheet().getWorkbook().createSheet(name),
-                    sheetSource.getWorkbookSource().getSourceFile().getName());
-        } catch (IllegalArgumentException ex) {
-            // Such sheet already exists
-            return XlsSheetGridHelper.createVirtualGrid(
-                    getSheet().getWorkbook().getSheet(name),
-                    sheetSource.getWorkbookSource().getSourceFile().getName());
-        }
     }
 
     private Sheet getSheet() {

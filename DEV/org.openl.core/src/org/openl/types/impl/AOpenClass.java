@@ -29,7 +29,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenIterator;
 
@@ -38,7 +37,6 @@ import org.openl.util.OpenIterator;
  *
  */
 public abstract class AOpenClass implements IOpenClass {
-    protected IOpenSchema schema;
 
     private IOpenField indexField;
 
@@ -47,10 +45,6 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
     
-    protected AOpenClass(IOpenSchema schema) {
-        this.schema = schema;
-    }
-
     protected synchronized void addFieldToLowerCaseMap(IOpenField f) {
         if (uniqueLowerCaseFieldMap == null) {
             return;
@@ -243,10 +237,6 @@ public abstract class AOpenClass implements IOpenClass {
         return this;
     }
 
-    public IOpenSchema getSchema() {
-        return schema;
-    }
-
     private synchronized Map<String, IOpenField> getUniqueLowerCaseFieldMap() {
         if (uniqueLowerCaseFieldMap == null) {
             makeLowerCaseMaps();
@@ -334,7 +324,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
         methods.putAll(methodMap());
-        return new ArrayList<IOpenMethod>(methods.values());
+        return Collections.unmodifiableList(new ArrayList<IOpenMethod>(methods.values()));
     }
     
     public List<IOpenMethod> getDeclaredMethods() {
@@ -368,19 +358,6 @@ public abstract class AOpenClass implements IOpenClass {
 
         // Default implementation.
         // To do nothing. Not everyone has internal types.
-    }
-
-    /**
-     * Default implementation. Always returns <code>null</code>.
-     * 
-     * @param typeName name of type to search
-     * @return {@link IOpenClass} instance or <code>null</code>
-     */
-    public IOpenClass findType(String namespace, String typeName) {
-
-        // Default implementation.
-
-        return null;
     }
 
     /**

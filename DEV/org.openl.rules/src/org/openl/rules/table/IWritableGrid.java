@@ -3,8 +3,6 @@
  */
 package org.openl.rules.table;
 
-import java.io.OutputStream;
-
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -72,13 +70,4 @@ public interface IWritableGrid extends IGrid {
     void setCellStringValue(int col, int row, String value);
 
     void setCellFormula(int col, int row, String formula);
-
-    /**
-     * Write the the stream to the given grid
-     * @param out
-     */
-    void write(OutputStream out);
-
-    IWritableGrid createGrid(String name);
-
 }

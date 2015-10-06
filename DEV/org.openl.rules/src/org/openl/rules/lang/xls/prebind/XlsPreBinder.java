@@ -66,8 +66,7 @@ public class XlsPreBinder extends XlsBinder {
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
-        return new XlsLazyModuleOpenClass(null,
-                XlsHelper.getModuleName(moduleNode),
+        return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
                 dbase,

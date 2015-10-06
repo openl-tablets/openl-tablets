@@ -9,7 +9,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.xls.XlsCell;
@@ -21,21 +20,12 @@ import org.openl.util.formatters.IFormatter;
 
 public class XlsDataFormatterFactory {
 
-    public static final String GENERAL_FORMAT = "General";
+    private static final String GENERAL_FORMAT = "General";
 
-    private DataFormatter dataFormatter;
-    private Locale locale;
+    private static Locale locale = Locale.US;
+    private static DataFormatter dataFormatter = new DataFormatter(locale);
 
-    public XlsDataFormatterFactory() {
-        this(null);
-    }
-
-    public XlsDataFormatterFactory(Locale locale) {
-        this.locale = locale;
-        this.dataFormatter = new DataFormatter(locale);
-    }
-
-    public IFormatter getFormatter(ICell cell) {
+    public static IFormatter getFormatter(XlsCell cell) {
         IFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
@@ -83,10 +73,10 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private IFormatter getNumberFormatter(ICell cell) {
+    private static IFormatter getNumberFormatter(XlsCell cell) {
         IFormatter formatter = null;
 
-        Cell xlsCell = ((XlsCell) cell).getXlsCell();
+        Cell xlsCell = cell.getXlsCell();
         CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
 
         if (xlsStyle != null) {
@@ -101,10 +91,10 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private IFormatter getDateFormatter(ICell cell) {
+    private static IFormatter getDateFormatter(XlsCell cell) {
         IFormatter formatter = null;
 
-        Cell xlsCell = ((XlsCell) cell).getXlsCell();
+        Cell xlsCell = cell.getXlsCell();
         CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
 
         if (xlsStyle != null) {

@@ -36,7 +36,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     static class MyArrayOpenClass extends ArrayOpenClass {
 
         public MyArrayOpenClass(IOpenClass componentClass) {
-            super(componentClass.getSchema(), componentClass, new MyArrayLengthOpenField());
+            super(componentClass, new MyArrayLengthOpenField());
         }
 
         public IAggregateInfo getAggregateInfo() {
@@ -111,7 +111,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
         if (componentType instanceof MyArrayOpenClass)
         {
-        	return getIndexedAggregateType(((MyArrayOpenClass)componentType).getComponentClass(), dim+1);
+        	return getIndexedAggregateType(componentType.getComponentClass(), dim+1);
         }	
         
         IOpenClass[] arrayTypes = ((ADynamicClass) componentType).getArrayTypes();

@@ -81,7 +81,7 @@ public class PoiExcelHelper {
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row != null) {
-            return row.getCell(colIndex);
+            return row.getCell(colIndex, Row.RETURN_NULL_AND_BLANK);
         }
         return null;
     }
@@ -91,11 +91,7 @@ public class PoiExcelHelper {
         if (row == null) {
             row = sheet.createRow(rowIndex);
         }
-        Cell cell = row.getCell(colIndex);
-        if (cell == null) {
-            cell = row.createCell(colIndex);
-        }
-        return cell;
+        return row.getCell(colIndex, Row.CREATE_NULL_AS_BLANK);
     }
     
     /**
@@ -145,24 +141,7 @@ public class PoiExcelHelper {
     public static int getMinRowIndex(Sheet sheet) {
         return sheet.getFirstRowNum();
     }
-    
-    public static boolean isEmptyCell(int x, int y, Sheet sheet) {
-        Cell cell = PoiExcelHelper.getCell(x, y, sheet);
-        if (cell == null) {
-            return true;
-        }
 
-        if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-            return true;
-        }
-
-        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-            String v = cell.getStringCellValue();
-            return v == null || v.trim().length() == 0;
-        }
-        return false;
-    }
-    
     public static int getLastRowNum(Sheet sheet) {
         return sheet.getLastRowNum();
     }

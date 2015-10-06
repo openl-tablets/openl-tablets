@@ -18,7 +18,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaNoAggregateInfo;
 import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
@@ -42,8 +41,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     private IOpenClass[] arrayTypes = new IOpenClass[MAX_DIM];
 
-    public ADynamicClass(IOpenSchema schema, String name, Class<?> instanceClass) {
-        super(schema);
+    public ADynamicClass(String name, Class<?> instanceClass) {
         this.name = name;
         this.instanceClass = instanceClass;
         this.fieldMap = fieldMap();

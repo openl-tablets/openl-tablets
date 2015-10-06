@@ -247,7 +247,7 @@ public class AlgorithmCompiler {
 
     private void initialization(Algorithm algorithm) throws SyntaxNodeException {
         labelManager = new LabelManager();
-        thisTargetClass = new ComponentOpenClass(null, generateOpenClassName(), context.getOpenL());
+        thisTargetClass = new ComponentOpenClass(generateOpenClassName(), context.getOpenL());
 
         initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
         initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));

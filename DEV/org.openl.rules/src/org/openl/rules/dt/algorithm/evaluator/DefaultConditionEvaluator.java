@@ -35,7 +35,7 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
     /**
      * No indexing for default evaluator
      */
-    public ARuleIndex makeIndex(Object[][] indexedParams, IIntIterator it) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator it) {
         throw new UnsupportedOperationException("The evaluator does not support indexing");
     }
 

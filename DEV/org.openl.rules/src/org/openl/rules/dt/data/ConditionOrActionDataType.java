@@ -2,16 +2,15 @@ package org.openl.rules.dt.data;
 
 import org.openl.OpenL;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.rules.dt.element.IDecisionRow;
-import org.openl.types.IOpenSchema;
+import org.openl.rules.dtx.IBaseDecisionRow;
 import org.openl.types.IParameterDeclaration;
 
 public class ConditionOrActionDataType extends ComponentOpenClass {
 
-    private IDecisionRow conditionOrAction;
+    private IBaseDecisionRow conditionOrAction;
 
-    public ConditionOrActionDataType(IDecisionRow conditionOrAction, IOpenSchema schema,  OpenL openl) {
-        super(schema, conditionOrAction.getName() + "Type", openl);
+    public ConditionOrActionDataType(IBaseDecisionRow conditionOrAction, OpenL openl) {
+        super(conditionOrAction.getName() + "Type", openl);
         this.conditionOrAction = conditionOrAction;
         initFields();
     }

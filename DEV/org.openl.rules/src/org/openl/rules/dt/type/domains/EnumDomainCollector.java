@@ -27,7 +27,7 @@ public class EnumDomainCollector implements IDomainCollector {
         }        
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public IDomainAdaptor getGatheredDomain() {
         IDomainAdaptor result = null;
         if (!enumProp.isEmpty()) {

@@ -32,7 +32,7 @@ public class RulesPrioritySortingTest {
 
         ITestI instance = engineFactory.newEngineInstance();
 
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Object[][] testData = { { "2011-01-15", "2011-02-15", 120.0 }, { "2011-02-15", "2011-01-15", 120.0 },
                 { "2011-01-15", "2020-01-15", 120.0 }, { "2020-01-15", "2011-01-15", 120.0 },

@@ -29,8 +29,7 @@ public class XlsNodeTypesTest {
         assertEquals(XlsNodeTypes.XLS_DATATYPE, XlsNodeTypes.getEnumByValue("xls.datatype"));
         assertEquals(XlsNodeTypes.XLS_OPENL, XlsNodeTypes.getEnumByValue("xls.openl"));
         assertEquals(XlsNodeTypes.XLS_ENVIRONMENT, XlsNodeTypes.getEnumByValue("xls.environment"));
-        assertEquals(XlsNodeTypes.XLS_PERSISTENT, XlsNodeTypes.getEnumByValue("xls.persistent"));
-        assertEquals(XlsNodeTypes.XLS_OTHER, XlsNodeTypes.getEnumByValue("xls.other"));        
+        assertEquals(XlsNodeTypes.XLS_OTHER, XlsNodeTypes.getEnumByValue("xls.other"));
         assertEquals(XlsNodeTypes.XLS_PROPERTIES, XlsNodeTypes.getEnumByValue("xls.properties"));
         
         assertNull(XlsNodeTypes.getEnumByValue(null));

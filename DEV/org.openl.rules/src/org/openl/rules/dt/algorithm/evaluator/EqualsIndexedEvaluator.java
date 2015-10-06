@@ -58,7 +58,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         return true;
     }
 
-    public ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator it) {
+    public ARuleIndex makeIndex(ICondition condition, IIntIterator it) {
         if (it.size() < 1) {
             return null;
         }
@@ -70,7 +70,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         for (; it.hasNext();) {
             int i = it.nextInt();
 
-            if (indexedparams[i] == null || indexedparams[i][0] == null) {
+            if (condition.isEmpty(i)) {
                 emptyBuilder.addRule(i);
                 if (map != null) {
                     for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
@@ -81,7 +81,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
                 continue;
             }
 
-            Object value = indexedparams[i][0];
+            Object value = condition.getParamValue(0, i);
             if (openCast != null) {
                 value = openCast.convert(value);
             }
@@ -129,16 +129,14 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
     }
 
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
-        Object[][] params = ((ICondition)condition).getParamValues();
-        int len = params.length;
+        int len = condition.getNumberOfRules();
         ArrayList<Object> list = new ArrayList<Object>(len);
         HashSet<Object> set = new HashSet<Object>(len);
 
-        for (int i = 0; i < params.length; i++) {
-            Object[] pp = params[i];
-            if (pp == null)
+        for (int ruleN = 0; ruleN < len; ruleN++) {
+            if (condition.isEmpty(ruleN))
                 continue;
-            Object key = pp[0];
+            Object key = condition.getParamValue(0, ruleN);
             if (key == null)
                 continue;
             if (!set.add(key))

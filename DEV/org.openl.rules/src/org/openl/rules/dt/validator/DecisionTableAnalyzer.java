@@ -18,7 +18,6 @@ import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
@@ -40,26 +39,24 @@ public class DecisionTableAnalyzer {
 
     private void init(DecisionTable decisionTable) {
 
-        ICondition[] conditionRows = decisionTable.getConditionRows();
+        int n = decisionTable.getNumberOfConditions();
+        
+       
 
-        for (ICondition conditionRow : conditionRows) {
-            conditionAnalyzers.put(conditionRow, new ConditionAnalyzer(conditionRow));
+        for (int i = 0; i < n; ++i) {
+            conditionAnalyzers.put(decisionTable.getCondition(i), new ConditionAnalyzer(decisionTable.getCondition(i)));
         }
     }
 
     public boolean containsFormula(IDecisionRow row) {
 
-        Object[][] paramValues = row.getParamValues();
 
-        for (int i = 0; i < paramValues.length; i++) {
+    	int len = row.getNumberOfRules();
+        for (int ruleN = 0; ruleN < len; ruleN++) {
 
-            if (paramValues[i] != null) {
-                for (Object paramValue : paramValues[i]) {
-                    if (paramValue instanceof IOpenMethod) {
-                        return true;
-                    }
-                }
-            }
+        	if (row.hasFormula(ruleN))
+        		return true;
+        	
         }
 
         return false;
@@ -85,39 +82,42 @@ public class DecisionTableAnalyzer {
         IDomain<?> result = null;
         Class<?> type = parameter.getType().getInstanceClass();
         if (String.class.equals(type)) {
-            result = gatherStringDomainFromValues(condition.getParamValues());
+            result = gatherStringDomainFromValues(condition);
         } else if (int.class.equals(type)) {
-            result = gatherIntDomainFromValues(condition.getParamValues());
+            result = gatherIntDomainFromValues(condition);
         }        
         return result;
     }
 
-    private StringDomain gatherStringDomainFromValues(Object[][] values) {
-        String[] enumValues = new String[values.length * values[0].length];
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] != null) {
-                for (int j = 0; j < values[i].length; j++) {
-                    enumValues[i * values[i].length + j] = (String) values[i][j];
+    private StringDomain gatherStringDomainFromValues(ICondition condition) {
+    	int nRules = condition.getNumberOfRules();
+    	int np = condition.getNumberOfParams();
+        String[] enumValues = new String[nRules * np];
+        for (int ruleN = 0; ruleN < nRules; ruleN++) {
+                for (int pidx = 0; pidx < np; pidx++) {
+                    enumValues[ruleN * np + pidx] = (String) condition.getParamValue(pidx, ruleN);
                 }
-            }
         }
         return new StringDomain(enumValues);
     }
 
-    private IntRangeDomain gatherIntDomainFromValues(Object[][] values) {
+    private IntRangeDomain gatherIntDomainFromValues(ICondition condition) {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] != null) {
-                for (int j = 0; j < values[i].length; j++) {
-                    if (min > (Integer) values[i][j]) {
-                        min = (Integer) values[i][j];
+    	int nRules = condition.getNumberOfRules();
+    	int np = condition.getNumberOfParams();
+        for (int ruleN = 0; ruleN < nRules; ruleN++) {
+        	if (condition.isEmpty(ruleN))
+        		continue;
+                for (int pidx = 0; pidx < np; pidx++) {
+                	Integer cand = (Integer) condition.getParamValue(pidx, ruleN);
+                    if (min > cand) {
+                        min = cand;
                     }
-                    if (max < (Integer) values[i][j]) {
-                        max = (Integer) values[i][j];
+                    else if (max < cand) {
+                        max = cand;
                     }
                 }
-            }
         }
         return new IntRangeDomain(min, max);
     }

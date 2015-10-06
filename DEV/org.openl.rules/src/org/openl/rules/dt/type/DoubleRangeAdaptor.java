@@ -47,4 +47,9 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 	public boolean useOriginalSource() {
 		return false;
 	}
+
+	@Override
+	public Class<?> getIndexType() {
+		return Double.class;
+	}
 }

@@ -7,7 +7,7 @@ import org.openl.vm.IRuntimeEnv;
 public class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     public SpreadsheetResultOpenClass(Class<?> type) {
-        super(type, null);
+        super(type);
     }
 
     @Override

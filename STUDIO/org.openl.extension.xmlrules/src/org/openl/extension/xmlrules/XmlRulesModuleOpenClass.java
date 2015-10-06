@@ -8,7 +8,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.data.IDataBase;
-import org.openl.rules.dt2.DecisionTable;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -24,8 +24,7 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
-        super(null,
-                XlsHelper.getModuleName(moduleNode),
+        super(XlsHelper.getModuleName(moduleNode),
                 new XlsMetaInfo(moduleNode),
                 openl,
                 dbase,

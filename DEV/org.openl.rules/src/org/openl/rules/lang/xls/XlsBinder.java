@@ -82,22 +82,14 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
-	
-	//set this flag to true if you want to test all the rules with new DT2 implementation
-	//If set to false the new implementation will affect only  Rules2, DT2, SimpleRules2, SimpleLookup2 keywords
-	
-    public static final boolean USE_DT2_ONLY = true;
-    
-	
-	private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
+    private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
     
     public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
 
     private static final String[][] BINDERS = {{XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName()},
-            {XlsNodeTypes.XLS_DT.toString(), USE_DT2_ONLY ? org.openl.rules.dt2.DecisionTableNodeBinder.class.getName() :  org.openl.rules.dt.DecisionTableNodeBinder.class.getName()},
-            {XlsNodeTypes.XLS_DT2.toString(), org.openl.rules.dt2.DecisionTableNodeBinder.class.getName()},
+            {XlsNodeTypes.XLS_DT.toString(), org.openl.rules.dt.DecisionTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName()},
             {XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName()},
@@ -408,7 +400,7 @@ public class XlsBinder implements IOpenBinder {
                                                        IDataBase dbase,
                                                        Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
 
-        return new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
+        return new XlsModuleOpenClass(XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
                 openl, dbase, moduleDependencies, Thread.currentThread().getContextClassLoader(), OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()), OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
     }
 
@@ -592,7 +584,6 @@ public class XlsBinder implements IOpenBinder {
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode){
         return tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT ||
-                tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DT2 ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_TBASIC ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_METHOD ||
                 tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_COLUMN_MATCH ||

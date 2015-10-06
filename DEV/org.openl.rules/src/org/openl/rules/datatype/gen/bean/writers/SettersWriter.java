@@ -53,8 +53,9 @@ public class SettersWriter extends MethodWriter {
 
     protected MethodVisitor writeMethodSignature(ClassWriter classWriter, FieldDescription fieldType, String fieldName) {
         String setterName = StringTool.getSetterName(fieldName);
-        return classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, String.format("(%s)V", 
-            ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);        
+        final String javaType = ByteCodeGeneratorHelper.getJavaType(fieldType);
+        final String format = new StringBuilder(64).append('(').append(javaType).append(")V").toString();
+        return classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, format, null, null);
     }
 
 }

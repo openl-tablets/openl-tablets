@@ -5,7 +5,7 @@ import java.util.Comparator;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.math.MathUtils;
 
-class FloatTypeComparator implements Comparator<Object> {
+public class FloatTypeComparator implements Comparator<Object> {
     private static FloatTypeComparator INSTANCE = new FloatTypeComparator();
     
     private FloatTypeComparator() {

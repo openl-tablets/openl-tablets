@@ -30,14 +30,13 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
-import org.openl.rules.dt2.DecisionTable;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
@@ -70,7 +69,6 @@ import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
@@ -98,29 +96,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     
     private ClassLoader classLoader;
 
-    public XlsModuleOpenClass(IOpenSchema schema,
-            String name,
-            XlsMetaInfo metaInfo,
-            OpenL openl,
-            IDataBase dbase,
-            ClassLoader classLoader,
-            boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
-        this(schema, name, metaInfo, openl, dbase, null, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
-    }
-
     /**
      * Constructor for module with dependent modules
      *
      */
-    public XlsModuleOpenClass(IOpenSchema schema,
-            String name,
+    public XlsModuleOpenClass(String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
-        super(schema, name, openl);
+        super(name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
@@ -133,7 +120,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(metaInfo.getXlsModuleNode());
         additionalInitDependencies(); // Required for data tables.
     }
-    
+
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -279,9 +266,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         if (openMethod instanceof DecisionTable) {
             return new DecisionTable2Wrapper(this, (DecisionTable) openMethod);
-        }
-        if (openMethod instanceof org.openl.rules.dt.DecisionTable) {
-            return new DecisionTableWrapper(this, (org.openl.rules.dt.DecisionTable) openMethod);
         }
         if (openMethod instanceof ColumnMatch) {
             return new ColumnMatchWrapper(this, (ColumnMatch) openMethod);

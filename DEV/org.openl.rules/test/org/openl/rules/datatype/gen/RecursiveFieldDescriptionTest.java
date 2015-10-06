@@ -16,14 +16,14 @@ public class RecursiveFieldDescriptionTest {
     public void testGetTypeWriter_RecursionField() {
         // Create the IOpenClass for the policy
         //
-        DatatypeOpenClass policyClass = new DatatypeOpenClass(null, Policy.class.getSimpleName(), Policy.class.getPackage().getName());
+        DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(), Policy.class.getPackage().getName());
         policyClass.setInstanceClass(Policy.class);
 
         // Create the IOpenClass for the Driver
         // NOTE! Without instance class, to simulate the situation with
         // the recursive field in the datatype
         //
-        DatatypeOpenClass driverClass = new DatatypeOpenClass(null, "Driver", "org.openl.beans.generated");
+        DatatypeOpenClass driverClass = new DatatypeOpenClass("Driver", "org.openl.beans.generated");
 
         // Create the IOpenClass for the drivers[]
         //

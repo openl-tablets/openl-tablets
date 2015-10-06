@@ -9,7 +9,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.RulesCommons;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
@@ -98,7 +97,21 @@ public class DecisionTableHelper {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey().charAt(0) 
             && Character.isDigit(s.charAt(1));
     }
+    
+    public static boolean isValidHConditionHeader(String headerStr) {
+        return headerStr.startsWith(
+            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
+            Character.isDigit(headerStr.charAt(2));
+    }
+    
 
+    public static boolean isValidMergedConditionHeader(String headerStr) {
+        return headerStr.startsWith(
+                DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
+                Character.isDigit(headerStr.charAt(2));
+    }
+    
+    
     public static boolean isValidActionHeader(String s) {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) 
             && Character.isDigit(s.charAt(1));
@@ -113,16 +126,12 @@ public class DecisionTableHelper {
         return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
     }
 
-    public static boolean isValidCommentHeader(String s) {
-        return s.startsWith(RulesCommons.COMMENT_SYMBOLS.toString());
-    }
-
     public static boolean isActionHeader(String s) {
         return isValidActionHeader(s) || isValidRetHeader(s);
     }
 
     public static boolean isConditionHeader(String s) {
-        return isValidConditionHeader(s) || isValidHConditionHeader(s);
+        return isValidConditionHeader(s) || isValidHConditionHeader(s) || isValidMergedConditionHeader(s);
     }
 
     public static int countConditionsAndActions(ILogicalTable table) {
@@ -150,29 +159,9 @@ public class DecisionTableHelper {
      * @return true if there is is any horizontal condition header in the table.
      */
     public static boolean hasHConditions(ILogicalTable table) {
-        int width = table.getWidth();
-
-        for (int i = 0; i < width; i++) {
-
-            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
-
-            if (value != null) {
-                value = value.toUpperCase();
-
-                if (isValidHConditionHeader(value)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    	return countHConditions(table) > 0;
     }
     
-    public static boolean isValidHConditionHeader(String headerStr) {
-        return headerStr.startsWith(
-            DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && 
-            Character.isDigit(headerStr.charAt(2));
-    }
     
     /**
      * Creates virtual headers for condition and return columns to load simple
@@ -315,8 +304,8 @@ public class DecisionTableHelper {
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, boolean lastCondition, int vColumnCounter) {
-        final List<String> intType = Arrays.asList("byte","short","int","java.lang.Byte",
-                "org.openl.meta.ByteValue","org.openl.meta.ShortValue","org.openl.meta.IntValue",
+        final List<String> intType = Arrays.asList("byte", "short", "int", "java.lang.Byte",
+                "org.openl.meta.ByteValue", "org.openl.meta.ShortValue", "org.openl.meta.IntValue",
                 "org.openl.meta.BigIntegerValue", "java.lang.Integer", "org.openl.meta.IntegerValue");
         final List<String> doubleType = Arrays.asList("long","float","double","java.lang.Long","java.lang.Float",
                 "java.lang.Double", "org.openl.meta.LongValue","org.openl.meta.FloatValue","org.openl.meta.DoubleValue",
@@ -469,4 +458,48 @@ public class DecisionTableHelper {
             return false;
         }
     }
+
+	public static int countHConditions(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+
+        for (int i = 0; i < width; i++) {
+
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                value = value.toUpperCase();
+
+                if (isValidHConditionHeader(value)) {
+                    ++cnt;
+                }
+            }
+        }
+
+        return cnt;
+	}
+
+
+	public static int countVConditions(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+
+        for (int i = 0; i < width; i++) {
+
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (value != null) {
+                value = value.toUpperCase();
+
+                if (isValidConditionHeader(value)) {
+                    ++cnt;
+                }
+            }
+        }
+
+        return cnt;
+	}
+
+
+
 }

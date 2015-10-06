@@ -18,13 +18,13 @@ public class DatatypeOpenClassTest {
 	
 	@Test
 	public void testEquals() {
-		DatatypeOpenClass doc1 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		DatatypeOpenClass doc1 = new DatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE);
 		doc1.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
 		
-		DatatypeOpenClass doc2 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		DatatypeOpenClass doc2 = new DatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE);
 		doc2.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
 		
-		DatatypeOpenClass doc3 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE);
+		DatatypeOpenClass doc3 = new DatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE);
 		doc3.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
 		// reflexive check
 		//
@@ -53,7 +53,7 @@ public class DatatypeOpenClassTest {
 		//
 		assertFalse(doc1.equals(null));
 		
-		DatatypeOpenClass doc4 = new DatatypeOpenClass(null, DEFAULT_NAME, DEFAULT_PACKAGE + "suffix");		
+		DatatypeOpenClass doc4 = new DatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE + "suffix");
 		assertFalse(doc1.equals(doc4));
 		assertFalse(doc4.equals(doc1));
 		assertFalse(doc1.hashCode() == doc4.hashCode());

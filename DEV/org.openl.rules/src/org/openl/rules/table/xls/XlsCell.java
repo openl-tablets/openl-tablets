@@ -176,8 +176,7 @@ public class XlsCell implements ICell {
     }
 
     public IFormatter getDataFormatter() {
-        XlsDataFormatterFactory dataFormatterFactory = gridModel.getDataFormatterFactory();
-        return dataFormatterFactory.getFormatter(this);
+        return XlsDataFormatterFactory.getFormatter(this);
     }
 
     @Override
@@ -321,7 +320,11 @@ public class XlsCell implements ICell {
         if (cell == null) {
             return null;
         }
-        return cell.getDateCellValue();
+        try {
+            return cell.getDateCellValue();
+        } catch (NullPointerException npe){
+            throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
+        }
     }
 
     public CellMetaInfo getMetaInfo() {

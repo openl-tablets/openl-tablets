@@ -24,7 +24,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.Log;
@@ -61,22 +60,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     private List<Throwable> errors = new ArrayList<Throwable>();
 
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
-        this(schema, name, openl, null);
+    public ModuleOpenClass(String name, OpenL openl) {
+        super(name, openl);
     }
-    
-    /**
-     * Constructor for module with dependent modules
-     *
-     */
-    public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl, Set<CompiledDependency> usingModules) {
-        super(schema, name, openl);
-        if (usingModules != null) {
-            this.usingModules = new HashSet<CompiledDependency>(usingModules);
-            initDependencies();
-        }
-    }
-    
+
     /**
      * Populate current module fields with data from dependent modules. 
      */
@@ -181,44 +168,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
         return fields;
     }
-    
-//    @Override
-//    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-//        
-//        IOpenMethod method = super.getMethod(name, classes);
-//        if (method != null) {
-//            return method;
-//        } /*else {
-//            // if can`t find, search in dependencies.
-//            //
-//            for (CompiledOpenClass dependency : usingModules) {
-//                method = dependency.getOpenClass().getMethod(name, classes);
-//                if (method != null) {
-//                    return method;
-//                }
-//            }
-//        }*/
-//        
-//        return null;
-//    }
-
-    @Override
-    public List<IOpenMethod> getMethods() {
-
-        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
-
-        /**
-         * All methods from dependent modules  will exist in internal methods map.
-         * It was processed during constructing of current ModuleOpenClass. see
-         * initDependencies() method.
-         */
-
-        for (IOpenMethod method : super.getMethods()) {
-            methods.put(new MethodKey(method), method);
-        }
-
-        return new ArrayList<IOpenMethod>(methods.values());
-    }
 
     /**
      * Set compiled module dependencies for current module.
@@ -256,39 +205,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         
         return currentModuleDatatypes;
     }
-    
-    /**
-     * Finds type with given name in internal type list. If type with given name
-     * exists in list it will be returned; <code>null</code> - otherwise.
-     * 
-     * @param typeName
-     *            name of type to search
-     * @return {@link IOpenClass} instance or <code>null</code>
-     */
-    @Override
-    public IOpenClass findType(String namespace, String typeName) {
-        
-        String name = StringTool.buildTypeName(namespace, typeName);
-        // it will contain types from current module.
-        //
-        if (internalTypes.containsKey(name)) {
-            return internalTypes.get(name);
-        }
-        
-        // try to find type which is declared in dependency module
-        //
-        for (CompiledDependency dependency : usingModules) {
-            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-            if (!compiledOpenClass.hasErrors()) {
-                IOpenClass type = compiledOpenClass.getOpenClass().findType(namespace, typeName);
-                if (type != null) {
-                    return type;
-                }
-            }
-        }
-        return null;
-    }
-    
+
     /**
      * Add new type to internal types list. If the type with the same name
      * already exists exception will be thrown.

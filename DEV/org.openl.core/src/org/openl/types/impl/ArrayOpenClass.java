@@ -13,7 +13,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -27,8 +26,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
     protected IOpenIndex index;
 
-    public ArrayOpenClass(IOpenSchema schema, IOpenClass componentClass, IOpenField lengthOpenField) {
-        super(schema);
+    public ArrayOpenClass(IOpenClass componentClass, IOpenField lengthOpenField) {
         this.componentClass = componentClass;
         fieldMap = new HashMap<String, IOpenField>(1);
         fieldMap.put(lengthOpenField.getName(), lengthOpenField);

@@ -57,12 +57,12 @@ public class FieldDescriptionTest {
     public void testArrayOpenClass() {
         // Create the IOpenClass for the policy
         //
-        DatatypeOpenClass policyClass = new DatatypeOpenClass(null, Policy.class.getSimpleName(), Policy.class.getPackage().getName());
+        DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(), Policy.class.getPackage().getName());
         policyClass.setInstanceClass(Policy.class);
 
         // Create the IOpenClass for the Driver
         //
-        DatatypeOpenClass driverClass = new DatatypeOpenClass(null, Driver.class.getSimpleName(), Driver.class.getPackage().getName());
+        DatatypeOpenClass driverClass = new DatatypeOpenClass(Driver.class.getSimpleName(), Driver.class.getPackage().getName());
         driverClass.setInstanceClass(Driver.class);
 
         // Create the IOpenClass for the drivers[]

@@ -10,6 +10,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.asm.invoker.EqualsBuilderInvoker;
 
 public class EqualsWriter extends MethodWriter {
     
@@ -55,10 +56,10 @@ public class EqualsWriter extends MethodWriter {
             pushFieldToStack(methodVisitor, 2, field.getKey());
 
             Class<?> fieldType = field.getValue().getType();
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, EqualsBuilder.class, "append", new Class<?>[] { fieldType, fieldType });
+            EqualsBuilderInvoker.getAppend(fieldType).invoke(methodVisitor);
         }
 
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, EqualsBuilder.class, "isEquals", new Class<?>[] {});
+        EqualsBuilderInvoker.getIsEquals().invoke(methodVisitor);
 
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(boolean.class));
         if (getTwoStackElementFieldsCount() > 0) {

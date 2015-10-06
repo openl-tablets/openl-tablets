@@ -42,12 +42,6 @@ public abstract class XlsHelper {
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
 
-            // new dt2 implementation
-            XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE2_2, XlsNodeTypes.XLS_DT2.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE_2, XlsNodeTypes.XLS_DT2.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP_2, XlsNodeTypes.XLS_DT2.toString());
-
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString());
 
@@ -66,7 +60,6 @@ public abstract class XlsHelper {
             XlsHelper.tableHeaders.put(IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString());
         }

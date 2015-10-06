@@ -5,37 +5,32 @@
  */
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
-import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
-import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.data.DecisionTableDataType;
+import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
+import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
+import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
+import org.openl.rules.dt.algorithm2.DecisionTableAlgorithmBuilder2;
+import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -43,10 +38,10 @@ import org.openl.vm.IRuntimeEnv;
  * 
  */
 @Executable
-public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable{
+public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
 
-    private ICondition[] conditionRows;
-    private IAction[] actionRows;
+    private IBaseCondition[] conditionRows;
+    private IBaseAction[] actionRows;
     /**
      * Optional non-functional row with rule indexes.
      */
@@ -54,27 +49,29 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     private int columns;
 
-    private DecisionTableOptimizedAlgorithm algorithm;
+    private IDecisionTableAlgorithm algorithm;
 
     /**
      * Object to invoke current method.
      */
     private Invokable invoker;
-
+    
+    private DTInfo dtInfo;
+    
     public DecisionTable() {
         super(null, null);
     }
-    
+
     public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
     }
 
-    public IAction[] getActionRows() {
+    public IBaseAction[] getActionRows() {
         return actionRows;
     }
 
-    public DecisionTableOptimizedAlgorithm getAlgorithm() {
+    public IDecisionTableAlgorithm getAlgorithm() {
         return algorithm;
     }
 
@@ -82,7 +79,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return columns;
     }
 
-    public ICondition[] getConditionRows() {
+    public IBaseCondition[] getConditionRows() {
         return conditionRows;
     }
 
@@ -101,7 +98,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     public int getNumberOfRules() {
 
         if (actionRows.length > 0) {
-            return actionRows[0].getParamValues().length;
+            return actionRows[0].getNumberOfRules();
         }
 
         return 0;
@@ -141,7 +138,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.columns = columns;
     }
 
-    public void setConditionRows(ICondition[] conditionRows) {
+    public void setConditionRows(IBaseCondition[] conditionRows) {
         this.conditionRows = conditionRows;
     }
 
@@ -149,7 +146,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.ruleRow = ruleRow;
     }
 
-    public void bindTable(ICondition[] conditionRows, IAction[] actionRows, RuleRow ruleRow, OpenL openl,
+    public void bindTable(IBaseCondition[] conditionRows, IBaseAction[] actionRows, RuleRow ruleRow, OpenL openl,
             ComponentOpenClass componentOpenClass, IBindingContextDelegator cxtd, int columns) throws Exception {
 
         this.conditionRows = conditionRows;
@@ -190,62 +187,25 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return false;
     }
 
-    protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
-
-        algorithm = new DecisionTableOptimizedAlgorithm(evs, this);
-        algorithm.buildIndex();
-    }
 
     private void prepare(IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
-        IMethodSignature signature = header.getSignature();
+        
+        algorithm = getAlgorithmBuilder(header, openl, module, bindingContextDelegator).prepareAndBuildAlgorithm();
 
-        IConditionEvaluator[] evaluators = prepareConditions(openl, module, bindingContextDelegator, signature);
-
-        prepareActions(header, openl, module, bindingContextDelegator, signature);
-
-        makeAlgorithm(evaluators);
     }
+    
+    
+    public static boolean ALG2 = false;
 
-    private void prepareActions(IOpenMethodHeader header, OpenL openl, ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
+    private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header, OpenL openl,
+			ComponentOpenClass module,
+			IBindingContextDelegator bindingContextDelegator) {
+		return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator) 
+		            : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
+	}
 
-        IBindingContextDelegator actionBindingContextDelegator = new ComponentBindingContext(bindingContextDelegator,
-                (ComponentOpenClass) getRuleExecutionType(openl));
-
-        for (int i = 0; i < actionRows.length; i++) {
-            IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, componentOpenClass,
-                    actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
-        }
-    }
-
-    private IConditionEvaluator[] prepareConditions(OpenL openl, ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
-        IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
-
-        List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-
-        for (int i = 0; i < conditionRows.length; i++) {
-            try {
-                evaluators[i] = conditionRows[i].prepareCondition(signature, openl, componentOpenClass,
-                        bindingContextDelegator, ruleRow);
-            } catch (SyntaxNodeException e) {
-                errors.add(e);
-            } catch (CompositeSyntaxNodeException e) {
-                for (SyntaxNodeException syntaxNodeException : e.getErrors()) {
-                    errors.add(syntaxNodeException);
-                }
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
-        }
-
-        return evaluators;
-    }
 
     @Override
     public String toString() {
@@ -254,7 +214,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
-            for (ICondition condition : conditionRows) {
+            for (IBaseCondition condition : conditionRows) {
                 CompositeMethod method = (CompositeMethod) condition.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
@@ -265,7 +225,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         }
 
         if (actionRows != null) {
-            for (IAction action : actionRows) {
+            for (IBaseAction action : actionRows) {
                 CompositeMethod method = (CompositeMethod) action.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
@@ -278,36 +238,62 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {
 
-        Object[][] values = frow.getParamValues();
-        if (values != null) {
-            for (int i = 0; i < values.length; i++) {
 
-                if (values[i] == null) {
+    	int len = frow.getNumberOfRules();
+    	int np = frow.getNumberOfParams();
+    	for (int ruleN = 0; ruleN < len; ruleN++) {
+
+                if (frow.isEmpty(ruleN)) {
                     continue;
                 }
 
-                for (int j = 0; j < values[i].length; j++) {
-                    if (values[i][j] instanceof CompositeMethod) {
-                        ((CompositeMethod) values[i][j]).updateDependency(dependencies);
+                for (int paramIndex = 0; paramIndex < np; paramIndex++) {
+                	Object value = frow.getParamValue(paramIndex, ruleN);
+                	
+                    if (value instanceof CompositeMethod) {
+                        ((CompositeMethod) value).updateDependency(dependencies);
                     }
+                    else if (value instanceof ArrayHolder) {
+						ArrayHolder ah = (ArrayHolder) value;
+						ah.updateDependency(dependencies);
+					}
                 }
             }
-        }
 
     }
 
-    IOpenClass ruleExecutionType;
-
-    private synchronized IOpenClass getRuleExecutionType(OpenL openl) {
-        if (ruleExecutionType == null) {
-            ruleExecutionType = new DecisionTableDataType(this, null, getName() + "Type", openl);
-        }
-        return ruleExecutionType;
+    
+    public ICondition getCondition(int n)
+    {
+    	return (ICondition)conditionRows[n];
     }
+
+    public IAction getAction(int n)
+    {
+    	return (IAction)actionRows[n];
+    }
+    
+    
+ 
+	public DTInfo getDtInfo() {
+		return dtInfo;
+	}
+
+	public void setDtInfo(DTInfo dtInfo) {
+		this.dtInfo = dtInfo;
+	}
 
 	@Override
 	public int getNumberOfConditions() {
+		
 		return conditionRows.length;
 	}
+
+	public int getNumberOfActions() {
+		
+		return actionRows.length;
+	}
+	
+	
 
 }

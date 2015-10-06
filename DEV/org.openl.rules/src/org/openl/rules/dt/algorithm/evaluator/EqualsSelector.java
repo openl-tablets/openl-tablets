@@ -3,7 +3,6 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.math.BigDecimal;
 
 import org.openl.domain.IIntSelector;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -24,18 +23,16 @@ public class EqualsSelector implements IIntSelector {
         this.target = target;
     }
 
-    public boolean select(int rule) {
+    public boolean select(int ruleN) {
         
-        Object[][] params = condition.getParamValues();
-        Object[] ruleParams = params[rule];
 
-        if (ruleParams == null) {
+        if (condition.isEmpty(ruleN)) {
             return true;
         }
 
-        Object[] realParams = new Object[ruleParams.length];
+        Object[] realParams = new Object[condition.getNumberOfParams()];
 
-        RuleRowHelper.loadParams(realParams, 0, ruleParams, target, this.params, env);
+        condition.loadValues(realParams, 0, ruleN, target, this.params, env);
 
         if (realParams[0] == null) {
             return value == null;

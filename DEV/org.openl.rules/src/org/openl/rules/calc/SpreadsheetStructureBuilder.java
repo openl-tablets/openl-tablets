@@ -444,7 +444,7 @@ public class SpreadsheetStructureBuilder {
     }
 
     private ComponentOpenClass createRowOrColumnOpenClass(String openClassName, OpenL openl) {
-        return new ComponentOpenClass(null, openClassName, openl);
+        return new ComponentOpenClass(openClassName, openl);
     }
 
     private IBindingContextDelegator makeRowContext(int rowIndex) {

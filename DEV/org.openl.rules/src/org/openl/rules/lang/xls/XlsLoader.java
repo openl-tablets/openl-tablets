@@ -9,13 +9,13 @@ import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.Dependency;
@@ -130,13 +130,7 @@ public class XlsLoader {
                 // preprocessModuleImportTable(row.getGridTable(), source);
             } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getSource(), source);
-            } else if (StringUtils.isBlank(name) || DecisionTableHelper.isValidCommentHeader(name)) { // TODO:
-                // DecisionTableHelper
-                // rename
-                // or
-                // extract
-                // common
-                // methods
+            } else if (ParserUtils.isBlankOrCommented(name)) {
                 // ignore comment
             } else {
                 String message = String.format("Error in Environment table: unrecognized keyword '%s'", name);

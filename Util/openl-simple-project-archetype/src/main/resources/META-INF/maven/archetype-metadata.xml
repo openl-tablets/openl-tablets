@@ -3,22 +3,17 @@
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <fileSets>
-    <fileSet filtered="true" encoding="UTF-8">
-      <directory>assembly</directory>
-      <includes>
-        <include>**/*.xml</include>
-      </includes>
-    </fileSet>
-    <fileSet filtered="true" encoding="UTF-8">
+    <fileSet filtered="true" packaged="true" encoding="UTF-8">
       <directory>src/main/java</directory>
       <includes>
         <include>**/*.java</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
-      <directory>src/main/openl</directory>
+      <directory>src/main/scripts</directory>
       <includes>
-        <include>**/*.xml</include>
+        <include>**/*.sh</include>
+        <include>**/*.cmd</include>
       </includes>
     </fileSet>
     <fileSet encoding="UTF-8">
@@ -27,11 +22,10 @@
         <include>**/*.xls</include>
       </includes>
     </fileSet>
-    <fileSet encoding="UTF-8">
-      <directory>src/main/scripts</directory>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>assembly</directory>
       <includes>
-        <include>**/*.cmd</include>
-        <include>**/*.sh</include>
+        <include>**/*.xml</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">

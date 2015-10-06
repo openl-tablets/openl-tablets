@@ -77,11 +77,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 
     IOpenMethod getMethod(String name, IOpenClass[] classes);
 
-    /**
-     * @return the schema it has been created with
-     */
-    IOpenSchema getSchema();
-
     // ********* instance related methods ***********//
 
     /**
@@ -186,16 +181,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 */
 	void addType(String namespace, IOpenClass type) throws Exception;
 
-	/**
-	 * Finds type with given name in internal type list. If type with given name
-	 * exists in list it will be returned; <code>null</code> - otherwise.
-	 * 
-	 * @param typeName
-	 *            name of type to search
-	 * @return {@link IOpenClass} instance or <code>null</code>
-	 */
-	IOpenClass findType(String namespace, String typeName);
-	
 	/**
 	 * Return the whole map of internal types. Where the key is namespace of the type, 
 	 * the value is {@link IOpenClass}.

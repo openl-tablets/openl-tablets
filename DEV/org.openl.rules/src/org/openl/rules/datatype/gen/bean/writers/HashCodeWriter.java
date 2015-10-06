@@ -9,6 +9,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.asm.invoker.HashCodeBuilderInvoker;
 
 public class HashCodeWriter extends MethodWriter {
     
@@ -36,11 +37,11 @@ public class HashCodeWriter extends MethodWriter {
         // generating hash code by fields
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             pushFieldToStack(methodVisitor, 0, field.getKey());
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, HashCodeBuilder.class, "append",
-                    new Class<?>[] { field.getValue().getType() });
+            final Class<?> type = field.getValue().getType();
+            HashCodeBuilderInvoker.getAppend(type).invoke(methodVisitor);
         }
-        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, HashCodeBuilder.class, "toHashCode", new Class<?>[] {});
-        
+        HashCodeBuilderInvoker.getToHashCode().invoke(methodVisitor);
+
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(int.class));
         if (getTwoStackElementFieldsCount() > 0) {
             methodVisitor.visitMaxs(3, 1);

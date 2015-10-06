@@ -3,7 +3,7 @@
  */
 package org.openl.rules.dtx.validator;
 
-import org.openl.rules.dt2.element.ICondition;
+import org.openl.rules.dt.element.ICondition;
 import org.openl.util.ISelector;
 
 /**

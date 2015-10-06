@@ -28,7 +28,7 @@ public class ModuleNodeBinder extends ANodeBinder {
         // children should all have type IMemberBoundNode
         IBoundNode[] children = bindChildren(node, bindingContext);
         // TODO fix schema, name
-        ModuleOpenClass module = new ModuleOpenClass(null, "UndefinedType", bindingContext.getOpenL());
+        ModuleOpenClass module = new ModuleOpenClass("UndefinedType", bindingContext.getOpenL());
         processErrors(module.getErrors(), node, bindingContext);
         ModuleBindingContext moduleContext = new ModuleBindingContext(bindingContext, module);
 

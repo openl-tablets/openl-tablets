@@ -17,11 +17,13 @@ import org.openl.vm.IRuntimeEnv;
 public interface IConditionEvaluator extends IBaseConditionEvaluator {
 
 
+
     IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env);
 
-    ARuleIndex makeIndex(Object[][] indexedparams, IIntIterator it);
+    ARuleIndex makeIndex(ICondition cond, IIntIterator it);
 
     boolean isIndexed();
+    
     
 
     //Added to support dependent parameters

@@ -14,13 +14,6 @@ public interface IXlsTableNames {
     String DECISION_TABLE2 = "Rules";
     String SIMPLE_DECISION_TABLE = "SimpleRules";
     String SIMPLE_DECISION_LOOKUP = "SimpleLookup";
-    
-    String DECISION_TABLE_2 = "DT2";
-    String DECISION_TABLE2_2 = "Rules2";
-    String SIMPLE_DECISION_TABLE_2 = "SimpleRules2";
-    String SIMPLE_DECISION_LOOKUP_2 = "SimpleLookup2";
-    
-    
     String SPREADSHEET_TABLE = "Spreadsheet";
     String SPREADSHEET_TABLE2 = "Calc";
     String TBASIC_TABLE = "TBasic";
@@ -36,7 +29,6 @@ public interface IXlsTableNames {
     String TEST_TABLE = "Test";
     String RUN_METHOD_TABLE = "Runmethod";
     String RUN_TABLE = "Run";
-    String PERSISTENCE_TABLE = "Persistent";
     String TABLE_PART = "TablePart";
 
     String LANG_PROPERTY = "language";

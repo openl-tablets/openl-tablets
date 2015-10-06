@@ -295,7 +295,7 @@ public class ModuleTest extends TestCase {
     public void testModule() {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
-        ModuleOpenClass module = new ModuleOpenClass(null, "ZZZ", op);
+        ModuleOpenClass module = new ModuleOpenClass("ZZZ", op);
 
         DynamicObjectField field = new DynamicObjectField(module, "address", JavaOpenClass.getOpenClass(Address.class));
 

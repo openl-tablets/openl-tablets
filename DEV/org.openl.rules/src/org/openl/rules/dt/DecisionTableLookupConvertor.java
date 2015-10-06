@@ -12,6 +12,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
+import org.openl.rules.utils.ParserUtils;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup
@@ -43,6 +44,7 @@ public class DecisionTableLookupConvertor {
     
     private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
     private ILogicalTable retTable;
+	private DTScale scale;
 
     public IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
         ILogicalTable headerRow = table.getRow(HEADER_ROW);
@@ -90,6 +92,9 @@ public class DecisionTableLookupConvertor {
         int retColumnStart = findRetColumnStart(headerRow);
         int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
         int retTableWidth = retTable.getSource().getWidth();
+        
+        
+        scale = new DTScale(lookupValuesTable.getHeight(), lookupValuesTable.getWidth()/retTableWidth);
         
         if (isRetLastColumn(retColumnStart, retTableWidth, firstEmptyCell)) {
             return new TwoDimensionDecisionTableTranformer(table.getSource(), lookupValuesTable, retTableWidth);
@@ -236,9 +241,9 @@ public class DecisionTableLookupConvertor {
     }
         
     private boolean isValidSimpleDecisionTableHeader(String headerStr) {
-        if (DecisionTableHelper.isValidRuleHeader(headerStr) || 
-                DecisionTableHelper.isValidConditionHeader(headerStr) || 
-                DecisionTableHelper.isValidCommentHeader(headerStr)) {
+        if (DecisionTableHelper.isValidRuleHeader(headerStr) ||
+                DecisionTableHelper.isValidConditionHeader(headerStr) ||
+                ParserUtils.isBlankOrCommented(headerStr)) {
             return true;
         }
         return false;
@@ -314,5 +319,10 @@ public class DecisionTableLookupConvertor {
 
         throw new OpenLCompilationException(String.format("Column %s must have width=%s", type, w));
     }
+
+
+	public DTScale getScale() {
+		return scale;
+	}
 
 }

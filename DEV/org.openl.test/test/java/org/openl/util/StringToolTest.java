@@ -492,41 +492,4 @@ public class StringToolTest extends TestCase {
         String result = StringTool.insertStringToString(baseString, strToInsertAfter, insertion);
         assertEquals("Spencer\\,Sara`s son", result);
     }
-    
-    @Test
-    public void testListToStringThroughCommas() {
-        String str1 = "firstValue";
-        String str2 = "secondValue";
-        String str3 = "thirdValue";
-        String str4 = "fourthValue";		
-        
-        List<String> listStrings = new ArrayList<String>();
-        listStrings.add(str1);
-        listStrings.add(str2);
-        listStrings.add(str3);
-        listStrings.add(str4);
-        
-        String result = StringTool.listToStringThroughSymbol(listStrings, COMMA);
-        assertEquals(String.format("%s, %s, %s, %s", str1, str2, str3, str4), result);
-        
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(null, COMMA));
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(new ArrayList<String>(), COMMA));
-        
-        List<String> listToTest = new ArrayList<String>();
-        listToTest.add("aaaa");
-        listToTest.add(null);
-        listToTest.add("bbbb");
-        assertEquals("aaaa, null, bbbb", StringTool.listToStringThroughSymbol(listToTest, COMMA));
-    }
-
-    @Test
-    public void testListObjectToStringThroughSymbol() {
-        assertEquals(StringUtils.EMPTY, StringTool.listObjectToStringThroughSymbol(null, null));
-        assertEquals("Test default symbol(comma)", "a, b, c",
-                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", "b", "c"}), null));
-        assertEquals("a, b, c",
-                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", "b", "c"}), COMMA));
-        assertEquals("a, c",
-                StringTool.listObjectToStringThroughSymbol(Arrays.asList(new Object[]{"a", null, "c"}), COMMA));
-    }
 }

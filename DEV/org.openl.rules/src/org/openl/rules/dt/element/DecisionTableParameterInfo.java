@@ -29,15 +29,11 @@ public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
         return row;
     }
 
-    public Object getValue(int i) {
+    public Object getValue(int ruleN) {
 
-        Object[][] paramValues = row.getParamValues();
 
-        if (paramValues != null && paramValues[i] != null) {
-            return paramValues[i][index];
-        }
-
-        return null;
+        return row.getParamValue(index, ruleN);
+        
     }
 
 }
