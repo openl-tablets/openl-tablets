@@ -19,6 +19,11 @@ public class CodeGenConstants {
     public static final String RULESERVICE_RUNTIMECONTEXTCONVERTOR_PACKAGE_PATH = "org/openl/rules/ruleservice/context/";
     public static final String RULESERVICE_RUNTIMECONTEXTCONVERTOR_CLASSNAME = "RuntimeContextConvertor";
     
+    public static final String ACTIVITI_SOURCE_LOCATION = "../../STUDIO/org.openl.rules.activity/src/";
+    public static final String ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH = "org/openl/rules/activiti/util/";
+    public static final String ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME = "IRulesRuntimeContextUtils";
+    
+    
     public static final String ENUMS_PACKAGE_PATH = "org/openl/rules/enumeration/";
     public static final String ENUMS_PACKAGE = "org.openl.rules.enumeration";
     

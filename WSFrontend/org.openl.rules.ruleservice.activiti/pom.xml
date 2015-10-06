@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
+		<version>5.17.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>org.openl.rules.ruleservice.activiti</artifactId>
+	<packaging>jar</packaging>
+	<name>OpenL - RuleService - Activiti</name>
+	<description>Classes and utilities to integrate OpenL RuleService with Activiti</description>
+	<url>//openl-tablets.org</url>
+	<build>
+		<resources>
+			<resource>
+				<directory>src</directory>
+			</resource>
+			<resource>
+				<directory>conf</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>test</directory>
+			</testResource>
+			<testResource>
+				<directory>test-resources</directory>
+			</testResource>
+		</testResources>
+		<testSourceDirectory>test</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<forkCount>1</forkCount>
+					<reuseForks>false</reuseForks>
+					<forkMode>always</forkMode>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.activiti</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

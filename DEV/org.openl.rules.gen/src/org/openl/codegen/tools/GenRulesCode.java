@@ -65,6 +65,9 @@ public class GenRulesCode {
         generateMatchingOpenMethodDispatcherCode();
         generateMatchingOpenMethodDispatcherHelperCode();
 
+        System.out.println("Generating Activiti Integration Code...");
+        generateIRulesRuntimeContextUtils();
+        
         System.out.println("Generating Rules Service Code...");
         // RulesService context generation
         generateIRulesRuntimeContextCodeInRuleServiceModule();
@@ -165,6 +168,18 @@ public class GenRulesCode {
 
         processSourceCode(sourceFilePath, "RuleService-RuntimeContextConvertor.vm", variables);
     }
+    
+    private void generateIRulesRuntimeContextUtils() throws IOException {
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("tool", new VelocityTool());
+        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
+
+        String sourceFilePath = CodeGenConstants.ACTIVITI_SOURCE_LOCATION
+                + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH
+                + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME + ".java";
+        processSourceCode(sourceFilePath, "IRulesRuntimeContextUtils-properties.vm", variables);
+    }
+
     
     private void generateIRulesRuntimeContextCodeInRuleServiceModule() throws IOException {
         Map<String, Object> variables = new HashMap<String, Object>();
