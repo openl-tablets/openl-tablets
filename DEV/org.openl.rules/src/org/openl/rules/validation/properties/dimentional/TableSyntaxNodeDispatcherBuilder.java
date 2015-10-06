@@ -301,10 +301,19 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         //
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
             if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
-                conditions.add(DispatcherTableColumnMaker.makeColumn(dimensionProperty, rules));
+                conditions.add(makeColumn(dimensionProperty, rules));
             }
         }
         return conditions;
+    }
+
+    private static IDecisionTableColumn makeColumn(TablePropertyDefinition dimensionProperty,
+            DispatcherTableRules rules) {
+        if (dimensionProperty.getType().getInstanceClass().isArray()) {
+            return new ArrayParameterColumn(dimensionProperty, rules);
+        } else {
+            return new SimpleParameterColumn(dimensionProperty, rules);
+        }
     }
 
     /**
