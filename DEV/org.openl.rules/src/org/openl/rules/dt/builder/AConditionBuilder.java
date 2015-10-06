@@ -14,7 +14,7 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
         this.conditionNumber = conditionNumber;
     }
     
-    public int build(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, int rowStartIndex) {
+    public final int build(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, int rowStartIndex) {
         writeColumnType(gridModel, columnStartIndex, rowStartIndex);
         writeCodeExpression(gridModel, columnStartIndex, rowStartIndex);
         writeParameterDeclaration(gridModel, columnStartIndex, rowStartIndex);
@@ -31,14 +31,14 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
         return conditionNumber;
     }
     
-    public abstract void writeColumnType(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
-    
-    public abstract void writeCodeExpression(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
-    
-    public abstract void writeParameterDeclaration(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
-    
-    public abstract void writeTitle(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
-    
-    public abstract void writeRuleValue(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, 
+    protected abstract void writeColumnType(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
+
+    protected abstract void writeCodeExpression(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
+
+    protected abstract void writeParameterDeclaration(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
+
+    protected abstract void writeTitle(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
+
+    protected abstract void writeRuleValue(IWritableGrid gridModel, int numberOfRules, int columnStartIndex,
             int rowStartIndex);
 }
