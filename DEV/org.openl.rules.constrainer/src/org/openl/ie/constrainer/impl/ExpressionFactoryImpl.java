@@ -167,7 +167,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
                 s.append(_args[i]);
             }
             s.append(")");
-            return new String(s);
+            return s.toString();
         }
     } // ~ExpressionKeyImpl
 
@@ -318,21 +318,21 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         while (e.hasMoreElements()) {
             ExpressionKey key = (ExpressionKey) e.nextElement();
             Expression exp = (Expression) _expressions.get(key);
-            s.append(exp.getClass().getName() + ", " + System.identityHashCode(exp) + ", ");
+            s.append(exp.getClass().getName()).append(", ").append(System.identityHashCode(exp)).append(", ");
             for (int i = 0; i < key.args().length; i++) {
                 if (i != 0) {
                     s.append(", ");
                 }
                 Object o = key.args()[i];
                 if (o instanceof Number) {
-                    s.append(o.getClass().getName() + ", " + o.toString());
+                    s.append(o.getClass().getName()).append(", ").append(o);
                 } else {
-                    s.append(o.getClass().getName() + ", " + System.identityHashCode(o));
+                    s.append(o.getClass().getName()).append(", ").append(System.identityHashCode(o));
                 }
             }
-            s.append("\n");
+            s.append('\n');
         }
-        return new String(s);
+        return s.toString();
     }
 
     public boolean useCache() {

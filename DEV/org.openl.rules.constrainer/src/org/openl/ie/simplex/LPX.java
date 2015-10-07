@@ -460,7 +460,7 @@ public class LPX {
      */
     public String getName() {
         if (noLPX()) {
-            return new String("");
+            return "";
         }
         return native_get_name(id);
     }

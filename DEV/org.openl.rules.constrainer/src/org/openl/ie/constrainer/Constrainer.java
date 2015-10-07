@@ -246,7 +246,7 @@ public final class Constrainer implements Serializable {
         // Debug.print("Constrainer "+s);
         _initial_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         _max_occupied_memory = _initial_memory;
-        _name = new String(s);
+        _name = s;
 
         _active_undoable_once = new FastStack();
 
