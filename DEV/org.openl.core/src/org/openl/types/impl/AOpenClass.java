@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
@@ -295,6 +296,23 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     protected abstract Map<MethodKey, IOpenMethod> methodMap();
+
+    protected void addMethod(IOpenMethod method) {
+        MethodKey key = new MethodKey(method);
+        final IOpenMethod existMethod = methodMap().put(key, method);
+        if (existMethod != null) {
+            throw new DuplicatedMethodException(
+                "Method '" + key + "' have bean already defined for class '" + getName() + "'", method);
+        }
+    }
+
+    protected void overrideMethod(IOpenMethod method) {
+        MethodKey key = new MethodKey(method);
+        final IOpenMethod existMethod = methodMap().put(key, method);
+        if (existMethod == null) {
+            throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
+        }
+    }
 
     /**
      * @deprecated use {@link #getMethods()} instead.

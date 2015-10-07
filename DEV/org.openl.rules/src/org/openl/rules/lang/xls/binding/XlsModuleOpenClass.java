@@ -315,21 +315,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
         }
-        // Get method key.
-        //
-        MethodKey key = new MethodKey(method);
 
-        Map<MethodKey, IOpenMethod> methods = methodMap();
-
-        // Checks that method already exists in method map. If it already
+        // Checks that method already exists in the class. If it already
         // exists then "overload" it using decorator; otherwise - just add to
-        // method map.
+        // the class.
         //
-        if (methods.containsKey(key)) {
-
-            // Gets the existed method from map.
-            //
-            IOpenMethod existedMethod = methods.get(key);
+        IOpenMethod existedMethod = getMethod(method.getName(), method.getSignature().getParameterTypes());
+        if (existedMethod != null) {
 
             if (!existedMethod.getType().equals(method.getType())) {
                 String message = String.format(
@@ -360,7 +352,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     decorator.addMethod(undecorateForMultimoduleDispatching(m));
                 } else {
                     if (m != existedMethod) {
-                        OpenMethodDispatcher dispatcher = addDispatcherMethod(existedMethod, key);
+                        // Create decorator for existed method.
+                        //
+                        OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
+
+                        IOpenMethod openMethod = decorateForMultimoduleDispatching(dispatcher);
+
+                        overrideMethod(openMethod);
+
                         dispatcher.addMethod(undecorateForMultimoduleDispatching(m));
                     }
                 }
@@ -395,14 +394,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         } else {
             // Just wrap original method with dispatcher functionality.
             //
-            if (!dimensionalPropertyPresented(m) || m instanceof TestSuiteMethod) {
-                methodMap().put(key, m);
+
+            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && dimensionalPropertyPresented(m)) {
+                // Create dispatcher for existed method.
+                //
+                OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
+
+                IOpenMethod openMethod = decorateForMultimoduleDispatching(dispatcher);
+
+                super.addMethod(openMethod);
+
             } else {
-                if (dispatchingValidationEnabled){
-                    addDispatcherMethod(m, key);
-                }else{
-                    methodMap().put(key, m);
-                }
+                super.addMethod(m);
             }
         }
     }
@@ -438,9 +441,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private OpenMethodDispatcher addDispatcherMethod(IOpenMethod method, MethodKey key) {
-        // Create decorator for existed method.
-        //
+    private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
         OpenMethodDispatcher decorator;
         IOpenMethod decorated = undecorateForMultimoduleDispatching(method);
         if (useDescisionTableDispatcher) {
@@ -448,11 +449,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         } else {
             decorator = new MatchingOpenMethodDispatcher(decorated, this);
         }
-
-        IOpenMethod openMethod = decorateForMultimoduleDispatching(decorator);
-
-        methodMap().put(key, openMethod);
-
         return decorator;
     }
 
