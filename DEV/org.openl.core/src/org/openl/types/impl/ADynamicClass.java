@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
@@ -34,8 +33,6 @@ public abstract class ADynamicClass extends AOpenClass {
     private String name = "<anonymous class>";
 
     protected Map<String, IOpenField> fieldMap;
-
-    private Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
 
     private Class<?> instanceClass;
 
@@ -114,11 +111,6 @@ public abstract class ADynamicClass extends AOpenClass {
     public boolean isInstance(Object instance) {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    @Override
-    protected Map<MethodKey, IOpenMethod> methodMap() {
-        return methodMap;
     }
 
     public Iterator<IOpenClass> superClasses() {

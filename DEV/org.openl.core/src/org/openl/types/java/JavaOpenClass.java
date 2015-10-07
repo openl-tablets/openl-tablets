@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,8 +106,6 @@ public class JavaOpenClass extends AOpenClass {
     private IAggregateInfo aggregateInfo;
 
     protected HashMap<String, IOpenField> fields;
-
-    protected HashMap<MethodKey, IOpenMethod> methods;
 
     private static final Lock cacheLock = new ReentrantLock();
 
@@ -405,30 +404,33 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    protected synchronized  Map<MethodKey, IOpenMethod> methodMap() {
-        if (methods == null) {
-            methods = new HashMap<MethodKey, IOpenMethod>();
-            Method[] mm = instanceClass.getDeclaredMethods();
-            if(isPublic(instanceClass)){
-                for (int i = 0; i < mm.length; i++) {
-                    if (isPublic(mm[i])) {
-                        JavaOpenMethod om = new JavaOpenMethod(mm[i]);
-                        methods.put(new MethodKey(om), om);
-                    }
-                }
-            }
+    protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        HashMap<MethodKey, IOpenMethod> methods;
 
-            Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
-            for (int i = 0; i < cc.length; i++) {
-                if (isPublic(cc[i])) {
-                    IOpenMethod om = new JavaOpenConstructor(cc[i]);
-                    // Log.debug("Adding method " + mm[i].getName() + " code = "
-                    // + new MethodKey(om).hashCode());
+        methods = new HashMap<MethodKey, IOpenMethod>();
+        Method[] mm = instanceClass.getDeclaredMethods();
+        if (isPublic(instanceClass)) {
+            for (int i = 0; i < mm.length; i++) {
+                if (isPublic(mm[i])) {
+                    JavaOpenMethod om = new JavaOpenMethod(mm[i]);
                     methods.put(new MethodKey(om), om);
                 }
             }
         }
-        return methods;
+
+        Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
+        for (int i = 0; i < cc.length; i++) {
+            if (isPublic(cc[i])) {
+                IOpenMethod om = new JavaOpenConstructor(cc[i]);
+                // Log.debug("Adding method " + mm[i].getName() + " code = "
+                // + new MethodKey(om).hashCode());
+                methods.put(new MethodKey(om), om);
+            }
+        }
+        if (methods.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(methods);
     }
 
     public Object newInstance(IRuntimeEnv env) {

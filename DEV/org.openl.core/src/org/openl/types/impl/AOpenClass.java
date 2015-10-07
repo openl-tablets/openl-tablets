@@ -40,6 +40,7 @@ import org.openl.util.OpenIterator;
  */
 public abstract class AOpenClass implements IOpenClass {
 
+    private static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.<MethodKey, IOpenMethod>emptyMap());
     private IOpenField indexField;
 
     protected IMetaInfo metaInfo;
@@ -296,11 +297,42 @@ public abstract class AOpenClass implements IOpenClass {
 
     }
 
-    protected abstract Map<MethodKey, IOpenMethod> methodMap();
+    private Map<MethodKey, IOpenMethod> methodMap;
+
+    private  Map<MethodKey, IOpenMethod> methodMap() {
+        if (methodMap == null) {
+            synchronized (this) {
+                if (methodMap == null) {
+                    methodMap = initMethodMap();
+                }
+            }
+        }
+        return methodMap;
+    }
+
+    protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        return STUB;
+    }
+
+    private IOpenMethod putMethod(IOpenMethod method) {
+        if (methodMap == null || methodMap == STUB) {
+            synchronized (this) {
+                if (methodMap == null) {
+                    methodMap = initMethodMap();
+                }
+                if (methodMap == STUB) {
+                    methodMap = new HashMap<MethodKey, IOpenMethod>(4);
+                }
+            }
+        }
+        MethodKey key = new MethodKey(method);
+        final IOpenMethod existMethod = methodMap.put(key, method);
+        return existMethod;
+    }
 
     protected void addMethod(IOpenMethod method) {
         MethodKey key = new MethodKey(method);
-        final IOpenMethod existMethod = methodMap().put(key, method);
+        final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(
                 "Method '" + key + "' have bean already defined for class '" + getName() + "'", method);
@@ -310,7 +342,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected void overrideMethod(IOpenMethod method) {
         MethodKey key = new MethodKey(method);
-        final IOpenMethod existMethod = methodMap().put(key, method);
+        final IOpenMethod existMethod = putMethod(method);
         if (existMethod == null) {
             throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
         }
@@ -341,7 +373,13 @@ public abstract class AOpenClass implements IOpenClass {
                 methods.put(new MethodKey(method), method);
             }
         }
-        methods.putAll(methodMap());
+        final Map<MethodKey, IOpenMethod> m = methodMap();
+        if (m != null) {
+            methods.putAll(m);
+        }
+        if (m.isEmpty()) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableCollection(methods.values());
     }
     

@@ -23,7 +23,6 @@ public abstract class ArrayOpenClass extends AOpenClass {
 
     protected IOpenClass componentClass;
     protected HashMap<String, IOpenField> fieldMap;
-    protected Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
     protected IOpenIndex index;
 
     public ArrayOpenClass(IOpenClass componentClass, IOpenField lengthOpenField) {
@@ -36,7 +35,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
     protected Map<String, IOpenField> fieldMap() {
         return fieldMap;
     }
-    
+
     @Override
     public IOpenClass getComponentClass() {
         return componentClass;
@@ -51,7 +50,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
             return JavaOpenClass.makeArrayClass(componentClass.getInstanceClass());
         } else {
             return null;
-        }        
+        }
     }
 
     public String getName() {
@@ -59,12 +58,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
     }
 
     @Override
-    protected Map<MethodKey, IOpenMethod> methodMap() {
-        return methodMap;
-    }
-    
-    @Override
-    public boolean isArray() {            
+    public boolean isArray() {
         return true;
     }
 
