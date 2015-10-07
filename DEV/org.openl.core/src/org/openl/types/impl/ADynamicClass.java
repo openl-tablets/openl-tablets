@@ -72,7 +72,6 @@ public abstract class ADynamicClass extends AOpenClass {
 
     public void addMethod(IOpenMethod method) {
         super.addMethod(method);
-        methodList = null;
     }
 
     @Override

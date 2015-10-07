@@ -305,6 +305,7 @@ public abstract class AOpenClass implements IOpenClass {
             throw new DuplicatedMethodException(
                 "Method '" + key + "' have bean already defined for class '" + getName() + "'", method);
         }
+        methodList = null;
     }
 
     protected void overrideMethod(IOpenMethod method) {
@@ -313,6 +314,7 @@ public abstract class AOpenClass implements IOpenClass {
         if (existMethod == null) {
             throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
         }
+        methodList = null;
     }
 
     /**
@@ -324,7 +326,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
     
     
-    protected List<IOpenMethod> methodList = null;
+    private List<IOpenMethod> methodList = null;
     
     public synchronized List<IOpenMethod> getMethods() {
     	if (methodList == null)
@@ -413,7 +415,7 @@ public abstract class AOpenClass implements IOpenClass {
 		{
 			synchronized(this)
 			{
-				methodNameMap = buildMethodNameMap(methods());
+				methodNameMap = buildMethodNameMap(getMethods().iterator());
 			}
 		}	
 		

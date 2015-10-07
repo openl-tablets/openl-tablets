@@ -296,7 +296,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      */
     @Override
     public void addMethod(IOpenMethod method) {
-    	methodList = null;
         if (method instanceof OpenMethodDispatcher) {
             addDispatcherMethod((OpenMethodDispatcher) method);
             return;
