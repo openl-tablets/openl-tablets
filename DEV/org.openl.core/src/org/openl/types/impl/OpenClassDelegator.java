@@ -1,5 +1,6 @@
 package org.openl.types.impl;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,7 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.getMethods();
     }
     
-    public List<IOpenMethod> getDeclaredMethods() {
+    public Collection<IOpenMethod> getDeclaredMethods() {
         return baseClass.getMethods();
     }
 

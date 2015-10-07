@@ -6,6 +6,7 @@
 
 package org.openl.types;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -214,7 +215,7 @@ public class NullOpenClass implements IOpenClass {
         return Collections.emptyList();
     }
     
-    public List<IOpenMethod> getDeclaredMethods() {
+    public Collection<IOpenMethod> getDeclaredMethods() {
         // Default implementation
         return Collections.emptyList();
     }

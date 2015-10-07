@@ -7,6 +7,7 @@
 package org.openl.types.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -345,8 +346,8 @@ public abstract class AOpenClass implements IOpenClass {
         return Collections.unmodifiableList(new ArrayList<IOpenMethod>(methods.values()));
     }
     
-    public List<IOpenMethod> getDeclaredMethods() {
-        return new ArrayList<IOpenMethod>(methodMap().values());
+    public Collection<IOpenMethod> getDeclaredMethods() {
+        return methodMap().values();
     }
 
     public Object nullObject() {

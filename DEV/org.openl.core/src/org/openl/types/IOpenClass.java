@@ -6,6 +6,7 @@
 
 package org.openl.types;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +159,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * 
      * @return list of methods declared in this class.
      */
-    List<IOpenMethod> getDeclaredMethods();
+    Collection<IOpenMethod> getDeclaredMethods();
 
     Object newInstance(IRuntimeEnv env);
 
