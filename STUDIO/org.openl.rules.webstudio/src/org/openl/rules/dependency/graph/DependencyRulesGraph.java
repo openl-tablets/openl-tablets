@@ -167,7 +167,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
      * @param methods {@link IOpenMethod}
      * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods. 
      */
-    public static DependencyRulesGraph filterAndCreateGraph(List<IOpenMethod> methods) {
+    public static DependencyRulesGraph filterAndCreateGraph(Collection<IOpenMethod> methods) {
         List<ExecutableMethod> rulesMethods = new ArrayList<ExecutableMethod>(); 
         if (methods != null && methods.size() > 0) {
             for (IOpenMethod method : methods) {

@@ -73,7 +73,7 @@ public class OpenClassHelper {
         List<IOpenMember> members = new ArrayList<IOpenMember>();
 
         if (openClass != null) {
-            List<IOpenMethod> methods = openClass.getMethods();
+            Collection<IOpenMethod> methods = openClass.getMethods();
             CollectionUtils.addAll(members, methods.iterator());
 
             Collection<IOpenField> fields = openClass.getFields().values();

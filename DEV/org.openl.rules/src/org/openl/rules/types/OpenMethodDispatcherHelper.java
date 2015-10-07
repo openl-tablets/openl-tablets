@@ -1,6 +1,7 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.types.IOpenMethod;
@@ -16,7 +17,7 @@ public class OpenMethodDispatcherHelper {
      * @param methods list of {@link IOpenMethod}
      * @return list of {@link IOpenMethod}, unwrapped from {@link OpenMethodDispatcher}.
      */
-    public static List<IOpenMethod> extractMethods(List<IOpenMethod> methods) {
+    public static List<IOpenMethod> extractMethods(Collection<IOpenMethod> methods) {
         List<IOpenMethod> result = new ArrayList<IOpenMethod>();
         
         for (IOpenMethod method : methods) {

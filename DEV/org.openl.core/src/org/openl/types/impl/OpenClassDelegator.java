@@ -2,7 +2,6 @@ package org.openl.types.impl;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -191,7 +190,7 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.getDeclaredFields();
     }
 
-    public List<IOpenMethod> getMethods() {        
+    public Collection<IOpenMethod> getMethods() {
         return baseClass.getMethods();
     }
     

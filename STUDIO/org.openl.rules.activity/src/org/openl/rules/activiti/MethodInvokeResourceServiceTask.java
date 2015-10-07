@@ -1,6 +1,6 @@
 package org.openl.rules.activiti;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.el.Expression;
@@ -33,7 +33,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
     protected Object invokeOpenMethod(DelegateExecution execution) throws Exception {
         String methodValue = (String) method.getValue(execution);
         CompiledOpenClass compiledOpenClass = getSimpleProjectEngineFactory(execution).getCompiledOpenClass();
-        List<IOpenMethod> methods = compiledOpenClass.getOpenClass().getMethods();
+        Collection<IOpenMethod> methods = compiledOpenClass.getOpenClass().getMethods();
 
         IOpenMethod openMethod = null;
         int methodCount = 0;

@@ -152,7 +152,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      */
     Iterator<IOpenMethod> methods();
 
-    List<IOpenMethod> getMethods();
+    Collection<IOpenMethod> getMethods();
 
     /**
      * Returns public methods declared in this class.

@@ -321,22 +321,19 @@ public abstract class AOpenClass implements IOpenClass {
      * @deprecated use {@link #getMethods()} instead.
      */
     public Iterator<IOpenMethod> methods() {
-        List<IOpenMethod> methods = getMethods();
-        return methods == null ? null : methods.iterator();
+        return getMethods().iterator();
     }
     
     
-    private List<IOpenMethod> methodList = null;
+    private Collection<IOpenMethod> methodList = null;
     
-    public synchronized List<IOpenMethod> getMethods() {
+    public synchronized Collection<IOpenMethod> getMethods() {
     	if (methodList == null)
     		methodList = collectMethods();
     	return methodList;
     }
-    
-    
-    
-    protected List<IOpenMethod> collectMethods() {
+
+    private Collection<IOpenMethod> collectMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
         Iterator<IOpenClass> superClasses = superClasses();
         while (superClasses.hasNext()) {
@@ -345,7 +342,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
         methods.putAll(methodMap());
-        return Collections.unmodifiableList(new ArrayList<IOpenMethod>(methods.values()));
+        return Collections.unmodifiableCollection(methods.values());
     }
     
     public Collection<IOpenMethod> getDeclaredMethods() {

@@ -535,7 +535,7 @@ public class ProjectModel {
         IOpenMethod method = getMethod(tableUri);
         if (method != null) {
             List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-            List<IOpenMethod> methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+            Collection<IOpenMethod> methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
 
             for (IOpenMethod tester : methods) {
                 if (ProjectHelper.isTestForMethod(tester, method)) {
@@ -1126,7 +1126,7 @@ public class ProjectModel {
 
     public DependencyRulesGraph getDependencyGraph() {
         if (dependencyGraph == null) {
-            List<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+            Collection<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
             dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
         }
         return dependencyGraph;
