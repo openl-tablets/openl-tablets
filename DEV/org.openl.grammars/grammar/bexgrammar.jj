@@ -635,15 +635,15 @@ void EqualityExpression() :
     (
       (x = <EQ>
       	| x = "equals to"
-      	| x = "is same as") { func="eq"; }
+      	| x = "is same as") { func="op.binary.eq"; }
       |(x = <NE>
       	| x = "does not equal to"
-      	| x = "is different from") { func="ne"; }
-      |(x = <STRICT_EQ>) { func="strict_eq"; }
-   	  |(x = <STRICT_NE>) { func="strict_ne"; }
+      	| x = "is different from") { func="op.binary.ne"; }
+      |(x = <STRICT_EQ>) { func="op.binary.strict_eq"; }
+   	  |(x = <STRICT_NE>) { func="op.binary.strict_ne"; }
 	)
     RelationalExpression()
-    {syntaxBuilder.bop("op.binary." + func, pos(x));}
+    {syntaxBuilder.bop(func, pos(x));}
   )*
 }
 
@@ -670,25 +670,25 @@ void RelationalExpression() :
   ShiftExpression()
   (
     (
-      x = <LT> { func="lt";}
-      | x = "is less than" { func="lt";}
-      | x = <GT> { func="gt";}
-      | x = "is more than" { func="gt";}
-      | x = <LE> { func="le";}
-      | x = "is less or equal" { func="le";}
-      | x = "is no more than" { func="le";}
-      | x = "is in" { func="le";}
-      | x = <GE> { func="ge";}
-      | x = "is more or equal" { func="ge";}
-      | x = "is no less than" { func="ge";}
-      | x = <STRICT_GT> { func="strict_gt";}
-      | x = <STRICT_GE> { func="strict_ge";}
-      | x = <STRICT_LT> { func="strict_lt";}
-      | x = <STRICT_LE> { func="strict_le";}
+      x = <LT> { func="op.binary.lt";}
+      | x = "is less than" { func="op.binary.lt";}
+      | x = <GT> { func="op.binary.gt";}
+      | x = "is more than" { func="op.binary.gt";}
+      | x = <LE> { func="op.binary.le";}
+      | x = "is less or equal" { func="op.binary.le";}
+      | x = "is no more than" { func="op.binary.le";}
+      | x = "is in" { func="op.binary.le";}
+      | x = <GE> { func="op.binary.ge";}
+      | x = "is more or equal" { func="op.binary.ge";}
+      | x = "is no less than" { func="op.binary.ge";}
+      | x = <STRICT_GT> { func="op.binary.strict_gt";}
+      | x = <STRICT_GE> { func="op.binary.strict_ge";}
+      | x = <STRICT_LT> { func="op.binary.strict_lt";}
+      | x = <STRICT_LE> { func="op.binary.strict_le";}
     )
     ShiftExpression()
     {
-    	{syntaxBuilder.bop("op.binary." + func, pos(x));}
+    	{syntaxBuilder.bop(func, pos(x));}
     }
   )*
 }
@@ -702,9 +702,13 @@ String func = null;
 {
   AdditiveExpression()
   (
-    (x=<LSHIFT> {func="lshift";}| x=<RSIGNEDSHIFT> {func="rshift";} | x=<RUNSIGNEDSHIFT> {func="rshiftu";})
+    (
+      x=<LSHIFT> {func="op.binary.lshift";}
+      | x=<RSIGNEDSHIFT> {func="op.binary.rshift";}
+      | x=<RUNSIGNEDSHIFT> {func="op.binary.rshiftu";}
+    )
     AdditiveExpression()
-    {syntaxBuilder.bop("op.binary." + func, pos(x));}
+    {syntaxBuilder.bop(func, pos(x));}
   )*
 }
 
@@ -717,9 +721,13 @@ String func = null;
 {
   MultiplicativeExpression()
   (
-    (x=<PLUS> {func="add";}| x=<PLUSSTR> {func="add";} | x=<MINUS> {func="subtract";})
+    (
+      x=<PLUS> {func="op.binary.add";}
+      | x=<PLUSSTR> {func="op.binary.add";}
+      | x=<MINUS> {func="op.binary.subtract";}
+    )
     MultiplicativeExpression()
-    {syntaxBuilder.bop("op.binary." + func, pos(x));}
+    {syntaxBuilder.bop(func, pos(x));}
   )*
 }
 
@@ -731,9 +739,13 @@ String func = null;
 {
   PowerExpression()
   (
-    ( x = <STAR>{func="multiply";} | x = <SLASH> {func="divide";}| x = <REM> {func="rem";})
+    (
+      x = <STAR>{func="op.binary.multiply";}
+      | x = <SLASH> {func="op.binary.divide";}
+      | x = <REM> {func="op.binary.rem";}
+    )
     PowerExpression()
-    {syntaxBuilder.bop("op.binary." + func, pos(x));}
+    {syntaxBuilder.bop(func, pos(x));}
   )*
 }
 
@@ -1163,18 +1175,18 @@ void IndexOperator() :
 {
    LOOKAHEAD(6)
   (x1="[" IndexTypeExpression()  (
-      (x3="@ " | x3="select all having" | x3="select all where " ) {prefix="selectall";}  | 
-      (x3="!@" | x3="select first having" | x3="select first where") {prefix="selectfirst";}  |
-      (x3="^@" | x3="order by" | x3="order increasing by") {prefix="orderby";}  |
-      (x3="v@" | x3="order decreasing by") {prefix="orderdecreasingby";}  |
-      (x3="~@" | x3="s@" | x3="split by") {prefix="splitby";}  |
-      (x3="*@" | x3="transform to") {prefix="transform";}  |
-      (x3="*!@" | x3="transform unique to") {prefix="transformunique";}  
+      (x3="@ " | x3="select all having" | x3="select all where " ) {prefix="selectall.index";}  |
+      (x3="!@" | x3="select first having" | x3="select first where") {prefix="selectfirst.index";}  |
+      (x3="^@" | x3="order by" | x3="order increasing by") {prefix="orderby.index";}  |
+      (x3="v@" | x3="order decreasing by") {prefix="orderdecreasingby.index";}  |
+      (x3="~@" | x3="s@" | x3="split by") {prefix="splitby.index";}  |
+      (x3="*@" | x3="transform to") {prefix="transform.index";}  |
+      (x3="*!@" | x3="transform unique to") {prefix="transformunique.index";}
       )  
       Expression()
   x2="]"
   {
-    syntaxBuilder.nop(prefix +".index", pos(x1, x2), 2);
+    syntaxBuilder.nop(prefix, pos(x1, x2), 2);
     
   })
 |
@@ -1352,10 +1364,15 @@ void RangeBinary():
 {
 	(
 	  LiteralBI() | NegLiteralBI())
-	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
+	(
+	  x=<MINUS> {op="literal.range.binary.minus";}
+	  | x =<DDOT> {op="literal.range.binary.ddot";}
+	  | x=<TDOT>{op="literal.range.binary.tdot";}
+	  | x=<TDOT_UNICODE>{op="literal.range.binary.tdot";}
+	)
 	(
 	  LiteralBI() | NegLiteralBI())
-	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
+	{syntaxBuilder.bop(op, pos(x));}
 }
 
 void RangeNumber():
@@ -1375,13 +1392,16 @@ void RangePrefix():
 }
 {
 	(
-	  x=<LT> {op="lt";} | x="less than" {op="lt";} |
-	  x = <LE> {op="le";} |
-	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
-	  x =<GE> {op="ge";})
+	  x=<LT> {op="literal.range.unary.prefix.lt";}
+	  | x="less than" {op="literal.range.unary.prefix.lt";}
+	  | x = <LE> {op="literal.range.unary.prefix.le";}
+	  | x = <GT> {op="literal.range.unary.prefix.gt";}
+	  | x = "more than" {op="literal.range.unary.prefix.gt";}
+	  | x =<GE> {op="literal.range.unary.prefix.ge";}
+	)
 	(
 	  LiteralBI() | NegLiteralBI())
-	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
+	{syntaxBuilder.uop(op, pos(x));}
 }
 
 void RangeSuffix():
@@ -1391,10 +1411,12 @@ void RangeSuffix():
 }
 {
 	(LiteralBI() | NegLiteralBI())
-	(x = "or less" {op="or.less";} |
-	x = "and more" {op="and.more";} |
-	x ="+" {op="plus";})
-	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
+	(
+	  x = "or less" {op="literal.range.unary.suffix.or.less";}
+	  |	x = "and more" {op="literal.range.unary.suffix.and.more";}
+	  |	x ="+" {op="literal.range.unary.suffix.plus";}
+	)
+	{syntaxBuilder.uop(op, pos(x));}
 }
 
 void rangeComparisonBounds():
@@ -1537,9 +1559,14 @@ void RangeBinaryFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} | x=<TDOT_UNICODE>{op="tdot";} )
+	(
+	  x=<MINUS> {op="literal.range.binary.minus";}
+	  | x =<DDOT> {op="literal.range.binary.ddot";}
+	  | x=<TDOT>{op="literal.range.binary.tdot";}
+	  | x=<TDOT_UNICODE>{op="literal.range.binary.tdot";}
+	)
 	(LiteralFloat() | NegLiteralFloat())
-	{syntaxBuilder.bop("literal.range.binary." + op, pos(x));}
+	{syntaxBuilder.bop(op, pos(x));}
 }
 
 void RangeNumberFloat():
@@ -1557,12 +1584,16 @@ void RangePrefixFloat():
 	String op; 
 }
 {
-	( x=<LT> {op="lt";} | x="less than" {op="lt";} |
-	  x = <LE> {op="le";} |
-	  x = <GT> {op="gt";} | x = "more than" {op="gt";} |
-	  x =<GE> {op="ge";} )
+	(
+	  x=<LT> {op="literal.range.unary.prefix.lt";}
+	  | x="less than" {op="literal.range.unary.prefix.lt";}
+	  | x = <LE> {op="literal.range.unary.prefix.le";}
+	  | x = <GT> {op="literal.range.unary.prefix.gt";}
+	  | x = "more than" {op="literal.range.unary.prefix.gt";}
+	  | x =<GE> {op="literal.range.unary.prefix.ge";}
+	)
 	(LiteralFloat() | NegLiteralFloat())
-	{syntaxBuilder.uop("literal.range.unary.prefix." + op, pos(x));}	
+	{syntaxBuilder.uop(op, pos(x));}
 }
 
 void RangeSuffixFloat():
@@ -1572,10 +1603,12 @@ void RangeSuffixFloat():
 }
 {
 	(LiteralFloat() | NegLiteralFloat())
-	(x = "or less" {op="or.less";} |
-	x = "and more" {op="and.more";} |
-	x ="+" {op="plus";})
-	{syntaxBuilder.uop("literal.range.unary.suffix."+op, pos(x));}
+	(
+	  x = "or less" {op="literal.range.unary.suffix.or.less";}
+	  | x = "and more" {op="literal.range.unary.suffix.and.more";}
+	  | x ="+" {op="literal.range.unary.suffix.plus";}
+	)
+	{syntaxBuilder.uop(op, pos(x));}
 }
 
 void rangeComparisonBoundsFloat():
