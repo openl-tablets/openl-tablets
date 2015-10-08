@@ -12,7 +12,7 @@ public class StorageInfo {
 	private int numberOfElses = 0;
 	private int firstElseIndex = -1;
 	
-	Map<Object, Integer> uniqueIndex = new HashMap<Object, Integer>(512);
+	Map<Object, Integer> uniqueIndex = new HashMap<Object, Integer>();
 
 	public int getFirstFormulaindex() {
 		return firstFormulaIndex;
