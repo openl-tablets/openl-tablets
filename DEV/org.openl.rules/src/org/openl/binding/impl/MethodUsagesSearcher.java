@@ -102,7 +102,7 @@ public class MethodUsagesSearcher {
         @Override
         public String getDescription() {
             StringBuilder buff = new StringBuilder();
-            MethodUtil.printMethod(method, false, buff, TYPE_CONVERTER);
+            MethodUtil.printMethod(method, true, buff, TYPE_CONVERTER);
             return buff.toString();
         }
 
