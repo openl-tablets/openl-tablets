@@ -319,7 +319,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existedMethod = getMethod(method.getName(), method.getSignature().getParameterTypes());
+        IOpenMethod existedMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
         if (existedMethod != null) {
 
             if (!existedMethod.getType().equals(method.getType())) {

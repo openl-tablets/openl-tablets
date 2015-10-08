@@ -177,9 +177,7 @@ public abstract class AOpenClass implements IOpenClass {
     
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
-        Map<MethodKey, IOpenMethod> m = methodMap();
-        MethodKey methodKey = new MethodKey(name, classes);
-        IOpenMethod method = m.get(methodKey);
+        IOpenMethod method = getDeclaredMethod(name, classes);
 
         // If method is not found try to find it in parent classes.
         //
@@ -382,7 +380,13 @@ public abstract class AOpenClass implements IOpenClass {
         }
         return Collections.unmodifiableCollection(methods.values());
     }
-    
+
+    protected IOpenMethod getDeclaredMethod(String name, IOpenClass[] classes) {
+        Map<MethodKey, IOpenMethod> m = methodMap();
+        MethodKey methodKey = new MethodKey(name, classes);
+        return m.get(methodKey);
+    }
+
     public Collection<IOpenMethod> getDeclaredMethods() {
         return methodMap().values();
     }
