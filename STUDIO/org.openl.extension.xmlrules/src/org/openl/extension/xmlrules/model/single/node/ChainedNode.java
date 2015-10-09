@@ -1,21 +1,18 @@
-package org.openl.extension.xmlrules.model.single;
+package org.openl.extension.xmlrules.model.single.node;
+
+import java.util.Deque;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import org.openl.extension.xmlrules.model.single.node.*;
-
-public class Cell {
-    private String address;
+public abstract class ChainedNode extends Node {
     private Node node;
 
-    @XmlElement(required = true)
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    protected void pushToChain(Deque<ChainedNode> nodes) {
+        nodes.push(this);
+        if (node instanceof ChainedNode) {
+            ((ChainedNode) node).pushToChain(nodes);
+        }
     }
 
     @XmlElements({
@@ -36,5 +33,10 @@ public class Cell {
 
     public void setNode(Node node) {
         this.node = node;
+    }
+
+    @Override
+    public void configure(String currentWorkbook, String currentSheet) {
+        node.configure(currentWorkbook, currentSheet);
     }
 }

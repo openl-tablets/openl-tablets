@@ -20,6 +20,9 @@
         <xs:element name="expression-node" type="expression-node"/>
         <xs:element name="function-node" type="function-node"/>
         <xs:element name="if-node" type="if-node"/>
+        <xs:element name="field-node" type="field-node"/>
+        <xs:element name="filter-node" type="filter-node"/>
+        <xs:element name="parent-node" type="parent-node"/>
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -80,6 +83,9 @@
             <xs:element name="left-expression-node" type="expression-node"/>
             <xs:element name="left-function-node" type="function-node"/>
             <xs:element name="left-if-node" type="if-node"/>
+            <xs:element name="left-field-node" type="field-node"/>
+            <xs:element name="left-filter-node" type="filter-node"/>
+            <xs:element name="left-parent-node" type="parent-node"/>
           </xs:choice>
           <xs:element name="operator" type="xs:string"/>
           <xs:choice>
@@ -90,6 +96,9 @@
             <xs:element name="right-expression-node" type="expression-node"/>
             <xs:element name="right-function-node" type="function-node"/>
             <xs:element name="right-if-node" type="if-node"/>
+            <xs:element name="right-field-node" type="field-node"/>
+            <xs:element name="right-filter-node" type="filter-node"/>
+            <xs:element name="right-parent-node" type="parent-node"/>
           </xs:choice>
         </xs:sequence>
       </xs:extension>
@@ -108,6 +117,9 @@
             <xs:element name="expression-node" type="expression-node"/>
             <xs:element name="function-node" type="function-node"/>
             <xs:element name="if-node" type="if-node"/>
+            <xs:element name="field-node" type="field-node"/>
+            <xs:element name="filter-node" type="filter-node"/>
+            <xs:element name="parent-node" type="parent-node"/>
           </xs:choice>
           <xs:element name="name" type="xs:string"/>
         </xs:sequence>
@@ -127,6 +139,9 @@
             <xs:element name="condition-expression-node" type="expression-node"/>
             <xs:element name="condition-function-node" type="function-node"/>
             <xs:element name="condition-if-node" type="if-node"/>
+            <xs:element name="condition-field-node" type="field-node"/>
+            <xs:element name="condition-filter-node" type="filter-node"/>
+            <xs:element name="condition-parent-node" type="parent-node"/>
           </xs:choice>
           <xs:choice>
             <xs:element name="else-string-node" type="string-node"/>
@@ -136,6 +151,9 @@
             <xs:element name="else-expression-node" type="expression-node"/>
             <xs:element name="else-function-node" type="function-node"/>
             <xs:element name="else-if-node" type="if-node"/>
+            <xs:element name="else-field-node" type="field-node"/>
+            <xs:element name="else-filter-node" type="filter-node"/>
+            <xs:element name="else-parent-node" type="parent-node"/>
           </xs:choice>
           <xs:choice>
             <xs:element name="then-string-node" type="string-node"/>
@@ -145,10 +163,83 @@
             <xs:element name="then-expression-node" type="expression-node"/>
             <xs:element name="then-function-node" type="function-node"/>
             <xs:element name="then-if-node" type="if-node"/>
+            <xs:element name="then-field-node" type="field-node"/>
+            <xs:element name="then-filter-node" type="filter-node"/>
+            <xs:element name="then-parent-node" type="parent-node"/>
           </xs:choice>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="field-node">
+    <xs:complexContent>
+      <xs:extension base="chainedNode">
+        <xs:sequence>
+          <xs:element name="field-name" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="chainedNode" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:choice>
+          <xs:element name="string-node" type="string-node"/>
+          <xs:element name="number-node" type="number-node"/>
+          <xs:element name="boolean-node" type="boolean-node"/>
+          <xs:element name="range-node" type="range-node"/>
+          <xs:element name="expression-node" type="expression-node"/>
+          <xs:element name="function-node" type="function-node"/>
+          <xs:element name="if-node" type="if-node"/>
+          <xs:element name="field-node" type="field-node"/>
+          <xs:element name="filter-node" type="filter-node"/>
+          <xs:element name="parent-node" type="parent-node"/>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="filter-node">
+    <xs:complexContent>
+      <xs:extension base="chainedNode">
+        <xs:sequence>
+          <xs:element name="comparison" type="comparison" minOccurs="0"/>
+          <xs:choice>
+            <xs:element name="condition-string-node" type="string-node"/>
+            <xs:element name="condition-number-node" type="number-node"/>
+            <xs:element name="condition-boolean-node" type="boolean-node"/>
+            <xs:element name="condition-range-node" type="range-node"/>
+            <xs:element name="condition-expression-node" type="expression-node"/>
+            <xs:element name="condition-function-node" type="function-node"/>
+            <xs:element name="condition-if-node" type="if-node"/>
+            <xs:element name="condition-field-node" type="field-node"/>
+            <xs:element name="condition-filter-node" type="filter-node"/>
+            <xs:element name="condition-parent-node" type="parent-node"/>
+          </xs:choice>
+          <xs:element name="field-name" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="parent-node">
+    <xs:complexContent>
+      <xs:extension base="chainedNode">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="comparison">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="&lt;"/>
+      <xs:enumeration value="&lt;="/>
+      <xs:enumeration value="=="/>
+      <xs:enumeration value="&gt;"/>
+      <xs:enumeration value="&gt;="/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>
 

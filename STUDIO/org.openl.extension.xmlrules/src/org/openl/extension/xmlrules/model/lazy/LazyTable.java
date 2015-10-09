@@ -53,6 +53,9 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
 
     @Override
     protected void postProcess(TableImpl info) {
+        if (info == null) {
+            return;
+        }
         if (info.getHorizontalConditions() == null) {
             info.setHorizontalConditions(Collections.<ConditionImpl>emptyList());
         }

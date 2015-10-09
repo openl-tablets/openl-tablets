@@ -66,7 +66,7 @@ public abstract class BaseLazyItem<T> {
             zipFile = new ZipFile(file);
             ZipEntry entry = zipFile.getEntry(entryName);
             if (entry == null || entry.isDirectory()) {
-                return null;
+                throw new IllegalStateException("The file: " + entryName + " doesn't exist");
             }
 
             InputStream inputStream = zipFile.getInputStream(entry);

@@ -22,6 +22,9 @@ public class LazyCells extends BaseLazyItem<Cells> {
 
     @Override
     protected void postProcess(Cells info) {
+        if (info == null) {
+            return;
+        }
         for (Cell cell : info.getCells()) {
             if (cell.getNode() == null) {
                 throw new IllegalArgumentException("Cell node isn't initialized");

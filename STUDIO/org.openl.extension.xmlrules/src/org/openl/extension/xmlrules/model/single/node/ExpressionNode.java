@@ -17,7 +17,10 @@ public class ExpressionNode extends Node {
             @XmlElement(name = "left-range-node", type=RangeNode.class, required = true),
             @XmlElement(name = "left-expression-node", type=ExpressionNode.class, required = true),
             @XmlElement(name = "left-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "left-if-node", type=IfNode.class, required = true)
+            @XmlElement(name = "left-if-node", type=IfNode.class, required = true),
+            @XmlElement(name = "left-field-node", type=FieldNode.class, required = true),
+            @XmlElement(name = "left-filter-node", type=FilterNode.class, required = true),
+            @XmlElement(name = "left-parent-node", type=ParentNode.class, required = true)
     })
     public Node getLeftNode() {
         return leftNode;
@@ -43,7 +46,10 @@ public class ExpressionNode extends Node {
             @XmlElement(name = "right-range-node", type=RangeNode.class, required = true),
             @XmlElement(name = "right-expression-node", type=ExpressionNode.class, required = true),
             @XmlElement(name = "right-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "right-if-node", type=IfNode.class, required = true)
+            @XmlElement(name = "right-if-node", type=IfNode.class, required = true),
+            @XmlElement(name = "right-field-node", type=FieldNode.class, required = true),
+            @XmlElement(name = "right-filter-node", type=FilterNode.class, required = true),
+            @XmlElement(name = "right-parent-node", type=ParentNode.class, required = true)
     })
     public Node getRightNode() {
         return rightNode;

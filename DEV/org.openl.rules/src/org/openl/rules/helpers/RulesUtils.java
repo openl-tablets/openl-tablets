@@ -6475,7 +6475,7 @@ public class RulesUtils {
         return result;
     }
 
-    private static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
+    public static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
         if (classA == Void.class) {
             return classB;
         } else if (classB == Void.class) {
