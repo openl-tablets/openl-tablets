@@ -17,7 +17,7 @@
             <artifactId>org.openl.rules</artifactId>
             <version>${symbol_dollar}{openl.rules.version}</version>
         </dependency>
-        <!-- ## The dependency for runtime ## -->
+        <!-- The dependency for runtime -->
         <!--
         <dependency>
             <groupId>com.example</groupId>
@@ -61,7 +61,7 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${symbol_dollar}{openl.rules.version}</version>
                 <dependencies>
-                    <!-- ## The same dependency for interface generating ## -->
+                    <!-- The same dependency for interface generating -->
                     <!--
                     <dependency>
                         <groupId>com.example</groupId>
@@ -77,7 +77,7 @@
                     <classpaths>
                         <param>.</param>
                         <param>lib/${symbol_dollar}{project.build.finalName}.jar</param>
-                        <!-- ## The same dependency for writing into rules.xml ## -->
+                        <!-- The same dependency for writing into rules.xml -->
                         <!--
                         <param>lib/com.example.model-1.0.0.jar</param>
                         -->
