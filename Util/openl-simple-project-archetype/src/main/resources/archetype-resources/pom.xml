@@ -17,6 +17,14 @@
             <artifactId>org.openl.rules</artifactId>
             <version>${symbol_dollar}{openl.rules.version}</version>
         </dependency>
+        <!-- ## The dependency for runtime ## -->
+        <!--
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>com.example.model</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        -->
     </dependencies>
     <build>
         <plugins>
@@ -52,6 +60,16 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${symbol_dollar}{openl.rules.version}</version>
+                <dependencies>
+                    <!-- ## The same dependency for interface generating ## -->
+                    <!--
+                    <dependency>
+                        <groupId>com.example</groupId>
+                        <artifactId>com.example.model</artifactId>
+                        <version>1.0.0</version>
+                    </dependency>
+                    -->
+                </dependencies>
                 <configuration>
                     <!-- Project name. -->
                     <projectName>OpenL Rules Simple Project</projectName>
@@ -59,6 +77,10 @@
                     <classpaths>
                         <param>.</param>
                         <param>lib/${symbol_dollar}{project.build.finalName}.jar</param>
+                        <!-- ## The same dependency for writing into rules.xml ## -->
+                        <!--
+                        <param>lib/com.example.model-1.0.0.jar</param>
+                        -->
                     </classpaths>
                     <!-- OpenL project includes one or more modules. -->
                     <generateInterfaces>
