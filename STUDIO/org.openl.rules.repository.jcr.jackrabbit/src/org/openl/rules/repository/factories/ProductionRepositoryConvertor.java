@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,12 +52,12 @@ public class ProductionRepositoryConvertor {
     public static final CommonVersion to = new CommonVersionImpl(4);
     private final CommonUser system = new CommonUserImpl("system");
 
-    private final String repHome;
+    private final File repHome;
 
     private TransientRepository repo;
     private Session target;
 
-    public ProductionRepositoryConvertor(String tempRepositoryHome) {
+    public ProductionRepositoryConvertor(File tempRepositoryHome) {
         this.repHome = tempRepositoryHome;
     }
 
@@ -97,17 +96,15 @@ public class ProductionRepositoryConvertor {
         String repConf = "/jackrabbit-repository.xml";
 
         // obtain real path to repository configuration file
-        URL url = this.getClass().getResource(repConf);
+        InputStream input = this.getClass().getResourceAsStream(repConf);
         File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
         // It could be cleaned-up on exit
         tempRepositorySettings.deleteOnExit();
 
-        String fullPath = tempRepositorySettings.getCanonicalPath();
-
         OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
-        IOUtils.copyAndClose(url.openStream(), tempRepositorySettingsStream);
+        IOUtils.copyAndClose(input, tempRepositorySettingsStream);
 
-        repo = new TransientRepository(fullPath, repHome);
+        repo = new TransientRepository(tempRepositorySettings, repHome);
         // TODO: schema
         target = createSession("user", "pass");
         NodeTypeManager ntm = target.getWorkspace().getNodeTypeManager();

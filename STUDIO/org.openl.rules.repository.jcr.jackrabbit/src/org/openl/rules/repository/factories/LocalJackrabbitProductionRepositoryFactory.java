@@ -43,7 +43,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     protected void convert() throws RRepositoryException {
         RProductionRepository repositoryInstance = null;
-        String tempRepoHome = getTempDirectoryPath() + "/.openl/prod_repo/";
+        File tempRepoHome = new File(getTempDirectoryPath() + "/.openl/prod_repo/");
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession();
@@ -61,15 +61,13 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             }
         }
 
-        File repoHome = new File(repHome);
-        File tmpRepoHome = new File(tempRepoHome);
         try {
-            FileUtils.deleteDirectory(repoHome);
-            FileUtils.copyDirectory(tmpRepoHome, repoHome);
+            FileUtils.deleteDirectory(repHome);
+            FileUtils.copyDirectory(tempRepoHome, repHome);
         } catch (IOException e) {
             throw new RRepositoryException("Failed to convert repository.", e);
         } finally {
-            FileUtils.deleteQuietly(tmpRepoHome);
+            FileUtils.deleteQuietly(tempRepoHome);
         }
     }
 }

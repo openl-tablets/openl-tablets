@@ -46,7 +46,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
      * Jackrabbit local repository
      */
     protected TransientRepository repository;
-    protected String repHome;
+    protected File repHome;
     private String nodeTypeFile;
     protected boolean convert = false;
 
@@ -78,12 +78,12 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         }
     }
 
-    protected static boolean isRepositoryLocked(String repositoryHome) {
+    protected static boolean isRepositoryLocked(File repositoryHome) {
         File lockFile = new File(repositoryHome, LOCK_FILE);
         return lockFile.exists() && isFileLocked(lockFile);
     }
 
-    protected void createTransientRepo(String fullPath) throws RepositoryException {
+    protected void createTransientRepo(File fullPath) throws RepositoryException {
         if (isRepositoryLocked(repHome)) {
             throw new RepositoryException("Repository is already locked.");
         }
@@ -103,18 +103,16 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             String repConf = this.getRepoConfigFile().getValue();//"/jackrabbit-repository.xml";
 
             // obtain real path to repository configuration file
-            URL url = this.getClass().getResource(repConf);
+            InputStream input = this.getClass().getResourceAsStream(repConf);
 
             File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
             // It could be cleaned-up on exit
             tempRepositorySettings.deleteOnExit();
 
-            String fullPath = tempRepositorySettings.getCanonicalPath();
-
             OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
-            IOUtils.copyAndClose(url.openStream(), tempRepositorySettingsStream);
+            IOUtils.copyAndClose(input, tempRepositorySettingsStream);
 
-            createTransientRepo(fullPath);
+            createTransientRepo(tempRepositorySettings);
 
             // Register shut down hook
             ShutDownHook shutDownHook = new ShutDownHook(this);
@@ -135,16 +133,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         confSet.updateProperty(confNodeTypeFile);
         confSet.updateProperty(confRepositoryName);
 
-        repHome = confRepositoryHome.getValue();
+        repHome = new File(confRepositoryHome.getValue());
         nodeTypeFile = confNodeTypeFile.getValue();
-
-        // resolve "." and "..", if any
-        try {
-            File f = new File(repHome);
-            repHome = f.getCanonicalPath();
-        } catch (IOException e) {
-            log.error("Failed to get canonical path for repository home ({})", repHome, e);
-        }
 
         try {
             init();
@@ -173,7 +163,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     protected void convert() throws RRepositoryException {
         RRepository repositoryInstance = null;
-        String tempRepoHome = getTempDirectoryPath() + "/.openl/repo/";
+        File tempRepoHome = new File(getTempDirectoryPath() + "/.openl/repo/");
         try {
             repositoryInstance = super.getRepositoryInstance();
             //FIXME
@@ -206,15 +196,13 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 }
             }
         }
-        File repoHome = new File(repHome);
-        File tmpRepoHome = new File(tempRepoHome);
         try {
-            FileUtils.deleteDirectory(repoHome);
-            FileUtils.copyDirectory(tmpRepoHome, repoHome);
+            FileUtils.deleteDirectory(repHome);
+            FileUtils.copyDirectory(tempRepoHome, repHome);
         } catch (IOException e) {
             throw new RRepositoryException("Failed to convert repository.", e);
         } finally {
-            FileUtils.deleteQuietly(tmpRepoHome);
+            FileUtils.deleteQuietly(tempRepoHome);
         }
 
     }
