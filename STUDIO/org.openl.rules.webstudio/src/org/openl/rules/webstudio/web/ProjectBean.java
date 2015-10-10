@@ -324,19 +324,15 @@ public class ProjectBean {
         String oldPath = FacesUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
 
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
         File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        File inputFile = new File(projectFolder, oldPath);
         File outputFile = new File(projectFolder, path);
         try {
-            outputStream = new FileOutputStream(outputFile);
-            inputStream = new FileInputStream(new File(projectFolder, oldPath));
-            IOUtils.copyAndClose(inputStream, outputStream);
+            FileUtils.copy(inputFile, outputFile);
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
-            FileUtils.deleteQuietly(outputFile);
             throw new Message("Error while project copying");
         }
 

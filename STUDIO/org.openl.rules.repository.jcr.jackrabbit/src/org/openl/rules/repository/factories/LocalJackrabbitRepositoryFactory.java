@@ -1,8 +1,16 @@
 package org.openl.rules.repository.factories;
 
-import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import org.apache.commons.io.FileUtils;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeTypeManager;
+
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -15,15 +23,10 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.utils.UserUtil;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.nodetype.NodeTypeManager;
-import java.io.*;
-import java.net.URL;
 
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
@@ -163,9 +166,10 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     protected void convert() throws RRepositoryException {
         RRepository repositoryInstance = null;
-        File tempRepoHome = new File(getTempDirectoryPath() + "/.openl/repo/");
+        File tempRepoHome;
         try {
             repositoryInstance = super.getRepositoryInstance();
+            tempRepoHome = FileUtils.createTempDirectory();
             //FIXME
             RepositoryConvertor repositoryConvertor = new RepositoryConvertor(confRulesProjectsLocation.getValue(),
                     confDeploymentProjectsLocation.getValue(), tempRepoHome);
@@ -197,12 +201,10 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             }
         }
         try {
-            FileUtils.deleteDirectory(repHome);
-            FileUtils.copyDirectory(tempRepoHome, repHome);
+            FileUtils.delete(repHome);
+            FileUtils.move(tempRepoHome, repHome);
         } catch (IOException e) {
             throw new RRepositoryException("Failed to convert repository.", e);
-        } finally {
-            FileUtils.deleteQuietly(tempRepoHome);
         }
 
     }

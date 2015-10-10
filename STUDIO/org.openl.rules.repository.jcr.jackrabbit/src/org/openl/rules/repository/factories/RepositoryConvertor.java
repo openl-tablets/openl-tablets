@@ -129,9 +129,7 @@ public class RepositoryConvertor {
                 is = this.getClass().getResourceAsStream("/org/openl/rules/repository/openl_nodetypes.xml");
                 ntmi.registerNodeTypes(is, JackrabbitNodeTypeManager.TEXT_XML, true);
             } finally {
-                if (is != null) {
-                    is.close();
-                }
+                IOUtils.closeQuietly(is);
             }
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);

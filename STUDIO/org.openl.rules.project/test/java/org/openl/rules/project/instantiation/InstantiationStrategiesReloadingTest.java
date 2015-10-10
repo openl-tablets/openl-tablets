@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,6 +20,7 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.util.FileUtils;
 
 @Ignore(value = "currently disabled. Problem with OpenL onstances caching and sharing should be fixed.")
 public class InstantiationStrategiesReloadingTest {
@@ -149,29 +149,29 @@ public class InstantiationStrategiesReloadingTest {
     @After
     public void restoreChanges() throws IOException {
         System.out.println("Restoring changes...");
-        FileUtils.copyFile(new File(RULES_ORIGINAL), new File(RULES_ENGINE));
-        FileUtils.copyFile(new File(RULES_ORIGINAL), new File(RULES_API));
-        FileUtils.copyFile(new File(RULES_ORIGINAL), new File(RULES_WRAPPER));
-        FileUtils.copyFile(new File(BEAN_ORIGINAL), new File(BEAN_ENGINE));
-        FileUtils.copyFile(new File(BEAN_ORIGINAL), new File(BEAN_API));
-        FileUtils.copyFile(new File(BEAN_ORIGINAL), new File(BEAN_WRAPPER));
-        FileUtils.copyFile(new File(SERVICE_CLASS_ORIGINAL), new File(SERVICE_CLASS_ENGINE));
-        FileUtils.copyFile(new File(WRAPPER_ORIGINAL), new File(WRAPPER_WRAPPER));
-        FileUtils.copyFile(new File(WRAPPER$1_ORIGINAL), new File(WRAPPER$1_WRAPPER));
+        FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_ENGINE));
+        FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_API));
+        FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_WRAPPER));
+        FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_ENGINE));
+        FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_API));
+        FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_WRAPPER));
+        FileUtils.copy(new File(SERVICE_CLASS_ORIGINAL), new File(SERVICE_CLASS_ENGINE));
+        FileUtils.copy(new File(WRAPPER_ORIGINAL), new File(WRAPPER_WRAPPER));
+        FileUtils.copy(new File(WRAPPER$1_ORIGINAL), new File(WRAPPER$1_WRAPPER));
         System.out.println("All files have been successfully restored.");
     }
 
     public void makeChanges() throws IOException {
         System.out.println("Modifing files...");
-        FileUtils.copyFile(new File(RULES_MODIFIED), new File(RULES_ENGINE));
-        FileUtils.copyFile(new File(RULES_MODIFIED), new File(RULES_API));
-        FileUtils.copyFile(new File(RULES_MODIFIED), new File(RULES_WRAPPER));
-        FileUtils.copyFile(new File(BEAN_MODIFIED), new File(BEAN_ENGINE));
-        FileUtils.copyFile(new File(BEAN_MODIFIED), new File(BEAN_API));
-        FileUtils.copyFile(new File(BEAN_MODIFIED), new File(BEAN_WRAPPER));
-        FileUtils.copyFile(new File(SERVICE_CLASS_MODIFIED), new File(SERVICE_CLASS_ENGINE));
-        FileUtils.copyFile(new File(WRAPPER_MODIFIED), new File(WRAPPER_WRAPPER));
-        FileUtils.copyFile(new File(WRAPPER$1_MODIFIED), new File(WRAPPER$1_WRAPPER));
+        FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_ENGINE));
+        FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_API));
+        FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_WRAPPER));
+        FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_ENGINE));
+        FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_API));
+        FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_WRAPPER));
+        FileUtils.copy(new File(SERVICE_CLASS_MODIFIED), new File(SERVICE_CLASS_ENGINE));
+        FileUtils.copy(new File(WRAPPER_MODIFIED), new File(WRAPPER_WRAPPER));
+        FileUtils.copy(new File(WRAPPER$1_MODIFIED), new File(WRAPPER$1_WRAPPER));
         System.out.println("All files have been successfully changed.");
     }
 

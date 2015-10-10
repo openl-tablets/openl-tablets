@@ -1,18 +1,16 @@
 package org.openl.rules.repository.factories;
 
-import static org.apache.commons.io.FileUtils.getTempDirectoryPath;
-
 import java.io.File;
 import java.io.IOException;
 
 import javax.jcr.Session;
 
-import org.apache.commons.io.FileUtils;
 import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +41,13 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     protected void convert() throws RRepositoryException {
         RProductionRepository repositoryInstance = null;
-        File tempRepoHome = new File(getTempDirectoryPath() + "/.openl/prod_repo/");
+        File tempRepoHome;
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
+            tempRepoHome = FileUtils.createTempDirectory();
             // FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
             log.info("Converting production repository. Please, be patient.");
@@ -62,12 +61,10 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         }
 
         try {
-            FileUtils.deleteDirectory(repHome);
-            FileUtils.copyDirectory(tempRepoHome, repHome);
+            FileUtils.delete(repHome);
+            FileUtils.move(tempRepoHome, repHome);
         } catch (IOException e) {
             throw new RRepositoryException("Failed to convert repository.", e);
-        } finally {
-            FileUtils.deleteQuietly(tempRepoHome);
         }
     }
 }
