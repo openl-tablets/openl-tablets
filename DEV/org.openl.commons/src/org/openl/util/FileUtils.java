@@ -1,8 +1,13 @@
 package org.openl.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A set of methods to work with a file system.
@@ -10,6 +15,9 @@ import java.io.IOException;
  * @author Yury Molchan
  */
 public class FileUtils {
+
+    private static final int DEFAULT_BUFFER_SIZE = 8 * 1024 * 1024;
+
     /**
      * Returns the path to the system temporary directory.
      *
@@ -43,7 +51,202 @@ public class FileUtils {
     }
 
     /**
-     * Deletes a file. If file is a directory, delete it and all sub-directories.
+     * Copies a file to a new location preserving the file date.
+     * <p>
+     * This method copies the contents of the specified source file to the
+     * specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this
+     * method will overwrite it.
+     * <p>
+     * <strong>Note:</strong> This method tries to preserve the file's last
+     * modified date/times using {@link File#setLastModified(long)}, however it
+     * is not guaranteed that the operation will succeed. If the modification
+     * operation fails, no indication is provided.
+     *
+     * @param src an existing file to copy, must not be {@code null}
+     * @param dest the new file, must not be {@code null}
+     *
+     * @throws NullPointerException if source or destination is {@code null}
+     * @throws IOException if source or destination is invalid
+     * @throws IOException if an IO error occurs during copying
+     */
+    public static void copy(File src, File dest) throws IOException {
+        if (!src.exists()) {
+            throw new FileNotFoundException("Source '" + src + "' does not exist");
+        }
+        final String srcPath = src.getCanonicalPath();
+        final String destPath = dest.getCanonicalPath();
+        if (srcPath.equals(destPath)) {
+            throw new IOException("Source '" + src + "' and destination '" + dest + "' are the same");
+        }
+
+        if (src.isDirectory()) {
+            Collection<String> looped = getLoopedDirectories(src, dest);
+            doCopyDirectory(src, dest, looped);
+        } else {
+            if (destPath.startsWith(srcPath)) {
+                throw new IOException("Destination '" + dest + "' has the same path of the source '" + src + "'");
+            }
+            File destFile = dest;
+            if (dest.isDirectory()) {
+                destFile = new File(dest, src.getName());
+            } else {
+                File parentFile = dest.getParentFile();
+                if (parentFile != null && !parentFile.mkdirs() && !parentFile.isDirectory()) {
+                    throw new IOException("Destination '" + parentFile + "' directory cannot be created");
+                }
+            }
+            doCopyFile(src, destFile);
+        }
+    }
+
+    /**
+     * Collects nested directories which should be excluded for copying to
+     * prevent an infinity loop of copying.
+     * 
+     * @param src the source directory
+     * @param dest the destination directory
+     * @return the list of looped directories
+     * @throws IOException
+     */
+    private static Collection<String> getLoopedDirectories(File src, File dest) throws IOException {
+        if (!dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
+            return null;
+        }
+        Collection<String> looped = null;
+        File[] srcFiles = src.listFiles();
+        if (srcFiles != null && srcFiles.length > 0) {
+            looped = new ArrayList<String>(srcFiles.length + 1);
+            for (File srcFile : srcFiles) {
+                File copiedFile = new File(dest, srcFile.getName());
+                if (srcFile.isDirectory()) {
+                    looped.add(copiedFile.getCanonicalPath());
+                }
+            }
+            if (!dest.exists()) {
+                looped.add(dest.getCanonicalPath());
+            }
+        }
+        return looped;
+    }
+
+    /**
+     * Internal copy directory method.
+     *
+     * @param srcDir the validated source directory, must not be {@code null}
+     * @param destDir the validated destination directory, must not be
+     *            {@code null}
+     * @param excluded the list of directories or files to exclude from the
+     *            copy, may be null
+     * @throws IOException if an error occurs
+     */
+    private static void doCopyDirectory(File srcDir, File destDir, Collection<String> excluded) throws IOException {
+        File[] srcFiles = srcDir.listFiles();
+        if (srcFiles == null) { // null if security restricted
+            throw new IOException("Failed to list contents of " + srcDir);
+        }
+        if (destDir.exists()) {
+            if (!destDir.isDirectory()) {
+                throw new IOException("Destination '" + destDir + "' exists but is not a directory");
+            }
+        } else {
+            if (!destDir.mkdirs() && !destDir.isDirectory()) {
+                throw new IOException("Destination '" + destDir + "' directory cannot be created");
+            }
+        }
+
+        // recurse copying
+        for (File srcFile : srcFiles) {
+            File dstFile = new File(destDir, srcFile.getName());
+            if (excluded == null || !excluded.contains(srcFile.getCanonicalPath())) {
+                if (srcFile.isDirectory()) {
+                    doCopyDirectory(srcFile, dstFile, excluded);
+                } else {
+                    doCopyFile(srcFile, dstFile);
+                }
+            }
+        }
+
+        // Try to preserve file date
+        destDir.setLastModified(srcDir.lastModified());
+    }
+
+    /**
+     * Internal copy file method.
+     *
+     * @param srcFile the validated source file, must not be {@code null}
+     * @param destFile the validated destination file, must not be {@code null}
+     * @throws IOException if an error occurs
+     */
+    private static void doCopyFile(File srcFile, File destFile) throws IOException {
+        if (destFile.exists() && destFile.isDirectory()) {
+            throw new IOException("Destination '" + destFile + "' exists but is a directory");
+        }
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        FileChannel input = null;
+        FileChannel output = null;
+        try {
+            fis = new FileInputStream(srcFile);
+            fos = new FileOutputStream(destFile);
+            input = fis.getChannel();
+            output = fos.getChannel();
+            long size = input.size();
+            long pos = 0;
+            while (pos < size) {
+                pos += output.transferFrom(input, pos, DEFAULT_BUFFER_SIZE);
+            }
+        } finally {
+            IOUtils.closeQuietly(output);
+            IOUtils.closeQuietly(fos);
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(fis);
+        }
+
+        if (srcFile.length() != destFile.length()) {
+            throw new IOException("Failed to copy full contents from '" + srcFile + "' to '" + destFile + "'");
+        }
+        // Try to preserve file date
+        destFile.setLastModified(srcFile.lastModified());
+    }
+
+    /**
+     * Moves a directory or a file.
+     * <p>
+     * When the destination directory or file is on another file system, do a
+     * "copy and delete".
+     *
+     * @param src the directory or the file to be moved
+     * @param dest the destination directory or file
+     * @throws NullPointerException if source or destination is {@code null}
+     * @throws IOException if source or destination is invalid
+     * @throws IOException if an IO error occurs moving the file
+     */
+    public static void move(File src, File dest) throws IOException {
+        if (!src.exists()) {
+            throw new FileNotFoundException("Source '" + src + "' does not exist");
+        }
+        if (dest.exists()) {
+            throw new IOException("Destination '" + dest + "' already exists");
+        }
+        boolean rename = src.renameTo(dest);
+        if (!rename) {
+            if (src.isDirectory() && dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
+                throw new IOException("Cannot move directory: " + src + " to a subdirectory of itself: " + dest);
+            }
+            copy(src, dest);
+            delete(src);
+            if (src.exists()) {
+                throw new IOException(
+                    "Failed to delete original directory or file '" + src + "' after copy to '" + dest + "'");
+            }
+        }
+    }
+
+    /**
+     * Deletes a file. If file is a directory, delete it and all
+     * sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
      * <ul>
@@ -52,14 +255,14 @@ public class FileUtils {
      * </ul>
      *
      * @param file file or directory to delete, must not be {@code null}
-     * @throws NullPointerException  if the directory is {@code null}
+     * @throws NullPointerException if the directory is {@code null}
      * @throws FileNotFoundException if the file was not found
-     * @throws IOException           in case deletion is unsuccessful
+     * @throws IOException in case deletion is unsuccessful
      */
     public static void delete(File file) throws IOException {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if (files == null) {  // null if security restricted
+            if (files == null) { // null if security restricted
                 throw new IOException("Failed to list contents of direcory: " + file);
             }
 
@@ -91,12 +294,14 @@ public class FileUtils {
     }
 
     /**
-     * Deletes a file, never throwing an exception. If file is a directory, delete it and all sub-directories.
+     * Deletes a file, never throwing an exception. If file is a directory,
+     * delete it and all sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
      * <ul>
      * <li>A directory to be deleted does not have to be empty.</li>
-     * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
+     * <li>No exceptions are thrown when a file or directory cannot be deleted.
+     * </li>
      * </ul>
      *
      * @param file file or directory to delete, can be {@code null}
@@ -110,10 +315,12 @@ public class FileUtils {
     }
 
     /**
-     * Gets the base name, minus the full path and extension, from a full filename.
+     * Gets the base name, minus the full path and extension, from a full
+     * filename.
      * <p/>
-     * This method will handle a file in either Unix or Windows format.
-     * The text after the last forward or backslash and before the last dot is returned.
+     * This method will handle a file in either Unix or Windows format. The text
+     * after the last forward or backslash and before the last dot is returned.
+     * 
      * <pre>
      * a/b/c.txt --> c
      * a.b.txt   --> a.b
@@ -123,7 +330,8 @@ public class FileUtils {
      * <p/>
      *
      * @param filename the filename to query, null returns null
-     * @return the name of the file without the path, or an empty string if none exists
+     * @return the name of the file without the path, or an empty string if none
+     *         exists
      */
     public static String getBaseName(String filename) {
         if (filename == null) {
