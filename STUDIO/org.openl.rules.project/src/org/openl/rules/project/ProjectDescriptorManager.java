@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import com.rits.cloning.Cloner;
-import org.apache.commons.io.FilenameUtils;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -13,6 +12,7 @@ import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -129,7 +129,7 @@ public class ProjectDescriptorManager {
             Module m = new Module();
             m.setProject(descriptor);
             m.setRulesRootPath(new PathEntry(file.getCanonicalPath()));
-            m.setName(FilenameUtils.getBaseName(file.getName()));
+            m.setName(FileUtils.getBaseName(file.getName()));
             m.setType(ModuleType.API);
             m.setMethodFilter(module.getMethodFilter());
             m.setWildcardRulesRootPath(pathPattern);

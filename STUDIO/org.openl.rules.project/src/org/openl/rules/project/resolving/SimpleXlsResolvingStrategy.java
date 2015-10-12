@@ -1,11 +1,11 @@
 package org.openl.rules.project.resolving;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
             for (File f : folder.listFiles()) {
                 if (!f.isHidden() && f.isFile() && FileTypeHelper.isExcelFile(f.getName())) {
 
-                    String name = FilenameUtils.removeExtension(f.getName());
+                    String name = FileUtils.removeExtension(f.getName());
                     if (!modules.containsKey(name)) {
                         PathEntry rootPath = new PathEntry(f.getCanonicalFile().getAbsolutePath());
                         Module module = createModule(project, rootPath, name);

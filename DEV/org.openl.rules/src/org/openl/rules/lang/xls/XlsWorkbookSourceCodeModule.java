@@ -1,7 +1,17 @@
 package org.openl.rules.lang.xls;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.output.ProxyOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -12,18 +22,11 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
 
@@ -90,7 +93,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
 
     public String getDisplayName() {
         String uri = StringTool.decodeURL(src.getUri(0));
-        return FilenameUtils.getName(uri);
+        return FileUtils.getName(uri);
     }
 
     public String getUri() {
@@ -200,12 +203,13 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
     }
 
     /**
-     * Avoids rewriting the file before actual write operation is occurred.
-     * For example if OutOfMemoryError is thrown before actual write operation begins, the file should not be corrupted.
+     * Avoids rewriting the file before actual write operation is occurred. For
+     * example if OutOfMemoryError is thrown before actual write operation
+     * begins, the file should not be corrupted.
      *
      * @author NSamatov
      */
-    private static final class DeferredCreateFileOutputStream extends ProxyOutputStream {
+    private static final class DeferredCreateFileOutputStream extends OutputStream {
         private final String fileName;
 
         /**
@@ -213,11 +217,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
          *
          * @param fileName the system-dependent file name
          * @throws FileNotFoundException if the file exists but is a directory
-         *                               rather than a regular file, does not exist but cannot be
-         *                               created, or cannot be opened for any other reason.
+         *             rather than a regular file, does not exist but cannot be
+         *             created, or cannot be opened for any other reason.
          */
         private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
-            super(null);
             this.fileName = fileName;
             throwExceptionIfNotWritable(fileName);
         }
@@ -228,8 +231,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
          *
          * @param fileName the checking file
          * @throws FileNotFoundException if the file exists but is a directory
-         *                               rather than a regular file, does not exist but cannot be
-         *                               created, or cannot be opened for any other reason.
+         *             rather than a regular file, does not exist but cannot be
+         *             created, or cannot be opened for any other reason.
          */
         private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
             FileOutputStream os = null;
@@ -240,24 +243,61 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
             }
         }
 
-        @Override
-        protected void beforeWrite(int n) throws IOException {
-            if (out == null) {
-                out = new FileOutputStream(fileName);
+        private OutputStream stream;
+
+        private OutputStream getStream() throws FileNotFoundException {
+            if (stream == null) {
+                stream = new FileOutputStream(fileName);
             }
+            return stream;
+        }
+
+        /**
+         * Invokes the delegate's <code>write(int)</code> method.
+         * 
+         * @param idx the byte to write
+         * @throws IOException if an I/O error occurs
+         */
+        @Override
+        public void write(int idx) throws IOException {
+            getStream().write(idx);
+        }
+
+        /**
+         * Invokes the delegate's <code>write(byte[])</code> method.
+         * 
+         * @param bts the bytes to write
+         * @throws IOException if an I/O error occurs
+         */
+        @Override
+        public void write(byte[] bts) throws IOException {
+            getStream().write(bts);
+        }
+
+        /**
+         * Invokes the delegate's <code>write(byte[])</code> method.
+         * 
+         * @param bts the bytes to write
+         * @param st The start offset
+         * @param end The number of bytes to write
+         * @throws IOException if an I/O error occurs
+         */
+        @Override
+        public void write(byte[] bts, int st, int end) throws IOException {
+            getStream().write(bts, st, end);
         }
 
         @Override
         public void flush() throws IOException {
-            if (out != null) {
-                super.flush();
+            if (stream != null) {
+                stream.flush();
             }
         }
 
         @Override
         public void close() throws IOException {
-            if (out != null) {
-                super.close();
+            if (stream != null) {
+                stream.close();
             }
         }
     }

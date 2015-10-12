@@ -1,6 +1,5 @@
 package org.openl.rules.tableeditor.event;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.tableeditor.util.Constants;
 import org.slf4j.Logger;
@@ -76,7 +75,7 @@ public class TableEditorDispatcher implements PhaseListener {
 
         try {
             // IE 9 fix
-            if (FilenameUtils.isExtension(path, "css")) {
+            if (path.endsWith(".css")) {
                 response.setContentType("text/css");
             }
             OutputStream out = response.getOutputStream();

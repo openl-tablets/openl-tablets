@@ -1,6 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import org.apache.commons.io.comparator.NameFileComparator;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -14,6 +13,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -121,7 +121,7 @@ public class RulesProjectResolver {
             log.error("Workspace Folder {} does not exist!", wsfolder.getAbsolutePath());
 
         File[] projects = wsfolder.listFiles();
-        Arrays.sort(projects, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
+        Arrays.sort(projects, fileNameComparator);
 
         return projects;
     }
@@ -138,4 +138,12 @@ public class RulesProjectResolver {
         }
         return res;
     }
+
+    private static Comparator<File> fileNameComparator = new Comparator<File>() {
+        @Override public int compare(File f1, File f2) {
+            String name1 = f1.getName();
+            String name2 = f2.getName();
+            return name1.compareToIgnoreCase(name2);
+        }
+    };
 }
