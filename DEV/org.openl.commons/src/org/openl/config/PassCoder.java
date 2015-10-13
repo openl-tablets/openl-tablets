@@ -1,4 +1,4 @@
-package org.openl.util;
+package org.openl.config;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -21,12 +21,12 @@ import org.apache.commons.codec.binary.Base64;
  * 
  */
 
-public class PassCoder {
+class PassCoder {
     static byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     static IvParameterSpec ivspec = new IvParameterSpec(iv);
     static private String encoding = "UTF-8";
 
-    public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
+    static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnsupportedEncodingException, InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -36,7 +36,7 @@ public class PassCoder {
         return new String(Base64.encodeBase64(cipher.doFinal(strToEncrypt.getBytes(encoding))));
     }
 
-    public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
+    static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnsupportedEncodingException, InvalidAlgorithmParameterException {
         byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
