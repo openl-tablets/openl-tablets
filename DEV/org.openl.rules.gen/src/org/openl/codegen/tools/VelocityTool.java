@@ -1,12 +1,17 @@
 package org.openl.codegen.tools;
 
-import org.apache.commons.beanutils.ConstructorUtils;
+import static java.lang.reflect.Modifier.isPublic;
+
 import org.openl.rules.helpers.NumberUtils;
 
 /**
  * Class used by Velocity engine as external tools.
  */
 public class VelocityTool {
+
+    private static final Class<?>[] EMPTY = new Class<?>[] {};
+    private static final Class<?>[] STRING = new Class<?>[] { String.class };
+    private static final Class<?>[] STRING_STRING = new Class<?>[] { String.class, String.class };
 
     public int length(Object[] array) {
         return array.length;
@@ -21,24 +26,23 @@ public class VelocityTool {
     }
 
     public boolean hasConstructorWithoutParams(Class<?> clazz) {
-        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] {}) != null) {
-            return true;
-        }
-        return false;
+        return hasPublicConstructor(clazz, EMPTY);
     }
 
     public boolean hasConstructorWithPropertyName(Class<?> clazz) {
-        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] { String.class }) != null) {
-            return true;
-        }
-        return false;
+        return hasPublicConstructor(clazz, STRING);
     }
 
     public boolean hasConstructorWithConstraintForProperty(Class<?> clazz) {
-        if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] { String.class, String.class }) != null) {
-            return true;
+        return hasPublicConstructor(clazz, STRING_STRING);
+    }
+
+    private static boolean hasPublicConstructor(Class<?> clazz, Class<?>[] types) {
+        try {
+            return isPublic(clazz.getModifiers()) && isPublic(clazz.getConstructor(types).getModifiers());
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     public String formatAccessorName(String name) {

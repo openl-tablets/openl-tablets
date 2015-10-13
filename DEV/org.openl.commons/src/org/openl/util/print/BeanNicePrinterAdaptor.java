@@ -1,11 +1,10 @@
 package org.openl.util.print;
 
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
  * 
@@ -16,6 +15,9 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  * @author PUdalau
  */
 public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
+
+    private static final Object[] EMPTY = new Object[0];
+
     @Override
     public void printObject(Object obj, int newID, NicePrinter printer) {
         if (isToStringSpecified(obj.getClass())) {
@@ -28,13 +30,18 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
     }
 
     private Map<String, Object> getFieldMap(Object obj) {
+        final PropertyDescriptor[] propertyDescriptors;
+        try {
+            propertyDescriptors = Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors();
+        } catch (Exception ex) {
+            return Collections.emptyMap();
+        }
         Map<String, Object> fieldMap = new HashMap<String, Object>();
-        PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(obj.getClass());
         for (PropertyDescriptor descriptor : propertyDescriptors) {
             try {
                 String propertyName = descriptor.getDisplayName();
                 if (!"class".endsWith(propertyName)) {// skip field "class"
-                    Object propertyValue = PropertyUtils.getProperty(obj, propertyName);
+                    Object propertyValue = descriptor.getReadMethod().invoke(obj, EMPTY);
                     fieldMap.put(propertyName, propertyValue);
                 }
             } catch (Exception e) {
@@ -44,6 +51,10 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
     }
 
     private boolean isToStringSpecified(Class<?> clazz) {
-        return MethodUtils.getAccessibleMethod(clazz, "toString", new Class<?>[] {}).getDeclaringClass() != Object.class;
+        try {
+            return clazz.getMethod("toString", new Class<?>[] {}).getDeclaringClass() != Object.class;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 }
