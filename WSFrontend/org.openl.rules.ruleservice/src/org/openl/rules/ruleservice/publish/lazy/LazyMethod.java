@@ -48,7 +48,9 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     protected IOpenMethod getMemberForModule(DeploymentDescription deployment, Module module) {
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass(deployment, module);
-            
+            if (compiledOpenClass.hasErrors()){
+            	compiledOpenClass.throwErrorExceptionsIfAny();
+            }
             readWriteLock.readLock().lock();
             try{
                 if (lastCompiledOpenClass == compiledOpenClass){

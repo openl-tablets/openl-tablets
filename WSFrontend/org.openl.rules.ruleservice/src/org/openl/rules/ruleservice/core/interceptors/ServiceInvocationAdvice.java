@@ -16,6 +16,7 @@ import org.springframework.core.Ordered;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -173,9 +174,16 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
                 if (e instanceof InvocationTargetException){
-                    Throwable t = ((InvocationTargetException) e).getTargetException();
+                	Throwable t = e;
+                	while (t instanceof InvocationTargetException){
+                		Throwable t1 = ((InvocationTargetException) t).getTargetException();
+                		if (t1 instanceof UndeclaredThrowableException){
+                			t1 = ((UndeclaredThrowableException) t1).getUndeclaredThrowable();
+                		}
+                		t = t1;
+                	}
                     if (t instanceof Exception){
-                        result = afterInvocation(interfaceMethod, null, (Exception)((InvocationTargetException) e).getTargetException(), args);
+                        result = afterInvocation(interfaceMethod, null, (Exception) t, args);
                     }else{
                         throw t;
                     }
