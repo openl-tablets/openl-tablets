@@ -29,9 +29,7 @@ public class FunctionNode extends Node {
             @XmlElement(name = "expression-node", type=ExpressionNode.class),
             @XmlElement(name = "function-node", type=FunctionNode.class),
             @XmlElement(name = "if-node", type=IfNode.class),
-            @XmlElement(name = "field-node", type=FieldNode.class, required = true),
-            @XmlElement(name = "filter-node", type=FilterNode.class, required = true),
-            @XmlElement(name = "parent-node", type=ParentNode.class, required = true)
+            @XmlElement(name = "filter-node", type=FilterNode.class, required = true)
     })
     public List<Node> getArguments() {
         return arguments;

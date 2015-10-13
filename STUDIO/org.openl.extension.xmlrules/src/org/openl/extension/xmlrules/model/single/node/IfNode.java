@@ -18,9 +18,7 @@ public class IfNode extends Node {
             @XmlElement(name = "condition-expression-node", type=ExpressionNode.class, required = true),
             @XmlElement(name = "condition-function-node", type=FunctionNode.class, required = true),
             @XmlElement(name = "condition-if-node", type=IfNode.class, required = true),
-            @XmlElement(name = "condition-field-node", type=FieldNode.class, required = true),
-            @XmlElement(name = "condition-filter-node", type=FilterNode.class, required = true),
-            @XmlElement(name = "condition-parent-node", type=ParentNode.class, required = true)
+            @XmlElement(name = "condition-filter-node", type=FilterNode.class, required = true)
     })
     public Node getCondition() {
         return condition;
@@ -38,9 +36,7 @@ public class IfNode extends Node {
             @XmlElement(name = "then-expression-node", type=ExpressionNode.class, required = true),
             @XmlElement(name = "then-function-node", type=FunctionNode.class, required = true),
             @XmlElement(name = "then-if-node", type=IfNode.class, required = true),
-            @XmlElement(name = "then-field-node", type=FieldNode.class, required = true),
-            @XmlElement(name = "then-filter-node", type=FilterNode.class, required = true),
-            @XmlElement(name = "then-parent-node", type=ParentNode.class, required = true)
+            @XmlElement(name = "then-filter-node", type=FilterNode.class, required = true)
     })
     public Node getThenNode() {
         return thenNode;
@@ -58,9 +54,7 @@ public class IfNode extends Node {
             @XmlElement(name = "else-expression-node", type=ExpressionNode.class, required = true),
             @XmlElement(name = "else-function-node", type=FunctionNode.class, required = true),
             @XmlElement(name = "else-if-node", type=IfNode.class, required = true),
-            @XmlElement(name = "else-field-node", type=FieldNode.class, required = true),
-            @XmlElement(name = "else-filter-node", type=FilterNode.class, required = true),
-            @XmlElement(name = "else-parent-node", type=ParentNode.class, required = true)
+            @XmlElement(name = "else-filter-node", type=FilterNode.class, required = true)
     })
     public Node getElseNode() {
         return elseNode;

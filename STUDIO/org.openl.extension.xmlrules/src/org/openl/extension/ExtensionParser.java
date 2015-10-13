@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.XmlSheetSourceCodeModule;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.Sheet;
@@ -62,6 +63,8 @@ public abstract class ExtensionParser extends BaseParser {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);
         }
+
+        ProjectData.removeCurrentInstance();
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
@@ -138,8 +141,7 @@ public abstract class ExtensionParser extends BaseParser {
 
     private TableSyntaxNode preprocessTable(IGridTable table,
             XlsSheetSourceCodeModule source,
-            TablePartProcessor tablePartProcessor) throws
-                                                                                                    OpenLCompilationException {
+            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
         String type = tsn.getType();
         if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {

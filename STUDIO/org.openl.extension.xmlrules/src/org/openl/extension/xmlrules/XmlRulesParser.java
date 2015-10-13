@@ -19,6 +19,7 @@ import org.openl.extension.xmlrules.model.single.node.ValueHolder;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.IGridTable;
@@ -80,106 +81,118 @@ public class XmlRulesParser extends ExtensionParser {
     }
 
     private void createTypes(StringGridBuilder gridBuilder, Sheet sheet) {
-        if (sheet.getTypes() == null) {
-            return;
-        }
-        for (Type type : sheet.getTypes()) {
-            gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
+        try {
+            if (sheet.getTypes() == null) {
+                return;
+            }
+            for (Type type : sheet.getTypes()) {
+                ProjectData.getCurrentInstance().getTypes().add(type.getName());
+                gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
-            for (Field field : type.getFields()) {
-                String typeName = field.getTypeName();
-                if (StringUtils.isBlank(typeName)) {
-                    typeName = "String";
+                for (Field field : type.getFields()) {
+                    String typeName = field.getTypeName();
+                    if (StringUtils.isBlank(typeName)) {
+                        typeName = "String";
+                    }
+
+                    ProjectData.getCurrentInstance().getFields().add(field.getName());
+                    gridBuilder.addCell(typeName).addCell(field.getName()).nextRow();
                 }
 
-                gridBuilder.addCell(typeName).addCell(field.getName()).nextRow();
+                gridBuilder.nextRow();
             }
-
-            gridBuilder.nextRow();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
         }
     }
 
     private void createDataInstances(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
-        if (sheet.getDataInstances() == null) {
-            return;
-        }
-        for (DataInstance dataInstance : sheet.getDataInstances()) {
-            List<String> fields = dataInstance.getFields();
-            Type t = getType(module, dataInstance);
-            if (t == null) {
-                throw new IllegalArgumentException("Can't find type " + dataInstance.getType());
+        try {
+            if (sheet.getDataInstances() == null) {
+                return;
             }
-            List<FieldImpl> actualFields = t.getFields();
-            if (fields == null) {
-                fields = new ArrayList<String>();
-                for (FieldImpl field : actualFields) {
-                    fields.add(field.getName());
+            for (DataInstance dataInstance : sheet.getDataInstances()) {
+                List<String> fields = dataInstance.getFields();
+                Type t = getType(module, dataInstance);
+                if (t == null) {
+                    throw new IllegalArgumentException("Can't find type " + dataInstance.getType());
                 }
-            }
-
-            gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
-                    fields.size()).nextRow();
-            // Fields
-            boolean hasReferences = false;
-            for (int fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++) {
-                String field = fields.get(fieldIndex);
-
-                FieldImpl actualField = getField(actualFields, field);
-
-                if (actualField != null && actualField.getTypeName() != null && actualField.getTypeName().endsWith("[]")) {
-                    int maximumArrayLength = getMaximumArrayLength(dataInstance, fieldIndex);
-                    for (int i = 0; i < maximumArrayLength; i++) {
-                        gridBuilder.addCell(field + "[" + i + "]");
+                List<FieldImpl> actualFields = t.getFields();
+                if (fields == null) {
+                    fields = new ArrayList<String>();
+                    for (FieldImpl field : actualFields) {
+                        fields.add(field.getName());
                     }
-                } else {
-                    gridBuilder.addCell(field);
                 }
 
-                if (getReference(dataInstance, field) != null) {
-                    hasReferences = true;
-                }
-            }
-            gridBuilder.nextRow();
-
-            // References
-            if (hasReferences) {
+                gridBuilder.addCell("Data " + dataInstance.getType() + " " + dataInstance.getName(),
+                        fields.size()).nextRow();
+                // Fields
+                boolean hasReferences = false;
                 for (int fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++) {
                     String field = fields.get(fieldIndex);
-                    Reference reference = getReference(dataInstance, field);
 
-                    if (reference != null) {
+                    FieldImpl actualField = getField(actualFields, field);
+
+                    if (actualField != null && actualField.getTypeName() != null && actualField.getTypeName().endsWith("[]")) {
                         int maximumArrayLength = getMaximumArrayLength(dataInstance, fieldIndex);
-                        if (maximumArrayLength > 0) {
-                            for (int i = 0; i < maximumArrayLength; i++) {
+                        for (int i = 0; i < maximumArrayLength; i++) {
+                            gridBuilder.addCell(field + "[" + i + "]");
+                        }
+                    } else {
+                        gridBuilder.addCell(field);
+                    }
+
+                    if (getReference(dataInstance, field) != null) {
+                        hasReferences = true;
+                    }
+                }
+                gridBuilder.nextRow();
+
+                // References
+                if (hasReferences) {
+                    for (int fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++) {
+                        String field = fields.get(fieldIndex);
+                        Reference reference = getReference(dataInstance, field);
+
+                        if (reference != null) {
+                            int maximumArrayLength = getMaximumArrayLength(dataInstance, fieldIndex);
+                            if (maximumArrayLength > 0) {
+                                for (int i = 0; i < maximumArrayLength; i++) {
+                                    gridBuilder.addCell(">" + reference.getDataInstance());
+                                }
+                            } else {
                                 gridBuilder.addCell(">" + reference.getDataInstance());
                             }
                         } else {
-                            gridBuilder.addCell(">" + reference.getDataInstance());
+                            gridBuilder.addCell(null);
                         }
-                    } else {
-                        gridBuilder.addCell(null);
                     }
+                    gridBuilder.nextRow();
+                }
+
+                // Business names
+                for (String field : fields) {
+                    gridBuilder.addCell(field.toUpperCase());
                 }
                 gridBuilder.nextRow();
-            }
 
-            // Business names
-            for (String field : fields) {
-                gridBuilder.addCell(field.toUpperCase());
-            }
-            gridBuilder.nextRow();
-
-            for (ValuesRow row : dataInstance.getValues()) {
-                for (ArrayValue value : row.getList()) {
-                    List<String> arrayValues = value.getValues();
-                    for (String arrayValue : arrayValues) {
-                        gridBuilder.addCell(arrayValue);
+                for (ValuesRow row : dataInstance.getValues()) {
+                    for (ArrayValue value : row.getList()) {
+                        List<String> arrayValues = value.getValues();
+                        for (String arrayValue : arrayValues) {
+                            gridBuilder.addCell(arrayValue);
+                        }
                     }
+                    gridBuilder.nextRow();
                 }
+
                 gridBuilder.nextRow();
             }
-
-            gridBuilder.nextRow();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
         }
     }
 
@@ -240,142 +253,147 @@ public class XmlRulesParser extends ExtensionParser {
     }
 
     private void createTables(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
-        if (sheet.getTables() == null) {
-            return;
-        }
-        for (Table table : sheet.getTables()) {
-            boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
-
-            int tableWidth = getTableWidth(table, isSimpleRules);
-
-            int headerHeight = 0;
-            int headerWidth = 0;
-
-            Segment segment = table.getSegment();
-            if (segment != null && segment.getTotalSegments() == 1) {
-                segment = null;
+        try {
+            if (sheet.getTables() == null) {
+                return;
             }
-            if (segment != null) {
-                String tablePartHeader = "TablePart " + table.getName() +
-                        (segment.isColumnSegment() ? " column " : " row ")
-                        + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
-                gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
-            }
-            int tableRow = gridBuilder.getRow();
+            for (Table table : sheet.getTables()) {
+                boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
-            String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
-            StringBuilder header = new StringBuilder();
-            String returnType = table.getReturnType();
-            if (StringUtils.isBlank(returnType)) {
-                returnType = "String";
-            }
-            header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
-            boolean needComma = false;
-            for (Parameter parameter : table.getParameters()) {
-                if (needComma) {
-                    header.append(", ");
+                int tableWidth = getTableWidth(table, isSimpleRules);
+
+                int headerHeight = 0;
+                int headerWidth = 0;
+
+                Segment segment = table.getSegment();
+                if (segment != null && segment.getTotalSegments() == 1) {
+                    segment = null;
                 }
-                String type = parameter.getType();
-                if (StringUtils.isBlank(type)) {
-                    type = "String";
+                if (segment != null) {
+                    String tablePartHeader = "TablePart " + table.getName() +
+                            (segment.isColumnSegment() ? " column " : " row ")
+                            + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
+                    gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
                 }
-                header.append(type).append(' ').append(parameter.getName());
-                needComma = true;
-            }
-            header.append(")");
+                int tableRow = gridBuilder.getRow();
 
-            if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
-                gridBuilder.addCell(header.toString(), tableWidth);
-                gridBuilder.nextRow();
-                headerHeight++;
-            }
+                String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
+                StringBuilder header = new StringBuilder();
+                String returnType = table.getReturnType();
+                if (StringUtils.isBlank(returnType)) {
+                    returnType = "String";
+                }
+                header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
+                boolean needComma = false;
+                for (Parameter parameter : table.getParameters()) {
+                    if (needComma) {
+                        header.append(", ");
+                    }
+                    String type = parameter.getType();
+                    if (StringUtils.isBlank(type)) {
+                        type = "String";
+                    }
+                    header.append(type).append(' ').append(parameter.getName());
+                    needComma = true;
+                }
+                header.append(")");
 
-            int startColumn = gridBuilder.getStartColumn();
+                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    gridBuilder.addCell(header.toString(), tableWidth);
+                    gridBuilder.nextRow();
+                    headerHeight++;
+                }
 
-            // HC expressions
-            if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
-                gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+                int startColumn = gridBuilder.getStartColumn();
 
-                for (Condition condition : table.getHorizontalConditions()) {
+                // HC expressions
+                if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+
+                    for (Condition condition : table.getHorizontalConditions()) {
+                        for (Expression expression : condition.getExpressions()) {
+                            gridBuilder.addCell(expression.getValue(), expression.getWidth());
+                        }
+                        gridBuilder.nextRow();
+                        headerHeight++;
+                    }
+                    gridBuilder.setStartColumn(startColumn);
+                }
+
+                // VC header
+                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    if (isSimpleRules) {
+                        for (Parameter parameter : table.getParameters()) {
+                            gridBuilder.addCell(parameter.getName().toUpperCase());
+                        }
+                        gridBuilder.addCell("Return");
+                        gridBuilder.nextRow();
+                        headerHeight++;
+                    } else {
+                        List<ParameterImpl> parameters = table.getParameters();
+                        for (int i = 0; i < parameters.size(); i++) {
+                            if (i >= table.getVerticalConditions().size()) {
+                                break;
+                            }
+                            Parameter parameter = parameters.get(i);
+                            gridBuilder.setCell(gridBuilder.getColumn(),
+                                    tableRow + 1,
+                                    1,
+                                    table.getHorizontalConditions().size(),
+                                    parameter.getName().toUpperCase());
+                            headerWidth++;
+                        }
+                    }
+                }
+
+                // VC expressions
+                int conditionRow = gridBuilder.getRow();
+                int conditionColumn = gridBuilder.getColumn();
+                for (Condition condition : table.getVerticalConditions()) {
+                    int row = conditionRow;
                     for (Expression expression : condition.getExpressions()) {
-                        gridBuilder.addCell(expression.getValue(), expression.getWidth());
+                        gridBuilder.setCell(conditionColumn,
+                                row,
+                                expression.getWidth(),
+                                expression.getHeight(),
+                                expression.getValue());
+                        row += expression.getHeight();
                     }
-                    gridBuilder.nextRow();
-                    headerHeight++;
+                    conditionColumn++;
                 }
-                gridBuilder.setStartColumn(startColumn);
-            }
 
-            // VC header
-            if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                // Return values
+                String workbookName = workbook.getXlsFileName();
+                String sheetName = sheet.getName();
                 if (isSimpleRules) {
-                    for (Parameter parameter : table.getParameters()) {
-                        gridBuilder.addCell(parameter.getName().toUpperCase());
-                    }
-                    gridBuilder.addCell("Return");
-                    gridBuilder.nextRow();
-                    headerHeight++;
+                    gridBuilder.setRow(tableRow + headerHeight);
+                    gridBuilder.setStartColumn(conditionColumn);
                 } else {
-                    List<ParameterImpl> parameters = table.getParameters();
-                    for (int i = 0; i < parameters.size(); i++) {
-                        if (i >= table.getVerticalConditions().size()) {
+                    gridBuilder.setRow(tableRow + headerHeight);
+                    gridBuilder.setStartColumn(startColumn + headerWidth);
+                }
+                for (ReturnRow returnValues : table.getReturnValues()) {
+                    for (Expression returnValue : returnValues.getList()) {
+                        if (returnValue.getReference()) {
+                            String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
+                                    .getStringValue();
+                            gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                        } else {
+                            gridBuilder.addCell(returnValue.getValue());
+                        }
+                        if (isSimpleRules && returnValues.getList().size() > 1) {
+                            log.warn("SimpleRules can't contain two-dimensional return values");
                             break;
                         }
-                        Parameter parameter = parameters.get(i);
-                        gridBuilder.setCell(gridBuilder.getColumn(),
-                                tableRow + 1,
-                                1,
-                                table.getHorizontalConditions().size(),
-                                parameter.getName().toUpperCase());
-                        headerWidth++;
                     }
+                    gridBuilder.nextRow();
                 }
-            }
-
-            // VC expressions
-            int conditionRow = gridBuilder.getRow();
-            int conditionColumn = gridBuilder.getColumn();
-            for (Condition condition : table.getVerticalConditions()) {
-                int row = conditionRow;
-                for (Expression expression : condition.getExpressions()) {
-                    gridBuilder.setCell(conditionColumn,
-                            row,
-                            expression.getWidth(),
-                            expression.getHeight(),
-                            expression.getValue());
-                    row += expression.getHeight();
-                }
-                conditionColumn++;
-            }
-
-            // Return values
-            String workbookName = workbook.getXlsFileName();
-            String sheetName = sheet.getName();
-            if (isSimpleRules) {
-                gridBuilder.setRow(tableRow + headerHeight);
-                gridBuilder.setStartColumn(conditionColumn);
-            } else {
-                gridBuilder.setRow(tableRow + headerHeight);
-                gridBuilder.setStartColumn(startColumn + headerWidth);
-            }
-            for (ReturnRow returnValues : table.getReturnValues()) {
-                for (Expression returnValue : returnValues.getList()) {
-                    if (returnValue.getReference()) {
-                        String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
-                                .getStringValue();
-                        gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
-                    } else {
-                        gridBuilder.addCell(returnValue.getValue());
-                    }
-                    if (isSimpleRules && returnValues.getList().size() > 1) {
-                        log.warn("SimpleRules can't contain two-dimensional return values");
-                        break;
-                    }
-                }
+                gridBuilder.setStartColumn(startColumn);
                 gridBuilder.nextRow();
             }
-            gridBuilder.setStartColumn(startColumn);
-            gridBuilder.nextRow();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
         }
     }
 
@@ -405,107 +423,123 @@ public class XmlRulesParser extends ExtensionParser {
     }
 
     private void createFunctions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
-        if (sheet.getFunctions() == null) {
-            return;
-        }
-        for (Function function : sheet.getFunctions()) {
-            StringBuilder headerBuilder = new StringBuilder();
-            String returnType = function.getReturnType();
-            if (StringUtils.isBlank(returnType)) {
-                returnType = "String";
+        try {
+            if (sheet.getFunctions() == null) {
+                return;
             }
-            headerBuilder.append("Method ")
-                    .append(returnType)
-                    .append(' ')
-                    .append(function.getName())
-                    .append('(');
-            List<ParameterImpl> parameters = function.getParameters();
-            String workbookName = workbook.getXlsFileName();
-            String sheetName = sheet.getName();
-            for (int i = 0; i < parameters.size(); i++) {
-                if (i > 0) {
-                    headerBuilder.append(", ");
+            for (Function function : sheet.getFunctions()) {
+                StringBuilder headerBuilder = new StringBuilder();
+                String returnType = function.getReturnType();
+                if (StringUtils.isBlank(returnType)) {
+                    returnType = "String";
                 }
-                Parameter parameter = parameters.get(i);
-                String type = parameter.getType();
-                if (StringUtils.isBlank(type)) {
-                    type = "String";
+                headerBuilder.append("Method ")
+                        .append(returnType)
+                        .append(' ')
+                        .append(function.getName())
+                        .append('(');
+                List<ParameterImpl> parameters = function.getParameters();
+                String workbookName = workbook.getXlsFileName();
+                String sheetName = sheet.getName();
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (i > 0) {
+                        headerBuilder.append(", ");
+                    }
+                    Parameter parameter = parameters.get(i);
+                    String type = parameter.getType();
+                    if (StringUtils.isBlank(type)) {
+                        type = "String";
+                    }
+                    CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                    headerBuilder.append(type).append(" ").append(cellReference.getColumn()).append(cellReference.getRow());
                 }
-                CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                headerBuilder.append(type).append(" ").append(cellReference.getColumn()).append(cellReference.getRow());
+                headerBuilder.append(')');
+                gridBuilder.addCell(headerBuilder.toString()).nextRow();
+
+                for (ParameterImpl parameter : parameters) {
+                    CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                    String cell = String.format("Push(\"%s\", %s%s);",
+                            reference.getStringValue(),
+                            reference.getColumn(),
+                            reference.getRow());
+                    gridBuilder.addCell(cell).nextRow();
+                }
+
+                CellReference cellReference = CellReference.parse(workbookName, sheetName, function.getCellAddress());
+                gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");", returnType, returnType, cellReference.getStringValue()));
+                gridBuilder.nextRow();
+
+                for (ParameterImpl parameter : parameters) {
+                    CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                    String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+                    gridBuilder.addCell(cell).nextRow();
+                }
+
+                gridBuilder.addCell("return result;").nextRow();
+
+                gridBuilder.nextRow();
             }
-            headerBuilder.append(')');
-            gridBuilder.addCell(headerBuilder.toString()).nextRow();
-
-            for (ParameterImpl parameter : parameters) {
-                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                String cell = String.format("Push(\"%s\", %s%s);",
-                        reference.getStringValue(),
-                        reference.getColumn(),
-                        reference.getRow());
-                gridBuilder.addCell(cell).nextRow();
-            }
-
-            CellReference cellReference = CellReference.parse(workbookName, sheetName, function.getCellAddress());
-            gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");", returnType, returnType, cellReference.getStringValue()));
-            gridBuilder.nextRow();
-
-            for (ParameterImpl parameter : parameters) {
-                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                String cell = String.format("Pop(\"%s\");", reference.getStringValue());
-                gridBuilder.addCell(cell).nextRow();
-            }
-
-            gridBuilder.addCell("return result;").nextRow();
-
-            gridBuilder.nextRow();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
         }
     }
 
     private void createCellExpressions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
-        if (CollectionUtils.isEmpty(sheet.getCells())) {
-            return;
-        }
-
-        final String workbookName = workbook.getXlsFileName();
-        final String sheetName = sheet.getName();
-        String cellsOnSheetName = new RulesTableReference(new CellReference(workbookName,
-                sheetName,
-                null,
-                null)).getTable();
-
-        List<List<String>> conditions = new ArrayList<List<String>>();
-        List<String> columnNumbers = new ArrayList<String>();
-        columnNumbers.add("-");
-        conditions.add(columnNumbers);
-        for (LazyCells cells : sheet.getCells()) {
-            for (Cell cell : cells.getCells()) {
-                // Initialize rows and columns
-                // FIXME
-                CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
-                getCurrentRow(conditions, reference);
-                getCurrentColumnNumber(columnNumbers, reference);
+        try {
+            if (CollectionUtils.isEmpty(sheet.getCells())) {
+                return;
             }
-        }
-        for (LazyCells cells : sheet.getCells()) {
-            for (Cell cell : cells.getCells()) {
-                CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
-                List<String> currentRow = getCurrentRow(conditions, reference);
-                int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
+            final String workbookName = workbook.getXlsFileName();
+            final String sheetName = sheet.getName();
+            String cellsOnSheetName = new RulesTableReference(new CellReference(workbookName,
+                    sheetName,
+                    null,
+                    null)).getTable();
 
-                while (currentRow.size() < currentColumnNumber + 1) {
-                    currentRow.add(null);
+            List<List<String>> conditions = new ArrayList<List<String>>();
+            List<String> columnNumbers = new ArrayList<String>();
+            columnNumbers.add("-");
+            conditions.add(columnNumbers);
+            for (LazyCells cells : sheet.getCells()) {
+                for (Cell cell : cells.getCells()) {
+                    // Initialize rows and columns
+                    // FIXME
+                    CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
+                    getCurrentRow(conditions, reference);
+                    getCurrentColumnNumber(columnNumbers, reference);
                 }
-
-                Node node = cell.getNode();
-                String expression = node.toOpenLString();
-                if (!(node instanceof ValueHolder)) {
-                    expression = "= " + expression;
-                }
-                currentRow.set(currentColumnNumber, expression);
             }
+            for (LazyCells cells : sheet.getCells()) {
+                for (Cell cell : cells.getCells()) {
+                    CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
+                    List<String> currentRow = getCurrentRow(conditions, reference);
+                    int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
+
+                    while (currentRow.size() < currentColumnNumber + 1) {
+                        currentRow.add(null);
+                    }
+
+                    Node node = cell.getNode();
+                    String expression;
+                    try {
+                        expression = node.toOpenLString();
+                        if (!(node instanceof ValueHolder)) {
+                            expression = "= " + expression;
+                        }
+                    } catch (RuntimeException e) {
+                        expression = "";
+                        log.error(e.getMessage(), e);
+                        OpenLMessagesUtils.addError(e);
+                    }
+                    currentRow.set(currentColumnNumber, expression);
+                }
+            }
+            addCells(gridBuilder, cellsOnSheetName, conditions);
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
         }
-        addCells(gridBuilder, cellsOnSheetName, conditions);
     }
 
     private List<String> getCurrentRow(List<List<String>> conditions, CellReference reference) {
