@@ -77,7 +77,9 @@ public class FilterNode extends Node {
 
     @Override
     public void configure(String currentWorkbook, String currentSheet) {
-        node.configure(currentWorkbook, currentSheet);
+        if (node != null) {
+            node.configure(currentWorkbook, currentSheet);
+        }
         if (conditionValue != null) {
             conditionValue.configure(currentWorkbook, currentSheet);
         }
@@ -149,7 +151,8 @@ public class FilterNode extends Node {
         StringBuilder sb = new StringBuilder();
 
         FilterNode first = nodes.getFirst();
-        sb.append("((Object[]) ").append(first.getNode().toOpenLString()).append(") [");
+        String firstNodeString = first.getNode() == null ? null : first.getNode().toOpenLString();
+        sb.append("((Object[]) ").append(firstNodeString).append(") [");
         sb.append("(o) @ ");
 
         boolean multipleConditions = false;
@@ -181,7 +184,7 @@ public class FilterNode extends Node {
                 sb.append("!isEmpty(");
 
                 String fields = node.getFieldComparisonString(true, 0);
-                fields = fields.replace(first.getNode().toOpenLString(), "o"); //FIXME
+                fields = fields.replace(firstNodeString == null ? "null" : firstNodeString, "o"); //FIXME
                 sb.append("((Object[]) ").append(fields);
 
                 sb.append(") [");
@@ -226,7 +229,7 @@ public class FilterNode extends Node {
                 obj = node.toOpenLString();
             }
         } else {
-            obj = node.toOpenLString();
+            obj = node == null ? null : node.toOpenLString();
         }
 
         return skipFieldsCount > 0 ? obj : "Field(" + obj + ", \"" + fieldName + "\")";

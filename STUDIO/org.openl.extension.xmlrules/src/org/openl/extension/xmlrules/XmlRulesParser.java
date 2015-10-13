@@ -523,9 +523,10 @@ public class XmlRulesParser extends ExtensionParser {
                     Node node = cell.getNode();
                     String expression;
                     try {
-                        expression = node.toOpenLString();
-                        if (!(node instanceof ValueHolder)) {
-                            expression = "= " + expression;
+                        if (node instanceof ValueHolder) {
+                            expression = ((ValueHolder) node).asString();
+                        } else {
+                            expression = "= " + node.toOpenLString();
                         }
                     } catch (RuntimeException e) {
                         expression = "";

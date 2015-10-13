@@ -21,4 +21,9 @@ public class StringNode extends Node implements ValueHolder {
     public String toOpenLString() {
         return "\"" + value + "\"";
     }
+
+    @Override
+    public String asString() {
+        return value;
+    }
 }

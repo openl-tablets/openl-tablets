@@ -20,4 +20,9 @@ public class BooleanNode extends Node implements ValueHolder {
     public String toOpenLString() {
         return value == null ? null : value.toString();
     }
+
+    @Override
+    public String asString() {
+        return toOpenLString();
+    }
 }
