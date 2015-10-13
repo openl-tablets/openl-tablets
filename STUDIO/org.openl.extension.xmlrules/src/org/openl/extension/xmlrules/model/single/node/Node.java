@@ -10,7 +10,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
         RangeNode.class,
         ExpressionNode.class,
         FunctionNode.class,
-        IfNode.class
+        IfNode.class,
+        FilterNode.class
 })
 public abstract class Node {
     public void configure(String currentWorkbook, String currentSheet) {

@@ -14,12 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @XmlType(name = "filter-node")
-public class FilterNode extends ChainedNode {
+public class FilterNode extends Node {
     private final Logger log = LoggerFactory.getLogger(FilterNode.class);
 
     private String fieldName;
     private Comparison comparison;
     private Node conditionValue;
+    private Node node;
 
     @XmlElement(name = "field-name", required = true)
     public String getFieldName() {
@@ -56,9 +57,27 @@ public class FilterNode extends ChainedNode {
         this.conditionValue = conditionValue;
     }
 
+    @XmlElements({
+            @XmlElement(name = "string-node", type=StringNode.class, required = true),
+            @XmlElement(name = "number-node", type=NumberNode.class, required = true),
+            @XmlElement(name = "boolean-node", type=BooleanNode.class, required = true),
+            @XmlElement(name = "range-node", type=RangeNode.class, required = true),
+            @XmlElement(name = "expression-node", type=ExpressionNode.class, required = true),
+            @XmlElement(name = "function-node", type=FunctionNode.class, required = true),
+            @XmlElement(name = "if-node", type=IfNode.class, required = true),
+            @XmlElement(name = "filter-node", type=FilterNode.class, required = true)
+    })
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
     @Override
     public void configure(String currentWorkbook, String currentSheet) {
-        super.configure(currentWorkbook, currentSheet);
+        node.configure(currentWorkbook, currentSheet);
         if (conditionValue != null) {
             conditionValue.configure(currentWorkbook, currentSheet);
         }
@@ -129,7 +148,7 @@ public class FilterNode extends ChainedNode {
 
         StringBuilder sb = new StringBuilder();
 
-        ChainedNode first = nodes.getFirst();
+        FilterNode first = nodes.getFirst();
         sb.append("((Object[]) ").append(first.getNode().toOpenLString()).append(") [");
         sb.append("(o) @ ");
 
