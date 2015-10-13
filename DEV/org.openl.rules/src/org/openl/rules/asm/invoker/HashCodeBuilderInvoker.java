@@ -1,7 +1,7 @@
 package org.openl.rules.asm.invoker;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.openl.util.factory.CachableFactory;
+import org.openl.util.factory.CacheableFactory;
 import org.openl.util.factory.Factory;
 
 /**
@@ -12,7 +12,7 @@ import org.openl.util.factory.Factory;
 public class HashCodeBuilderInvoker {
     private static final Invoker TO_HASH_CODE = VirtialInvoker.create(HashCodeBuilder.class, "toHashCode");
 
-    private static final CachableFactory<Class<?>, Invoker> appendInvokers = new CachableFactory<Class<?>, Invoker>(
+    private static final CacheableFactory<Class<?>, Invoker> appendInvokers = new CacheableFactory<Class<?>, Invoker>(
             new InvokerFactory());
 
     public static Invoker getToHashCode() {

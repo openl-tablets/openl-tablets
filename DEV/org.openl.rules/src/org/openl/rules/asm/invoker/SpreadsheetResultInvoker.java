@@ -1,7 +1,7 @@
 package org.openl.rules.asm.invoker;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.util.factory.CachableFactory;
+import org.openl.util.factory.CacheableFactory;
 import org.openl.util.factory.Factory;
 
 /**
@@ -10,7 +10,7 @@ import org.openl.util.factory.Factory;
  * @author Yury Molchan
  */
 public class SpreadsheetResultInvoker {
-    private static final CachableFactory<String, Invoker> invokers = new CachableFactory<String, Invoker>(
+    private static final CacheableFactory<String, Invoker> invokers = new CacheableFactory<String, Invoker>(
         new InvokerFactory());
 
     public static Invoker getMethod(String method) {
