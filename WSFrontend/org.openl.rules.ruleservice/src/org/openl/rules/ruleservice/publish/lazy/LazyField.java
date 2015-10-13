@@ -31,6 +31,9 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
     public IOpenField getMemberForModule(DeploymentDescription deployment, Module module) {
         try {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass(deployment, module);
+            if (compiledOpenClass.hasErrors()){
+            	compiledOpenClass.throwErrorExceptionsIfAny();
+            }
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy field", e);
