@@ -3,6 +3,7 @@ package org.openl.engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,13 +107,17 @@ public class OpenLSourceManager extends OpenLHolder {
         if (SourceType.MODULE.equals(sourceType)) {
 
             Set<CompiledDependency> compiledDependencies = new LinkedHashSet<CompiledDependency>();
-            List<IDependency> externalDependencies = getExternalDependencies(source);
-            Collection<IDependency> dependencies = CollectionUtils.union(externalDependencies,
-                Arrays.asList(parsedCode.getDependencies()));
+
+            Collection<IDependency> externalDependencies = getExternalDependencies(source);
+
+            Collection<IDependency> dependencies = new HashSet<IDependency>(Arrays.asList(parsedCode.getDependencies()));
+            if (CollectionUtils.isNotEmpty(externalDependencies)) {
+                dependencies.addAll(externalDependencies);
+            }
 
             List<OpenLMessage> messagesRelatedToDependencies = new ArrayList<OpenLMessage>();
 
-            if (dependencies != null && dependencies.size() > 0) {
+            if (CollectionUtils.isNotEmpty(dependencies)) {
                 if (dependencyManager != null) {
                     for (IDependency dependency : dependencies) {
                         try {
@@ -196,20 +201,14 @@ public class OpenLSourceManager extends OpenLHolder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
-
-        List<IDependency> dependencies = new ArrayList<IDependency>();
+        List<IDependency> dependencies = null;
         Map<String, Object> params = source.getParams();
 
         if (params != null) {
-            List<IDependency> externalDependencies = (List<IDependency>) params.get(EXTERNAL_DEPENDENCIES_KEY);
+            dependencies = (List<IDependency>) params.get(EXTERNAL_DEPENDENCIES_KEY);
 
-            if (externalDependencies != null) {
-                dependencies.addAll(externalDependencies);
-            }
         }
-
         return dependencies;
     }
 }
