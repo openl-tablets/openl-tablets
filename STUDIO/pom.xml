@@ -28,7 +28,7 @@
         <module>org.openl.rules.security.standalone</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.extension.xmlrules</module>
-        <module>org.openl.rules.activity</module>
+        <module>org.openl.rules.activiti</module>
     </modules>
     <dependencyManagement>
         <dependencies>
