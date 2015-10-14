@@ -99,11 +99,6 @@
                 <artifactId>org.openl.j</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.conf.ant</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <!-- STUDIO -->
             <dependency>
                 <groupId>org.openl.rules</groupId>

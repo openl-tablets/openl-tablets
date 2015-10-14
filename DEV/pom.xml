@@ -21,7 +21,6 @@
         <module>org.openl.rules</module>
         <module>org.openl.rules.calculation.result</module>
         <module>org.openl.rules.constrainer</module>
-        <module>org.openl.conf.ant</module>
         <module>org.openl.rules.gen</module>
         <module>org.openl.rules.ce</module>
         <!-- Tests -->
@@ -69,11 +68,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.constrainer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.conf.ant</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -92,6 +92,7 @@
         <module>STUDIO</module>
         <module>WSFrontend</module>
         <module>DEMO</module>
+        <module>Util/org.openl.conf.ant</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
     </modules>

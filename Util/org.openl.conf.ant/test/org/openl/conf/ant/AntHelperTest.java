@@ -1,5 +1,6 @@
 package org.openl.conf.ant;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
@@ -41,7 +42,9 @@ public class AntHelperTest extends TestCase {
     public void testJavaWrapper() throws URISyntaxException {
         Properties p = new Properties();
         URL url = this.getClass().getClassLoader().getResource("org/openl/conf/ant/TestJavaWrapper.build.xml");
-        new AntHelper(url.toURI().getPath(), "aaa", p);
+        final URI uri = url.toURI();
+        final String path = uri.getPath();
+        new AntHelper(path, "aaa", p);
     }
 
     public void testProperties() throws URISyntaxException {
