@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "function-node")
@@ -21,16 +20,6 @@ public class FunctionNode extends Node {
         this.name = name;
     }
 
-    @XmlElements({
-            @XmlElement(name = "string-node", type=StringNode.class),
-            @XmlElement(name = "number-node", type=NumberNode.class),
-            @XmlElement(name = "boolean-node", type=BooleanNode.class),
-            @XmlElement(name = "range-node", type=RangeNode.class),
-            @XmlElement(name = "expression-node", type=ExpressionNode.class),
-            @XmlElement(name = "function-node", type=FunctionNode.class),
-            @XmlElement(name = "if-node", type=IfNode.class),
-            @XmlElement(name = "filter-node", type=FilterNode.class, required = true)
-    })
     public List<Node> getArguments() {
         return arguments;
     }

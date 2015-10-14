@@ -6,7 +6,6 @@ import java.util.Deque;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.ProjectData;
@@ -39,16 +38,7 @@ public class FilterNode extends Node {
         this.comparison = comparison;
     }
 
-    @XmlElements({
-            @XmlElement(name = "condition-string-node", type = StringNode.class, required = true),
-            @XmlElement(name = "condition-number-node", type = NumberNode.class, required = true),
-            @XmlElement(name = "condition-boolean-node", type = BooleanNode.class, required = true),
-            @XmlElement(name = "condition-range-node", type = RangeNode.class, required = true),
-            @XmlElement(name = "condition-expression-node", type = ExpressionNode.class, required = true),
-            @XmlElement(name = "condition-function-node", type = FunctionNode.class, required = true),
-            @XmlElement(name = "condition-if-node", type = IfNode.class, required = true),
-            @XmlElement(name = "condition-filter-node", type = FilterNode.class, required = true)
-    })
+    @XmlElement(name = "condition")
     public Node getConditionValue() {
         return conditionValue;
     }
@@ -57,16 +47,6 @@ public class FilterNode extends Node {
         this.conditionValue = conditionValue;
     }
 
-    @XmlElements({
-            @XmlElement(name = "string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "if-node", type=IfNode.class, required = true),
-            @XmlElement(name = "filter-node", type=FilterNode.class, required = true)
-    })
     public Node getNode() {
         return node;
     }

@@ -523,6 +523,9 @@ public class XmlRulesParser extends ExtensionParser {
                     Node node = cell.getNode();
                     String expression;
                     try {
+                        if (node == null) {
+                            throw new IllegalArgumentException("Cell contains incorrect value. It will be skipped");
+                        }
                         if (node instanceof ValueHolder) {
                             expression = ((ValueHolder) node).asString();
                         } else {
@@ -530,8 +533,9 @@ public class XmlRulesParser extends ExtensionParser {
                         }
                     } catch (RuntimeException e) {
                         expression = "";
-                        log.error(e.getMessage(), e);
-                        OpenLMessagesUtils.addError(e);
+                        String errorMessage = "Error in cell [" + workbook.getXlsFileName() + "]" + sheetName + "!" + cell.getAddress() + ": " + e.getMessage();
+                        log.error(errorMessage, e);
+                        OpenLMessagesUtils.addError(errorMessage);
                     }
                     currentRow.set(currentColumnNumber, expression);
                 }

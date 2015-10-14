@@ -27,7 +27,7 @@ public class LazyCells extends BaseLazyItem<Cells> {
         }
         for (Cell cell : info.getCells()) {
             if (cell.getNode() == null) {
-                throw new IllegalArgumentException("Cell node isn't initialized");
+                return;
             }
             cell.getNode().configure(workbookName, sheetName);
         }
