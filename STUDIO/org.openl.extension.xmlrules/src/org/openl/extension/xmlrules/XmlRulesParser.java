@@ -249,7 +249,7 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private Type getType(ExtensionModule module, DataInstance dataInstance) {
-        for (LazyWorkbook workbook : module.getWorkbooks()) {
+        for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
             for (Sheet s : workbook.getSheets()) {
                 for (Type type : s.getTypes()) {
                     if (dataInstance.getType().equals(type.getName())) {
@@ -404,7 +404,7 @@ public class XmlRulesParser extends BaseParser {
                 }
 
                 // Return values
-                String workbookName = workbook.getXlsFileName();
+                String workbookName = sheet.getWorkbookName();
                 String sheetName = sheet.getName();
                 if (isSimpleRules) {
                     gridBuilder.setRow(tableRow + headerHeight);
@@ -465,6 +465,9 @@ public class XmlRulesParser extends BaseParser {
 
     private void createFunctions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
         try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
             if (sheet.getFunctions() == null) {
                 return;
             }
@@ -480,7 +483,7 @@ public class XmlRulesParser extends BaseParser {
                         .append(function.getName())
                         .append('(');
                 List<ParameterImpl> parameters = function.getParameters();
-                String workbookName = workbook.getXlsFileName();
+                String workbookName = sheet.getWorkbookName();
                 String sheetName = sheet.getName();
                 for (int i = 0; i < parameters.size(); i++) {
                     if (i > 0) {
@@ -528,10 +531,13 @@ public class XmlRulesParser extends BaseParser {
 
     private void createCellExpressions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
         try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
             if (CollectionUtils.isEmpty(sheet.getCells())) {
                 return;
             }
-            final String workbookName = workbook.getXlsFileName();
+            final String workbookName = sheet.getWorkbookName();
             final String sheetName = sheet.getName();
             String cellsOnSheetName = new RulesTableReference(new CellReference(workbookName,
                     sheetName,
@@ -565,7 +571,7 @@ public class XmlRulesParser extends BaseParser {
                     String expression;
                     try {
                         if (node == null) {
-                            throw new IllegalArgumentException("Cell [" + workbook.getXlsFileName() + "]" + sheetName + "!" + cell.getAddress() + " contains incorrect value. It will be skipped");
+                            throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress() + " contains incorrect value. It will be skipped");
                         }
                         if (node instanceof ValueHolder) {
                             expression = ((ValueHolder) node).asString();
@@ -574,7 +580,7 @@ public class XmlRulesParser extends BaseParser {
                         }
                     } catch (RuntimeException e) {
                         expression = "";
-                        String errorMessage = "Error in cell [" + workbook.getXlsFileName() + "]" + sheetName + "!" + cell.getAddress() + ": " + e.getMessage();
+                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress() + ": " + e.getMessage();
                         log.error(errorMessage, e);
                         OpenLMessagesUtils.addError(errorMessage);
                     }
@@ -663,16 +669,7 @@ public class XmlRulesParser extends BaseParser {
         try {
             XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
 
-            for (LazyWorkbook workbook : module.getWorkbooks()) {
-                for (Sheet s : workbook.getSheets()) {
-                    for (Type type : s.getTypes()) {
-                        ProjectData.getCurrentInstance().getTypes().add(type.getName());
-                        for (Field field : type.getFields()) {
-                            ProjectData.getCurrentInstance().getFields().add(field.getName());
-                        }
-                    }
-                }
-            }
+            initTypes(module);
 
             WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule,
                     sourceCodeModule);
@@ -714,6 +711,19 @@ public class XmlRulesParser extends BaseParser {
                 dependencies.toArray(new IDependency[dependencies.size()]));
     }
 
+    private void initTypes(ExtensionModule module) {
+        for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
+            for (Sheet s : workbook.getSheets()) {
+                for (Type type : s.getTypes()) {
+                    ProjectData.getCurrentInstance().getTypes().add(type.getName());
+                    for (Field field : type.getFields()) {
+                        ProjectData.getCurrentInstance().getFields().add(field.getName());
+                    }
+                }
+            }
+        }
+    }
+
     protected List<String> getImports() {
         return Collections.emptyList();
     }
@@ -738,9 +748,27 @@ public class XmlRulesParser extends BaseParser {
                 ArrayList<Type> types = new ArrayList<Type>();
                 sheet.setTypes(types);
                 sheets.add(sheet);
-                for (LazyWorkbook w : module.getWorkbooks()) {
+                for (LazyWorkbook w : module.getInternalWorkbooks()) {
                     for (Sheet s : w.getSheets()) {
                         types.addAll(s.getTypes());
+                    }
+                }
+            } else if (workbook.getXlsFileName().equals(LazyExtensionModule.MAIN_WORKBOOK)) {
+                ArrayList<Sheet> sheets = new ArrayList<Sheet>();
+                workbook.setSheets(sheets);
+                int id = 1;
+                for (LazyWorkbook w : module.getInternalWorkbooks()) {
+                    for (Sheet s : w.getSheets()) {
+                        SheetImpl sheet = new SheetImpl();
+                        sheet.setWorkbookName(s.getWorkbookName());
+                        sheet.setId(id++);
+                        sheet.setName(w.getXlsFileName() + "." + s.getName());
+                        sheet.setTables(s.getTables());
+                        sheet.setFunctions(s.getFunctions());
+                        sheet.setDataInstances(s.getDataInstances());
+                        sheet.setCells(s.getCells());
+                        sheet.setInternalSheet(s);
+                        sheets.add(sheet);
                     }
                 }
             }

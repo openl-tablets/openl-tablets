@@ -9,4 +9,5 @@ public interface ExtensionModule {
     String getFileName();
 
     List<LazyWorkbook> getWorkbooks();
+    List<LazyWorkbook> getInternalWorkbooks();
 }

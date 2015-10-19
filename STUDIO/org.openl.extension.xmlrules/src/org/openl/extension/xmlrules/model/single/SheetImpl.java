@@ -6,16 +6,25 @@ import java.util.List;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 
-public class SheetImpl implements Sheet {
+public class SheetImpl implements Sheet, SheetHolder {
+    private Integer id;
     private String name;
     private List<Type> types = new ArrayList<Type>();
     private List<DataInstance> dataInstances = new ArrayList<DataInstance>();
     private List<Table> tables = new ArrayList<Table>();
     private List<Function> functions = new ArrayList<Function>();
+    private List<LazyCells> cells = new ArrayList<LazyCells>();
+
+    private String workbookName;
+    private Sheet internalSheet;
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     @Override
     public Integer getId() {
-        return null;
+        return id;
     }
 
     @Override
@@ -65,7 +74,28 @@ public class SheetImpl implements Sheet {
 
     @Override
     public List<LazyCells> getCells() {
-        // FIXME
-        throw new UnsupportedOperationException();
+        return cells;
+    }
+
+    @Override
+    public String getWorkbookName() {
+        return workbookName;
+    }
+
+    public void setWorkbookName(String workbookName) {
+        this.workbookName = workbookName;
+    }
+
+    public void setCells(List<LazyCells> cells) {
+        this.cells = cells;
+    }
+
+    @Override
+    public Sheet getInternalSheet() {
+        return internalSheet;
+    }
+
+    public void setInternalSheet(Sheet internalSheet) {
+        this.internalSheet = internalSheet;
     }
 }

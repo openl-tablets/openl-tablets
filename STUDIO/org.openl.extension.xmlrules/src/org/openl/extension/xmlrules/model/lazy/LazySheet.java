@@ -93,6 +93,11 @@ public class LazySheet implements Sheet {
         return result;
     }
 
+    @Override
+    public String getWorkbookName() {
+        return workbookName;
+    }
+
     protected File getFile() {
         return file;
     }

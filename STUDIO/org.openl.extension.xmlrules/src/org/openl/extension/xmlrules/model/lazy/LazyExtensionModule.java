@@ -12,6 +12,7 @@ import org.openl.extension.xmlrules.model.single.WorkbookInfo;
 public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> implements ExtensionModule {
 
     public static final String TYPES_WORKBOOK = "Types.xlsx";
+    public static final String MAIN_WORKBOOK = "Main.xlsx";
 
     public LazyExtensionModule(File file, String mainEntryName) {
         super(file, mainEntryName);
@@ -25,6 +26,15 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     @Override
     public List<LazyWorkbook> getWorkbooks() {
         List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
+        workbooks.add(new LazyWorkbook(getFile(), "", createMainWorkbook()));
+        workbooks.add(new LazyWorkbook(getFile(), "", createTypeWorkbook()));
+
+        return workbooks;
+    }
+
+    @Override
+    public List<LazyWorkbook> getInternalWorkbooks() {
+        List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
         ExtensionModuleInfo info = getInfo();
         if (info == null) {
             throw new IllegalArgumentException("There is no " + getEntryName() + " file");
@@ -32,8 +42,6 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
         for (WorkbookInfo workbookInfo : info.getWorkbooks()) {
             workbooks.add(new LazyWorkbook(getFile(), "", workbookInfo));
         }
-        WorkbookInfo typeWorkbook = createTypeWorkbook();
-        workbooks.add(new LazyWorkbook(getFile(), "", typeWorkbook));
 
         return workbooks;
     }
@@ -41,11 +49,12 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     private WorkbookInfo createTypeWorkbook() {
         WorkbookInfo typeWorkbook = new WorkbookInfo();
         typeWorkbook.setXlsFileName(TYPES_WORKBOOK);
-        ArrayList<SheetInfo> sheets = new ArrayList<SheetInfo>();
-        SheetInfo sheetInfo = new SheetInfo();
-        sheetInfo.setName("Types");
-        sheets.add(sheetInfo);
-        typeWorkbook.setSheets(sheets);
+        return typeWorkbook;
+    }
+
+    private WorkbookInfo createMainWorkbook() {
+        WorkbookInfo typeWorkbook = new WorkbookInfo();
+        typeWorkbook.setXlsFileName(MAIN_WORKBOOK);
         return typeWorkbook;
     }
 }

@@ -15,12 +15,17 @@ public class ExtensionModuleImpl implements ExtensionModule {
         return xlsFileName;
     }
 
+    @Override
+    public List<LazyWorkbook> getWorkbooks() {
+        return getInternalWorkbooks();
+    }
+
     public void setXlsFileName(String xlsFileName) {
         this.xlsFileName = xlsFileName;
     }
 
     @Override
-    public List<LazyWorkbook> getWorkbooks() {
+    public List<LazyWorkbook> getInternalWorkbooks() {
         return workbooks;
     }
 }
