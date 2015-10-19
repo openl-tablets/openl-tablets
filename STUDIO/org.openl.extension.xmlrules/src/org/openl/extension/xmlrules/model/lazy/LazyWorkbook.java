@@ -10,6 +10,7 @@ import org.openl.extension.xmlrules.model.single.WorkbookInfo;
 
 public class LazyWorkbook extends BaseLazyItem<WorkbookInfo> {
     private WorkbookInfo info;
+    private List<Sheet> sheets;
 
     public LazyWorkbook(File file,
             String entryName,
@@ -28,6 +29,9 @@ public class LazyWorkbook extends BaseLazyItem<WorkbookInfo> {
     }
 
     public List<Sheet> getSheets() {
+        if (this.sheets != null) {
+            return this.sheets;
+        }
         List<Sheet> sheets = new ArrayList<Sheet>();
         List<SheetInfo> loadedSheets = getInfo().getSheets();
         for (int i = 0; i < loadedSheets.size(); i++) {
@@ -37,5 +41,9 @@ public class LazyWorkbook extends BaseLazyItem<WorkbookInfo> {
             sheets.add(new LazySheet(sheetInfo, getFile(), getXlsFileName()));
         }
         return sheets;
+    }
+
+    public void setSheets(List<Sheet> sheets) {
+        this.sheets = sheets;
     }
 }

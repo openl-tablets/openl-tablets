@@ -45,7 +45,7 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
                 XmlRulesModule m = new XmlRulesModule();
                 m.setProject(module.getProject());
                 m.setRulesRootPath(rulesRootPath);
-                m.setName(module.getName() + ". " + internalModuleName);
+                m.setName(module.getName() + "." + internalModuleName);
                 m.setType(module.getType());
                 m.setMethodFilter(module.getMethodFilter());
                 m.setExtension(module.getExtension());
@@ -62,6 +62,6 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
     public IOpenSourceCodeModule getSourceCode(Module module) {
         XmlRulesModule m = ((XmlRulesModule) module);
         File sourceFile = new File(m.getRulesRootPath().getPath());
-        return new XmlRulesModuleSourceCodeModule(sourceFile, m.getName(), m.getInternalModulePath());
+        return new XmlRulesModuleSourceCodeModule(sourceFile, m);
     }
 }

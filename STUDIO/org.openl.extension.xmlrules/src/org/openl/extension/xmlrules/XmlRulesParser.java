@@ -12,10 +12,12 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.ExtensionParser;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
+import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.ValueHolder;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
@@ -63,7 +65,7 @@ public class XmlRulesParser extends ExtensionParser {
     protected IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource,
             ExtensionModule module,
             LazyWorkbook workbook,
-            Sheet sheet) {
+            Sheet sheet, XmlRulesModuleSourceCodeModule sourceCodeModule) {
         String uri = sheetSource.getUri();
         LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource()
                 .getWorkbookLoader();
@@ -71,11 +73,17 @@ public class XmlRulesParser extends ExtensionParser {
         StringGridBuilder gridBuilder = new StringGridBuilder(uri,
                 workbookLoader.getExtensionModule().getFileName());
 
-        createTypes(gridBuilder, sheet);
-        createDataInstances(gridBuilder, module, sheet);
-        createTables(gridBuilder, workbook, sheet);
-        createFunctions(gridBuilder, workbook, sheet);
-        createCellExpressions(gridBuilder, workbook, sheet);
+        if (workbook.getXlsFileName().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+            createTypes(gridBuilder, sheet);
+        } else {
+            createDataInstances(gridBuilder, module, sheet);
+            createTables(gridBuilder, workbook, sheet);
+            createFunctions(gridBuilder, workbook, sheet);
+            createCellExpressions(gridBuilder, workbook, sheet);
+            if (sheet.getId() == 1) {
+                createEnvironment(gridBuilder, sourceCodeModule);
+            }
+        }
 
         return gridBuilder.build().getTables();
     }
@@ -101,6 +109,28 @@ public class XmlRulesParser extends ExtensionParser {
 
                 gridBuilder.nextRow();
             }
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+        }
+    }
+    private void createEnvironment(StringGridBuilder gridBuilder, XmlRulesModuleSourceCodeModule sourceCodeModule) {
+        try {
+            gridBuilder.addCell("Environment", 2).nextRow();
+
+            gridBuilder.addCell("dependency");
+            String name = sourceCodeModule.getModuleName();
+            String moduleName = name.substring(0, name.lastIndexOf(".")) + "." + LazyExtensionModule.TYPES_WORKBOOK.substring(0,
+                    LazyExtensionModule.TYPES_WORKBOOK.lastIndexOf("."));
+            gridBuilder.addCell(moduleName);
+            gridBuilder.nextRow();
+
+
+            for (String dependency : sourceCodeModule.getModule().getExtension().getDependencies()) {
+                gridBuilder.addCell("dependency").addCell(dependency).nextRow();
+            }
+
+            gridBuilder.nextRow();
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
@@ -524,7 +554,7 @@ public class XmlRulesParser extends ExtensionParser {
                     String expression;
                     try {
                         if (node == null) {
-                            throw new IllegalArgumentException("Cell contains incorrect value. It will be skipped");
+                            throw new IllegalArgumentException("Cell [" + workbook.getXlsFileName() + "]" + sheetName + "!" + cell.getAddress() + " contains incorrect value. It will be skipped");
                         }
                         if (node instanceof ValueHolder) {
                             expression = ((ValueHolder) node).asString();

@@ -5,14 +5,18 @@ import java.io.File;
 import org.openl.source.impl.ModuleFileSourceCodeModule;
 
 public class XmlRulesModuleSourceCodeModule extends ModuleFileSourceCodeModule {
-    private final String internalModulePath;
+    private final XmlRulesModule module;
 
-    public XmlRulesModuleSourceCodeModule(File file, String moduleName, String internalModulePath) {
-        super(file, moduleName);
-        this.internalModulePath = internalModulePath;
+    public XmlRulesModuleSourceCodeModule(File file, XmlRulesModule module) {
+        super(file, module.getName());
+        this.module = module;
     }
 
     public String getInternalModulePath() {
-        return internalModulePath;
+        return module.getInternalModulePath();
+    }
+
+    public XmlRulesModule getModule() {
+        return module;
     }
 }

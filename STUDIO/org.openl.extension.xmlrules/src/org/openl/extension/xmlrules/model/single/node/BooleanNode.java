@@ -5,20 +5,20 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "boolean-node")
 public class BooleanNode extends Node implements ValueHolder {
-    private Boolean value;
+    private String value;
 
     @XmlElement(required = true)
-    public Boolean getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Boolean value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
     @Override
     public String toOpenLString() {
-        return value == null ? null : value.toString();
+        return value == null ? null : value;
     }
 
     @Override

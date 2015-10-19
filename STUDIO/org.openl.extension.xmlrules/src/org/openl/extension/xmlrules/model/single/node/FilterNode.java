@@ -74,6 +74,8 @@ public class FilterNode extends Node {
             return getFieldString(false, 0);
         } else if (isParentNode()) {
             return getParentString();
+        } else if (isDataInstanceNode()) {
+            return getDataInstanceString();
         }
 
         throw new IllegalArgumentException("Unsupported filter node " + toString());
@@ -117,6 +119,8 @@ public class FilterNode extends Node {
                     return filterNode.getFieldString(true, skipFieldsCount);
                 } else if (filterNode.isParentNode()) {
                     throw new UnsupportedOperationException("Can't get filter from Parent node");
+                } else if (filterNode.isDataInstanceNode()) {
+                    return filterNode.getDataInstanceString();
                 } else {
                     log.warn("Unsupported type of node " + filterNode.toString() + ". Skip it");
                 }
@@ -204,6 +208,8 @@ public class FilterNode extends Node {
                 }
             } else if (filterNode.isParentNode()) {
                 throw new UnsupportedOperationException("Can't get field from Parent node");
+            } else if (filterNode.isDataInstanceNode()) {
+                return filterNode.getDataInstanceString();
             } else {
                 log.warn("Unsupported type of node " + node.toOpenLString() + ". Skip it");
                 obj = node.toOpenLString();
@@ -237,29 +243,42 @@ public class FilterNode extends Node {
         throw new IllegalArgumentException("Can't apply Parent() to the node " + (node == null ? "null" : node.toOpenLString()));
     }
 
+    protected String getDataInstanceString() {
+        return "All" + fieldName;
+    }
+
+    protected boolean isDataInstanceNode() {
+        return isEmptyComparison() && node == null && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
+    }
+
     protected boolean isFieldComparisonNode() {
-        return comparison != null && conditionValue != null && ProjectData.getCurrentInstance()
-                .getFields()
-                .contains(fieldName);
+        return hasComparison() && ProjectData.getCurrentInstance().getFields().contains(fieldName);
     }
 
     protected boolean isFieldNode() {
-        return comparison == null && conditionValue == null && ProjectData.getCurrentInstance()
-                .getFields()
-                .contains(fieldName);
+        return isEmptyComparison() && ProjectData.getCurrentInstance().getFields().contains(fieldName);
     }
 
     protected boolean isParentNode() {
-        return comparison == null && conditionValue == null && ProjectData.getCurrentInstance()
-                .getTypes()
-                .contains(fieldName);
+        return node != null && isEmptyComparison() && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
     }
 
     protected void pushToChain(Deque<FilterNode> nodes) {
         nodes.push(this);
         if (getNode() instanceof FilterNode) {
-            ((FilterNode) getNode()).pushToChain(nodes);
+            FilterNode node = (FilterNode) getNode();
+            if (!node.isDataInstanceNode()) {
+                node.pushToChain(nodes);
+            }
         }
+    }
+
+    private boolean hasComparison() {
+        return comparison != null && comparison != Comparison.NONE && conditionValue != null;
+    }
+
+    private boolean isEmptyComparison() {
+        return (comparison == null || comparison == Comparison.NONE) && conditionValue == null;
     }
 
     @Override

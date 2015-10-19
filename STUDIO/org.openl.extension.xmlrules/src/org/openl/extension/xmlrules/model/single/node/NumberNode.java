@@ -6,20 +6,20 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "number-node")
 public class NumberNode extends Node implements ValueHolder {
 
-    private Double value;
+    private String value;
 
     @XmlElement(required = true)
-    public Double getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
     @Override
     public String toOpenLString() {
-        return value == null ? null : value.toString();
+        return value == null ? null : value;
     }
 
     @Override

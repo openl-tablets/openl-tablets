@@ -8,10 +8,15 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.XmlSheetSourceCodeModule;
 import org.openl.extension.xmlrules.model.ExtensionModule;
+import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
+import org.openl.extension.xmlrules.model.single.SheetImpl;
+import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
-import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.*;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -20,11 +25,14 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +45,8 @@ public abstract class ExtensionParser extends BaseParser {
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-        String internalWorkbookPath = ((XmlRulesModuleSourceCodeModule) source).getInternalModulePath();
+        XmlRulesModuleSourceCodeModule sourceCodeModule = (XmlRulesModuleSourceCodeModule) source;
+        XmlRulesModule openlModule = sourceCodeModule.getModule();
         ExtensionModule module = load(source);
 
         ISyntaxNode syntaxNode = null;
@@ -46,7 +55,19 @@ public abstract class ExtensionParser extends BaseParser {
         try {
             XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
 
-            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule, internalWorkbookPath);
+            for (LazyWorkbook workbook : module.getWorkbooks()) {
+                for (Sheet s : workbook.getSheets()) {
+                    for (Type type : s.getTypes()) {
+                        ProjectData.getCurrentInstance().getTypes().add(type.getName());
+                        for (Field field : type.getFields()) {
+                            ProjectData.getCurrentInstance().getFields().add(field.getName());
+                        }
+                    }
+                }
+            }
+
+            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule,
+                    sourceCodeModule);
             syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                     workbookSourceCodeModule,
                     null,
@@ -64,14 +85,25 @@ public abstract class ExtensionParser extends BaseParser {
             errors.add(error);
         }
 
-        ProjectData.removeCurrentInstance();
-
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
+
+        List<IDependency> dependencies = new ArrayList<IDependency>();
+        if (!sourceCodeModule.getInternalModulePath().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+            String name = sourceCodeModule.getModuleName();
+            String moduleName = name.substring(0,
+                    name.lastIndexOf(".")) + "." + LazyExtensionModule.TYPES_WORKBOOK.substring(0,
+                    LazyExtensionModule.TYPES_WORKBOOK.lastIndexOf("."));
+            IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null);
+            dependencies.add(new Dependency(DependencyType.MODULE, node));
+            for (String dependency : openlModule.getExtension().getDependencies()) {
+                dependencies.add(new Dependency(DependencyType.MODULE, new IdentifierNode(IXlsTableNames.DEPENDENCY, null, dependency, null)));
+            }
+        }
 
         return new ParsedCode(syntaxNode,
                 source,
                 parsingErrors,
-                new IDependency[] {});
+                dependencies.toArray(new IDependency[dependencies.size()]));
     }
 
     protected List<String> getImports() {
@@ -80,15 +112,29 @@ public abstract class ExtensionParser extends BaseParser {
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,
             XlsWorkbookSourceCodeModule workbookSourceCodeModule,
-            String internalWorkbookPath) {
+            XmlRulesModuleSourceCodeModule sourceCodeModule) {
         TablePartProcessor tablePartProcessor = new TablePartProcessor();
 
         List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<WorkbookSyntaxNode>();
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
 
         for (LazyWorkbook workbook : module.getWorkbooks()) {
-            if (!internalWorkbookPath.equals(workbook.getXlsFileName())) {
+            if (!sourceCodeModule.getInternalModulePath().equals(workbook.getXlsFileName())) {
                 continue;
+            }
+            if (workbook.getXlsFileName().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+                ArrayList<Sheet> sheets = new ArrayList<Sheet>();
+                workbook.setSheets(sheets);
+                SheetImpl sheet = new SheetImpl();
+                sheet.setName("Types");
+                ArrayList<Type> types = new ArrayList<Type>();
+                sheet.setTypes(types);
+                sheets.add(sheet);
+                for (LazyWorkbook w : module.getWorkbooks()) {
+                    for (Sheet s : w.getSheets()) {
+                        types.addAll(s.getTypes());
+                    }
+                }
             }
             List<Sheet> sheets = workbook.getSheets();
             for (int i = 0; i < sheets.size(); i++) {
@@ -97,7 +143,8 @@ public abstract class ExtensionParser extends BaseParser {
                 XlsSheetSourceCodeModule sheetSource = new XmlSheetSourceCodeModule(i,
                         workbookSourceCodeModule,
                         workbook);
-                sheetNodeList.add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor));
+                sheetNodeList.add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor,
+                        sourceCodeModule));
             }
         }
 
@@ -124,8 +171,8 @@ public abstract class ExtensionParser extends BaseParser {
     protected WorksheetSyntaxNode getWorksheet(XlsSheetSourceCodeModule sheetSource,
             LazyWorkbook workbook, Sheet sheet,
             ExtensionModule module,
-            TablePartProcessor tablePartProcessor) {
-        IGridTable[] tables = getAllGridTables(sheetSource, module, workbook, sheet);
+            TablePartProcessor tablePartProcessor, XmlRulesModuleSourceCodeModule sourceCodeModule) {
+        IGridTable[] tables = getAllGridTables(sheetSource, module, workbook, sheet, sourceCodeModule);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
@@ -175,5 +222,5 @@ public abstract class ExtensionParser extends BaseParser {
      */
     protected abstract IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource,
             ExtensionModule module,
-            LazyWorkbook workbook, Sheet sheet);
+            LazyWorkbook workbook, Sheet sheet, XmlRulesModuleSourceCodeModule sourceCodeModule);
 }

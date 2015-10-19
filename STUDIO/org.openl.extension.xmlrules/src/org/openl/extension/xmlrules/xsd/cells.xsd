@@ -34,7 +34,7 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="value" type="xs:double"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -44,7 +44,7 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="value" type="xs:boolean"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -100,7 +100,7 @@
       <xs:extension base="node">
         <xs:sequence>
           <xs:element name="comparison" type="comparison" minOccurs="0"/>
-          <xs:element name="conditionValue" type="node" minOccurs="0"/>
+          <xs:element name="condition" type="node" minOccurs="0"/>
           <xs:element name="field-name" type="xs:string"/>
           <xs:element name="node" type="node" minOccurs="0"/>
         </xs:sequence>
@@ -110,11 +110,12 @@
 
   <xs:simpleType name="comparison">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="&lt;"/>
-      <xs:enumeration value="&lt;="/>
-      <xs:enumeration value="=="/>
-      <xs:enumeration value="&gt;"/>
-      <xs:enumeration value="&gt;="/>
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="LessThan"/>
+      <xs:enumeration value="LessThanOrEqual"/>
+      <xs:enumeration value="EqualTo"/>
+      <xs:enumeration value="GreaterThan"/>
+      <xs:enumeration value="GreaterThanOrEqual"/>
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

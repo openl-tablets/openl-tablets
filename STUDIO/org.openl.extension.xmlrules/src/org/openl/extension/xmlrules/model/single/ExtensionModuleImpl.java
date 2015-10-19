@@ -7,18 +7,8 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 
 public class ExtensionModuleImpl implements ExtensionModule {
-    private String formatVersion;
     private String xlsFileName;
     private List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
-
-    @Override
-    public String getFormatVersion() {
-        return formatVersion;
-    }
-
-    public void setFormatVersion(String formatVersion) {
-        this.formatVersion = formatVersion;
-    }
 
     @Override
     public String getFileName() {
