@@ -28,7 +28,7 @@
         <module>org.openl.rules.security.standalone</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.extension.xmlrules</module>
-        <module>org.openl.rules.activity</module>
+        <module>org.openl.rules.activiti</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -61,11 +61,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.constrainer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.conf.ant</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- STUDIO -->

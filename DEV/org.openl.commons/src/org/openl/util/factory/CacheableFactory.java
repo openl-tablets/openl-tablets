@@ -4,19 +4,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A cachable factory class. It allows to create one instance of object per an
+ * A cacheable factory class. It allows to create one instance of object per an
  * input parameter.
  *
  * It is thread-safe.
  *
  * @author Yury Molchan
  */
-public class CachableFactory<K, V> implements Factory<K, V> {
+public class CacheableFactory<K, V> implements Factory<K, V> {
 
     private final ConcurrentMap<K, V> cache = new ConcurrentHashMap<K, V>();
     private final Factory<K, V> factory;
 
-    public CachableFactory(Factory<K, V> factory) {
+    public CacheableFactory(Factory<K, V> factory) {
         this.factory = factory;
     }
 

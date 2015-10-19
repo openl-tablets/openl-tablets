@@ -4,14 +4,24 @@
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
         <version>5.17.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
     <groupId>org.openl</groupId>
     <artifactId>org.openl.conf.ant</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - DEV - Conf Ant</name>
+    <name>OpenL - Util - Conf Ant</name>
     <description>OpenL ant tasks</description>
     <url>//openl-tablets.org</url>
+    <build>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.openl</groupId>

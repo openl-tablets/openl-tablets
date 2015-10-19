@@ -65,10 +65,6 @@
             <artifactId>org.openl.rules.variation</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.conf.ant</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -79,6 +75,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

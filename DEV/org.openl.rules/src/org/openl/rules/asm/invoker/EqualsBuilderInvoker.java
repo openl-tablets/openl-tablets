@@ -1,7 +1,7 @@
 package org.openl.rules.asm.invoker;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.openl.util.factory.CachableFactory;
+import org.openl.util.factory.CacheableFactory;
 import org.openl.util.factory.Factory;
 
 /**
@@ -12,7 +12,7 @@ import org.openl.util.factory.Factory;
 public class EqualsBuilderInvoker {
     private static final Invoker IS_EQUALS = VirtialInvoker.create(EqualsBuilder.class, "isEquals");
 
-    private static final CachableFactory<Class<?>, Invoker> appendInvokers = new CachableFactory<Class<?>, Invoker>(
+    private static final CacheableFactory<Class<?>, Invoker> appendInvokers = new CacheableFactory<Class<?>, Invoker>(
         new InvokerFactory());
 
     public static Invoker getIsEquals() {
