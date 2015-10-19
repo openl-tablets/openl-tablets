@@ -9,6 +9,8 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.activiti.MethodNotFoundException;
 import org.openl.rules.activiti.spring.result.ResultValue;
+import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.types.java.JavaOpenClass;
@@ -102,6 +104,10 @@ public class OpenLEngine {
         return result;
     }
 
+    public IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {
+        return IRulesRuntimeContextUtils.buildRuntimeContext(execution);
+    }
+    
     public ResultValue execute(DelegateExecution execution,
             String resource,
             String methodName,
