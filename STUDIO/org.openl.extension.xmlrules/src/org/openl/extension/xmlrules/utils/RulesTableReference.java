@@ -1,7 +1,5 @@
 package org.openl.extension.xmlrules.utils;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class RulesTableReference {
@@ -12,7 +10,7 @@ public class RulesTableReference {
     }
 
     public String getTable() {
-        return prepareString(reference.getWorkbook()) + "$" + prepareString(reference.getSheet());
+        return prepareString(reference.getWorkbook()) + "__" + prepareString(reference.getSheet());
     }
 
     public String getRow() {
