@@ -136,9 +136,11 @@ public class XmlRulesParser extends BaseParser {
             gridBuilder.addCell(moduleName);
             gridBuilder.nextRow();
 
-
-            for (String dependency : sourceCodeModule.getModule().getExtension().getDependencies()) {
-                gridBuilder.addCell("dependency").addCell(dependency).nextRow();
+            List<String> dependencies = sourceCodeModule.getModule().getExtension().getDependencies();
+            if (dependencies != null) {
+                for (String dependency : dependencies) {
+                    gridBuilder.addCell("dependency").addCell(dependency).nextRow();
+                }
             }
 
             gridBuilder.nextRow();
@@ -700,8 +702,12 @@ public class XmlRulesParser extends BaseParser {
                     LazyExtensionModule.TYPES_WORKBOOK.lastIndexOf("."));
             IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null);
             dependencies.add(new Dependency(DependencyType.MODULE, node));
-            for (String dependency : openlModule.getExtension().getDependencies()) {
-                dependencies.add(new Dependency(DependencyType.MODULE, new IdentifierNode(IXlsTableNames.DEPENDENCY, null, dependency, null)));
+            List<String> dependenciesList = openlModule.getExtension().getDependencies();
+            if (dependenciesList != null) {
+                for (String dependency : dependenciesList) {
+                    dependencies.add(new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(IXlsTableNames.DEPENDENCY, null, dependency, null)));
+                }
             }
         }
 
