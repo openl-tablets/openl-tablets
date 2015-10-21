@@ -16,7 +16,11 @@ public class CellReference {
 
     public static CellReference parse(String currentWorkbook, String currentSheet, String reference) {
         if (reference == null) {
-            throw new IllegalArgumentException("Empty cell reference");
+            String suffix = "";
+            if (currentWorkbook != null) {
+                suffix = " in workbook '" + currentWorkbook + "', sheet '" + currentSheet + "'";
+            }
+            throw new IllegalArgumentException("Empty cell reference" + suffix);
         }
         Matcher matcher = PATTERN.matcher(reference);
         if (!matcher.matches()) {

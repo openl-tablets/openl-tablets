@@ -19,7 +19,7 @@ public class StringNode extends Node implements ValueHolder {
 
     @Override
     public String toOpenLString() {
-        return "\"" + value + "\"";
+        return value == null ? null : "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
     }
 
     @Override
