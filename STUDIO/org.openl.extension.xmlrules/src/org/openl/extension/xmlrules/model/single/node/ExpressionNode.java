@@ -3,6 +3,10 @@ package org.openl.extension.xmlrules.model.single.node;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolver;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolverFactory;
+import org.openl.extension.xmlrules.model.single.node.expression.Operator;
+
 @XmlType(name = "expression-node")
 public class ExpressionNode extends Node {
     private Node leftNode;
@@ -42,25 +46,11 @@ public class ExpressionNode extends Node {
 
     @Override
     public String toOpenLString() {
-        // TODO Support fixed number of Excel operators
-        return toString(leftNode) + " " + operator + " " + toString(rightNode);
-    }
-
-    private String toString(Node node) {
-        String leftNodeString;
-
-        if (node != null) {
-            leftNodeString = node.toOpenLString();
-
-            if (node instanceof RangeNode) {
-                leftNodeString = "(String) " + leftNodeString;
-            } else if (node instanceof ExpressionNode) {
-                leftNodeString = "(" + leftNodeString + ")";
-            }
-        } else {
-            leftNodeString = "";
+        Operator op = Operator.findOperator(operator);
+        if (op == null) {
+            throw new UnsupportedOperationException("Operator " + operator + " isn't supported");
         }
-
-        return leftNodeString;
+        ExpressionResolver resolver = ExpressionResolverFactory.getExpressionResolver(op);
+        return resolver.resolve(leftNode, rightNode, op);
     }
 }

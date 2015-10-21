@@ -296,6 +296,9 @@ public class XmlRulesParser extends BaseParser {
 
     private void createTables(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
         try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
             if (sheet.getTables() == null) {
                 return;
             }
