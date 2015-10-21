@@ -254,11 +254,12 @@ public class FilterNode extends Node {
     }
 
     protected String getDataInstanceString() {
-        return "All" + fieldName;
+        String dataInstanceName = "All" + fieldName;
+        return node == null ? dataInstanceName : dataInstanceName + "[" + node.toOpenLString() + "]";
     }
 
     protected boolean isDataInstanceNode() {
-        return isEmptyComparison() && node == null && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
+        return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
     }
 
     protected boolean isFieldComparisonNode() {
@@ -270,7 +271,7 @@ public class FilterNode extends Node {
     }
 
     protected boolean isParentNode() {
-        return node != null && isEmptyComparison() && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
+        return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
     }
 
     protected void pushToChain(Deque<FilterNode> nodes) {
