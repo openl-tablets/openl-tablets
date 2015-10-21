@@ -4,15 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.extension.xmlrules.ExtensionDescriptor;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.single.ExtensionModuleInfo;
-import org.openl.extension.xmlrules.model.single.SheetInfo;
 import org.openl.extension.xmlrules.model.single.WorkbookInfo;
 
 public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> implements ExtensionModule {
-
-    public static final String TYPES_WORKBOOK = "Types.xlsx";
-    public static final String MAIN_WORKBOOK = "Main.xlsx";
 
     public LazyExtensionModule(File file, String mainEntryName) {
         super(file, mainEntryName);
@@ -26,8 +23,8 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     @Override
     public List<LazyWorkbook> getWorkbooks() {
         List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
-        workbooks.add(new LazyWorkbook(getFile(), "", createMainWorkbook()));
         workbooks.add(new LazyWorkbook(getFile(), "", createTypeWorkbook()));
+        workbooks.add(new LazyWorkbook(getFile(), "", createMainWorkbook()));
 
         return workbooks;
     }
@@ -48,13 +45,13 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
 
     private WorkbookInfo createTypeWorkbook() {
         WorkbookInfo typeWorkbook = new WorkbookInfo();
-        typeWorkbook.setXlsFileName(TYPES_WORKBOOK);
+        typeWorkbook.setXlsFileName(ExtensionDescriptor.TYPES_WORKBOOK);
         return typeWorkbook;
     }
 
     private WorkbookInfo createMainWorkbook() {
         WorkbookInfo typeWorkbook = new WorkbookInfo();
-        typeWorkbook.setXlsFileName(MAIN_WORKBOOK);
+        typeWorkbook.setXlsFileName(ExtensionDescriptor.MAIN_WORKBOOK);
         return typeWorkbook;
     }
 }

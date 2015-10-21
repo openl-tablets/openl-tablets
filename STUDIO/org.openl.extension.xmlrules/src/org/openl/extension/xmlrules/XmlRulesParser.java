@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
-import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.Node;
@@ -84,7 +83,7 @@ public class XmlRulesParser extends BaseParser {
         StringGridBuilder gridBuilder = new StringGridBuilder(uri,
                 workbookLoader.getExtensionModule().getFileName());
 
-        if (workbook.getXlsFileName().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+        if (workbook.getXlsFileName().equals(ExtensionDescriptor.TYPES_WORKBOOK)) {
             createTypes(gridBuilder, sheet);
         } else {
             createDataInstances(gridBuilder, module, sheet);
@@ -131,8 +130,8 @@ public class XmlRulesParser extends BaseParser {
 
             gridBuilder.addCell("dependency");
             String name = sourceCodeModule.getModuleName();
-            String moduleName = name.substring(0, name.lastIndexOf(".")) + "." + LazyExtensionModule.TYPES_WORKBOOK.substring(0,
-                    LazyExtensionModule.TYPES_WORKBOOK.lastIndexOf("."));
+            String moduleName = name.substring(0, name.lastIndexOf(".")) + "." + ExtensionDescriptor.TYPES_WORKBOOK.substring(0,
+                    ExtensionDescriptor.TYPES_WORKBOOK.lastIndexOf("."));
             gridBuilder.addCell(moduleName);
             gridBuilder.nextRow();
 
@@ -695,11 +694,11 @@ public class XmlRulesParser extends BaseParser {
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
         List<IDependency> dependencies = new ArrayList<IDependency>();
-        if (!sourceCodeModule.getInternalModulePath().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+        if (!sourceCodeModule.getInternalModulePath().equals(ExtensionDescriptor.TYPES_WORKBOOK)) {
             String name = sourceCodeModule.getModuleName();
             String moduleName = name.substring(0,
-                    name.lastIndexOf(".")) + "." + LazyExtensionModule.TYPES_WORKBOOK.substring(0,
-                    LazyExtensionModule.TYPES_WORKBOOK.lastIndexOf("."));
+                    name.lastIndexOf(".")) + "." + ExtensionDescriptor.TYPES_WORKBOOK.substring(0,
+                    ExtensionDescriptor.TYPES_WORKBOOK.lastIndexOf("."));
             IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null);
             dependencies.add(new Dependency(DependencyType.MODULE, node));
             List<String> dependenciesList = openlModule.getExtension().getDependencies();
@@ -746,11 +745,11 @@ public class XmlRulesParser extends BaseParser {
             if (!sourceCodeModule.getInternalModulePath().equals(workbook.getXlsFileName())) {
                 continue;
             }
-            if (workbook.getXlsFileName().equals(LazyExtensionModule.TYPES_WORKBOOK)) {
+            if (workbook.getXlsFileName().equals(ExtensionDescriptor.TYPES_WORKBOOK)) {
                 ArrayList<Sheet> sheets = new ArrayList<Sheet>();
                 workbook.setSheets(sheets);
                 SheetImpl sheet = new SheetImpl();
-                sheet.setName("Types");
+                sheet.setName(ExtensionDescriptor.TYPES_SHEET);
                 ArrayList<Type> types = new ArrayList<Type>();
                 sheet.setTypes(types);
                 sheets.add(sheet);
@@ -759,7 +758,7 @@ public class XmlRulesParser extends BaseParser {
                         types.addAll(s.getTypes());
                     }
                 }
-            } else if (workbook.getXlsFileName().equals(LazyExtensionModule.MAIN_WORKBOOK)) {
+            } else if (workbook.getXlsFileName().equals(ExtensionDescriptor.MAIN_WORKBOOK)) {
                 ArrayList<Sheet> sheets = new ArrayList<Sheet>();
                 workbook.setSheets(sheets);
                 int id = 1;

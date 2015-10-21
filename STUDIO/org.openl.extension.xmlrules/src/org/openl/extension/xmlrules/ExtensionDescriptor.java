@@ -16,6 +16,10 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class ExtensionDescriptor implements IExtensionDescriptor {
+    public static final String TYPES_SHEET = "Types";
+    public static final String TYPES_WORKBOOK = "Types.xlsx";
+    public static final String MAIN_WORKBOOK = "Main.xlsx";
+
     @Override
     public String getOpenLName() {
         return getClass().getPackage().getName();
@@ -63,5 +67,16 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
         XmlRulesModule m = ((XmlRulesModule) module);
         File sourceFile = new File(m.getRulesRootPath().getPath());
         return new XmlRulesModuleSourceCodeModule(sourceFile, m);
+    }
+
+    @Override
+    public String getUrlForModule(Module module) {
+        // TODO Add "internal-workbook" parameter instead of playing with "sheet"
+        XmlRulesModule xmlRulesModule = (XmlRulesModule) module;
+        String moduleURI = new File(xmlRulesModule.getRulesRootPath().getPath()).toURI().toString();
+        if (xmlRulesModule.getInternalModulePath().equals(TYPES_WORKBOOK)) {
+            moduleURI += "?sheet=" + TYPES_SHEET;
+        }
+        return moduleURI;
     }
 }
