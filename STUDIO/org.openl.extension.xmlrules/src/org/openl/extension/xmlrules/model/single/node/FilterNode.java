@@ -150,8 +150,8 @@ public class FilterNode extends Node {
             }
 
             sb.append("Field(o, \"").append(node.getFieldName()).append("\")");
-            sb.append(node.getComparison().getValue());
-            sb.append(node.getConditionValue().toOpenLString());
+            sb.append(" ").append(node.getComparison().getValue()).append(" ");
+            sb.append(getConditionValueString(node));
 
             node = nodes.size() > 0 ? nodes.pop() : null;
         }
@@ -175,8 +175,8 @@ public class FilterNode extends Node {
                 sb.append("(o").append(varNumber).append(") @ ");
 
                 sb.append("Field(o").append(varNumber).append(", \"").append(node.getFieldName()).append("\")");
-                sb.append(node.getComparison().getValue());
-                sb.append(node.getConditionValue().toOpenLString());
+                sb.append(" ").append(node.getComparison().getValue()).append(" ");
+                sb.append(getConditionValueString(node));
 
                 sb.append("]"); // (Object[])
 
@@ -190,6 +190,16 @@ public class FilterNode extends Node {
         sb.append("]");
 
         return sb.toString();
+    }
+
+    private String getConditionValueString(FilterNode node) {
+        // TODO At this time OpenL doesn't support comparisons like a == 2 where a is "2". Remove the code below when it will be implemented
+        Node value = node.getConditionValue();
+        String valueString = value.toOpenLString();
+        if (value instanceof NumberNode) {
+            return "\"" + valueString + "\"";
+        }
+        return valueString;
     }
 
     public String getFieldString(boolean skipFilters, int skipFieldsCount) {
