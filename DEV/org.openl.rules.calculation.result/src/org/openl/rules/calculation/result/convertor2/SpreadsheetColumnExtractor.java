@@ -153,7 +153,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                 x.getClass().getComponentType());
             for (int i = 0; i < length; i++) {
                 Object componentValue = Array.get(x, i);
-                if (!ClassUtils.isAssignable(componentValue.getClass(), expectedType.getComponentType())) {
+                if (componentValue != null && !ClassUtils.isAssignable(componentValue.getClass(), expectedType.getComponentType())) {
                     try {
                         componentValue = openCast.convert(componentValue);
                     } catch (Exception e) {
