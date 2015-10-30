@@ -40,8 +40,12 @@ public class ExpressionNode extends Node {
 
     @Override
     public void configure(String currentWorkbook, String currentSheet) {
-        leftNode.configure(currentWorkbook, currentSheet);
-        rightNode.configure(currentWorkbook, currentSheet);
+        if (leftNode != null) {
+            leftNode.configure(currentWorkbook, currentSheet);
+        }
+        if (rightNode != null) {
+            rightNode.configure(currentWorkbook, currentSheet);
+        }
     }
 
     @Override

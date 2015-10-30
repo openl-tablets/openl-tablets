@@ -18,6 +18,6 @@ public class ConcatenateExpressionResolver extends SimpleExpressionResolver {
             return toString(node);
         }
 
-        return "((String)" + toString(node) + ")";
+        return "String.valueOf(" + toString(node) + ")";
     }
 }
