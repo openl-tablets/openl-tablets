@@ -17,11 +17,10 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 @ManagedBean
 @ViewScoped
 public class ConnectionProductionRepoController extends AbstractProductionRepoController {
-    private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "connection";
 
     @Override
     public void save() {
-        RepositoryConfiguration repoConfig = createRepositoryConfiguration(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
+        RepositoryConfiguration repoConfig = createRepositoryConfiguration();
 
         if (!isInputParamValid(repoConfig)) {
             return;
