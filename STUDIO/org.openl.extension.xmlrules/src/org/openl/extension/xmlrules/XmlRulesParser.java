@@ -468,14 +468,14 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private void createFunctions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
-        try {
-            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
-                sheet = ((SheetHolder) sheet).getInternalSheet();
-            }
-            if (sheet.getFunctions() == null) {
-                return;
-            }
-            for (Function function : sheet.getFunctions()) {
+        if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+            sheet = ((SheetHolder) sheet).getInternalSheet();
+        }
+        if (sheet.getFunctions() == null) {
+            return;
+        }
+        for (Function function : sheet.getFunctions()) {
+            try {
                 StringBuilder headerBuilder = new StringBuilder();
                 String returnType = function.getReturnType();
                 if (StringUtils.isBlank(returnType)) {
@@ -499,22 +499,30 @@ public class XmlRulesParser extends BaseParser {
                         type = "String";
                     }
                     CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                    headerBuilder.append(type).append(" ").append(cellReference.getColumn()).append(cellReference.getRow());
+                    headerBuilder.append(type)
+                            .append(" ")
+                            .append("R")
+                            .append(cellReference.getRow())
+                            .append("C")
+                            .append(cellReference.getColumn());
                 }
                 headerBuilder.append(')');
                 gridBuilder.addCell(headerBuilder.toString()).nextRow();
 
                 for (ParameterImpl parameter : parameters) {
                     CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                    String cell = String.format("Push(\"%s\", %s%s);",
+                    String cell = String.format("Push(\"%s\", R%sC%s);",
                             reference.getStringValue(),
-                            reference.getColumn(),
-                            reference.getRow());
+                            reference.getRow(),
+                            reference.getColumn());
                     gridBuilder.addCell(cell).nextRow();
                 }
 
                 CellReference cellReference = CellReference.parse(workbookName, sheetName, function.getCellAddress());
-                gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");", returnType, returnType, cellReference.getStringValue()));
+                gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
+                        returnType,
+                        returnType,
+                        cellReference.getStringValue()));
                 gridBuilder.nextRow();
 
                 for (ParameterImpl parameter : parameters) {
@@ -526,10 +534,11 @@ public class XmlRulesParser extends BaseParser {
                 gridBuilder.addCell("return result;").nextRow();
 
                 gridBuilder.nextRow();
+            } catch (RuntimeException e) {
+                log.error(e.getMessage(), e);
+                OpenLMessagesUtils.addError(e);
+                gridBuilder.nextRow();
             }
-        } catch (RuntimeException e) {
-            log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
         }
     }
 
@@ -554,41 +563,52 @@ public class XmlRulesParser extends BaseParser {
             conditions.add(columnNumbers);
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
-                    // Initialize rows and columns
-                    // FIXME
-                    CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
-                    getCurrentRow(conditions, reference);
-                    getCurrentColumnNumber(columnNumbers, reference);
+                    try {
+                        // Initialize rows and columns
+                        // FIXME
+                        CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
+                        getCurrentRow(conditions, reference);
+                        getCurrentColumnNumber(columnNumbers, reference);
+                    } catch (RuntimeException e) {
+                        log.error(e.getMessage(), e);
+                        OpenLMessagesUtils.addError(e);
+                    }
                 }
             }
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
-                    CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
-                    List<String> currentRow = getCurrentRow(conditions, reference);
-                    int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
-
-                    while (currentRow.size() < currentColumnNumber + 1) {
-                        currentRow.add(null);
-                    }
-
-                    Node node = cell.getNode();
-                    String expression;
                     try {
-                        if (node == null) {
-                            throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress() + " contains incorrect value. It will be skipped");
+                        CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
+                        List<String> currentRow = getCurrentRow(conditions, reference);
+                        int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
+
+                        while (currentRow.size() < currentColumnNumber + 1) {
+                            currentRow.add(null);
                         }
-                        if (node instanceof ValueHolder) {
-                            expression = ((ValueHolder) node).asString();
-                        } else {
-                            expression = "= " + node.toOpenLString();
+
+                        Node node = cell.getNode();
+                        String expression;
+                        try {
+                            if (node == null) {
+                                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + " contains incorrect value. It will be skipped");
+                            }
+                            if (node instanceof ValueHolder) {
+                                expression = ((ValueHolder) node).asString();
+                            } else {
+                                expression = "= " + node.toOpenLString();
+                            }
+                        } catch (RuntimeException e) {
+                            expression = "";
+                            String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + ": " + e.getMessage();
+                            log.error(errorMessage, e);
+                            OpenLMessagesUtils.addError(errorMessage);
                         }
-                    } catch (RuntimeException e) {
-                        expression = "";
-                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress() + ": " + e.getMessage();
+                        currentRow.set(currentColumnNumber, expression);
+                    } catch (Exception e) {
+                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + ": " + e.getMessage();
                         log.error(errorMessage, e);
                         OpenLMessagesUtils.addError(errorMessage);
                     }
-                    currentRow.set(currentColumnNumber, expression);
                 }
             }
             addCells(gridBuilder, cellsOnSheetName, conditions);

@@ -9,7 +9,9 @@ import org.openl.extension.xmlrules.utils.CellReference;
 public class RangeNode extends Node {
     private String currentWorkbook;
     private String currentSheet;
-    private String range;
+    private String path;
+    private String row;
+    private String column;
 
     @Override
     public void configure(String currentWorkbook, String currentSheet) {
@@ -17,18 +19,33 @@ public class RangeNode extends Node {
         this.currentSheet = currentSheet;
     }
 
-    @XmlElement(required = true)
-    public String getRange() {
-        return range;
+    public String getPath() {
+        return path;
     }
 
-    public void setRange(String range) {
-        this.range = range;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getRow() {
+        return row;
+    }
+
+    public void setRow(String row) {
+        this.row = row;
+    }
+
+    public String getColumn() {
+        return column;
+    }
+
+    public void setColumn(String column) {
+        this.column = column;
     }
 
     @Override
     public String toOpenLString() {
-        String cell = CellReference.parse(currentWorkbook, currentSheet, range).getStringValue();
+        String cell = CellReference.parse(currentWorkbook, currentSheet, this).getStringValue();
         return String.format("Cell(\"%s\")", cell);
     }
 }

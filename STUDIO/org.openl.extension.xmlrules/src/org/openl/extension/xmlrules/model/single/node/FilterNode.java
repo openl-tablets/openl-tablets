@@ -149,8 +149,13 @@ public class FilterNode extends Node {
                 multipleConditions = true;
             }
 
+            Comparison comparison = node.getComparison();
+            if (comparison == Comparison.NONE) {
+                comparison = Comparison.EQUAL;
+            }
+
             sb.append("Field(o, \"").append(node.getFieldName()).append("\")");
-            sb.append(" ").append(node.getComparison().getValue()).append(" ");
+            sb.append(" ").append(comparison.getValue()).append(" ");
             sb.append(getConditionValueString(node));
 
             node = nodes.size() > 0 ? nodes.pop() : null;
@@ -174,8 +179,13 @@ public class FilterNode extends Node {
                 sb.append(") [");
                 sb.append("(o").append(varNumber).append(") @ ");
 
+                Comparison comparison = node.getComparison();
+                if (comparison == Comparison.NONE) {
+                    comparison = Comparison.EQUAL;
+                }
+
                 sb.append("Field(o").append(varNumber).append(", \"").append(node.getFieldName()).append("\")");
-                sb.append(" ").append(node.getComparison().getValue()).append(" ");
+                sb.append(" ").append(comparison.getValue()).append(" ");
                 sb.append(getConditionValueString(node));
 
                 sb.append("]"); // (Object[])
@@ -285,7 +295,7 @@ public class FilterNode extends Node {
     }
 
     private boolean hasComparison() {
-        return comparison != null && comparison != Comparison.NONE && conditionValue != null;
+        return conditionValue != null;
     }
 
     private boolean isEmptyComparison() {

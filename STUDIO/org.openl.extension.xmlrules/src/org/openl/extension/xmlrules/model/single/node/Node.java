@@ -11,7 +11,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
         ExpressionNode.class,
         FunctionNode.class,
         IfNode.class,
-        FilterNode.class
+        IfErrorNode.class,
+        FilterNode.class,
+
+        FailureNode.class
 })
 public abstract class Node {
     public void configure(String currentWorkbook, String currentSheet) {
