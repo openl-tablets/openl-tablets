@@ -87,9 +87,9 @@ public class XmlRulesParser extends BaseParser {
             createTypes(gridBuilder, sheet);
         } else {
             createDataInstances(gridBuilder, module, sheet);
-            createTables(gridBuilder, workbook, sheet);
-            createFunctions(gridBuilder, workbook, sheet);
-            createCellExpressions(gridBuilder, workbook, sheet);
+            createTables(gridBuilder, sheet);
+            createFunctions(gridBuilder, sheet);
+            createCellExpressions(gridBuilder, sheet);
             if (sheet.getId() == 1) {
                 createEnvironment(gridBuilder, sourceCodeModule);
             }
@@ -294,7 +294,7 @@ public class XmlRulesParser extends BaseParser {
         return maximumArrayLength;
     }
 
-    private void createTables(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
+    private void createTables(StringGridBuilder gridBuilder, Sheet sheet) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -467,7 +467,7 @@ public class XmlRulesParser extends BaseParser {
         return tableWidth;
     }
 
-    private void createFunctions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
+    private void createFunctions(StringGridBuilder gridBuilder, Sheet sheet) {
         if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
             sheet = ((SheetHolder) sheet).getInternalSheet();
         }
@@ -542,7 +542,7 @@ public class XmlRulesParser extends BaseParser {
         }
     }
 
-    private void createCellExpressions(StringGridBuilder gridBuilder, LazyWorkbook workbook, Sheet sheet) {
+    private void createCellExpressions(StringGridBuilder gridBuilder, Sheet sheet) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
