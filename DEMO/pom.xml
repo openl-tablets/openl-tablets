@@ -18,45 +18,4 @@
         <module>org.openl.rules.demo.webstudio</module>
         <module>org.openl.rules.demo</module>
     </modules>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.calculation.result</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.variation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules.demo</groupId>
-                <artifactId>org.openl.rules.demo.webservice.client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <type>war</type>
-                <scope>runtime</scope>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>
