@@ -36,6 +36,7 @@ public class RulesDeploy {
     private String serviceClass;
     private String rmiServiceClass;
     private String url;
+    private String version;
     private Map<String, Object> configuration;
 
     private WildcardPattern[] lazyModulesForCompilationPatterns;
@@ -47,6 +48,14 @@ public class RulesDeploy {
     public void setPublishers(PublisherType[] publishers) {
         this.publishers = publishers;
     }
+    
+    public String getVersion() {
+		return version;
+	}
+    
+    public void setVersion(String version) {
+		this.version = version;
+	}
 
     public Boolean isProvideRuntimeContext() {
         return isProvideRuntimeContext;

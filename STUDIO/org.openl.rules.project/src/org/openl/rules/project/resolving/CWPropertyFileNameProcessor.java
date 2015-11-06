@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by dl on 10/20/14.
  */
-public class CWPropertyFileNameProcessor extends DefaultPropertiesFileNameProcessor {
+public class CWPropertyFileNameProcessor extends DefaultPropertiesFileNameProcessor  {
 
     private static final String STATE_PROPERTY_NAME = "state";
     private static final String STATE_PROPERTY_MATCH = "%state%";

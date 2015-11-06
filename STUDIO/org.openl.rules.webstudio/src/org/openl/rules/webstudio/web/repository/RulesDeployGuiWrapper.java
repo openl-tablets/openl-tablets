@@ -50,6 +50,14 @@ public class RulesDeployGuiWrapper {
     public void setServiceClass(String serviceClass) {
         rulesDeploy.setServiceClass(serviceClass);
     }
+    
+    public String getVersion() {
+        return rulesDeploy.getVersion();
+    }
+
+    public void setVersion(String version) {
+        rulesDeploy.setVersion(version);
+    }
 
     public String getUrl() {
         return rulesDeploy.getUrl();

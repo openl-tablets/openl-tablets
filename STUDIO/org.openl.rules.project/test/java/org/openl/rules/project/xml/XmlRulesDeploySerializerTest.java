@@ -37,6 +37,7 @@ public class XmlRulesDeploySerializerTest {
         assertEquals(2, rulesDeploy.getLazyModulesForCompilationPatterns().length);
         assertEquals("some1*", rulesDeploy.getLazyModulesForCompilationPatterns()[0].getValue());
         assertEquals("some2*", rulesDeploy.getLazyModulesForCompilationPatterns()[1].getValue());
+        assertEquals("v1", rulesDeploy.getVersion());
     }
     
     @Test
@@ -51,6 +52,7 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setAnnotationTemplateClassName(String.class.getCanonicalName());
         rulesDeploy.setServiceClass(String.class.getCanonicalName());
         rulesDeploy.setUrl("someURL");
+        rulesDeploy.setVersion("v1");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{PublisherType.WEBSERVICE});
         Map<String, Object> configuration = new HashMap<String, Object>();
         configuration.put("key", "value");
@@ -69,6 +71,7 @@ public class XmlRulesDeploySerializerTest {
                                 "  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>"+ "\n" +
                                 "  <serviceClass>java.lang.String</serviceClass>"+ "\n" +
                                 "  <url>someURL</url>"+ "\n" +
+                                "  <version>v1</version>"+ "\n" +
                                 "  <configuration>"+ "\n" +
                                 "    <entry>"+ "\n" +
                                 "      <string>key</string>"+ "\n" +

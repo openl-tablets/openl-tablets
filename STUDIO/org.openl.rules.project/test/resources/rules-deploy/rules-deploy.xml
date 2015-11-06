@@ -11,6 +11,7 @@
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
   <url>someURL</url>
+  <version>v1</version>
   <lazy-modules-for-compilation>
     <module name="some1*"/>
     <module name="some2*"/>

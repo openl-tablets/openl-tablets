@@ -61,6 +61,12 @@
           <h:outputText value="#{rulesDeploy.serviceClass}" rendered="#{!openedForEditing}"/>
           <h:message for="#{prefix}serviceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
+      
+      <h:outputLabel for="#{prefix}version" value="Version"/>
+      <h:panelGroup>
+          <h:inputText id="#{prefix}version" maxlength="100" size="40" value="#{rulesDeploy.version}" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.version}" rendered="#{!openedForEditing}"/>
+      </h:panelGroup>
 
       <h:outputLabel for="#{prefix}url" value="URL"/>
       <h:panelGroup>
