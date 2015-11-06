@@ -65,5 +65,6 @@ public class StringPoolTest {
         assertFalse("String pool has garbage collected string", StringPool.stringPool.containsKey("intern1"));
         assertTrue("String pool has not strong referenced string", StringPool.stringPool.containsKey("intern2"));
         assertFalse("String pool has garbage collected string", StringPool.stringPool.containsKey("intern3"));
+        str.isEmpty(); // Strong Reference for IBM's JDK
     }
 }
