@@ -23,8 +23,6 @@ public class RepositoryConfiguration {
 
     private final String REPOSITORY_CONFIG_FILE;
 
-    private final String REPOSITORY_CONNECTION_TYPE;
-
     private final RepositoryType repositoryType;
 
     private boolean secure = false;
@@ -47,7 +45,6 @@ public class RepositoryConfiguration {
                           "design-repository.pass"; // For backward-compatibility
 
         REPOSITORY_CONFIG_FILE = repositoryType.toString() + "-repository.config";
-        REPOSITORY_CONNECTION_TYPE = repositoryType.toString() + "-repository.connection.type";
     }
 
     public String getName() {
@@ -142,14 +139,6 @@ public class RepositoryConfiguration {
         if (!StringUtils.isEmpty(pass)) {
             configManager.setPassword(REPOSITORY_PASS, pass);
         }
-    }
-
-    public String getConnectionType() {
-        return configManager.getStringProperty(REPOSITORY_CONNECTION_TYPE);
-    }
-
-    public void setConnectionType(String connectionType) {
-        configManager.setProperty(REPOSITORY_CONNECTION_TYPE, connectionType);
     }
 
     public Map<String, Object> getProperties() {

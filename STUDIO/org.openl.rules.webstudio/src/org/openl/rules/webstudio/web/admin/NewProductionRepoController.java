@@ -17,7 +17,6 @@ import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
 @ViewScoped
 
 public class NewProductionRepoController extends AbstractProductionRepoController {
-    private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "direct";
     private static final String PRODUCTION_PEPOSITORY_TYPE = "local";
 
     @Override
@@ -25,7 +24,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
         /*Only local repo can be created*/
         this.setType(PRODUCTION_PEPOSITORY_TYPE);
 
-        RepositoryConfiguration repoConfig = createRepositoryConfiguration(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
+        RepositoryConfiguration repoConfig = createRepositoryConfiguration();
 
         if (!isInputParamValid(repoConfig)) {
             return;
@@ -33,7 +32,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
 
         try {
             if (this.isSecure()) {
-                RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
+                RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
                 RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
                 RRepository repository = repoFactory.getRepositoryInstance();

@@ -1,5 +1,21 @@
 package org.openl.rules.repository.factories;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeTypeManager;
+import javax.transaction.UserTransaction;
+
 import org.apache.commons.lang3.StringUtils;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -20,21 +36,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.nodetype.NodeTypeManager;
-import javax.transaction.UserTransaction;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
  * repository.
@@ -45,7 +46,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
     private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("repository.jcr.nodetypes",
-            DEFAULT_NODETYPE_FILE);
+        DEFAULT_NODETYPE_FILE);
 
     private ConfigPropertyString url = new ConfigPropertyString("repository.db.url", "jdbc:mysql://localhost/repo");
 
@@ -98,12 +99,10 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         setRepository(repository, config.getName());
     }
 
-    private RepositoryConfiguration getModeshapeConfiguration(String url, String user, String password) throws
-                                                                                                        SQLException,
-                                                                                                        ParsingException,
-                                                                                                        FileNotFoundException {
-        final String repoName = ("OPENL_" + url)
-                .replace('"', '_').replace('\'', '_').replace(':', '_').replace('\\', '_').replace('/', '_');
+    private RepositoryConfiguration getModeshapeConfiguration(String url,
+            String user,
+            String password) throws SQLException, ParsingException, FileNotFoundException {
+        final String repoName = ("OPENL_" + url).replaceAll("\\W", "_");
         // Create a local environment that we'll set up to own the external
         // components ModeShape needs ...
         LocalEnvironment environment = new LocalEnvironment() {
@@ -123,7 +122,8 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         environment.defineCache("OPENL_MetaData", ispnConfig);
 
         // Modeshape's configuration
-        RepositoryConfiguration config = RepositoryConfiguration.read("{'name':'" + repoName + "','storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
+        RepositoryConfiguration config = RepositoryConfiguration.read(
+            "{'name':'" + repoName + "','storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
@@ -145,26 +145,26 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.transaction().transactionMode(TransactionMode.TRANSACTIONAL);
         configurationBuilder.jmxStatistics()
-                .enable()
-                .clustering()
-                .cacheMode(CacheMode.REPL_SYNC)
-                .loaders()
-                .shared(true)
-                .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
-                .table()
-                .tableNamePrefix("CACHE")
-                .idColumnName("ID")
-                .idColumnType(types[0])
-                .dataColumnName("DATA")
-                .dataColumnType(types[1])
-                .timestampColumnName("TIMESTAMP")
-                .timestampColumnType(types[2])
-                .connectionPool()
-                .connectionUrl(url)
-                .username(user)
-                .password(password)
-                        // Get a driver by url
-                .driverClass(driverClass);
+            .enable()
+            .clustering()
+            .cacheMode(CacheMode.REPL_SYNC)
+            .loaders()
+            .shared(true)
+            .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
+            .table()
+            .tableNamePrefix("CACHE")
+            .idColumnName("ID")
+            .idColumnType(types[0])
+            .dataColumnName("DATA")
+            .dataColumnType(types[1])
+            .timestampColumnName("TIMESTAMP")
+            .timestampColumnType(types[2])
+            .connectionPool()
+            .connectionUrl(url)
+            .username(user)
+            .password(password)
+            // Get a driver by url
+            .driverClass(driverClass);
         return configurationBuilder.build();
     }
 
@@ -174,7 +174,10 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         DatabaseMetaData metaData = conn.getMetaData();
         ResultSet rs = metaData.getTypeInfo();
 
-        String[] types = new String[3];
+        String nvarcharType = null;
+        String varcharType = null;
+        String binaryType = null;
+        String bigintType = null;
         while (rs.next()) {
             // Get the database-specific type name
             String typeName = rs.getString("TYPE_NAME");
@@ -182,44 +185,56 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             // database-specific type is mapped
             int dataType = rs.getInt("DATA_TYPE");
             switch (dataType) {
-                case Types.VARCHAR:
-                    if (types[0] != null) {
+                case Types.NVARCHAR:
+                    if (nvarcharType != null) {
                         break;
                     }
-                    int prec = rs.getInt("PRECISION");
-                    if (prec > 1000) {
-                        prec = 1000;
+                    nvarcharType = typeName + '(' + getPrecision(rs) + ')';
+                    break;
+                case Types.VARCHAR:
+                    if (varcharType != null) {
+                        break;
                     }
-                    types[0] = typeName + '(' + prec + ')';
+                    varcharType = typeName + '(' + getPrecision(rs) + ')';
                     break;
                 case Types.LONGVARBINARY:
-                    if (types[1] == null) {
-                        types[1] = typeName;
+                    if (binaryType == null) {
+                        binaryType = typeName;
                     }
                     break;
                 case Types.BIGINT:
-                    if (types[2] == null) {
-                        types[2] = typeName;
+                    if (bigintType == null) {
+                        bigintType = typeName;
                     }
                     break;
             }
         }
         conn.close();
 
-        log.info("Determined SQL types ('{}', '{}', '{}')", types[0], types[1], types[2]);
+        log.info("Determined SQL types ('{}', '{}', '{}', '{}')", nvarcharType, varcharType, binaryType, bigintType);
         // Set defaults
-        if (types[0] == null) {
-            types[0] = "VARCHAR(1000)";
+        if (nvarcharType != null) {
+            varcharType = nvarcharType;
+        } else if (varcharType == null) {
+            varcharType = "VARCHAR(1000)";
         }
-        if (types[1] == null) {
-            types[1] = "BLOB";
+        if (binaryType == null) {
+            binaryType = "BLOB";
         }
-        if (types[2] == null) {
-            types[2] = "BIGINT";
+        if (bigintType == null) {
+            bigintType = "BIGINT";
         }
-        log.info("Used SQL types ('{}', '{}', '{}')", types[0], types[1], types[2]);
+        log.info("Used SQL types ('{}', '{}', '{}')", varcharType, binaryType, bigintType);
 
-        return types;
+        return new String[] { varcharType, binaryType, bigintType };
+    }
+
+    private int getPrecision(ResultSet rs) throws SQLException {
+        int prec = rs.getInt("PRECISION");
+        if (prec > 1000) {
+            prec = 1000;
+        }
+        return prec;
     }
 
     /**

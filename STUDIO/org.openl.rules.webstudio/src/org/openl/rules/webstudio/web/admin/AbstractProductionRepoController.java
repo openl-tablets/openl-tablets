@@ -66,7 +66,7 @@ public abstract class AbstractProductionRepoController {
         return configName;
     }
 
-    protected RepositoryConfiguration createRepositoryConfiguration(String connectionType) {
+    protected RepositoryConfiguration createRepositoryConfiguration() {
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(getName()), getProductionConfigManager(getName()),
                 RepositoryType.PRODUCTION);
 
@@ -81,12 +81,10 @@ public abstract class AbstractProductionRepoController {
             repoConfig.setConfigFile(this.getSecureConfiguration());
         }
 
-        repoConfig.setConnectionType(connectionType);
-
         return repoConfig;
     }
 
-    protected RepositoryConfiguration createAdminRepositoryConfiguration(String connectionType) {
+    protected RepositoryConfiguration createAdminRepositoryConfiguration() {
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()),
                 RepositoryType.PRODUCTION);
 
@@ -102,8 +100,6 @@ public abstract class AbstractProductionRepoController {
 
             repoConfig.setConfigFile(this.getSecureConfiguration());
         }
-
-        repoConfig.setConnectionType(connectionType);
 
         return repoConfig;
     }

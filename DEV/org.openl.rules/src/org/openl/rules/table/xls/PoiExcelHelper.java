@@ -274,22 +274,84 @@ public class PoiExcelHelper {
             return ((HSSFColor) color).getTriplet();
 
         } else if (color instanceof XSSFColor) {
-            byte[] rgb = ((XSSFColor) color).getRgbWithTint();
-            if (rgb == null) {
-                rgb = ((XSSFColor) color).getRgb();
-            }
+            byte[] rgb = ((XSSFColor) color).getRgb();
 
             // Byte to short
             if (rgb != null) {
-                short[] result = new short[3];
-                for (int i = 0; i < 3; i++) {
-                    result[i] = (short) (rgb[i] & 0xFF);
-                }
-                return result;
+                return applyTint(rgb, ((XSSFColor) color).getTint());
             }
         }
 
         return null;
+    }
+
+    private static short[] applyTint(byte[] rgb, double tint) {
+
+        short red = toShort(rgb[0]);
+        short green = toShort(rgb[1]);
+        short blue = toShort(rgb[2]);
+
+        if (tint == 0.0) { // no changes
+            return new short[] { red, green, blue };
+        }
+
+        if (red == green && green == blue) { // achromatic
+            final double newLum = calculateLum(red, tint);
+            short v = toShort(newLum);
+            return new short[] { v, v, v };
+        }
+
+        // Find brightest and darkest components
+        short max = green;
+        short min = red;
+        if (red > green) {
+            max = red;
+            min = green;
+        }
+        if (blue > max) {
+            max = blue;
+        } else if (blue < min) {
+            min = blue;
+        }
+
+        // Calculate colors metrics
+        int chroma = max - min;
+        int lum = max + min;
+        final double newLum = calculateLum(lum / 2, tint) * 2;
+        // new amount of chroma
+        double x = (255 - Math.abs(newLum - 255)) / (255 - Math.abs(lum - 255));
+        // new amount of white color
+        double m = (newLum - x * chroma) / 2;
+
+        // Adjusted RGB
+        short r = toShort((red - min) * x + m);
+        short g = toShort((green - min) * x + m);
+        short b = toShort((blue - min) * x + m);
+
+        return new short[] { r, g, b };
+
+    }
+
+    private static double calculateLum(int lum , double tint) {
+        if (tint < 0) {
+            return lum * (1.0 + tint);
+        } else {
+            return (lum - 255) * (1.0 - tint) + 255 ;
+        }
+    }
+
+    private static short toShort(double value) {
+        if (value >= 255) {
+            return 255;
+        } else if (value <= 0) {
+            return 0;
+        } else {
+            return (short) Math.round(value);
+        }
+    }
+
+    private static short toShort(byte value) {
+        return (short) (value & 0xFF);
     }
 
     public static short[] toRgb(short colorIndex, HSSFWorkbook workbook) {
