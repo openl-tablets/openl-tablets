@@ -22,14 +22,14 @@ public class FormatterTest {
 
         String busStr = printBusView(testMap);
 
-        assertTrue(StringUtils.contains(busStr, "HashMap$KeySet<Integer>"));
-        assertTrue(StringUtils.contains(busStr, "985643"));
-        assertTrue(StringUtils.contains(busStr, "4657"));
-        assertTrue(StringUtils.contains(busStr, "25"));
-        assertTrue(StringUtils.contains(busStr, "1536"));
+        assertTrue(StringUtils.contains(busStr, "HashMap<Integer,String>"));
+        assertTrue(StringUtils.contains(busStr, "985643 : matata"));
+        assertTrue(StringUtils.contains(busStr, "4657 : cadabra"));
+        assertTrue(StringUtils.contains(busStr, "25 : yo265"));
+        assertTrue(StringUtils.contains(busStr, "1536 : abra"));
 
         String devStr = printDevView(testMap);
-        assertTrue(StringUtils.contains(devStr, "HashMap$KeySet<Integer>"));
+        assertTrue(StringUtils.contains(devStr, "HashMap<Integer,String>"));
         assertTrue(StringUtils.contains(devStr, "... 3 more}"));
     }
 

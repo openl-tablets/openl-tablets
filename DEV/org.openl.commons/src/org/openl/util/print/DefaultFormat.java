@@ -45,12 +45,23 @@ public class DefaultFormat implements IFormat {
         if (obj instanceof Map<?, ?>) {
             return formatMap((Map<?, ?>) obj, mode, buf);
         }
-
+        if (obj instanceof Map.Entry<?, ?>) {
+            return formatMapEntry((Map.Entry<?, ?>) obj, mode, buf);
+        }
         if (!isPrimitive(obj.getClass())) {
             return formatBean(obj, mode, buf);
         }
 
         return buf.append(obj);
+    }
+
+    private StringBuilder formatMapEntry(Map.Entry<?, ?> obj, int mode, StringBuilder buf) {
+        buf.append("(");
+        Formatter.format(obj.getKey(), mode, buf);
+        buf.append(" : ");
+        Formatter.format(obj.getValue(), mode, buf);
+        buf.append(")");
+        return buf;
     }
 
     protected StringBuilder formatArray(Object obj, int mode, StringBuilder buf) {
@@ -118,7 +129,27 @@ public class DefaultFormat implements IFormat {
     }
 
     protected StringBuilder formatMap(Map<?, ?> map, int mode, StringBuilder buf) {
-        return formatCollection(map.keySet(), mode, buf);
+        int maxLength = maxCollectionLength(mode);
+
+        buf.append(shortClassName(map));
+
+        Map.Entry<?, ?> element = null;
+        Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
+        if (it.hasNext()) {
+            element = it.next();
+        }
+
+        if (element != null) {
+            Object key = element.getKey();
+            Object value = element.getValue();
+            if (key != null && value != null) {
+                buf.append('<').append(shortClassName(key)).append(',').append(shortClassName(value)).append('>');
+            }
+        }
+
+        formatIterator(map.entrySet().iterator(), mode, buf, maxLength, map.size(), "{}");
+
+        return buf;
     }
 
     protected boolean isPrimitive(Class<?> c) {
