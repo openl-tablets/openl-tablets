@@ -242,7 +242,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
-                    <argLine>${jacococ.argLine} -XX:MaxPermSize=128m</argLine>
+                    <argLine>${jacococ.argLine} -XX:MaxPermSize=128m -Xms512m -Xmx2048m</argLine>
                 </configuration>
             </plugin>
             <plugin>
