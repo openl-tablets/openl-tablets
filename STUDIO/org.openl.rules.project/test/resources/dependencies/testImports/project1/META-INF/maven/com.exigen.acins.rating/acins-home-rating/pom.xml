@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!--<parent>-->
     <groupId>com.exigen.acins.rating</groupId>
@@ -69,7 +71,8 @@
                 <version>2.12</version>
                 <configuration>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>target/acins-home-rating-${project.version}-rules-tests.jar</additionalClasspathElement>
+                        <additionalClasspathElement>target/acins-home-rating-${project.version}-rules-tests.jar
+                        </additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
@@ -96,7 +99,8 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <ant antfile="build/GenerateDatatypesJava.build.xml" inheritRefs="true" target="generate"/>
+                                        <ant antfile="build/GenerateDatatypesJava.build.xml" inheritRefs="true"
+                                             target="generate"/>
                                     </target>
                                 </configuration>
                             </execution>
