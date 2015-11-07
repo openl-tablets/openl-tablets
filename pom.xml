@@ -1067,6 +1067,21 @@
                 <artifactId>c3p0</artifactId>
                 <version>0.9.1.2</version>
             </dependency>
+            <!-- DEMO -->
+            <dependency>
+                <groupId>org.openl.rules.demo</groupId>
+                <artifactId>org.openl.rules.demo.webservice.client</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.demo</groupId>
+                <artifactId>org.openl.rules.demo.repository</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

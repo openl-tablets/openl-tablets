@@ -7,100 +7,17 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.demo.demo</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>OpenL Tablets - DEMO - Demo</name>
     <description>OpenL Tablets Demo</description>
     <url>//openl-tablets.org</url>
+    <properties>
+        <tomcat.version>7.0.40</tomcat.version>
+        <tomcat.root>apache-tomcat-${tomcat.version}</tomcat.root>
+        <tomcat.webapps>${tomcat.root}/webapps</tomcat.webapps>
+    </properties>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <ant antfile="build.xml" target="install" />
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>build.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <!-- Copy webapps to tomcat folder -->
-                        <id>copy</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.openl.rules</groupId>
-                                    <artifactId>org.openl.rules.webstudio</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${work.dir}/${tomcat.dest.dir}/webapps/</outputDirectory>
-                                    <destFileName>webstudio.war</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.openl.rules</groupId>
-                                    <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${work.dir}/${tomcat.dest.dir}/webapps/</outputDirectory>
-                                    <destFileName>webservice.war</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.openl.rules.demo</groupId>
-                                    <artifactId>org.openl.rules.demo.webservice.client</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${work.dir}/${tomcat.dest.dir}/webapps/</outputDirectory>
-                                    <destFileName>webservice-client.war</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.openl.rules.demo</groupId>
-                                    <artifactId>org.openl.rules.demo.repository</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${work.dir}/${tomcat.dest.dir}/webapps/</outputDirectory>
-                                    <destFileName>production-repository-server.war</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -122,4 +39,32 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${tomcat.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.webstudio</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules.demo</groupId>
+            <artifactId>org.openl.rules.demo.webservice.client</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules.demo</groupId>
+            <artifactId>org.openl.rules.demo.repository</artifactId>
+            <type>war</type>
+        </dependency>
+    </dependencies>
 </project>
