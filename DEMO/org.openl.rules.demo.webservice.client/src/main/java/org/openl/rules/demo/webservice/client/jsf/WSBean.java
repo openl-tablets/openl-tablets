@@ -7,8 +7,6 @@ import javax.faces.context.FacesContext;
 
 import org.openl.rules.demo.webservice.client.WebServiceTemplate;
 
-import org.openl.meta.DoubleValue;
-
 @ManagedBean
 @RequestScoped
 public class WSBean {
@@ -100,7 +98,7 @@ public class WSBean {
     public void accidentPremium() {
         methodName = "AccidentPremium";
 
-        DoubleValue ret = null;
+        Number ret = null;
 
         if (useStaticClient) {
             try {
@@ -109,7 +107,7 @@ public class WSBean {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             }
         } else {
-            ret = (DoubleValue) invoke(methodName, new Object[]{null});
+            ret = (Number) invoke(methodName, new Object[]{null});
         }
 
         result = new String[] { ret != null ? String.valueOf(ret.doubleValue()) : null };
