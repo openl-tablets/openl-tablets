@@ -54,9 +54,4 @@
             <url>file:///${basedir}/org.openl.rules.ruleservice-pom/m2_repo</url>
         </pluginRepository>
     </pluginRepositories>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.extension.xmlrules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 </project>
