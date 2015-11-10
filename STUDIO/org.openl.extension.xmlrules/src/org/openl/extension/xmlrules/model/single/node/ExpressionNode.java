@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.model.single.node;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolver;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolverFactory;
 import org.openl.extension.xmlrules.model.single.node.expression.Operator;
@@ -39,12 +40,12 @@ public class ExpressionNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         if (leftNode != null) {
-            leftNode.configure(currentWorkbook, currentSheet);
+            leftNode.configure(currentWorkbook, currentSheet, cell);
         }
         if (rightNode != null) {
-            rightNode.configure(currentWorkbook, currentSheet);
+            rightNode.configure(currentWorkbook, currentSheet, cell);
         }
     }
 

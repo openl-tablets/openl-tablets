@@ -2,6 +2,8 @@ package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Cell;
+
 @XmlType(name = "if-node")
 public class IfNode extends Node {
     private Node condition;
@@ -33,15 +35,15 @@ public class IfNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
-        condition.configure(currentWorkbook, currentSheet);
-        thenNode.configure(currentWorkbook, currentSheet);
-        elseNode.configure(currentWorkbook, currentSheet);
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
+        condition.configure(currentWorkbook, currentSheet, cell);
+        thenNode.configure(currentWorkbook, currentSheet, cell);
+        elseNode.configure(currentWorkbook, currentSheet, cell);
     }
 
     @Override
     public String toOpenLString() {
         String conditionCast = condition instanceof RangeNode ? "(Boolean) " : "";
-        return "(" + conditionCast + condition.toOpenLString() + "?" + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
+        return "(" + conditionCast + condition.toOpenLString() + ") ? " + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
     }
 }

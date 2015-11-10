@@ -18,6 +18,6 @@ public class AdditionExpressionResolver extends SimpleExpressionResolver {
             return toString(node);
         }
 
-        return "((Double)" + toString(node) + ")";
+        return "((Double) (" + node.toOpenLString() + "))";
     }
 }

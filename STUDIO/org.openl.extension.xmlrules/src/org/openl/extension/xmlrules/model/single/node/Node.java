@@ -2,6 +2,8 @@ package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.openl.extension.xmlrules.model.single.Cell;
+
 @XmlSeeAlso({
         StringNode.class,
         NumberNode.class,
@@ -17,7 +19,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
         FailureNode.class
 })
 public abstract class Node {
-    public void configure(String currentWorkbook, String currentSheet) {
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         // Do nothing
     }
 

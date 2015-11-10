@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.single.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +57,12 @@ public class FilterNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         if (node != null) {
-            node.configure(currentWorkbook, currentSheet);
+            node.configure(currentWorkbook, currentSheet, cell);
         }
         if (conditionValue != null) {
-            conditionValue.configure(currentWorkbook, currentSheet);
+            conditionValue.configure(currentWorkbook, currentSheet, cell);
         }
     }
 

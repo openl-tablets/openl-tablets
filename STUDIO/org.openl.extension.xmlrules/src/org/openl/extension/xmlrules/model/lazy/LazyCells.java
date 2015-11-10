@@ -29,7 +29,7 @@ public class LazyCells extends BaseLazyItem<Cells> {
             if (cell.getNode() == null) {
                 return;
             }
-            cell.getNode().configure(workbookName, sheetName);
+            cell.getNode().configure(workbookName, sheetName, cell);
         }
     }
 }

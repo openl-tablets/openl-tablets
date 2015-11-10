@@ -2,6 +2,8 @@ package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Cell;
+
 @XmlType(name = "if-error-node")
 public class IfErrorNode extends Node {
     private Node value;
@@ -24,9 +26,9 @@ public class IfErrorNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
-        value.configure(currentWorkbook, currentSheet);
-        valueIfError.configure(currentWorkbook, currentSheet);
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
+        value.configure(currentWorkbook, currentSheet, cell);
+        valueIfError.configure(currentWorkbook, currentSheet, cell);
     }
 
     @Override

@@ -6,6 +6,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Cell;
+
 @XmlType(name = "function-node")
 public class FunctionNode extends Node {
     private String name;
@@ -29,9 +31,9 @@ public class FunctionNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         for (Node argument : arguments) {
-            argument.configure(currentWorkbook, currentSheet);
+            argument.configure(currentWorkbook, currentSheet, cell);
         }
     }
 
