@@ -90,6 +90,8 @@ public class XmlRulesParser extends BaseParser {
             createTables(gridBuilder, sheet);
             createFunctions(gridBuilder, sheet);
             createCellExpressions(gridBuilder, sheet);
+            createArrayCellExpressions(gridBuilder, sheet);
+
             if (sheet.getId() == 1) {
                 createEnvironment(gridBuilder, sourceCodeModule);
             }
@@ -122,6 +124,7 @@ public class XmlRulesParser extends BaseParser {
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
         }
     }
     private void createEnvironment(StringGridBuilder gridBuilder, XmlRulesModuleSourceCodeModule sourceCodeModule) {
@@ -146,6 +149,7 @@ public class XmlRulesParser extends BaseParser {
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
         }
     }
 
@@ -235,6 +239,7 @@ public class XmlRulesParser extends BaseParser {
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
         }
     }
 
@@ -439,6 +444,7 @@ public class XmlRulesParser extends BaseParser {
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
         }
     }
 
@@ -563,6 +569,11 @@ public class XmlRulesParser extends BaseParser {
             conditions.add(columnNumbers);
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
+                    if (cell.getEndAddress() != null) {
+                        // Array cells are handled differently
+                        continue;
+                    }
+
                     try {
                         // Initialize rows and columns
                         // FIXME
@@ -577,6 +588,11 @@ public class XmlRulesParser extends BaseParser {
             }
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
+                    if (cell.getEndAddress() != null) {
+                        // Array cells are handled differently
+                        continue;
+                    }
+
                     try {
                         CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
                         List<String> currentRow = getCurrentRow(conditions, reference);
@@ -590,7 +606,9 @@ public class XmlRulesParser extends BaseParser {
                         String expression;
                         try {
                             if (node == null) {
-                                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + " contains incorrect value. It will be skipped");
+                                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
+                                        .getAddress()
+                                        .toOpenLString() + " contains incorrect value. It will be skipped");
                             }
                             if (node instanceof ValueHolder) {
                                 expression = ((ValueHolder) node).asString();
@@ -599,13 +617,15 @@ public class XmlRulesParser extends BaseParser {
                             }
                         } catch (RuntimeException e) {
                             expression = "";
-                            String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + ": " + e.getMessage();
+                            String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
+                                    .toOpenLString() + ": " + e.getMessage();
                             log.error(errorMessage, e);
                             OpenLMessagesUtils.addError(errorMessage);
                         }
                         currentRow.set(currentColumnNumber, expression);
                     } catch (Exception e) {
-                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress().toOpenLString() + ": " + e.getMessage();
+                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
+                                .toOpenLString() + ": " + e.getMessage();
                         log.error(errorMessage, e);
                         OpenLMessagesUtils.addError(errorMessage);
                     }
@@ -615,7 +635,92 @@ public class XmlRulesParser extends BaseParser {
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
         }
+    }
+
+    private void createArrayCellExpressions(StringGridBuilder gridBuilder, Sheet sheet) {
+        try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
+            if (CollectionUtils.isEmpty(sheet.getCells())) {
+                return;
+            }
+
+            for (LazyCells cells : sheet.getCells()) {
+                for (Cell cell : cells.getCells()) {
+                    if (cell.getEndAddress() == null) {
+                        // Non-array cells are handled differently
+                        continue;
+                    }
+
+                    addArrayCells(gridBuilder, sheet, cell);
+                }
+            }
+
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
+        }
+    }
+
+    private void addArrayCells(StringGridBuilder gridBuilder, Sheet sheet, Cell cell) {
+        final String workbookName = sheet.getWorkbookName();
+        final String sheetName = sheet.getName();
+
+        CellReference start = CellReference.parse(workbookName, sheetName, cell.getAddress());
+        CellReference end = CellReference.parse(workbookName, sheetName, cell.getEndAddress());
+        String tableName = new RulesTableReference(start, end).getTable();
+
+        int startColumn = Integer.parseInt(start.getColumn());
+        int startRow = Integer.parseInt(start.getRow());
+        int endColumn = Integer.parseInt(end.getColumn());
+        int endRow = Integer.parseInt(end.getRow());
+
+        int columnsCount = endColumn - startColumn + 2;
+        // TODO Add array operations parameters count
+
+        gridBuilder.addCell("Spreadsheet SpreadsheetResult " + tableName + "()", columnsCount).nextRow();
+
+        gridBuilder.addCell("#");
+        for (int i = startColumn; i <= endColumn; i++) {
+            gridBuilder.addCell("C" + i + " : Object");
+        }
+        gridBuilder.nextRow();
+
+        // FIXME Here is simple case only
+        for (int row = startRow; row <= endRow; row++) {
+            gridBuilder.addCell("R" + row);
+
+            for (int column = startColumn; column <= endColumn; column++) {
+                Node node = cell.getNode();
+                String expression;
+                try {
+                    if (node == null) {
+                        throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
+                                .getAddress()
+                                .toOpenLString() + " contains incorrect value. It will be skipped");
+                    }
+                    if (node instanceof ValueHolder) {
+                        expression = ((ValueHolder) node).asString();
+                    } else {
+                        expression = "= " + node.toOpenLString();
+                    }
+                } catch (RuntimeException e) {
+                    expression = "";
+                    String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
+                            .toOpenLString() + ": " + e.getMessage();
+                    log.error(errorMessage, e);
+                    OpenLMessagesUtils.addError(errorMessage);
+                }
+                gridBuilder.addCell(expression);
+            }
+            gridBuilder.nextRow();
+        }
+
+        gridBuilder.nextRow();
     }
 
     private List<String> getCurrentRow(List<List<String>> conditions, CellReference reference) {

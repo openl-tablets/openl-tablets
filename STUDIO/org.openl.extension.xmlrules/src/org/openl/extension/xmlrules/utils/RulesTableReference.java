@@ -1,16 +1,53 @@
 package org.openl.extension.xmlrules.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
+import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class RulesTableReference {
     private final CellReference reference;
+    private final CellReference endReference;
+
+    public RulesTableReference(String tableName) {
+        Pattern TABLE_NAME_PATTERN = Pattern.compile("(.+)__(.+)__R(\\d+)C(\\d+)__R(\\d+)C(\\d+)");
+        Matcher matcher = TABLE_NAME_PATTERN.matcher(tableName);
+        if (matcher.matches()) {
+            String workbook = matcher.group(1);
+            String sheet = matcher.group(2);
+
+            RangeNode rangeNode = new RangeNode();
+            rangeNode.setRow(matcher.group(3));
+            rangeNode.setColumn(matcher.group(4));
+            reference = CellReference.parse(workbook, sheet, rangeNode);
+
+            RangeNode endRangeNode = new RangeNode();
+            endRangeNode.setRow(matcher.group(5));
+            endRangeNode.setColumn(matcher.group(6));
+            endReference = CellReference.parse(workbook, sheet, endRangeNode);
+        } else {
+            reference = null;
+            endReference = null;
+        }
+    }
 
     public RulesTableReference(CellReference reference) {
+        this(reference, null);
+    }
+
+    public RulesTableReference(CellReference reference, CellReference endReference) {
         this.reference = reference;
+        this.endReference = endReference;
     }
 
     public String getTable() {
-        return prepareString(reference.getWorkbook()) + "__" + prepareString(reference.getSheet());
+        String name = prepareString(reference.getWorkbook()) + "__" + prepareString(reference.getSheet());
+        if (endReference != null) {
+            name +=  "__R" + reference.getRow() + "C" + reference.getColumn();
+            name +=  "__R" + endReference.getRow() + "C" + endReference.getColumn();
+        }
+        return name;
     }
 
     public String getRow() {
@@ -19,6 +56,29 @@ public class RulesTableReference {
 
     public String getColumn() {
         return reference.getColumn();
+    }
+
+    public CellReference getReference() {
+        return reference;
+    }
+
+    public CellReference getEndReference() {
+        return endReference;
+    }
+
+    public boolean contains(CellReference cellReference) {
+        int fromRow = Integer.parseInt(reference.getRow());
+        int fromColumn = Integer.parseInt(reference.getColumn());
+        int toRow = Integer.parseInt(endReference.getRow());
+        int toColumn = Integer.parseInt(endReference.getColumn());
+
+        int row = Integer.parseInt(cellReference.getRow());
+        int column = Integer.parseInt(cellReference.getColumn());
+
+        return reference.getWorkbook().equals(prepareString(cellReference.getWorkbook()))
+                && reference.getSheet().equals(prepareString(cellReference.getSheet()))
+                && fromRow <= row && row <= toRow
+                && fromColumn <= column && column <= toColumn;
     }
 
     private String prepareString(String input) {
