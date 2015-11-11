@@ -53,7 +53,7 @@ public class ExpressionNode extends Node {
     public String toOpenLString() {
         Operator op = Operator.findOperator(operator);
         if (op == null) {
-            throw new UnsupportedOperationException("Operator " + operator + " isn't supported");
+            throw new UnsupportedOperationException("Operator '" + operator + "' isn't supported");
         }
         ExpressionResolver resolver = ExpressionResolverFactory.getExpressionResolver(op);
         return resolver.resolve(leftNode, rightNode, op);

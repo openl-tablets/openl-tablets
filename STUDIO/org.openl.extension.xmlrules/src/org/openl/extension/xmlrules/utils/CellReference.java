@@ -115,6 +115,14 @@ public class CellReference {
         return column;
     }
 
+    public int getRowNumber() {
+        return Integer.parseInt(row);
+    }
+
+    public int getColumnNumber() {
+        return Integer.parseInt(column);
+    }
+
     public String getStringValue() {
         return String.format("[%s]%s!R%sC%s", workbook, sheet, row, column);
     }

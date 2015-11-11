@@ -3,7 +3,7 @@ package org.openl.extension.xmlrules.model.single.node.expression;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.NumberNode;
 
-public class AdditionExpressionResolver extends SimpleExpressionResolver {
+public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
     @Override
     public String resolve(Node leftNode, Node rightNode, Operator operator) {
         return addCastIfNeeded(leftNode) + " " + operator.getOpenLOperator() + " " + addCastIfNeeded(rightNode);

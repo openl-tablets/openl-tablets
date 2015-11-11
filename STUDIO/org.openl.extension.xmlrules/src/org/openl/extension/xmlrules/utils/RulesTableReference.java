@@ -67,10 +67,10 @@ public class RulesTableReference {
     }
 
     public boolean contains(CellReference cellReference) {
-        int fromRow = Integer.parseInt(reference.getRow());
-        int fromColumn = Integer.parseInt(reference.getColumn());
-        int toRow = Integer.parseInt(endReference.getRow());
-        int toColumn = Integer.parseInt(endReference.getColumn());
+        int fromRow = reference.getRowNumber();
+        int fromColumn = reference.getColumnNumber();
+        int toRow = endReference.getRowNumber();
+        int toColumn = endReference.getColumnNumber();
 
         int row = Integer.parseInt(cellReference.getRow());
         int column = Integer.parseInt(cellReference.getColumn());

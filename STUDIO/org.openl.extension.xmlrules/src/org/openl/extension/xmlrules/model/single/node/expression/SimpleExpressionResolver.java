@@ -17,7 +17,7 @@ public class SimpleExpressionResolver implements ExpressionResolver {
             nodeString = node.toOpenLString();
 
             if (node instanceof RangeNode) {
-                nodeString = "(String) " + nodeString;
+                nodeString = "((String) " + nodeString + ")";
             } else if (node instanceof ExpressionNode) {
                 nodeString = "(" + nodeString + ")";
             }

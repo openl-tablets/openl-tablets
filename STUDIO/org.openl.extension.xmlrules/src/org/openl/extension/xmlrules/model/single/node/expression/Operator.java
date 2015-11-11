@@ -13,8 +13,8 @@ public enum Operator {
     Multiplication("*"),
     Division("/"),
     Exponentiation("^", "**"),
-    Percent("%", "* 0.01");
-    //    Range(":"); // Not supported
+    Percent("%", "* 0.01"),
+    Range(":");
     //    CombinePath("!"), // Not Supported
     //    Union(","), // Not Supported
     //    Intersection(" "), // Not Supported

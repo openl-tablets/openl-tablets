@@ -16,6 +16,7 @@ import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.ValueHolder;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
@@ -598,6 +599,11 @@ public class XmlRulesParser extends BaseParser {
                         List<String> currentRow = getCurrentRow(conditions, reference);
                         int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
 
+                        ExpressionContext expressionContext = new ExpressionContext();
+                        expressionContext.setCurrentRow(reference.getRowNumber());
+                        expressionContext.setCurrentColumn(reference.getColumnNumber());
+                        ExpressionContext.setInstance(expressionContext);
+
                         while (currentRow.size() < currentColumnNumber + 1) {
                             currentRow.add(null);
                         }
@@ -628,6 +634,8 @@ public class XmlRulesParser extends BaseParser {
                                 .toOpenLString() + ": " + e.getMessage();
                         log.error(errorMessage, e);
                         OpenLMessagesUtils.addError(errorMessage);
+                    } finally {
+                        ExpressionContext.removeInstance();
                     }
                 }
             }
@@ -667,60 +675,70 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private void addArrayCells(StringGridBuilder gridBuilder, Sheet sheet, Cell cell) {
-        final String workbookName = sheet.getWorkbookName();
-        final String sheetName = sheet.getName();
+        try {
+            final String workbookName = sheet.getWorkbookName();
+            final String sheetName = sheet.getName();
 
-        CellReference start = CellReference.parse(workbookName, sheetName, cell.getAddress());
-        CellReference end = CellReference.parse(workbookName, sheetName, cell.getEndAddress());
-        String tableName = new RulesTableReference(start, end).getTable();
+            CellReference start = CellReference.parse(workbookName, sheetName, cell.getAddress());
+            CellReference end = CellReference.parse(workbookName, sheetName, cell.getEndAddress());
+            String tableName = new RulesTableReference(start, end).getTable();
 
-        int startColumn = Integer.parseInt(start.getColumn());
-        int startRow = Integer.parseInt(start.getRow());
-        int endColumn = Integer.parseInt(end.getColumn());
-        int endRow = Integer.parseInt(end.getRow());
+            int startColumn = start.getColumnNumber();
+            int startRow = start.getRowNumber();
+            int endColumn = end.getColumnNumber();
+            int endRow = end.getRowNumber();
 
-        int columnsCount = endColumn - startColumn + 2;
-        // TODO Add array operations parameters count
+            ExpressionContext expressionContext = new ExpressionContext(startRow, startColumn, endRow, endColumn);
+            ExpressionContext.setInstance(expressionContext);
 
-        gridBuilder.addCell("Spreadsheet SpreadsheetResult " + tableName + "()", columnsCount).nextRow();
+            int columnsCount = endColumn - startColumn + 2;
+            // TODO Add array operations parameters count
 
-        gridBuilder.addCell("#");
-        for (int i = startColumn; i <= endColumn; i++) {
-            gridBuilder.addCell("C" + i + " : Object");
-        }
-        gridBuilder.nextRow();
+            gridBuilder.addCell("Spreadsheet SpreadsheetResult " + tableName + "()", columnsCount).nextRow();
 
-        // FIXME Here is simple case only
-        for (int row = startRow; row <= endRow; row++) {
-            gridBuilder.addCell("R" + row);
-
-            for (int column = startColumn; column <= endColumn; column++) {
-                Node node = cell.getNode();
-                String expression;
-                try {
-                    if (node == null) {
-                        throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
-                                .getAddress()
-                                .toOpenLString() + " contains incorrect value. It will be skipped");
-                    }
-                    if (node instanceof ValueHolder) {
-                        expression = ((ValueHolder) node).asString();
-                    } else {
-                        expression = "= " + node.toOpenLString();
-                    }
-                } catch (RuntimeException e) {
-                    expression = "";
-                    String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
-                            .toOpenLString() + ": " + e.getMessage();
-                    log.error(errorMessage, e);
-                    OpenLMessagesUtils.addError(errorMessage);
-                }
-                gridBuilder.addCell(expression);
+            gridBuilder.addCell("#");
+            for (int i = startColumn; i <= endColumn; i++) {
+                gridBuilder.addCell("C" + i + " : Object");
             }
             gridBuilder.nextRow();
-        }
 
-        gridBuilder.nextRow();
+            // FIXME Here is simple case only
+            for (int row = startRow; row <= endRow; row++) {
+                gridBuilder.addCell("R" + row);
+
+                for (int column = startColumn; column <= endColumn; column++) {
+                    expressionContext.setCurrentRow(row);
+                    expressionContext.setCurrentColumn(column);
+
+                    Node node = cell.getNode();
+                    String expression;
+                    try {
+                        if (node == null) {
+                            throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
+                                    .getAddress()
+                                    .toOpenLString() + " contains incorrect value. It will be skipped");
+                        }
+                        if (node instanceof ValueHolder) {
+                            expression = ((ValueHolder) node).asString();
+                        } else {
+                            expression = "= " + node.toOpenLString();
+                        }
+                    } catch (RuntimeException e) {
+                        expression = "";
+                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
+                                .toOpenLString() + ": " + e.getMessage();
+                        log.error(errorMessage, e);
+                        OpenLMessagesUtils.addError(errorMessage);
+                    }
+                    gridBuilder.addCell(expression);
+                }
+                gridBuilder.nextRow();
+            }
+
+            gridBuilder.nextRow();
+        } finally {
+            ExpressionContext.removeInstance();
+        }
     }
 
     private List<String> getCurrentRow(List<List<String>> conditions, CellReference reference) {

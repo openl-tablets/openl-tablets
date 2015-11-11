@@ -13,7 +13,12 @@ public final class ExpressionResolverFactory {
             case Concatenate:
                 return new ConcatenateExpressionResolver();
             case Addition:
-                return new AdditionExpressionResolver();
+            case Subtraction:
+            case Multiplication:
+            case Division:
+                return new ArithmeticExpressionResolver();
+            case Range:
+                return new RangeExpressionResolver();
             default:
                 return new SimpleExpressionResolver();
         }

@@ -1,5 +1,6 @@
 package org.openl.extension.xmlrules.model.single.node;
 
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.model.single.Cell;
@@ -14,6 +15,18 @@ public class RangeNode extends Node {
     private String column;
 
     private boolean relative = true; // Currently node address is relative
+
+    public RangeNode() {
+    }
+
+    public RangeNode(RangeNode copy) {
+        this.currentWorkbook = copy.currentWorkbook;
+        this.currentSheet = copy.currentSheet;
+        this.path = copy.path;
+        this.row = copy.row;
+        this.column = copy.column;
+        this.relative = copy.relative;
+    }
 
     @Override
     public void configure(String currentWorkbook, String currentSheet, Cell cell) {
@@ -50,6 +63,16 @@ public class RangeNode extends Node {
 
     public void setColumn(String column) {
         this.column = column;
+    }
+
+    @XmlTransient
+    public int getRowNumber() {
+        return Integer.parseInt(row);
+    }
+
+    @XmlTransient
+    public int getColumnNumber() {
+        return Integer.parseInt(column);
     }
 
     @Override
