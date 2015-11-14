@@ -63,8 +63,8 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.openl.rules.demo</groupId>
-                                    <artifactId>org.openl.rules.demo.webstudio</artifactId>
+                                    <groupId>org.openl.rules</groupId>
+                                    <artifactId>org.openl.rules.webstudio</artifactId>
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
@@ -72,8 +72,8 @@
                                     <destFileName>webstudio.war</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.openl.rules.demo</groupId>
-                                    <artifactId>org.openl.rules.demo.webservice</artifactId>
+                                    <groupId>org.openl.rules</groupId>
+                                    <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>

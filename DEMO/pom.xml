@@ -15,9 +15,7 @@
     </parent>
     <modules>
         <module>org.openl.rules.demo.repository</module>
-        <module>org.openl.rules.demo.webservice</module>
         <module>org.openl.rules.demo.webservice.client</module>
-        <module>org.openl.rules.demo.webstudio</module>
         <module>org.openl.rules.demo</module>
     </modules>
 </project>
