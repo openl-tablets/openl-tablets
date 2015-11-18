@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -27,11 +29,6 @@
             <version>${mavenVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.conf.ant</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
             <version>${mavenVersion}</version>
@@ -48,10 +45,13 @@
             <artifactId>velocity</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.conf.ant</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <!-- TODO Move dependent classes to org.openl.rules.project -->
             <artifactId>org.openl.rules.webstudio</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -121,7 +121,7 @@
                         <artifactId>maven-project-info-reports-plugin</artifactId>
                         <reportSets>
                             <reportSet>
-                                <reports />
+                                <reports/>
                             </reportSet>
                         </reportSets>
                     </plugin>

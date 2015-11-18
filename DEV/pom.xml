@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -8,7 +10,6 @@
     </parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.dev-pom</artifactId>
-    <version>5.17.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>OpenL - DEV</name>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -27,59 +28,4 @@
         <module>org.openl.test</module>
         <module>org.openl.rules.test</module>
     </modules>
-    <dependencyManagement>
-        <dependencies>
-            <!-- DEV -->
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.calculation.result</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.grammars</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.j</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.j.science</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.constrainer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ce</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

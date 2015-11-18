@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
@@ -79,10 +81,10 @@
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <org.apache.poi.version>3.12</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <jacococ.argLine />
+        <jacococ.argLine/>
         <!-- Empty for building without JaCoCo agent -->
         <!-- By default empty mercurial revision hash -->
-        <changeSet />
+        <changeSet/>
         <!-- By default empty mercurial revision url -->
         <changeSetUrlPrefix>https://sourceforge.net/p/openl-tablets/openl/ci/</changeSetUrlPrefix>
     </properties>
@@ -242,7 +244,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
-                    <argLine>${jacococ.argLine} -XX:MaxPermSize=128m</argLine>
+                    <argLine>${jacococ.argLine} -XX:MaxPermSize=128m -Xms512m -Xmx2048m</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -847,7 +849,7 @@
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
-	        <version>1.3.6</version>
+                <version>1.3.6</version>
                 <exclusions>
                     <exclusion>
                         <groupId>stax</groupId>
@@ -927,7 +929,7 @@
                 <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
-		<!-- Doesn't required for JAVA 1.6 -->
+                <!-- Doesn't required for JAVA 1.6 -->
                 <exclusions>
                     <exclusion>
                         <groupId>xml-apis</groupId>
@@ -1068,7 +1070,7 @@
                 <artifactId>h2</artifactId>
                 <version>1.3.176</version>
             </dependency>
-            <!--Activity -->	
+            <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
@@ -1080,6 +1082,186 @@
                 <version>5.18.0</version>
             </dependency>
             <!--//Activity -->
+
+            <!-- OpenL modules -->
+            <!-- DEV -->
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.grammars</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.calculation.result</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.constrainer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- STUDIO -->
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.commons.web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.extension.xmlrules</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.activiti</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.demo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.diff</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.security.standalone</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.tableeditor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.variation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.workspace</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- WSFrontend -->
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.context</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.rmi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.rmi.frontend</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- DEMO -->
+            <dependency>
+                <groupId>org.openl.rules.demo</groupId>
+                <artifactId>org.openl.rules.demo.webservice.client</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.demo</groupId>
+                <artifactId>org.openl.rules.demo.repository</artifactId>
+                <type>war</type>
+                <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- Util -->
+            <dependency>
+                <groupId>org.openl</groupId>
+                <artifactId>org.openl.conf.ant</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

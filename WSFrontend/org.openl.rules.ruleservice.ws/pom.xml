@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -24,8 +26,8 @@
                     <warSourceDirectory>webapps</warSourceDirectory>
                     <warName>${war.name}-${project.version}</warName>
                     <packagingExcludes>
-			WEB-INF/lib/geronimo-servlet*.jar,
-			WEB-INF/lib/poi-2.5.1-*.jar
+                        WEB-INF/lib/geronimo-servlet*.jar,
+                        WEB-INF/lib/poi-2.5.1-*.jar
                     </packagingExcludes>
                     <webResources>
                         <resource>
@@ -67,8 +69,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <unzip dest="target/production-repository" overwrite="true" src="test-resources/production-repository.zip" />
-                                <unzip dest="target/filesystemdatasource" overwrite="true" src="test-resources/org.openl.tablets.tutorial4.zip" />
+                                <unzip dest="target/production-repository" overwrite="true"
+                                       src="test-resources/production-repository.zip"/>
+                                <unzip dest="target/filesystemdatasource" overwrite="true"
+                                       src="test-resources/org.openl.tablets.tutorial4.zip"/>
                             </tasks>
                         </configuration>
                     </execution>
