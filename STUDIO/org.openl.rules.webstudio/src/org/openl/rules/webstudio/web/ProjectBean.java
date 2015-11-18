@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,9 +29,22 @@ import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.*;
+import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
+import org.openl.rules.project.resolving.FileNamePatternValidator;
+import org.openl.rules.project.resolving.InvalidFileNamePatternException;
+import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
+import org.openl.rules.project.resolving.NoMatchFileNameException;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
+import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
+import org.openl.rules.project.resolving.ResolvingStrategy;
+import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.ui.Message;
@@ -867,13 +885,23 @@ public class ProjectBean {
     }
 
     public boolean isPropertiesFileNamePatternSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0 && !isOldEclipseBasedProject();
     }
 
     public boolean isProjectDependenciesSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0 && !isOldEclipseBasedProject();
     }
 
+    private boolean isOldEclipseBasedProject(){
+        RulesProjectResolver rulesProjectResolver = studio.getProjectResolver();
+        for (ResolvingStrategy strategy : rulesProjectResolver.getResolvingStrategies()){
+            if (strategy instanceof EclipseBasedResolvingStrategy){
+                return strategy.isRulesProject(studio.getCurrentProjectDescriptor().getProjectFolder());
+            }
+        }
+        return false;
+    }
+    
     public SupportedVersion[] getPossibleVersions() {
         return SupportedVersion.values();
     }

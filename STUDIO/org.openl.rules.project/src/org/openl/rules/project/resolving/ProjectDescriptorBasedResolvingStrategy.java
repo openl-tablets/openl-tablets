@@ -90,6 +90,9 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                                 moduleErrorMessages.add(e.getMessage());
                             }
                         }
+                    } catch (Exception e) {
+                        log.warn("Custom file name processor failed!", e);
+                        moduleErrorMessages.add("Custom file name processor failed!");
                     }
                     params.put(OpenLSourceManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
                     params.put(OpenLSourceManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);

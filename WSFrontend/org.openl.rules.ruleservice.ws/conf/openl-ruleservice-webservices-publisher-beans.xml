@@ -51,7 +51,7 @@
 	<bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
 		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
-
+	
 	<bean id="webServicesServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
 		scope="prototype">
 		<property name="dataBinding" ref="webServicesDataBinding" />
@@ -80,6 +80,8 @@
 		class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
 		<property name="serverFactory" ref="webServicesServerPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
+		<property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
+		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
 	</bean>
 
 </beans>

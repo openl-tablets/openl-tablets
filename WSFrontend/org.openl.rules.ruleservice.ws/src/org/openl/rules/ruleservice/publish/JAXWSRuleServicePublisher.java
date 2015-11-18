@@ -13,11 +13,13 @@ import java.util.Map;
 
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
@@ -28,7 +30,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup  {
+public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -37,6 +39,25 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
+    private boolean loggingStoreEnable = false;
+    
+    private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
+
+    public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
+        return storeLoggingFeatureFactoryBean;
+    }
+
+    public void setStoreLoggingFeatureFactoryBean(ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean) {
+        this.storeLoggingFeatureFactoryBean = storeLoggingFeatureFactoryBean;
+    }
+    
+    public void setLoggingStoreEnable(boolean loggingStoreEnable) {
+        this.loggingStoreEnable = loggingStoreEnable;
+    }
+
+    public boolean isLoggingStoreEnable() {
+        return loggingStoreEnable;
+    }
 
     public String getBaseAddress() {
         return baseAddress;
@@ -60,8 +81,16 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
         return new ServerFactoryBean();
     }
+    
+    /* internal for test */Feature getStoreLoggingFeatureBean() {
+        if (storeLoggingFeatureFactoryBean != null) {
+            return storeLoggingFeatureFactoryBean.getObject();
+        }
+        throw new IllegalArgumentException("loggingInfoStoringService doesn't defined");
+    }
 
-    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass, OpenLService service) throws Exception {
+    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass,
+            OpenLService service) throws Exception {
         return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
     }
 
@@ -78,8 +107,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.setAddress(serviceAddress);
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
-
+                
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
+                if (isLoggingStoreEnable()){
+                    svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
+                    svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                }
                 Server wsServer = svrFactory.create();
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
@@ -89,7 +122,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()),
+                t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -119,8 +153,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
-                serviceName));
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service with name \"%s\"", serviceName));
         }
         try {
             runningServices.get(service).getServer().destroy();
@@ -211,9 +245,9 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
             return server;
         }
     }
-    
+
     @Override
     public boolean isServiceDeployed(String name) {
         return getServiceByName(name) != null;
-    }    
+    }
 }

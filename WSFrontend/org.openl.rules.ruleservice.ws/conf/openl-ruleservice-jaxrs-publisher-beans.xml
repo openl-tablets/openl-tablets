@@ -9,44 +9,51 @@
 	<bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
 		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
-	
-	<bean id="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean"
+
+	<bean
+		id="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
-		scope="prototype" >
-		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping"/>
-		<property name="defaultValue" value="false"/>
+		scope="prototype">
+		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping" />
+		<property name="defaultValue" value="false" />
 	</bean>
 
 	<bean id="JAXRSJacksonDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
 		scope="prototype">
-		<property name="enableDefaultTyping" ref="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean" />
-		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
-		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+		<property name="enableDefaultTyping"
+			ref="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean" />
+		<property name="overrideTypes"
+			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
+		<property name="supportVariations"
+			ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
 	</bean>
 
-	<bean id="JAXRSJacksonObjectMapper" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
-		<property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean"/>
-		<property name="targetMethod" value="createJacksonObjectMapper"/>
-		<property name="singleton" value="false"/>
+	<bean id="JAXRSJacksonObjectMapper"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+		scope="prototype">
+		<property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean" />
+		<property name="targetMethod" value="createJacksonObjectMapper" />
+		<property name="singleton" value="false" />
 	</bean>
-	
-	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
-		<constructor-arg ref="JAXRSJacksonObjectMapper"/>
+
+	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"
+		scope="prototype">
+		<constructor-arg ref="JAXRSJacksonObjectMapper" />
 	</bean>
 
 	<bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
-		<property name="addMessageToResponse" value="true"/>
+		<property name="addMessageToResponse" value="true" />
 	</bean>
-	
-	<bean id="JAXRS200StatusOutInterceptor" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
-		<property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
+
+	<bean id="JAXRS200StatusOutInterceptor"
+		class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
+		<property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}" />
 	</bean>
-	
-	<bean id="wadlGenerator"
-      class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
-    	<property name="linkJsonToXmlSchema" value="true" />
-    	<property name="linkAnyMediaTypeToXmlSchema" value="true" />
+
+	<bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
+		<property name="linkJsonToXmlSchema" value="true" />
+		<property name="linkAnyMediaTypeToXmlSchema" value="true" />
 	</bean>
 
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
@@ -68,8 +75,8 @@
 		</property>
 		<property name="providers">
 			<list>
-				<ref bean="wadlGenerator"/> 
-				<ref bean="JAXRSJSONProvider"/> 
+				<ref bean="wadlGenerator" />
+				<ref bean="JAXRSJSONProvider" />
 				<ref bean="JAXRSWebApplicationExceptionMapper" />
 			</list>
 		</property>
@@ -91,5 +98,7 @@
 		class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
 		<property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
+		<property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
+		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}" />
 	</bean>
 </beans>

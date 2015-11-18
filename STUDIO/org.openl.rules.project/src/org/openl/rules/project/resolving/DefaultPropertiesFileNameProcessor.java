@@ -17,10 +17,14 @@ import java.util.regex.PatternSyntaxException;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
     private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
+    private static final String EMPTY_STRING = ""; 
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
             InvalidFileNamePatternException {
+        if (fileNamePattern == null){
+            fileNamePattern = EMPTY_STRING;
+        }
         ITableProperties props = new TableProperties();
 
         PatternModel patternModel = getPatternModel(fileNamePattern);

@@ -43,7 +43,7 @@ public class LoggingFeature extends AbstractFeature {
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         if (isLoggingEnabled()) {
-            if (getInInterceptor() == null) {
+             if (getInInterceptor() == null) {
                 LoggingInInterceptor in = new LoggingInInterceptor(limit);
                 in.setOutputLocation(inLocation);
                 in.setPrettyLogging(prettyLogging);

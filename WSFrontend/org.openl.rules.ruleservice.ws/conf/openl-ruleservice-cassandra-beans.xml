@@ -1,0 +1,33 @@
+<?xml version='1.0'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cassandra="http://www.springframework.org/schema/data/cassandra"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/cql http://www.springframework.org/schema/cql/spring-cql-1.0.xsd
+    http://www.springframework.org/schema/data/cassandra http://www.springframework.org/schema/data/cassandra/spring-cassandra-1.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd" default-lazy-init="true">
+  
+  <!-- Cassandra connection configuration beans. Main bean is 'cassandraTemplate'. This is singleton bean for storing data in Cassandra. 
+  All beans are has lazy initialization for prevent bean creation unnecessary beans. -->
+  
+  <!-- REQUIRED: The Cassandra Cluster -->
+  <cassandra:cluster contact-points="${cassandra.contactpoints}" 
+    port="${cassandra.port}" />
+
+  <!-- REQUIRED: The Cassandra Session, built from the Cluster, and attaching 
+    to a keyspace -->
+  <cassandra:session keyspace-name="${cassandra.keyspace}" schema-action="${ruleservice.logging.store.type.cassandra.schema.action}"/>
+
+  <!-- REQUIRED: The Default Cassandra Mapping Context used by CassandraConverter -->
+  <cassandra:mapping />
+
+  <!-- REQUIRED: The Default Cassandra Converter used by CassandraTemplate -->
+  <cassandra:converter />
+
+  <!-- REQUIRED: The Cassandra Template is the building block of all Spring 
+    Data Cassandra -->
+  <cassandra:template id="cassandraTemplate" />
+  
+  <cassandra:mapping entity-base-packages="org.openl.rules.ruleservice.logging.cassandra" />
+
+</beans>

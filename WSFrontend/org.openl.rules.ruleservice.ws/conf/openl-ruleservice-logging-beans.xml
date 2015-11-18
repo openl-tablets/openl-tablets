@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<import resource="classpath:openl-ruleservice-cassandra-beans.xml" />
+	
+	<!-- Logging request/response feature to external storage feature beans. -->
+
+	<!-- Cassandra logging store service bean. -->
+	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraLoggingInfoStoreService" lazy-init="true" scope="prototype">
+		<property name="cassandraOperations" ref="cassandraTemplate"/>
+		<!-- <property name="jacksonObjectMapper" ref="loggingJacksonObjectMapper"/>  -->
+	</bean>
+	
+	<!-- This is databinding (JSON) access feature in logging store for each service. Not remove commented code bellow. -->
+	
+	<!-- <bean id="LoggingJacksonObjectMapperFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+		scope="prototype">
+		<property name="enableDefaultTyping"
+			value="true" />
+		<property name="overrideTypes"
+			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
+		<property name="supportVariations"
+			ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+	</bean>
+
+	<bean id="loggingJacksonObjectMapper"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+		scope="prototype">
+		<property name="targetObject" ref="LoggingJacksonObjectMapperFactoryBean" />
+		<property name="targetMethod" value="createJacksonObjectMapper" />
+		<property name="singleton" value="false" />
+	</bean>-->
+	
+	<!-- Bean for configure storages type via openl-ruleservice.properties file. -->
+	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean">
+		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
+		<property name="type" value="${ruleservice.logging.store.type}"/>
+	</bean> 
+	
+	<bean id="storeLoggingFeature" class="org.openl.rules.ruleservice.logging.StoreLoggingInfoFeature" scope="prototype">
+		<property name="loggingEnabled" value="${ruleservice.logging.store.enabled}" />
+		<property name="loggingInfoStoringService" ref="loggingInfoStoringService"/>
+	</bean> 
+	
+	<!-- Should be wrapped via org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean for using service rateled setting. For example unique databinding setting for each service. -->
+	<bean id="storeLoggingFeaturePrototypeFactory"
+		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName">
+			<idref bean="storeLoggingFeature" />
+		</property>
+	</bean>
+</beans>
