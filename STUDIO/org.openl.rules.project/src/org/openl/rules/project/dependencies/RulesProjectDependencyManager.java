@@ -1,6 +1,7 @@
 package org.openl.rules.project.dependencies;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.dependency.DependencyManager;
@@ -17,6 +18,11 @@ public class RulesProjectDependencyManager extends DependencyManager {
 
     public void setDependencyLoaders(List<IDependencyLoader> loaders) {
         this.loaders = loaders;
+    }
+    
+    @Override
+    public Collection<String> listDependencies() {
+        return null;
     }
     
 }

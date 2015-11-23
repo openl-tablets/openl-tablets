@@ -3,11 +3,11 @@ package org.openl.engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.OpenL;
@@ -21,11 +21,13 @@ import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
+import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * Class that defines OpenL engine manager implementation for source processing
@@ -80,6 +82,37 @@ public class OpenLSourceManager extends OpenLHolder {
         return processSource(source, sourceType, null, false, dependencyManager);
     }
 
+    private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies){
+        Set<IDependency> result = new LinkedHashSet<IDependency>();
+        if (dependencyManager == null){
+            result.addAll(Arrays.asList(dependencies));
+            return result;
+        }
+        Collection<String> dependencyNames = null;
+        try{
+             dependencyNames = dependencyManager.listDependencies();
+            if (dependencyNames == null){
+                result.addAll(Arrays.asList(dependencies));    
+                return result;
+            }
+        }catch(Exception e){
+            return Arrays.asList(dependencies);
+        }
+        for (IDependency dependency : dependencies){
+            String value = dependency.getNode().getIdentifier();
+            value = value.replaceAll("\\*", "\\\\E.*\\\\Q");
+            value = value.replaceAll("\\?", "\\\\E.\\\\Q");
+            value = "\\Q" + value + "\\E";
+            for (String dependencyName : dependencyNames){
+                if (Pattern.matches(value, dependencyName)){
+                    result.add(new Dependency(dependency.getType(),
+                        new IdentifierNode(dependency.getNode().getType(), null, dependencyName, null)));
+                }
+            }
+        }
+        return result;
+    }
+    
     /**
      * Parses and binds source.
      * 
@@ -110,7 +143,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
             Collection<IDependency> externalDependencies = getExternalDependencies(source);
 
-            Collection<IDependency> dependencies = new HashSet<IDependency>(Arrays.asList(parsedCode.getDependencies()));
+            Collection<IDependency> dependencies = getDependencies(dependencyManager, parsedCode.getDependencies());
             if (CollectionUtils.isNotEmpty(externalDependencies)) {
                 dependencies.addAll(externalDependencies);
             }

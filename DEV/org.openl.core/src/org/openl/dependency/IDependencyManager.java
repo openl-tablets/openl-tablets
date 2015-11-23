@@ -1,5 +1,6 @@
 package org.openl.dependency;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.openl.exception.OpenLCompilationException;
@@ -47,4 +48,9 @@ public interface IDependencyManager {
      * dependencies, overridden system properties)
      */
     Map<String, Object> getExternalParameters();
+    
+    /**
+     * A list of available dependencies.
+     */
+    Collection<String> listDependencies();
 }

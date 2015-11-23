@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 public class SimpleProjectDependencyManager extends AbstractProjectDependencyManager {
@@ -22,10 +23,19 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     private Collection<ProjectDescriptor> projects;
 
     private Collection<ProjectDescriptor> projectDescriptors;
-
+    private Collection<String> dependencyNames = null;
+    
     private boolean singleModuleMode = false;
     private boolean executionMode = true;
 
+    @Override
+    public Collection<String> listDependencies() {
+        if (dependencyLoaders == null) {
+            initDependencyLoaders();
+        }
+        return dependencyNames;
+    }
+    
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects,
                                           boolean singleModuleMode,
                                           boolean executionMode) {
@@ -63,6 +73,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
         if (projectDescriptors == null && dependencyLoaders == null) {
             dependencyLoaders = new ArrayList<IDependencyLoader>();
             projectDescriptors = new ArrayList<ProjectDescriptor>();
+            dependencyNames = new HashSet<String>();
             for (ProjectDescriptor project : projects) {
                 try {
                     Collection<Module> modulesOfProject = project.getModules();
@@ -72,6 +83,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                                 Arrays.asList(m),
                                 singleModuleMode,
                                 executionMode));
+                            dependencyNames.add(m.getName());
                         }
                     }
 
