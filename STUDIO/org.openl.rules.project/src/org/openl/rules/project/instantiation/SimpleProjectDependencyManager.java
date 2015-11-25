@@ -1,18 +1,17 @@
 package org.openl.rules.project.instantiation;
 
-import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.syntax.code.IDependency;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
+import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleProjectDependencyManager extends AbstractProjectDependencyManager {
 
@@ -29,7 +28,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     private boolean executionMode = true;
 
     @Override
-    public Collection<String> listDependencies() {
+    public Collection<String> getAllDependencies() {
         if (dependencyLoaders == null) {
             initDependencyLoaders();
         }
@@ -99,59 +98,5 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                 }
             }
         }
-    }
-
-    @Override
-    public void reset(IDependency dependency) {
-        if (dependencyLoaders == null) {
-            return;
-        }
-
-        String dependencyName = dependency.getNode().getIdentifier();
-
-        ProjectDescriptor projectToReset = null;
-
-        searchProject:
-        for (ProjectDescriptor project : projects) {
-            if (dependencyName.equals(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()))) {
-                projectToReset = project;
-                break;
-            }
-
-            for (Module module : project.getModules()) {
-                if (dependencyName.equals(module.getName())) {
-                    projectToReset = project;
-                    break searchProject;
-                }
-            }
-        }
-
-        if (projectToReset != null) {
-            clearClassLoader(projectToReset.getName());
-            String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(projectToReset.getName());
-
-            for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-                SimpleProjectDependencyLoader loader = (SimpleProjectDependencyLoader) dependencyLoader;
-                String loaderDependencyName = loader.getDependencyName();
-
-                if (loaderDependencyName.equals(projectDependency)) {
-                    loader.reset();
-                }
-
-                for (Module module : projectToReset.getModules()) {
-                    if (loaderDependencyName.equals(module.getName())) {
-                        loader.reset();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void resetAll() {
-        if (dependencyLoaders == null) {
-            return;
-        }
-        clearAllClassLoader();
     }
 }

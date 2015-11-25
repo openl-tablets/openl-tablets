@@ -21,7 +21,7 @@ public class RulesProjectDependencyManager extends DependencyManager {
     }
     
     @Override
-    public Collection<String> listDependencies() {
+    public Collection<String> getAllDependencies() {
         return null;
     }
     

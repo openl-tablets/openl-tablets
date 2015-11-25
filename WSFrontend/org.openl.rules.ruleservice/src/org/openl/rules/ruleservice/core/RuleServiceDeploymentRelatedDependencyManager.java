@@ -60,7 +60,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     }
 
     @Override
-    public Collection<String> listDependencies() {
+    public Collection<String> getAllDependencies() {
         if (dependencyLoaders == null) {
             initDependencyLoaders();
         }

@@ -1,6 +1,10 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -21,8 +25,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private List<ProjectDescriptor> projects;
 
-    private final List<DependencyManagerListener> listeners = new ArrayList<DependencyManagerListener>();
-
     private final List<String> moduleNames = new ArrayList<String>();
 
     private Collection<ProjectDescriptor> projectDescriptors = null;
@@ -30,9 +32,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     private Collection<String> dependencyNames = null;
 
     private boolean singleModuleMode = false;
-
+    
     @Override
-    public Collection<String> listDependencies() {
+    public Collection<String> getAllDependencies() {
         if (dependencyLoaders == null) {
             initDependencyLoaders();
         }
@@ -53,14 +55,10 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects) {
         this(projects, false);
     }
-
+    
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
-        CompiledDependency loadedDependency = super.loadDependency(dependency);
-        for (DependencyManagerListener listener : listeners) {
-            listener.onLoadDependency(loadedDependency);
-        }
-        return loadedDependency;
+        return super.loadDependency(dependency);
     }
 
     @Override
@@ -108,93 +106,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
                 }
             }
         }
-    }
-
-    @Override
-    public void reset(IDependency dependency) {
-        for (DependencyManagerListener listener : listeners) {
-            listener.onResetDependency(dependency);
-        }
-
-        if (dependencyLoaders == null) {
-            return;
-        }
-
-        String dependencyName = dependency.getNode().getIdentifier();
-
-        ProjectDescriptor projectToReset = null;
-
-        searchProject:
-        for (ProjectDescriptor project : projects) {
-            if (dependencyName.equals(ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName()))) {
-                projectToReset = project;
-                break;
-            }
-
-            for (Module module : project.getModules()) {
-                if (dependencyName.equals(module.getName())) {
-                    projectToReset = project;
-                    break searchProject;
-                }
-            }
-        }
-
-        if (projectToReset != null) {
-            clearClassLoader(projectToReset.getName());
-            String projectDependency = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(
-                    projectToReset.getName());
-
-            for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-                WebStudioDependencyLoader loader = (WebStudioDependencyLoader) dependencyLoader;
-                String loaderDependencyName = loader.getDependencyName();
-
-                if (loaderDependencyName.equals(projectDependency)) {
-                    loader.reset();
-                }
-
-                for (Module module : projectToReset.getModules()) {
-                    if (loaderDependencyName.equals(module.getName())) {
-                        loader.reset();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void resetAll() {
-        if (dependencyLoaders == null) {
-            return;
-        }
-
-        clearAllClassLoader();
-
-        for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-            ((WebStudioDependencyLoader) dependencyLoader).reset();
-        }
-    }
-
-    public void addListener(DependencyManagerListener listener) {
-        for (DependencyManagerListener l : listeners) {
-            if (l == listener) {
-                // Already added
-                return;
-            }
-        }
-        listeners.add(listener);
-    }
-
-    public void removeListener(DependencyManagerListener listener) {
-        for (Iterator<DependencyManagerListener> iterator = listeners.iterator(); iterator.hasNext(); ) {
-            DependencyManagerListener next = iterator.next();
-            if (next == listener) {
-                iterator.remove();
-            }
-        }
-    }
-
-    public List<String> getModuleNames() {
-        return moduleNames;
     }
 
     public Collection<CompiledDependency> getCompiledDependencies() {

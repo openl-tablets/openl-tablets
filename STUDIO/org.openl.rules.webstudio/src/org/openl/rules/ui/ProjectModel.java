@@ -19,7 +19,6 @@ import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.dependency.CompiledDependency;
@@ -32,7 +31,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
@@ -47,8 +45,12 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
+import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -69,7 +71,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.webstudio.dependencies.InstantiationStrategyFactory;
+import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
@@ -80,7 +82,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -108,7 +109,8 @@ public class ProjectModel {
 
     private boolean openedInSingleModuleMode;
 
-    private InstantiationStrategyFactory instantiationStrategyFactory;
+    private WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
     private WebStudio studio;
 
@@ -128,8 +130,8 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
-        this.instantiationStrategyFactory = new InstantiationStrategyFactory(studio);
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
+        this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
     }
 
     public RulesProject getProject() {
@@ -886,10 +888,13 @@ public class ProjectModel {
                 moduleToOpen = studio.getCurrentModule();
                 // falls through
             case RELOAD:
-                instantiationStrategyFactory.reset();
+                if (webStudioWorkspaceDependencyManager != null){
+                    webStudioWorkspaceDependencyManager.resetAll();
+                }
+                webStudioWorkspaceDependencyManager = null;
                 break;
             case SINGLE:
-                instantiationStrategyFactory.removeCachedModule(moduleToOpen);
+                webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
@@ -940,6 +945,10 @@ public class ProjectModel {
         clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
+        if (webStudioWorkspaceDependencyManager != null){
+            webStudioWorkspaceDependencyManager.resetAll();
+        }
+        webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         projectRoot = null;
@@ -953,7 +962,7 @@ public class ProjectModel {
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
     }
-
+    
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
@@ -995,7 +1004,7 @@ public class ProjectModel {
         } else {
             this.moduleInfo = moduleInfo;
         }
-        openedInSingleModuleMode = singleModuleMode;
+        
 
         // Clear project messages (errors, warnings)
         clearOpenLMessages();
@@ -1006,13 +1015,29 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        
+        prepareWebstudioWorkspaceDependencyManager(singleModuleMode);
+        
+        Map<String, Object> externalParameters;
+        RulesInstantiationStrategy instantiationStrategy;
+        
+        //Create instantiation strategy for opened module
+        if (singleModuleMode) {
+            ClassLoader classLoader = webStudioWorkspaceDependencyManager.getClassLoader(this.moduleInfo.getProject());
+            instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager, classLoader);
+            externalParameters = studio.getSystemConfigManager().getProperties();
+        } else {
+            List<Module> modules = this.moduleInfo.getProject().getModules();
+            instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, webStudioWorkspaceDependencyManager, false);
 
-        InstantiationStrategyFactory.ModuleInstantiator instantiator = instantiationStrategyFactory.getInstantiationStrategy(
-                this.moduleInfo,
-                singleModuleMode
-        );
-        RulesInstantiationStrategy instantiationStrategy = instantiator.getInstantiationStrategy();
+            externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(studio.getSystemConfigManager()
+                .getProperties(),
+                modules);
 
+        }
+        instantiationStrategy.setExternalParameters(externalParameters);
+        instantiationStrategy.setServiceClass(SimpleProjectDependencyLoader.EmptyInterface.class);
+        
         LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
 
         try {
@@ -1027,11 +1052,10 @@ public class ProjectModel {
 
             // Find all dependent XlsModuleSyntaxNode-s
             final String moduleName = moduleInfo.getName();
-            WebStudioWorkspaceRelatedDependencyManager dependencyManager = instantiator.getDependencyManager();
 
-            compiledOpenClass = instantiationStrategy.compile();
+            compiledOpenClass = instantiationStrategy.compile(); 
 
-            for (CompiledDependency dependency : dependencyManager.getCompiledDependencies()) {
+            for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
                 if (!dependency.getDependencyName().equals(moduleName)) {
                     XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
 
@@ -1041,7 +1065,7 @@ public class ProjectModel {
                 }
             }
 
-            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(dependencyManager);
+            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
             factory.allowUnload();
@@ -1073,6 +1097,36 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
         }
 
+    }
+
+    private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode) {
+        if (webStudioWorkspaceDependencyManager == null){
+            webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
+                singleModuleMode);
+            openedInSingleModuleMode = singleModuleMode;
+        }else{
+            if (openedInSingleModuleMode == singleModuleMode){
+                boolean found = false;
+                for (ProjectDescriptor projectDescriptor : webStudioWorkspaceDependencyManager.getProjectDescriptors()){
+                    if (this.moduleInfo.getProject().equals(projectDescriptor)){
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found){
+                    if (webStudioWorkspaceDependencyManager != null){
+                        webStudioWorkspaceDependencyManager.resetAll();
+                    }
+                    webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
+                        singleModuleMode);
+                    openedInSingleModuleMode = singleModuleMode;
+                }
+            }else{
+                webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
+                    singleModuleMode);
+                openedInSingleModuleMode = singleModuleMode;
+            }
+        }
     }
 
     /**
@@ -1292,17 +1346,12 @@ public class ProjectModel {
     }
 
     public void destroy() {
-        instantiationStrategyFactory.reset();
         clearModuleInfo();
     }
 
     private void clearModuleResources() { 
         removeListeners();
-
-        //if (compiledOpenClass != null) {
-            //releaseClassLoader(compiledOpenClass.getClassLoader());
-        //}
-    }
+     }
 
     /**
      * Remove listeners added in {@link #initProjectHistory()}
@@ -1322,20 +1371,6 @@ public class ProjectModel {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Release classLoader that will not be used anymore TODO Must be moved to a
-     * separate class.
-     *
-     * @param classLoader class loader
-     */
-    private void releaseClassLoader(ClassLoader classLoader) {
-        if (classLoader != null) {
-            JavaOpenClass.resetClassloader(classLoader);
-            String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
         }
     }
 

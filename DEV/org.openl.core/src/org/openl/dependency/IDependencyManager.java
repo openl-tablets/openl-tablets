@@ -52,5 +52,5 @@ public interface IDependencyManager {
     /**
      * A list of available dependencies.
      */
-    Collection<String> listDependencies();
+    Collection<String> getAllDependencies();
 }

@@ -389,21 +389,6 @@
                                     </div>
                             </section>
                             <section>
-                                <h3>Project</h3>
-                                <div>
-                                    <h:panelGrid id="maxCachedProjectsCount" columns="2" columnClasses="titleColumn">
-                                        <h:outputText value="The maximum number of cached projects" />
-                                        <h:inputText value="#{systemSettingsBean.maxCachedProjectsCount}" title="The maximum number of cached projects in memory, before they are evicted (0 == no limit)."
-                                                     validator="#{validator.maxCachedProjectsCountValidator}"/>
-                                    </h:panelGrid>
-                                    <h:panelGrid id="cachedProjectIdleTime" columns="2" columnClasses="titleColumn">
-                                        <h:outputText value="The time to store a project in cache (in seconds)" />
-                                        <h:inputText value="#{systemSettingsBean.cachedProjectIdleTime}" title="The maximum amount of time to store a project in cache from its last opened time. A value of 0 means that a project can stay in cache for infinity."
-                                                     validator="#{validator.cachedProjectIdleTimeValidator}"/>
-                                    </h:panelGrid>
-                                </div>
-                            </section>
-                            <section>
                                 <h3>Testing</h3>
                                 <div>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">

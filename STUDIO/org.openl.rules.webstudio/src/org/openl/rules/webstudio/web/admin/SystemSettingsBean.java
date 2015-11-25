@@ -166,24 +166,6 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
     }
 
-    public String getMaxCachedProjectsCount() {
-        return Integer.toString(configManager.getIntegerProperty(MAX_CACHED_PROJECTS_COUNT));
-    }
-
-    public void setMaxCachedProjectsCount(String count) {
-        int value = StringUtils.isBlank(count) ? 0 : Integer.parseInt(StringUtils.trim(count));
-        configManager.setProperty(MAX_CACHED_PROJECTS_COUNT, value);
-    }
-
-    public String getCachedProjectIdleTime() {
-        return Integer.toString(configManager.getIntegerProperty(CACHED_PROJECT_IDLE_TIME));
-    }
-
-    public void setCachedProjectIdleTime(String count) {
-        int value = StringUtils.isBlank(count) ? 0 : Integer.parseInt(StringUtils.trim(count));
-        configManager.setProperty(CACHED_PROJECT_IDLE_TIME, value);
-    }
-
     public void applyChanges() {
         try {
             RepositoryValidators.validate(designRepositoryConfiguration);

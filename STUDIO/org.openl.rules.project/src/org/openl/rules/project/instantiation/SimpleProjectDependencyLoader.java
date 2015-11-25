@@ -1,5 +1,8 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
@@ -10,9 +13,6 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Map;
 
 public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
@@ -45,7 +45,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     public boolean isExecutionMode() {
         return executionMode;
     }
-
+    
     public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean executionMode) {
         if (dependencyName == null) {
             throw new IllegalArgumentException("dependencyName arg can't be null!");
@@ -73,6 +73,11 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         }
 
         if (this.dependencyName.equals(dependencyName)) {
+            if (!dependencyManager.getCompilationStack().isEmpty()){
+                AbstractProjectDependencyManager.DependencyReference dr = new AbstractProjectDependencyManager.DependencyReference(dependencyManager.getCompilationStack().getLast(), dependencyName);
+                dependencyManager.getDependencyReferences().add(dr);
+            }
+
             if (compiledDependency != null) {
                 log.debug("Dependency for dependencyName = {} from cache was returned.", dependencyName);
                 return compiledDependency;
@@ -83,6 +88,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                     OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
                     return null;
                 }
+                
                 RulesInstantiationStrategy rulesInstantiationStrategy;
                 ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
                 if (modules.size() == 1) {
@@ -130,7 +136,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     public String getDependencyName() {
         return dependencyName;
     }
-
+    
     public void reset() {
         compiledDependency = null;
     }

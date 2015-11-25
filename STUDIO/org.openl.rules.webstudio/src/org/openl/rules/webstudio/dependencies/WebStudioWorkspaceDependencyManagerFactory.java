@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebStudioDependencyManagerFactory {
-    private final Logger log = LoggerFactory.getLogger(WebStudioDependencyManagerFactory.class);
+public class WebStudioWorkspaceDependencyManagerFactory {
+    private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceDependencyManagerFactory.class);
 
     private final WebStudio studio;
 
-    public WebStudioDependencyManagerFactory(WebStudio studio) {
+    public WebStudioWorkspaceDependencyManagerFactory(WebStudio studio) {
         this.studio = studio;
     }
 
@@ -31,7 +31,7 @@ public class WebStudioDependencyManagerFactory {
         return dependencyManager;
     }
 
-    public List<ProjectDescriptor> getDependentProjects(Module module) {
+    private List<ProjectDescriptor> getDependentProjects(Module module) {
         ProjectDescriptor project = module.getProject();
 
         List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();

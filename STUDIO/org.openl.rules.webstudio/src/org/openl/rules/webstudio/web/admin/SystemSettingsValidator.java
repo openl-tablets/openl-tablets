@@ -62,16 +62,6 @@ public class SystemSettingsValidator {
         }
     }
 
-    public void maxCachedProjectsCountValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String count = (String) value;
-        validateNotNegativeInteger(count, "The maximum number of cached projects");
-    }
-
-    public void cachedProjectIdleTimeValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String count = (String) value;
-        validateNotNegativeInteger(count, "The time to store a project in cache");
-    }
-
     public void testRunThreadCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String count = (String) value;
         validateGreaterThanZero(count, "Number of threads");

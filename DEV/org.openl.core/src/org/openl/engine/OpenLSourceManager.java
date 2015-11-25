@@ -90,7 +90,7 @@ public class OpenLSourceManager extends OpenLHolder {
         }
         Collection<String> dependencyNames = null;
         try{
-             dependencyNames = dependencyManager.listDependencies();
+             dependencyNames = dependencyManager.getAllDependencies();
             if (dependencyNames == null){
                 result.addAll(Arrays.asList(dependencies));    
                 return result;
