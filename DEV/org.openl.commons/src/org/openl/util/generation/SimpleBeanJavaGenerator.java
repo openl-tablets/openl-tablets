@@ -1,24 +1,19 @@
 package org.openl.util.generation;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SimpleBeanJavaGenerator extends JavaGenerator {
 
@@ -142,12 +137,14 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
-                if (defaultFieldValue != null){
-                    buf.append("\n  @XmlElement(name=\"" + fieldName + "\", defaultValue=\"" + defaultFieldValue + "\")");
-                }else{
-                    buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
+                if (getterExists(method, datatypeAllFields.keySet())) {
+                    if (defaultFieldValue != null){
+                        buf.append("\n  @XmlElement(name=\"" + fieldName + "\", defaultValue=\"" + defaultFieldValue + "\")");
+                    } else {
+                        buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
+                    }
+                    addGetter(buf, method, datatypeAllFields.keySet());
                 }
-                addGetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().startsWith(JavaGenerator.SET)) {
                 addSetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().equals(JavaGenerator.EQUALS)) {
