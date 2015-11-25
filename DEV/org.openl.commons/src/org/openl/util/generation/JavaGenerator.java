@@ -1,16 +1,16 @@
 package org.openl.util.generation;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class JavaGenerator {
 
@@ -110,6 +110,19 @@ public abstract class JavaGenerator {
         }
         buf.append(" implements Serializable ");
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
+    }
+
+    public boolean getterExists(Method method, Set<String> allDatatypeFieldNames) {
+        boolean exists = false;
+        String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
+        if (StringUtils.isNotBlank(fieldName)) {
+            String getter = JavaClassGeneratorHelper.getPublicGetterMethod(
+                    JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName);
+            if (StringUtils.isNotBlank(getter)) {
+                exists = true;
+            }
+        }
+        return exists;
     }
 
     public void addGetter(StringBuilder buf, Method method, Set<String> allDatatypeFieldNames) {
