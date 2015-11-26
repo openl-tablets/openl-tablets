@@ -14,6 +14,7 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.model.single.node.NamedRange;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.ValueHolder;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
@@ -107,7 +108,7 @@ public class XmlRulesParser extends BaseParser {
                 return;
             }
             for (Type type : sheet.getTypes()) {
-                ProjectData.getCurrentInstance().getTypes().add(type.getName());
+                ProjectData.getCurrentInstance().addType(type);
                 gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
                 for (Field field : type.getFields()) {
@@ -116,7 +117,6 @@ public class XmlRulesParser extends BaseParser {
                         typeName = "String";
                     }
 
-                    ProjectData.getCurrentInstance().getFields().add(field.getName());
                     gridBuilder.addCell(typeName).addCell(field.getName()).nextRow();
                 }
 
@@ -570,7 +570,7 @@ public class XmlRulesParser extends BaseParser {
             conditions.add(columnNumbers);
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
-                    if (cell.getEndAddress() != null) {
+                    if (cell.getHasArrayFormula()) {
                         // Array cells are handled differently
                         continue;
                     }
@@ -589,7 +589,7 @@ public class XmlRulesParser extends BaseParser {
             }
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
-                    if (cell.getEndAddress() != null) {
+                    if (cell.getHasArrayFormula()) {
                         // Array cells are handled differently
                         continue;
                     }
@@ -646,6 +646,26 @@ public class XmlRulesParser extends BaseParser {
             gridBuilder.nextRow();
         }
     }
+    private void initNamedRanges(Sheet sheet) {
+        try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
+            if (CollectionUtils.isEmpty(sheet.getCells())) {
+                return;
+            }
+            ProjectData projectData = ProjectData.getCurrentInstance();
+
+            for (LazyCells cells : sheet.getCells()) {
+                for (NamedRange namedRange : cells.getNamedRanges()) {
+                    projectData.addNamedRange(namedRange.getName(), namedRange.getRange());
+                }
+            }
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+        }
+    }
 
     private void createArrayCellExpressions(StringGridBuilder gridBuilder, Sheet sheet) {
         try {
@@ -658,7 +678,7 @@ public class XmlRulesParser extends BaseParser {
 
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
-                    if (cell.getEndAddress() == null) {
+                    if (!cell.getHasArrayFormula()) {
                         // Non-array cells are handled differently
                         continue;
                     }
@@ -866,10 +886,7 @@ public class XmlRulesParser extends BaseParser {
         for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
             for (Sheet s : workbook.getSheets()) {
                 for (Type type : s.getTypes()) {
-                    ProjectData.getCurrentInstance().getTypes().add(type.getName());
-                    for (Field field : type.getFields()) {
-                        ProjectData.getCurrentInstance().getFields().add(field.getName());
-                    }
+                    ProjectData.getCurrentInstance().addType(type);
                 }
             }
         }
@@ -924,6 +941,11 @@ public class XmlRulesParser extends BaseParser {
                 }
             }
             List<Sheet> sheets = workbook.getSheets();
+
+            for (Sheet sheet : sheets) {
+                initNamedRanges(sheet);
+            }
+
             for (int i = 0; i < sheets.size(); i++) {
                 Sheet sheet = sheets.get(i);
                 // Sheet name is used as category name in WebStudio

@@ -1,5 +1,6 @@
 package org.openl.extension.xmlrules.model.single.node;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
@@ -13,8 +14,9 @@ public class RangeNode extends Node {
     private String path;
     private String row;
     private String column;
-
-    private boolean relative = true; // Currently node address is relative
+    private Integer rowCount = 1;
+    private Integer colCount = 1;
+    private Boolean hasArrayFormula = Boolean.FALSE;
 
     public RangeNode() {
     }
@@ -25,20 +27,12 @@ public class RangeNode extends Node {
         this.path = copy.path;
         this.row = copy.row;
         this.column = copy.column;
-        this.relative = copy.relative;
     }
 
     @Override
     public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         this.currentWorkbook = currentWorkbook;
         this.currentSheet = currentSheet;
-
-        if (relative) {
-            RangeNode cellAddress = cell.getAddress();
-            column = String.valueOf(Integer.parseInt(cellAddress.getColumn()) + Integer.parseInt(column));
-            row = String.valueOf(Integer.parseInt(cellAddress.getRow()) + Integer.parseInt(row));
-            relative = false;
-        }
     }
 
     public String getPath() {
@@ -73,6 +67,33 @@ public class RangeNode extends Node {
     @XmlTransient
     public int getColumnNumber() {
         return Integer.parseInt(column);
+    }
+
+    @XmlElement(defaultValue = "1")
+    public Integer getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(Integer rowCount) {
+        this.rowCount = rowCount;
+    }
+
+    @XmlElement(defaultValue = "1")
+    public Integer getColCount() {
+        return colCount;
+    }
+
+    public void setColCount(Integer colCount) {
+        this.colCount = colCount;
+    }
+
+    @XmlElement(defaultValue = "false")
+    public Boolean getHasArrayFormula() {
+        return hasArrayFormula;
+    }
+
+    public void setHasArrayFormula(Boolean hasArrayFormula) {
+        this.hasArrayFormula = hasArrayFormula;
     }
 
     @Override

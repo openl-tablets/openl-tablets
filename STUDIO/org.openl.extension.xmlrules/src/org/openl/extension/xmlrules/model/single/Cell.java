@@ -1,13 +1,13 @@
 package org.openl.extension.xmlrules.model.single;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class Cell {
     private RangeNode address;
-    private RangeNode endAddress;
     private Node node;
 
     @XmlElement(required = true)
@@ -19,13 +19,22 @@ public class Cell {
         this.address = address;
     }
 
-    @XmlElement(name = "end-address")
-    public RangeNode getEndAddress() {
-        return endAddress;
+    @XmlTransient()
+    public Boolean getHasArrayFormula() {
+        return getAddress().getHasArrayFormula();
     }
 
-    public void setEndAddress(RangeNode endAddress) {
-        this.endAddress = endAddress;
+    @XmlTransient()
+    public RangeNode getEndAddress() {
+        if (!getHasArrayFormula()) {
+            return null;
+        }
+
+        RangeNode endAddress = new RangeNode();
+        endAddress.setPath(address.getPath());
+        endAddress.setRow("" + (address.getRowNumber() + address.getRowCount() - 1));
+        endAddress.setColumn("" + (address.getColumnNumber() + address.getColCount() - 1));
+        return endAddress;
     }
 
     public Node getNode() {

@@ -22,6 +22,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
+    private final ProjectData projectData;
     public XmlRulesModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             IDataBase dbase,
@@ -34,6 +35,8 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                 Thread.currentThread().getContextClassLoader(),
                 OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
                 OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
+
+        this.projectData = ProjectData.getCurrentInstance();
     }
 
     @Override
@@ -48,12 +51,14 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                     if (topLevel) {
                         cache = new LazyCellExecutor(xlsModuleOpenClass, target, env);
                         LazyCellExecutor.setInstance(cache);
+                        ProjectData.setCurrentInstance(projectData);
                     }
                     try {
                         return super.invoke(target, params, env);
                     } finally {
                         if (topLevel) {
                             LazyCellExecutor.reset();
+                            ProjectData.removeCurrentInstance();
                         }
                     }
                 }
@@ -69,12 +74,14 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                     if (topLevel) {
                         cache = new LazyCellExecutor(xlsModuleOpenClass, target, env);
                         LazyCellExecutor.setInstance(cache);
+                        ProjectData.setCurrentInstance(projectData);
                     }
                     try {
                         return super.invoke(target, params, env);
                     } finally {
                         if (topLevel) {
                             LazyCellExecutor.reset();
+                            ProjectData.removeCurrentInstance();
                         }
                     }
                 }
@@ -90,12 +97,14 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                     if (topLevel) {
                         cache = new LazyCellExecutor(xlsModuleOpenClass, target, env);
                         LazyCellExecutor.setInstance(cache);
+                        ProjectData.setCurrentInstance(projectData);
                     }
                     try {
                         return super.invoke(target, params, env);
                     } finally {
                         if (topLevel) {
                             LazyCellExecutor.reset();
+                            ProjectData.removeCurrentInstance();
                         }
                     }
                 }

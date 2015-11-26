@@ -270,19 +270,19 @@ public class FilterNode extends Node {
     }
 
     protected boolean isDataInstanceNode() {
-        return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
+        return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance().getTypeNames().contains(fieldName);
     }
 
     protected boolean isFieldComparisonNode() {
-        return hasComparison() && ProjectData.getCurrentInstance().getFields().contains(fieldName);
+        return hasComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
     }
 
     protected boolean isFieldNode() {
-        return isEmptyComparison() && ProjectData.getCurrentInstance().getFields().contains(fieldName);
+        return isEmptyComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
     }
 
     protected boolean isParentNode() {
-        return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance().getTypes().contains(fieldName);
+        return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance().getTypeNames().contains(fieldName);
     }
 
     protected void pushToChain(Deque<FilterNode> nodes) {

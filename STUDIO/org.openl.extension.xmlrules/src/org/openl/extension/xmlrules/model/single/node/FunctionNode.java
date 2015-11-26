@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.node.function.FunctionResolverFactory;
 
 @XmlType(name = "function-node")
 public class FunctionNode extends Node {
@@ -39,15 +40,6 @@ public class FunctionNode extends Node {
 
     @Override
     public String toOpenLString() {
-        StringBuilder builder = new StringBuilder(name);
-        builder.append('(');
-        for (int i = 0; i < arguments.size(); i++) {
-            if (i > 0) {
-                builder.append(',');
-            }
-            builder.append(arguments.get(i).toOpenLString());
-        }
-        builder.append(')');
-        return builder.toString();
+        return FunctionResolverFactory.getResolver(this).resolve(this);
     }
 }

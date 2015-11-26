@@ -13,12 +13,12 @@ public class BooleanNode extends Node implements ValueHolder {
     }
 
     public void setValue(String value) {
-        this.value = value;
+        this.value = value == null ? null : value.toLowerCase();
     }
 
     @Override
     public String toOpenLString() {
-        return value == null ? null : value;
+        return value;
     }
 
     @Override

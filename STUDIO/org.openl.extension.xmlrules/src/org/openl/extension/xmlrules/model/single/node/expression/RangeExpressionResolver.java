@@ -1,17 +1,19 @@
 package org.openl.extension.xmlrules.model.single.node.expression;
 
+import org.openl.extension.xmlrules.model.single.node.NamedRangeNode;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class RangeExpressionResolver implements ExpressionResolver {
     @Override
     public String resolve(Node leftNode, Node rightNode, Operator operator) {
-        if (!(leftNode instanceof RangeNode && rightNode instanceof RangeNode)) {
+        if (!((leftNode instanceof RangeNode || leftNode instanceof NamedRangeNode) &&
+                (rightNode instanceof RangeNode || rightNode instanceof NamedRangeNode))) {
             return "Error: operator ':' is supported for RangeNode only";
         }
 
-        RangeNode left = (RangeNode) leftNode;
-        RangeNode right = (RangeNode) rightNode;
+        RangeNode left = leftNode instanceof NamedRangeNode ? ((NamedRangeNode) leftNode).getRangeNode() : (RangeNode) leftNode;
+        RangeNode right = rightNode instanceof NamedRangeNode ? ((NamedRangeNode) rightNode).getRangeNode() :  (RangeNode) rightNode;
 
         ExpressionContext context = ExpressionContext.getInstance();
         if (context.isArrayExpression()) {

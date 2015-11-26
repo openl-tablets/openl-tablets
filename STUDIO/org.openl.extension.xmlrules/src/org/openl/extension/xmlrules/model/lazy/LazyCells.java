@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.model.single.Cells;
+import org.openl.extension.xmlrules.model.single.node.NamedRange;
 
 public class LazyCells extends BaseLazyItem<Cells> {
     private final String workbookName;
@@ -18,6 +19,10 @@ public class LazyCells extends BaseLazyItem<Cells> {
 
     public List<Cell> getCells() {
         return getInfo().getCells();
+    }
+
+    public List<NamedRange> getNamedRanges() {
+        return getInfo().getNamedRanges();
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.openl.extension.xmlrules.model.single.Cell;
         BooleanNode.class,
 
         RangeNode.class,
+        NamedRangeNode.class,
         ExpressionNode.class,
         FunctionNode.class,
         IfNode.class,
