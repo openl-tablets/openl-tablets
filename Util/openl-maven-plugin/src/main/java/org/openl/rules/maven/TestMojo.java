@@ -21,7 +21,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
+import org.openl.rules.vm.SimpleRulesVM;
 
 /**
  * Run OpenL tests
@@ -76,7 +76,7 @@ public class TestMojo extends BaseOpenLMojo {
                 CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
 
                 TestSuiteMethod[] tests = ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
-                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+                IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
                 Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
                 for (TestSuiteMethod test : tests) {
                     TestUnitsResults result = new TestSuite(test).invoke(target, env, 1);

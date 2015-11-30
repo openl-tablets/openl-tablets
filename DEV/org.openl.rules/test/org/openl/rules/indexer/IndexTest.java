@@ -14,7 +14,6 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 import org.openl.rules.vm.SimpleRulesVM;
 
 public class IndexTest {
