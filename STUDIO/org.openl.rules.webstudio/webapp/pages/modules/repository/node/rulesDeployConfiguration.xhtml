@@ -3,7 +3,8 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
   <ui:param name="openedForEditing" value="#{artefact.project.openedForEditing}" />
   <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}" />
@@ -39,7 +40,7 @@
       <h:panelGroup>
         <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
                               required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
-          <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
+           <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
         </h:selectManyCheckbox>
         <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
       </h:panelGroup>
@@ -63,9 +64,8 @@
       </h:panelGroup>
       
       <h:outputLabel for="#{prefix}version" value="Version"/>
-      <h:panelGroup>
-          <h:inputText id="#{prefix}version" maxlength="100" size="40" value="#{rulesDeploy.version}" rendered="#{openedForEditing}"/>
-          <h:outputText value="#{rulesDeploy.version}" rendered="#{!openedForEditing}"/>
+      <h:panelGroup id="#{prefix}version" rendered="#{openedForEditing}" style="white-space: nowrap;">
+          <oh:inputVersion value="#{prop.value}" id="input-version" shortView="true"/>
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}url" value="URL"/>

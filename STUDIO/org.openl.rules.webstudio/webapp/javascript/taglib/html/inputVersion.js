@@ -1,5 +1,6 @@
 //(function($) {
 	var initVersion = "0.0.0";
+	var initShortVersion = "0.0";
 
     function showVersionPopup(input, event) {
         var jinput = $j(input);
@@ -15,12 +16,17 @@
         });
     }
 
-    function applyVersion(element, i) {
+    function applyVersion(element, isShort,  i) {
         var value = $j(element).find("input").val();
         var popup = $j(element).closest("div");
         var input = popup.prev();
         var hidden = popup.next();
-        var version = input.val() || initVersion;
+        var version = input.val();
+        if (isShort){
+        	version = version || initVersion;
+        }else{
+        	version = version || initShortVersion;
+        }
         var subVersions = version.split(".");
         subVersions[i] = value;
         var result = subVersions.join(".");
