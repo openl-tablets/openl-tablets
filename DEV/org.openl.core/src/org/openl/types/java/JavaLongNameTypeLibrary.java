@@ -1,10 +1,8 @@
 package org.openl.types.java;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.openl.conf.ClassFactory;
 import org.openl.types.IOpenClass;
@@ -29,8 +27,6 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
 
     private Map<String, IOpenClass> foundClasses = new HashMap<String, IOpenClass>();
     
-    private Set<String> notFound = new HashSet<String>();
-
 //    private Set<String> blocked = new HashSet<String>();
     
     private ClassLoader loader;
@@ -46,9 +42,6 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
         if (ioc != null)
             return ioc;
         
-        if (notFound.contains(typename))
-            return null;
-//        
 //        if (blocked.contains(typename))
 //            throw new ClassNotFoundException(typename + " is blocked by OpenL");
         
@@ -67,10 +60,7 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
             return ioc;
         } catch (Throwable t) {
         }
-
-        notFound.add(typename);
         return null;
-        
     }
 
     public Iterator<String> typeNames() {
