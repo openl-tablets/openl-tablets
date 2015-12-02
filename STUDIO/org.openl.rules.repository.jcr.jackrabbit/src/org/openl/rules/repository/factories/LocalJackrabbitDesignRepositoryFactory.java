@@ -6,8 +6,6 @@ public class LocalJackrabbitDesignRepositoryFactory extends LocalJackrabbitRepos
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString("design-repository.local.home",
         "../local-repository");
-    private final ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("design-repository.jcr.nodetypes",
-        DEFAULT_NODETYPE_FILE);
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("design-repository.name",
         "Local Jackrabbit");
     private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", "user");
@@ -17,7 +15,6 @@ public class LocalJackrabbitDesignRepositoryFactory extends LocalJackrabbitRepos
 
     public LocalJackrabbitDesignRepositoryFactory() {
         setConfRepositoryHome(confRepositoryHome);
-        setConfNodeTypeFile(confNodeTypeFile);
         setConfRepositoryName(confRepositoryName);
         setLogin(login);
         setPassword(password);

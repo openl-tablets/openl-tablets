@@ -40,8 +40,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
             "repository.local.home", "../local-repository");
-    private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString(
-            "repository.jcr.nodetypes", DEFAULT_NODETYPE_FILE);
     private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
             "repository.name", "Local Jackrabbit");
 
@@ -50,7 +48,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
      */
     protected TransientRepository repository;
     protected File repHome;
-    private String nodeTypeFile;
     protected boolean convert = false;
 
     @Override
@@ -133,11 +130,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         super.initialize(confSet);
 
         confSet.updateProperty(confRepositoryHome);
-        confSet.updateProperty(confNodeTypeFile);
         confSet.updateProperty(confRepositoryName);
 
         repHome = new File(confRepositoryHome.getValue());
-        nodeTypeFile = confNodeTypeFile.getValue();
 
         try {
             init();
@@ -246,7 +241,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         try {
             InputStream is = null;
             try {
-                is = this.getClass().getResourceAsStream(nodeTypeFile);
+                is = this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE);
                 ntmi.registerNodeTypes(is, JackrabbitNodeTypeManager.TEXT_XML, true);
             } finally {
                 if (is != null) {
@@ -264,14 +259,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     public void setConfRepositoryHome(ConfigPropertyString confRepositoryHome) {
         this.confRepositoryHome = confRepositoryHome;
-    }
-
-    public ConfigPropertyString getConfNodeTypeFile() {
-        return confNodeTypeFile;
-    }
-
-    public void setConfNodeTypeFile(ConfigPropertyString confNodeTypeFile) {
-        this.confNodeTypeFile = confNodeTypeFile;
     }
 
     public ConfigPropertyString getConfRepositoryName() {

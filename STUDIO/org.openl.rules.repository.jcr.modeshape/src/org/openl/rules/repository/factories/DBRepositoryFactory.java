@@ -45,16 +45,12 @@ import org.slf4j.LoggerFactory;
 public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
-    private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("repository.jcr.nodetypes",
-        DEFAULT_NODETYPE_FILE);
-
     private ConfigPropertyString url = new ConfigPropertyString("repository.db.url", "jdbc:mysql://localhost/repo");
 
     /**
      * Jackrabbit local repository
      */
     private ModeShapeEngine engine;
-    private String nodeTypeFile;
 
     @Override
     protected void finalize() throws Throwable {
@@ -245,10 +241,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         setRepoConfigFile(new ConfigPropertyString("db.repository-config", null));
         super.initialize(confSet);
 
-        confSet.updateProperty(confNodeTypeFile);
         confSet.updateProperty(url);
-
-        nodeTypeFile = confNodeTypeFile.getValue();
 
         try {
             init();
@@ -272,7 +265,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         try {
             InputStream is = null;
             try {
-                is = this.getClass().getResourceAsStream(nodeTypeFile);
+                is = this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE);
                 ntmi.registerNodeTypes(is, true);
             } finally {
                 if (is != null) {
@@ -282,10 +275,6 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public void setConfNodeTypeFile(ConfigPropertyString confNodeTypeFile) {
-        this.confNodeTypeFile = confNodeTypeFile;
     }
 
     public void setUrl(ConfigPropertyString url) {

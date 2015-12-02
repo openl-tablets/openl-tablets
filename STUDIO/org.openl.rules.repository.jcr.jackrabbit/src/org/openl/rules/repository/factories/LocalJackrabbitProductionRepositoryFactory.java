@@ -20,8 +20,6 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString("production-repository.local.home",
         "../local-repository");
-    private final ConfigPropertyString confNodeTypeFile = new ConfigPropertyString("production-repository.jcr.nodetypes",
-        DEFAULT_NODETYPE_FILE);
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("production-repository.name",
         "Local Jackrabbit");
     private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", "user");
@@ -31,7 +29,6 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     public LocalJackrabbitProductionRepositoryFactory() {
         setConfRepositoryHome(confRepositoryHome);
-        setConfNodeTypeFile(confNodeTypeFile);
         setConfRepositoryName(confRepositoryName);
         setLogin(login);
         setPassword(password);
