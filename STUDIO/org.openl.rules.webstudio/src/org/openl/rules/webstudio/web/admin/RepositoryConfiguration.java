@@ -127,6 +127,10 @@ public class RepositoryConfiguration {
                     return "jdbc:mysql://localhost/design-repository";
                 case PRODUCTION_DB:
                     return "jdbc:mysql://localhost/deployment-repository";
+                case DESIGN_JNDI:
+                    return "java:comp/env/jdbc/designDB";
+                case PRODUCTION_JNDI:
+                    return "java:comp/env/jdbc/deploymentDB";
             }
         }
         return uri;
