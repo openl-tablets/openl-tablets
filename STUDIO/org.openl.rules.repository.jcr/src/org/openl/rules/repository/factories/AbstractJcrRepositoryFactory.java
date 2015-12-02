@@ -36,7 +36,7 @@ import org.xml.sax.InputSource;
  */
 public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
 
-    public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
+    protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     /** Default path where new project should be created */
     protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString(
@@ -127,10 +127,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPath = factory.newXPath();
 
-        String file = DEFAULT_NODETYPE_FILE;
         try {
 
-            InputSource source = new InputSource(this.getClass().getResourceAsStream(file));
+            InputSource source = new InputSource(this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE));
             String result = xPath.evaluate(xPathQ, source);
 
             if (result == null || result.length() == 0) {
@@ -139,7 +138,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             return result;
         } catch (Exception e) {
-            throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
+            throw new RepositoryException("Cannot read schema version from '" + DEFAULT_NODETYPE_FILE + "': " + e.getMessage());
         }
     }
 
