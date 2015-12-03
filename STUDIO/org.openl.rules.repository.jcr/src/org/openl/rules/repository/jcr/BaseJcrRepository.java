@@ -12,15 +12,13 @@ import javax.jcr.observation.EventListener;
 
 public abstract class BaseJcrRepository implements RRepository, EventListener {
     private final Logger log = LoggerFactory.getLogger(BaseJcrRepository.class);
-    private final String name;
     /**
      * JCR Session
      */
     private final Session session;
     private final RTransactionManager transactionManager;
 
-    public BaseJcrRepository(String name, Session session, RTransactionManager transactionManager) {
-        this.name = name;
+    public BaseJcrRepository(Session session, RTransactionManager transactionManager) {
         this.session = session;
         this.transactionManager = transactionManager;
     }
@@ -43,16 +41,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
 
         return node;
-    }
-
-    /**
-     * Returns name of the repository. It can be type of repository plus
-     * location.
-     *
-     * @return name of repository
-     */
-    public String getName() {
-        return name;
     }
 
     protected Session getSession() {

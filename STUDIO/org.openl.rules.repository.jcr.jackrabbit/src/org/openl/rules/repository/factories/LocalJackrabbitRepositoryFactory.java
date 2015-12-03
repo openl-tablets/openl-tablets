@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RRepository;
@@ -180,7 +179,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 Session session = createSession();
 
                 RTransactionManager transactionManager = getTrasactionManager(session);
-                JcrProductionRepository productionRepository = new JcrProductionRepository(null, session,
+                JcrProductionRepository productionRepository = new JcrProductionRepository(session,
                         transactionManager);
                 ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
                 log.info("Converting production repository. Please, be patient.");

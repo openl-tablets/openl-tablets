@@ -28,7 +28,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             // FIXME: do not hardcode credential info
             Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
-            repositoryInstance = new JcrProductionRepository(null, session, transactionManager);
+            repositoryInstance = new JcrProductionRepository(session, transactionManager);
             tempRepoHome = FileUtils.createTempDirectory();
             // FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);

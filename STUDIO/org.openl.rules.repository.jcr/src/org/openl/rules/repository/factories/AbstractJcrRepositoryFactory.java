@@ -208,9 +208,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             RTransactionManager transactionManager = getTrasactionManager(session);
             RRepository theRepository;
             if (productionRepositoryMode) {
-                theRepository = new JcrProductionRepository(null, session, transactionManager);
+                theRepository = new JcrProductionRepository(session, transactionManager);
             } else {
-                theRepository = new JcrRepository(null, session, transactionManager,
+                theRepository = new JcrRepository(session, transactionManager,
                         confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
             }
             return theRepository;
