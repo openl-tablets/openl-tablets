@@ -63,8 +63,7 @@ public class RepositoryConfiguration {
         JcrType jcrType = getJcrType();
         String propName = jcrType.getRepositoryPathPropertyName();
 
-        return "local".equals(jcrType.getAccessType()) ?
-               configManager.getPath(propName) : configManager.getStringProperty(propName);
+        return  jcrType.isLocal() ? configManager.getPath(propName) : configManager.getStringProperty(propName);
     }
 
     public void setPath(String path) {
@@ -72,7 +71,7 @@ public class RepositoryConfiguration {
         String propName = jcrType.getRepositoryPathPropertyName();
         String normalizedPath = StringUtils.trimToEmpty(path);
 
-        if ("local".equals(jcrType.getAccessType())) {
+        if (jcrType.isLocal()) {
             configManager.setPath(propName, normalizedPath);
         } else {
             configManager.setProperty(propName, normalizedPath);

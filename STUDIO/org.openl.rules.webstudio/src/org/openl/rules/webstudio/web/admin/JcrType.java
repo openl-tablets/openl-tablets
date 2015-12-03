@@ -60,6 +60,10 @@ public enum JcrType {
         return accessType;
     }
 
+    public boolean isLocal() {
+        return "local".equals(accessType);
+    }
+
     public String getFactoryClassName() {
         return factoryClassName;
     }
