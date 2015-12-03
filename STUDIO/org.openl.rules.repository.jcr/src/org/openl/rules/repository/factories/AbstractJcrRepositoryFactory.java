@@ -192,11 +192,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         return rulesRepository;
     }
 
-    protected void setProductionRepositoryMode(boolean productionRepositoryMode, String prop) {
+    protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
         String type = productionRepositoryMode ? "production" : "design";
         login = new ConfigPropertyString(type + "-repository.login", null);
         password = new ConfigPropertyString(type + "-repository.password", null);
-        uri = new ConfigPropertyString(type + "-repository." + prop, null);
+        uri = new ConfigPropertyString(type + "-repository.uri", null);
         this.productionRepositoryMode = productionRepositoryMode;
     }
 

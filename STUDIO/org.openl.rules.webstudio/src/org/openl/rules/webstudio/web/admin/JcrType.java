@@ -33,7 +33,6 @@ public enum JcrType {
     private final String accessType;
     private final RepositoryType repositoryType;
     private final String factoryClassName;
-    private final String repositoryPathPropertyName;
 
     private JcrType(Class factoryClass) {
         this.factoryClassName = factoryClass.getName();
@@ -42,18 +41,6 @@ public enum JcrType {
         String[] namePart = name().split("_");
         this.repositoryType = RepositoryType.valueOf(namePart[0]);
         this.accessType = namePart[1].toLowerCase();
-
-        if ("local".equals(accessType)) {
-            this.repositoryPathPropertyName = repositoryType + "-repository.local.home";
-        } else if ("rmi".equals(accessType)) {
-            this.repositoryPathPropertyName = repositoryType + "-repository.remote.rmi.url";
-        } else if ("webdav".equals(accessType)) {
-            this.repositoryPathPropertyName = repositoryType + "-repository.remote.webdav.url";
-        } else if ("db".equals(accessType)) {
-            this.repositoryPathPropertyName = repositoryType + "-repository.db.url";
-        } else {
-            throw new IllegalArgumentException("Incorrect JCR type");
-        }
     }
 
     public String getAccessType() {
@@ -66,9 +53,5 @@ public enum JcrType {
 
     public String getFactoryClassName() {
         return factoryClassName;
-    }
-
-    public String getRepositoryPathPropertyName() {
-        return repositoryPathPropertyName;
     }
 }

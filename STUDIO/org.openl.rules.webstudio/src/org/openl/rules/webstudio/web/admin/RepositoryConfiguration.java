@@ -17,6 +17,7 @@ public class RepositoryConfiguration {
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
 
+    private final String REPOSITORY_URI;
     private final String REPOSITORY_LOGIN;
     private final String REPOSITORY_PASS;
 
@@ -37,6 +38,7 @@ public class RepositoryConfiguration {
         REPOSITORY_FACTORY = repoType + "-repository.factory";
         REPOSITORY_NAME = repoType + "-repository.name";
 
+        REPOSITORY_URI = repoType + "-repository.uri";
         REPOSITORY_LOGIN = repoType + "-repository.login";
         REPOSITORY_PASS = repoType + "-repository.password";
     }
@@ -61,9 +63,8 @@ public class RepositoryConfiguration {
 
     public String getPath() {
         JcrType jcrType = getJcrType();
-        String propName = jcrType.getRepositoryPathPropertyName();
 
-        String uri = jcrType.isLocal() ? configManager.getPath(propName) : configManager.getStringProperty(propName);
+        String uri = jcrType.isLocal() ? configManager.getPath(REPOSITORY_URI) : configManager.getStringProperty(REPOSITORY_URI);
 
         // Default values
         if (StringUtils.isEmpty(uri)) {
@@ -88,13 +89,12 @@ public class RepositoryConfiguration {
 
     public void setPath(String path) {
         JcrType jcrType = getJcrType();
-        String propName = jcrType.getRepositoryPathPropertyName();
         String normalizedPath = StringUtils.trimToEmpty(path);
 
         if (jcrType.isLocal()) {
-            configManager.setPath(propName, normalizedPath);
+            configManager.setPath(REPOSITORY_URI, normalizedPath);
         } else {
-            configManager.setProperty(propName, normalizedPath);
+            configManager.setProperty(REPOSITORY_URI, normalizedPath);
         }
     }
 
@@ -132,7 +132,7 @@ public class RepositoryConfiguration {
     }
 
     public boolean isRepositoryPathSystem() {
-        return configManager.isSystemProperty(getJcrType().getRepositoryPathPropertyName());
+        return configManager.isSystemProperty(REPOSITORY_URI);
     }
 
     public String getLogin() {
