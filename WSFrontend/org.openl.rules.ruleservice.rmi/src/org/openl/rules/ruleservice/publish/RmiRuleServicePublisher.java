@@ -18,19 +18,18 @@ import java.util.Map;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
+import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup  {
+public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup  {
 
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
@@ -85,7 +84,8 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
         return RmiEnhancerHelper.decorateBeanWithStaticRmiHandler(service.getServiceBean(), service);
     }
 
-    public void deploy(OpenLService service) throws RuleServiceDeployException {
+    @Override
+    protected void deployService(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getClassLoader());
 
@@ -125,7 +125,8 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
         return null;
     }
 
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    @Override
+    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
@@ -139,22 +140,6 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
-    }
-
-    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
-        try {
-            undeploy(service.getName());
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        }
-
     }
 
     @Override

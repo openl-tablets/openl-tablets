@@ -16,7 +16,6 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
@@ -28,7 +27,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup  {
+public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -65,7 +64,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
     }
 
-    public void deploy(OpenLService service) throws RuleServiceDeployException {
+    @Override
+    protected void deployService(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getClassLoader());
 
@@ -116,7 +116,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         return null;
     }
 
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    @Override
+    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
