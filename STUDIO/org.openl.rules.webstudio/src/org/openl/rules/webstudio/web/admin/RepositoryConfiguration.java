@@ -63,7 +63,27 @@ public class RepositoryConfiguration {
         JcrType jcrType = getJcrType();
         String propName = jcrType.getRepositoryPathPropertyName();
 
-        return  jcrType.isLocal() ? configManager.getPath(propName) : configManager.getStringProperty(propName);
+        String uri = jcrType.isLocal() ? configManager.getPath(propName) : configManager.getStringProperty(propName);
+
+        // Default values
+        if (StringUtils.isEmpty(uri)) {
+            switch (jcrType) {
+                case DESIGN_LOCAL:
+                    return "../design-repository";
+                case PRODUCTION_LOCAL:
+                    return "../deployment-repository";
+                case DESIGN_RMI:
+                case PRODUCTION_RMI:
+                    return "//localhost:1099/deployment-repository";
+                case DESIGN_WEBDAV:
+                case PRODUCTION_WEBDAV:
+                    return "http://localhost:8080/deployment-repository";
+                case DESIGN_DB:
+                case PRODUCTION_DB:
+                    return "jdbc:mysql://localhost/deployment-repository";
+            }
+        }
+        return uri;
     }
 
     public void setPath(String path) {
