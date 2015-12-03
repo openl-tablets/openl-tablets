@@ -87,8 +87,8 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new CopyOnWriteArrayList<RDeploymentListener>();
 
-    public JcrProductionRepository(String name, Session session, RTransactionManager transactionManager) throws RepositoryException {
-        super(name, session, transactionManager);
+    public JcrProductionRepository(Session session, RTransactionManager transactionManager) throws RepositoryException {
+        super(session, transactionManager);
 
         deployLocation = checkPath(DEPLOY_ROOT);
         if (deployLocation.isNew()) {
