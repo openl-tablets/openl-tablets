@@ -20,11 +20,6 @@ public final class AdministrationSettings {
     public static final String PROJECT_HISTORY_UNLIMITED = "project.history.unlimited";
     public static final String DATE_PATTERN = "data.format.date";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
-    public static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
-    public static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
-    public static final String DESIGN_REPOSITORY_LOGIN = "design-repository.login";
-    public static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
-    public static final String DESIGN_REPOSITORY_LOCAL_HOME = "design-repository.local.home";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
     public static final String MAX_CACHED_PROJECTS_COUNT = "cache.projects.count";
     public static final String CACHED_PROJECT_IDLE_TIME = "cache.projects.timeToIdleSeconds";

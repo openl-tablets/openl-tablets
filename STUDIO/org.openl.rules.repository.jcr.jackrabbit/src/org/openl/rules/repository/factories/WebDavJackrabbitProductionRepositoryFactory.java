@@ -6,6 +6,6 @@ package org.openl.rules.repository.factories;
 public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbitRepositoryFactory {
 
     public WebDavJackrabbitProductionRepositoryFactory() {
-        setProductionRepositoryMode(true, "remote.webdav.url");
+        setProductionRepositoryMode(true);
     }
 }

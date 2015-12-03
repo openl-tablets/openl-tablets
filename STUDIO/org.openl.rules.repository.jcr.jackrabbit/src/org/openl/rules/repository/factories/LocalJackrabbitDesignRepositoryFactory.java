@@ -9,6 +9,6 @@ public class LocalJackrabbitDesignRepositoryFactory extends LocalJackrabbitRepos
 
     public LocalJackrabbitDesignRepositoryFactory() {
         setConfRepositoryName(confRepositoryName);
-        setProductionRepositoryMode(false, "local.home");
+        setProductionRepositoryMode(false);
     }
 }

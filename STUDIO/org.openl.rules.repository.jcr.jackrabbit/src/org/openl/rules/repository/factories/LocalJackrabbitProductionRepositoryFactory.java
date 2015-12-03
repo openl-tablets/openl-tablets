@@ -25,7 +25,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     public LocalJackrabbitProductionRepositoryFactory() {
         setConfRepositoryName(confRepositoryName);
-        setProductionRepositoryMode(true, "local.home");
+        setProductionRepositoryMode(true);
     }
 
     protected void convert() throws RRepositoryException {
