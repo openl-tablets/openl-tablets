@@ -6,8 +6,8 @@ public class DBProductionRepositoryFactory extends DBRepositoryFactory {
 
     private ConfigPropertyString dbUrl = new ConfigPropertyString("production-repository.db.url",
         "jdbc:mysql://localhost/production-repository");
-    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", "pass");
+    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", null);
+    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", null);
 
     public DBProductionRepositoryFactory() {
         setLogin(login);

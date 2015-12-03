@@ -6,8 +6,8 @@ public class RmiJackrabbitDesignRepositoryFactory extends RmiJackrabbitRepositor
 
     private ConfigPropertyString confRmiUrl = new ConfigPropertyString("design-repository.remote.rmi.url",
         "//localhost:1099/jackrabbit.repository");
-    private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString("design-repository.pass", "pass");
+    private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", null);
+    private final ConfigPropertyString password = new ConfigPropertyString("design-repository.pass", null);
 
     public RmiJackrabbitDesignRepositoryFactory() {
         setUri(confRmiUrl);

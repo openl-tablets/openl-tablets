@@ -9,8 +9,8 @@ public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbit
 
     private ConfigPropertyString confWebdavUrl = new ConfigPropertyString("production-repository.remote.webdav.url",
         "http://localhost:8080/jcr/server/");
-    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", "pass");
+    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", null);
+    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", null);
 
     public WebDavJackrabbitProductionRepositoryFactory() {
         setUri(confWebdavUrl);
