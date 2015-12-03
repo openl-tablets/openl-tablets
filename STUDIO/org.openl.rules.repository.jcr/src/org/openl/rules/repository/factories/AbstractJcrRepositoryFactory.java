@@ -45,7 +45,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             "design-repository.deployments.path", "/deployments");
 
     protected Repository repository;
-    protected String repositoryName;
+//    protected String repositoryName;
     private RRepository rulesRepository;
 
     protected ConfigPropertyString login;
@@ -208,9 +208,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             RTransactionManager transactionManager = getTrasactionManager(session);
             RRepository theRepository;
             if (productionRepositoryMode) {
-                theRepository = new JcrProductionRepository(repositoryName, session, transactionManager);
+                theRepository = new JcrProductionRepository(null, session, transactionManager);
             } else {
-                theRepository = new JcrRepository(repositoryName, session, transactionManager,
+                theRepository = new JcrRepository(null, session, transactionManager,
                         confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
             }
             return theRepository;
@@ -263,9 +263,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start
      */
-    protected void setRepository(Repository rep, String name) throws RepositoryException {
+    protected void setRepository(Repository rep) throws RepositoryException {
         repository = rep;
-        repositoryName = name;
 
         checkOnStart();
     }

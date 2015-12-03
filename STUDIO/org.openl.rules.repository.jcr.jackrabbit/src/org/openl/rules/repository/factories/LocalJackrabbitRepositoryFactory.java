@@ -39,9 +39,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
-    private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
-            "repository.name", "Local Jackrabbit");
-
     /**
      * Jackrabbit local repository
      */
@@ -133,13 +130,11 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
 
-        confSet.updateProperty(confRepositoryName);
-
         repHome = new File(uri.getValue());
 
         try {
             init();
-            setRepository(repository, confRepositoryName.getValue());
+            setRepository(repository);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
@@ -185,7 +180,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 Session session = createSession();
 
                 RTransactionManager transactionManager = getTrasactionManager(session);
-                JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session,
+                JcrProductionRepository productionRepository = new JcrProductionRepository(null, session,
                         transactionManager);
                 ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
                 log.info("Converting production repository. Please, be patient.");
@@ -254,10 +249,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {
-        this.confRepositoryName = confRepositoryName;
     }
 
     public boolean configureJCRForOneUser(String login, String pass) {

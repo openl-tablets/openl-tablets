@@ -89,7 +89,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         // Deploy the repository ...
         Repository repository = engine.deploy(config);
 
-        setRepository(repository, config.getName());
+        setRepository(repository);
     }
 
     private RepositoryConfiguration getModeshapeConfiguration(String url,

@@ -30,7 +30,7 @@ public class WebDavJacrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 throw new RepositoryException(e);
             }
 
-            setRepository(repository, "Jackrabbit WebDav " + webDavUrl);
+            setRepository(repository);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
