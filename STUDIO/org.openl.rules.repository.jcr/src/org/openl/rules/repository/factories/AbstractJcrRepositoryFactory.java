@@ -51,6 +51,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     protected ConfigPropertyString login;
     protected ConfigPropertyString password;
+    protected ConfigPropertyString uri;
     private ConfigPropertyString repoConfigFile;
     private boolean productionRepositoryMode = false;
 
@@ -218,6 +219,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
         confSet.updateProperty(login);
         confSet.updatePasswordProperty(password);
+        confSet.updateProperty(uri);
         confSet.updateProperty(repoConfigFile);
 
         // TODO: add default path support
@@ -271,6 +273,10 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     public void setPassword(ConfigPropertyString password) {
         this.password = password;
+    }
+
+    public void setUri(ConfigPropertyString uri) {
+        this.uri = uri;
     }
 
     public void setRepoConfigFile(ConfigPropertyString repoConfigFile) {

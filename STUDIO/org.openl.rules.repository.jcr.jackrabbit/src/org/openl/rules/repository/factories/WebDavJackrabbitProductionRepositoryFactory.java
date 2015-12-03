@@ -15,7 +15,7 @@ public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbit
         "/jackrabbit-repository.xml");
 
     public WebDavJackrabbitProductionRepositoryFactory() {
-        setConfWebdavUrl(confWebdavUrl);
+        setUri(confWebdavUrl);
         setLogin(login);
         setPassword(password);
         setRepoConfigFile(repoConfigFile);

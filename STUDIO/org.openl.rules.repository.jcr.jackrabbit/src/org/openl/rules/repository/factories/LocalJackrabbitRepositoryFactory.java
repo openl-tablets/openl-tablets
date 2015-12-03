@@ -38,8 +38,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
-    private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
-            "repository.local.home", "../local-repository");
     private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
             "repository.name", "Local Jackrabbit");
 
@@ -129,10 +127,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
 
-        confSet.updateProperty(confRepositoryHome);
         confSet.updateProperty(confRepositoryName);
 
-        repHome = new File(confRepositoryHome.getValue());
+        repHome = new File(uri.getValue());
 
         try {
             init();
@@ -251,14 +248,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public ConfigPropertyString getConfRepositoryHome() {
-        return confRepositoryHome;
-    }
-
-    public void setConfRepositoryHome(ConfigPropertyString confRepositoryHome) {
-        this.confRepositoryHome = confRepositoryHome;
     }
 
     public ConfigPropertyString getConfRepositoryName() {

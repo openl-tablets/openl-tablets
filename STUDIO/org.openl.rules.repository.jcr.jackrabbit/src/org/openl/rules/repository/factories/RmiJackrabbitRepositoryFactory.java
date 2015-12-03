@@ -5,7 +5,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
-import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -17,25 +16,23 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
-    private ConfigPropertyString confRmiUrl = new ConfigPropertyString(
-            "repository.jackrabbit.rmi.url", "//localhost:1099/jackrabbit.repository");
 
     /** {@inheritDoc} */
     @Override
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
-        confSet.updateProperty(confRmiUrl);
         ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 
         try {
             Repository repository;
+            String rmiUrl = uri.getValue();
             try {
-                repository = clientRepositoryFactory.getRepository(confRmiUrl.getValue());
+                repository = clientRepositoryFactory.getRepository(rmiUrl);
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
 
-            setRepository(repository, "Jackrabbit RMI " + confRmiUrl.getValue());
+            setRepository(repository, "Jackrabbit RMI " + rmiUrl);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
@@ -47,13 +44,4 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepository
         throw new RepositoryException("Cannot initialize node types via RMI."
                 + "\nPlease, add OpenL node types definition manually or via command line tool.");
     }
-
-    public ConfigPropertyString getConfRmiUrl() {
-        return confRmiUrl;
-    }
-
-    public void setConfRmiUrl(ConfigPropertyString confRmiUrl) {
-        this.confRmiUrl = confRmiUrl;
-    }
-
 }

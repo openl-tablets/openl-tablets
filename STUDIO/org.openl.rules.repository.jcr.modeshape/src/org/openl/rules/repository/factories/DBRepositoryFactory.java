@@ -45,8 +45,6 @@ import org.slf4j.LoggerFactory;
 public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
-    private ConfigPropertyString url = new ConfigPropertyString("repository.db.url", "jdbc:mysql://localhost/repo");
-
     /**
      * Jackrabbit local repository
      */
@@ -76,7 +74,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private void init() throws Exception {
         registerDrivers();
 
-        String dbUrl = url.getValue();
+        String dbUrl = uri.getValue();
         String user = login.getValue();
         String pwd = password.getValue();
 
@@ -241,8 +239,6 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         setRepoConfigFile(new ConfigPropertyString("db.repository-config", null));
         super.initialize(confSet);
 
-        confSet.updateProperty(url);
-
         try {
             init();
         } catch (Exception e) {
@@ -275,10 +271,6 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public void setUrl(ConfigPropertyString url) {
-        this.url = url;
     }
 
     @Override

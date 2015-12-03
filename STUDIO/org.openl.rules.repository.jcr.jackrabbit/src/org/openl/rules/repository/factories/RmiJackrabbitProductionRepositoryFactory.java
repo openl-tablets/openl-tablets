@@ -12,7 +12,7 @@ public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepos
         "/jackrabbit-repository.xml");
 
     public RmiJackrabbitProductionRepositoryFactory() {
-        setConfRmiUrl(confRmiUrl);
+        setUri(confRmiUrl);
         setLogin(login);
         setPassword(password);
         setRepoConfigFile(repoConfigFile);
