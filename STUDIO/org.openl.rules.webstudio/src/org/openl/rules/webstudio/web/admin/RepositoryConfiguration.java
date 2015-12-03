@@ -33,13 +33,12 @@ public class RepositoryConfiguration {
         this.configManager = configManager;
         this.repositoryType = repositoryType;
 
-        REPOSITORY_FACTORY = repositoryType.toString() + "-repository.factory";
-        REPOSITORY_NAME = repositoryType.toString() + "-repository.name";
+        String repoType = repositoryType.toString();
+        REPOSITORY_FACTORY = repoType + "-repository.factory";
+        REPOSITORY_NAME = repoType + "-repository.name";
 
-        REPOSITORY_LOGIN = repositoryType.toString() + "-repository.login";
-        REPOSITORY_PASS = repositoryType == RepositoryType.PRODUCTION ?
-                          "production-repository.password" :
-                          "design-repository.pass"; // For backward-compatibility
+        REPOSITORY_LOGIN = repoType + "-repository.login";
+        REPOSITORY_PASS = repoType + "-repository.password";
     }
 
     public String getName() {
