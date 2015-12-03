@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<import resource="classpath:openl-ruleservice-datasource-jcr-beans.xml" />
+	<import resource="classpath:RulesPublisherTest/openl-ruleservice-datasource-filesystem-beans.xml" />
+
+	<!-- Data source storage that provides information about deployments, projects 
+		and their properties and version. Uses ruleservice.jcr.datasource.enabled 
+		property for datasource implementation select -->
+	<bean id="datasource" class="org.openl.rules.ruleservice.conf.DataSourceConfigurationFactoryBean">
+		<property name="datasourceType" value="${ruleservice.datasource.type}" />
+	</bean>
+</beans>

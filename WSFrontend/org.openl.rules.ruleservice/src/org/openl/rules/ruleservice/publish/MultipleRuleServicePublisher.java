@@ -12,14 +12,13 @@ import java.util.TreeMap;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceImpl;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 
-public class MultipleRuleServicePublisher implements InitializingBean, RuleServicePublisher {
+public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher implements InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceImpl.class);
 
@@ -77,7 +76,7 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
     }
 
     @Override
-    public void deploy(OpenLService service) throws RuleServiceDeployException {
+    protected void deployService(OpenLService service) throws RuleServiceDeployException {
         Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceDeployException e1 = null;
         for (RuleServicePublisher publisher : publishers) {
@@ -120,21 +119,7 @@ public class MultipleRuleServicePublisher implements InitializingBean, RuleServi
     }
 
     @Override
-    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        try {
-            undeploy(service.getName());
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed");
-        }
-        try {
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed");
-        }
-    }
-
-    @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    public void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = services.get(serviceName);
         Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceUndeployException e1 = null;

@@ -21,7 +21,6 @@ import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
@@ -34,7 +33,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * @author PUdalau, Marat Kamalov
  */
 @Deprecated
-public class WebServicesRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+public class WebServicesRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
 
     // private final Log log =
     // LogFactory.getLog(WebServicesRuleServicePublisher.class);
@@ -118,7 +117,8 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         return ret;
     }
 
-    public void deploy(OpenLService service) throws RuleServiceDeployException {
+    @Override
+    protected void deployService(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
 
@@ -176,7 +176,8 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         return null;
     }
 
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    @Override
+    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -190,22 +191,6 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher, Av
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
-    }
-
-    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
-        try {
-            undeploy(service.getName());
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        }
-
     }
 
     @Override

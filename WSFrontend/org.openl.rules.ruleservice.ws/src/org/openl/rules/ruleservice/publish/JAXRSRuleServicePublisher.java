@@ -32,7 +32,7 @@ import org.springframework.beans.factory.ObjectFactory;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesGroup {
+public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -104,7 +104,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     }
 
     @Override
-    public void deploy(final OpenLService service) throws RuleServiceDeployException {
+    protected void deployService(final OpenLService service) throws RuleServiceDeployException {
         if (service.getServiceClass().getMethods().length == 0){ //Skip deploy if service doesn't have methods.
             if (log.isWarnEnabled()){
                 log.warn("Service \"{}\" with URL \"{}{}\" doens't have method and wasn't deployed.",
@@ -166,7 +166,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         return null;
     }
 
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+    @Override
+    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -184,22 +185,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
-    }
-
-    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
-        try {
-            undeploy(service.getName());
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        }
-
     }
 
     @Override
