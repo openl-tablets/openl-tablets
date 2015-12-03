@@ -8,7 +8,6 @@ import java.io.IOException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.FileUtils;
-import org.openl.config.ConfigPropertyString;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -20,11 +19,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitProductionRepositoryFactory.class);
 
-    private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("production-repository.name",
-        "Local Jackrabbit");
-
     public LocalJackrabbitProductionRepositoryFactory() {
-        setConfRepositoryName(confRepositoryName);
         setProductionRepositoryMode(true);
     }
 
@@ -35,7 +30,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             // FIXME: do not hardcode credential info
             Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
-            repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
+            repositoryInstance = new JcrProductionRepository(null, session, transactionManager);
             // FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
             log.info("Converting production repository. Please, be patient.");
