@@ -78,6 +78,7 @@ public abstract class AbstractProductionRepoController {
             repoConfig.setPassword(getPassword());
         }
 
+        repoConfig.commit();
         return repoConfig;
     }
 
