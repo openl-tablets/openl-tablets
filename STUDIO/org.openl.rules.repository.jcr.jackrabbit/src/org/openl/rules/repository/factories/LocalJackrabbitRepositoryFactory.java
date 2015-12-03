@@ -11,6 +11,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -98,10 +99,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
      */
     private void init() throws RepositoryException {
         try {
-            String repConf = this.getRepoConfigFile().getValue();//"/jackrabbit-repository.xml";
+            String jackrabbitConfig;
+            if (StringUtils.isEmpty(login.getValue())) {
+                jackrabbitConfig = "/jackrabbit-repository.xml";
+            } else {
+                jackrabbitConfig = "/secure-jackrabbit-repository.xml";
+            }
 
             // obtain real path to repository configuration file
-            InputStream input = this.getClass().getResourceAsStream(repConf);
+            InputStream input = this.getClass().getResourceAsStream(jackrabbitConfig);
 
             File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
             // It could be cleaned-up on exit
@@ -248,10 +254,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public ConfigPropertyString getConfRepositoryName() {
-        return confRepositoryName;
     }
 
     public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {

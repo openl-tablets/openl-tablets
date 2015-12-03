@@ -24,7 +24,6 @@ public final class AdministrationSettings {
     public static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
     public static final String DESIGN_REPOSITORY_LOGIN = "design-repository.login";
     public static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
-    public static final String DESIGN_REPOSITORY_CONFIG_FILE = "design-repository.config";
     public static final String DESIGN_REPOSITORY_LOCAL_HOME = "design-repository.local.home";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
 

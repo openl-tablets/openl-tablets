@@ -11,7 +11,6 @@ import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
-    public static final String SECURE_CONFIG_FILE = "/secure-jackrabbit-repository.xml";
 
     private final ConfigurationManager configManager;
 
@@ -20,8 +19,6 @@ public class RepositoryConfiguration {
 
     private final String REPOSITORY_LOGIN;
     private final String REPOSITORY_PASS;
-
-    private final String REPOSITORY_CONFIG_FILE;
 
     private final RepositoryType repositoryType;
 
@@ -43,8 +40,6 @@ public class RepositoryConfiguration {
         REPOSITORY_PASS = repositoryType == RepositoryType.PRODUCTION ?
                           "production-repository.password" :
                           "design-repository.pass"; // For backward-compatibility
-
-        REPOSITORY_CONFIG_FILE = repositoryType.toString() + "-repository.config";
     }
 
     public String getName() {
@@ -145,14 +140,6 @@ public class RepositoryConfiguration {
         return configManager.getProperties();
     }
 
-    public String getConfigFile() {
-        return configManager.getStringProperty(REPOSITORY_CONFIG_FILE);
-    }
-
-    public void setConfigFile(String configFile) {
-        configManager.setProperty(REPOSITORY_CONFIG_FILE, configFile);
-    }
-
     public boolean isSecure() {
         return secure || !StringUtils.isEmpty(getLogin());
     }
@@ -161,9 +148,6 @@ public class RepositoryConfiguration {
         if (!secure) {
             configManager.removeProperty(REPOSITORY_LOGIN);
             configManager.removeProperty(REPOSITORY_PASS);
-            configManager.removeProperty(REPOSITORY_CONFIG_FILE);
-        } else {
-            configManager.setProperty(REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
         }
         this.secure = secure;
     }

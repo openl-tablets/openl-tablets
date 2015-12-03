@@ -29,7 +29,6 @@ import org.modeshape.jcr.JcrNodeTypeManager;
 import org.modeshape.jcr.LocalEnvironment;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
-import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -236,7 +235,6 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      */
     @Override
     public void initialize(ConfigSet confSet) throws RRepositoryException {
-        setRepoConfigFile(new ConfigPropertyString("db.repository-config", null));
         super.initialize(confSet);
 
         try {

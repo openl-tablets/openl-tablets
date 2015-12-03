@@ -11,13 +11,10 @@ public class WebDavJackrabbitDesignRepositoryFactory extends WebDavJacrabbitRepo
         "http://localhost:8080/jcr/server/");
     private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", "user");
     private final ConfigPropertyString password = new ConfigPropertyString("design-repository.pass", "pass");
-    private final ConfigPropertyString repoConfigFile = new ConfigPropertyString("design-repository.config",
-        "/jackrabbit-repository.xml");
 
     public WebDavJackrabbitDesignRepositoryFactory() {
         setUri(confWebdavUrl);
         setLogin(login);
         setPassword(password);
-        setRepoConfigFile(repoConfigFile);
     }
 }
