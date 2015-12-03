@@ -8,8 +8,8 @@ public class LocalJackrabbitDesignRepositoryFactory extends LocalJackrabbitRepos
         "../local-repository");
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("design-repository.name",
         "Local Jackrabbit");
-    private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString("design-repository.pass", "pass");
+    private final ConfigPropertyString login = new ConfigPropertyString("design-repository.login", null);
+    private final ConfigPropertyString password = new ConfigPropertyString("design-repository.pass", null);
 
     public LocalJackrabbitDesignRepositoryFactory() {
         setUri(confRepositoryHome);

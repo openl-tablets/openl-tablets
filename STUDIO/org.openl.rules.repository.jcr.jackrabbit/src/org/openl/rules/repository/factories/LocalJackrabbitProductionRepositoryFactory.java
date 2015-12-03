@@ -24,8 +24,8 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         "../local-repository");
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("production-repository.name",
         "Local Jackrabbit");
-    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", "user");
-    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", "pass");
+    private final ConfigPropertyString login = new ConfigPropertyString("production-repository.login", null);
+    private final ConfigPropertyString password = new ConfigPropertyString("production-repository.password", null);
 
     public LocalJackrabbitProductionRepositoryFactory() {
         setUri(confRepositoryHome);

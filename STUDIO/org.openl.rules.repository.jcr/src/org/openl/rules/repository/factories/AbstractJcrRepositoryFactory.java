@@ -114,7 +114,15 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if fails or user credentials are not correct
      */
     protected Session createSession() throws RepositoryException {
-        Credentials credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());
+        String loginValue = login.getValue();
+        String passwordValue = password.getValue();
+        if (loginValue == null) {
+            loginValue = "";
+        }
+        if (passwordValue == null) {
+            passwordValue = "";
+        }
+        Credentials credencials = new SimpleCredentials(loginValue, passwordValue.toCharArray());
         return repository.login(credencials);
     }
 
