@@ -14,7 +14,7 @@ public class LocalJackrabbitDesignRepositoryFactory extends LocalJackrabbitRepos
         "/jackrabbit-repository.xml");
 
     public LocalJackrabbitDesignRepositoryFactory() {
-        setConfRepositoryHome(confRepositoryHome);
+        setUri(confRepositoryHome);
         setConfRepositoryName(confRepositoryName);
         setLogin(login);
         setPassword(password);

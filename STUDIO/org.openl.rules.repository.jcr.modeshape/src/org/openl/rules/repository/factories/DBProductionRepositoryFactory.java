@@ -12,7 +12,7 @@ public class DBProductionRepositoryFactory extends DBRepositoryFactory {
     public DBProductionRepositoryFactory() {
         setLogin(login);
         setPassword(password);
-        setUrl(dbUrl);
+        setUri(dbUrl);
         setProductionRepositoryMode(true);
     }
 }

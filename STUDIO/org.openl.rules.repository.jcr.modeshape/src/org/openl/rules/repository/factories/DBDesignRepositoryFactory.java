@@ -12,6 +12,6 @@ public class DBDesignRepositoryFactory extends DBRepositoryFactory {
     public DBDesignRepositoryFactory() {
         setLogin(login);
         setPassword(password);
-        setUrl(dbUrl);
+        setUri(dbUrl);
     }
 }
