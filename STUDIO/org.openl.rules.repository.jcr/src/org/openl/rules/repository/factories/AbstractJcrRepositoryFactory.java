@@ -48,7 +48,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected String repositoryName;
     private RRepository rulesRepository;
 
-
     protected ConfigPropertyString login;
     protected ConfigPropertyString password;
     protected ConfigPropertyString uri;
@@ -194,6 +193,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
+        String type = productionRepositoryMode ? "production" : "design";
+        login = new ConfigPropertyString(type + "-repository.login", null);
+        password = new ConfigPropertyString(type + "-repository.password", null);
         this.productionRepositoryMode = productionRepositoryMode;
     }
 
@@ -268,14 +270,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     public abstract RTransactionManager getTrasactionManager(Session session);
-
-    public void setLogin(ConfigPropertyString login) {
-        this.login = login;
-    }
-
-    public void setPassword(ConfigPropertyString password) {
-        this.password = password;
-    }
 
     public void setUri(ConfigPropertyString uri) {
         this.uri = uri;
