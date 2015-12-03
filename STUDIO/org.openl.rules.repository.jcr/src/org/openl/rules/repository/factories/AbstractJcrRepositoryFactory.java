@@ -192,10 +192,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         return rulesRepository;
     }
 
-    protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
+    protected void setProductionRepositoryMode(boolean productionRepositoryMode, String prop) {
         String type = productionRepositoryMode ? "production" : "design";
         login = new ConfigPropertyString(type + "-repository.login", null);
         password = new ConfigPropertyString(type + "-repository.password", null);
+        uri = new ConfigPropertyString(type + "-repository." + prop, null);
         this.productionRepositoryMode = productionRepositoryMode;
     }
 
@@ -270,8 +271,4 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     public abstract RTransactionManager getTrasactionManager(Session session);
-
-    public void setUri(ConfigPropertyString uri) {
-        this.uri = uri;
-    }
 }

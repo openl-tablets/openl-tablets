@@ -18,15 +18,12 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitProductionRepositoryFactory.class);
 
-    private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString("production-repository.local.home",
-        "../local-repository");
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("production-repository.name",
         "Local Jackrabbit");
 
     public LocalJackrabbitProductionRepositoryFactory() {
-        setUri(confRepositoryHome);
         setConfRepositoryName(confRepositoryName);
-        setProductionRepositoryMode(true);
+        setProductionRepositoryMode(true, "local.home");
     }
 
     protected void convert() throws RRepositoryException {
