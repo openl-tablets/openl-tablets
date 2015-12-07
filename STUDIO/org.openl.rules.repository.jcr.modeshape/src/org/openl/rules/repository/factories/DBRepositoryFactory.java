@@ -116,7 +116,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         // Modeshape's configuration
         RepositoryConfiguration config = RepositoryConfiguration.read(
-            "{'name':'" + repoName + "','storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
+            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
