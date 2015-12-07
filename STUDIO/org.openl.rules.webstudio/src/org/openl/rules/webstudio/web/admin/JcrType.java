@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
 public enum JcrType {
-    DESIGN_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory.class),
+    DESIGN_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory.class),
     DESIGN_RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
     DESIGN_WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
     DESIGN_DB(org.openl.rules.repository.factories.DBRepositoryFactory.class),
-    PRODUCTION_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory.class),
+    PRODUCTION_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory.class),
     PRODUCTION_RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
     PRODUCTION_WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
     PRODUCTION_DB(org.openl.rules.repository.factories.DBRepositoryFactory.class);

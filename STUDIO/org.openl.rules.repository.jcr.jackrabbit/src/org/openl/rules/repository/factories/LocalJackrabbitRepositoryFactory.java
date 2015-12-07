@@ -9,6 +9,7 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -163,7 +164,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         }
     }
 
-    protected void convert() throws RRepositoryException {
+    private void convert() throws RRepositoryException {
+        if (designRepositoryMode) {
+            convertDessignRepo();
+        } else {
+            convertProdRepo();
+        }
+    }
+
+    private void convertDessignRepo() throws RRepositoryException {
         RRepository repositoryInstance = null;
         String tempRepoHome = getTempDirectoryPath() + "/.openl/repo/";
         try {
@@ -209,6 +218,38 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             FileUtils.deleteQuietly(tmpRepoHome);
         }
 
+    }
+
+    private void convertProdRepo() throws RRepositoryException {
+        RProductionRepository repositoryInstance = null;
+        String tempRepoHome = getTempDirectoryPath() + "/.openl/prod_repo/";
+        try {
+            // FIXME: do not hardcode credential info
+            Session session = createSession();
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            repositoryInstance = new JcrProductionRepository(session, transactionManager);
+            // FIXME
+            ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
+            log.info("Converting production repository. Please, be patient.");
+            repositoryConvertor.convert(repositoryInstance);
+        } catch (Exception e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        } finally {
+            if (repositoryInstance != null) {
+                repositoryInstance.release();
+            }
+        }
+
+        File repoHome = new File(repHome);
+        File tmpRepoHome = new File(tempRepoHome);
+        try {
+            FileUtils.deleteDirectory(repoHome);
+            FileUtils.copyDirectory(tmpRepoHome, repoHome);
+        } catch (IOException e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        } finally {
+            FileUtils.deleteQuietly(tmpRepoHome);
+        }
     }
 
     private boolean isProductionRepository() {

@@ -52,7 +52,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected ConfigPropertyString login;
     protected ConfigPropertyString password;
     protected ConfigPropertyString uri;
-    private boolean designRepositoryMode = false;
+    boolean designRepositoryMode = false;
 
 
     /**
@@ -191,9 +191,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             rulesRepository = createRepository();
         }
         return rulesRepository;
-    }
-
-    protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
     }
 
     public RRepository createRepository() throws RRepositoryException {
