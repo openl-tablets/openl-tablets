@@ -78,6 +78,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
         ConfigSet config = new ConfigSet();
         config.addProperties(properties);
+        config.addProperty("dessign-mode", "true");
 
         // default value is <code>null</code> -- fail first
         ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString("design-repository.factory", null);
