@@ -4,11 +4,11 @@ public enum JcrType {
     DESIGN_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory.class),
     DESIGN_RMI(org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory.class),
     DESIGN_WEBDAV(org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory.class),
-    DESIGN_DB(org.openl.rules.repository.factories.DBDesignRepositoryFactory.class),
+    DESIGN_DB(org.openl.rules.repository.factories.DBRepositoryFactory.class),
     PRODUCTION_LOCAL(org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory.class),
     PRODUCTION_RMI(org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory.class),
     PRODUCTION_WEBDAV(org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory.class),
-    PRODUCTION_DB(org.openl.rules.repository.factories.DBProductionRepositoryFactory.class);
+    PRODUCTION_DB(org.openl.rules.repository.factories.DBRepositoryFactory.class);
 
     public static JcrType findByAccessType(RepositoryType repositoryType, String accessType) {
         for (JcrType jcrType : values()) {
