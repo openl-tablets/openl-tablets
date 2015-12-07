@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
+
 public enum JcrType {
     LOCAL(org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory.class),
     RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
@@ -18,8 +20,9 @@ public enum JcrType {
     }
 
     public static JcrType findByFactory(String factoryClassName) {
+        String className = RepositoryFactoryInstatiator.changeClassName(factoryClassName);
         for (JcrType jcrType : values()) {
-            if (jcrType.factoryClassName.equals(factoryClassName)) {
+            if (jcrType.factoryClassName.equals(className)) {
                 return jcrType;
             }
         }
