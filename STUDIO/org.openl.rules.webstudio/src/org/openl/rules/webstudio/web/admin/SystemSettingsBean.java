@@ -214,7 +214,8 @@ public class SystemSettingsBean {
     }
 
     private void saveSystemConfig() throws ServletException {
-        boolean saved = configManager.save();
+        // TODO: This line also do configManager.save() implicitly
+        boolean saved = designRepositoryConfiguration.save();
         if (saved) {
             refreshConfig();
         }
@@ -229,10 +230,7 @@ public class SystemSettingsBean {
         for (String setting : AdministrationSettings.getAllSettings()) {
             configManager.removeProperty(setting);
         }
-        boolean restored = configManager.save();
-        if (restored) {
-            refreshConfig();
-        }
+        saveSystemConfig();
 
         productionRepositoryEditor.reload();
     }
