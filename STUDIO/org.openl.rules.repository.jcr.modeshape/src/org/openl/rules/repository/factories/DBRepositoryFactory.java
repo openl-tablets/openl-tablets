@@ -110,13 +110,11 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         // Infinispan cache declaration
         Configuration ispnConfig = getInfinispanConfiguration(url, user, password);
-        environment.defineCache("OPENL_repository", ispnConfig);
-        environment.defineCache("OPENL_BinaryData", ispnConfig);
-        environment.defineCache("OPENL_MetaData", ispnConfig);
+        environment.defineCache("jcr_cache", ispnConfig);
 
         // Modeshape's configuration
         RepositoryConfiguration config = RepositoryConfiguration.read(
-            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'OPENL_repository','binaryStorage':{'type':'cache','dataCacheName':'OPENL_BinaryData','metadataCacheName':'OPENL_MetaData'}},'clustering':{'clusterName':'" + repoName + "'}}");
+            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'jcr_cache','binaryStorage':{'type':'cache','dataCacheName':'jcr_cache','metadataCacheName':'jcr_cache'}},'clustering':{'clusterName':'" + repoName + "'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
@@ -145,7 +143,7 @@ public class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             .shared(true)
             .addLoader(JdbcStringBasedCacheStoreConfigurationBuilder.class)
             .table()
-            .tableNamePrefix("CACHE")
+            .tableNamePrefix("OPENL")
             .idColumnName("ID")
             .idColumnType(types[0])
             .dataColumnName("DATA")
