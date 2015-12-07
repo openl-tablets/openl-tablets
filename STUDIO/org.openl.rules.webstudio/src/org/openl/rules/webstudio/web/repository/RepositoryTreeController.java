@@ -291,7 +291,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
         } catch (ProjectException e) {
             log.error(e.getMessage(), e);
@@ -319,7 +319,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -528,7 +528,8 @@ public class RepositoryTreeController {
         }
 
         String[] templateParts = newProjectTemplate.split("/");
-        TemplatesResolver templatesResolver = CUSTOM_TEMPLATE_TYPE.equals(templateParts[0]) ? customTemplatesResolver : predefinedTemplatesResolver;
+        TemplatesResolver templatesResolver = CUSTOM_TEMPLATE_TYPE
+            .equals(templateParts[0]) ? customTemplatesResolver : predefinedTemplatesResolver;
         ProjectFile[] templateFiles = templatesResolver.getProjectFiles(templateParts[1], templateParts[2]);
         if (templateFiles.length <= 0) {
             this.clearForm();
@@ -538,9 +539,9 @@ public class RepositoryTreeController {
         }
 
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
-                userWorkspace,
-                zipFilter,
-                templateFiles);
+            userWorkspace,
+            zipFilter,
+            templateFiles);
         String creationMessage = projectCreator.createRulesProject();
         if (creationMessage == null) {
             try {
@@ -574,15 +575,16 @@ public class RepositoryTreeController {
             msg = "Project name must not be empty.";
         } else if (!NameChecker.checkName(projectName)) {
             msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-        } else if (userWorkspace.hasProject(projectName) || repositoryTreeState.getProjectNodeByLogicalName(projectName) != null) {
+        } else if (userWorkspace
+            .hasProject(projectName) || repositoryTreeState.getProjectNodeByLogicalName(projectName) != null) {
             msg = "Cannot create project because project with such name already exists.";
         }
         return msg;
     }
 
     /*
-     * Because of renaming 'Deployment project' to 'Deploy Configuration'
-     * the method was renamed too.
+     * Because of renaming 'Deployment project' to 'Deploy Configuration' the
+     * method was renamed too.
      */
     public String deleteDeploymentConfiguration() {
         String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
@@ -592,7 +594,7 @@ public class RepositoryTreeController {
             project.delete(userWorkspace.getUser());
             if (repositoryTreeState.isHideDeleted()) {
                 TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                        .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
+                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             }
 
@@ -633,7 +635,8 @@ public class RepositoryTreeController {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         AProjectArtefact projectDescriptorArtifact;
         try {
-            projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            projectDescriptorArtifact = selectedProject
+                .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         } catch (ProjectException ex) {
             // Project doesn't contain rules.xml file
             return;
@@ -695,14 +698,14 @@ public class RepositoryTreeController {
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
-            if (UiConst.TYPE_PROJECT.equals(nodeType) && projectArtefact.equals(studio.getModel()
-                    .getProject())) {
+            if (UiConst.TYPE_PROJECT.equals(nodeType) && projectArtefact.equals(studio.getModel().getProject())) {
                 studio.setCurrentModule(null);
             }
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
-                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT.equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
+                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT
+                    .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
                 if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                     repositoryTreeState.refreshSelectedNode();
                 } else {
@@ -793,7 +796,8 @@ public class RepositoryTreeController {
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
-            FacesUtils.addErrorMessage("Cannot erase project '" + project.getName() + "'. It must be marked for deletion first!");
+            FacesUtils.addErrorMessage(
+                "Cannot erase project '" + project.getName() + "'. It must be marked for deletion first!");
             return null;
         }
 
@@ -822,7 +826,8 @@ public class RepositoryTreeController {
 
     public void deleteProjectHistory(String projectName) {
         try {
-            String projectHistoryPath = studio.getSystemConfigManager().getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
+            String projectHistoryPath = studio.getSystemConfigManager()
+                .getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
             File dir = new File(projectHistoryPath);
             // Project can contain no history
             if (dir.exists()) {
@@ -841,7 +846,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (ProjectException e) {
@@ -871,7 +876,7 @@ public class RepositoryTreeController {
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                new CommonVersionImpl(version));
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -900,7 +905,8 @@ public class RepositoryTreeController {
 
     public String getCurrentNodePath() {
         AProjectArtefact projectArtefact = getSelectedNode().getData();
-        return projectArtefact == null ? null : projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
+        return projectArtefact == null ? null
+                                       : projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
     }
 
     public String copyFileVersion() {
@@ -931,7 +937,8 @@ public class RepositoryTreeController {
                 }
                 AProjectArtefact artefact = folder.getArtefact(segment);
                 if (!artefact.isFolder()) {
-                    FacesUtils.addErrorMessage(String.format("Artefact %s is not a folder", artefact.getArtefactPath().getStringValue()));
+                    FacesUtils.addErrorMessage(
+                        String.format("Artefact %s is not a folder", artefact.getArtefactPath().getStringValue()));
                     return null;
                 }
                 folder = (AProjectFolder) folder.getArtefact(segment);
@@ -940,20 +947,22 @@ public class RepositoryTreeController {
             AProject forExport;
             if (hasVersions && currentRevision == null) {
                 forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                        new CommonVersionImpl(version));
+                    new CommonVersionImpl(version));
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
                 is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             } else {
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-                is = ((AProjectResource) userWorkspace.getArtefactByPath(selectedNode.getData()
-                        .getArtefactPath())).getContent();
+                is = ((AProjectResource) userWorkspace.getArtefactByPath(selectedNode.getData().getArtefactPath()))
+                    .getContent();
             }
 
-            AProjectResource addedFileResource = folder.addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
+            AProjectResource addedFileResource = folder
+                .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             fileName = addedFileResource.getName();
-            repositoryTreeState.refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName()));
+            repositoryTreeState
+                .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName()));
             registerInProjectDescriptor(addedFileResource);
             resetStudioModel();
             is.close();
@@ -1367,7 +1376,7 @@ public class RepositoryTreeController {
     /**
      * Sets date type property to rules repository.
      *
-     * @param propName  name of property
+     * @param propName name of property
      * @param propValue value of property
      */
     public void setDateProperty(String propName, Date propValue) {
@@ -1389,7 +1398,8 @@ public class RepositoryTreeController {
             setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
             if (FileTypeHelper.isZipFile(fileName)) {
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter);
+                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file,
+                    zipFilter);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
                 }
@@ -1401,7 +1411,8 @@ public class RepositoryTreeController {
 
     public boolean isUploadedFileChanged() {
         ProjectFile lastUploadedFile = getLastUploadedFile();
-        if (lastUploadedFile == null || !(repositoryTreeState.getSelectedNode().getData() instanceof AProjectResource)) {
+        if (lastUploadedFile == null || !(repositoryTreeState.getSelectedNode()
+            .getData() instanceof AProjectResource)) {
             return false;
         }
 
@@ -1440,7 +1451,7 @@ public class RepositoryTreeController {
     /**
      * Sets number type property to rules repository.
      *
-     * @param propName  name of property
+     * @param propName name of property
      * @param propValue value of property
      */
     public void setNumberProperty(String propName, String propValue) {
@@ -1462,7 +1473,7 @@ public class RepositoryTreeController {
     /**
      * Sets property to rules repository.
      *
-     * @param propName  name of property
+     * @param propName name of property
      * @param propValue value of property
      */
     private void setProperty(String propName, Object propValue) {
@@ -1506,7 +1517,7 @@ public class RepositoryTreeController {
         AProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
             FacesUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
-                    "Project is not marked for deletion.");
+                "Project is not marked for deletion.");
             return null;
         }
 
@@ -1569,14 +1580,15 @@ public class RepositoryTreeController {
             errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter).uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
-            } else try {
-                AProject createdProject = userWorkspace.getProject(projectName);
-                repositoryTreeState.addRulesProjectToTree(createdProject);
-                resetStudioModel();
-                FacesUtils.addInfoMessage("Project was created successfully.");
-            } catch (ProjectException e) {
-                FacesUtils.addErrorMessage(e.getMessage());
-            }
+            } else
+                try {
+                    AProject createdProject = userWorkspace.getProject(projectName);
+                    repositoryTreeState.addRulesProjectToTree(createdProject);
+                    resetStudioModel();
+                    FacesUtils.addInfoMessage("Project was created successfully.");
+                } catch (ProjectException e) {
+                    FacesUtils.addErrorMessage(e.getMessage());
+                }
         }
 
         /* Clear the load form */
@@ -1629,7 +1641,8 @@ public class RepositoryTreeController {
             // rules.xml.
             try {
                 UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-                AProjectArtefact projectDescriptorArtifact = selectedProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                AProjectArtefact projectDescriptorArtifact = selectedProject
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource) {
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
                     InputStream content = resource.getContent();
@@ -1687,9 +1700,9 @@ public class RepositoryTreeController {
             ProjectFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
-                        projectName,
-                        userWorkspace,
-                        zipFilter);
+                    projectName,
+                    userWorkspace,
+                    zipFilter);
                 errorMessage = validateProjectName();
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
@@ -1755,6 +1768,12 @@ public class RepositoryTreeController {
     }
 
     private void resetStudioModel() {
+        try {
+            studio.setCurrentModule(null);
+        } catch (Exception e) {
+            //Shouldn't occure but...
+            log.error("Not expected exception occure!", e);
+        }
         studio.reset(ReloadType.FORCED);
     }
 
@@ -1793,7 +1812,7 @@ public class RepositoryTreeController {
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(projectName));
+                .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
