@@ -52,9 +52,9 @@ public class RepositoryConfiguration {
     }
 
     private void load() {
-        jcrType = JcrType.findByFactory(repositoryType, configManager.getStringProperty(REPOSITORY_FACTORY));
+        jcrType = JcrType.findByFactory(configManager.getStringProperty(REPOSITORY_FACTORY));
         name = configManager.getStringProperty(REPOSITORY_NAME);
-        uri = jcrType.isLocal() ? configManager.getPath(REPOSITORY_URI) : configManager.getStringProperty(REPOSITORY_URI);
+        uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI) : configManager.getStringProperty(REPOSITORY_URI);
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
 
         fixState();
@@ -69,7 +69,7 @@ public class RepositoryConfiguration {
     private void store() {
         configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
         configManager.setProperty(REPOSITORY_FACTORY, jcrType.getFactoryClassName());
-        if (jcrType.isLocal()) {
+        if (jcrType == JcrType.LOCAL) {
             configManager.setPath(REPOSITORY_URI, uri);
         } else {
             configManager.setProperty(REPOSITORY_URI, uri);
@@ -100,37 +100,28 @@ public class RepositoryConfiguration {
     }
 
     public String getType() {
-        return jcrType.getAccessType();
+        return jcrType.name().toLowerCase();
     }
 
     public void setType(String accessType) {
-        this.jcrType = JcrType.findByAccessType(repositoryType, accessType);
+        this.jcrType = JcrType.findByAccessType(accessType);
     }
 
     public String getPath() {
         // Default values
         if (StringUtils.isEmpty(uri) || oldJcrType != jcrType) {
+            String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
             switch (jcrType) {
-                case DESIGN_LOCAL:
-                    return "../design-repository";
-                case PRODUCTION_LOCAL:
-                    return "../deployment-repository";
-                case DESIGN_RMI:
-                    return "//localhost:1099/design-repository";
-                case PRODUCTION_RMI:
-                    return "//localhost:1099/deployment-repository";
-                case DESIGN_WEBDAV:
-                    return "http://localhost:8080/design-repository";
-                case PRODUCTION_WEBDAV:
-                    return "http://localhost:8080/deployment-repository";
-                case DESIGN_DB:
-                    return "jdbc:mysql://localhost/design-repository";
-                case PRODUCTION_DB:
-                    return "jdbc:mysql://localhost/deployment-repository";
-                case DESIGN_JNDI:
-                    return "java:comp/env/jdbc/designDB";
-                case PRODUCTION_JNDI:
-                    return "java:comp/env/jdbc/deploymentDB";
+                case LOCAL:
+                    return "../" + type + "-repository";
+                case RMI:
+                    return "//localhost:1099/" + type + "-repository";
+                case WEBDAV:
+                    return "http://localhost:8080/" + type + "-repository";
+                case DB:
+                    return "jdbc:mysql://localhost/" + type + "-repository";
+                case JNDI:
+                    return "java:comp/env/jdbc/" + type + "tDB";
             }
         }
         return uri;
