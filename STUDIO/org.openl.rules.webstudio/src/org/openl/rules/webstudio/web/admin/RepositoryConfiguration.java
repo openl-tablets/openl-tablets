@@ -116,12 +116,15 @@ public class RepositoryConfiguration {
                 case PRODUCTION_LOCAL:
                     return "../deployment-repository";
                 case DESIGN_RMI:
+                    return "//localhost:1099/design-repository";
                 case PRODUCTION_RMI:
                     return "//localhost:1099/deployment-repository";
                 case DESIGN_WEBDAV:
+                    return "http://localhost:8080/design-repository";
                 case PRODUCTION_WEBDAV:
                     return "http://localhost:8080/deployment-repository";
                 case DESIGN_DB:
+                    return "jdbc:mysql://localhost/design-repository";
                 case PRODUCTION_DB:
                     return "jdbc:mysql://localhost/deployment-repository";
             }
