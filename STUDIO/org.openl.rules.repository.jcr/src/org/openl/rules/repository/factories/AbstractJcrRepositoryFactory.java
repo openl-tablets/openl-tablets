@@ -13,6 +13,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.config.ConfigPropertyBoolean;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
@@ -51,7 +52,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected ConfigPropertyString login;
     protected ConfigPropertyString password;
     protected ConfigPropertyString uri;
-    private boolean productionRepositoryMode = false;
+    private boolean designRepositoryMode = false;
 
 
     /**
@@ -193,11 +194,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
-        String type = productionRepositoryMode ? "production" : "design";
-        login = new ConfigPropertyString(type + "-repository.login", null);
-        password = new ConfigPropertyString(type + "-repository.password", null);
-        uri = new ConfigPropertyString(type + "-repository.uri", null);
-        this.productionRepositoryMode = productionRepositoryMode;
     }
 
     public RRepository createRepository() throws RRepositoryException {
@@ -207,11 +203,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             RTransactionManager transactionManager = getTrasactionManager(session);
             RRepository theRepository;
-            if (productionRepositoryMode) {
-                theRepository = new JcrProductionRepository(session, transactionManager);
-            } else {
+            if (designRepositoryMode) {
                 theRepository = new JcrRepository(session, transactionManager,
                         confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
+            } else {
+                theRepository = new JcrProductionRepository(session, transactionManager);
             }
             return theRepository;
         } catch (RepositoryException e) {
@@ -224,8 +220,17 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public void initialize(ConfigSet confSet) throws RRepositoryException {
-        confSet.updateProperty(confRulesProjectsLocation); 
+        confSet.updateProperty(confRulesProjectsLocation);
         confSet.updateProperty(confDeploymentProjectsLocation);
+
+        ConfigPropertyBoolean dessignModeProperty = new ConfigPropertyBoolean("dessign-mode", false);
+        confSet.updateProperty(dessignModeProperty);
+        designRepositoryMode = dessignModeProperty.getValue();
+
+        String type = designRepositoryMode ? "design" : "production";
+        login = new ConfigPropertyString(type + "-repository.login", null);
+        password = new ConfigPropertyString(type + "-repository.password", null);
+        uri = new ConfigPropertyString(type + "-repository.uri", null);
 
         confSet.updateProperty(login);
         confSet.updatePasswordProperty(password);
