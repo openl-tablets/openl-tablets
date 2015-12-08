@@ -12,18 +12,23 @@
         <h:inputText value="#{value}" readonly="true" onclick="showVersionPopup(this, event)" />
 
         <div style="display: none; padding: 2px 6px; border-top: 0">
-            <c:set var="subVersions" value="#{fn:split(value, '.')}" />
+            <c:set var="subVersions" value="#{value != null ? fn:split(value, '.') : null}" />
+            <c:set var="majorVersion" value="#{subVersions != null and fn:length(subVersions) > 0 ? subVersions[0] : 0}"/>
+            <c:set var="minorVersion" value="#{subVersions != null and fn:length(subVersions) > 1 ? subVersions[1] : 0}"/>
+            <c:set var="variantVersion" value="#{subVersions != null and fn:length(subVersions) > 2 ? subVersions[2] : 0}"/>
+            <c:set var="dataString" value="#{majorVersion}.#{minorVersion}.#{variantVersion}"/>
+            <c:set var="data" value="${fn:split(dataString, '.')}" />
             <c:set var="isShortView" value="#{(empty shortView or (!empty shortView and (shortView eq false)))}" />
             <h:panelGrid columns="2">
                 <h:outputText value="Major" />
-                <rich:inputNumberSpinner value="#{subVersions[0]}" maxValue="10000"
+                <rich:inputNumberSpinner value="#{data[0]}" maxValue="10000"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 0)" />
                 <h:outputText value="Minor" />
-                <rich:inputNumberSpinner value="#{subVersions[1]}" maxValue="100"
+                <rich:inputNumberSpinner value="#{data[1]}" maxValue="100"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 1)" />
                 <c:if test="#{isShortView}">
                      <h:outputText value="Variant" />
-                     <rich:inputNumberSpinner value="#{subVersions[2]}" maxValue="100"
+                     <rich:inputNumberSpinner value="#{data[2]}" maxValue="100"
                     	inputSize="4" onchange="applyVersion(this, #{isShortView}, 2)" />
                 </c:if>
             </h:panelGrid>

@@ -64,8 +64,9 @@
       </h:panelGroup>
       
       <h:outputLabel for="#{prefix}version" value="Version"/>
-      <h:panelGroup id="#{prefix}version" rendered="#{openedForEditing}" style="white-space: nowrap;">
-          <oh:inputVersion value="#{prop.value}" id="input-version" shortView="true"/>
+      <h:panelGroup id="#{prefix}version" style="white-space: nowrap;">
+          <oh:inputVersion value="#{rulesDeploy.version}" id="#{prefix}input-version" shortView="true" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.version}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}url" value="URL"/>
@@ -84,8 +85,8 @@
     <br />
     <br />
     <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" />
-    <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}"
-                       rendered="#{openedForEditing}" render="projectTree nodeView" immediate="true"
+    <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}" immediate="true"
+                       rendered="#{openedForEditing}" render="projectTree nodeView"
                        onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
   </h:panelGroup>
 
