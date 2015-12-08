@@ -96,9 +96,14 @@ public class RangeNode extends Node {
         this.hasArrayFormula = hasArrayFormula;
     }
 
+    @XmlTransient
+    public String getAddress() {
+        return CellReference.parse(currentWorkbook, currentSheet, this).getStringValue();
+    }
+
     @Override
     public String toOpenLString() {
-        String cell = CellReference.parse(currentWorkbook, currentSheet, this).getStringValue();
+        String cell = getAddress();
         return String.format("Cell(\"%s\")", cell);
     }
 }

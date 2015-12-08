@@ -17,17 +17,24 @@ public class RangeExpressionResolver implements ExpressionResolver {
 
         ExpressionContext context = ExpressionContext.getInstance();
         if (context.isArrayExpression()) {
-            int rowShift = context.getCurrentRow() - context.getStartRow();
-            int columnShift = context.getCurrentColumn() - context.getStartColumn();
-
-            RangeNode copy = new RangeNode(left);
-            copy.setRow("" + (copy.getRowNumber() + rowShift));
-            copy.setColumn("" + (copy.getColumnNumber() + columnShift));
-
-            if (right.getRowNumber() < copy.getRowNumber() || right.getColumnNumber() < copy.getColumnNumber()) {
-                return "null";
+            if (context.isCanHandleArrayOperators()) {
+                return String.format("CellRange(\"%s\", %d, %d)",
+                        left.getAddress(),
+                        right.getRowNumber() - left.getRowNumber() + 1,
+                        right.getColumnNumber() - left.getColumnNumber() + 1);
             } else {
-                return copy.toOpenLString();
+                int rowShift = context.getCurrentRow() - context.getStartRow();
+                int columnShift = context.getCurrentColumn() - context.getStartColumn();
+
+                RangeNode copy = new RangeNode(left);
+                copy.setRow("" + (copy.getRowNumber() + rowShift));
+                copy.setColumn("" + (copy.getColumnNumber() + columnShift));
+
+                if (right.getRowNumber() < copy.getRowNumber() || right.getColumnNumber() < copy.getColumnNumber()) {
+                    return "null";
+                } else {
+                    return copy.toOpenLString();
+                }
             }
         } else {
             int row = context.getCurrentRow();
@@ -45,5 +52,10 @@ public class RangeExpressionResolver implements ExpressionResolver {
                 return "null";
             }
         }
+    }
+
+    public boolean isRangeReturnsArray() {
+        ExpressionContext instance = ExpressionContext.getInstance();
+        return instance.isArrayExpression() && instance.isCanHandleArrayOperators();
     }
 }

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,18 +69,25 @@ public class FilterNode extends Node {
 
     @Override
     public String toOpenLString() {
-        if (isFieldComparisonNode()) {
-            String filterString = getFieldComparisonString(false, 0);
-            return wrapWithFieldAccess(filterString, true, 0);
-        } else if (isFieldNode()) {
-            return getFieldString(false, 0);
-        } else if (isParentNode()) {
-            return getParentString();
-        } else if (isDataInstanceNode()) {
-            return getDataInstanceString();
-        }
+        ExpressionContext instance = ExpressionContext.getInstance();
+        boolean canHandleArrayOperators = instance.isCanHandleArrayOperators();
+        try {
+            instance.setCanHandleArrayOperators(false);
+            if (isFieldComparisonNode()) {
+                String filterString = getFieldComparisonString(false, 0);
+                return wrapWithFieldAccess(filterString, true, 0);
+            } else if (isFieldNode()) {
+                return getFieldString(false, 0);
+            } else if (isParentNode()) {
+                return getParentString();
+            } else if (isDataInstanceNode()) {
+                return getDataInstanceString();
+            }
 
-        throw new IllegalArgumentException("Unsupported filter node " + toString());
+            throw new IllegalArgumentException("Unsupported filter node " + toString());
+        } finally {
+            instance.setCanHandleArrayOperators(canHandleArrayOperators);
+        }
     }
 
     public String wrapWithFieldAccess(String filterString, boolean lastFieldAccess, int skipFieldsCount) {
@@ -250,7 +258,6 @@ public class FilterNode extends Node {
             parentCount++;
         }
 
-
         if (node instanceof FilterNode) {
             FilterNode filterNode = (FilterNode) node;
             if (filterNode.isFieldNode()) {
@@ -261,7 +268,9 @@ public class FilterNode extends Node {
             }
         }
 
-        throw new IllegalArgumentException("Can't apply Parent() to the node " + (node == null ? "null" : node.toOpenLString()));
+        throw new IllegalArgumentException("Can't apply Parent() to the node " + (node == null ?
+                                                                                  "null" :
+                                                                                  node.toOpenLString()));
     }
 
     protected String getDataInstanceString() {
@@ -270,7 +279,9 @@ public class FilterNode extends Node {
     }
 
     protected boolean isDataInstanceNode() {
-        return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance().getTypeNames().contains(fieldName);
+        return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance()
+                .getTypeNames()
+                .contains(fieldName);
     }
 
     protected boolean isFieldComparisonNode() {
@@ -282,7 +293,9 @@ public class FilterNode extends Node {
     }
 
     protected boolean isParentNode() {
-        return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance().getTypeNames().contains(fieldName);
+        return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance()
+                .getTypeNames()
+                .contains(fieldName);
     }
 
     protected void pushToChain(Deque<FilterNode> nodes) {

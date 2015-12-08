@@ -38,15 +38,7 @@ public class OutFunction {
 
         if (o.getClass().isArray()) {
             Object[] objects = (Object[]) o;
-            Class type = null;
-            for (Object object : objects) {
-                if (object == null) {
-                    continue;
-                }
-
-                type = object.getClass();
-                break;
-            }
+            Class type = getElementType(objects);
 
             if (type == null) {
                 return null;
@@ -54,35 +46,59 @@ public class OutFunction {
 
             if (type.isArray()) {
                 for (Object object : objects) {
-                    addArrayElements(result, showColumnNames, (Object[]) object);
+                    Object[] row = (Object[]) object;
+                    Class elementType = getElementType(row);
+                    if (elementType == null) {
+                        continue;
+                    }
+                    if (elementType.isArray()) {
+                        for (Object innerRow : row) {
+                            addArrayElements(result, showColumnNames, (Object[]) innerRow);
+                        }
+                    } else {
+                        if (isBasicType(elementType)) {
+                            addArrayElements(result, showColumnNames, row);
+                        } else {
+                            List<List<String>> subResult = new ArrayList<List<String>>();
+                            outComplexTypes(row, showColumnNames, subResult, elementType);
+                            result.addAll(subResult);
+                        }
+                    }
                 }
             } else if (isBasicType(type)) {
                 addArrayElements(result, showColumnNames, objects);
             } else {
-                String typeName = type.getName();
-                typeName = typeName.replace("org.openl.generated.beans.", "");
-                LinkedHashMap<String, Integer> fieldRows = new LinkedHashMap<String, Integer>();
-                Type xmlRulesType = getType(typeName);
-                if (xmlRulesType == null) {
-                    throw new IllegalArgumentException("Unsupported type '" + typeName + "'");
-                }
-
-                fillFieldCoordinates(xmlRulesType, fieldRows, 0, "");
-                outObject(result, showColumnNames, fieldRows, o, xmlRulesType,  0, "");
+                outComplexTypes(o, showColumnNames, result, type);
             }
         } else {
-            String typeName = o.getClass().getName();
-            typeName = typeName.replace("org.openl.generated.beans.", "");
-            LinkedHashMap<String, Integer> fieldRows = new LinkedHashMap<String, Integer>();
-            Type xmlRulesType = getType(typeName);
-            if (xmlRulesType == null) {
-                throw new IllegalArgumentException("Unsupported type");
-            }
-
-            fillFieldCoordinates(xmlRulesType, fieldRows, 0, "");
-            outObject(result, showColumnNames, fieldRows, o, xmlRulesType,  0, "");
+            Class<?> type = o.getClass();
+            outComplexTypes(o, showColumnNames, result, type);
         }
         return result;
+    }
+
+    private static void outComplexTypes(Object o, boolean showColumnNames, List<List<String>> result, Class<?> elementType) {
+        String typeName = elementType.getName();
+        typeName = typeName.replace("org.openl.generated.beans.", "");
+        LinkedHashMap<String, Integer> fieldRows = new LinkedHashMap<String, Integer>();
+        Type xmlRulesType = getType(typeName);
+        if (xmlRulesType == null) {
+            throw new IllegalArgumentException("Unsupported type '" + typeName + "'");
+        }
+
+        fillFieldCoordinates(xmlRulesType, fieldRows, 0, "");
+        outObject(result, showColumnNames, fieldRows, o, xmlRulesType,  0, "");
+    }
+
+    private static Class getElementType(Object[] objects) {
+        for (Object object : objects) {
+            if (object == null) {
+                continue;
+            }
+
+            return object.getClass();
+        }
+        return null;
     }
 
     private static boolean isBasicType(Class type) {
@@ -201,7 +217,18 @@ public class OutFunction {
         }
         if (objectRow != null) {
             for (Object elem : objectRow) {
-                row.add(elem == null ? null : String.valueOf(elem));
+                String value;
+                if (elem == null) {
+                    value = null;
+                } else {
+                    Class type = elem.getClass();
+                    if (type.isArray() && ((Object[]) elem).length == 1) {
+                        value = String.valueOf(((Object[]) elem)[0]);
+                    } else {
+                        value = String.valueOf(elem);
+                    }
+                }
+                row.add(value);
             }
         }
     }

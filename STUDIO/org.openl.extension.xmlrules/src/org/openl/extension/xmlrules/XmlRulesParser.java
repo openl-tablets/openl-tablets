@@ -14,9 +14,11 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.model.single.node.FunctionNode;
 import org.openl.extension.xmlrules.model.single.node.NamedRange;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.ValueHolder;
+import org.openl.extension.xmlrules.model.single.node.expression.CellInspector;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
@@ -711,37 +713,94 @@ public class XmlRulesParser extends BaseParser {
             ExpressionContext expressionContext = new ExpressionContext(startRow, startColumn, endRow, endColumn);
             ExpressionContext.setInstance(expressionContext);
 
-            int columnsCount = endColumn - startColumn + 2;
+            int columnsCount = endColumn - startColumn + 3;
             // TODO Add array operations parameters count
+
+            Node node = cell.getNode();
+            if (node == null) {
+                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
+                        .getAddress()
+                        .toOpenLString() + " contains incorrect value. It will be skipped");
+            }
+
+            boolean isOutFunction = node instanceof FunctionNode && "Out".equals(((FunctionNode) node).getName());
 
             gridBuilder.addCell("Spreadsheet SpreadsheetResult " + tableName + "()", columnsCount).nextRow();
 
             gridBuilder.addCell("#");
+            gridBuilder.addCell("Calculation");
             for (int i = startColumn; i <= endColumn; i++) {
                 gridBuilder.addCell("C" + i + " : Object");
             }
             gridBuilder.nextRow();
 
+            CellInspector.NodeSize nodeSize = CellInspector.inspect(cell.getNode(), true);
+            int resultRows = nodeSize.getResultHeight();
+            int resultColumns = nodeSize.getResultWidth();
+
+            if (resultColumns == 1) {
+                gridBuilder.addCell("Result : Object[]").addCell("= new Object[" + resultRows + "]");
+            } else {
+                gridBuilder.addCell("Result : Object[][]")
+                        .addCell("= new Object[" + resultRows + "][" + resultColumns + "]");
+            }
+            gridBuilder.nextRow();
+
+            for (int step = 0; step < resultRows; step++) {
+                gridBuilder.addCell("Step" + step + " : Object");
+
+                for (int column = startColumn; column < startColumn + resultColumns; column++) {
+                    expressionContext.setCurrentRow(startRow + step);
+                    expressionContext.setCurrentColumn(column);
+
+                    String expression;
+                    try {
+                        if (node instanceof ValueHolder) {
+                            expression = ((ValueHolder) node).asString();
+                        } else {
+                            String formula = isOutFunction ? ((FunctionNode) node).getArguments().get(0).toOpenLString() : node.toOpenLString();
+
+                            if (resultColumns == 1) {
+                                expression = "= $Calculation$Result[" + step + "] = " + formula;
+                            } else {
+                                expression = "= $Calculation$Result[" + step + "][ + " + (column - startColumn) + " = " + formula;
+                            }
+                        }
+                    } catch (RuntimeException e) {
+                        expression = "";
+                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
+                                .toOpenLString() + ": " + e.getMessage();
+                        log.error(errorMessage, e);
+                        OpenLMessagesUtils.addError(errorMessage);
+                    }
+                    gridBuilder.addCell(expression);
+                }
+                gridBuilder.nextRow();
+            }
+
+            expressionContext.setOutArray(isOutFunction);
+
             // FIXME Here is simple case only
             for (int row = startRow; row <= endRow; row++) {
                 gridBuilder.addCell("R" + row);
+                gridBuilder.addCell(null);
 
                 for (int column = startColumn; column <= endColumn; column++) {
                     expressionContext.setCurrentRow(row);
                     expressionContext.setCurrentColumn(column);
 
-                    Node node = cell.getNode();
                     String expression;
                     try {
-                        if (node == null) {
-                            throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
-                                    .getAddress()
-                                    .toOpenLString() + " contains incorrect value. It will be skipped");
-                        }
                         if (node instanceof ValueHolder) {
                             expression = ((ValueHolder) node).asString();
                         } else {
-                            expression = "= " + node.toOpenLString();
+                            if (isOutFunction) {
+                                expression = "= " + node.toOpenLString();
+                            } else {
+                                int rowShift = row - startRow;
+                                int columnShift = column - startColumn;
+                                expression = "= Out(" + rowShift + ", " + columnShift + ", $Calculation$Result)";
+                            }
                         }
                     } catch (RuntimeException e) {
                         expression = "";

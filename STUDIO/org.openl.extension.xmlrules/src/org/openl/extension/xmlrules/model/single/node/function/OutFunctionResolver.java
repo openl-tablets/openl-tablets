@@ -33,7 +33,11 @@ public class OutFunctionResolver implements FunctionResolver {
             if (i > 0) {
                 builder.append(", ");
             }
-            builder.append(arguments.get(i).toOpenLString());
+            if (context.isOutArray() && i == 0) {
+                builder.append("$Calculation$Result");
+            } else {
+                builder.append(arguments.get(i).toOpenLString());
+            }
         }
         builder.append(')');
         return builder.toString();

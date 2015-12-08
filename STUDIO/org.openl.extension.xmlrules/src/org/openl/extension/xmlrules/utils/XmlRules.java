@@ -37,6 +37,15 @@ public class XmlRules {
         return cache.getCellValue(cell);
     }
 
+    public static Object[][] CellRange(String cell, int rows, int cols) {
+        LazyCellExecutor cache = LazyCellExecutor.getInstance();
+        if (cache == null) {
+            throw new IllegalStateException("Cells cache not initialized");
+        }
+
+        return cache.getCellValues(cell, rows, cols);
+    }
+
     public static Object Field(Object target, String fieldName) {
         if (target == null) {
             return null;

@@ -67,6 +67,28 @@ public class LazyCellExecutor {
         }
     }
 
+    public Object[][] getCellValues(String cell, int rows, int cols) {
+        Object[][] result = new Object[rows][cols];
+        RulesTableReference reference = getReference(cell);
+        int row = Integer.parseInt(reference.getRow());
+        int col = Integer.parseInt(reference.getColumn());
+
+        CellReference start = reference.getReference();
+        String workbook = start.getWorkbook();
+        String sheet = start.getSheet();
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int currentRow = row + i;
+                int currentColumn = col + j;
+                CellReference cr = new CellReference(workbook, sheet, "" + currentRow, "" + currentColumn);
+                result[i][j] = getCellValue(cr.getStringValue());
+            }
+        }
+
+        return result;
+    }
+
     public Object getCellValue(String cell) {
         if (!params.containsKey(cell)) {
             RulesTableReference reference = getReference(cell);

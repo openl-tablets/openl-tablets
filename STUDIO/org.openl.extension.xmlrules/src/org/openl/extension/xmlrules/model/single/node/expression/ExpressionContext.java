@@ -13,6 +13,9 @@ public class ExpressionContext {
     private int currentRow;
     private int currentColumn;
 
+    private boolean outArray = false;
+    private boolean canHandleArrayOperators = true;
+
     public static ExpressionContext getInstance() {
         return instanceHolder.get();
     }
@@ -78,5 +81,21 @@ public class ExpressionContext {
 
     public void setCurrentColumn(int currentColumn) {
         this.currentColumn = currentColumn;
+    }
+
+    public boolean isOutArray() {
+        return outArray;
+    }
+
+    public void setOutArray(boolean outArray) {
+        this.outArray = outArray;
+    }
+
+    public boolean isCanHandleArrayOperators() {
+        return canHandleArrayOperators;
+    }
+
+    public void setCanHandleArrayOperators(boolean canHandleArrayOperators) {
+        this.canHandleArrayOperators = canHandleArrayOperators;
     }
 }

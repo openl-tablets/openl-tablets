@@ -151,6 +151,16 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="array-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="named-range">
     <xs:sequence>
       <xs:element name="name" type="xs:string" minOccurs="0"/>

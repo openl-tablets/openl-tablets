@@ -4,6 +4,15 @@ public final class ExpressionResolverFactory {
     private ExpressionResolverFactory() {
     }
 
+    public static ExpressionResolver getExpressionResolver(String operator) {
+        Operator op = Operator.findOperator(operator);
+        if (op == null) {
+            throw new UnsupportedOperationException("Operator '" + operator + "' isn't supported");
+        }
+
+        return getExpressionResolver(op);
+    }
+
     public static ExpressionResolver getExpressionResolver(Operator operator) {
         if (operator == null) {
             return null;

@@ -17,6 +17,8 @@ import org.openl.extension.xmlrules.model.single.Cell;
         IfErrorNode.class,
         FilterNode.class,
 
+        ArrayNode.class,
+
         FailureNode.class
 })
 public abstract class Node {

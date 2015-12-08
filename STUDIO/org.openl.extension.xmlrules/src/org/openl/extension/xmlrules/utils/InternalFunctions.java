@@ -15,6 +15,33 @@ public class InternalFunctions {
 
     public static String Out(int row, int column, Object o, boolean horizontalRowValues, boolean showColumnNames) {
         String[][] out = Out(o, horizontalRowValues, showColumnNames);
-        return out == null || out.length <= row || out[row].length <= column ?  "" : out[row][column];
+        String result;
+        if (out == null) {
+            return "";
+        }
+
+        String[] columns;
+
+        if (out.length <= row) {
+            if (out.length != 1) {
+                return "";
+            }
+
+            columns = out[0];
+        }  else {
+            columns = out[row];
+        }
+
+        if (columns.length <= column) {
+            if (columns.length != 1) {
+                return "";
+            }
+
+            result = columns[0];
+        } else {
+            result = columns[column];
+        }
+
+        return result == null ? "" : result;
     }
 }

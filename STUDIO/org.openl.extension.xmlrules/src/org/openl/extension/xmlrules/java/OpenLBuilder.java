@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules.java;
 
 import org.openl.OpenL;
 import org.openl.conf.*;
+import org.openl.extension.xmlrules.utils.ArrayOperators;
 import org.openl.extension.xmlrules.utils.InternalFunctions;
 import org.openl.extension.xmlrules.utils.XmlRules;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -37,6 +38,14 @@ public class OpenLBuilder extends AOpenLBuilder {
             javalib.setClassName(javaLibConfiguration);
             library.addJavalib(javalib);
         }
+
+        NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
+        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
+        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
+        javalib1.setClassName(ArrayOperators.class.getName());
+        nslc.addJavalib(javalib1);
+        libraries.addConfiguredLibrary(nslc);
+
 
         libraries.addConfiguredLibrary(library);
 
