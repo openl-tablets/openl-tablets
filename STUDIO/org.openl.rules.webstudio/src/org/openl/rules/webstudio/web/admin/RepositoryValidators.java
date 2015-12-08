@@ -103,11 +103,14 @@ public final class RepositoryValidators {
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
             RRepositoryFactory repoFactory = productionRepositoryFactoryProxy.getFactory(
                     repoConfig.getProperties());
-
-            RRepository repository = repoFactory.getRepositoryInstance();
-            /*Close repo connection after validation*/
-            repository.release();
-            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            try {
+                RRepository repository = repoFactory.getRepositoryInstance();
+                /*Close repo connection after validation*/
+                repository.release();
+            } finally {
+                // Release a factory to prevent memory leak
+                repoFactory.release();
+            }
         } catch (RRepositoryException e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
