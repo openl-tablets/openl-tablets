@@ -121,7 +121,7 @@ public class RepositoryConfiguration {
                 case DB:
                     return "jdbc:mysql://localhost/" + type + "-repository";
                 case JNDI:
-                    return "java:comp/env/jdbc/" + type + "tDB";
+                    return "java:comp/env/jdbc/" + type + "DB";
             }
         }
         return uri;
