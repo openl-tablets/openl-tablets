@@ -35,6 +35,7 @@ import org.modeshape.jcr.RepositoryConfiguration;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +54,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private static final String COL_DATA = "DATA";
     private static final String COL_TIME = "TIMESTAMP";
     private static final String OPENL_JCR_REPO_ID_KEY = "openl-jcr-repo-id";
-    private static final String CREATE_TABLE = "CREATE TABLE " + REPO_TABLE + "(" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
-    private static final String INSERT_ID = "INSERT INTO " + REPO_TABLE + " (" + COL_ID + ", " + COL_DATA + ", " + COL_TIME + ") VALUES(\"" + OPENL_JCR_REPO_ID_KEY + "\",?,-1)";
-    private static final String SELECT_ID = "SELECT " + COL_DATA + " FROM " + REPO_TABLE + " WHERE " + COL_ID + " = \"" + OPENL_JCR_REPO_ID_KEY + '"';
+    private static final String CREATE_TABLE = "CREATE TABLE " + REPO_TABLE + " (" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
+    private static final String INSERT_ID = "INSERT INTO " + REPO_TABLE + " (" + COL_ID + ", " + COL_DATA + ", " + COL_TIME + ") VALUES(?,?,-1)";
+    private static final String SELECT_ID = "SELECT " + COL_DATA + " FROM " + REPO_TABLE + " WHERE " + COL_ID + " = ?";
 
     /**
      * Jackrabbit local repository
@@ -394,20 +395,28 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
         createRepoID(conn);
         repoID = selectRepoID(conn);
-        return repoID;
+        if (repoID != null) {
+            return repoID;
+        }
+        throw new IllegalStateException("The row with ID = '" + OPENL_JCR_REPO_ID_KEY + "' has not created");
     }
 
     private String selectRepoID(Connection conn) throws SQLException {
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = conn.createStatement();
-            rs = statement.executeQuery(SELECT_ID);
+            statement = conn.prepareStatement(SELECT_ID);
+            statement.setString(1, OPENL_JCR_REPO_ID_KEY);
+            rs = statement.executeQuery();
             if (rs.next()) {
-                return rs.getString(1);
+                InputStream binaryStream = rs.getBinaryStream(1);
+                return IOUtils.toStringAndClose(binaryStream);
             } else {
                 return null;
             }
+        } catch (IOException e) {
+            log.error("Unexpected IO failure", e);
+            return null;
         } finally {
             safeClose(rs);
             safeClose(statement);
@@ -419,7 +428,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         PreparedStatement statement = null;
         try {
             statement = conn.prepareStatement(INSERT_ID);
-            statement.setString(1, repoId);
+            statement.setString(1, OPENL_JCR_REPO_ID_KEY);
+            statement.setBinaryStream(2, IOUtils.toInputStream(repoId));
             statement.executeUpdate();
         } finally {
             safeClose(statement);
