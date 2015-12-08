@@ -47,30 +47,31 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 } finally {
                     if (repository != null) {
                         repository.release();
-                        this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
+                        repoFactory.release();
                     }
                 }
             } else {
-                RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties());
-                RRepository repository = repoFactory.getRepositoryInstance();
-                /*Close repo connection*/
-                repository.release();
-                this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
+                RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
             }
         } catch (RRepositoryException e) {
-            Throwable resultException = e;
-
-            while (resultException.getCause() != null) {
-                resultException = resultException.getCause();
-            }
-
-            setErrorMessage(resultException.getMessage());
-            return;
+            setErrorMessage(e);
+        } catch (RepositoryValidationException e) {
+            setErrorMessage(e);
         }
 
         addProductionRepoToMainConfig(repoConfig);
 
         clearForm();
+    }
+
+    private void setErrorMessage(Throwable exception) {
+        Throwable resultException = exception;
+
+        while (resultException.getCause() != null) {
+            resultException = resultException.getCause();
+        }
+
+        setErrorMessage(resultException.getMessage());
     }
 
 }
