@@ -35,7 +35,7 @@ public class SystemSettingsValidator {
         String directoryType = "Workspace Directory";
         validateNotBlank((String) value, directoryType);
         systemSettingsBean.setUserWorkspaceHome((String) value);
-        workingDirValidator(systemSettingsBean.getUserWorkspaceHome(), directoryType);
+        workingDirValidator(systemSettingsBean.getUserWorkspaceHome());
 
     }
 
@@ -44,7 +44,7 @@ public class SystemSettingsValidator {
         String directoryType = "History Directory";
         validateNotBlank((String) value, directoryType);
         systemSettingsBean.setProjectHistoryHome((String) value);
-        workingDirValidator(systemSettingsBean.getProjectHistoryHome(), directoryType);
+        workingDirValidator(systemSettingsBean.getProjectHistoryHome());
 
     }
 
@@ -95,36 +95,32 @@ public class SystemSettingsValidator {
         }
     }
 
-    public void workingDirValidator(String value, String folderType) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        boolean hasAccess;
+    /**
+     * Check permission on folder creation
+     *
+     * This method deletes only created folders.
+     */
+    private void workingDirValidator(String folderPath) {
+        File folder = new File(folderPath);
+        File root = null; // will be deleted, it is the first absent folder
+        while (folder != null && !folder.exists()) {
+            root = folder; // keep current not created
+            folder = folder.getParentFile(); // get parent
+        }
 
+        File tmp = null; // temp file to check access
+        boolean hasAccess = false;
         try {
-
-            studioWorkingDir = new File(value);
-
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
-
-                hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value
-                            + " '    Please, contact to your system administrator."));
-                }
-            } else {
-                if (!studioWorkingDir.mkdirs()) {
-                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
-                } else {
-                    deleteFolder(value);
-                }
-            }
-        } catch (Exception e) {
-            FacesUtils.addErrorMessage(e.getMessage());
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
+            // check access
+            tmp = new File(folderPath, ".openl-tmp");
+            hasAccess = tmp.mkdirs();
         } finally {
-            FileUtils.deleteQuietly(tmpFile);
+            // delete all created files
+            FileUtils.deleteQuietly(tmp);
+            FileUtils.deleteQuietly(root);
+        }
+        if (!hasAccess) {
+            FacesUtils.addErrorMessage("Can't get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
         }
     }
 
@@ -133,26 +129,6 @@ public class SystemSettingsValidator {
             String errorMessage = folderType + " could not be empty";
             FacesUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
-        }
-    }
-
-    /**
-     * Deleting the folder which was created for folder permissions validation
-     *
-     * @deprecated This method deletes all parent folders if they are not locked - this is error-prone especially in non-Windows
-     * OS. Remove it and delete only created folders.
-     */
-    @Deprecated
-    private void deleteFolder(String folderPath) {
-        File workFolder = new File(folderPath);
-        File parent = workFolder.getParentFile();
-
-        while (parent != null) {
-            if (!workFolder.delete()) {
-                log.warn("The folder '{}' isn't deleted", workFolder.getName());
-            }
-            parent = workFolder.getParentFile();
-            workFolder = parent;
         }
     }
 }
