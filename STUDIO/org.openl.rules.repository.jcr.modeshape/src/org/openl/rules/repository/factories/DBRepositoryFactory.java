@@ -48,7 +48,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
     private static final String TABLE_PREFIX = "OPENL";
-    private static final String TABLE_NAME = "jcr_cache";
+    private static final String TABLE_NAME = "JCR_CACHE";
     private static final String REPO_TABLE = TABLE_PREFIX + '_' + TABLE_NAME;
     private static final String COL_ID = "ID";
     private static final String COL_DATA = "DATA";
@@ -133,11 +133,11 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         // Infinispan cache declaration
         Configuration ispnConfig = getInfinispanConfiguration(url, user, password);
-        environment.defineCache("jcr_cache", ispnConfig);
+        environment.defineCache(TABLE_NAME, ispnConfig);
 
         // Modeshape's configuration
         RepositoryConfiguration config = RepositoryConfiguration.read(
-            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'jcr_cache','binaryStorage':{'type':'cache','dataCacheName':'jcr_cache','metadataCacheName':'jcr_cache'}},'clustering':{'clusterName':'" + repoName + "'}}");
+            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'" + TABLE_NAME + "','binaryStorage':{'type':'cache','dataCacheName':'" + TABLE_NAME + "','metadataCacheName':'" + TABLE_NAME + "'}},'clustering':{'clusterName':'" + repoName + "'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
