@@ -17,7 +17,6 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
@@ -154,7 +153,8 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(runningServices.keySet());
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(runningServices.keySet());
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     public OpenLService getServiceByName(String name) {

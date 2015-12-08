@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,7 +52,8 @@ public class RulesFrontendImpl implements RulesFrontend {
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(runningServices.values());
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(runningServices.values());
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     /**

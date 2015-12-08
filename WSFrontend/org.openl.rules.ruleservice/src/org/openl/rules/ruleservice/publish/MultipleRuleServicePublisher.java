@@ -115,7 +115,8 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(services.values());
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(services.values());
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     @Override

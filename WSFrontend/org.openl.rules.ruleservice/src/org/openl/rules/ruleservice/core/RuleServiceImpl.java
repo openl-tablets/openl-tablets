@@ -4,7 +4,9 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,7 +88,9 @@ public class RuleServiceImpl implements RuleService {
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        return ruleServicePublisher.getServices();
+        Collection<OpenLService> services = ruleServicePublisher.getServices();
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(services);
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     /**
