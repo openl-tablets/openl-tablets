@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.simple;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -27,7 +28,10 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(frontend.getServices());
+        Collection<OpenLService> services = frontend.getServices();
+        
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(services);
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     /**

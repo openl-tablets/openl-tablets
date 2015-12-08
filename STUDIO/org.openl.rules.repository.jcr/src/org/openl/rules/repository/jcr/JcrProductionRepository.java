@@ -278,7 +278,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 try {
                     listener.onEvent();
                 } catch (Exception e) {
-                    log.debug("onEvent-2", e);
+                    log.error("onEvent-2", e);
                 }
             }
 

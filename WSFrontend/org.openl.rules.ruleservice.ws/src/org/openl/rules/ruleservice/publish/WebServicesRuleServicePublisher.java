@@ -132,7 +132,8 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
     }
 
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(runningServices.keySet());
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(runningServices.keySet());
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     public OpenLService getServiceByName(String name) {

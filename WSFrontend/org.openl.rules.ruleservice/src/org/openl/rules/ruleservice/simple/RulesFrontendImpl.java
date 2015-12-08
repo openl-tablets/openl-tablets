@@ -13,6 +13,7 @@ import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 /**
  * Simple implementation of IRulesFrontend interface.
  *
@@ -51,7 +52,8 @@ public class RulesFrontendImpl implements RulesFrontend {
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        return Collections.unmodifiableCollection(runningServices.values());
+        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(runningServices.values());
+        return Collections.unmodifiableCollection(shalowCopy);
     }
 
     /**
