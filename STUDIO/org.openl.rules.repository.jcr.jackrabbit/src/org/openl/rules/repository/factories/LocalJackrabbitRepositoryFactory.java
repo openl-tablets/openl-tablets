@@ -11,12 +11,13 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -38,19 +39,11 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
-    private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
-            "repository.local.home", "../local-repository");
-    private ConfigPropertyString confNodeTypeFile = new ConfigPropertyString(
-            "repository.jcr.nodetypes", DEFAULT_NODETYPE_FILE);
-    private ConfigPropertyString confRepositoryName = new ConfigPropertyString(
-            "repository.name", "Local Jackrabbit");
-
     /**
      * Jackrabbit local repository
      */
     protected TransientRepository repository;
     protected File repHome;
-    private String nodeTypeFile;
     protected boolean convert = false;
 
     @Override
@@ -103,10 +96,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
      */
     private void init() throws RepositoryException {
         try {
-            String repConf = this.getRepoConfigFile().getValue();//"/jackrabbit-repository.xml";
+            String jackrabbitConfig;
+            if (StringUtils.isEmpty(login.getValue())) {
+                jackrabbitConfig = "/jackrabbit-repository.xml";
+            } else {
+                jackrabbitConfig = "/secure-jackrabbit-repository.xml";
+            }
 
             // obtain real path to repository configuration file
-            InputStream input = this.getClass().getResourceAsStream(repConf);
+            InputStream input = this.getClass().getResourceAsStream(jackrabbitConfig);
 
             File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
             // It could be cleaned-up on exit
@@ -132,16 +130,11 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
 
-        confSet.updateProperty(confRepositoryHome);
-        confSet.updateProperty(confNodeTypeFile);
-        confSet.updateProperty(confRepositoryName);
-
-        repHome = new File(confRepositoryHome.getValue());
-        nodeTypeFile = confNodeTypeFile.getValue();
+        repHome = new File(uri.getValue());
 
         try {
             init();
-            setRepository(repository, confRepositoryName.getValue());
+            setRepository(repository);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
@@ -164,7 +157,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         }
     }
 
-    protected void convert() throws RRepositoryException {
+    private void convert() throws RRepositoryException {
+        if (designRepositoryMode) {
+            convertDessignRepo();
+        } else {
+            convertProdRepo();
+        }
+    }
+
+    private void convertDessignRepo() throws RRepositoryException {
         RRepository repositoryInstance = null;
         File tempRepoHome;
         try {
@@ -187,7 +188,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
                 Session session = createSession();
 
                 RTransactionManager transactionManager = getTrasactionManager(session);
-                JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session,
+                JcrProductionRepository productionRepository = new JcrProductionRepository(session,
                         transactionManager);
                 ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
                 log.info("Converting production repository. Please, be patient.");
@@ -207,6 +208,35 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             throw new RRepositoryException("Failed to convert repository.", e);
         }
 
+    }
+
+    private void convertProdRepo() throws RRepositoryException {
+        RProductionRepository repositoryInstance = null;
+        File tempRepoHome;
+        try {
+            // FIXME: do not hardcode credential info
+            Session session = createSession();
+            RTransactionManager transactionManager = getTrasactionManager(session);
+            repositoryInstance = new JcrProductionRepository(session, transactionManager);
+            tempRepoHome = FileUtils.createTempDirectory();
+            // FIXME
+            ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
+            log.info("Converting production repository. Please, be patient.");
+            repositoryConvertor.convert(repositoryInstance);
+        } catch (Exception e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        } finally {
+            if (repositoryInstance != null) {
+                repositoryInstance.release();
+            }
+        }
+
+        try {
+            FileUtils.delete(repHome);
+            FileUtils.move(tempRepoHome, repHome);
+        } catch (IOException e) {
+            throw new RRepositoryException("Failed to convert repository.", e);
+        }
     }
 
     private boolean isProductionRepository() {
@@ -246,7 +276,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         try {
             InputStream is = null;
             try {
-                is = this.getClass().getResourceAsStream(nodeTypeFile);
+                is = this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE);
                 ntmi.registerNodeTypes(is, JackrabbitNodeTypeManager.TEXT_XML, true);
             } finally {
                 if (is != null) {
@@ -256,30 +286,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
-    }
-
-    public ConfigPropertyString getConfRepositoryHome() {
-        return confRepositoryHome;
-    }
-
-    public void setConfRepositoryHome(ConfigPropertyString confRepositoryHome) {
-        this.confRepositoryHome = confRepositoryHome;
-    }
-
-    public ConfigPropertyString getConfNodeTypeFile() {
-        return confNodeTypeFile;
-    }
-
-    public void setConfNodeTypeFile(ConfigPropertyString confNodeTypeFile) {
-        this.confNodeTypeFile = confNodeTypeFile;
-    }
-
-    public ConfigPropertyString getConfRepositoryName() {
-        return confRepositoryName;
-    }
-
-    public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {
-        this.confRepositoryName = confRepositoryName;
     }
 
     public boolean configureJCRForOneUser(String login, String pass) {

@@ -34,14 +34,6 @@ public interface RRepository {
     List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException;
 
     /**
-     * Returns name of the repository. It can be type of repository plus
-     * location.
-     *
-     * @return name of repository
-     */
-    String getName();
-
-    /**
      * Gets project by name.
      *
      * @param name

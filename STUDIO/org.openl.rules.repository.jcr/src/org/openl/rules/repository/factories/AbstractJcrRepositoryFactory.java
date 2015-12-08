@@ -13,6 +13,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.config.ConfigPropertyBoolean;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
@@ -36,7 +37,7 @@ import org.xml.sax.InputSource;
  */
 public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
 
-    public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
+    protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     /** Default path where new project should be created */
     protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString(
@@ -45,14 +46,13 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             "design-repository.deployments.path", "/deployments");
 
     protected Repository repository;
-    protected String repositoryName;
+//    protected String repositoryName;
     private RRepository rulesRepository;
-
 
     protected ConfigPropertyString login;
     protected ConfigPropertyString password;
-    private ConfigPropertyString repoConfigFile;
-    private boolean productionRepositoryMode = false;
+    protected ConfigPropertyString uri;
+    boolean designRepositoryMode = false;
 
 
     /**
@@ -114,7 +114,15 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if fails or user credentials are not correct
      */
     protected Session createSession() throws RepositoryException {
-        Credentials credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());
+        String loginValue = login.getValue();
+        String passwordValue = password.getValue();
+        if (loginValue == null) {
+            loginValue = "";
+        }
+        if (passwordValue == null) {
+            passwordValue = "";
+        }
+        Credentials credencials = new SimpleCredentials(loginValue, passwordValue.toCharArray());
         return repository.login(credencials);
     }
 
@@ -127,10 +135,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPath = factory.newXPath();
 
-        String file = DEFAULT_NODETYPE_FILE;
         try {
 
-            InputSource source = new InputSource(this.getClass().getResourceAsStream(file));
+            InputSource source = new InputSource(this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE));
             String result = xPath.evaluate(xPathQ, source);
 
             if (result == null || result.length() == 0) {
@@ -139,7 +146,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             return result;
         } catch (Exception e) {
-            throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
+            throw new RepositoryException("Cannot read schema version from '" + DEFAULT_NODETYPE_FILE + "': " + e.getMessage());
         }
     }
 
@@ -186,10 +193,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         return rulesRepository;
     }
 
-    protected void setProductionRepositoryMode(boolean productionRepositoryMode) {
-        this.productionRepositoryMode = productionRepositoryMode;
-    }
-
     public RRepository createRepository() throws RRepositoryException {
         Session session = null;
         try {
@@ -197,11 +200,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             RTransactionManager transactionManager = getTrasactionManager(session);
             RRepository theRepository;
-            if (productionRepositoryMode) {
-                theRepository = new JcrProductionRepository(repositoryName, session, transactionManager);
-            } else {
-                theRepository = new JcrRepository(repositoryName, session, transactionManager,
+            if (designRepositoryMode) {
+                theRepository = new JcrRepository(session, transactionManager,
                         confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
+            } else {
+                theRepository = new JcrProductionRepository(session, transactionManager);
             }
             return theRepository;
         } catch (RepositoryException e) {
@@ -214,12 +217,21 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public void initialize(ConfigSet confSet) throws RRepositoryException {
-        confSet.updateProperty(confRulesProjectsLocation); 
+        confSet.updateProperty(confRulesProjectsLocation);
         confSet.updateProperty(confDeploymentProjectsLocation);
+
+        ConfigPropertyBoolean dessignModeProperty = new ConfigPropertyBoolean("dessign-mode", false);
+        confSet.updateProperty(dessignModeProperty);
+        designRepositoryMode = dessignModeProperty.getValue();
+
+        String type = designRepositoryMode ? "design" : "production";
+        login = new ConfigPropertyString(type + "-repository.login", null);
+        password = new ConfigPropertyString(type + "-repository.password", null);
+        uri = new ConfigPropertyString(type + "-repository.uri", null);
 
         confSet.updateProperty(login);
         confSet.updatePasswordProperty(password);
-        confSet.updateProperty(repoConfigFile);
+        confSet.updateProperty(uri);
 
         // TODO: add default path support
         // 1. check path -- create if absent
@@ -253,29 +265,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start
      */
-    protected void setRepository(Repository rep, String name) throws RepositoryException {
+    protected void setRepository(Repository rep) throws RepositoryException {
         repository = rep;
-        repositoryName = name;
 
         checkOnStart();
     }
 
     public abstract RTransactionManager getTrasactionManager(Session session);
-
-    public ConfigPropertyString getRepoConfigFile() {
-        return repoConfigFile;
-    }
-
-    public void setLogin(ConfigPropertyString login) {
-        this.login = login;
-    }
-
-    public void setPassword(ConfigPropertyString password) {
-        this.password = password;
-    }
-
-    public void setRepoConfigFile(ConfigPropertyString repoConfigFile) {
-        this.repoConfigFile = repoConfigFile;
-    }
-
 }

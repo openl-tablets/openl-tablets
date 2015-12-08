@@ -13,6 +13,7 @@ import org.openl.rules.repository.NullRepository;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RRepositoryListener;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -78,28 +79,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
         ConfigSet config = new ConfigSet();
         config.addProperties(properties);
+        config.addProperty("dessign-mode", "true");
 
         // default value is <code>null</code> -- fail first
         ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString("design-repository.factory", null);
         config.updateProperty(confRepositoryFactoryClass);
         String className = confRepositoryFactoryClass.getValue();
 
-        RRepositoryFactory repFactory;
-        try {
-            Class<?> c = Class.forName(className);
-            Object obj = c.newInstance();
-            repFactory = (RRepositoryFactory) obj;
-            // initialize
-            repFactory.initialize(config);
-        } catch (Exception e) {
-            String message = "Failed to initialize repository: " + className;
-            log.error(message, e);
-            throw new RRepositoryException(message, e);
-        } catch (UnsupportedClassVersionError e) {
-            String message = "Library was compiled using newer version of JDK";
-            log.error(message, e);
-            throw new RRepositoryException(message, e);
-        }
+        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config);
 
         return repFactory;
     }

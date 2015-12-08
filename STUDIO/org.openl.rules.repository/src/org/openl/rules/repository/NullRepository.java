@@ -46,11 +46,6 @@ public class NullRepository implements RRepository {
         return new LinkedList<RDeploymentDescriptorProject>();
     }
 
-    public String getName() {
-        // TODO: may be put here something more consistent
-        return "Failed to init Repository!";
-    }
-
     @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
         fail();

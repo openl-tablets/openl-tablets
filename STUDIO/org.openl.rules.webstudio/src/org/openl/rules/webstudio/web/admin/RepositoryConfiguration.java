@@ -11,78 +11,124 @@ import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
-    public static final String SECURE_CONFIG_FILE = "/secure-jackrabbit-repository.xml";
 
+    private String login;
+    private String password;
+    private String uri;
+    private String name;
+    private JcrType jcrType;
+
+    private boolean secure = false;
+    private String oldName = null;
+    private JcrType oldJcrType = null;
+
+    private String configName;
     private final ConfigurationManager configManager;
+    private final RepositoryType repositoryType;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
 
+    private final String REPOSITORY_URI;
     private final String REPOSITORY_LOGIN;
     private final String REPOSITORY_PASS;
 
-    private final String REPOSITORY_CONFIG_FILE;
 
-    private final RepositoryType repositoryType;
-
-    private boolean secure = false;
-
-    private String configName;
-
-    private String oldName = null;
 
     public RepositoryConfiguration(String configName, ConfigurationManager configManager, RepositoryType repositoryType) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
         this.repositoryType = repositoryType;
 
-        REPOSITORY_FACTORY = repositoryType.toString() + "-repository.factory";
-        REPOSITORY_NAME = repositoryType.toString() + "-repository.name";
+        String repoType = repositoryType.toString();
+        REPOSITORY_FACTORY = repoType + "-repository.factory";
+        REPOSITORY_NAME = repoType + "-repository.name";
 
-        REPOSITORY_LOGIN = repositoryType.toString() + "-repository.login";
-        REPOSITORY_PASS = repositoryType == RepositoryType.PRODUCTION ?
-                          "production-repository.password" :
-                          "design-repository.pass"; // For backward-compatibility
+        REPOSITORY_URI = repoType + "-repository.uri";
+        REPOSITORY_LOGIN = repoType + "-repository.login";
+        REPOSITORY_PASS = repoType + "-repository.password";
 
-        REPOSITORY_CONFIG_FILE = repositoryType.toString() + "-repository.config";
+        load();
+    }
+
+    private void load() {
+        jcrType = JcrType.findByFactory(configManager.getStringProperty(REPOSITORY_FACTORY));
+        name = configManager.getStringProperty(REPOSITORY_NAME);
+        uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI) : configManager.getStringProperty(REPOSITORY_URI);
+        login = configManager.getStringProperty(REPOSITORY_LOGIN);
+
+        fixState();
+    }
+
+    private void fixState() {
+        secure = StringUtils.isNotEmpty(login);
+        oldName = name;
+        oldJcrType = jcrType;
+    }
+
+    private void store() {
+        configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
+        configManager.setProperty(REPOSITORY_FACTORY, jcrType.getFactoryClassName());
+        if (jcrType == JcrType.LOCAL) {
+            configManager.setPath(REPOSITORY_URI, uri);
+        } else {
+            configManager.setProperty(REPOSITORY_URI, uri);
+        }
+
+        if (!secure) {
+            configManager.removeProperty(REPOSITORY_LOGIN);
+            configManager.removeProperty(REPOSITORY_PASS);
+        } else {
+            if (!StringUtils.isEmpty(password)) {
+                configManager.setProperty(REPOSITORY_LOGIN, login);
+                configManager.setPassword(REPOSITORY_PASS, password);
+            }
+        }
+    }
+
+    void commit() {
+        fixState();
+        store();
     }
 
     public String getName() {
-        return configManager.getStringProperty(REPOSITORY_NAME);
+        return name;
     }
 
     public void setName(String name) {
-        oldName = getName();
-        configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
+        this.name = name;
     }
 
     public String getType() {
-        return getJcrType().getAccessType();
+        return jcrType.name().toLowerCase();
     }
 
     public void setType(String accessType) {
-        configManager.setProperty(REPOSITORY_FACTORY,
-                JcrType.findByAccessType(repositoryType, accessType).getFactoryClassName());
+        this.jcrType = JcrType.findByAccessType(accessType);
     }
 
     public String getPath() {
-        JcrType jcrType = getJcrType();
-        String propName = jcrType.getRepositoryPathPropertyName();
-
-        return "local".equals(jcrType.getAccessType()) ?
-               configManager.getPath(propName) : configManager.getStringProperty(propName);
+        // Default values
+        if (StringUtils.isEmpty(uri) || oldJcrType != jcrType) {
+            String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
+            switch (jcrType) {
+                case LOCAL:
+                    return "../" + type + "-repository";
+                case RMI:
+                    return "//localhost:1099/" + type + "-repository";
+                case WEBDAV:
+                    return "http://localhost:8080/" + type + "-repository";
+                case DB:
+                    return "jdbc:mysql://localhost:3306/" + type + "-repository";
+                case JNDI:
+                    return "java:comp/env/jdbc/" + type + "DB";
+            }
+        }
+        return uri;
     }
 
     public void setPath(String path) {
-        JcrType jcrType = getJcrType();
-        String propName = jcrType.getRepositoryPathPropertyName();
-        String normalizedPath = StringUtils.trimToEmpty(path);
-
-        if ("local".equals(jcrType.getAccessType())) {
-            configManager.setPath(propName, normalizedPath);
-        } else {
-            configManager.setProperty(propName, normalizedPath);
-        }
+        this.uri = StringUtils.trimToEmpty(path);
     }
 
     public String getConfigName() {
@@ -90,11 +136,8 @@ public class RepositoryConfiguration {
     }
 
     public boolean save() {
+        store();
         return configManager.save();
-    }
-
-    public boolean restoreDefaults() {
-        return configManager.restoreDefaults();
     }
 
     public boolean delete() {
@@ -108,68 +151,40 @@ public class RepositoryConfiguration {
         setPath(other.getPath());
     }
 
-    public boolean isNameChanged() {
-        String name = getName();
-        return name != null && !name.equals(oldName) || name == null && oldName != null;
-    }
-
     public boolean isNameChangedIgnoreCase() {
-        String name = getName();
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
     }
 
     public boolean isRepositoryPathSystem() {
-        return configManager.isSystemProperty(getJcrType().getRepositoryPathPropertyName());
+        return configManager.isSystemProperty(REPOSITORY_URI);
     }
 
     public String getLogin() {
-        return configManager.getStringProperty(REPOSITORY_LOGIN);
+        return login;
     }
 
     public void setLogin(String login) {
-        configManager.setProperty(REPOSITORY_LOGIN, login);
+        this.login = login;
     }
 
     public String getPassword() {
         return "";
-        //return configManager.getPassword(REPOSITORY_PASS);
     }
 
     public void setPassword(String pass) {
-        if (!StringUtils.isEmpty(pass)) {
-            configManager.setPassword(REPOSITORY_PASS, pass);
-        }
+        this.password = pass;
     }
 
     public Map<String, Object> getProperties() {
         return configManager.getProperties();
     }
 
-    public String getConfigFile() {
-        return configManager.getStringProperty(REPOSITORY_CONFIG_FILE);
-    }
-
-    public void setConfigFile(String configFile) {
-        configManager.setProperty(REPOSITORY_CONFIG_FILE, configFile);
-    }
-
     public boolean isSecure() {
-        return secure || !StringUtils.isEmpty(getLogin());
+        return secure;
     }
 
     public void setSecure(boolean secure) {
-        if (!secure) {
-            configManager.removeProperty(REPOSITORY_LOGIN);
-            configManager.removeProperty(REPOSITORY_PASS);
-            configManager.removeProperty(REPOSITORY_CONFIG_FILE);
-        } else {
-            configManager.setProperty(REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
-        }
         this.secure = secure;
-    }
-
-    private JcrType getJcrType() {
-        return JcrType.findByFactory(repositoryType, configManager.getStringProperty(REPOSITORY_FACTORY));
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

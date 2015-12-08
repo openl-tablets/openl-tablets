@@ -5,7 +5,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.jcr2spi.RepositoryImpl;
-import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -13,27 +12,25 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * 
  * @author PUdalau
  */
-public class WebDavJacrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
-    private ConfigPropertyString confWebdavUrl = new ConfigPropertyString("repository.jackrabbit.webdav.url",
-            "http://localhost:8080/jcr/server/");
+public class WebDavRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
 
     /** {@inheritDoc} */
     @Override
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
-        confSet.updateProperty(confWebdavUrl);
 
         try {
             Repository repository;
+            String webDavUrl = uri.getValue();
             try {
                 //FIXME Doesn't work on the secure mode
-                repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(confWebdavUrl.getValue()));
+                repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(webDavUrl));
                 //repository = JcrUtils.getRepository(confWebdavUrl.getValue());
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
 
-            setRepository(repository, "Jackrabbit WebDav " + confWebdavUrl.getValue());
+            setRepository(repository);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
@@ -45,13 +42,4 @@ public class WebDavJacrabbitRepositoryFactory extends AbstractJackrabbitReposito
         throw new RepositoryException("Cannot initialize node types via WebDav."
                 + "\nPlease, add OpenL node types definition manually or via command line tool.");
     }
-
-    public ConfigPropertyString getConfWebdavUrl() {
-        return confWebdavUrl;
-    }
-
-    public void setConfWebdavUrl(ConfigPropertyString confWebdavUrl) {
-        this.confWebdavUrl = confWebdavUrl;
-    }
-
 }

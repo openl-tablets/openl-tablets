@@ -42,9 +42,12 @@ public class JcrRepository extends BaseJcrRepository {
 
     private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
-    public JcrRepository(String name, Session session, RTransactionManager transactionManager, String defRulesPath, String defDeploymentsPath)
+    public JcrRepository(Session session,
+            RTransactionManager transactionManager,
+            String defRulesPath,
+            String defDeploymentsPath)
             throws RepositoryException {
-        super(name, session, transactionManager);
+        super(session, transactionManager);
 
         defRulesLocation = checkPath(defRulesPath);
         defDeploymentsLocation = checkPath(defDeploymentsPath);

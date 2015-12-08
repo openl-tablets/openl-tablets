@@ -205,7 +205,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         repository = new TransientRepository(fullPath, TEST_FOLDER);
 
         Session session = createSession("admin", "admin", repository);
-        instance = new JcrProductionRepository("test", session, new JackrabbitTransactionManager(session));
+        instance = new JcrProductionRepository(session, new JackrabbitTransactionManager(session));
         initNodeTypes(session.getWorkspace().getNodeTypeManager());
 
         FolderAPI deployment = instance.createDeploymentProject("d1");

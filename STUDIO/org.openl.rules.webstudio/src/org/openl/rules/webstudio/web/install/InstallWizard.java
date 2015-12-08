@@ -176,7 +176,9 @@ public class InstallWizard {
             productionRepositoryEditor.save();
 
             systemConfig.setProperty("user.mode", userMode);
-            systemConfig.save();
+
+            // TODO: This line also do systemConfig.save() implicitly
+            designRepositoryConfiguration.save();
 
             System.clearProperty("webstudio.home"); // Otherwise this property will not be saved to file.
             appConfig.setPath("webstudio.home", workingDir);

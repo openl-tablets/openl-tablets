@@ -34,7 +34,6 @@ public abstract class AbstractProductionRepoController {
     @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
     private RepositoryConfiguration defaultRepoConfig;
     private List<RepositoryConfiguration> productionRepositoryConfigurations;
 
@@ -77,10 +76,9 @@ public abstract class AbstractProductionRepoController {
         if (this.isSecure()) {
             repoConfig.setLogin(getLogin());
             repoConfig.setPassword(getPassword());
-
-            repoConfig.setConfigFile(this.getSecureConfiguration());
         }
 
+        repoConfig.commit();
         return repoConfig;
     }
 
@@ -97,8 +95,6 @@ public abstract class AbstractProductionRepoController {
             /*Default Admin credentials for creating new admin user in repo*/
             repoConfig.setLogin("admin");
             repoConfig.setPassword("admin");
-
-            repoConfig.setConfigFile(this.getSecureConfiguration());
         }
 
         return repoConfig;
@@ -206,14 +202,6 @@ public abstract class AbstractProductionRepoController {
 
     public void setSystemSettingsBean(SystemSettingsBean systemSettingsBean) {
         this.systemSettingsBean = systemSettingsBean;
-    }
-
-    public String getSecureConfiguration() {
-        return secureConfiguration;
-    }
-
-    public void setSecureConfiguration(String secureConfiguration) {
-        this.secureConfiguration = secureConfiguration;
     }
 
     public boolean isChecked() {

@@ -5,8 +5,6 @@ import org.openl.config.ConfigSet;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +16,6 @@ import java.util.Map;
  * file.
  */
 public class ProductionRepositoryFactoryProxy {
-    private final Logger log = LoggerFactory.getLogger(ProductionRepositoryFactoryProxy.class);
 
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
     public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(false, null, "");
@@ -68,25 +65,6 @@ public class ProductionRepositoryFactoryProxy {
         this.configManagerFactory = configManagerFactory;
     }
 
-    private RRepositoryFactory initRepositoryFactory(ConfigSet config) throws RRepositoryException {
-        String className = confRepositoryFactoryClass.getValue();
-        // TODO: check that className is not null otherwise throw meaningful
-        // exception
-        RRepositoryFactory repFactory;
-        try {
-            Class<?> c = Class.forName(className);
-            Object obj = c.newInstance();
-            repFactory = (RRepositoryFactory) obj;
-            // initialize
-            repFactory.initialize(config);
-            return repFactory;
-        } catch (Exception e) {
-            String msg = "Failed to initialize ProductionRepositoryFactory!";
-            log.error(msg, e);
-            throw new RRepositoryException(msg, e);
-        }
-    }
-
     private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
         Map<String, Object> properties = configurationManager.getProperties();
@@ -98,7 +76,9 @@ public class ProductionRepositoryFactoryProxy {
         ConfigSet config = new ConfigSet();
         config.addProperties(props);
         config.updateProperty(confRepositoryFactoryClass);
+        String className = confRepositoryFactoryClass.getValue();
 
-        return initRepositoryFactory(config);
+        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config);
+        return repFactory;
     }
 }
