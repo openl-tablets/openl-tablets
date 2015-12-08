@@ -52,8 +52,8 @@ public class RulesFrontendImpl implements RulesFrontend {
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(runningServices.values());
-        return Collections.unmodifiableCollection(shalowCopy);
+        Collection<OpenLService> shallowCopy = new ArrayList<OpenLService>(runningServices.values());
+        return Collections.unmodifiableCollection(shallowCopy);
     }
 
     /**
