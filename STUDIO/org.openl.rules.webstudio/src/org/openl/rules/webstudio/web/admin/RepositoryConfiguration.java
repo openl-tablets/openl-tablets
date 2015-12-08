@@ -176,6 +176,7 @@ public class RepositoryConfiguration {
     }
 
     public Map<String, Object> getProperties() {
+        store();
         return configManager.getProperties();
     }
 

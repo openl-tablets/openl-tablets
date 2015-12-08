@@ -6,8 +6,6 @@ import java.io.IOException;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import org.apache.commons.lang3.StringUtils;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * @author Pavel Tarasevich
@@ -90,10 +88,9 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
             if (!StringUtils.isEmpty(repoConfig.getLogin())) {
                 try {
-                    RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                    repository.release();
-                } catch (RRepositoryException e) {
-                    setErrorMessage("Invalid login or password. Please, check login and password");
+                    RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
+                } catch (RepositoryValidationException e) {
+                    setErrorMessage(e.getMessage());
                     return false;
                 }
             }
