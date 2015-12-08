@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.simple;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -29,9 +28,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      */
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = frontend.getServices();
-        
-        Collection<OpenLService> shalowCopy = new ArrayList<OpenLService>(services);
-        return Collections.unmodifiableCollection(shalowCopy);
+        return new ArrayList<OpenLService>(services);
     }
 
     /**
