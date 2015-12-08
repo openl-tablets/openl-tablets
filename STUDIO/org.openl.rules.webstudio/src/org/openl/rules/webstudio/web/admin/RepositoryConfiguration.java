@@ -119,7 +119,7 @@ public class RepositoryConfiguration {
                 case WEBDAV:
                     return "http://localhost:8080/" + type + "-repository";
                 case DB:
-                    return "jdbc:mysql://localhost/" + type + "-repository";
+                    return "jdbc:mysql://localhost:3306/" + type + "-repository";
                 case JNDI:
                     return "java:comp/env/jdbc/" + type + "DB";
             }
