@@ -113,8 +113,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
   
     public Collection<OpenLService> getServices() {
-        Collection<OpenLService> shallowCopy = new ArrayList<OpenLService>(runningServices.keySet());
-        return Collections.unmodifiableCollection(shallowCopy);
+        return new ArrayList<OpenLService>(runningServices.keySet());
     }
 
     public OpenLService getServiceByName(String name) {

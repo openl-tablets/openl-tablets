@@ -89,8 +89,7 @@ public class RuleServiceImpl implements RuleService {
      */
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = ruleServicePublisher.getServices();
-        Collection<OpenLService> shallowCopy = new ArrayList<OpenLService>(services);
-        return Collections.unmodifiableCollection(shallowCopy);
+        return new ArrayList<OpenLService>(services);
     }
 
     /**

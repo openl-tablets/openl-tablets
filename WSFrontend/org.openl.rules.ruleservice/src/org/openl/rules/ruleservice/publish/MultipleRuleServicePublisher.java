@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -115,8 +114,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public Collection<OpenLService> getServices() {
-        Collection<OpenLService> shallowCopy = new ArrayList<OpenLService>(services.values());
-        return Collections.unmodifiableCollection(shallowCopy);
+        return new ArrayList<OpenLService>(services.values());
     }
 
     @Override
