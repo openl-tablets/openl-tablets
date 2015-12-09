@@ -228,7 +228,10 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             super.release();
         } finally {
             try {
-                engine.shutdown().get();
+                if (engine != null) {
+                    engine.shutdown().get();
+                    engine = null;
+                }
             } catch (Exception e) {
                 throw new RRepositoryException("Shutdown has failed.", e);
             }
