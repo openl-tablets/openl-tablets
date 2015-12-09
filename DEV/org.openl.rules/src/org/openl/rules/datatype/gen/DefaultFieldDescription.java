@@ -102,6 +102,10 @@ public class DefaultFieldDescription implements FieldDescription {
         }
         return defaultValue;
     }
+    
+    public void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 
     @Override
     public boolean hasDefaultValue() {
