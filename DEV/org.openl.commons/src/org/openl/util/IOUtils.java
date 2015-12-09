@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.zip.ZipFile;
 
 /**
@@ -20,7 +19,6 @@ import java.util.zip.ZipFile;
 public class IOUtils {
 
     private static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * Unconditionally close a <code>Closeable</code>.
@@ -151,7 +149,7 @@ public class IOUtils {
     public static String toStringAndClose(InputStream input) throws IOException {
         try {
             StringWriter writer = new StringWriter();
-            Reader reader = new InputStreamReader(input, UTF_8);
+            Reader reader = new InputStreamReader(input, StringUtils.UTF_8);
             copy(reader, writer);
             return writer.toString();
         } finally {
@@ -167,6 +165,6 @@ public class IOUtils {
      * @return an input stream
      */
     public static InputStream toInputStream(CharSequence input) {
-        return new ByteArrayInputStream(input.toString().getBytes(UTF_8));
+        return new ByteArrayInputStream(StringUtils.toBytes(input));
     }
 }
