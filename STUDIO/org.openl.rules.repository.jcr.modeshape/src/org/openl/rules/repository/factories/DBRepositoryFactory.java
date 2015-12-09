@@ -19,7 +19,6 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.lang3.StringUtils;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -36,6 +35,7 @@ import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -435,7 +435,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         try {
             statement = conn.prepareStatement(INSERT_ID);
             statement.setString(1, OPENL_JCR_REPO_ID_KEY);
-            statement.setBinaryStream(2, IOUtils.toInputStream(repoId));
+            statement.setBytes(2, StringUtils.toBytes(repoId));
             statement.executeUpdate();
         } finally {
             safeClose(statement);
