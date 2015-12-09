@@ -60,6 +60,11 @@ public class RecursiveFieldDescription implements FieldDescription {
     public String getDefaultValueAsString() {
         return field.getDefaultValueAsString();
     }
+    
+    @Override
+    public void setDefaultValue(Object value) {
+        field.setDefaultValue(value);
+    }
 
     @Override
     public void setDefaultValueAsString(String defaultValueAsString) {

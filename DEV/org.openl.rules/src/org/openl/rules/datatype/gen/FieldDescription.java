@@ -18,6 +18,8 @@ public interface FieldDescription {
     String getDefaultValueAsString();
 
     void setDefaultValueAsString(String defaultValueAsString);
+    
+    void setDefaultValue(Object value);
 
     boolean isArray();
 

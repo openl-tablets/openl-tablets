@@ -4,6 +4,7 @@
 
 package org.openl.rules.datatype.binding;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,9 +20,14 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.datatype.gen.*;
+import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
+import org.openl.rules.datatype.gen.DefaultFieldDescription;
+import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.datatype.gen.RecursiveFieldDescription;
+import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -37,7 +43,6 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -215,7 +220,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
-
+                if (fieldDescription.getType().equals(Date.class)){
+                    //EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for cell.
+                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                    fieldDescription.setDefaultValue(row.getColumn(2).getCell(0, 0).getObjectValue());
+                }
                 Object value;
                 try {
                     value = fieldDescription.getDefaultValue();
