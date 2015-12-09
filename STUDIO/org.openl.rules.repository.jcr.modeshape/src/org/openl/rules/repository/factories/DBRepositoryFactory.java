@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -91,12 +92,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         String user = login.getValue();
         String pwd = password.getValue();
 
+        log.info("Checking a connection to DB [{}]", dbUrl);
         Connection conn;
         conn = createConnection(dbUrl, user, pwd);
 
+        log.info("Preparing a repository...");
         initTable(conn);
         String repoID = getRepoID(conn);
         conn.close();
+        log.info("The repository for ID=[{}] has been prepared", repoID);
 
         RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID);
 
@@ -104,13 +108,23 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         ShutDownHook shutDownHook = new ShutDownHook(this);
         Runtime.getRuntime().addShutdownHook(shutDownHook);
 
+        log.info("Starting ModeShape engine...");
         // Create and start the engine ...
         engine = new ModeShapeEngine();
         engine.start();
         // Deploy the repository ...
-        Repository repository = engine.deploy(config);
+        engine.deploy(config);
+
+        String repoName = config.getName();
+        log.info("Starting ModeShape repository [{}]...", repoName);
+        Future<? extends Repository> future = engine.startRepository(repoName);
+        Repository repository = future.get();
+        log.info("ModeShape repository ID=[{}] has been started", repoName);
 
         setRepository(repository);
+        log.info("Checking the repository...");
+        getRepositoryInstance();
+        log.info("The repository has loaded");
     }
 
     abstract Connection createConnection(String dbUrl, String user, String pwd);
