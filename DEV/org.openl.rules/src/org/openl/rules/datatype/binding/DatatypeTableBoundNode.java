@@ -223,8 +223,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 fieldDescription.setDefaultValueAsString(defaultValue);
                 if (fieldDescription.getType().equals(Date.class)){
                     //EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for cell.
-                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
-                    fieldDescription.setDefaultValue(row.getColumn(2).getCell(0, 0).getObjectValue());
+                    Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
+                    if (value != null && fieldDescription.getType().equals(value.getClass())){
+                        RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                        fieldDescription.setDefaultValue(value);
+                    }
                 }
                 Object value;
                 try {

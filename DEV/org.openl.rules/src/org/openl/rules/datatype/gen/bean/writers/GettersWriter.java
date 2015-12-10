@@ -1,5 +1,6 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -7,14 +8,12 @@ import javax.xml.bind.annotation.XmlElement;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
-import org.openl.util.generation.DefaultValue;
 
 /**
  * Writes getters to the generated bean class.
@@ -83,6 +82,10 @@ public class GettersWriter extends MethodWriter {
                 if (defaultFieldValue.equalsIgnoreCase("yes")){
                     defaultFieldValue = "true";
                 }
+            }
+            if (fieldEntry.getValue().getType().equals(Date.class)){
+                Date date = (Date) fieldEntry.getValue().getDefaultValue();
+                defaultFieldValue = ISO8601DateFormater.format(date);
             }
             av.visit("defaultValue", defaultFieldValue);
         }else{
