@@ -69,7 +69,7 @@ public class LazyCellExecutor {
 
     public Object[][] getCellValues(String cell, int rows, int cols) {
         Object[][] result = new Object[rows][cols];
-        RulesTableReference reference = getReference(cell);
+        RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
         int row = Integer.parseInt(reference.getRow());
         int col = Integer.parseInt(reference.getColumn());
 
@@ -91,18 +91,19 @@ public class LazyCellExecutor {
 
     public Object getCellValue(String cell) {
         if (!params.containsKey(cell)) {
-            RulesTableReference reference = getReference(cell);
+            RulesTableReference tableReference = getTableReference(cell);
 
-            if (reference.getEndReference() == null) {
-                String rulesTable = reference.getTable();
-                String row = reference.getRow();
-                String column = reference.getColumn();
+            if (tableReference.getEndReference() == null) {
+                String rulesTable = tableReference.getTable();
+                String row = tableReference.getRow();
+                String column = tableReference.getColumn();
 
                 IOpenMethod cellsHolder = xlsModuleOpenClass.getMethod(rulesTable,
                         new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING });
                 return cellsHolder.invoke(target, new Object[] { row, column }, env);
             } else {
-                String rulesTable = reference.getTable();
+                String rulesTable = tableReference.getTable();
+                RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
                 String row = reference.getRow();
                 String column = reference.getColumn();
 
@@ -129,7 +130,8 @@ public class LazyCellExecutor {
         return null;
     }
 
-    public RulesTableReference getReference(String cell) {
+    public RulesTableReference getTableReference(String cell) {
+        // TODO Make it clear, what returns the method: table reference or specific cell reference
         RulesTableReference rulesTableReference = referenceMap.get(cell);
         if (rulesTableReference == null) {
             rulesTableReference = getArrayReference(cell);

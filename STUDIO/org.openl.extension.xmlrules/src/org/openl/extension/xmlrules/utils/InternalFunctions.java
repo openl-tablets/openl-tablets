@@ -1,6 +1,14 @@
 package org.openl.extension.xmlrules.utils;
 
 public class InternalFunctions {
+    public static String[][] Out(Object o) {
+        return Out(o, true, false);
+    }
+
+    public static String[][] Out(Object o, boolean horizontalRowValues) {
+        return Out(o, horizontalRowValues, false);
+    }
+
     public static String[][] Out(Object o, boolean horizontalRowValues, boolean showColumnNames) {
         return OutFunction.run(o, horizontalRowValues, showColumnNames);
     }
@@ -43,5 +51,13 @@ public class InternalFunctions {
         }
 
         return result == null ? "" : result;
+    }
+
+    public static Object[][] TRANSPOSE(Object[][] array) {
+        return HelperFunctions.transpose(array);
+    }
+
+    public static Object[] ReadIn(String typeName, Object[][] array) {
+        return ReadInFunction.readIn(typeName, array);
     }
 }

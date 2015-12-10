@@ -21,7 +21,7 @@ public class OutFunction {
         String[][] arr = toArray(result);
 
         if (!horizontalRowValues) {
-            arr = transpose(arr);
+            arr = HelperFunctions.transpose(arr);
         }
         return arr;
     }
@@ -231,21 +231,6 @@ public class OutFunction {
                 row.add(value);
             }
         }
-    }
-
-    private static String[][] transpose(String[][] arr) {
-        if (arr.length == 0) {
-            return arr;
-        }
-
-        String[][] newArr = new String[arr[0].length][arr.length];
-        for (int i = 0; i < arr.length; i++) {
-            String[] row = arr[i];
-            for (int j = 0; j < row.length; j++) {
-                newArr[j][i] = row[j];
-            }
-        }
-        return newArr;
     }
 
     private static String[][] toArray(List<List<String>> result) {

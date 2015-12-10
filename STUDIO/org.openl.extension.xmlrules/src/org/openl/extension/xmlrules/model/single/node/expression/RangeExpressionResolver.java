@@ -16,25 +16,26 @@ public class RangeExpressionResolver implements ExpressionResolver {
         RangeNode right = rightNode instanceof NamedRangeNode ? ((NamedRangeNode) rightNode).getRangeNode() :  (RangeNode) rightNode;
 
         ExpressionContext context = ExpressionContext.getInstance();
+
+        if (context.isCanHandleArrayOperators()) {
+            return String.format("CellRange(\"%s\", %d, %d)",
+                    left.getAddress(),
+                    right.getRowNumber() - left.getRowNumber() + 1,
+                    right.getColumnNumber() - left.getColumnNumber() + 1);
+        }
+
         if (context.isArrayExpression()) {
-            if (context.isCanHandleArrayOperators()) {
-                return String.format("CellRange(\"%s\", %d, %d)",
-                        left.getAddress(),
-                        right.getRowNumber() - left.getRowNumber() + 1,
-                        right.getColumnNumber() - left.getColumnNumber() + 1);
+            int rowShift = context.getCurrentRow() - context.getStartRow();
+            int columnShift = context.getCurrentColumn() - context.getStartColumn();
+
+            RangeNode copy = new RangeNode(left);
+            copy.setRow("" + (copy.getRowNumber() + rowShift));
+            copy.setColumn("" + (copy.getColumnNumber() + columnShift));
+
+            if (right.getRowNumber() < copy.getRowNumber() || right.getColumnNumber() < copy.getColumnNumber()) {
+                return "null";
             } else {
-                int rowShift = context.getCurrentRow() - context.getStartRow();
-                int columnShift = context.getCurrentColumn() - context.getStartColumn();
-
-                RangeNode copy = new RangeNode(left);
-                copy.setRow("" + (copy.getRowNumber() + rowShift));
-                copy.setColumn("" + (copy.getColumnNumber() + columnShift));
-
-                if (right.getRowNumber() < copy.getRowNumber() || right.getColumnNumber() < copy.getColumnNumber()) {
-                    return "null";
-                } else {
-                    return copy.toOpenLString();
-                }
+                return copy.toOpenLString();
             }
         } else {
             int row = context.getCurrentRow();
@@ -56,6 +57,6 @@ public class RangeExpressionResolver implements ExpressionResolver {
 
     public boolean isRangeReturnsArray() {
         ExpressionContext instance = ExpressionContext.getInstance();
-        return instance.isArrayExpression() && instance.isCanHandleArrayOperators();
+        return instance.isCanHandleArrayOperators();
     }
 }

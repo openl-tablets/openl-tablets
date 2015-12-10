@@ -1,6 +1,7 @@
 package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.openl.extension.xmlrules.model.single.Cell;
 
@@ -22,6 +23,17 @@ import org.openl.extension.xmlrules.model.single.Cell;
         FailureNode.class
 })
 public abstract class Node {
+    private boolean rootNode = false;
+
+    @XmlTransient
+    public boolean isRootNode() {
+        return rootNode;
+    }
+
+    public void setRootNode(boolean rootNode) {
+        this.rootNode = rootNode;
+    }
+
     public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         // Do nothing
     }

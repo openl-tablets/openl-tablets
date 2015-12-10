@@ -427,16 +427,22 @@ public class XmlRulesParser extends BaseParser {
                 }
                 for (ReturnRow returnValues : table.getReturnValues()) {
                     for (Expression returnValue : returnValues.getList()) {
-                        if (returnValue.getReference()) {
-                            String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
-                                    .getStringValue();
-                            gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
-                        } else {
-                            gridBuilder.addCell(returnValue.getValue());
-                        }
-                        if (isSimpleRules && returnValues.getList().size() > 1) {
-                            log.warn("SimpleRules can't contain two-dimensional return values");
-                            break;
+                        try {
+                            if (returnValue.getReference()) {
+                                String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
+                                        .getStringValue();
+                                gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                            } else {
+                                gridBuilder.addCell(returnValue.getValue());
+                            }
+                            if (isSimpleRules && returnValues.getList().size() > 1) {
+                                log.warn("SimpleRules can't contain two-dimensional return values");
+                                break;
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage(), e);
+                            OpenLMessagesUtils.addError(e);
+                            gridBuilder.addCell("Error: " + e.getMessage());
                         }
                     }
                     gridBuilder.nextRow();
@@ -604,6 +610,7 @@ public class XmlRulesParser extends BaseParser {
                         ExpressionContext expressionContext = new ExpressionContext();
                         expressionContext.setCurrentRow(reference.getRowNumber());
                         expressionContext.setCurrentColumn(reference.getColumnNumber());
+                        expressionContext.setCanHandleArrayOperators(false);
                         ExpressionContext.setInstance(expressionContext);
 
                         while (currentRow.size() < currentColumnNumber + 1) {
@@ -618,6 +625,7 @@ public class XmlRulesParser extends BaseParser {
                                         .getAddress()
                                         .toOpenLString() + " contains incorrect value. It will be skipped");
                             }
+                            node.setRootNode(true);
                             if (node instanceof ValueHolder) {
                                 expression = ((ValueHolder) node).asString();
                             } else {
@@ -711,6 +719,7 @@ public class XmlRulesParser extends BaseParser {
             int endRow = end.getRowNumber();
 
             ExpressionContext expressionContext = new ExpressionContext(startRow, startColumn, endRow, endColumn);
+            expressionContext.setCanHandleArrayOperators(true);
             ExpressionContext.setInstance(expressionContext);
 
             int columnsCount = endColumn - startColumn + 3;
@@ -722,6 +731,8 @@ public class XmlRulesParser extends BaseParser {
                         .getAddress()
                         .toOpenLString() + " contains incorrect value. It will be skipped");
             }
+
+            node.setRootNode(true);
 
             boolean isOutFunction = node instanceof FunctionNode && "Out".equals(((FunctionNode) node).getName());
 

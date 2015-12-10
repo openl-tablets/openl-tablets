@@ -144,6 +144,10 @@ public class FilterNode extends Node {
         StringBuilder sb = new StringBuilder();
 
         FilterNode first = nodes.getFirst();
+        while (!first.isFieldComparisonNode()) {
+            nodes.removeFirst();
+            first = nodes.getFirst();
+        }
         String firstNodeString = first.getNode() == null ? null : first.getNode().toOpenLString();
         sb.append("((Object[]) ").append(firstNodeString).append(") [");
         sb.append("(o) @ ");
