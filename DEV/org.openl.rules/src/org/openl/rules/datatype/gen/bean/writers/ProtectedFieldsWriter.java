@@ -1,6 +1,10 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
@@ -35,7 +39,16 @@ public class ProtectedFieldsWriter extends DefaultBeanByteCodeWriter {
           if (field.getValue().hasDefaultValue()){
               //Requred for java class generation
               AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(DefaultValue.class), true);
-              annotationVisitor.visit("value", field.getValue().getDefaultValueAsString());
+              if (field.getValue().getType().equals(Date.class)){
+                  Object value = field.getValue().getDefaultValue();
+                  if (value instanceof Date){
+                      Date date = (Date) value;
+                      String formatedDate = ISO8601DateFormater.format(date);
+                      annotationVisitor.visit("value", formatedDate);
+                  }
+              }else{
+                  annotationVisitor.visit("value", field.getValue().getDefaultValueAsString());
+              }
               annotationVisitor.visitEnd();
           }
         }
