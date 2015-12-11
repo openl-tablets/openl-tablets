@@ -36,7 +36,7 @@ public class InternalFunctions {
             }
 
             columns = out[0];
-        }  else {
+        } else {
             columns = out[row];
         }
 
@@ -59,5 +59,34 @@ public class InternalFunctions {
 
     public static Object[] ReadIn(String typeName, Object[][] array) {
         return ReadInFunction.readIn(typeName, array);
+    }
+
+    public static Object[][] SplitUp(Object object) {
+        return SplitUpFunction.splitUp(object);
+    }
+
+    public static Object[][] SplitUp(Object[][] array) {
+        return SplitUpFunction.splitUp(array);
+    }
+
+    public static Object SplitUp(int row, Object array) {
+        Object[][] result = SplitUp(array);
+        if (result == null || result.length <= row) {
+            return "";
+        }
+
+        return result[row][0];
+    }
+
+    public static Object[] Merge(Object[][] array) {
+        return MergeFunction.merge(array);
+    }
+
+    public static Object INDEX(Object object, int userRow, int userColumn) {
+        return IndexFunction.index(object, userRow, userColumn);
+    }
+
+    public static double AVERAGE(Object[] array) {
+        return AverageFunction.average(array);
     }
 }

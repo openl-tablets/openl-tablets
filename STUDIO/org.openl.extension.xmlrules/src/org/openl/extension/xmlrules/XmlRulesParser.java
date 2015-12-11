@@ -810,6 +810,7 @@ public class XmlRulesParser extends BaseParser {
                             } else {
                                 int rowShift = row - startRow;
                                 int columnShift = column - startColumn;
+                                // TODO Replace Out() function with OutArray (the function that returns Object, not String)
                                 expression = "= Out(" + rowShift + ", " + columnShift + ", $Calculation$Result)";
                             }
                         }
