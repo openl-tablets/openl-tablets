@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -311,6 +312,7 @@ public class XmlRulesParser extends BaseParser {
                 return;
             }
             for (Table table : sheet.getTables()) {
+                table = getSortedTable(table);
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
                 int tableWidth = getTableWidth(table, isSimpleRules);
@@ -365,7 +367,11 @@ public class XmlRulesParser extends BaseParser {
 
                     for (Condition condition : table.getHorizontalConditions()) {
                         for (Expression expression : condition.getExpressions()) {
-                            gridBuilder.addCell(expression.getValue(), expression.getWidth());
+                            String value = expression.getValue();
+                            if ("*".equals(value)) {
+                                value = "";
+                            }
+                            gridBuilder.addCell(value, expression.getWidth());
                         }
                         gridBuilder.nextRow();
                         headerHeight++;
@@ -405,11 +411,15 @@ public class XmlRulesParser extends BaseParser {
                 for (Condition condition : table.getVerticalConditions()) {
                     int row = conditionRow;
                     for (Expression expression : condition.getExpressions()) {
+                        String value = expression.getValue();
+                        if ("*".equals(value)) {
+                            value = "";
+                        }
                         gridBuilder.setCell(conditionColumn,
                                 row,
                                 expression.getWidth(),
                                 expression.getHeight(),
-                                expression.getValue());
+                                value);
                         row += expression.getHeight();
                     }
                     conditionColumn++;
@@ -454,6 +464,81 @@ public class XmlRulesParser extends BaseParser {
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
+        }
+    }
+
+    private Table getSortedTable(Table source) {
+        try {
+            TableImpl table = new TableImpl();
+            table.setSegment((SegmentImpl) source.getSegment());
+            table.setName(source.getName());
+            table.setReturnType(source.getReturnType());
+            table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+            table.setHorizontalConditions(new ArrayList<ConditionImpl>(source.getHorizontalConditions()));
+            table.setVerticalConditions(new ArrayList<ConditionImpl>(source.getVerticalConditions()));
+            table.setReturnValues(new ArrayList<ReturnRow>(source.getReturnValues()));
+
+            final List<ConditionImpl> verticalConditions = table.getVerticalConditions();
+            final List<ConditionImpl> horizontalConditions = table.getHorizontalConditions();
+            List<ReturnRow> returnValues = table.getReturnValues();
+
+            List<Integer> rowNumbers = new ArrayList<Integer>();
+            List<Integer> columnNumbers = new ArrayList<Integer>();
+            for (int i = 0; i < returnValues.size(); i++) {
+                rowNumbers.add(i);
+            }
+            for (int i = 0; i < returnValues.get(0).getList().size(); i++) {
+                columnNumbers.add(i);
+            }
+
+            if (verticalConditions.size() > 0) {
+                rowNumbers.sort(new ConditionsComparator(verticalConditions));
+            }
+
+            if (horizontalConditions.size() > 0) {
+                columnNumbers.sort(new ConditionsComparator(horizontalConditions));
+            }
+
+            for (ConditionImpl condition : verticalConditions) {
+                List<ExpressionImpl> oldExpressions = condition.getExpressions();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : rowNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                condition.setExpressions(newExpressions);
+            }
+
+            for (ConditionImpl condition : horizontalConditions) {
+                List<ExpressionImpl> oldExpressions = condition.getExpressions();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : columnNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                condition.setExpressions(newExpressions);
+            }
+
+            List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+            for (Integer rowNumber : rowNumbers) {
+                newReturnValues.add(returnValues.get(rowNumber));
+            }
+            returnValues = newReturnValues;
+
+            for (ReturnRow returnRow : returnValues) {
+                List<ExpressionImpl> oldExpressions = returnRow.getList();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : columnNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                returnRow.setList(newExpressions);
+            }
+
+            table.setReturnValues(returnValues);
+
+            return table;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            return source;
         }
     }
 
@@ -774,7 +859,7 @@ public class XmlRulesParser extends BaseParser {
                             if (resultColumns == 1) {
                                 expression = "= $Calculation$Result[" + step + "] = " + formula;
                             } else {
-                                expression = "= $Calculation$Result[" + step + "][ + " + (column - startColumn) + " = " + formula;
+                                expression = "= $Calculation$Result[" + step + "][" + (column - startColumn) + "] = " + formula;
                             }
                         }
                     } catch (RuntimeException e) {
@@ -1081,5 +1166,31 @@ public class XmlRulesParser extends BaseParser {
             }
         }
         return tsn;
+    }
+
+    private static class ConditionsComparator implements Comparator<Integer> {
+        private final List<ConditionImpl> conditions;
+
+        public ConditionsComparator(List<ConditionImpl> conditions) {
+            this.conditions = conditions;
+        }
+
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            for (ConditionImpl condition : conditions) {
+                String v1 = condition.getExpressions().get(o1).getValue();
+                String v2 = condition.getExpressions().get(o2).getValue();
+                if (!v1.equals(v2)) {
+                    if ("*".equals(v1)) {
+                        return 1;
+                    }
+                    if ("*".equals(v2)) {
+                        return -1;
+                    }
+                    return 0;
+                }
+            }
+            throw new IllegalStateException("All conditions are equal");
+        }
     }
 }
