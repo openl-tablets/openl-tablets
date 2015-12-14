@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class CellReference {
-    private static final Pattern PATH_PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!)?");
+    private static final Pattern PATH_PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!?)?");
     private static final Pattern R1C1_PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!)?R(\\d+)C(\\d+)");
     private static final Pattern A1_PATTERN = Pattern.compile("(\\[(.+)\\])?((.+)!)?\\$?([A-Z]+)\\$?(\\d+)");
     private final String workbook;

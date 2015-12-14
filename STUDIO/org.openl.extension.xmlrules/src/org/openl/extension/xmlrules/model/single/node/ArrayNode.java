@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.model.single.node;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
@@ -10,6 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 public class ArrayNode extends Node {
     private String value;
 
+    @XmlElement(required = true)
     public String getValue() {
         return value;
     }

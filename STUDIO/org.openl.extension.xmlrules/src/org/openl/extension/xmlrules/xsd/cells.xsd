@@ -72,11 +72,11 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="named-range-node">
+  <xs:complexType name="named-node">
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="name" type="xs:string" minOccurs="0"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -141,7 +141,7 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="failure-node">
+  <xs:complexType name="array-node">
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
@@ -151,7 +151,7 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="array-node">
+  <xs:complexType name="failure-node">
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
