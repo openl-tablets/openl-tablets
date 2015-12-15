@@ -7,7 +7,6 @@ import java.util.Collection;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -31,10 +30,9 @@ public class RulesFrontendTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        Collection<OpenLService> services = frontend.getServices();
+        Collection<String> services = frontend.getServiceNames();
         assertNotNull(services);
         assertEquals(2, services.size());
     }

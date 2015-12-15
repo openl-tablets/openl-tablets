@@ -50,7 +50,6 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         
         assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", new Object[] { 10 }));
@@ -67,7 +66,6 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
         assertEquals(2, publisher.getServices().size());
@@ -90,7 +88,6 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
         int count = getCount(publisher);
@@ -110,7 +107,6 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
         Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
@@ -128,7 +124,6 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
 
         Class<?> tutorial4ServiceClass = publisher.getServiceByName(TUTORIAL4).getServiceClass();

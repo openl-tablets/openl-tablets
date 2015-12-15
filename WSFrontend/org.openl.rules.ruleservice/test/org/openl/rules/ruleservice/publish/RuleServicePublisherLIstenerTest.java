@@ -28,7 +28,6 @@ public class RuleServicePublisherLIstenerTest implements ApplicationContextAware
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
         
         Assert.assertFalse(publisher.getServices().isEmpty());

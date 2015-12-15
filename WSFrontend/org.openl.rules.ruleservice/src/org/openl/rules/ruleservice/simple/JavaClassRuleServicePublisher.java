@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.simple;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -15,9 +17,12 @@ import org.openl.rules.ruleservice.publish.AbstractRuleServicePublisher;
  * @author Marat Kamalov
  */
 public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher {
-    //private final Logger log = LoggerFactory.getLogger(JavaClassRuleServicePublisher.class);
+    // private final Logger log =
+    // LoggerFactory.getLogger(JavaClassRuleServicePublisher.class);
 
     private RulesFrontend frontend = new RulesFrontendImpl();
+
+    private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
     public RulesFrontend getFrontend() {
         return frontend;
@@ -27,7 +32,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      * {@inheritDoc}
      */
     public Collection<OpenLService> getServices() {
-        Collection<OpenLService> services = frontend.getServices();
+        Collection<OpenLService> services = runningServices.values();
         return new ArrayList<OpenLService>(services);
     }
 
@@ -39,7 +44,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
 
-        return frontend.findServiceByName(serviceName);
+        return runningServices.get(serviceName);
     }
 
     /**
@@ -53,11 +58,12 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
         try {
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
-                throw new RuleServiceDeployException(String.format(
-                        "Service with name \"%s\" has been already deployed. Replaced with new service.",
+                throw new RuleServiceDeployException(
+                    String.format("Service with name \"%s\" has been already deployed. Replaced with new service.",
                         service.getName()));
             }
             frontend.registerService(service);
+            runningServices.put(service.getName(), service);
         } catch (Exception e) {
             throw new RuleServiceDeployException("Service deploy failed", e);
         }
@@ -71,14 +77,13 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
-        OpenLService service = frontend.unregisterService(serviceName);
-        if (service == null) {
-            throw new RuleServiceUndeployException(String.format(
-                "Service with name \"{}\" hasn't been deployed.",
-                serviceName));
+        frontend.unregisterService(serviceName);
+        if (runningServices.remove(serviceName) == null) {
+            throw new RuleServiceUndeployException(
+                String.format("Service with name \"{}\" hasn't been deployed.", serviceName));
         }
     }
-    
+
     public void setFrontend(RulesFrontend frontend) {
         if (frontend == null) {
             throw new IllegalArgumentException("frontend arg can't be null");
@@ -89,5 +94,5 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     @Override
     public boolean isServiceDeployed(String name) {
         return getServiceByName(name) != null;
-    }    
+    }
 }

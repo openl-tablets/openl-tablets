@@ -31,7 +31,6 @@ public class MultiModuleDispatchingTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
