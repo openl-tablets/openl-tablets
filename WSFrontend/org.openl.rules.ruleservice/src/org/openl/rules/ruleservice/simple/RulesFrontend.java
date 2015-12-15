@@ -46,19 +46,11 @@ public interface RulesFrontend {
     Object getValue(String serviceName, String fieldName) throws MethodInvocationException;
 
     /**
-     * Registers service to use it in calculations.
+     * Gets service names.
      * 
      * @param service Service to register.
      */
-    Collection<OpenLService> getServices();
-
-    /**
-     * Returns service by name
-     * 
-     * @param serviceName
-     * @return
-     */
-    OpenLService findServiceByName(String serviceName);
+    Collection<String> getServiceNames();
 
     /**
      * Registers service to use it in calculations.
@@ -67,7 +59,7 @@ public interface RulesFrontend {
      * @return replaced service
      * 
      */
-    OpenLService registerService(OpenLService service);
+    void registerService(OpenLService service);
 
     /**
      * Unregister service.
@@ -75,5 +67,5 @@ public interface RulesFrontend {
      * @param serviceName
      * @return unregistered service
      */
-    OpenLService unregisterService(String serviceName);
+    void unregisterService(String serviceName);
 }

@@ -30,7 +30,6 @@ public class DefaultRmiHandlerTest implements ApplicationContextAware{
         Assert.assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         Assert.assertNotNull(serviceManager);
-        serviceManager.start();
         
         Registry registry = LocateRegistry.getRegistry(61099);
         DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler)registry.lookup("DefaultRmiHandlerTest/simpleProject");

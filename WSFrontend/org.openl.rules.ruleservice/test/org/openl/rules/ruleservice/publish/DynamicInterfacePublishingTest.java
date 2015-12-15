@@ -41,10 +41,13 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
+        
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
+        assertNotNull(ruleServicePublisher);
+        
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = frontend.findServiceByName("dynamic-interface-test1");
+        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test1");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         String[] methods = {
@@ -72,10 +75,13 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
+        
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
+        assertNotNull(ruleServicePublisher);
+        
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = frontend.findServiceByName("dynamic-interface-test2");
+        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test2");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         
@@ -100,10 +106,13 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
+
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
+        assertNotNull(ruleServicePublisher);
+        
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = frontend.findServiceByName("dynamic-interface-test3");
+        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         

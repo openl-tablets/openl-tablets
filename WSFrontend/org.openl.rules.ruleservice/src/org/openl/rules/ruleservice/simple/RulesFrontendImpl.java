@@ -26,7 +26,7 @@ public class RulesFrontendImpl implements RulesFrontend {
     /**
      * {@inheritDoc}
      */
-    public OpenLService registerService(OpenLService service) {
+    public void registerService(OpenLService service) {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
@@ -34,30 +34,29 @@ public class RulesFrontendImpl implements RulesFrontend {
         if (replacedService != null) {
             log.warn("Service with name \"{}\" has been already registered. Replaced with new service bean.", service.getName());
         }
-        return replacedService;
     }
 
     /**
      * {@inheritDoc}
      */
-    public OpenLService unregisterService(String serviceName) {
+    public void unregisterService(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
-        return runningServices.remove(serviceName);
+        runningServices.remove(serviceName);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Collection<OpenLService> getServices() {
+    
+    //for internal usage
+    Collection<OpenLService> getServices() {
         return  new ArrayList<OpenLService>(runningServices.values());
     }
+    
+    public java.util.Collection<String> getServiceNames() {
+        return  new ArrayList<String>(runningServices.keySet());
+    };
 
-    /**
-     * {@inheritDoc}
-     */
-    public OpenLService findServiceByName(String serviceName) {
+    //for internal usage
+    OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }

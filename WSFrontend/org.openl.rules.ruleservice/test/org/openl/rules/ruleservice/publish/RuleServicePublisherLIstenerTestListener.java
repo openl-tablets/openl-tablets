@@ -12,7 +12,6 @@ public class RuleServicePublisherLIstenerTestListener implements RuleServicePubl
         onDeployCount++;
     }
     
-    
     @Override
     public void onUndeploy(String serviceName) {
         onUndeployCount++;

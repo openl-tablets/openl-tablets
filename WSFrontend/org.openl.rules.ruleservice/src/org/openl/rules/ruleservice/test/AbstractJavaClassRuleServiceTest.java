@@ -29,7 +29,6 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
     public void before() {
         if (!initialized) {
             ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
-            serviceManager.start();
             initialized = true;
         }
     }
@@ -129,7 +128,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @return service
      */
     protected Object getService(String serviceName) {
-        OpenLService service = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName);
+        OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;
         }
@@ -145,7 +144,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      */
     @SuppressWarnings("unchecked")
     protected <T> T getService(String serviceName, Class<T> serviceClass) {
-        OpenLService service = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName);
+        OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;
         }
@@ -160,7 +159,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @return service type
      */
     protected Class<?> getServiceClassByServiceName(String serviceName) {
-        OpenLService service = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName);
+        OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;
         }

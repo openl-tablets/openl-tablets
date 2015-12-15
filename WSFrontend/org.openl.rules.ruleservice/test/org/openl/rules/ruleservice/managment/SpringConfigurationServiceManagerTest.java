@@ -33,7 +33,6 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
@@ -48,7 +47,6 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         frontend.execute("ErrorTest_ErrorTest", "vehicleEligibilityScore", new Object[] {

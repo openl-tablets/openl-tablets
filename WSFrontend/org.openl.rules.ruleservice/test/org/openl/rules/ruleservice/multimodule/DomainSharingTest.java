@@ -49,7 +49,6 @@ public class DomainSharingTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertTrue(((String) frontend.execute("DomainSharingTest_project1", "printJavaBean")).contains("project1"));
         assertTrue(((String) frontend.execute("DomainSharingTest_project1", "printJavaBean")).contains("javabean"));

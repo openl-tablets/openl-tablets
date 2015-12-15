@@ -41,4 +41,8 @@
 		<property name="ruleService" ref="ruleService"/>
 		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
 	</bean>
+	
+	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager">
+		<property name="serviceManager" ref="serviceManager"/>
+	</bean>
 </beans>

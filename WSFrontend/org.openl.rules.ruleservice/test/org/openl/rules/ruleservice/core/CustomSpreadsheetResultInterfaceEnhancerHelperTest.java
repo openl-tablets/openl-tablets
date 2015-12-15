@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -32,7 +33,10 @@ public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements Appli
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        serviceManager.start();
+        
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
+        assertNotNull(ruleServicePublisher);
+        
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         Object result = frontend.execute("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet",
             "test",
@@ -44,7 +48,7 @@ public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements Appli
             (result instanceof SpreadsheetResult) && !SpreadsheetResult.class.equals(result.getClass()) && result.getClass().getCanonicalName()
                 .equals(CustomSpreadsheetResultInterfaceEnhancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + "test"));
 
-        Class<?> serviceClass = frontend.findServiceByName("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet")
+        Class<?> serviceClass = ruleServicePublisher.getServiceByName("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet")
             .getServiceClass();
 
         for (Method method : serviceClass.getMethods()) {

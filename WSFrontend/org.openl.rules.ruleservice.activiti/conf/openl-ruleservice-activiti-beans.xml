@@ -16,5 +16,4 @@
 		<property name="ruleServicePublisher" ref="ruleServicePublisher"/>
 	</bean>
 	
-	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.activiti.beans.ServiceManagerStarterBean"/>
 </beans>

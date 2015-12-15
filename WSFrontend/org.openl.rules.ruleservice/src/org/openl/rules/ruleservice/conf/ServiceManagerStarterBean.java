@@ -1,12 +1,18 @@
-package org.openl.rules.ruleservice.activiti.beans;
+package org.openl.rules.ruleservice.conf;
 
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public final class ServiceManagerStarterBean implements InitializingBean {
-    @Autowired
     ServiceManager serviceManager;
+
+    public void setServiceManager(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
+    }
+    
+    public ServiceManager getServiceManager() {
+        return serviceManager;
+    }
     
     @Override
     public void afterPropertiesSet() throws Exception {
