@@ -1,12 +1,12 @@
 package org.openl.rules.ruleservice.core;
 
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of RulesService. Uses publisher and instantiation
