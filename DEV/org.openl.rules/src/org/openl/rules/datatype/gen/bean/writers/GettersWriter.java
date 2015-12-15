@@ -76,12 +76,7 @@ public class GettersWriter extends MethodWriter {
         if (fieldEntry.getValue().hasDefaultValue()){
             String defaultFieldValue = fieldEntry.getValue().getDefaultValueAsString();
             if (Boolean.class.equals(fieldEntry.getValue().getType()) || boolean.class.equals(fieldEntry.getValue().getType())){
-                if (defaultFieldValue.equalsIgnoreCase("no")){
-                    defaultFieldValue = "false";
-                }
-                if (defaultFieldValue.equalsIgnoreCase("yes")){
-                    defaultFieldValue = "true";
-                }
+                defaultFieldValue = String.valueOf(fieldEntry.getValue().getDefaultValue());
             }
             if (fieldEntry.getValue().getType().equals(Date.class)){
                 Date date = (Date) fieldEntry.getValue().getDefaultValue();

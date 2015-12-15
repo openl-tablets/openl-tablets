@@ -131,14 +131,6 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                     if (defaultValueAnnotation != null){
                         defaultFieldValue = defaultValueAnnotation.value();
                     }
-                    if (Boolean.class.equals(field.getType()) || boolean.class.equals(field.getType())){
-                        if (defaultFieldValue.equalsIgnoreCase("no")){
-                            defaultFieldValue = "false";
-                        }
-                        if (defaultFieldValue.equalsIgnoreCase("yes")){
-                            defaultFieldValue = "true";
-                        }
-                    }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
