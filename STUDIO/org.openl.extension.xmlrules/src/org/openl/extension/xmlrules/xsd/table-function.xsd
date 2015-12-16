@@ -46,10 +46,11 @@
       <xs:element name="expressions">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="expression" type="expression" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="expression" type="expression" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="order-index" type="xs:int"/>
     </xs:sequence>
   </xs:complexType>
 

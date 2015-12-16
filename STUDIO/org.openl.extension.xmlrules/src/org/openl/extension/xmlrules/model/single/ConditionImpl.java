@@ -8,14 +8,23 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.model.Condition;
-import org.openl.extension.xmlrules.model.Expression;
 
 @XmlType(name = "condition")
 public class ConditionImpl implements Condition {
+    private Integer parameterIndex;
     private List<ExpressionImpl> expressions = new ArrayList<ExpressionImpl>();
 
+    @XmlElement(name = "parameter-index", required = true)
+    public Integer getParameterIndex() {
+        return parameterIndex;
+    }
+
+    public void setParameterIndex(Integer parameterIndex) {
+        this.parameterIndex = parameterIndex;
+    }
+
     @XmlElementWrapper(name="expressions", required = true)
-    @XmlElement(name = "expression")
+    @XmlElement(name = "expression", required = true)
     @Override
     public List<ExpressionImpl> getExpressions() {
         return expressions;

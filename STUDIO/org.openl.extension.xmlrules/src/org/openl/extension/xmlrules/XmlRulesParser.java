@@ -46,6 +46,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO Reduce complexity
 public class XmlRulesParser extends BaseParser {
     private final Logger log = LoggerFactory.getLogger(XmlRulesParser.class);
 
@@ -312,7 +313,7 @@ public class XmlRulesParser extends BaseParser {
                 return;
             }
             for (Table table : sheet.getTables()) {
-                table = getSortedTable(table);
+                table = prepareTable(table);
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
                 int tableWidth = getTableWidth(table, isSimpleRules);
@@ -467,7 +468,155 @@ public class XmlRulesParser extends BaseParser {
         }
     }
 
-    private Table getSortedTable(Table source) {
+    private Table prepareTable(Table source) {
+        return sortReturnCells(sortConditionsOrder(source));
+    }
+
+    private Table sortConditionsOrder(Table source) {
+        try {
+            boolean sortedConditions = true;
+
+            int dimensionNumber = 0;
+            List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+            List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+            int verticalSize = verticalConditions.size();
+            int horizontalSize = horizontalConditions.size();
+
+            for (ConditionImpl condition : verticalConditions) {
+                if (condition.getParameterIndex() != dimensionNumber) {
+                    sortedConditions = false;
+                    break;
+                }
+                dimensionNumber++;
+            }
+            for (ConditionImpl condition : horizontalConditions) {
+                if (condition.getParameterIndex() != dimensionNumber) {
+                    sortedConditions = false;
+                    break;
+                }
+                dimensionNumber++;
+            }
+
+            if (sortedConditions) {
+                return source;
+            }
+
+            int parametersCount = source.getParameters().size();
+            List<ConditionPath> conditionPaths = new ArrayList<ConditionPath>();
+
+            for (int parameterIndex = 0; parameterIndex < parametersCount; parameterIndex++) {
+                for (int i = 0; i < verticalSize; i++) {
+                    ConditionImpl condition = verticalConditions.get(i);
+                    if (parameterIndex == condition.getParameterIndex()) {
+                        conditionPaths.add(new ConditionPath(true, i));
+                        break;
+                    }
+                }
+                for (int i = 0; i < horizontalSize; i++) {
+                    ConditionImpl condition = horizontalConditions.get(i);
+                    if (parameterIndex == condition.getParameterIndex()) {
+                        conditionPaths.add(new ConditionPath(false, i));
+                        break;
+                    }
+                }
+            }
+
+            ArrayList<ConditionImpl> newVerticalConditions = new ArrayList<ConditionImpl>();
+            ArrayList<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+            for (int i = 0; i < conditionPaths.size(); i++) {
+                ConditionImpl condition = new ConditionImpl();
+                condition.setParameterIndex(i);
+                condition.setExpressions(new ArrayList<ExpressionImpl>());
+                newVerticalConditions.add(condition);
+            }
+
+            if (conditionPaths.get(0).isVertical()) {
+                int rows = verticalConditions.get(0).getExpressions().size();
+                for (int row = 0; row < rows; row++) {
+                    if (horizontalSize == 0) {
+                        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+                            int conditionIndex = conditionPaths.get(paramIndex).getIndex();
+                            ExpressionImpl expression = verticalConditions.get(conditionIndex).getExpressions().get(row);
+                            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+                        }
+
+                        fillNewReturnValues(source, newReturnValues, row, 0);
+                    } else {
+                        int columns = horizontalConditions.get(0).getExpressions().size();
+                        for (int column = 0; column < columns; column++) {
+                            fillNewVerticalConditions(source, conditionPaths, newVerticalConditions, row, column);
+                            fillNewReturnValues(source, newReturnValues, row, column);
+                        }
+                    }
+                }
+            } else {
+                int columns = horizontalConditions.get(0).getExpressions().size();
+                for (int column = 0; column < columns; column++) {
+                    if (verticalSize == 0) {
+                        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+                            int conditionIndex = conditionPaths.get(paramIndex).getIndex();
+                            ExpressionImpl expression = horizontalConditions.get(conditionIndex).getExpressions().get(column);
+                            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+                        }
+
+                        fillNewReturnValues(source, newReturnValues, 0, column);
+                    } else {
+                        int rows = verticalConditions.get(0).getExpressions().size();
+                        for (int row = 0; row < rows; row++) {
+                            fillNewVerticalConditions(source, conditionPaths, newVerticalConditions, row, column);
+                            fillNewReturnValues(source, newReturnValues, row, column);
+                        }
+                    }
+                }
+            }
+
+            TableImpl table = new TableImpl();
+            table.setSegment((SegmentImpl) source.getSegment());
+            table.setName(source.getName());
+            table.setReturnType(source.getReturnType());
+            table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+            table.setHorizontalConditions(new ArrayList<ConditionImpl>());
+            table.setVerticalConditions(newVerticalConditions);
+            table.setReturnValues(newReturnValues);
+
+            return table;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            return source;
+        }
+    }
+
+    private void fillNewReturnValues(Table source, ArrayList<ReturnRow> newReturnValues, int row, int column) {
+        ReturnRow newReturnRow = new ReturnRow();
+        ExpressionImpl expression = source.getReturnValues().get(row).getList().get(column);
+        newReturnRow.setList(Collections.singletonList(expression));
+
+        newReturnValues.add(newReturnRow);
+    }
+
+    private void fillNewVerticalConditions(Table source,
+            List<ConditionPath> conditionPaths,
+            ArrayList<ConditionImpl> newVerticalConditions, int row, int column) {
+        List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+        List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+
+        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+            ConditionPath conditionPath = conditionPaths.get(paramIndex);
+            int conditionIndex = conditionPath.getIndex();
+
+            ExpressionImpl expression;
+            if (conditionPath.isVertical()) {
+                expression = verticalConditions.get(conditionIndex).getExpressions().get(row);
+            } else {
+                expression = horizontalConditions.get(conditionIndex).getExpressions().get(column);
+            }
+
+            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+        }
+    }
+
+    private Table sortReturnCells(Table source) {
         try {
             TableImpl table = new TableImpl();
             table.setSegment((SegmentImpl) source.getSegment());
@@ -1191,6 +1340,24 @@ public class XmlRulesParser extends BaseParser {
                 }
             }
             throw new IllegalStateException("All conditions are equal");
+        }
+    }
+
+    private static class ConditionPath {
+        private final boolean vertical;
+        private final int index;
+
+        private ConditionPath(boolean vertical, int index) {
+            this.vertical = vertical;
+            this.index = index;
+        }
+
+        public boolean isVertical() {
+            return vertical;
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 }
