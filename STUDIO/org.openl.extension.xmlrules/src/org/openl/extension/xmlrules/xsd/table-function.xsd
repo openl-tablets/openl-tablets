@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:include schemaLocation="common.xsd"/>
+
   <xs:element name="function" type="function"/>
 
   <xs:element name="table" type="table"/>
@@ -31,6 +33,7 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="segment" type="segment" minOccurs="0"/>
+      <xs:element name="table-ranges" type="table-ranges" minOccurs="0"/>
       <xs:element name="verticalConditions">
         <xs:complexType>
           <xs:sequence>
@@ -50,7 +53,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="order-index" type="xs:int"/>
+      <xs:element name="parameter-index" type="xs:int"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -87,6 +90,14 @@
       <xs:element name="columnSegment" type="xs:boolean"/>
       <xs:element name="segmentNumber" type="xs:int"/>
       <xs:element name="totalSegments" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="table-ranges">
+    <xs:sequence>
+      <xs:element name="horizontal-conditions-range" type="range" minOccurs="0"/>
+      <xs:element name="return-values-range" type="range" minOccurs="0"/>
+      <xs:element name="vertical-conditions-range" type="range" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

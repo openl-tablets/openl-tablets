@@ -4,18 +4,15 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Range;
 import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.utils.CellReference;
 
 @XmlType(name = "range-node")
 public class RangeNode extends Node {
+    private Range range = new Range();
     private String currentWorkbook;
     private String currentSheet;
-    private String path;
-    private String row;
-    private String column;
-    private Integer rowCount = 1;
-    private Integer colCount = 1;
     private Boolean hasArrayFormula = Boolean.FALSE;
 
     public RangeNode() {
@@ -24,9 +21,10 @@ public class RangeNode extends Node {
     public RangeNode(RangeNode copy) {
         this.currentWorkbook = copy.currentWorkbook;
         this.currentSheet = copy.currentSheet;
-        this.path = copy.path;
-        this.row = copy.row;
-        this.column = copy.column;
+        this.range = new Range();
+        this.range.setPath(copy.range.getPath());
+        this.range.setRow(copy.range.getRow());
+        this.range.setColumn(copy.range.getColumn());
     }
 
     @Override
@@ -35,56 +33,70 @@ public class RangeNode extends Node {
         this.currentSheet = currentSheet;
     }
 
+    @XmlElement(required = true)
+    public Range getRange() {
+        return range;
+    }
+
+    public void setRange(Range range) {
+        this.range = range;
+    }
+
+    @XmlTransient
     public String getPath() {
-        return path;
+        return range.getPath();
     }
 
     public void setPath(String path) {
-        this.path = path;
+        range.setPath(path);
     }
 
+    @XmlTransient
     public String getRow() {
-        return row;
+        return range.getRow();
     }
 
     public void setRow(String row) {
-        this.row = row;
+        range.setRow(row);
     }
 
+    @XmlTransient
     public String getColumn() {
-        return column;
+        return range.getColumn();
     }
 
     public void setColumn(String column) {
-        this.column = column;
+        range.setColumn(column);
     }
 
     @XmlTransient
     public int getRowNumber() {
-        return Integer.parseInt(row);
+        return range.getRowNumber();
     }
 
     @XmlTransient
     public int getColumnNumber() {
-        return Integer.parseInt(column);
+        return range.getColumnNumber();
     }
 
-    @XmlElement(defaultValue = "1")
+//    @XmlElement(defaultValue = "1")
+    @XmlTransient
     public Integer getRowCount() {
-        return rowCount;
+        return range.getRowCount();
     }
 
     public void setRowCount(Integer rowCount) {
-        this.rowCount = rowCount;
+        range.setRowCount(rowCount);
     }
 
-    @XmlElement(defaultValue = "1")
+//    @XmlElement(defaultValue = "1")
+    @XmlTransient
     public Integer getColCount() {
-        return colCount;
+        return range.getColCount();
     }
 
     public void setColCount(Integer colCount) {
-        this.colCount = colCount;
+        range.setColCount(colCount);
     }
 
     @XmlElement(defaultValue = "false")

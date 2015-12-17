@@ -5,6 +5,7 @@ import java.util.List;
 import org.openl.extension.xmlrules.model.single.ConditionImpl;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.ReturnRow;
+import org.openl.extension.xmlrules.model.single.TableRanges;
 
 /**
  * @author nsamatov.
@@ -23,4 +24,6 @@ public interface Table {
     List<ReturnRow> getReturnValues();
 
     Segment getSegment();
+
+    TableRanges getTableRanges();
 }

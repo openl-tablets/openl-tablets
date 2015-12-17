@@ -15,10 +15,7 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
-import org.openl.extension.xmlrules.model.single.node.FunctionNode;
-import org.openl.extension.xmlrules.model.single.node.NamedRange;
-import org.openl.extension.xmlrules.model.single.node.Node;
-import org.openl.extension.xmlrules.model.single.node.ValueHolder;
+import org.openl.extension.xmlrules.model.single.node.*;
 import org.openl.extension.xmlrules.model.single.node.expression.CellInspector;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
@@ -186,7 +183,8 @@ public class XmlRulesParser extends BaseParser {
 
                     FieldImpl actualField = getField(actualFields, field);
 
-                    if (actualField != null && actualField.getTypeName() != null && actualField.getTypeName().endsWith("[]")) {
+                    if (actualField != null && actualField.getTypeName() != null && actualField.getTypeName().endsWith(
+                            "[]")) {
                         int maximumArrayLength = getMaximumArrayLength(dataInstance, fieldIndex);
                         for (int i = 0; i < maximumArrayLength; i++) {
                             gridBuilder.addCell(field + "[" + i + "]");
@@ -469,7 +467,52 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private Table prepareTable(Table source) {
-        return sortReturnCells(sortConditionsOrder(source));
+        return sortReturnCells(sortConditionsOrder(removeGapsFromReturnRows(source)));
+    }
+
+    private Table removeGapsFromReturnRows(Table source) {
+        if (source.getHorizontalConditions().isEmpty() || source.getVerticalConditions().isEmpty()) {
+            return source;
+        }
+
+        TableRanges tableRanges = source.getTableRanges();
+        if (tableRanges == null) {
+            return source;
+        }
+
+        Range verticalRange = tableRanges.getVerticalConditionsRange();
+        Range horizontalRange = tableRanges.getHorizontalConditionsRange();
+        Range returnValuesRange = tableRanges.getReturnValuesRange();
+
+        int rowStart = verticalRange.getRowNumber();
+        int rowCount = verticalRange.getRowCount();
+
+        int columnStart = horizontalRange.getColumnNumber();
+        int columnCount = horizontalRange.getColCount();
+
+        int skipRows = returnValuesRange.getRowNumber() - rowStart;
+        int skipColumns = returnValuesRange.getColumnNumber() - columnStart;
+
+        List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+
+        List<ReturnRow> subList = source.getReturnValues().subList(skipRows, skipRows + rowCount);
+        for (ReturnRow returnValue : subList) {
+            ReturnRow newReturnRow = new ReturnRow();
+            newReturnRow.setList(returnValue.getList().subList(skipColumns, skipColumns + columnCount));
+            newReturnValues.add(newReturnRow);
+        }
+
+        TableImpl table = new TableImpl();
+
+        table.setSegment((SegmentImpl) source.getSegment());
+        table.setName(source.getName());
+        table.setReturnType(source.getReturnType());
+        table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+        table.setHorizontalConditions(new ArrayList<ConditionImpl>(source.getHorizontalConditions()));
+        table.setVerticalConditions(new ArrayList<ConditionImpl>(source.getVerticalConditions()));
+        table.setReturnValues(newReturnValues);
+
+        return table;
     }
 
     private Table sortConditionsOrder(Table source) {
@@ -555,7 +598,8 @@ public class XmlRulesParser extends BaseParser {
                     if (verticalSize == 0) {
                         for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
                             int conditionIndex = conditionPaths.get(paramIndex).getIndex();
-                            ExpressionImpl expression = horizontalConditions.get(conditionIndex).getExpressions().get(column);
+                            ExpressionImpl expression = horizontalConditions.get(conditionIndex).getExpressions().get(
+                                    column);
                             newVerticalConditions.get(paramIndex).getExpressions().add(expression);
                         }
 

@@ -20,6 +20,7 @@ public class TableImpl implements Table {
     private List<ConditionImpl> verticalConditions = new ArrayList<ConditionImpl>();
     private List<ReturnRow> returnValues = new ArrayList<ReturnRow>();
     private SegmentImpl segment;
+    private TableRanges tableRanges;
 
     @Override
     public String getName() {
@@ -91,5 +92,15 @@ public class TableImpl implements Table {
 
     public void setSegment(SegmentImpl segment) {
         this.segment = segment;
+    }
+
+    @Override
+    @XmlElement(name = "table-ranges")
+    public TableRanges getTableRanges() {
+        return tableRanges;
+    }
+
+    public void setTableRanges(TableRanges tableRanges) {
+        this.tableRanges = tableRanges;
     }
 }

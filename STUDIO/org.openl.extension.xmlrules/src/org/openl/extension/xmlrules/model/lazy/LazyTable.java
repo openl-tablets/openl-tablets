@@ -6,10 +6,7 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.Segment;
 import org.openl.extension.xmlrules.model.Table;
-import org.openl.extension.xmlrules.model.single.ConditionImpl;
-import org.openl.extension.xmlrules.model.single.ParameterImpl;
-import org.openl.extension.xmlrules.model.single.ReturnRow;
-import org.openl.extension.xmlrules.model.single.TableImpl;
+import org.openl.extension.xmlrules.model.single.*;
 
 public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     public LazyTable(File file, String entryName) {
@@ -49,6 +46,11 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     @Override
     public Segment getSegment() {
         return getInfo().getSegment();
+    }
+
+    @Override
+    public TableRanges getTableRanges() {
+        return getInfo().getTableRanges();
     }
 
     @Override
