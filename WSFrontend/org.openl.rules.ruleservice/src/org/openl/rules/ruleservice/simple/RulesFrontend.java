@@ -44,7 +44,7 @@ public interface RulesFrontend {
      * @return Data stored in field
      */
     Object getValue(String serviceName, String fieldName) throws MethodInvocationException;
-
+    
     /**
      * Gets service names.
      * 
@@ -68,4 +68,21 @@ public interface RulesFrontend {
      * @return unregistered service
      */
     void unregisterService(String serviceName);
+    
+    /**
+     * Return proxy object for defined service.
+     * @param serviceName service name
+     * @param proxyInterface interface for proxy
+     * @return
+     */
+    <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface);
+
+    /**
+     * Return proxy object for defined service.
+     * @param serviceName service name
+     * @param proxyInterface interface for proxy
+     * @param classLoader classloader
+     * @return
+     */
+    <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader);
 }

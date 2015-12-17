@@ -36,4 +36,39 @@ public class RulesFrontendTest implements ApplicationContextAware {
         assertNotNull(services);
         assertEquals(2, services.size());
     }
+
+    @Test
+    public void testProxyServices() {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        assertNotNull(frontend);
+        Collection<String> services = frontend.getServiceNames();
+        assertNotNull(services);
+        assertEquals(2, services.size());
+        ProxyInterface proxy = frontend.buildServiceProxy("RulesFrontendTest_multimodule", ProxyInterface.class);
+        assertEquals("World, Good Morning!", proxy.worldHello(10));
+        
+    }
+
+    @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationRuntimeException.class)
+    public void testProxyServicesNotExistedMethod() {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        assertNotNull(frontend);
+        Collection<String> services = frontend.getServiceNames();
+        assertNotNull(services);
+        assertEquals(2, services.size());
+        ProxyInterface proxy = frontend.buildServiceProxy("RulesFrontendTest_multimodule", ProxyInterface.class);
+        proxy.notExustedMethod(10);
+    }
+
+    public static interface ProxyInterface {
+        String worldHello(int arg);
+
+        String notExustedMethod(int arg);
+    }
 }
