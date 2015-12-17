@@ -2,12 +2,17 @@ package org.openl.rules.ruleservice.simple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -49,7 +54,7 @@ public class RulesFrontendTest implements ApplicationContextAware {
         assertEquals(2, services.size());
         ProxyInterface proxy = frontend.buildServiceProxy("RulesFrontendTest_multimodule", ProxyInterface.class);
         assertEquals("World, Good Morning!", proxy.worldHello(10));
-        
+
     }
 
     @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationRuntimeException.class)
@@ -64,6 +69,35 @@ public class RulesFrontendTest implements ApplicationContextAware {
         assertEquals(2, services.size());
         ProxyInterface proxy = frontend.buildServiceProxy("RulesFrontendTest_multimodule", ProxyInterface.class);
         proxy.notExustedMethod(10);
+    }
+
+    @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationRuntimeException.class)
+    public void testProxyServicesNotExistedService() throws RuleServiceUndeployException, RuleServiceDeployException {
+        assertNotNull(applicationContext);
+        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher",
+            RuleServicePublisher.class);
+        assertNotNull(serviceManager);
+        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        assertNotNull(frontend);
+        Collection<String> services = frontend.getServiceNames();
+        assertNotNull(services);
+        assertEquals(2, services.size());
+        ProxyInterface proxy = frontend.buildServiceProxy("RulesFrontendTest_multimodule", ProxyInterface.class);
+        assertEquals("World, Good Morning!", proxy.worldHello(10));
+        OpenLService openLService = ruleServicePublisher.getServiceByName("RulesFrontendTest_multimodule");
+        try {
+            ruleServicePublisher.undeploy("RulesFrontendTest_multimodule");
+            try {
+                proxy.notExustedMethod(10);
+            } catch (MethodInvocationRuntimeException e) {
+                assertTrue(e.getMessage().contains("Service not found!"));
+                throw e;
+            }
+        } finally {
+            ruleServicePublisher.deploy(openLService);
+        }
     }
 
     public static interface ProxyInterface {

@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class RulesFrontendImpl extends AbstractRulesFrontend {
     private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
-    private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
+    private Map<String, OpenLService> runningServices = new ConcurrentHashMap<String, OpenLService>();
 
     /**
      * {@inheritDoc}
