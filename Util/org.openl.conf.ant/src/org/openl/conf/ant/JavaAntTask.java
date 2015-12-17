@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,7 +27,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.meta.IVocabulary;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.FileTool;
 import org.openl.util.StringTool;
@@ -441,25 +439,13 @@ public abstract class JavaAntTask extends Task {
                 IOpenClass datatypeOpenClass = datatype.getValue();
                 if (!(datatypeOpenClass instanceof DomainOpenClass)) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
-                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass,
-                            getFieldsDescription(datatypeOpenClass.getDeclaredFields()),
-                            getFieldsDescription(datatypeOpenClass.getFields()));
+                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
                     String javaClass = beanJavaGenerator.generateJavaClass();
                     String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
                     writeContentToFile(javaClass, fileName);
                 }
             }
         }
-    }
-
-    private Map<String, Class<?>> getFieldsDescription(Map<String, IOpenField> fields) {
-        Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
-        for (Entry<String, IOpenField> field : fields.entrySet()) {
-            if (!field.getValue().isStatic()) {
-                fieldsDescriprtion.put(field.getKey(), field.getValue().getType().getInstanceClass());
-            }
-        }
-        return fieldsDescriprtion;
     }
 
     /**

@@ -1,18 +1,24 @@
 package org.openl.util.generation;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.Map.Entry;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleBeanJavaGenerator extends JavaGenerator {
 
@@ -41,6 +47,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(Float.class, new CommonInitializationWriter());
         initializationWriters.put(Double.class, new CommonInitializationWriter());
         initializationWriters.put(Boolean.class, new CommonInitializationWriter());
+        initializationWriters.put(Date.class, new DateInitializationWriter());
 
         initializationWriters.put(Number.class, new NumberInitializationWriter());
 
@@ -50,11 +57,20 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
     }
 
-    public SimpleBeanJavaGenerator(Class<?> datatypeClass, Map<String, Class<?>> declaredFields,
-                                   Map<String, Class<?>> allFields) {
+    public SimpleBeanJavaGenerator(Class<?> datatypeClass) {
         super(datatypeClass);
-        this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(declaredFields);
-        this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(allFields);
+        this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(datatypeClass.getDeclaredFields()));
+        this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(FieldUtils.getAllFields(datatypeClass)));
+    }
+    
+    private Map<String, Class<?>> getFieldsDescription(Field[] fields) {
+        Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
+        for (Field field : fields) {
+            if (!java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                fieldsDescriprtion.put(field.getName(), field.getType());
+            }
+        }
+        return fieldsDescriprtion;
     }
     
     private void addJAXBAnnotations(StringBuilder buf) {
@@ -115,15 +131,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         for (Method method : methods) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 String fieldName = getFieldName(method.getName(), datatypeAllFields.keySet());
-                if (fieldName.length() == 1){
-                    fieldName = fieldName.toLowerCase();
-                }else{
-                    if (fieldName.length() > 1 && Character.isUpperCase(fieldName.charAt(1))){
-                        fieldName = StringUtils.capitalize(fieldName);
-                    }else{
-                        fieldName = StringUtils.uncapitalize(fieldName);
-                    }
-                }
+               
                 String defaultFieldValue = null;
                 try {
                     Field field = getClassForGeneration().getDeclaredField(fieldName);
