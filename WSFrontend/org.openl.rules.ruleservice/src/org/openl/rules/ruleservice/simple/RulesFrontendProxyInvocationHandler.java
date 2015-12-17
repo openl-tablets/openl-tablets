@@ -21,7 +21,7 @@ public class RulesFrontendProxyInvocationHandler implements InvocationHandler{
             if (e.getCause() instanceof RuntimeException){
                 throw e.getCause();
             }else{
-                throw new MethodInvocationRuntimeException(e.getCause());
+                throw new MethodInvocationRuntimeException(e);
             }
         }
     }
