@@ -132,22 +132,6 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         }
     }
 
-    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-
-        try {
-            undeploy(service.getName());
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        }
-
-    }
-
     @Override
     public String getGroupName() {
         return "SOAP";
