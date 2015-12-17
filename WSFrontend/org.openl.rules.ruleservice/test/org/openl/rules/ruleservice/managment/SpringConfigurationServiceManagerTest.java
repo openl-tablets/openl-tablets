@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -42,7 +43,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertEquals(50.0, value.getValue(), 0.01);
     }
 
-    @Test(expected = MethodInvocationException.class)
+    @Test(expected = RuleServiceWrapperException.class) 
     public void testExceptionFramework() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
