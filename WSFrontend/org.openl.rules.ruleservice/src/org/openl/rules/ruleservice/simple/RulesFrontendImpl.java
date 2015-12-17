@@ -48,8 +48,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         runningServices.remove(serviceName);
     }
 
-    // for internal usage
-    Collection<OpenLService> getServices() {
+    public Collection<OpenLService> getServices() {
         return new ArrayList<OpenLService>(runningServices.values());
     }
 
@@ -57,8 +56,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         return new ArrayList<String>(runningServices.keySet());
     };
 
-    // for internal usage
-    OpenLService findServiceByName(String serviceName) {
+    public OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }

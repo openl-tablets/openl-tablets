@@ -59,7 +59,7 @@ public interface RulesFrontend {
      * @return replaced service
      * 
      */
-    void registerService(OpenLService service);
+    void registerService(OpenLService service); 
 
     /**
      * Unregister service.
@@ -85,4 +85,19 @@ public interface RulesFrontend {
      * @return
      */
     <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader);
+    
+    /**
+     * Registers service to use it in calculations.
+     * 
+     * @param service Service to register.
+     */
+    Collection<OpenLService> getServices();
+
+    /**
+     * Returns service by name
+     * 
+     * @param serviceName
+     * @return
+     */
+    OpenLService findServiceByName(String serviceName);
 }
