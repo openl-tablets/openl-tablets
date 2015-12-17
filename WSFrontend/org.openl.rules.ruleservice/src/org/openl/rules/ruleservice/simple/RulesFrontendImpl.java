@@ -1,8 +1,9 @@
 package org.openl.rules.ruleservice.simple;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,13 +14,12 @@ import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 /**
  * Simple implementation of IRulesFrontend interface.
  *
  * @author Marat Kamalov
  */
-public class RulesFrontendImpl implements RulesFrontend {
+public class RulesFrontendImpl extends AbstractRulesFrontend {
     private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
@@ -33,7 +33,8 @@ public class RulesFrontendImpl implements RulesFrontend {
         }
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
-            log.warn("Service with name \"{}\" has been already registered. Replaced with new service bean.", service.getName());
+            log.warn("Service with name \"{}\" has been already registered. Replaced with new service bean.",
+                service.getName());
         }
     }
 
@@ -46,17 +47,17 @@ public class RulesFrontendImpl implements RulesFrontend {
         }
         runningServices.remove(serviceName);
     }
-    
-    //for internal usage
+
+    // for internal usage
     Collection<OpenLService> getServices() {
-        return  new ArrayList<OpenLService>(runningServices.values());
+        return new ArrayList<OpenLService>(runningServices.values());
     }
-    
+
     public java.util.Collection<String> getServiceNames() {
-        return  new ArrayList<String>(runningServices.keySet());
+        return new ArrayList<String>(runningServices.keySet());
     };
 
-    //for internal usage
+    // for internal usage
     OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
@@ -68,8 +69,10 @@ public class RulesFrontendImpl implements RulesFrontend {
     /**
      * {@inheritDoc}
      */
-    public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)
-            throws MethodInvocationException {
+    public Object execute(String serviceName,
+            String ruleName,
+            Class<?>[] inputParamsTypes,
+            Object[] params) throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
@@ -79,17 +82,26 @@ public class RulesFrontendImpl implements RulesFrontend {
 
         OpenLService service = runningServices.get(serviceName);
         if (service != null) {
-            try {
-                Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
-                        ruleName, inputParamsTypes);
-                return serviceMethod.invoke(service.getServiceBean(), params);
-            } catch (Exception e) {
-                log.warn("Error during method \"{}\" calculation from the service \"{}\"", ruleName, serviceName, e);
-                if (e.getCause() instanceof RuleServiceWrapperException) {
-                    throw new MethodInvocationException(e.getMessage(), e.getCause());
-                }
-                throw new MethodInvocationException(e);
+            Method serviceMethod = null;
+            serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
+                ruleName,
+                inputParamsTypes);
+            if (serviceMethod == null) {
+                throw new MethodInvocationException(
+                    "Method with name '" + ruleName + "' not found in service '" + serviceName + "'!");
             }
+            try {
+                return serviceMethod.invoke(service.getServiceBean(), params);
+            } catch (IllegalAccessException e) {
+                throw new InternalError(e.toString());
+            } catch (InvocationTargetException e) {
+                Throwable t = e.getCause();
+                if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                } else {
+                    throw new MethodInvocationException(t.toString(), t);
+                }
+            } 
         } else {
             throw new MethodInvocationException("Service not found!");
         }
@@ -135,8 +147,9 @@ public class RulesFrontendImpl implements RulesFrontend {
         if (service != null) {
             try {
                 Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
-                        StringTool.getGetterName(fieldName), new Class<?>[]{});
-                result = serviceMethod.invoke(service.getServiceBean(), new Object[]{});
+                    StringTool.getGetterName(fieldName),
+                    new Class<?>[] {});
+                result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {
                 if (e.getCause() instanceof RuleServiceWrapperException) {
                     throw new MethodInvocationException(e.getCause());
