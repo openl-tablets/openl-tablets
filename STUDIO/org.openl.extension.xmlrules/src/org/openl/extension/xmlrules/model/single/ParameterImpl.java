@@ -1,5 +1,6 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.model.Parameter;
@@ -9,6 +10,7 @@ public class ParameterImpl implements Parameter {
     private String type;
     private String name;
 
+    @XmlElement(defaultValue = "String")
     @Override
     public String getType() {
         return type;
@@ -18,6 +20,7 @@ public class ParameterImpl implements Parameter {
         this.type = type;
     }
 
+    @XmlElement(required = true)
     @Override
     public String getName() {
         return name;

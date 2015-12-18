@@ -7,10 +7,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -939,7 +942,20 @@ public class WebStudio {
                         // Eclipse project
                         return false;
                     }
-                    String moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
+                    String moduleURI;
+                    if (module.getExtension() == null) {
+                        moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
+                    } else {
+                        ClassLoader classLoader = null;
+                        try {
+                            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                            moduleURI = ExtensionDescriptorFactory.getExtensionDescriptor(
+                                    module.getExtension(), classLoader
+                            ).getUrlForModule(module);
+                        } finally {
+                            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+                        }
+                    }
                     return tableURI.startsWith(moduleURI);
                 }
             });

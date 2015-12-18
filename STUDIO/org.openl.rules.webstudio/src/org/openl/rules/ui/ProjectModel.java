@@ -668,13 +668,18 @@ public class ProjectModel {
         return grid != null && grid.getGrid() instanceof ExtensionWrapperGrid;
     }
 
+    public boolean isCurrentModuleLoadedByExtension() {
+        Module moduleInfo = getModuleInfo();
+        return moduleInfo != null && moduleInfo.getExtension() != null;
+    }
+
     public boolean isCanStartEditing() {
         RulesProject project = getProject();
         return project != null && (project.isLocalOnly() || !project.isLocked()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
+        return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
     }
 
     public boolean isCanEditTable(String uri) {

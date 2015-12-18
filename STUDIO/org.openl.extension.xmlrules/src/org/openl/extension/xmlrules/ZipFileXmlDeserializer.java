@@ -10,7 +10,7 @@ import org.openl.extension.xmlrules.model.lazy.LazyExtensionModule;
 import org.openl.util.IOUtils;
 
 public class ZipFileXmlDeserializer {
-    public static final String ENTRY_POINT = "module.xml";
+    public static final String ENTRY_POINT = "model.xml";
 
     private final File file;
 

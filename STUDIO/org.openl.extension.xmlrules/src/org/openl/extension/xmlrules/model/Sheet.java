@@ -20,4 +20,6 @@ public interface Sheet {
     List<Function> getFunctions();
 
     List<LazyCells> getCells();
+
+    String getWorkbookName();
 }

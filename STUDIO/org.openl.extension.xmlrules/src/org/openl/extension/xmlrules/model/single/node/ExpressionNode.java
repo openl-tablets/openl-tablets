@@ -1,8 +1,12 @@
 package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
+
+import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolver;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolverFactory;
+import org.openl.extension.xmlrules.model.single.node.expression.Operator;
 
 @XmlType(name = "expression-node")
 public class ExpressionNode extends Node {
@@ -10,15 +14,6 @@ public class ExpressionNode extends Node {
     private String operator;
     private Node rightNode;
 
-    @XmlElements({
-            @XmlElement(name = "left-string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "left-number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "left-boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "left-range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "left-expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "left-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "left-if-node", type=IfNode.class, required = true)
-    })
     public Node getLeftNode() {
         return leftNode;
     }
@@ -36,15 +31,6 @@ public class ExpressionNode extends Node {
         this.operator = operator;
     }
 
-    @XmlElements({
-            @XmlElement(name = "right-string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "right-number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "right-boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "right-range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "right-expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "right-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "right-if-node", type=IfNode.class, required = true)
-    })
     public Node getRightNode() {
         return rightNode;
     }
@@ -54,14 +40,22 @@ public class ExpressionNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
-        leftNode.configure(currentWorkbook, currentSheet);
-        rightNode.configure(currentWorkbook, currentSheet);
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
+        if (leftNode != null) {
+            leftNode.configure(currentWorkbook, currentSheet, cell);
+        }
+        if (rightNode != null) {
+            rightNode.configure(currentWorkbook, currentSheet, cell);
+        }
     }
 
     @Override
     public String toOpenLString() {
-        // TODO Support fixed number of Excel operators
-        return leftNode.toOpenLString() + " " + operator + " " + rightNode.toOpenLString();
+        Operator op = Operator.findOperator(operator);
+        if (op == null) {
+            throw new UnsupportedOperationException("Operator '" + operator + "' isn't supported");
+        }
+        ExpressionResolver resolver = ExpressionResolverFactory.getExpressionResolver(op);
+        return resolver.resolve(leftNode, rightNode, op);
     }
 }

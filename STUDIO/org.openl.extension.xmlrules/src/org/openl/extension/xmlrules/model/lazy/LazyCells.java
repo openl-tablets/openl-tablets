@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.model.single.Cells;
+import org.openl.extension.xmlrules.model.single.node.NamedRange;
 
 public class LazyCells extends BaseLazyItem<Cells> {
     private final String workbookName;
@@ -20,10 +21,20 @@ public class LazyCells extends BaseLazyItem<Cells> {
         return getInfo().getCells();
     }
 
+    public List<NamedRange> getNamedRanges() {
+        return getInfo().getNamedRanges();
+    }
+
     @Override
     protected void postProcess(Cells info) {
+        if (info == null) {
+            return;
+        }
         for (Cell cell : info.getCells()) {
-            cell.getNode().configure(workbookName, sheetName);
+            if (cell.getNode() == null) {
+                return;
+            }
+            cell.getNode().configure(workbookName, sheetName, cell);
         }
     }
 }

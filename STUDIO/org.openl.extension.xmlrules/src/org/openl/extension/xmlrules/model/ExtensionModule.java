@@ -6,8 +6,8 @@ import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.WorkbookInfo;
 
 public interface ExtensionModule {
-    String getFormatVersion();
     String getFileName();
 
     List<LazyWorkbook> getWorkbooks();
+    List<LazyWorkbook> getInternalWorkbooks();
 }

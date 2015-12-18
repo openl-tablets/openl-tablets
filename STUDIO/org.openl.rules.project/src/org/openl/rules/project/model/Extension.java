@@ -1,8 +1,11 @@
 package org.openl.rules.project.model;
 
+import java.util.List;
+
 public class Extension {
     private String name;
     private String extensionPackage;
+    private List<String> dependencies;
 
     public String getName() {
         return name;
@@ -24,5 +27,13 @@ public class Extension {
 
     public void setExtensionPackage(String extensionPackage) {
         this.extensionPackage = extensionPackage;
+    }
+
+    public List<String> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(List<String> dependencies) {
+        this.dependencies = dependencies;
     }
 }

@@ -1,35 +1,121 @@
 package org.openl.extension.xmlrules.model.single.node;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openl.extension.xmlrules.model.single.Range;
+import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.utils.CellReference;
 
 @XmlType(name = "range-node")
 public class RangeNode extends Node {
+    private Range range = new Range();
     private String currentWorkbook;
     private String currentSheet;
-    private String range;
+    private Boolean hasArrayFormula = Boolean.FALSE;
+
+    public RangeNode() {
+    }
+
+    public RangeNode(RangeNode copy) {
+        this.currentWorkbook = copy.currentWorkbook;
+        this.currentSheet = copy.currentSheet;
+        this.range = new Range();
+        this.range.setPath(copy.range.getPath());
+        this.range.setRow(copy.range.getRow());
+        this.range.setColumn(copy.range.getColumn());
+    }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
         this.currentWorkbook = currentWorkbook;
         this.currentSheet = currentSheet;
     }
 
     @XmlElement(required = true)
-    public String getRange() {
+    public Range getRange() {
         return range;
     }
 
-    public void setRange(String range) {
+    public void setRange(Range range) {
         this.range = range;
+    }
+
+    @XmlTransient
+    public String getPath() {
+        return range.getPath();
+    }
+
+    public void setPath(String path) {
+        range.setPath(path);
+    }
+
+    @XmlTransient
+    public String getRow() {
+        return range.getRow();
+    }
+
+    public void setRow(String row) {
+        range.setRow(row);
+    }
+
+    @XmlTransient
+    public String getColumn() {
+        return range.getColumn();
+    }
+
+    public void setColumn(String column) {
+        range.setColumn(column);
+    }
+
+    @XmlTransient
+    public int getRowNumber() {
+        return range.getRowNumber();
+    }
+
+    @XmlTransient
+    public int getColumnNumber() {
+        return range.getColumnNumber();
+    }
+
+//    @XmlElement(defaultValue = "1")
+    @XmlTransient
+    public Integer getRowCount() {
+        return range.getRowCount();
+    }
+
+    public void setRowCount(Integer rowCount) {
+        range.setRowCount(rowCount);
+    }
+
+//    @XmlElement(defaultValue = "1")
+    @XmlTransient
+    public Integer getColCount() {
+        return range.getColCount();
+    }
+
+    public void setColCount(Integer colCount) {
+        range.setColCount(colCount);
+    }
+
+    @XmlElement(defaultValue = "false")
+    public Boolean getHasArrayFormula() {
+        return hasArrayFormula;
+    }
+
+    public void setHasArrayFormula(Boolean hasArrayFormula) {
+        this.hasArrayFormula = hasArrayFormula;
+    }
+
+    @XmlTransient
+    public String getAddress() {
+        return CellReference.parse(currentWorkbook, currentSheet, this).getStringValue();
     }
 
     @Override
     public String toOpenLString() {
-        String cell = CellReference.parse(currentWorkbook, currentSheet, range).getStringValue();
-        // FIXME Remove this cast to String
-        return String.format("(String) Cell(\"%s\")", cell);
+        String cell = getAddress();
+        return String.format("Cell(\"%s\")", cell);
     }
 }

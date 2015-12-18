@@ -11,4 +11,6 @@ public interface IExtensionDescriptor {
     List<Module> getInternalModules(Module module);
 
     IOpenSourceCodeModule getSourceCode(Module module);
+
+    String getUrlForModule(Module module);
 }

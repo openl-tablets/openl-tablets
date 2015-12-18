@@ -1,8 +1,8 @@
 package org.openl.extension.xmlrules.model.single.node;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
+
+import org.openl.extension.xmlrules.model.single.Cell;
 
 @XmlType(name = "if-node")
 public class IfNode extends Node {
@@ -10,15 +10,6 @@ public class IfNode extends Node {
     private Node thenNode;
     private Node elseNode;
 
-    @XmlElements({
-            @XmlElement(name = "condition-string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "condition-number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "condition-boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "condition-range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "condition-expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "condition-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "condition-if-node", type=IfNode.class, required = true)
-    })
     public Node getCondition() {
         return condition;
     }
@@ -27,15 +18,6 @@ public class IfNode extends Node {
         this.condition = condition;
     }
 
-    @XmlElements({
-            @XmlElement(name = "then-string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "then-number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "then-boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "then-range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "then-expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "then-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "then-if-node", type=IfNode.class, required = true)
-    })
     public Node getThenNode() {
         return thenNode;
     }
@@ -44,15 +26,6 @@ public class IfNode extends Node {
         this.thenNode = thenNode;
     }
 
-    @XmlElements({
-            @XmlElement(name = "else-string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "else-number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "else-boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "else-range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "else-expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "else-function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "else-if-node", type=IfNode.class, required = true)
-    })
     public Node getElseNode() {
         return elseNode;
     }
@@ -62,14 +35,15 @@ public class IfNode extends Node {
     }
 
     @Override
-    public void configure(String currentWorkbook, String currentSheet) {
-        condition.configure(currentWorkbook, currentSheet);
-        thenNode.configure(currentWorkbook, currentSheet);
-        elseNode.configure(currentWorkbook, currentSheet);
+    public void configure(String currentWorkbook, String currentSheet, Cell cell) {
+        condition.configure(currentWorkbook, currentSheet, cell);
+        thenNode.configure(currentWorkbook, currentSheet, cell);
+        elseNode.configure(currentWorkbook, currentSheet, cell);
     }
 
     @Override
     public String toOpenLString() {
-        return "(" + condition.toOpenLString() + "?" + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
+        String conditionCast = condition instanceof RangeNode ? "(Boolean) " : "";
+        return "(" + conditionCast + condition.toOpenLString() + ") ? " + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
     }
 }

@@ -1,27 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:include schemaLocation="common.xsd"/>
+
   <xs:element name="cells" type="cells"/>
 
   <xs:complexType name="cells">
     <xs:sequence>
       <xs:element name="cell" type="cell" maxOccurs="unbounded"/>
+      <xs:element name="named-ranges" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="named-range" type="named-range" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="cell">
     <xs:sequence>
-      <xs:element name="address" type="xs:string"/>
-      <xs:choice>
-        <xs:element name="string-node" type="string-node"/>
-        <xs:element name="number-node" type="number-node"/>
-        <xs:element name="boolean-node" type="boolean-node"/>
-        <xs:element name="range-node" type="range-node"/>
-        <xs:element name="expression-node" type="expression-node"/>
-        <xs:element name="function-node" type="function-node"/>
-        <xs:element name="if-node" type="if-node"/>
-      </xs:choice>
+      <xs:element name="address" type="range-node"/>
+      <xs:element name="node" type="node" minOccurs="0"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="range-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="hasArrayFormula" type="xs:boolean" default="false" minOccurs="0"/>
+          <xs:element name="range" type="range"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="node" abstract="true">
+    <xs:sequence/>
   </xs:complexType>
 
   <xs:complexType name="string-node">
@@ -34,15 +50,11 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="node" abstract="true">
-    <xs:sequence/>
-  </xs:complexType>
-
   <xs:complexType name="number-node">
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="value" type="xs:double"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -52,17 +64,17 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="value" type="xs:boolean"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="range-node">
+  <xs:complexType name="named-node">
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:element name="range" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -72,25 +84,9 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:choice>
-            <xs:element name="left-string-node" type="string-node"/>
-            <xs:element name="left-number-node" type="number-node"/>
-            <xs:element name="left-boolean-node" type="boolean-node"/>
-            <xs:element name="left-range-node" type="range-node"/>
-            <xs:element name="left-expression-node" type="expression-node"/>
-            <xs:element name="left-function-node" type="function-node"/>
-            <xs:element name="left-if-node" type="if-node"/>
-          </xs:choice>
+          <xs:element name="leftNode" type="node" minOccurs="0"/>
           <xs:element name="operator" type="xs:string"/>
-          <xs:choice>
-            <xs:element name="right-string-node" type="string-node"/>
-            <xs:element name="right-number-node" type="number-node"/>
-            <xs:element name="right-boolean-node" type="boolean-node"/>
-            <xs:element name="right-range-node" type="range-node"/>
-            <xs:element name="right-expression-node" type="expression-node"/>
-            <xs:element name="right-function-node" type="function-node"/>
-            <xs:element name="right-if-node" type="if-node"/>
-          </xs:choice>
+          <xs:element name="rightNode" type="node" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -100,15 +96,7 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="string-node" type="string-node"/>
-            <xs:element name="number-node" type="number-node"/>
-            <xs:element name="boolean-node" type="boolean-node"/>
-            <xs:element name="range-node" type="range-node"/>
-            <xs:element name="expression-node" type="expression-node"/>
-            <xs:element name="function-node" type="function-node"/>
-            <xs:element name="if-node" type="if-node"/>
-          </xs:choice>
+          <xs:element name="arguments" type="node" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element name="name" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
@@ -119,36 +107,74 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
-          <xs:choice>
-            <xs:element name="condition-string-node" type="string-node"/>
-            <xs:element name="condition-number-node" type="number-node"/>
-            <xs:element name="condition-boolean-node" type="boolean-node"/>
-            <xs:element name="condition-range-node" type="range-node"/>
-            <xs:element name="condition-expression-node" type="expression-node"/>
-            <xs:element name="condition-function-node" type="function-node"/>
-            <xs:element name="condition-if-node" type="if-node"/>
-          </xs:choice>
-          <xs:choice>
-            <xs:element name="else-string-node" type="string-node"/>
-            <xs:element name="else-number-node" type="number-node"/>
-            <xs:element name="else-boolean-node" type="boolean-node"/>
-            <xs:element name="else-range-node" type="range-node"/>
-            <xs:element name="else-expression-node" type="expression-node"/>
-            <xs:element name="else-function-node" type="function-node"/>
-            <xs:element name="else-if-node" type="if-node"/>
-          </xs:choice>
-          <xs:choice>
-            <xs:element name="then-string-node" type="string-node"/>
-            <xs:element name="then-number-node" type="number-node"/>
-            <xs:element name="then-boolean-node" type="boolean-node"/>
-            <xs:element name="then-range-node" type="range-node"/>
-            <xs:element name="then-expression-node" type="expression-node"/>
-            <xs:element name="then-function-node" type="function-node"/>
-            <xs:element name="then-if-node" type="if-node"/>
-          </xs:choice>
+          <xs:element name="condition" type="node" minOccurs="0"/>
+          <xs:element name="elseNode" type="node" minOccurs="0"/>
+          <xs:element name="thenNode" type="node" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="if-error-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="value" type="node" minOccurs="0"/>
+          <xs:element name="valueIfError" type="node" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="filter-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="comparison" type="comparison" minOccurs="0"/>
+          <xs:element name="condition" type="node" minOccurs="0"/>
+          <xs:element name="field-name" type="xs:string"/>
+          <xs:element name="node" type="node" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="array-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="failure-node">
+    <xs:complexContent>
+      <xs:extension base="node">
+        <xs:sequence>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="named-range">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="range" type="range-node" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="comparison">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="&lt;"/>
+      <xs:enumeration value="&lt;="/>
+      <xs:enumeration value="=="/>
+      <xs:enumeration value="&gt;"/>
+      <xs:enumeration value="&gt;="/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>
 

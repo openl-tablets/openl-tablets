@@ -13,7 +13,7 @@ public class WorkbookInfo {
     private String xlsFileName;
     private List<SheetInfo> sheets = new ArrayList<SheetInfo>();
 
-    @XmlElement(name = "xls-file", required = true)
+    @XmlElement(name = "xlsFile", required = true)
     public String getXlsFileName() {
         return xlsFileName;
     }

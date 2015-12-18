@@ -49,7 +49,7 @@ public class FunctionImpl implements Function {
         this.parameters = parameters;
     }
 
-    @XmlElement(name = "cell-address")
+    @XmlElement(name = "cellAddress")
     @Override
     public String getCellAddress() {
         return cellAddress;

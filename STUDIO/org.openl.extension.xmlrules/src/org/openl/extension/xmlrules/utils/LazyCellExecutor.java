@@ -2,6 +2,8 @@ package org.openl.extension.xmlrules.utils;
 
 import java.util.*;
 
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -14,6 +16,7 @@ public class LazyCellExecutor {
     private final Object target;
     private final IRuntimeEnv env;
     private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final List<RulesTableReference> arrays = new ArrayList<RulesTableReference>();
 
     private final Map<String, RulesTableReference> referenceMap = new HashMap<String, RulesTableReference>();
 
@@ -22,6 +25,15 @@ public class LazyCellExecutor {
         this.target = target;
 
         this.env = env;
+
+        for (IOpenMethod method : xlsModuleOpenClass.getMethods()) {
+            if (method instanceof Spreadsheet) {
+                RulesTableReference reference = new RulesTableReference(method.getName());
+                if (reference.getReference() != null && reference.getEndReference() != null) {
+                    arrays.add(reference);
+                }
+            }
+        }
     }
 
     public static LazyCellExecutor getInstance() {
@@ -55,25 +67,76 @@ public class LazyCellExecutor {
         }
     }
 
+    public Object[][] getCellValues(String cell, int rows, int cols) {
+        Object[][] result = new Object[rows][cols];
+        RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
+        int row = Integer.parseInt(reference.getRow());
+        int col = Integer.parseInt(reference.getColumn());
+
+        CellReference start = reference.getReference();
+        String workbook = start.getWorkbook();
+        String sheet = start.getSheet();
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int currentRow = row + i;
+                int currentColumn = col + j;
+                CellReference cr = new CellReference(workbook, sheet, "" + currentRow, "" + currentColumn);
+                result[i][j] = getCellValue(cr.getStringValue());
+            }
+        }
+
+        return result;
+    }
+
     public Object getCellValue(String cell) {
         if (!params.containsKey(cell)) {
-            RulesTableReference reference = getReference(cell);
+            RulesTableReference tableReference = getTableReference(cell);
 
-            String rulesTable = reference.getTable();
-            String row = reference.getRow();
-            String column = reference.getColumn();
+            if (tableReference.getEndReference() == null) {
+                String rulesTable = tableReference.getTable();
+                String row = tableReference.getRow();
+                String column = tableReference.getColumn();
 
-            IOpenMethod cellsHolder = xlsModuleOpenClass.getMethod(rulesTable,
-                    new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING });
-            return cellsHolder.invoke(target, new Object[] {row, column}, env);
+                IOpenMethod cellsHolder = xlsModuleOpenClass.getMethod(rulesTable,
+                        new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING });
+                return cellsHolder.invoke(target, new Object[] { row, column }, env);
+            } else {
+                String rulesTable = tableReference.getTable();
+                RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
+                String row = reference.getRow();
+                String column = reference.getColumn();
+
+                Spreadsheet cellsHolder = (Spreadsheet) xlsModuleOpenClass.getMethod(rulesTable, new IOpenClass[] {});
+                SpreadsheetResult result = (SpreadsheetResult) cellsHolder.invoke(target, new Object[] {}, env);
+
+                return result.getFieldValue("$C" + column + "$R" + row);
+            }
         }
 
         Deque<Object> objects = params.get(cell);
         return objects.getLast();
     }
 
-    public RulesTableReference getReference(String cell) {
+    public RulesTableReference getArrayReference(String cell) {
+        CellReference cellReference = CellReference.parse(cell);
+
+        for (RulesTableReference reference : arrays) {
+            if (reference.contains(cellReference)) {
+                return reference;
+            }
+        }
+
+        return null;
+    }
+
+    public RulesTableReference getTableReference(String cell) {
+        // TODO Make it clear, what returns the method: table reference or specific cell reference
         RulesTableReference rulesTableReference = referenceMap.get(cell);
+        if (rulesTableReference == null) {
+            rulesTableReference = getArrayReference(cell);
+            referenceMap.put(cell, rulesTableReference);
+        }
         if (rulesTableReference == null) {
             rulesTableReference = new RulesTableReference(CellReference.parse(cell));
             referenceMap.put(cell, rulesTableReference);

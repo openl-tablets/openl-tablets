@@ -1,32 +1,42 @@
 package org.openl.extension.xmlrules.model.single;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 
-import org.openl.extension.xmlrules.model.single.node.*;
+import org.openl.extension.xmlrules.model.single.node.Node;
+import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class Cell {
-    private String address;
+    private RangeNode address;
     private Node node;
 
     @XmlElement(required = true)
-    public String getAddress() {
+    public RangeNode getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(RangeNode address) {
         this.address = address;
     }
 
-    @XmlElements({
-            @XmlElement(name = "string-node", type=StringNode.class, required = true),
-            @XmlElement(name = "number-node", type=NumberNode.class, required = true),
-            @XmlElement(name = "boolean-node", type=BooleanNode.class, required = true),
-            @XmlElement(name = "range-node", type=RangeNode.class, required = true),
-            @XmlElement(name = "expression-node", type=ExpressionNode.class, required = true),
-            @XmlElement(name = "function-node", type=FunctionNode.class, required = true),
-            @XmlElement(name = "if-node", type=IfNode.class, required = true)
-    })
+    @XmlTransient()
+    public Boolean getHasArrayFormula() {
+        return getAddress().getHasArrayFormula();
+    }
+
+    @XmlTransient()
+    public RangeNode getEndAddress() {
+        if (!getHasArrayFormula()) {
+            return null;
+        }
+
+        RangeNode endAddress = new RangeNode();
+        endAddress.setPath(address.getPath());
+        endAddress.setRow("" + (address.getRowNumber() + address.getRowCount() - 1));
+        endAddress.setColumn("" + (address.getColumnNumber() + address.getColCount() - 1));
+        return endAddress;
+    }
+
     public Node getNode() {
         return node;
     }

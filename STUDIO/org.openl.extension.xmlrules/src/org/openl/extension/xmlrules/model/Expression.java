@@ -1,9 +1,13 @@
 package org.openl.extension.xmlrules.model;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public interface Expression {
     String getValue();
 
-    int getWidth();
+    Boolean getReference();
 
-    int getHeight();
+    Integer getWidth();
+
+    Integer getHeight();
 }
