@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
@@ -33,9 +34,9 @@ public class RepositoryConfiguration {
     private final String REPOSITORY_LOGIN;
     private final String REPOSITORY_PASS;
 
-
-
-    public RepositoryConfiguration(String configName, ConfigurationManager configManager, RepositoryType repositoryType) {
+    public RepositoryConfiguration(String configName,
+            ConfigurationManager configManager,
+            RepositoryType repositoryType) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
         this.repositoryType = repositoryType;
@@ -52,9 +53,20 @@ public class RepositoryConfiguration {
     }
 
     private void load() {
-        jcrType = JcrType.findByFactory(configManager.getStringProperty(REPOSITORY_FACTORY));
+        String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
+        jcrType = JcrType.findByFactory(factoryClassName);
         name = configManager.getStringProperty(REPOSITORY_NAME);
-        uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI) : configManager.getStringProperty(REPOSITORY_URI);
+        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName,
+            repositoryType.toString());
+        if (oldUriProperty != null) {
+            uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
+                                           : configManager.getStringProperty(oldUriProperty);
+            configManager.removeProperty(oldUriProperty);
+        }
+        if (uri == null) {
+            uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI)
+                                           : configManager.getStringProperty(REPOSITORY_URI);
+        }
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
 
         fixState();
