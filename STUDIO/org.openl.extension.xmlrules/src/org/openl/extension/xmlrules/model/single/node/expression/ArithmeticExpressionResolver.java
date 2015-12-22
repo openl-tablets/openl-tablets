@@ -1,9 +1,6 @@
 package org.openl.extension.xmlrules.model.single.node.expression;
 
-import org.openl.extension.xmlrules.model.single.node.ArrayNode;
-import org.openl.extension.xmlrules.model.single.node.ExpressionNode;
-import org.openl.extension.xmlrules.model.single.node.Node;
-import org.openl.extension.xmlrules.model.single.node.NumberNode;
+import org.openl.extension.xmlrules.model.single.node.*;
 
 public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
     @Override
@@ -29,6 +26,17 @@ public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
             ExpressionResolver expressionResolver = ExpressionResolverFactory.getExpressionResolver(expressionNode.getOperator());
 
             if (expressionResolver instanceof RangeExpressionResolver && ((RangeExpressionResolver) expressionResolver).isRangeReturnsArray()) {
+                return toString(node);
+            }
+        }
+
+        if (node instanceof RangeNode && ((RangeNode) node).getHasArrayFormula()) {
+            return toString(node);
+        }
+
+        if (node instanceof NamedRangeNode) {
+            RangeNode rangeNode = ((NamedRangeNode) node).getRangeNode();
+            if (rangeNode.getColumnNumber() > 1 || rangeNode.getRowCount() > 1) {
                 return toString(node);
             }
         }

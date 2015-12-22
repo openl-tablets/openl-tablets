@@ -220,7 +220,7 @@ public class FilterNode extends Node {
         Node value = node.getConditionValue();
         String valueString = value.toOpenLString();
         if (value instanceof NumberNode) {
-            return "\"" + valueString + "\"";
+            return "\"" + ((NumberNode) value).asString() + "\"";
         }
         return valueString;
     }
@@ -279,7 +279,7 @@ public class FilterNode extends Node {
 
     protected String getDataInstanceString() {
         String dataInstanceName = "All" + fieldName;
-        return node == null ? dataInstanceName : dataInstanceName + "[" + node.toOpenLString() + "]";
+        return node == null ? dataInstanceName : dataInstanceName + "[" + (Integer.parseInt(((NumberNode)node).asString()) - 1) + "]";
     }
 
     protected boolean isDataInstanceNode() {
