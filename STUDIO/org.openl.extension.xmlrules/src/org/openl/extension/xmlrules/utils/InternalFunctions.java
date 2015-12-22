@@ -89,4 +89,20 @@ public class InternalFunctions {
     public static double AVERAGE(Object[] array) {
         return AverageFunction.average(array);
     }
+
+    public static int ROWS(Object array) {
+        return ROWS((Object[][]) array);
+    }
+
+    public static int ROWS(Object[][] array) {
+        return array.length;
+    }
+
+    public static int COLUMNS(Object array) {
+        return COLUMNS((Object[][]) array);
+    }
+
+    public static int COLUMNS(Object[][] array) {
+        return array[0].length;
+    }
 }
