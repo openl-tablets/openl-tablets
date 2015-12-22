@@ -685,11 +685,11 @@ public class XmlRulesParser extends BaseParser {
             }
 
             if (verticalConditions.size() > 0) {
-                rowNumbers.sort(new ConditionsComparator(verticalConditions));
+                Collections.sort(rowNumbers, new ConditionsComparator(verticalConditions));
             }
 
             if (horizontalConditions.size() > 0) {
-                columnNumbers.sort(new ConditionsComparator(horizontalConditions));
+                Collections.sort(columnNumbers, new ConditionsComparator(horizontalConditions));
             }
 
             for (ConditionImpl condition : verticalConditions) {
