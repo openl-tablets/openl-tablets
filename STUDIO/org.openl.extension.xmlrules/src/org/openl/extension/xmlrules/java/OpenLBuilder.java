@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules.java;
 
 import org.openl.OpenL;
 import org.openl.conf.*;
+import org.openl.extension.xmlrules.binding.XmlRulesMethodNodeBinder;
 import org.openl.extension.xmlrules.utils.ArrayOperators;
 import org.openl.extension.xmlrules.utils.InternalFunctions;
 import org.openl.extension.xmlrules.utils.XmlRules;
@@ -48,6 +49,19 @@ public class OpenLBuilder extends AOpenLBuilder {
 
 
         libraries.addConfiguredLibrary(library);
+
+        NodeBinderFactoryConfiguration nbc = op.createBindings();
+
+        String[] binders = {
+                "function", XmlRulesMethodNodeBinder.class.getName(),
+        };
+
+        for (int i = 0; i < binders.length / 2; i++) {
+            NodeBinderFactoryConfiguration.SingleBinderFactory sbf = new NodeBinderFactoryConfiguration.SingleBinderFactory();
+            sbf.setNode(binders[2 * i]);
+            sbf.setClassName(binders[2 * i + 1]);
+            nbc.addConfiguredBinder(sbf);
+        }
 
         return op;
     }

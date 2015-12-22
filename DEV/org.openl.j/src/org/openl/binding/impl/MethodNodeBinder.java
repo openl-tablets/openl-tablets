@@ -69,7 +69,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 .bind(methodNode, bindingContext);
     }
 
-    private IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
+    protected IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
                                                  IOpenClass[] argumentTypes, IBoundNode[] children, int childrenCount) throws Exception {
 
         // Try to bind method, that contains one of the arguments as array type. For this try to find method without 

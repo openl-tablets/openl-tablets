@@ -6,6 +6,9 @@ import org.openl.extension.xmlrules.model.single.Cell;
 
 @XmlType(name = "if-error-node")
 public class IfErrorNode extends Node {
+    public static final String FUNCTION_NAME = "IfError";
+    public static final int ARGUMENTS_COUNT = 2;
+
     private Node value;
     private Node valueIfError;
 
@@ -33,6 +36,6 @@ public class IfErrorNode extends Node {
 
     @Override
     public String toOpenLString() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return FUNCTION_NAME + "(" + value.toOpenLString() + ", " + valueIfError.toOpenLString() + ")";
     }
 }
