@@ -42,7 +42,7 @@ public class RangeNode extends Node {
         this.range = range;
     }
 
-    @XmlTransient
+//    @XmlTransient // TODO Uncomment when LE part will be implemented
     public String getPath() {
         return range.getPath();
     }
@@ -51,7 +51,7 @@ public class RangeNode extends Node {
         range.setPath(path);
     }
 
-    @XmlTransient
+//    @XmlTransient // TODO Uncomment when LE part will be implemented
     public String getRow() {
         return range.getRow();
     }
@@ -60,7 +60,7 @@ public class RangeNode extends Node {
         range.setRow(row);
     }
 
-    @XmlTransient
+//    @XmlTransient // TODO Uncomment when LE part will be implemented
     public String getColumn() {
         return range.getColumn();
     }
@@ -79,8 +79,8 @@ public class RangeNode extends Node {
         return range.getColumnNumber();
     }
 
-//    @XmlElement(defaultValue = "1")
-    @XmlTransient
+    @XmlElement(defaultValue = "1")
+//    @XmlTransient // TODO Uncomment when LE part will be implemented
     public Integer getRowCount() {
         return range.getRowCount();
     }
@@ -89,8 +89,8 @@ public class RangeNode extends Node {
         range.setRowCount(rowCount);
     }
 
-//    @XmlElement(defaultValue = "1")
-    @XmlTransient
+    @XmlElement(defaultValue = "1")
+//    @XmlTransient // TODO Uncomment when LE part will be implemented
     public Integer getColCount() {
         return range.getColCount();
     }

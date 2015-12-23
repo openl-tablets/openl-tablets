@@ -15,7 +15,10 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
-import org.openl.extension.xmlrules.model.single.node.*;
+import org.openl.extension.xmlrules.model.single.node.FunctionNode;
+import org.openl.extension.xmlrules.model.single.node.NamedRange;
+import org.openl.extension.xmlrules.model.single.node.Node;
+import org.openl.extension.xmlrules.model.single.node.ValueHolder;
 import org.openl.extension.xmlrules.model.single.node.expression.CellInspector;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
@@ -471,31 +474,50 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private Table removeGapsFromReturnRows(Table source) {
-        if (source.getHorizontalConditions().isEmpty() || source.getVerticalConditions().isEmpty()) {
+        List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+        List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+        if (horizontalConditions.isEmpty() || verticalConditions.isEmpty()) {
             return source;
         }
+
+        int rowCount;
+        int columnCount;
+
+        int skipRows;
+        int skipColumns;
+
+        List<ReturnRow> returnValues = source.getReturnValues();
 
         TableRanges tableRanges = source.getTableRanges();
         if (tableRanges == null) {
-            return source;
+            if ((verticalConditions.size() == 0 || returnValues.size() == verticalConditions.get(0).getExpressions().size())
+                    && (horizontalConditions.size() == 0 ||
+                    horizontalConditions.get(0).getExpressions().size() == returnValues.get(0).getList().size())) {
+                return source;
+            }
+
+            rowCount = verticalConditions.size() > 0 ? verticalConditions.get(0).getExpressions().size() : 0;
+            columnCount = horizontalConditions.size() > 0 ? horizontalConditions.get(0).getExpressions().size() : 0;
+            skipRows = returnValues.size() - rowCount;
+            skipColumns = returnValues.get(0).getList().size() - columnCount;
+        } else {
+            Range verticalRange = tableRanges.getVerticalConditionsRange();
+            Range horizontalRange = tableRanges.getHorizontalConditionsRange();
+            Range returnValuesRange = tableRanges.getReturnValuesRange();
+
+            int rowStart = verticalRange.getRowNumber();
+            rowCount = verticalRange.getRowCount();
+
+            int columnStart = horizontalRange.getColumnNumber();
+            columnCount = horizontalRange.getColCount();
+
+            skipRows = returnValuesRange.getRowNumber() - rowStart;
+            skipColumns = returnValuesRange.getColumnNumber() - columnStart;
         }
-
-        Range verticalRange = tableRanges.getVerticalConditionsRange();
-        Range horizontalRange = tableRanges.getHorizontalConditionsRange();
-        Range returnValuesRange = tableRanges.getReturnValuesRange();
-
-        int rowStart = verticalRange.getRowNumber();
-        int rowCount = verticalRange.getRowCount();
-
-        int columnStart = horizontalRange.getColumnNumber();
-        int columnCount = horizontalRange.getColCount();
-
-        int skipRows = returnValuesRange.getRowNumber() - rowStart;
-        int skipColumns = returnValuesRange.getColumnNumber() - columnStart;
 
         List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
 
-        List<ReturnRow> subList = source.getReturnValues().subList(skipRows, skipRows + rowCount);
+        List<ReturnRow> subList = returnValues.subList(skipRows, skipRows + rowCount);
         for (ReturnRow returnValue : subList) {
             ReturnRow newReturnRow = new ReturnRow();
             newReturnRow.setList(returnValue.getList().subList(skipColumns, skipColumns + columnCount));
@@ -508,8 +530,8 @@ public class XmlRulesParser extends BaseParser {
         table.setName(source.getName());
         table.setReturnType(source.getReturnType());
         table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
-        table.setHorizontalConditions(new ArrayList<ConditionImpl>(source.getHorizontalConditions()));
-        table.setVerticalConditions(new ArrayList<ConditionImpl>(source.getVerticalConditions()));
+        table.setHorizontalConditions(new ArrayList<ConditionImpl>(horizontalConditions));
+        table.setVerticalConditions(new ArrayList<ConditionImpl>(verticalConditions));
         table.setReturnValues(newReturnValues);
 
         return table;
