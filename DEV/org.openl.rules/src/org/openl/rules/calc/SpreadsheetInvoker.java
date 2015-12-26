@@ -51,7 +51,6 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
             traceObject.setResult(result);
         } catch (RuntimeException e) {
             traceObject.setError(e);
-            log.error("Error when tracing Spreadsheet table", e);
             throw e;
         } finally {
             Tracer.end();

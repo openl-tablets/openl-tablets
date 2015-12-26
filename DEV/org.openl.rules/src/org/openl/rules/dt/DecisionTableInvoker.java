@@ -131,7 +131,6 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
         traceObject.setError(e);
-        log.error("Error when tracing DT rule", e);
         throw new OpenLRuntimeException(e);
     }
 
