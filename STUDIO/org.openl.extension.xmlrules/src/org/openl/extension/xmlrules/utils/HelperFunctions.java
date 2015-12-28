@@ -19,4 +19,25 @@ public class HelperFunctions {
         }
         return newArr;
     }
+
+    public static Double toDouble(Object x) {
+        if (x == null) {
+            return null;
+        }
+
+        if (x instanceof Double) {
+            return (Double) x;
+        }
+
+        if (x instanceof String) {
+            return Double.valueOf((String) x);
+        }
+
+        // Other number types
+        if (x instanceof Number) {
+            return ((Number) x).doubleValue();
+        }
+
+        throw new IllegalArgumentException("Can't convert to double");
+    }
 }

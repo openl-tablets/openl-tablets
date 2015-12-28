@@ -794,7 +794,7 @@ public class XmlRulesParser extends BaseParser {
                 StringBuilder headerBuilder = new StringBuilder();
                 String returnType = function.getReturnType();
                 if (StringUtils.isBlank(returnType)) {
-                    returnType = "String";
+                    returnType = "Object";
                 }
                 headerBuilder.append("Method ")
                         .append(returnType)
@@ -811,7 +811,7 @@ public class XmlRulesParser extends BaseParser {
                     Parameter parameter = parameters.get(i);
                     String type = parameter.getType();
                     if (StringUtils.isBlank(type)) {
-                        type = "String";
+                        type = "Object";
                     }
                     CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
                     headerBuilder.append(type)

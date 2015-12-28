@@ -19,11 +19,11 @@ public class NumberNode extends Node implements ValueHolder {
 
     @Override
     public String toOpenLString() {
-        return value == null ? null : "(Double) " + value;
+        return value == null ? null : value;
     }
 
     @Override
     public String asString() {
-        return value == null ? null : value;
+        return toOpenLString();
     }
 }

@@ -44,6 +44,6 @@ public class IfNode extends Node {
     @Override
     public String toOpenLString() {
         String conditionCast = condition instanceof RangeNode ? "(Boolean) " : "";
-        return "(" + conditionCast + condition.toOpenLString() + ") ? " + thenNode.toOpenLString() + ":" + elseNode.toOpenLString();
+        return "(" + conditionCast + condition.toOpenLString() + ") ? (Object) (" + thenNode.toOpenLString() + ") : (Object) (" + elseNode.toOpenLString() + ")";
     }
 }

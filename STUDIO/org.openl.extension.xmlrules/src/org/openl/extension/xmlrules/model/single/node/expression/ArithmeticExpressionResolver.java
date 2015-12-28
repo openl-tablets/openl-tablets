@@ -14,7 +14,11 @@ public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
         }
 
         if (node instanceof NumberNode) {
-            return toString(node);
+            return "(Double) " + toString(node);
+        }
+
+        if (node instanceof StringNode) {
+            return "(Double) " + toString(node);
         }
 
         if (node instanceof ArrayNode) {
@@ -41,6 +45,6 @@ public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
             }
         }
 
-        return "((Double) (" + node.toOpenLString() + "))";
+        return node.toOpenLString();
     }
 }

@@ -105,4 +105,12 @@ public class InternalFunctions {
     public static int COLUMNS(Object[][] array) {
         return array[0].length;
     }
+
+    public static double SUM(Object array) {
+        return SumFunction.sum(array);
+    }
+
+    public static double SUM(Object[][] array) {
+        return SumFunction.sum(array);
+    }
 }
