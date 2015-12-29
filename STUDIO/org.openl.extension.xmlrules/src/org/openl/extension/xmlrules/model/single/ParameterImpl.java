@@ -10,7 +10,7 @@ public class ParameterImpl implements Parameter {
     private String type;
     private String name;
 
-    @XmlElement(defaultValue = "String")
+    @XmlElement(defaultValue = "Object")
     @Override
     public String getType() {
         return type;

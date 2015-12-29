@@ -1254,10 +1254,17 @@ public class XmlRulesParser extends BaseParser {
     }
 
     private void initTypes(ExtensionModule module) {
+        ProjectData projectData = ProjectData.getCurrentInstance();
         for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
             for (Sheet s : workbook.getSheets()) {
                 for (Type type : s.getTypes()) {
-                    ProjectData.getCurrentInstance().addType(type);
+                    projectData.addType(type);
+                }
+                for (Function function : s.getFunctions()) {
+                    projectData.addFunction(function);
+                }
+                for (Table table : s.getTables()) {
+                    projectData.addTable(table);
                 }
             }
         }

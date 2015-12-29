@@ -2,6 +2,9 @@ package org.openl.extension.xmlrules.model.single.node.function;
 
 import java.util.List;
 
+import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.Function;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.node.FunctionNode;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
@@ -14,6 +17,8 @@ public class DefaultFunctionResolver implements FunctionResolver {
         try {
             instance.setCanHandleArrayOperators(true);
 
+            List<ParameterImpl> parameters = getParameters(node);
+
             StringBuilder builder = new StringBuilder(node.getName());
             builder.append('(');
             List<Node> arguments = node.getArguments();
@@ -21,7 +26,9 @@ public class DefaultFunctionResolver implements FunctionResolver {
                 if (i > 0) {
                     builder.append(", ");
                 }
-                builder.append(arguments.get(i).toOpenLString());
+
+                String argumentString = getArgumentString(parameters, arguments, i);
+                builder.append(argumentString);
             }
             builder.append(')');
             return builder.toString();
@@ -29,5 +36,36 @@ public class DefaultFunctionResolver implements FunctionResolver {
             instance.setCanHandleArrayOperators(canHandleArrayOperators);
         }
 
+    }
+
+    protected List<ParameterImpl> getParameters(FunctionNode node) {
+        ProjectData projectData = ProjectData.getCurrentInstance();
+
+        for (Function function : projectData.getFunctions()) {
+            if (node.getName().equals(function.getName())) {
+                return function.getParameters();
+            }
+        }
+
+        return null;
+    }
+
+    protected String getArgumentString(List<ParameterImpl> parameters, List<Node> arguments, int i) {
+        Node argument = arguments.get(i);
+
+        String argumentString = argument.toOpenLString();
+
+        if (parameters != null) {
+            ParameterImpl parameter = parameters.get(i);
+            if (argument instanceof FunctionNode && ((FunctionNode) argument).getName().equals("Out")) {
+                if (parameter.getType() != null && !parameter.getType().endsWith("]")) {
+                    argumentString += "[0][0]";
+                }
+            }
+            if (parameter.getType() != null) {
+                argumentString = "(" + parameter.getType() + ")(" + argumentString + ")";
+            }
+        }
+        return argumentString;
     }
 }

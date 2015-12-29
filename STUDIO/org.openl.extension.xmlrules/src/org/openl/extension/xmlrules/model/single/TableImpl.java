@@ -42,7 +42,7 @@ public class TableImpl implements Table {
         this.parameters = parameters;
     }
 
-    @XmlElement(defaultValue = "String")
+    @XmlElement(defaultValue = "Object")
     @Override
     public String getReturnType() {
         return returnType;

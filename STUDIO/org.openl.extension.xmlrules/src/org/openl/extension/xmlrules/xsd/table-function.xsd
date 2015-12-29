@@ -24,7 +24,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="returnType" type="xs:string" default="String" minOccurs="0"/>
+      <xs:element name="returnType" type="xs:string" default="Object" minOccurs="0"/>
       <xs:element name="returnValues">
         <xs:complexType>
           <xs:sequence>

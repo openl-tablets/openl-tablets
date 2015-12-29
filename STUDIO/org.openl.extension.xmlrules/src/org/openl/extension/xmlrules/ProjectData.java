@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.extension.xmlrules.model.Field;
+import org.openl.extension.xmlrules.model.Function;
+import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
@@ -32,7 +34,9 @@ public class ProjectData {
         INSTANCE.remove();
     }
 
-    private Set<Type> types = new HashSet<Type>();
+    private final Set<Type> types = new HashSet<Type>();
+    private final Set<Function> functions = new HashSet<Function>();
+    private final Set<Table> tables = new HashSet<Table>();
 
     private final Set<String> typeNames = new HashSet<String>();
     private final Set<String> fieldNames = new HashSet<String>();
@@ -46,6 +50,14 @@ public class ProjectData {
         for (Field field : type.getFields()) {
             fieldNames.add(field.getName());
         }
+    }
+
+    public void addFunction(Function function) {
+        functions.add(function);
+    }
+
+    public void addTable(Table table) {
+        tables.add(table);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -66,5 +78,13 @@ public class ProjectData {
 
     public Map<String, RangeNode> getNamedRanges() {
         return namedRanges;
+    }
+
+    public Set<Function> getFunctions() {
+        return functions;
+    }
+
+    public Set<Table> getTables() {
+        return tables;
     }
 }
