@@ -336,10 +336,11 @@ public class XmlRulesParser extends BaseParser {
 
                 String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
                 StringBuilder header = new StringBuilder();
-                String returnType = table.getReturnType();
-                if (StringUtils.isBlank(returnType)) {
-                    returnType = "String";
-                }
+                String returnType = "Object"; // Until it will be fixed on LE side
+//                String returnType = table.getReturnType();
+//                if (StringUtils.isBlank(returnType)) {
+//                    returnType = "Object";
+//                }
                 header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
                 boolean needComma = false;
                 for (Parameter parameter : table.getParameters()) {
@@ -792,10 +793,12 @@ public class XmlRulesParser extends BaseParser {
         for (Function function : sheet.getFunctions()) {
             try {
                 StringBuilder headerBuilder = new StringBuilder();
-                String returnType = function.getReturnType();
-                if (StringUtils.isBlank(returnType)) {
-                    returnType = "Object";
-                }
+                String returnType = "Object"; // Until it will be fixed on LE side
+//                String returnType = function.getReturnType();
+//                if (StringUtils.isBlank(returnType)) {
+//                    returnType = "Object";
+//                }
+
                 headerBuilder.append("Method ")
                         .append(returnType)
                         .append(' ')

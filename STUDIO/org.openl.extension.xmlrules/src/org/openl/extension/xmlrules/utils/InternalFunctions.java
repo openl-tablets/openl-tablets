@@ -78,6 +78,17 @@ public class InternalFunctions {
         return result[row][0];
     }
 
+    public static Object[] Merge(Object object) {
+        Object[][] array;
+        try {
+            array = (Object[][]) object;
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Can't merge non-array parameter " + object);
+        }
+
+        return MergeFunction.merge(array);
+    }
+
     public static Object[] Merge(Object[][] array) {
         return MergeFunction.merge(array);
     }
