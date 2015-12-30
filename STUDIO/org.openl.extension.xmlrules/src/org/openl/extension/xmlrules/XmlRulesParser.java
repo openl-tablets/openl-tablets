@@ -1229,6 +1229,8 @@ public class XmlRulesParser extends BaseParser {
                     e.getMessage());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);
+        } finally {
+            ProjectData.clearUnmarshaller();
         }
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);

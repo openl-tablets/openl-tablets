@@ -8,10 +8,10 @@ import java.lang.ref.WeakReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.single.XlsRegionImpl;
 import org.openl.util.IOUtils;
 
@@ -71,8 +71,7 @@ public abstract class BaseLazyItem<T> {
 
             InputStream inputStream = zipFile.getInputStream(entry);
             try {
-                JAXBContext context = JAXBContext.newInstance("org.openl.extension.xmlrules.model.single");
-                Unmarshaller m = context.createUnmarshaller();
+                Unmarshaller m = ProjectData.getUnmarshaller();
                 @SuppressWarnings("unchecked")
                 T item = (T) m.unmarshal(new InputStreamReader(inputStream, "UTF-8"));
                 return item;
