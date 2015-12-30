@@ -83,7 +83,7 @@ public class HTMLRenderer {
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder(),
-                    mode);
+                    mode, editor.getView());
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -346,6 +346,9 @@ public class HTMLRenderer {
                 if (rowIndex != null) {
                     s.append("<td style='padding-left:5px; padding-right:5px; border: none; width: 1px; vertical-align: middle; text-align: right;'>");
                     long rowToPrint = row - rowIndex + 2;
+                    if (!tableModel.isShowHeader()){
+                        rowToPrint = row - rowIndex + 4;
+                    }
                     if (rowToPrint > 0) {
                         s.append(rowToPrint);
                     }

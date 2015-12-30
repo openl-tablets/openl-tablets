@@ -243,6 +243,7 @@ public class DecisionTableLookupConvertor {
     private boolean isValidSimpleDecisionTableHeader(String headerStr) {
         if (DecisionTableHelper.isValidRuleHeader(headerStr) ||
                 DecisionTableHelper.isValidConditionHeader(headerStr) ||
+                DecisionTableHelper.isValidMergedConditionHeader(headerStr) ||
                 ParserUtils.isBlankOrCommented(headerStr)) {
             return true;
         }

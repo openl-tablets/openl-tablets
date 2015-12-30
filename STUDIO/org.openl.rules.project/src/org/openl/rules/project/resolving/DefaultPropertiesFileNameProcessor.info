@@ -24,7 +24,11 @@
         <b>currency</b>,
         <b>lang</b>,
         <b>state</b>,
-        <b>region</b>
+        <b>state</b>,
+        <b>region</b>,
+        <b>origin</b>,
+        <b>caProvince</b>,
+        <b>caRegion</b>
     </div>
     <div>Note: Date formats description and examples can be found in
         <a href="http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">

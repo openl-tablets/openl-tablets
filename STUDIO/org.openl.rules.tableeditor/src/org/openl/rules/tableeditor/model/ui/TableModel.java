@@ -16,21 +16,23 @@ public class TableModel {
     private IGridTable gridTable;
 
     private int numRowsToDisplay = -1;
+    
+    private boolean showHeader = true;
 
     public static TableModel initializeTableModel(IGridTable table) {
         return initializeTableModel(table, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, int numRows) {
-        return initializeTableModel(table, null, numRows, null, null);
+        return initializeTableModel(table, null, numRows, null, null, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, filters, -1, null, null);
+        return initializeTableModel(table, filters, -1, null, null, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows,
-            LinkBuilder linkBuilder, String mode) {
+            LinkBuilder linkBuilder, String mode, String view) {
         if (table == null) {
             return null;
         }
@@ -49,16 +51,21 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBuilder, mode).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBuilder, mode, view).buildModel(table, numRows);
+    }
+    
+    public boolean isShowHeader() {
+        return showHeader;
     }
 
-    public TableModel(int width, int height, IGridTable gridTable) {
+    public TableModel(int width, int height, IGridTable gridTable, boolean showHeader) {
         cells = new ICellModel[height][];
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new ICellModel[width];
         }
 
         this.gridTable = gridTable;
+        this.showHeader = showHeader;
     }
 
     public int getNumRowsToDisplay() {

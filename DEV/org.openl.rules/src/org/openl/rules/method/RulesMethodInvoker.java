@@ -54,8 +54,7 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
             traceObject.setResult(result);
             return result;
         } catch (RuntimeException e) {
-            traceObject.setError(e);
-            log.error("Error when tracing", e);
+            traceObject.setError(e); 
             throw e;
         } finally {
             Tracer.end();

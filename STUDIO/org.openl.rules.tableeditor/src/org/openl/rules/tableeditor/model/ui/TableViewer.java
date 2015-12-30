@@ -23,6 +23,8 @@ public class TableViewer {
     private LinkBuilder linkBuilder;
 
     private String mode;
+    
+    private String view;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -85,11 +87,16 @@ public class TableViewer {
      * Two argument constructor
      */
     public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder, String mode) {
+        this(grid, reg, linkBuilder, mode, null);
+    }
+
+    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder, String mode, String view) {
         super();
         this.grid = grid;
         this.reg = reg;
         this.linkBuilder = linkBuilder;
         this.mode = mode;
+        this.view = view;
     }
 
     CellModel buildCell(ICell cell, CellModel cm) {
@@ -186,8 +193,13 @@ public class TableViewer {
 
         int h = IGridRegion.Tool.height(reg);
         int w = IGridRegion.Tool.width(reg);
-
-        TableModel tm = new TableModel(w, h, gt);
+        
+        boolean showHeader = true;
+        if ("business".equals(view)){
+            showHeader = false;
+        }
+        
+        TableModel tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRows);
 
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
