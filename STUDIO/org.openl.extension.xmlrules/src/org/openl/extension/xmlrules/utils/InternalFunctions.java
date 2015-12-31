@@ -124,4 +124,8 @@ public class InternalFunctions {
     public static double SUM(Object[][] array) {
         return SumFunction.sum(array);
     }
+
+    public static int DATEDIF(Object startDate, Object endDate, String unit) {
+        return DateDiffFunction.diff(startDate, endDate, unit);
+    }
 }
