@@ -315,6 +315,11 @@ public class XmlRulesParser extends BaseParser {
             }
             for (Table table : sheet.getTables()) {
                 table = prepareTable(table);
+                boolean hasFunctionArguments = table.getParameters().size() > table.getHorizontalConditions().size() +
+                        table.getVerticalConditions().size();
+                if (hasFunctionArguments) {
+                    createFunctionTable(gridBuilder, sheet, table);
+                }
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
                 int tableWidth = getTableWidth(table, isSimpleRules);
@@ -344,6 +349,9 @@ public class XmlRulesParser extends BaseParser {
                 header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
                 boolean needComma = false;
                 for (Parameter parameter : table.getParameters()) {
+                    if (!isDimension(parameter)) {
+                        continue;
+                    }
                     if (needComma) {
                         header.append(", ");
                     }
@@ -468,6 +476,93 @@ public class XmlRulesParser extends BaseParser {
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
         }
+    }
+
+    private void createFunctionTable(StringGridBuilder gridBuilder, Sheet sheet, Table table) {
+        StringBuilder headerBuilder = new StringBuilder();
+        String returnType = "Object"; // Until it will be fixed on LE side
+        //                String returnType = function.getReturnType();
+        //                if (StringUtils.isBlank(returnType)) {
+        //                    returnType = "Object";
+        //                }
+
+        headerBuilder.append("Method ")
+                .append(returnType)
+                .append(' ')
+                .append(table.getName())
+                .append('(');
+        List<ParameterImpl> parameters = table.getParameters();
+        String workbookName = sheet.getWorkbookName();
+        String sheetName = sheet.getName();
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i > 0) {
+                headerBuilder.append(", ");
+            }
+            Parameter parameter = parameters.get(i);
+            String type = parameter.getType();
+            if (StringUtils.isBlank(type)) {
+                type = "Object";
+            }
+
+            if (isDimension(parameter)) {
+                headerBuilder.append(type).append(" ").append(parameter.getName());
+            } else {
+                CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                headerBuilder.append(type)
+                        .append(" ")
+                        .append("R")
+                        .append(cellReference.getRow())
+                        .append("C")
+                        .append(cellReference.getColumn());
+            }
+        }
+        headerBuilder.append(')');
+        gridBuilder.addCell(headerBuilder.toString()).nextRow();
+
+        for (ParameterImpl parameter : parameters) {
+            if (!isDimension(parameter)) {
+                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                String cell = String.format("Push(\"%s\", R%sC%s);",
+                        reference.getStringValue(),
+                        reference.getRow(),
+                        reference.getColumn());
+                gridBuilder.addCell(cell).nextRow();
+            }
+        }
+
+        StringBuilder tableInvokeString = new StringBuilder();
+        tableInvokeString.append(returnType).append(" result = ").append(table.getName()).append("(");
+        boolean needComma = false;
+        for (ParameterImpl parameter : parameters) {
+            if (isDimension(parameter)) {
+                if (needComma) {
+                    tableInvokeString.append(", ");
+                }
+
+                tableInvokeString.append(parameter.getName());
+
+                needComma = true;
+            }
+        }
+        tableInvokeString.append(");");
+        gridBuilder.addCell(tableInvokeString.toString());
+        gridBuilder.nextRow();
+
+        for (ParameterImpl parameter : parameters) {
+            if (!isDimension(parameter)) {
+                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+                gridBuilder.addCell(cell).nextRow();
+            }
+        }
+
+        gridBuilder.addCell("return result;").nextRow();
+
+        gridBuilder.nextRow();
+    }
+
+    private boolean isDimension(Parameter parameter) {
+        return parameter.getName().startsWith("dim");
     }
 
     private Table prepareTable(Table source) {
