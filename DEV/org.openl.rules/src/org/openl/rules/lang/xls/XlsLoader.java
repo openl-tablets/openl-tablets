@@ -363,7 +363,7 @@ public class XlsLoader {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed",
                         null,
                         openl);
-                OpenLMessagesUtils.addError(error.getMessage());
+                OpenLMessagesUtils.addError(error);
                 addError(error);
             }
         }
@@ -377,7 +377,7 @@ public class XlsLoader {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed",
                     null,
                     vocabulary);
-            OpenLMessagesUtils.addError(error.getMessage());
+            OpenLMessagesUtils.addError(error);
             addError(error);
         }
     }
