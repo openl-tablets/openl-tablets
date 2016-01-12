@@ -1483,9 +1483,14 @@ public class XmlRulesParser extends BaseParser {
             try {
                 tablePartProcessor.register(table, source);
             } catch (Throwable t) {
+                tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER.toString(),
+                        tsn.getGridLocation(),
+                        source,
+                        table,
+                        tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
                 tsn.addError(sne);
-                OpenLMessagesUtils.addError(sne.getMessage());
+                OpenLMessagesUtils.addError(sne);
             }
         }
         return tsn;
