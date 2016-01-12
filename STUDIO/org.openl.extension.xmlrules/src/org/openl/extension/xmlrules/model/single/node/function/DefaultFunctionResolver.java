@@ -55,7 +55,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
         String argumentString = argument.toOpenLString();
 
-        if (parameters != null) {
+        if (parameters != null && parameters.size() > i) {
             ParameterImpl parameter = parameters.get(i);
             if (argument instanceof FunctionNode && ((FunctionNode) argument).getName().equals("Out")) {
                 if (parameter.getType() != null && !parameter.getType().endsWith("]")) {

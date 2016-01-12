@@ -28,7 +28,7 @@ public class TableResolver extends DefaultFunctionResolver {
 
         String argumentString = argument.toOpenLString();
 
-        if (parameters != null) {
+        if (parameters != null && parameters.size() > i) {
             ParameterImpl parameter = parameters.get(i);
             if (argument instanceof FunctionNode && ((FunctionNode) argument).getName().equals("Out")) {
                 argumentString += "[0][0]";

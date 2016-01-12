@@ -15,10 +15,7 @@ import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
-import org.openl.extension.xmlrules.model.single.node.FunctionNode;
-import org.openl.extension.xmlrules.model.single.node.NamedRange;
-import org.openl.extension.xmlrules.model.single.node.Node;
-import org.openl.extension.xmlrules.model.single.node.ValueHolder;
+import org.openl.extension.xmlrules.model.single.node.*;
 import org.openl.extension.xmlrules.model.single.node.expression.CellInspector;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
@@ -1031,17 +1028,13 @@ public class XmlRulesParser extends BaseParser {
                             }
                         } catch (RuntimeException e) {
                             expression = "";
-                            String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
-                                    .toOpenLString() + ": " + e.getMessage();
-                            log.error(errorMessage, e);
-                            OpenLMessagesUtils.addError(errorMessage);
+                            log.error(e.getMessage(), e);
+                            addError(workbookName, sheetName, cell, e);
                         }
                         currentRow.set(currentColumnNumber, expression);
                     } catch (Exception e) {
-                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
-                                .toOpenLString() + ": " + e.getMessage();
-                        log.error(errorMessage, e);
-                        OpenLMessagesUtils.addError(errorMessage);
+                        log.error(e.getMessage(), e);
+                        addError(workbookName, sheetName, cell, e);
                     } finally {
                         ExpressionContext.removeInstance();
                     }
@@ -1054,6 +1047,18 @@ public class XmlRulesParser extends BaseParser {
             gridBuilder.nextRow();
         }
     }
+
+    private void addError(String workbookName, String sheetName, Cell cell, Exception e) {
+        RangeNode address = cell.getAddress();
+        String errorMessage = String.format("Error in cell [%s]%s!R%sC%s : %s",
+                workbookName,
+                sheetName,
+                address.getRow(),
+                address.getColumn(),
+                e.getMessage());
+        OpenLMessagesUtils.addError(errorMessage);
+    }
+
     private void initNamedRanges(Sheet sheet) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
@@ -1177,10 +1182,8 @@ public class XmlRulesParser extends BaseParser {
                         }
                     } catch (RuntimeException e) {
                         expression = "";
-                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
-                                .toOpenLString() + ": " + e.getMessage();
-                        log.error(errorMessage, e);
-                        OpenLMessagesUtils.addError(errorMessage);
+                        log.error(e.getMessage(), e);
+                        addError(workbookName, sheetName, cell, e);
                     }
                     gridBuilder.addCell(expression);
                 }
@@ -1214,10 +1217,8 @@ public class XmlRulesParser extends BaseParser {
                         }
                     } catch (RuntimeException e) {
                         expression = "";
-                        String errorMessage = "Error in cell [" + workbookName + "]" + sheetName + "!" + cell.getAddress()
-                                .toOpenLString() + ": " + e.getMessage();
-                        log.error(errorMessage, e);
-                        OpenLMessagesUtils.addError(errorMessage);
+                        log.error(e.getMessage(), e);
+                        addError(workbookName, sheetName, cell, e);
                     }
                     gridBuilder.addCell(expression);
                 }
