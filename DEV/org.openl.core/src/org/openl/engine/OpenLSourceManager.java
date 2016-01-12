@@ -88,7 +88,7 @@ public class OpenLSourceManager extends OpenLHolder {
             result.addAll(Arrays.asList(dependencies));
             return result;
         }
-        Collection<String> dependencyNames = null;
+        Collection<String> dependencyNames;
         try{
              dependencyNames = dependencyManager.getAllDependencies();
             if (dependencyNames == null){
@@ -148,7 +148,7 @@ public class OpenLSourceManager extends OpenLHolder {
                 dependencies.addAll(externalDependencies);
             }
 
-            List<OpenLMessage> messagesRelatedToDependencies = new ArrayList<OpenLMessage>();
+            List<OpenLMessage> messages = new ArrayList<OpenLMessage>(OpenLMessages.getCurrentInstance().getMessages());
 
             if (CollectionUtils.isNotEmpty(dependencies)) {
                 if (dependencyManager != null) {
@@ -162,23 +162,23 @@ public class OpenLSourceManager extends OpenLHolder {
                                 currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
                             }
                             compiledDependencies.add(loadedDependency);
-                            
+
                             if (loadedDependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof ExtendableModuleOpenClass){
                                 ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors();
                                 extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                             }
-                            
+
                             OpenLMessages.getCurrentInstance().clear();// clear
                                                                        // all
                                                                        // messages
                                                                        // from
                                                                        // dependency
-                            
+
                         } catch (Exception e) {
-                            messagesRelatedToDependencies.addAll(OpenLMessagesUtils.newMessages(e));
+                            messages.addAll(OpenLMessagesUtils.newMessages(e));
                         }
                     }
-                    OpenLMessages.getCurrentInstance().addMessages(messagesRelatedToDependencies);
+                    OpenLMessages.getCurrentInstance().addMessages(messages);
 
                 } else {
                     OpenLMessagesUtils.addError("Can't load dependency. Dependency manager is not defined.");
