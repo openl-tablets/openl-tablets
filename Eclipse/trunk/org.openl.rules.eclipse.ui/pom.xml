@@ -110,6 +110,11 @@
 	</dependency>
 
 	<dependency>
+	  <groupId>org.eclipse.core</groupId>
+	  <artifactId>contenttype</artifactId>
+	</dependency>
+
+	<dependency>
 	  <groupId>org.eclipse.text</groupId>
 	  <artifactId>org.eclipse.text</artifactId>
 	</dependency>

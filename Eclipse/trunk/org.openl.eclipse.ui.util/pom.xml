@@ -47,6 +47,11 @@
 
     <dependency>
       <groupId>org.eclipse.core</groupId>
+      <artifactId>contenttype</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
       <artifactId>org.eclipse.core.resources</artifactId>
     </dependency>
 	

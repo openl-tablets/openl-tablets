@@ -1149,6 +1149,18 @@
 				<groupId>org.eclipse.core</groupId>
 				<artifactId>org.eclipse.core.runtime</artifactId>
 				<version>3.3.100</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.eclipse.core</groupId>
+						<artifactId>org.eclipse.core.contenttype</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.eclipse.core</groupId>
+				<artifactId>contenttype</artifactId>
+				<version>3.4.200-v20130326-1255</version>
 			</dependency>
 
 			<dependency>

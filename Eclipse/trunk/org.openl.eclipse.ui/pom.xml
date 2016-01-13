@@ -102,6 +102,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>contenttype</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.workbench</artifactId>
     </dependency>
