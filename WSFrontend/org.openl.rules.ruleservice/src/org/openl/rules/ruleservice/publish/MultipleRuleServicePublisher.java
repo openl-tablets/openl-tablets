@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -28,7 +27,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         }
     });
 
-    private List<RuleServicePublisher> defaultRuleServicePublishers;
+    private Collection<RuleServicePublisher> defaultRuleServicePublishers;
 
     private Map<String, OpenLService> services = new HashMap<String, OpenLService>();
 
@@ -66,11 +65,11 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         return publishers;
     }
 
-    public List<RuleServicePublisher> getDefaultRuleServicePublishers() {
+    public Collection<RuleServicePublisher> getDefaultRuleServicePublishers() {
         return defaultRuleServicePublishers;
     }
 
-    public void setDefaultRuleServicePublishers(List<RuleServicePublisher> defaultRuleServicePublishers) {
+    public void setDefaultRuleServicePublishers(Collection<RuleServicePublisher> defaultRuleServicePublishers) {
         this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
