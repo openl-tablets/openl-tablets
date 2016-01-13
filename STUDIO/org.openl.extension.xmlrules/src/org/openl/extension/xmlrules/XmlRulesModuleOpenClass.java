@@ -14,10 +14,12 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
+import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
@@ -110,6 +112,30 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                 }
             };
         }
+
+        if (openMethod instanceof MatchingOpenMethodDispatcher) {
+            return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass, (MatchingOpenMethodDispatcher) openMethod) {
+                @Override
+                public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+                    LazyCellExecutor cache = LazyCellExecutor.getInstance();
+                    boolean topLevel = cache == null;
+                    if (topLevel) {
+                        cache = new LazyCellExecutor(xlsModuleOpenClass, target, env);
+                        LazyCellExecutor.setInstance(cache);
+                        ProjectData.setCurrentInstance(projectData);
+                    }
+                    try {
+                        return super.invoke(target, params, env);
+                    } finally {
+                        if (topLevel) {
+                            LazyCellExecutor.reset();
+                            ProjectData.removeCurrentInstance();
+                        }
+                    }
+                }
+            };
+        }
+
         return super.decorateForMultimoduleDispatching(openMethod);
     }
 

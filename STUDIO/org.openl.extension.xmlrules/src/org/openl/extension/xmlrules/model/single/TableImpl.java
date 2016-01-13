@@ -21,6 +21,7 @@ public class TableImpl implements Table {
     private List<ReturnRow> returnValues = new ArrayList<ReturnRow>();
     private SegmentImpl segment;
     private TableRanges tableRanges;
+    private List<Attribute> attributes = new ArrayList<Attribute>();
 
     @Override
     public String getName() {
@@ -94,13 +95,24 @@ public class TableImpl implements Table {
         this.segment = segment;
     }
 
-    @Override
     @XmlElement(name = "table-ranges")
+    @Override
     public TableRanges getTableRanges() {
         return tableRanges;
     }
 
     public void setTableRanges(TableRanges tableRanges) {
         this.tableRanges = tableRanges;
+    }
+
+    @XmlElementWrapper(name="attributes", required = true)
+    @XmlElement(name = "attribute")
+    @Override
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

@@ -19,6 +19,7 @@ public class FunctionImpl implements Function {
     private String returnType;
     private List<ParameterImpl> parameters = new ArrayList<ParameterImpl>();
     private String cellAddress;
+    private List<Attribute> attributes = new ArrayList<Attribute>();
 
     @Override
     public String getName() {
@@ -59,4 +60,14 @@ public class FunctionImpl implements Function {
         this.cellAddress = cellAddress;
     }
 
+    @XmlElementWrapper(name="attributes", required = true)
+    @XmlElement(name = "attribute")
+    @Override
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
+    }
 }

@@ -54,6 +54,11 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
     }
 
     @Override
+    public List<Attribute> getAttributes() {
+        return getInfo().getAttributes();
+    }
+
+    @Override
     protected void postProcess(TableImpl info) {
         if (info == null) {
             return;

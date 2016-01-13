@@ -320,6 +320,10 @@ public class XmlRulesParser extends BaseParser {
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
                 int tableWidth = getTableWidth(table, isSimpleRules);
+                List<Attribute> attributes = table.getAttributes();
+                if (!attributes.isEmpty()) {
+                    tableWidth = Math.max(tableWidth, 3);
+                }
 
                 int headerHeight = 0;
                 int headerWidth = 0;
@@ -367,6 +371,10 @@ public class XmlRulesParser extends BaseParser {
                     headerHeight++;
                 }
 
+                int attributesCount = attributes.size();
+                headerHeight += attributesCount;
+                addAttributes(gridBuilder, attributes);
+
                 int startColumn = gridBuilder.getStartColumn();
 
                 // HC expressions
@@ -404,7 +412,7 @@ public class XmlRulesParser extends BaseParser {
                             }
                             Parameter parameter = parameters.get(i);
                             gridBuilder.setCell(gridBuilder.getColumn(),
-                                    tableRow + 1,
+                                    tableRow + 1 + attributesCount,
                                     1,
                                     table.getHorizontalConditions().size(),
                                     parameter.getName().toUpperCase());
@@ -475,6 +483,27 @@ public class XmlRulesParser extends BaseParser {
         }
     }
 
+    private void addAttributes(StringGridBuilder gridBuilder, List<Attribute> attributes) {
+        if (!attributes.isEmpty()) {
+            int height = attributes.size();
+
+            int row = gridBuilder.getRow();
+            int column = gridBuilder.getColumn();
+
+            gridBuilder.setCell(column, row, 1, height, "properties");
+            gridBuilder.setStartColumn(column + 1);
+
+            for (Attribute attribute : attributes) {
+                gridBuilder.addCell(attribute.getName());
+                gridBuilder.addCell(attribute.getValue());
+                gridBuilder.nextRow();
+            }
+
+            gridBuilder.setRow(row + height);
+            gridBuilder.setStartColumn(column);
+        }
+    }
+
     private void createFunctionTable(StringGridBuilder gridBuilder, Sheet sheet, Table table) {
         StringBuilder headerBuilder = new StringBuilder();
         String returnType = "Object"; // Until it will be fixed on LE side
@@ -514,7 +543,13 @@ public class XmlRulesParser extends BaseParser {
             }
         }
         headerBuilder.append(')');
-        gridBuilder.addCell(headerBuilder.toString()).nextRow();
+
+        List<Attribute> attributes = table.getAttributes();
+        int width = attributes.isEmpty() ? 1 : 3;
+
+        gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
+
+        addAttributes(gridBuilder, attributes);
 
         for (ParameterImpl parameter : parameters) {
             if (!isDimension(parameter)) {
@@ -621,6 +656,7 @@ public class XmlRulesParser extends BaseParser {
 
         table.setSegment((SegmentImpl) source.getSegment());
         table.setName(source.getName());
+        table.setAttributes(source.getAttributes());
         table.setReturnType(source.getReturnType());
         table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
         table.setHorizontalConditions(new ArrayList<ConditionImpl>(horizontalConditions));
@@ -732,6 +768,7 @@ public class XmlRulesParser extends BaseParser {
             TableImpl table = new TableImpl();
             table.setSegment((SegmentImpl) source.getSegment());
             table.setName(source.getName());
+            table.setAttributes(source.getAttributes());
             table.setReturnType(source.getReturnType());
             table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
             table.setHorizontalConditions(new ArrayList<ConditionImpl>());
@@ -780,6 +817,7 @@ public class XmlRulesParser extends BaseParser {
             TableImpl table = new TableImpl();
             table.setSegment((SegmentImpl) source.getSegment());
             table.setName(source.getName());
+            table.setAttributes(source.getAttributes());
             table.setReturnType(source.getReturnType());
             table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
             table.setHorizontalConditions(new ArrayList<ConditionImpl>(source.getHorizontalConditions()));
@@ -917,7 +955,13 @@ public class XmlRulesParser extends BaseParser {
                             .append(cellReference.getColumn());
                 }
                 headerBuilder.append(')');
-                gridBuilder.addCell(headerBuilder.toString()).nextRow();
+
+                List<Attribute> attributes = function.getAttributes();
+                int width = attributes.isEmpty() ? 1 : 3;
+
+                gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
+
+                addAttributes(gridBuilder, attributes);
 
                 for (ParameterImpl parameter : parameters) {
                     CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
@@ -1372,7 +1416,7 @@ public class XmlRulesParser extends BaseParser {
     }
 
     protected List<String> getImports() {
-        return Collections.emptyList();
+        return Collections.singletonList("org.openl.rules.enumeration");
     }
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,
