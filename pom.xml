@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <version>5.11.7-SNAPSHOT</version>
   <name>General pom</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <url>openl-tablets.org</url>
 
   <scm>
        <connection>scm:hg:${staging.hg.repo.url}</connection>

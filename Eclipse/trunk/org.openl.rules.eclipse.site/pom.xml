@@ -14,7 +14,7 @@
   <packaging>pom</packaging>
   <name>OpenL - Eclipse - Eclipse Site</name>
   <description>OpenL WebStudio feature for Eclipse</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <defaultGoal>package</defaultGoal>

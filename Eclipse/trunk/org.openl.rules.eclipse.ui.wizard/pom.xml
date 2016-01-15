@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - Eclipse - Rules - Eclipse UI Wizard</name>
   <description>OpenL Rules Eclipse wizards</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <plugins>

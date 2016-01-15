@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - Eclipse - All Eclipse Feature</name>
   <description>Main OpenL feature for Eclipse</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <defaultGoal>package</defaultGoal>

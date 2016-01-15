@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 	<name>OpenL - Tutorial 4 - Demo - POM</name>
 	<description>OpenL Rules Demo(zip) Base POM</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<parent>
 		<groupId>org.openl.rules</groupId>

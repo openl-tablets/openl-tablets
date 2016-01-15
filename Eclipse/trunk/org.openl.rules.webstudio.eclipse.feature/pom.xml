@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - STUDIO - WebStudio Eclipse Feature</name>
   <description>OpenL WebStudio feature for Eclipse</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <resources>

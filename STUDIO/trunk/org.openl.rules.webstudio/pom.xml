@@ -11,7 +11,7 @@
 	<packaging>war</packaging>
 	<name>OpenL - STUDIO - WebStudio</name>
 	<description>OpenL WebStudio</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 	<properties>
 		<war.name>${project.artifactId}-${project.version}</war.name>
 		<sonar.language>web</sonar.language>

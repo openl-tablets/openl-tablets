@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
   <name>OpenL - DEV - Rules - Tests</name>
   <description>Tests for OpenL Rules functionality</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
 	<sourceDirectory>src/java</sourceDirectory>

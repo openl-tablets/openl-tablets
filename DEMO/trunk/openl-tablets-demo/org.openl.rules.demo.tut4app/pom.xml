@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	<name>OpenL - DEMO - TUT4APP</name>
 	<description>Tut 4 Demo for OpenL demo application</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<properties>
 		<webservice.url>http://localhost:8080/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>

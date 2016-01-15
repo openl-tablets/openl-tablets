@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - STUDIO - Tomcat</name>
   <description>Tomcat used in WebStudio</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <defaultGoal>package</defaultGoal>

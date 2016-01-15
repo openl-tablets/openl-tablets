@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - Sources for Eclipse</name>
   <description>OpenL sources feature for Eclipse</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <resources>

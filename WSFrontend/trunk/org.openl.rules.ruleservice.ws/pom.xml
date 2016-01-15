@@ -14,7 +14,7 @@
 	<packaging>war</packaging>
 	<name>OpenL - RuleService - RuleService - Web Services</name>
 	<description>OpenL Rules Webservice(war)</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<properties>
 		<war.name>openl-ws</war.name>

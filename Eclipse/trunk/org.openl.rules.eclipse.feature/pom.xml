@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - DEV - Rules - Eclipse Feature</name>
   <description>OpenL Engine feature for Eclipse</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <resources>

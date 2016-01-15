@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - DEV - Rules - Generator</name>
   <description>OpenL Code generation project</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <resources>

@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
     <name>OpenL Tablets - STUDIO - Demo</name>
     <description>OpenL Tablets Demo Projects</description>
-    <url>http://openl-tablets.sf.net/</url>
+    <url>//openl-tablets.org</url>
 
     <build>
         <resources>

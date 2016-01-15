@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	<name>OpenL - DEMO - WEB STUDIO</name>
 	<description>WebStudio for OpenL demo application</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 	<properties>
 		<war.name>webstudio-demo</war.name>
 	</properties>

@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 	<name>OpenL - DEV - POI - Libraries</name>
 	<description>POI Libraries to read/write Excel files</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<build>
 		<plugins>

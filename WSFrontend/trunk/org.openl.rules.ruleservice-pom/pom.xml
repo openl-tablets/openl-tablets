@@ -15,7 +15,7 @@
 	<packaging>pom</packaging>
 	<name>OpenL - RuleService</name>
 	<description>Rules Service Pom Project</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<scm>
        		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>

@@ -14,7 +14,7 @@
   <packaging>jar</packaging>
   <name>OpenL - Eclipse - Eclipse UI</name>
   <description>OpenL Common Eclipse UI plugin</description>
-  <url>http://openl-tablets.sf.net/</url>
+  <url>//openl-tablets.org</url>
 
   <build>
     <resources>

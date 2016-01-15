@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 	<name>OpenL - RuleService - Libraries</name>
 	<description>Libraries for Common OpenL Rules Service</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<build>
 		<plugins>
