@@ -4,26 +4,13 @@
 	<groupId>org.openl.rules.demo</groupId>
 	<artifactId>org.openl.rules.demo-svn-pom</artifactId>
 	<packaging>pom</packaging>
-	<version>5.11.7-SNAPSHOT</version>
+	<version>5.11.7</version>
 	<name>OpenL Demo SVN root pom</name>
-	<url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
-
-	<scm>
-		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
-	</scm>
+	<url>//openl-tablets.org</url>
 
 	<modules>
 		<module>org.openl.rules.demo-pom</module>
 	</modules>
-
-	<distributionManagement>
-		<repository>
-			<id>exigen-repo-release</id>
-			<name>Exigen Release Repository</name>
-			<url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<pluginManagement>

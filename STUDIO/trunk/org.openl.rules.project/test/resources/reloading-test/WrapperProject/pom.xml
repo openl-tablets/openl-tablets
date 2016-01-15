@@ -10,7 +10,7 @@
     <name>WrapperProject</name>
 
     <properties>
-        <openl.rules.version>5.9.0-SNAPSHOT</openl.rules.version>
+        <openl.rules.version>5.11.7</openl.rules.version>
     </properties>
 
     <dependencies>

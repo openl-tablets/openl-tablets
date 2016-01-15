@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>general-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.11.7-SNAPSHOT</version>
+  <version>5.11.7</version>
   <name>General pom</name>
   <url>openl-tablets.org</url>
 

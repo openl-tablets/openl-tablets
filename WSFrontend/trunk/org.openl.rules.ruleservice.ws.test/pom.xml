@@ -5,10 +5,10 @@
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.ruleservice.ws.test</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>5.11.7</version>
 	<name>OpenL - RuleService - RuleService - Web Services Test</name>
 	<description>OpenL Rules Webservice Test</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<properties>
 		<cxf.version>2.3.2</cxf.version>
@@ -76,22 +76,22 @@
 		<dependency>
 			<groupId>org.openl</groupId>
 			<artifactId>org.openl.core</artifactId>
-			<version>5.9.2-SNAPSHOT</version>
+			<version>5.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openl</groupId>
 			<artifactId>org.openl.rules</artifactId>
-			<version>5.9.2-SNAPSHOT</version>
+			<version>5.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice</artifactId>
-			<version>5.9.2-SNAPSHOT</version>
+			<version>5.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws</artifactId>
-			<version>5.9.2-SNAPSHOT</version>
+			<version>5.11.7</version>
 		</dependency>
 	</dependencies>
 </project>

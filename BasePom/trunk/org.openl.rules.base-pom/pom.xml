@@ -4,11 +4,11 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.base-pom</artifactId>
-	<version>5.11.7-SNAPSHOT</version>
+	<version>5.11.7</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Base</name>
 	<description>Base project with all configurations</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<licenses>
 		<license>
@@ -22,91 +22,69 @@
 		<developer>
 			<id>StanislavShor</id>
 			<name>Stanislav Shor</name>
-			<email>SShor@exigeninsurance.com</email>
+			<email>sshor@eisgroup.com</email>
 			<organization>EIS</organization>
-			<organizationUrl>http://www.exigeninsurance.com/</organizationUrl>
+			<organizationUrl>http://eisgroup.com</organizationUrl>
 			<roles>
 				<role>architect</role>
 			</roles>
 			<timezone>-5</timezone>
 		</developer>
 		<developer>
-			<id>AndreiAstrouski</id>
-			<name>Andrei Astrouski</name>
-			<email>Andrei.Astrouski@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
-			<id>Alexey Gamanovich</id>
-			<name>Alexey Gamanovich</name>
-			<email>agamanovich@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
 			<id>DzianisLiauchuk</id>
 			<name>Dzianis Liauchuk</name>
-			<email>Dzianis.Liauchuk@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
-			<id>MaratKamalov</id>
-			<name>Marat Kamalov</name>
-			<email>Marat.Kamalov@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
+			<email>DLiauchuk@eisgroup.com</email>
+			<organization>EIS</organization>
+			<organizationUrl>http://www.eisgroup.com/</organizationUrl>
 			<roles>
 				<role>developer</role>
 			</roles>
 			<timezone>+3</timezone>
 		</developer>
 		<developer>
-			<id>PetrUdalau</id>
-			<name>Petr Udalau</name>
-			<email>Petr.Udalau@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
+			<id>MaratKamalov</id>
+			<name>Marat Kamalov</name>
+			<email>mkamalov@eisgroup.com</email>
+			<organization>EIS</organization>
+			<organizationUrl>http://www.eisgroup.com/</organizationUrl>
 			<roles>
 				<role>developer</role>
 			</roles>
-			<timezone>+2</timezone>
+			<timezone>+3</timezone>
+		</developer>
+		<developer>
+			<id>YuryMolchan</id>
+			<name>Yury Molchan</name>
+			<email>ymolchan@eisgroup.com</email>
+			<organization>EIS</organization>
+			<organizationUrl>http://www.eisgroup.com/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+3</timezone>
 		</developer>
 		<developer>
 			<id>SergeyZyrianov</id>
 			<name>Sergey Zyrianov</name>
-			<email>Sergey.Zyrianov@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
+			<email>SZyrianov@eisgroup.com</email>
+			<organization>EIS</organization>
+			<organizationUrl>http://www.eisgroup.com/</organizationUrl>
 			<roles>
 				<role>Project Manager</role>
 			</roles>
-			<timezone>+2</timezone>
+			<timezone>-8</timezone>
 		</developer>
 	</developers>
 
 	<scm>
-       		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
-       		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
-       		<url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
+		<connection>scm:hg:${staging.hg.repo.url}</connection>
+		<developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
+		<url>scm:git:git@github.com:openl-tablets/openl-tablets.git</url>
    	</scm>
 
 	<properties>
-		<openl.version.eclipse>5.11.7-SNAPSHOT</openl.version.eclipse>
-		<openl.version.maven>5.11.7-SNAPSHOT</openl.version.maven>
+		<openl.version.eclipse>5.11.7</openl.version.eclipse>
+		<openl.version.maven>5.11.7</openl.version.maven>
 		<org.springframework.version>3.1.3.RELEASE</org.springframework.version>
 		<org.hibernate.version>4.1.8.Final</org.hibernate.version>
 		<org.mojarra.version>2.1.15</org.mojarra.version>
@@ -118,16 +96,16 @@
 	</properties>
 
 	<distributionManagement>
-		<repository>
-			<id>exigen-repo-release</id>
-			<name>Exigen Release Repository</name>
-			<url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-		</repository>
-		<snapshotRepository>
-			<id>exigen-repo-snapshot</id>
-			<name>Exigen Snapshot Repository</name>
-			<url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
-		</snapshotRepository>
+        <repository>
+            <id>internal-minsk</id>
+            <name>Release Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>internal-minsk</id>
+            <name>Snapshot Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
+        </snapshotRepository>
 	</distributionManagement>
 
 	<build>

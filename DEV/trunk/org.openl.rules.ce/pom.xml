@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.dev-pom</artifactId>
-		<version>5.11.7-SNAPSHOT</version>
+		<version>5.11.7</version>
 		<relativePath>../org.openl.rules.dev-pom</relativePath>
 	</parent>
 
@@ -15,7 +15,7 @@
 	<packaging>jar</packaging>
 	<name>OpenL - DEV - Rules - CE</name>
 	<description>OpenL Tablets Concurrent Edition</description>
-	<url>http://openl-tablets.sf.net/</url>
+	<url>//openl-tablets.org</url>
 
 	<build>
 		<resources>

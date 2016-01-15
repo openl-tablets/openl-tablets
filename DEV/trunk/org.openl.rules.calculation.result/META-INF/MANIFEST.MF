@@ -6,4 +6,4 @@ Bundle-Version: 5.11.7
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Export-Package: org.openl.rules.calculation.result.convertor
-Require-Bundle: org.openl.rules;bundle-version="5.11.1"
+Require-Bundle: org.openl.rules;bundle-version="5.11.7"

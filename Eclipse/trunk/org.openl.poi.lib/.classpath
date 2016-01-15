@@ -4,7 +4,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.11.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.openl.lib.poi.dev.modified-5.11.7-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.openl.lib.poi.dev.modified-5.11.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-schemas-3.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.ruleservice.demo
 Bundle-SymbolicName: org.openl.rules.ruleservice.demo
-Bundle-Version: 5.11.1
+Bundle-Version: 5.11.7
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
 Require-Bundle: org.openl.commons,
