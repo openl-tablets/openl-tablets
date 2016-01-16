@@ -242,7 +242,7 @@ public class FilterNode extends Node {
             } else if (filterNode.isParentNode()) {
                 throw new UnsupportedOperationException("Can't get field from Parent node");
             } else if (filterNode.isDataInstanceNode()) {
-                return filterNode.getDataInstanceString();
+                obj = filterNode.getDataInstanceString();
             } else {
                 log.warn("Unsupported type of node " + node.toOpenLString() + ". Skip it");
                 obj = node.toOpenLString();
@@ -289,11 +289,11 @@ public class FilterNode extends Node {
     }
 
     protected boolean isFieldComparisonNode() {
-        return hasComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
+        return node != null && hasComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
     }
 
     protected boolean isFieldNode() {
-        return isEmptyComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
+        return node != null && isEmptyComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
     }
 
     protected boolean isParentNode() {
