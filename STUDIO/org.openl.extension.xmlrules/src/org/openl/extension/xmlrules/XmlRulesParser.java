@@ -29,6 +29,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 // TODO Reduce complexity
 public class XmlRulesParser extends BaseParser {
     private final Logger log = LoggerFactory.getLogger(XmlRulesParser.class);
+    private List<ParseError> parseErrors = new ArrayList<ParseError>();
 
     public XmlRulesParser() {
     }
@@ -1030,7 +1032,7 @@ public class XmlRulesParser extends BaseParser {
                         getCurrentColumnNumber(columnNumbers, reference);
                     } catch (RuntimeException e) {
                         log.error(e.getMessage(), e);
-                        OpenLMessagesUtils.addError(e);
+                        addError(gridBuilder.getRow(), gridBuilder.getColumn(), cell, e);
                     }
                 }
             }
@@ -1073,12 +1075,12 @@ public class XmlRulesParser extends BaseParser {
                         } catch (RuntimeException e) {
                             expression = "";
                             log.error(e.getMessage(), e);
-                            addError(workbookName, sheetName, cell, e);
+                            addError(gridBuilder.getRow(), currentColumnNumber, cell, e);
                         }
                         currentRow.set(currentColumnNumber, expression);
                     } catch (Exception e) {
                         log.error(e.getMessage(), e);
-                        addError(workbookName, sheetName, cell, e);
+                        addError(gridBuilder.getRow(), gridBuilder.getColumn(), cell, e);
                     } finally {
                         ExpressionContext.removeInstance();
                     }
@@ -1092,15 +1094,10 @@ public class XmlRulesParser extends BaseParser {
         }
     }
 
-    private void addError(String workbookName, String sheetName, Cell cell, Exception e) {
+    private void addError(int gridRow, int gridColumn, Cell cell, Exception e) {
         RangeNode address = cell.getAddress();
-        String errorMessage = String.format("Error in cell [%s]%s!R%sC%s : %s",
-                workbookName,
-                sheetName,
-                address.getRow(),
-                address.getColumn(),
-                e.getMessage());
-        OpenLMessagesUtils.addError(errorMessage);
+        String errorMessage = String.format("Error in cell %s : %s", address.getAddress(), e.getMessage());
+        parseErrors.add(new ParseError(gridRow, gridColumn, errorMessage));
     }
 
     private void initNamedRanges(Sheet sheet) {
@@ -1227,7 +1224,7 @@ public class XmlRulesParser extends BaseParser {
                     } catch (RuntimeException e) {
                         expression = "";
                         log.error(e.getMessage(), e);
-                        addError(workbookName, sheetName, cell, e);
+                        addError(gridBuilder.getRow(), gridBuilder.getColumn(), cell, e);
                     }
                     gridBuilder.addCell(expression);
                 }
@@ -1262,7 +1259,7 @@ public class XmlRulesParser extends BaseParser {
                     } catch (RuntimeException e) {
                         expression = "";
                         log.error(e.getMessage(), e);
-                        addError(workbookName, sheetName, cell, e);
+                        addError(gridBuilder.getRow(), gridBuilder.getColumn(), cell, e);
                     }
                     gridBuilder.addCell(expression);
                 }
@@ -1514,6 +1511,27 @@ public class XmlRulesParser extends BaseParser {
                 OpenLMessagesUtils.addError(e);
             }
         }
+
+        for (ParseError parseError : parseErrors) {
+            int row = parseError.getRow();
+            int column = parseError.getColumn();
+
+            for (TableSyntaxNode tsn : tableNodes) {
+                IGridRegion region = tsn.getGridTable().getRegion();
+                int top = region.getTop();
+                int bottom = region.getBottom();
+                int left = region.getLeft();
+                int right = region.getRight();
+
+                if (top <= row && bottom >= row && left <= column && right >= column) {
+                    SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(parseError.getMessage(), tsn);
+                    tsn.addError(sne);
+                    OpenLMessagesUtils.addError(sne);
+                    break;
+                }
+            }
+        }
+        parseErrors.clear();
 
         return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
     }
