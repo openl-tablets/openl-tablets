@@ -1,11 +1,9 @@
 package org.openl.rules.table;
 
-import java.util.Map;
-
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import org.openl.meta.ValueMetaInfo;
-import org.openl.rules.calc.result.SpreadsheetResultHelper;
+import org.openl.rules.calc.SpreadsheetResult;
 
 import com.rits.cloning.Cloner;
 import com.rits.cloning.IInstantiationStrategy;
@@ -13,20 +11,20 @@ import com.rits.cloning.IInstantiationStrategy;
 /**
  * Extension for {@link Cloner}. To add OpenL classes
  * to prevent cloning instances of them.
- * 
+ *
  * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutatation
  * of listed below OpenL not cloned classes.
- * 
+ *
  * @author DLiauchuk
  *
  */
 public class OpenLArgumentsCloner extends Cloner {
-    
+
     public OpenLArgumentsCloner() {
         super(new ObjenesisInstantiationStrategy());
         dontCloneClasses();
     }
-    
+
     private void dontCloneClasses() {
         // Register them as dont clone as in 90% of cases instances of them are not modified in rules.
         // But always cloning them degrades the performance very much. It becomes impossible to open the trace.
@@ -41,19 +39,12 @@ public class OpenLArgumentsCloner extends Cloner {
         dontClone(BigIntegerValue.class);
         dontClone(BigDecimalValue.class);
         dontClone(StringValue.class);*/
-    	dontClone(ValueMetaInfo.class);
+        dontClone(ValueMetaInfo.class);
+        //to avoid cloning generated at runtime custom SpreadsheetResult children classes
+        dontCloneInstanceOf(SpreadsheetResult.class);
+
     }
 
-    //Overriden to avoid cloning generated at runtime custom SpreadsheetResult children classes
-	@Override
-	public <T> T cloneInternal(final T o, final Map<Object, Object> clones) throws IllegalAccessException {
-	    if (o == null) return null;
-	    if (SpreadsheetResultHelper.isSpreadsheetResult(o.getClass())) {
-	        dontClone(o.getClass());
-	    }
-	    return super.cloneInternal(o, clones);
-	}
-	
     public static class ObjenesisInstantiationStrategy implements IInstantiationStrategy { // Required for correct working with classloaders.
         private final Objenesis objenesis = new ObjenesisStd();
 
