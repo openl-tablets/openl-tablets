@@ -29,7 +29,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     private static final BigIntegerValue ONE = new BigIntegerValue("1");
     private static final BigIntegerValue MINUS_ONE = new BigIntegerValue("-1");
 
-    private java.math.BigInteger value;
+    private final java.math.BigInteger value;
 
     public static class BigIntegerValueAdapter extends XmlAdapter<BigInteger,BigIntegerValue> {
         public BigIntegerValue unmarshal(BigInteger val) throws Exception {
@@ -393,8 +393,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.BigIntegerValue
-     * @param value2 org.openl.meta.BigIntegerValue
+     * @param number org.openl.meta.BigIntegerValue
+     * @param divisor org.openl.meta.BigIntegerValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
@@ -619,13 +619,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     */
     public java.math.BigInteger getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(java.math.BigInteger value) {
-        this.value = value;
     }
 
     //Equals

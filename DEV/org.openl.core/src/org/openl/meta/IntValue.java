@@ -39,7 +39,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     // <<< INSERT Functions >>>
-    private int value;
+    private final int value;
 
     /**
      * Compares two values
@@ -391,8 +391,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.IntValue
-     * @param value2 org.openl.meta.IntValue
+     * @param number org.openl.meta.IntValue
+     * @param divisor org.openl.meta.IntValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
@@ -608,13 +608,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     */
     public int getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(int value) {
-        this.value = value;
     }
 
     //Equals

@@ -29,7 +29,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     private static final BigDecimalValue ONE = new BigDecimalValue("1");
     private static final BigDecimalValue MINUS_ONE = new BigDecimalValue("-1");
 
-    private java.math.BigDecimal value;
+    private final java.math.BigDecimal value;
 
     public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal,BigDecimalValue> {
         public BigDecimalValue unmarshal(BigDecimal val) throws Exception {
@@ -635,13 +635,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     */
     public java.math.BigDecimal getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(java.math.BigDecimal value) {
-        this.value = value;
     }
 
     //Equals

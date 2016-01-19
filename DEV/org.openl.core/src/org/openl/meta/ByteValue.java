@@ -39,7 +39,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
     
     // <<< INSERT Functions >>>
-    private byte value;
+    private final byte value;
 
     /**
      * Compares two values
@@ -391,8 +391,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.ByteValue
-     * @param value2 org.openl.meta.ByteValue
+     * @param number org.openl.meta.ByteValue
+     * @param divisor org.openl.meta.ByteValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
@@ -590,13 +590,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     */
     public byte getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(byte value) {
-        this.value = value;
     }
 
     //Equals
