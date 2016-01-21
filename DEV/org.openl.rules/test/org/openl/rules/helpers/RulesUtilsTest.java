@@ -832,6 +832,8 @@ public class RulesUtilsTest {
         Object[] testGetValuesAlias();
 
         Object[] testGetValuesPrimesAlias();
+        
+        boolean testInstanceOf(Long a);
     }
 
     @Before
@@ -858,6 +860,14 @@ public class RulesUtilsTest {
                         (byte) -128}));
     }
 
+    @Test
+    public void testInstanceOf() {
+        assertEquals(
+                true,
+                instance.testInstanceOf(new Long(1)));
+    }
+
+    
     @Test
     public void testShortMax() {
         assertEquals(

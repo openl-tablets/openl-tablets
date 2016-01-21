@@ -6504,4 +6504,14 @@ public class RulesUtils {
         result = values.toArray(result);
         return result;
     }
+    
+    public static boolean instanceOf(Object o, Class<?> clazz){
+        if (o == null){
+            return false;
+        }
+        if (clazz == null){
+            return false;
+        }
+        return clazz.isAssignableFrom(o.getClass());
+    }
 }
