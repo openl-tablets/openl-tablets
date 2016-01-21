@@ -27,9 +27,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         private static final long serialVersionUID = 6347462002516785250L;
 
-        @Override
-        public double getValue() {
-            return 1;
+        private DoubleValueOne() {
+            super(1.0);
         }
 
         public DoubleValue multiply(DoubleValue dv) {
@@ -50,17 +49,16 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         private static final long serialVersionUID = 3329865368482848868L;
 
+        private DoubleValueZero() {
+            super(0.0);
+        }
+
         public DoubleValue add(DoubleValue dv) {
             return dv;
         }
 
         public DoubleValue divide(DoubleValue dv) {
             return this;
-        }
-
-        @Override
-        public double getValue() {
-            return 0;
         }
 
         public DoubleValue multiply(DoubleValue dv) {
@@ -73,7 +71,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
 
     // <<< INSERT Functions >>>
-    private double value;
+    private final double value;
 
 
     /**
@@ -676,13 +674,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return value;
     }
 
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(double value) {
-        this.value = value;
-    }
-
     //Equals
     @Override
      /**
@@ -927,14 +918,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         double roundedValue = MathUtils.round(preRoundedValue, scale, BigDecimal.ROUND_HALF_UP);
 
         return new DoubleValue(new DoubleValue(roundedValue), NumberOperations.ROUND, new DoubleValue[] { d, p });
-    }
-
-    /**
-     * @deprecated double value shouldn`t be empty.
-     */
-    @Deprecated
-    public DoubleValue() {
-        super();
     }
 
     public DoubleValue(String valueString) {

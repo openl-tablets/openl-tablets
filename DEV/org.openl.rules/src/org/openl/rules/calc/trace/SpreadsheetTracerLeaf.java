@@ -59,8 +59,10 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
         Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
-        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
-        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
+        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+        buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+        buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 
         if (!JavaOpenClass.isVoid(spreadsheetCell.getType())) {
             /** write result for all cells, excluding void type*/
