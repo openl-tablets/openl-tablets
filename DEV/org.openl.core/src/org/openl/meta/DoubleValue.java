@@ -71,8 +71,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
 
     // <<< INSERT Functions >>>
-    private final double value;
+    private double value;
 
+    /**
+     * EPBDS-6107
+     */
+    public void setValue(double value) {
+        this.value = value;
+    }
 
     /**
      * Compares two values
