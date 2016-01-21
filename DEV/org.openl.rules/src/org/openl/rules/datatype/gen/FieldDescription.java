@@ -10,6 +10,8 @@ public interface FieldDescription {
      *
      */
     String DEFAULT_KEY_WORD = "_DEFAULT_";
+    
+    String EMPTY_KEY_WORD = "_EMPTY_";
 
     String getCanonicalTypeName();
 
@@ -28,4 +30,6 @@ public interface FieldDescription {
     boolean hasDefaultValue();
 
     boolean hasDefaultKeyWord();
+    
+    boolean hasEmptyKeyWord();
 }
