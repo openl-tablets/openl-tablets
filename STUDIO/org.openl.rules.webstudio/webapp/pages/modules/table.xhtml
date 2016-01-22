@@ -193,7 +193,7 @@
                                    rendered="#{tableBean.canTrace}"
                                    value="Trace" title="Trace"
                                    styleClass="hidden b-trace changes-listener"
-                                   action="#{traceTreeBean.init}"
+                                   action="#{runTestHelper.initTrace}"
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                    onclick="if (isAnyTestSelected()) {return true;} else {ws.changes.restoreChangedState();} return false;"/>
                 <!-- Don't use a4j:commandButton for file download -->
@@ -297,12 +297,12 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" action="#{traceTreeBean.init}" title="Trace" styleClass="toolbarButton menuButton changes-listener"
-                                        rendered="#{tableBean.canTrace}"
-                                        onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        style="padding-right: 1px">
+                                    <a4j:commandLink id="traceLink" action="#{runTestHelper.initTrace}" title="Trace" styleClass="toolbarButton menuButton changes-listener"
+                                                     rendered="#{tableBean.canTrace}"
+                                                     onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
+                                                     onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                                     style="padding-right: 1px">
                                         <a4j:param name="id" value="#{tableBean.id}"/>
                                         <table>
                                             <tr>
@@ -387,7 +387,7 @@
                                             oncomplete="ws.nav.go('#{runLink}')"/>
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             styleClass="changes-listener"
-                                            action="#{traceTreeBean.init}"
+                                            action="#{runTestHelper.initTrace}"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                             value="Trace" title="Launch the table and trace steps"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none"
@@ -404,9 +404,9 @@
                                     <span>Run</span>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{traceTreeBean.init}" styleClass="toolbarButton changes-listener"
-                                    rendered="#{tableBean.canTrace}"
-                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
+                                <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton changes-listener"
+                                                 rendered="#{tableBean.canTrace}"
+                                                 oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
                                     <a4j:param name="id" value="#{tableBean.id}"/>

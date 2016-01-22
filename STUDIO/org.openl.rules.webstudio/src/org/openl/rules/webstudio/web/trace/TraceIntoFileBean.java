@@ -54,11 +54,7 @@ public class TraceIntoFileBean {
     private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
 
     public void traceIntoFile() {
-        runTestHelper.catchParams();
-        TestSuite testSuite = runTestHelper.getTestSuite();
-
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        ITracerObject tracer = model.traceElement(testSuite);
+        ITracerObject tracer = runTestHelper.getTraceObject();
 
         TracePrinter tracePrinter = getTracePrinter(fileFormat);
 
