@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -12,7 +11,6 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
@@ -38,7 +36,7 @@ public final class RunTestHelper {
     public void initTrace() {
         ITreeElement<ITracerObject> root = getTraceObject();
 
-        TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
+        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
         traceHelper.cacheTraceTree(root);// Register
     }
 

@@ -22,7 +22,7 @@ public class TraceTreeBuilder extends TreeBuilder {
 
     @Override
     String getUrl(ITreeElement<?> element) {
-        TraceHelper traceHelper = WebStudioUtils.getWebStudio().getTraceHelper();
+        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
         Integer nodeKey = traceHelper.getNodeKey(element);
         String params = nodeKey != null ? Constants.REQUEST_PARAM_ID + "=" + nodeKey : "";
         return FacesUtils.getContextPath() + "/faces/pages/modules/trace/showTraceTable.xhtml?" + params;

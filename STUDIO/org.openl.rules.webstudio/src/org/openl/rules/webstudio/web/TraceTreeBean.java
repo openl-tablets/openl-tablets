@@ -21,7 +21,7 @@ public class TraceTreeBean {
     private boolean detailedTraceTree = true;
 
     public TreeNode getTree() {
-        ITreeElement<?> root = WebStudioUtils.getWebStudio().getTraceHelper().getTableTracer(0);
+        ITreeElement<?> root = WebStudioUtils.getTraceHelper().getTableTracer(0);
         if (root != null) {
             return new TraceTreeBuilder(detailedTraceTree).build(root);
         }
@@ -37,7 +37,7 @@ public class TraceTreeBean {
     }
 
     public boolean hasDecisionTables() {
-        ITreeElement<?> root = WebStudioUtils.getWebStudio().getTraceHelper().getTableTracer(0);
+        ITreeElement<?> root = WebStudioUtils.getTraceHelper().getTableTracer(0);
         if (root != null) {
             return hasDecisionTables(root);
         } else {

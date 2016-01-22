@@ -30,7 +30,6 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.DecisionTableTraceFilterFactory;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.vm.trace.ITracerObject;
@@ -46,8 +45,7 @@ public class ShowTraceTableBean {
     private ITableTracerObject tto;
 
     public ShowTraceTableBean() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TraceHelper traceHelper = studio.getTraceHelper();
+        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
 
         String traceElementIdParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         int traceElementId = -100;
