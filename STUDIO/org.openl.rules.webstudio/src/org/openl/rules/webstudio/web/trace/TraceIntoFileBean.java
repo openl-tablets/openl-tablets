@@ -1,41 +1,62 @@
 package org.openl.rules.webstudio.web.trace;
 
+import java.io.IOException;
+import java.io.Writer;
+
+import javax.activation.MimetypesFileTypeMap;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
-import org.openl.vm.trace.*;
+import org.openl.vm.trace.DefaultTracePrinter;
+import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.TraceFormatter;
+import org.openl.vm.trace.TraceFormatterFactory;
+import org.openl.vm.trace.TracePrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.activation.MimetypesFileTypeMap;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Request scope managed bean for Trace into File functionality.
  */
+@SessionScoped
+@ManagedBean
 public class TraceIntoFileBean {
 
     private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
+
+    @ManagedProperty("#{runTestHelper}")
+    private RunTestHelper runTestHelper;
+
+    public void setRunTestHelper(RunTestHelper runTestHelper) {
+        this.runTestHelper = runTestHelper;
+    }
 
     public static final String EXTENSION_SEPARATOR = ".";
 
     /**
      * Output file name without extension. By default 'trace'.
      */
-    private String fileBaseName = "trace";
+    private final String fileBaseName = "trace";
 
     /**
      * Output file format.
      */
     private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
 
-    public void traceIntoFile(TestSuite testSuite) {
+    public void traceIntoFile() {
+        runTestHelper.catchParams();
+        TestSuite testSuite = runTestHelper.getTestSuite();
+
         ProjectModel model = WebStudioUtils.getProjectModel();
         ITracerObject tracer = model.traceElement(testSuite);
 

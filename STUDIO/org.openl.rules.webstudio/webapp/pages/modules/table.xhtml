@@ -197,7 +197,7 @@
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                    onclick="if (isAnyTestSelected()) {return true;} else {ws.changes.restoreChangedState();} return false;"/>
                 <!-- Don't use a4j:commandButton for file download -->
-                <h:commandButton id="traceIntoFileButton" action="#{traceTreeBean.traceIntoFile}"
+                <h:commandButton id="traceIntoFileButton" action="#{traceIntoFileBean.traceIntoFile}"
                                  rendered="#{tableBean.canTrace}"
                                  value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
                                  styleClass="hidden b-trace"/>
@@ -391,7 +391,7 @@
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                             value="Trace" title="Launch the table and trace steps"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none"
-                                            action="#{traceTreeBean.traceIntoFile}" value="Trace into File"
+                                            action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
                                             title="Trace into File" />
                                     </div>
                                 </div>

@@ -14,7 +14,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
-import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
@@ -45,12 +44,6 @@ public class TraceTreeBean {
         TraceHelper traceHelper = studio.getTraceHelper();
         root = model.traceElement(testSuite);
         traceHelper.cacheTraceTree(root);// Register
-    }
-
-    public void traceIntoFile() {
-        runTestHelper.catchParams();
-        TestSuite testSuite = runTestHelper.getTestSuite();
-        new TraceIntoFileBean().traceIntoFile(testSuite);
     }
 
     public TreeNode getTree() {
