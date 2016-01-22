@@ -6,7 +6,6 @@ package org.openl.rules.ui;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.openl.rules.table.ITableTracerObject;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
@@ -17,12 +16,8 @@ public class TraceHelper {
 
     private BidiMap<Integer, ITreeElement<?>> traceTreeCache = new DualHashBidiMap<Integer, ITreeElement<?>>();
 
-    public ITableTracerObject getTableTracer(int elementId) {
-        ITreeElement<?> node = traceTreeCache.get(elementId);
-        if (node instanceof ITableTracerObject) {
-            return (ITableTracerObject) node;
-        }
-        return null;
+    public ITreeElement<?> getTableTracer(int elementId) {
+        return traceTreeCache.get(elementId);
     }
 
     public void cacheTraceTree(ITreeElement<ITracerObject> tree) {

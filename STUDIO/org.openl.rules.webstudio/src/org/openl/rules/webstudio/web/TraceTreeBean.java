@@ -9,7 +9,6 @@ import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
-import org.openl.vm.trace.ITracerObject;
 
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL
@@ -38,7 +37,7 @@ public class TraceTreeBean {
     }
 
     public boolean hasDecisionTables() {
-        ITreeElement<ITracerObject> root = WebStudioUtils.getWebStudio().getTraceHelper().getTableTracer(0);
+        ITreeElement<?> root = WebStudioUtils.getWebStudio().getTraceHelper().getTableTracer(0);
         if (root != null) {
             return hasDecisionTables(root);
         } else {
@@ -46,9 +45,9 @@ public class TraceTreeBean {
         }
     }
 
-    private boolean hasDecisionTables(ITreeElement<ITracerObject> node) {
-        Iterable<? extends ITreeElement<ITracerObject>> children = node.getChildren();
-        for (ITreeElement<ITracerObject> child : children) {
+    private boolean hasDecisionTables(ITreeElement<?> node) {
+        Iterable<? extends ITreeElement<?>> children = node.getChildren();
+        for (ITreeElement<?> child : children) {
             if (child instanceof DecisionTableTraceObject || child instanceof DTRuleTracerLeaf) {
                 return true;
             }
