@@ -31,9 +31,9 @@ public class TraceHelper {
     }
 
     private void cacheTree(ITreeElement<ITracerObject> treeNode) {
+        traceTreeCache.put(traceTreeCache.size(), treeNode);
         Iterable<? extends ITreeElement<ITracerObject>> children = treeNode.getChildren();
         for (ITreeElement<ITracerObject> child : children) {
-            traceTreeCache.put(traceTreeCache.size(), child);
             cacheTree(child);
         }
     }
