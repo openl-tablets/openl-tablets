@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/framePanel.xhtml">
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/framePanel.xhtml">
 
     <ui:define name="content">
+        <link href="#{contextPath}/css/ui.fancytree.min.css"
+              rel="stylesheet" type="text/css"></link>
         <style>
             .traceTreeParams {
                 border-bottom: 1px solid #dddddd;
@@ -26,74 +25,111 @@
             .tree {
                 padding-top: 5px;
             }
-            .decisiontable .rf-trn-ico{
+
+            .fancytree-ico-c span.fancytree-icon,
+            .fancytree-ico-e span.fancytree-icon,
+            .fancytree-has-children.fancytree-ico-c span.fancytree-icon,
+            .fancytree-ico-c span.fancytree-icon:hover,
+            .fancytree-ico-e span.fancytree-icon:hover,
+            .fancytree-has-children.fancytree-ico-c span.fancytree-icon:hover {
+                background-position: 0 0;
+            }
+
+            .decisiontable .fancytree-icon {
                 background-image: url("webresource/images/ruleset.gif");
             }
-            .rule .rf-trn-ico{
+
+            .rule .fancytree-icon {
                 background-image: url("webresource/images/test_ok.gif");
             }
-            .cmatch .rf-trn-ico, .wcmatch .rf-trn-ico, .wcmScore .rf-trn-ico {
+
+            .cmatch .fancytree-icon, .wcmatch .fancytree-icon, .wcmScore .fancytree-icon {
                 background-image: url("webresource/images/cmatch.gif");
             }
-            .cmResult .rf-trn-ico {
+
+            .cmResult .fancytree-icon {
                 background-image: url("webresource/images/cmatch-check.gif");
             }
-            .cmMatch .rf-trn-ico {
+
+            .cmMatch .fancytree-icon {
                 background-image: url("webresource/images/cmatch-match.gif");
             }
-            .tbasic .rf-trn-ico {
+
+            .tbasic .fancytree-icon {
                 background-image: url("webresource/images/tbasic.gif");
             }
-            .tbasicMethod .rf-trn-ico, .method .rf-trn-ico {
+
+            .tbasicMethod .fancytree-icon, .method .fancytree-icon {
                 background-image: url("webresource/images/method.gif");
             }
-            .tbasicOperation .rf-trn-ico {
+
+            .tbasicOperation .fancytree-icon {
                 background-image: url("webresource/images/tbasic-operation.gif");
             }
+
             /* TODO: icons for spreadsheet, method, overloadedMethodChoise in trace */
-            .spreadsheet .rf-trn-ico {
+            .spreadsheet .fancytree-icon {
                 background-image: url("webresource/images/spreadsheet.gif");
             }
-            .spreadsheetCell .rf-trn-ico {
+
+            .spreadsheetCell .fancytree-icon {
                 background-image: url("webresource/images/value.gif");
             }
-            .overloadedMethodChoice .rf-trn-ico {
+
+            .overloadedMethodChoice .fancytree-icon {
                 background-image: url("webresource/images/tableview.gif");
             }
-            .decisionTableCondition_result .rf-trn-ico, .decisionTableIndex_result .rf-trn-ico,
-            .decisionTableCondition .rf-trn-ico, .decisionTableIndex .rf-trn-ico {
+
+            .decisionTableCondition.result .fancytree-icon, .decisionTableIndex.result .fancytree-icon,
+            .decisionTableCondition.no_result .fancytree-icon, .decisionTableIndex.no_result .fancytree-icon {
                 background-image: url("webresource/images/test_success.png");
             }
-            .decisionTableCondition_fail .rf-trn-ico, .decisionTableIndex_fail .rf-trn-ico {
+
+            .decisionTableCondition.fail .fancytree-icon, .decisionTableIndex.fail .fancytree-icon {
                 background-image: url("webresource/images/test_fail.png");
             }
-            .decisionTableCondition_result, .decisionTableIndex_result {
+
+            .result > .fancytree-title {
                 font-weight: bold;
             }
-            .decisionTableCondition_fail, .decisionTableIndex_fail,
-            .decisionTableCondition, .decisionTableIndex {
+
+            .fail > .fancytree-title,
+            .no_result > .fancytree-title {
                 font-style: italic;
             }
+
+            .hide_details .fancytree-node.fail, .hide_details .fancytree-node.no_result {
+                display: none;
+            }
         </style>
+        <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
+        <script src="#{contextPath}/javascript/vendor/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.fancytree/2.15.0/jquery.fancytree.min.js"
+                type="text/javascript"></script>
 
-        <h:form>
-            <h:panelGroup styleClass="traceTreeParams" rendered="#{traceTreeBean.hasDecisionTables()}" layout="block">
-                <h:outputText value="Detailed trace tree" styleClass="traceTreeFieldName"/>
-                <h:selectBooleanCheckbox id="toggleCheckbox" value="#{traceTreeBean.detailedTraceTree}">
-                    <f:ajax event="change" render="traceTree" />
-                </h:selectBooleanCheckbox>
-            </h:panelGroup>
+        <script type="text/javascript">
+            $(function () {
+                $("#tree").fancytree({
+                    toggleEffect: false,
+                    activate: function (event, data) {
+                        window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                    },
+                    lazyLoad: function (event, data) {
+                        data.result = {
+                            url: "#{contextPath}/rest/trace/nodes",
+                            data: {id: data.node.key}
+                        };
+                    },
+                    source: {url: "#{contextPath}/rest/trace/nodes"}
+                });
+            });
+        </script>
 
-            <h:panelGroup id="traceTree">
-                <rich:tree styleClass="tree" value="#{traceTreeBean.tree}" toggleType="client" var="node">
-                    <rich:treeNode styleClass="#{node.type}" >
-                        <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
-                            <h:outputText value="#{node.name}" />
-                        </h:outputLink>
-                    </rich:treeNode>
-                </rich:tree>
-            </h:panelGroup>
-        </h:form>
+        <div class="traceTreeParams">
+            <span class="traceTreeFieldName">Detailed trace tree</span><input checked="checked" type="checkbox"
+                                                                              onchange="$('#tree').toggleClass('hide_details', !this.checked)"></input>
+        </div>
+        <div id="tree"/>
 
     </ui:define>
 

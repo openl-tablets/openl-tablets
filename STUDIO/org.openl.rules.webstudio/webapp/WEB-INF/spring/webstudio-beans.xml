@@ -102,7 +102,12 @@
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
-        <property name="serviceBeans" ref="repositoryService" />
+        <property name="serviceBeans">
+            <list>
+                <bean class="org.openl.rules.rest.RepositoryService"/>
+                <bean class="org.openl.rules.webstudio.web.trace.TraceService"/>
+            </list>
+        </property>
         <property name="providers">
             <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
                 <property name="dropRootElement" value="true"/>
@@ -113,5 +118,4 @@
             </bean>
         </property>
     </bean>
-    <bean class="org.openl.rules.rest.RepositoryService" id="repositoryService"/>
 </beans>
