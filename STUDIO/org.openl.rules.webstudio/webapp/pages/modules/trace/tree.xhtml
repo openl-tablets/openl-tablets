@@ -116,11 +116,11 @@
                     },
                     lazyLoad: function (event, data) {
                         data.result = {
-                            url: "#{contextPath}/rest/trace/nodes",
+                            url: "#{contextPath}/web/trace/nodes",
                             data: {id: data.node.key}
                         };
                     },
-                    source: {url: "#{contextPath}/rest/trace/nodes"}
+                    source: {url: "#{contextPath}/web/trace/nodes"}
                 });
             });
         </script>

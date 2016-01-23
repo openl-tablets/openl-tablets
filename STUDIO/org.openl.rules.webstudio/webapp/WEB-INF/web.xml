@@ -239,6 +239,7 @@
   <servlet-mapping>
     <servlet-name>CXFServlet</servlet-name>
     <url-pattern>/rest/*</url-pattern>
+    <url-pattern>/web/*</url-pattern>
   </servlet-mapping>
 
   <welcome-file-list>
