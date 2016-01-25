@@ -60,6 +60,17 @@ public class ShowTraceTableBean {
 
     public IOpenLTable getTraceTable() {
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
+        if (tsn == null) {
+
+            ITracerObject parentTraceObject = tto.getParent();
+            while (parentTraceObject != null) {
+                if (parentTraceObject instanceof ATableTracerNode) {
+                    tsn = ((ATableTracerNode) parentTraceObject).getTableSyntaxNode();
+                    break;
+                }
+                parentTraceObject = parentTraceObject.getParent();
+            }
+        }
         return new TableSyntaxNodeAdapter(tsn);
     }
 
