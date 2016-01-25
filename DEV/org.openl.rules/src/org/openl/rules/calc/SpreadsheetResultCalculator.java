@@ -183,7 +183,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 	            result = results[row][column];
 	        
 	            if (result != null) {
-	                spreadsheetTraceLeaf.setValue(result);
+	                spreadsheetTraceLeaf.setResult(result);
 	                return result;
 	            }
 	        }
@@ -191,7 +191,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 	        result = spreadsheetCell.calculate(this, targetModule, params, env);
 	        results[row][column] = result;
 	
-	        spreadsheetTraceLeaf.setValue(result);
+	        spreadsheetTraceLeaf.setResult(result);
 	        return result;
         } finally {
             Tracer.end();

@@ -32,14 +32,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         return spreadsheetTraceObject;
     }
 
-    public Object getValue() {
-        return getResult();
-    }
-
-    public void setValue(Object value) {
-        setResult(value);
-    }
-
     @Override
     public String getUri() {
         return spreadsheetCell.getSourceCell().getUri();
