@@ -9,10 +9,12 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
+import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.vm.trace.ITracerObject;
 import org.slf4j.Logger;
@@ -20,10 +22,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Request scope managed bean for Trace into File functionality.
+ * 
+ * @author Yury Molchan
  */
 @SessionScoped
 @ManagedBean
 public class TraceIntoFileBean {
+    private static final char[] indents = new char[256];
+
+    static {
+        for (int i = 0; i < indents.length; i++)
+            indents[i] = '\t';
+    }
 
     private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
 
@@ -34,31 +44,22 @@ public class TraceIntoFileBean {
         this.runTestHelper = runTestHelper;
     }
 
-    public static final String EXTENSION_SEPARATOR = ".";
-
-    /**
-     * Output file name without extension. By default 'trace'.
-     */
-    private final String fileBaseName = "trace";
-
-    /**
-     * Output file format.
-     */
-    private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
-
     public void traceIntoFile() {
         ITracerObject tracer = runTestHelper.getTraceObject();
 
-        TracePrinter tracePrinter = getTracePrinter(fileFormat);
-
         HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-        initResponse(response, getFileName());
+
+        String outputFileName = "trace.txt";
+        WebTool.setContentDisposition(response, outputFileName);
+
+        String contentType = new MimetypesFileTypeMap().getContentType(outputFileName);
+        response.setContentType(contentType);
 
         Writer writer = null;
 
         try {
             writer = response.getWriter();
-            tracePrinter.print(tracer, writer);
+            print(tracer, 0, writer);
             writer.close();
         } catch (IOException e) {
             log.error("Error when printing trace", e);
@@ -69,31 +70,23 @@ public class TraceIntoFileBean {
         FacesUtils.getFacesContext().responseComplete();
     }
 
-    private TracePrinter getTracePrinter(String fileFormat) {
-        DefaultTracePrinter tracePrinter = new DefaultTracePrinter();
+    private void print(ITracerObject tracer, int level, Writer writer) throws IOException {
 
-        TraceFormatter traceFormatter = new TraceFormatterFactory().getTraceFormatter(fileFormat);
-        tracePrinter.setFormatter(traceFormatter);
+        Iterable<ITracerObject> tracerObjects = tracer.getChildren();
+        for (ITracerObject aTrace : tracerObjects) {
+            writer.write(indents, 0, level % indents.length);
+            writer.write("TRACE: ");
+            writer.write(aTrace.getDisplayName(INamedThing.REGULAR));
+            writer.write('\n');
+            writer.write(indents, 0, level % indents.length);
+            writer.write(SourceCodeURLConstants.AT_PREFIX);
+            writer.write(FileUtils.getBaseName(aTrace.getUri()));
+            writer.write('&');
+            writer.write(SourceCodeURLConstants.OPENL);
+            writer.write('=');
+            writer.write('\n');
 
-        return tracePrinter;
-    }
-
-    private void initResponse(HttpServletResponse response, String outputFileName) {
-        WebTool.setContentDisposition(response, outputFileName);
-
-        String contentType = new MimetypesFileTypeMap().getContentType(outputFileName);
-        response.setContentType(contentType);
-    }
-
-    private String getFileName() {
-        StringBuilder result = new StringBuilder();
-
-        result.append(fileBaseName);
-
-        if (StringUtils.isNotBlank(fileFormat)) {
-            result.append(EXTENSION_SEPARATOR).append(fileFormat);
+            print(aTrace, level + 1, writer);
         }
-
-        return result.toString();
     }
 }
