@@ -1,4 +1,4 @@
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace;
 
 /**
  * @author Andrei Astrouski

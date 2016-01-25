@@ -12,16 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
-import org.openl.vm.trace.DefaultTracePrinter;
 import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.TraceFormatter;
-import org.openl.vm.trace.TraceFormatterFactory;
-import org.openl.vm.trace.TracePrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

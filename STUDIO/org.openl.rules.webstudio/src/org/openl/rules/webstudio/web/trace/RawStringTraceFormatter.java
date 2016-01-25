@@ -1,8 +1,9 @@
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace;
 
 import org.openl.base.INamedThing;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.util.FileUtils;
+import org.openl.vm.trace.ITracerObject;
 
 public class RawStringTraceFormatter implements TraceFormatter {
 

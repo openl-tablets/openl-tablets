@@ -1,4 +1,6 @@
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace;
+
+import org.openl.vm.trace.ITracerObject;
 
 import java.io.IOException;
 import java.io.StringWriter;

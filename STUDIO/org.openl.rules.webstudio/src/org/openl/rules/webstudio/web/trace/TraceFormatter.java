@@ -1,4 +1,6 @@
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace;
+
+import org.openl.vm.trace.ITracerObject;
 
 public interface TraceFormatter {
 
