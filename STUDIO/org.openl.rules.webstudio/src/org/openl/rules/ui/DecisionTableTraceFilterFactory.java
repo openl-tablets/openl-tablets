@@ -17,7 +17,6 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.FontGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
@@ -58,8 +57,8 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private void fillRegions(ITableTracerObject rootTraceObject) {
-        Iterable<? extends ITreeElement<ITracerObject>> children = rootTraceObject.getChildren();
-        for (ITreeElement<ITracerObject> item : children) {
+        Iterable<ITracerObject> children = rootTraceObject.getChildren();
+        for (ITracerObject item : children) {
             // TODO: Remove class casting
             ITableTracerObject child = (ITableTracerObject) item;
             List<IGridRegion> regions = child.getGridRegions();
