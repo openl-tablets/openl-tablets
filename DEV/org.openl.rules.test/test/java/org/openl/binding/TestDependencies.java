@@ -8,15 +8,11 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.openl.base.INamedThing;
-import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.test.Tools;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
@@ -48,37 +44,6 @@ public class TestDependencies extends TestCase {
             System.out.println();
             System.out.println(m.getName());
             System.out.println(bd);
-        }
-    }
-
-    public void testTracer() throws Exception {
-
-        Tracer.initialize();
-
-        URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-
-        Object res = Tools.run(url.toURI().getPath(), "hello1", new Object[]{new Integer(23)});
-        System.out.println(res);
-
-        Iterable<ITracerObject> children = Tracer.getRoot().getChildren();
-        for (ITracerObject child : children) {
-            printTO(child, 0);
-        }
-        Tracer.destroy();
-    }
-
-    void printTO(ITracerObject to, int level) {
-
-        for (int i = 0; i < level * 2; i++) {
-            System.out.print(' ');
-        }
-
-        System.out.println("TRACE: " + to.getDisplayName(INamedThing.REGULAR));
-        System.out.println(SourceCodeURLConstants.AT_PREFIX + to.getUri());
-
-        Iterable<ITracerObject> children = to.getChildren();
-        for (ITracerObject child : children) {
-            printTO(child, level + 1);
         }
     }
 

@@ -1,18 +1,12 @@
 package org.openl.rules.table;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.trace.SimpleTracerObject;
-
 import java.util.List;
 
-public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.vm.trace.SimpleTracerObject;
 
-    public static final String ERROR_RESULT = "ERROR";
+public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
 
     private Object params[];
     private Throwable error;
@@ -25,7 +19,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         this.method = method;
         OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         if (params != null) {
-            Object[] clonedParams = null;
+            Object[] clonedParams;
             try {
                 clonedParams = cloner.deepClone(params);
             } catch (Exception ex) {
@@ -43,29 +37,8 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return method;
     }
 
-    @Override
-    public String getDisplayName(int mode) {
-        StringBuilder buf = new StringBuilder(64);
-        buf.append(prefix).append(' ');
-        IOpenClass type = method.getType();
-        buf.append(type.getDisplayName(mode)).append(' ');
-
-        if (!JavaOpenClass.isVoid(type)) {
-            if (hasError()) {
-                // append error of any
-                //
-                buf.append(ERROR_RESULT);
-            } else {
-                // append formatted result
-                //
-                buf.append(getFormattedValue(getResult(), method));
-            }
-            buf.append(' ');
-        }
-
-        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
-
-        return buf.toString();
+    public String getPrefix() {
+        return prefix;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -90,11 +63,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public Object[] getParameters() {
         return params.clone();
-    }
-
-    protected String getFormattedValue(Object value, IOpenMethod method) {
-        // add '=' symbol if not void
-        return "= " + FormattersManager.format(value);
     }
 
     @Override

@@ -53,10 +53,10 @@ public class TraceService {
             node.setExtraClasses("value");
             return node;
         }
-        String name = getDisplayName(element, INamedThing.SHORT);
+        String name = TraceFormatter.getDisplayName(element, INamedThing.SHORT);
         node.setTitle(name);
 
-        String title = getDisplayName(element, INamedThing.REGULAR);
+        String title = TraceFormatter.getDisplayName(element, INamedThing.REGULAR);
         node.setTooltip(title);
 
         int key = traceHelper.getNodeKey(element);
@@ -68,10 +68,6 @@ public class TraceService {
         boolean leaf = element.isLeaf();
         node.setLazy(!leaf);
         return node;
-    }
-
-    private String getDisplayName(ITracerObject obj, int mode) {
-        return obj.getDisplayName(mode);
     }
 
     private String getType(ITracerObject element) {

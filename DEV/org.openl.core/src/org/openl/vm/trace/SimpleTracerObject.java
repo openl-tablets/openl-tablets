@@ -45,10 +45,6 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return children;
     }
 
-    public String getName() {
-        return getDisplayName(INamedThing.SHORT);
-    }
-
     public ITracerObject getObject() {
         return this;
     }

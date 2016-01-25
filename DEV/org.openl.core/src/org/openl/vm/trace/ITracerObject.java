@@ -32,6 +32,4 @@ public interface ITracerObject extends ITreeElement<ITracerObject> {
     String getUri();
 
     Object getResult();
-
-    String getDisplayName(int regular);
 }

@@ -1,4 +1,4 @@
-package org.openl.rules.calc.trace;
+package org.openl.rules.webstudio.web.trace;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -9,30 +9,34 @@ import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.trace.SpreadsheetTraceObject;
+import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 
-public class SpreadsheetTracerLeafTest {
+public class TraceFormatterTest {
 
     @Test
     public void getDisplayNameTest() {
         SpreadsheetTracerLeaf leafNode = new SpreadsheetTracerLeaf(createNodeMock(), createCellMock());
 
         leafNode.setValue(null);
-        assertEquals("$Value$Vehicle_Premiums = null", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = null", TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
 
         leafNode.setValue(0.95);
-        assertEquals("$Value$Vehicle_Premiums = 0.95", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
 
         leafNode.setValue(new DoubleValue(0.95));
-        assertEquals("$Value$Vehicle_Premiums = 0.95", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
 
         leafNode.setValue(new DoubleValue[] { new DoubleValue(0.95) });
-        assertEquals("$Value$Vehicle_Premiums = {0.95}", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = {0.95}", TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
 
         leafNode.setValue(new DoubleValue[] { new DoubleValue(0.95), new DoubleValue(0.55) });
-        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}",
+            TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
 
         leafNode.setValue(new double[][] { { 0.95, 0.55 }, { 1.95, 1.55 } });
-        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}", leafNode.getDisplayName(INamedThing.LONG));
+        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}",
+            TraceFormatter.getDisplayName(leafNode, INamedThing.LONG));
     }
 
     protected SpreadsheetCell createCellMock() {

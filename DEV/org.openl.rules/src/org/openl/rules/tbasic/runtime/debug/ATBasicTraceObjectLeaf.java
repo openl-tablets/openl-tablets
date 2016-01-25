@@ -11,5 +11,4 @@ abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
     public TableSyntaxNode getTableSyntaxNode() {
         return null;
     }
-
 }

@@ -76,7 +76,7 @@ public class TraceIntoFileBean {
         for (ITracerObject aTrace : tracerObjects) {
             writer.write(indents, 0, level % indents.length);
             writer.write("TRACE: ");
-            writer.write(aTrace.getDisplayName(INamedThing.REGULAR));
+            writer.write(TraceFormatter.getDisplayName(aTrace, INamedThing.REGULAR));
             writer.write('\n');
             writer.write(indents, 0, level % indents.length);
             writer.write(SourceCodeURLConstants.AT_PREFIX);
