@@ -14,7 +14,6 @@ import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 @ManagedBean
@@ -34,7 +33,7 @@ public final class RunTestHelper {
     }
 
     public void initTrace() {
-        ITreeElement<ITracerObject> root = getTraceObject();
+        ITracerObject root = getTraceObject();
 
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
         traceHelper.cacheTraceTree(root);// Register

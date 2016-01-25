@@ -6,7 +6,6 @@ package org.openl.rules.ui;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 /**
@@ -14,26 +13,26 @@ import org.openl.vm.trace.ITracerObject;
  */
 public class TraceHelper {
 
-    private BidiMap<Integer, ITreeElement<?>> traceTreeCache = new DualHashBidiMap<Integer, ITreeElement<?>>();
+    private BidiMap<Integer, ITracerObject> traceTreeCache = new DualHashBidiMap<Integer, ITracerObject>();
 
-    public ITreeElement<?> getTableTracer(int elementId) {
+    public ITracerObject getTableTracer(int elementId) {
         return traceTreeCache.get(elementId);
     }
 
-    public void cacheTraceTree(ITreeElement<ITracerObject> tree) {
+    public void cacheTraceTree(ITracerObject tree) {
         traceTreeCache.clear();
         cacheTree(tree);
     }
 
-    private void cacheTree(ITreeElement<ITracerObject> treeNode) {
+    private void cacheTree(ITracerObject treeNode) {
         traceTreeCache.put(traceTreeCache.size(), treeNode);
-        Iterable<? extends ITreeElement<ITracerObject>> children = treeNode.getChildren();
-        for (ITreeElement<ITracerObject> child : children) {
+        Iterable<ITracerObject> children = treeNode.getChildren();
+        for (ITracerObject child : children) {
             cacheTree(child);
         }
     }
 
-    public Integer getNodeKey(ITreeElement<?> node) {
+    public Integer getNodeKey(ITracerObject node) {
         return traceTreeCache.getKey(node);
     }
 }

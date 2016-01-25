@@ -11,15 +11,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.tree.ITreeElement;
+import org.openl.vm.trace.ITracerObject;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,19 +33,19 @@ public class TraceService {
     @Path("nodes")
     public List<TraceNode> getNodes(@QueryParam("id") Integer id, @Context HttpServletRequest request) {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper(request.getSession());
-        ITreeElement<?> element = traceHelper.getTableTracer(id == null ? 0 : id);
+        ITracerObject element = traceHelper.getTableTracer(id == null ? 0 : id);
         return createNodes(element.getChildren(), traceHelper);
     }
 
-    private List<TraceNode> createNodes(Iterable<? extends ITreeElement<?>> children, TraceHelper traceHelper) {
+    private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper) {
         List<TraceNode> nodes = new ArrayList<TraceNode>(16);
-        for (ITreeElement<?> child : children) {
+        for (ITracerObject child : children) {
             nodes.add(createNode(child, traceHelper));
         }
         return nodes;
     }
 
-    private TraceNode createNode(ITreeElement<?> element, TraceHelper traceHelper) {
+    private TraceNode createNode(ITracerObject element, TraceHelper traceHelper) {
 
         TraceNode node = new TraceNode();
         if (element == null) {
@@ -72,18 +70,11 @@ public class TraceService {
         return node;
     }
 
-    private String getDisplayName(Object obj, int mode) {
-        if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
-            return FormattersManager.format(obj);
-        }
-        if (obj instanceof INamedThing) {
-            INamedThing nt = (INamedThing) obj;
-            return nt.getDisplayName(mode);
-        }
-        return String.valueOf(obj);
+    private String getDisplayName(ITracerObject obj, int mode) {
+        return obj.getDisplayName(mode);
     }
 
-    private String getType(ITreeElement<?> element) {
+    private String getType(ITracerObject element) {
         String type = element.getType();
         if (type == null) {
             type = StringUtils.EMPTY;
@@ -93,7 +84,7 @@ public class TraceService {
             if (!condition.isSuccessful()) {
                 return type + " fail";
             } else {
-                ITreeElement<?> result = findResult(element.getChildren());
+                ITracerObject result = findResult(element.getChildren());
                 if (result != null) {
                     return type + " result";
                 }
@@ -103,12 +94,12 @@ public class TraceService {
         return type;
     }
 
-    private ITreeElement<?> findResult(Iterable<? extends ITreeElement<?>> children) {
-        for (ITreeElement<?> child : children) {
+    private ITracerObject findResult(Iterable<ITracerObject> children) {
+        for (ITracerObject child : children) {
             if (child instanceof DTRuleTracerLeaf) {
                 return child;
             }
-            ITreeElement<?> result = findResult(child.getChildren());
+            ITracerObject result = findResult(child.getChildren());
             if (result != null) {
                 return result;
             }
