@@ -161,7 +161,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(SpreadsheetTracerLeaf stl) {
         StringBuilder buf = new StringBuilder(64);
-        Spreadsheet spreadsheet = stl.getSpreadsheetTraceObject().getSpreadsheet();
+        Spreadsheet spreadsheet = (Spreadsheet) stl.getSpreadsheetTraceObject().getTraceObject();
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         SpreadsheetCell spreadsheetCell = stl.getSpreadsheetCell();
         buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);

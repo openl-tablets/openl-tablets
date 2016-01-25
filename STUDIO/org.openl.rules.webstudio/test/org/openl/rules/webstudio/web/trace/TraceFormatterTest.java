@@ -52,7 +52,7 @@ public class TraceFormatterTest {
         when(spreadsheet.getRowNames()).thenReturn(new String[] { "Vehicle_Premiums" });
 
         SpreadsheetTraceObject node = mock(SpreadsheetTraceObject.class);
-        when(node.getSpreadsheet()).thenReturn(spreadsheet);
+        when(node.getTraceObject()).thenReturn(spreadsheet);
         return node;
     }
 
