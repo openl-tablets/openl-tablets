@@ -3,13 +3,12 @@
  */
 package org.openl.vm.trace;
 
-import org.openl.base.INamedThing;
 import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor
  */
-public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing {
+public interface ITracerObject extends ITreeElement<ITracerObject> {
 
     /**
      * Get parent trace object.
@@ -33,4 +32,6 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing 
     String getUri();
 
     Object getResult();
+
+    String getDisplayName(int regular);
 }
