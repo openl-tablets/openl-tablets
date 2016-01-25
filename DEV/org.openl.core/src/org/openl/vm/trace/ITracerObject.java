@@ -30,8 +30,6 @@ public interface ITracerObject {
 
     Object getResult();
 
-    ITracerObject getObject();
-
     String getType();
 
     boolean isLeaf();

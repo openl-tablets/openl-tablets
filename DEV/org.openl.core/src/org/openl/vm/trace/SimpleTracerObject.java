@@ -45,10 +45,6 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return children;
     }
 
-    public ITracerObject getObject() {
-        return this;
-    }
-
     public boolean isLeaf() {
         return children == null;
     }
