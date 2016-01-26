@@ -1,7 +1,5 @@
 package org.openl.vm.trace;
 
-import org.openl.base.INamedThing;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -50,6 +48,10 @@ public abstract class SimpleTracerObject implements ITracerObject {
     }
 
     public abstract String getUri();
+
+    @Override public Object[] getParameters() {
+        return null;
+    }
 
     @Override
     public Object getResult() {

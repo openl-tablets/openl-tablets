@@ -5,17 +5,17 @@ import java.util.Iterator;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.TraceStack;
 
 public class TraceableRangeIndex extends RangeIndex {
     private final ICondition condition;
-    private final IDecisionTableTraceObject baseTraceObject;
+    private final DecisionTableTraceObject baseTraceObject;
     private CachingTraceStack cachingTraceStack;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public TraceableRangeIndex(RangeIndex delegate, ICondition condition, IDecisionTableTraceObject baseTraceObject,
+    public TraceableRangeIndex(RangeIndex delegate, ICondition condition, DecisionTableTraceObject baseTraceObject,
                                TraceStack traceStack) {
         super(delegate.emptyOrFormulaNodes, null, delegate.rules, delegate.adaptor);
         this.condition = condition;

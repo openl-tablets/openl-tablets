@@ -13,7 +13,7 @@ public class DTIndexedTraceObject extends DTConditionTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableIndex";
     private final IDecisionTableRuleNode linkedRule;
 
-    public DTIndexedTraceObject(IDecisionTableTraceObject baseTraceObject,
+    public DTIndexedTraceObject(DecisionTableTraceObject baseTraceObject,
             IBaseCondition condition,
             IDecisionTableRuleNode linkedRule,
             boolean successful) {

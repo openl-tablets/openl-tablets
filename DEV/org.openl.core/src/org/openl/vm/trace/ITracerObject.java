@@ -28,6 +28,7 @@ public interface ITracerObject {
 
     String getUri();
 
+    Object[] getParameters();
     Object getResult();
 
     String getType();
