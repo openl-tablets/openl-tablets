@@ -20,11 +20,6 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
         return method;
     }
 
-    public List<IGridRegion> getGridRegions() {
-        // regions of sub-elements should be combined
-        return null;
-    }
-
     @Override
     public String getUri() {
         return method.getSourceUrl();

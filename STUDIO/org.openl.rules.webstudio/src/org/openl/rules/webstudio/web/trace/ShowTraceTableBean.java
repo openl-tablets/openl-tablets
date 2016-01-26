@@ -72,7 +72,7 @@ public class ShowTraceTableBean {
 
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        List<IGridRegion> r = tto.getGridRegions();
+        List<IGridRegion> r = RegionsExtractor.getGridRegions(tto);
         if (CollectionUtils.isNotEmpty(r)) {
             regions.addAll(r);
         } else {
@@ -144,7 +144,7 @@ public class ShowTraceTableBean {
 
     private void fillRegions(ITracerObject tto, List<IGridRegion> regions) {
         for (ITracerObject child : tto.getChildren()) {
-            List<IGridRegion> r = ((ITableTracerObject) child).getGridRegions();
+            List<IGridRegion> r = RegionsExtractor.getGridRegions(child);
             if (CollectionUtils.isNotEmpty(r)) {
                 regions.addAll(r);
             } else if (!child.isLeaf()) {
@@ -152,4 +152,5 @@ public class ShowTraceTableBean {
             }
         }
     }
+
 }

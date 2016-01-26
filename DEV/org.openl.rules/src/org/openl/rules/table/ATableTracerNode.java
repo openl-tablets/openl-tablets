@@ -1,8 +1,5 @@
 package org.openl.rules.table;
 
-import java.util.List;
-
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.vm.trace.SimpleTracerObject;
 
@@ -60,11 +57,5 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     @Override
     public String getUri() {
         return method.getSyntaxNode().getUri();
-    }
-
-    @Override
-    public List<IGridRegion> getGridRegions() {
-        // Default stub implementation
-        return null;
     }
 }

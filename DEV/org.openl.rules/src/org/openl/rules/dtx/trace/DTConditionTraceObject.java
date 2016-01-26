@@ -1,12 +1,7 @@
 package org.openl.rules.dtx.trace;
 
-import java.util.List;
-
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.table.GridTableUtils;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
 
 public class DTConditionTraceObject extends DecisionTableTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableCondition";
@@ -38,6 +33,10 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
         return ruleIndex;
     }
 
+    public IBaseCondition getCondition() {
+        return condition;
+    }
+
     @Override
     public String getType() {
         return TRACE_OBJECT_TYPE;
@@ -59,11 +58,5 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
     @Override
     public Object getResult() {
         return baseTraceObject.getResult();
-    }
-
-    @Override
-    public List<IGridRegion> getGridRegions() {
-        ILogicalTable table = condition.getValueCell(ruleIndex);
-        return GridTableUtils.getGridRegions(table);
     }
 }

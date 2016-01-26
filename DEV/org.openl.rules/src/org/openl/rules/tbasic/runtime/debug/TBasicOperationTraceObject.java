@@ -31,12 +31,6 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         return fieldValues;
     }
 
-    public List<IGridRegion> getGridRegions() {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(sourceCode.getGridRegion());
-        return regions;
-    }
-
     @Override
     public String getUri() {
         return sourceCode.getSourceUri();

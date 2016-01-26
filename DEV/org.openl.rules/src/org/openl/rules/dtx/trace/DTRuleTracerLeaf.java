@@ -1,10 +1,7 @@
 package org.openl.rules.dtx.trace;
 
-import java.util.List;
-
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.table.ATableTracerLeaf;
-import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 
@@ -47,11 +44,6 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
 
     private IDecisionTable getDecisionTable() {
         return (IDecisionTable) getParentTraceObject().getTraceObject();
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        ILogicalTable table = getRuleTable();
-        return GridTableUtils.getGridRegions(table);
     }
 
     /**

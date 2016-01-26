@@ -1,12 +1,7 @@
 package org.openl.rules.calc.trace;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
-import org.openl.rules.table.IGridRegion;
 
 /**
  * Leaf trace object that represented by one calculation of spreadsheet cell
@@ -35,12 +30,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     @Override
     public String getUri() {
         return spreadsheetTraceObject.getTraceObject().getSyntaxNode().getUri();
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(spreadsheetCell.getSourceCell().getAbsoluteRegion());
-        return regions;
     }
 
     public String getType() {

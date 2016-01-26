@@ -61,7 +61,7 @@ public class DecisionTableTraceFilterFactory {
         for (ITracerObject item : children) {
             // TODO: Remove class casting
             ITableTracerObject child = (ITableTracerObject) item;
-            List<IGridRegion> regions = child.getGridRegions();
+            List<IGridRegion> regions = RegionsExtractor.getGridRegions(child);
 
             if (child instanceof DTConditionTraceObject) {
             	DTConditionTraceObject conditionTrace = (DTConditionTraceObject) child;
@@ -96,7 +96,7 @@ public class DecisionTableTraceFilterFactory {
             }
         }
 
-        List<IGridRegion> selectedRegions = selectedTraceObject.getGridRegions();
+        List<IGridRegion> selectedRegions = RegionsExtractor.getGridRegions(selectedTraceObject);
         if (selectedRegions != null) {
             for (IGridRegion region : selectedRegions) {
                 if (successfulChecks.contains(region) || resultRegions.contains(region)) {
