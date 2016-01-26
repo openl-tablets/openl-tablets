@@ -62,7 +62,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(DTRuleTracerLeaf dtr) {
         return String.format("Returned rule: %s",
-            dtr.getParentTraceObject().getDecisionTable().getRuleName(dtr.getRuleIndex()));
+                ((IDecisionTable)dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
     }
 
     private static String getDisplayName(ResultTraceObject resultTraceObject) {
@@ -143,7 +143,7 @@ public class TraceFormatter {
     private static String getDisplayName(DTIndexedTraceObject dti) {
         IDecisionTableRuleNode linkedRule = dti.getLinkedRule();
         int[] rules = linkedRule.getRules();
-        IDecisionTable decisionTable = dti.getDecisionTable();
+        IDecisionTable decisionTable = ((IDecisionTable)dti.getTraceObject());
 
         String[] ruleNames = new String[rules.length];
         for (int i = 0; i < ruleNames.length; i++) {
@@ -155,7 +155,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(DTConditionTraceObject dtc) {
         return String.format("Rule: %s, Condition: %s",
-            dtc.getDecisionTable().getRuleName(dtc.getRuleIndex()),
+                ((IDecisionTable)dtc.getTraceObject()).getRuleName(dtc.getRuleIndex()),
             dtc.getConditionName());
     }
 

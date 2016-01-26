@@ -10,7 +10,4 @@ public class DecisionTableTraceObject extends ATableTracerNode implements IDecis
         super("decisiontable", "DT", (ExecutableRulesMethod)decisionTable, params);
     }
 
-    public IDecisionTable getDecisionTable() {
-        return (IDecisionTable) getTraceObject();
-    }
 }
