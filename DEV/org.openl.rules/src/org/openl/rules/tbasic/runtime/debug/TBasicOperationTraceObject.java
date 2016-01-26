@@ -1,13 +1,11 @@
 package org.openl.rules.tbasic.runtime.debug;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 
-public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
+public class TBasicOperationTraceObject extends ATableTracerLeaf {
 
     private HashMap<String, Object> fieldValues;
     private AlgorithmOperationSource sourceCode;

@@ -1,10 +1,9 @@
 package org.openl.rules.dtx.trace;
 
 import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.table.ATableTracerNode;
 
-public class DTConditionTraceObject extends DecisionTableTraceObject {
-    private static final String TRACE_OBJECT_TYPE = "decisionTableCondition";
+public class DTConditionTraceObject extends ATableTracerNode {
     private final DecisionTableTraceObject baseTraceObject;
     protected final IBaseCondition condition;
     protected boolean successful;
@@ -17,7 +16,7 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
             boolean successful) {
         // Avoid cloning parameters for every instance - instead override the
         // method getParameters()
-        super((IDecisionTable) baseTraceObject.getTraceObject(), new Object[0]);
+        super("decisionTableCondition", "DT", baseTraceObject.getTraceObject(), new Object[0]);
         this.baseTraceObject = baseTraceObject;
         this.condition = condition;
         this.successful = successful;
@@ -35,11 +34,6 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
 
     public IBaseCondition getCondition() {
         return condition;
-    }
-
-    @Override
-    public String getType() {
-        return TRACE_OBJECT_TYPE;
     }
 
     public void setSuccessful(boolean successful) {

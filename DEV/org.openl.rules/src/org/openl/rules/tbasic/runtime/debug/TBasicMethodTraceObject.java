@@ -1,13 +1,9 @@
 package org.openl.rules.tbasic.runtime.debug;
 
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
-import java.util.List;
-
-public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
+public class TBasicMethodTraceObject extends ATableTracerLeaf {
 
     private AlgorithmSubroutineMethod method;
 
