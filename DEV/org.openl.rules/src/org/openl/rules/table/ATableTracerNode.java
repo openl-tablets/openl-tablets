@@ -3,7 +3,7 @@ package org.openl.rules.table;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.vm.trace.SimpleTracerObject;
 
-public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
+public abstract class ATableTracerNode extends SimpleTracerObject {
 
     private Object params[];
     private Throwable error;

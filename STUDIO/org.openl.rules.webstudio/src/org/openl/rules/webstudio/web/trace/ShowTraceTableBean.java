@@ -21,7 +21,6 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
@@ -41,7 +40,7 @@ import org.openl.vm.trace.ITracerObject;
 @RequestScoped
 public class ShowTraceTableBean {
 
-    private ITableTracerObject tto;
+    private ITracerObject tto;
 
     public ShowTraceTableBean() {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
@@ -51,7 +50,7 @@ public class ShowTraceTableBean {
         if (traceElementIdParam != null) {
             traceElementId = Integer.parseInt(traceElementIdParam);
         }
-        tto = (ITableTracerObject) traceHelper.getTableTracer(traceElementId);
+        tto = traceHelper.getTableTracer(traceElementId);
         if (tto == null) {
             throw new NullPointerException("A trace object with ID=[" + traceElementIdParam + "] is absent.");
         }
