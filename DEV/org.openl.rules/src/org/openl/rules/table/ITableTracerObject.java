@@ -10,6 +10,4 @@ public interface ITableTracerObject extends ITracerObject {
      * @return Regions to highlight in trace.
      */
     List<IGridRegion> getGridRegions();
-
-    TableSyntaxNode getTableSyntaxNode();
 }

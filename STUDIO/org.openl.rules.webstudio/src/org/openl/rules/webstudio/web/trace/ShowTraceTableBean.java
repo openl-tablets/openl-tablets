@@ -59,18 +59,8 @@ public class ShowTraceTableBean {
     }
 
     public IOpenLTable getTraceTable() {
-        TableSyntaxNode tsn = tto.getTableSyntaxNode();
-        if (tsn == null) {
-
-            ITracerObject parentTraceObject = tto.getParent();
-            while (parentTraceObject != null) {
-                if (parentTraceObject instanceof ATableTracerNode) {
-                    tsn = ((ATableTracerNode) parentTraceObject).getTableSyntaxNode();
-                    break;
-                }
-                parentTraceObject = parentTraceObject.getParent();
-            }
-        }
+        String uri = tto.getUri();
+        TableSyntaxNode tsn = WebStudioUtils.getProjectModel().findNode(uri);
         return new TableSyntaxNodeAdapter(tsn);
     }
 
@@ -95,7 +85,7 @@ public class ShowTraceTableBean {
 
         RegionGridSelector gridSelector = new RegionGridSelector(aRegions, true);
         ColorGridFilter colorGridFilter = new ColorGridFilter(gridSelector, defaultColorFilter);
-        return new IGridFilter[]{colorGridFilter};
+        return new IGridFilter[] { colorGridFilter };
     }
 
     public ParameterWithValueDeclaration[] getInputParameters() {
@@ -115,7 +105,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
             paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                    parameters[i]);
+                parameters[i]);
         }
         return paramDescriptions;
     }
@@ -155,7 +145,7 @@ public class ShowTraceTableBean {
 
     private void fillRegions(ITracerObject tto, List<IGridRegion> regions) {
         for (ITracerObject child : tto.getChildren()) {
-            List<IGridRegion> r = ((ITableTracerObject)child).getGridRegions();
+            List<IGridRegion> r = ((ITableTracerObject) child).getGridRegions();
             if (CollectionUtils.isNotEmpty(r)) {
                 regions.addAll(r);
             } else if (!child.isLeaf()) {

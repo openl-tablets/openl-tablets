@@ -7,8 +7,4 @@ abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
     protected ATBasicTraceObjectLeaf(String type) {
         super(type);
     }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return null;
-    }
 }

@@ -1,5 +1,6 @@
 package org.openl.rules.method.table;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -21,7 +22,7 @@ public class MethodTableTraceObject extends ATableTracerNode {
 
     public List<IGridRegion> getGridRegions() {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        ITable<?> tableBodyGrid = getTableSyntaxNode().getTableBody().getSource();
+        ITable<?> tableBodyGrid = getTraceObject().getSyntaxNode().getTableBody().getSource();
         ICell cell;
         for (int row = 0; row < tableBodyGrid.getHeight(); row += cell.getHeight()) {
             cell = tableBodyGrid.getCell(0, row);

@@ -34,17 +34,13 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
 
     @Override
     public String getUri() {
-        return spreadsheetCell.getSourceCell().getUri();
+        return spreadsheetTraceObject.getTraceObject().getSyntaxNode().getUri();
     }
 
     public List<IGridRegion> getGridRegions() {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         regions.add(spreadsheetCell.getSourceCell().getAbsoluteRegion());
         return regions;
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return spreadsheetTraceObject.getTableSyntaxNode();
     }
 
     public String getType() {

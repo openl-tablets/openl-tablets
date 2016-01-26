@@ -42,14 +42,8 @@ public class MatchTraceObject extends ATableTracerLeaf {
         return columnMatch.getRows().get(rowIndex);
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        return columnMatch.getSyntaxNode();
-    }
-
     @Override
     public String getUri() {
-        TableRow row = columnMatch.getRows().get(rowIndex);
-        SubValue sv = row.get(MatchAlgorithmCompiler.VALUES)[resultIndex];
-        return sv.getStringValue().getMetaInfo().getSourceUrl();
+        return columnMatch.getSyntaxNode().getUri();
     }
 }

@@ -40,13 +40,9 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
         return getParentTraceObject().getDecisionTable().getRuleTable(ruleIndex);
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        return getParentTraceObject().getDecisionTable().getSyntaxNode();
-    }
-
     @Override
     public String getUri() {
-        return getRuleTable().getSource().getUri();
+        return getParentTraceObject().getDecisionTable().getSyntaxNode().getUri();
     }
 
     public List<IGridRegion> getGridRegions() {

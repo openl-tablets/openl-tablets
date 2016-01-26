@@ -41,14 +41,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return prefix;
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        TableSyntaxNode syntaxNode = null;
-        if (method != null) {
-            syntaxNode = method.getSyntaxNode();
-        }
-        return syntaxNode;
-    }
-
     public Throwable getError() {
         return error;
     }
@@ -67,7 +59,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     @Override
     public String getUri() {
-        return method.getSourceUrl();
+        return method.getSyntaxNode().getUri();
     }
 
     @Override
