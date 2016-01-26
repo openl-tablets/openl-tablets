@@ -27,7 +27,6 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.ui.DecisionTableTraceFilterFactory;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;

@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.webstudio.web.trace;
 
 import java.util.ArrayList;
 import java.util.Collection;
