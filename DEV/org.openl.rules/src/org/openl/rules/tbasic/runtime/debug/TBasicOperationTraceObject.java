@@ -1,88 +1,37 @@
 package org.openl.rules.tbasic.runtime.debug;
 
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
+import org.openl.rules.table.ATableTracerLeaf;
+import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
+
+public class TBasicOperationTraceObject extends ATableTracerLeaf {
 
     private HashMap<String, Object> fieldValues;
-    private RuntimeOperation operation;
+    private AlgorithmOperationSource sourceCode;
+    private String nameForDebug;
 
-    public TBasicOperationTraceObject(RuntimeOperation operation) {
+    public TBasicOperationTraceObject(AlgorithmOperationSource sourceCode, String nameForDebug) {
         super("tbasicOperation");
-        this.operation = operation;
+        this.sourceCode = sourceCode;
+        this.nameForDebug = nameForDebug;
     }
 
-    public String getDisplayName(int mode) {
-        String operationName = operation.getSourceCode().getOperationName();
-        String stepNameForDebug = (operation.getNameForDebug() != null ? operation.getNameForDebug() : "");
-        String resultValue = "";
-        if (getResult() != null && getResult() != null) {
-            resultValue = "(" + getResult().toString() + ")";
-        }
-        int operationRow = operation.getSourceCode().getRowNumber();
+    public AlgorithmOperationSource getSourceCode() {
+        return sourceCode;
+    }
 
-        String fieldFormatedValues = getFieldValuesAsString();
-
-        String displayFieldFormatedValues = "";
-        if (!fieldFormatedValues.equals("")) {
-            displayFieldFormatedValues = String.format("[Local vars: %s]", fieldFormatedValues);
-        }
-
-        return String.format("Step: row %d: %s %s %s %s", operationRow, operationName, stepNameForDebug, resultValue,
-                displayFieldFormatedValues);
+    public String getNameForDebug() {
+        return nameForDebug;
     }
 
     public HashMap<String, Object> getFieldValues() {
         return fieldValues;
     }
 
-    private String getFieldValuesAsString() {
-        StringBuilder fields = new StringBuilder();
-
-        for (String fieldName : fieldValues.keySet()) {
-            Object value = fieldValues.get(fieldName);
-            String formattedValue = FormattersManager.format(value);
-            fields.append(fieldName).append(" = ").append(formattedValue).append(", ");
-        }
-
-        // remove last ", "
-        if (fields.length() > 2) {
-            fields.delete(fields.length() - 2, fields.length());
-        }
-
-        return fields.toString();
-    }
-
-    public List<IGridRegion> getGridRegions() {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(operation.getSourceCode().getGridRegion());
-        return regions;
-    }
-
-
-    public Object getResult() {
-        /**
-         * Extract the value from the result of the TBasic operation.
-         */
-        if (super.getResult() != null) {
-            return ((Result) super.getResult()).getValue();
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public String getUri() {
-        String operationUri = operation.getSourceCode().getSourceUri();
-
-        return operationUri;
+        return sourceCode.getSourceUri();
     }
 
     @SuppressWarnings("unchecked")

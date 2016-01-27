@@ -3,7 +3,7 @@ package org.openl.rules.dt.algorithm2;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.algorithm.IndexInfo;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.TraceStack;
 
@@ -105,7 +105,7 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 
 	@Override
 	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			IDecisionTableTraceObject traceObject) {
+			DecisionTableTraceObject traceObject) {
 		// TODO Auto-generated method stub
 		return this;
 	}

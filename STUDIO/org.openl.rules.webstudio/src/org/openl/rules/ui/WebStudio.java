@@ -82,8 +82,6 @@ public class WebStudio {
 
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
-    public static final String TRACER_NAME = "tracer";
-
     private final RulesTreeView TYPE_VIEW = new TypeView();
     private final RulesTreeView FILE_VIEW = new FileView();
     private final RulesTreeView CATEGORY_VIEW = new CategoryView();
@@ -868,18 +866,6 @@ public class WebStudio {
             return module.getProject().getName() + " - " + module.getName();
         }
         return null;
-    }
-
-    public TraceHelper getTraceHelper() {
-        TraceHelper traceHelper = (TraceHelper) FacesUtils.getSessionParam(TRACER_NAME);
-
-        if (traceHelper == null) {
-            traceHelper = new TraceHelper();
-            Map<String, Object> sessionMap = FacesUtils.getSessionMap();
-            sessionMap.put(TRACER_NAME, traceHelper);
-        }
-
-        return traceHelper;
     }
 
     public void setNeedRestart(boolean needRestart) {

@@ -2,11 +2,11 @@ package org.openl.rules.webstudio.web.util;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,8 @@ import javax.servlet.http.HttpSession;
 public abstract class WebStudioUtils {
 
     private static final String STUDIO_ATTR = "studio";
+    private static final String TRACER_NAME = "tracer";
+
 
     public static RulesUserSession getRulesUserSession(HttpSession session) {
         if (session == null) {
@@ -51,6 +53,22 @@ public abstract class WebStudioUtils {
     public static WebStudio getWebStudio(HttpSession session) {
         return session == null ? null : (WebStudio) session.getAttribute(STUDIO_ATTR);
     }
+
+    public static TraceHelper getTraceHelper() {
+        return getTraceHelper(FacesUtils.getSession());
+    }
+
+    public static TraceHelper getTraceHelper(HttpSession session) {
+        TraceHelper traceHelper = (TraceHelper) session.getAttribute(TRACER_NAME);
+
+        if (traceHelper == null) {
+            traceHelper = new TraceHelper();
+            session.setAttribute(TRACER_NAME, traceHelper);
+        }
+
+        return traceHelper;
+    }
+
 
     public static WebStudio getWebStudio(boolean create) {
         return getWebStudio(FacesUtils.getSession(create), create);

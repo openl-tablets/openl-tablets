@@ -3,13 +3,10 @@
  */
 package org.openl.vm.trace;
 
-import org.openl.base.INamedThing;
-import org.openl.util.tree.ITreeElement;
-
 /**
  * @author snshor
  */
-public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing {
+public interface ITracerObject {
 
     /**
      * Get parent trace object.
@@ -27,10 +24,14 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing 
 
     void addChild(ITracerObject child);
 
-    @Override
     Iterable<ITracerObject> getChildren();
 
     String getUri();
 
+    Object[] getParameters();
     Object getResult();
+
+    String getType();
+
+    boolean isLeaf();
 }

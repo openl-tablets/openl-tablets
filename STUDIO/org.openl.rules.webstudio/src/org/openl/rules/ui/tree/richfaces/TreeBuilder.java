@@ -36,7 +36,7 @@ abstract class TreeBuilder {
             return createNullNode();
         }
         TreeNode node = createNode(element);
-        Iterable<? extends ITreeElement<?>> children = getChildrenIterator(element);
+        Iterable<? extends ITreeElement<?>> children = element.getChildren();
         for (ITreeElement<?> child : children) {
             TreeNode rfChild = buildNode(child);
             if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
@@ -45,10 +45,6 @@ abstract class TreeBuilder {
             node.addChild(rfChild, rfChild);
         }
         return node;
-    }
-
-    Iterable<? extends ITreeElement<?>> getChildrenIterator(ITreeElement<?> source) {
-        return source.getChildren();
     }
 
     private TreeNode createNode(ITreeElement<?> element) {
