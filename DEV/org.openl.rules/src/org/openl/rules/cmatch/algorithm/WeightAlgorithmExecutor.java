@@ -6,7 +6,7 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
-public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
+public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
 
     public static final Object NO_MATCH = null;
 
@@ -15,38 +15,13 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
         // score
         Tracer.begin(wScore);
 
-        MatchNode checkTree = columnMatch.getCheckTree();
-        Object returnValues[] = columnMatch.getReturnValues();
+        Integer sumScore = (Integer) super.invoke(target, params, env, columnMatch);
 
-        int sumScore = 0;
-        // iterate over linearized nodes
-        for (MatchNode node : checkTree.getChildren()) {
-            if (!node.isLeaf()) {
-                throw new IllegalArgumentException("Sub node are prohibited here!");
-            }
-
-            Argument arg = node.getArgument();
-            Object var = arg.extractValue(target, params, env);
-            IMatcher matcher = node.getMatcher();
-
-            // find all matching scores from left to right
-            for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
-                Object checkValue = node.getCheckValues()[resultIndex];
-                if (matcher.match(var, checkValue)) {
-                    int score = columnMatch.getColumnScores()[resultIndex] * node.getWeight();
-                    sumScore += score;
-                    wScore.setResult(sumScore);
-                    MatchTraceObject mto = new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex);
-                    mto.setResult(score);
-                    Tracer.put(mto);
-                    break;
-                }
-            }
-        }
-
+        wScore.setResult(sumScore);
         MatchNode totalScore = columnMatch.getTotalScore();
         IMatcher matcher = totalScore.getMatcher();
         // totalScore -> resultValue
+        Object[] returnValues = columnMatch.getReturnValues();
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
