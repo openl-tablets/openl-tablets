@@ -10,10 +10,12 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.IConvertor;
 import org.openl.util.print.Formatter;
 
@@ -23,8 +25,19 @@ import org.openl.util.print.Formatter;
  */
 public class MethodUtil {
 
+    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = new IConvertor<IOpenClass, String>() {
+        @Override public String convert(IOpenClass type) {
+            return printType(type);
+        }
+    };
+
+    public static String printType(IOpenClass type) {
+        return type instanceof OpenClassDelegator ? type.getName() : type.getDisplayName(INamedThing.SHORT);
+    }
+
     public static StringBuilder printMethod(IOpenMethod method, StringBuilder buf) {
-        return printMethod(method.getName(), method.getSignature(), buf);
+        printMethod(method, true, buf, DEFAULT_TYPE_CONVERTER);
+        return buf;
     }
 
     public static String printMethod(IOpenMethodHeader methodHeader, final int mode, boolean printType) {

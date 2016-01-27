@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import java.util.List;
 
 import org.openl.binding.IBoundNode;
+import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -12,8 +13,6 @@ import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 public final class FieldUsageSearcher {
-    private static final SimpleTypeConverter TYPE_CONVERTER = new SimpleTypeConverter();
-
     private FieldUsageSearcher() {
     }
 
@@ -73,8 +72,8 @@ public final class FieldUsageSearcher {
         if (metaInfo != null && typeLocation != null) {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-            String description = TYPE_CONVERTER.convert(type) + "\n" +
-                    TYPE_CONVERTER.convert(boundNode.getType()) + " " + ((FieldBoundNode) boundNode).getFieldName();
+            String description = MethodUtil.printType(type) + "\n" +
+                    MethodUtil.printType(boundNode.getType()) + " " + ((FieldBoundNode) boundNode).getFieldName();
             simpleNodeUsage = new SimpleNodeUsage(start,
                     end,
                     description,

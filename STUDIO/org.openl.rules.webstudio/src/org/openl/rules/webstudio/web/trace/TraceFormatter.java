@@ -189,14 +189,13 @@ public class TraceFormatter {
         buf.append(attn.getPrefix()).append(' ');
 
         ExecutableRulesMethod method = attn.getTraceObject();
-        IOpenClass type = method.getType();
-        buf.append(type.getDisplayName(INamedThing.SHORT)).append(' ');
-        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
+        MethodUtil.printMethod(method, buf);
 
         if (attn.hasError()) {
             // append error of any
             buf.append(" = ERROR");
         } else {
+            IOpenClass type = method.getType();
             if (!JavaOpenClass.isVoid(type)) {
                 // append formatted result
                 buf.append(" = ").append(FormattersManager.format(attn.getResult()));
