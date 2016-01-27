@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -55,14 +56,14 @@ public class TraceFormatter {
         } else if (obj instanceof DTRuleTracerLeaf) {
             return getDisplayName((DTRuleTracerLeaf) obj);
         } else if (obj instanceof ATableTracerNode) {
-            return getDisplayName((ATableTracerNode) obj, mode);
+            return getDisplayName((ATableTracerNode) obj);
         }
         return "NULL - " + obj.getClass();
     }
 
     private static String getDisplayName(DTRuleTracerLeaf dtr) {
         return String.format("Returned rule: %s",
-                ((IDecisionTable)dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
+            ((IDecisionTable) dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
     }
 
     private static String getDisplayName(ResultTraceObject resultTraceObject) {
@@ -143,7 +144,7 @@ public class TraceFormatter {
     private static String getDisplayName(DTIndexedTraceObject dti) {
         IDecisionTableRuleNode linkedRule = dti.getLinkedRule();
         int[] rules = linkedRule.getRules();
-        IDecisionTable decisionTable = ((IDecisionTable)dti.getTraceObject());
+        IDecisionTable decisionTable = ((IDecisionTable) dti.getTraceObject());
 
         String[] ruleNames = new String[rules.length];
         for (int i = 0; i < ruleNames.length; i++) {
@@ -155,7 +156,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(DTConditionTraceObject dtc) {
         return String.format("Rule: %s, Condition: %s",
-                ((IDecisionTable)dtc.getTraceObject()).getRuleName(dtc.getRuleIndex()),
+            ((IDecisionTable) dtc.getTraceObject()).getRuleName(dtc.getRuleIndex()),
             dtc.getConditionName());
     }
 
@@ -183,27 +184,24 @@ public class TraceFormatter {
         return buf.toString();
     }
 
-    private static String getDisplayName(ATableTracerNode attn, int mode) {
+    private static String getDisplayName(ATableTracerNode attn) {
         StringBuilder buf = new StringBuilder(64);
         buf.append(attn.getPrefix()).append(' ');
+
         ExecutableRulesMethod method = attn.getTraceObject();
         IOpenClass type = method.getType();
-        buf.append(type.getDisplayName(mode)).append(' ');
-
-        if (!JavaOpenClass.isVoid(type)) {
-            if (attn.hasError()) {
-                // append error of any
-                //
-                buf.append("ERROR");
-            } else {
-                // append formatted result
-                //
-                buf.append(FormattersManager.format(attn.getResult()));
-            }
-            buf.append(' ');
-        }
-
+        buf.append(type.getDisplayName(INamedThing.SHORT)).append(' ');
         buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
+
+        if (attn.hasError()) {
+            // append error of any
+            buf.append(" = ERROR");
+        } else {
+            if (!JavaOpenClass.isVoid(type)) {
+                // append formatted result
+                buf.append(" = ").append(FormattersManager.format(attn.getResult()));
+            }
+        }
 
         return buf.toString();
     }
