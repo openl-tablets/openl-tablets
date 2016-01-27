@@ -64,7 +64,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     }
 
     public String getDisplayName(int mode) {
-        return MethodUtil.printMethod(this, mode, false);
+        return MethodUtil.printSignature(this, mode);
     }
 
     /*

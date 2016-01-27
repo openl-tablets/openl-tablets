@@ -39,7 +39,7 @@ public class MethodUtil {
         return buf;
     }
 
-    public static String printMethod(IOpenMethodHeader methodHeader, final int mode, boolean printType) {
+    public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         StringBuilder buf = new StringBuilder(100);
         IConvertor<IOpenClass, String> typeConverter = new IConvertor<IOpenClass, String>() {
             @Override public String convert(IOpenClass type) {
@@ -47,12 +47,12 @@ public class MethodUtil {
             }
         };
 
-        printMethod(methodHeader, printType, buf, typeConverter);
+        printMethod(methodHeader, false, buf, typeConverter);
 
         return buf.toString();
     }
 
-    public static void printMethod(IOpenMethodHeader methodHeader,
+    private static void printMethod(IOpenMethodHeader methodHeader,
             boolean printType,
             StringBuilder buf,
             IConvertor<IOpenClass, String> typeConverter) {

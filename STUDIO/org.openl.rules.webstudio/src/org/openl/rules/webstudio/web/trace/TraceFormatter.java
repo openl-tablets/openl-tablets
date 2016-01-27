@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -52,7 +51,7 @@ public class TraceFormatter {
             return getDisplayName((SpreadsheetTracerLeaf) obj);
         } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
             return "Overloaded method choice for method " + MethodUtil
-                .printMethod(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0, false);
+                .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
         } else if (obj instanceof DTRuleTracerLeaf) {
             return getDisplayName((DTRuleTracerLeaf) obj);
         } else if (obj instanceof ATableTracerNode) {

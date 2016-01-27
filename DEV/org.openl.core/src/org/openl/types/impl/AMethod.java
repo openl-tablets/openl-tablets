@@ -39,7 +39,7 @@ public abstract class AMethod implements IOpenMethod, IModuleInfo {
     }
 
     public String getDisplayName(int mode) {
-        return MethodUtil.printMethod(this, mode, false);
+        return MethodUtil.printSignature(this, mode);
     }
 
     public IOpenMethodHeader getHeader() {
