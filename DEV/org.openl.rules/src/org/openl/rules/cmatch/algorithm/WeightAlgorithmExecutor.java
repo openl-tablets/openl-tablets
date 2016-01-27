@@ -18,6 +18,7 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
         Integer sumScore = (Integer) super.invoke(target, params, env, columnMatch);
 
         wScore.setResult(sumScore);
+        Tracer.end();
         MatchNode totalScore = columnMatch.getTotalScore();
         IMatcher matcher = totalScore.getMatcher();
         // totalScore -> resultValue
@@ -25,9 +26,6 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
-                // score
-                Tracer.end();
-
                 Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
 
                 Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
@@ -36,8 +34,6 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
             }
         }
 
-        // score
-        Tracer.end();
         return NO_MATCH;
     }
 }
