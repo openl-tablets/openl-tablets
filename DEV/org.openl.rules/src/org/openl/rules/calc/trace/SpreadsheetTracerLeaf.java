@@ -9,7 +9,6 @@ import org.openl.rules.table.ATableTracerLeaf;
  * @author PUdalau
  */
 public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
-    private static final String SPREADSHEET_CELL_TYPE = "spreadsheetCell";
     private SpreadsheetTraceObject spreadsheetTraceObject;
     private SpreadsheetCell spreadsheetCell;
 
@@ -30,10 +29,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     @Override
     public String getUri() {
         return spreadsheetTraceObject.getTraceObject().getSyntaxNode().getUri();
-    }
-
-    public String getType() {
-        return SPREADSHEET_CELL_TYPE;
     }
 
 }
