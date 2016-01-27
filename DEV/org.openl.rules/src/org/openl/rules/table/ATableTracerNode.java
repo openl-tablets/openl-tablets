@@ -51,7 +51,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject {
     }
 
     public Object[] getParameters() {
-        return params.clone();
+        return params;
     }
 
     @Override
