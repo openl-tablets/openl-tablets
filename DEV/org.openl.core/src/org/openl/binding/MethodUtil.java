@@ -35,7 +35,8 @@ public class MethodUtil {
     }
 
     public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {
-        printMethod(method, true, buf, DEFAULT_TYPE_CONVERTER);
+        buf.append(DEFAULT_TYPE_CONVERTER.convert(method.getType())).append(' ');
+        printMethod(method, buf, DEFAULT_TYPE_CONVERTER);
         return buf;
     }
 
@@ -46,19 +47,14 @@ public class MethodUtil {
                 return type.getDisplayName(mode);
             }
         };
-
-        printMethod(methodHeader, false, buf, typeConverter);
+        printMethod(methodHeader, buf, typeConverter);
 
         return buf.toString();
     }
 
     private static void printMethod(IOpenMethodHeader methodHeader,
-            boolean printType,
             StringBuilder buf,
             IConvertor<IOpenClass, String> typeConverter) {
-        if (printType) {
-            buf.append(typeConverter.convert(methodHeader.getType())).append(' ');
-        }
 
         startPrintingMethodName(methodHeader.getName(), buf);
 
