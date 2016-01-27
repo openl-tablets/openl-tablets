@@ -13,7 +13,6 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.IConvertor;
@@ -35,7 +34,7 @@ public class MethodUtil {
         return type instanceof OpenClassDelegator ? type.getName() : type.getDisplayName(INamedThing.SHORT);
     }
 
-    public static StringBuilder printMethod(IOpenMethod method, StringBuilder buf) {
+    public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {
         printMethod(method, true, buf, DEFAULT_TYPE_CONVERTER);
         return buf;
     }
@@ -87,17 +86,6 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuilder printMethod(String name, IMethodSignature signature, StringBuilder buf) {
-        startPrintingMethodName(name, buf);
-        
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i == 0, buf);
-        }
-        
-        endPrintingMethodName(buf);
-        return buf;
-    }
-
     public static String printMethod(String name, IOpenClass[] params) {
         return printMethod(name, params, new StringBuilder()).toString();
     }
@@ -112,7 +100,7 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuilder printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode, StringBuilder buf) {
+    public static StringBuilder printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode, StringBuilder buf) {
         startPrintingMethodName(method.getName(), buf);
 
         IMethodSignature signature = method.getSignature();
@@ -125,7 +113,7 @@ public class MethodUtil {
         return buf;
     }
     
-    public static String printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode) {
+    public static String printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode) {
         return printMethodWithParameterValues(method, params, mode, new StringBuilder()).toString();
     }
     
