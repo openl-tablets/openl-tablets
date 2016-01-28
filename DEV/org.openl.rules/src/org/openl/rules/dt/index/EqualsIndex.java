@@ -1,6 +1,5 @@
 package org.openl.rules.dt.index;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -31,7 +30,7 @@ public class EqualsIndex extends ARuleIndex {
     }
 
     @Override
-    public Iterator<DecisionTableRuleNode> nodes() {
-        return valueNodes.values().iterator();
+    public Iterable<DecisionTableRuleNode> nodes() {
+        return valueNodes.values();
     }
 }

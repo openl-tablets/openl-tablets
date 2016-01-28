@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -93,9 +92,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 			return;
 		}
 
-		Iterator<DecisionTableRuleNode> iter = index.nodes();
-		while (iter.hasNext()) {
-			DecisionTableRuleNode node = iter.next();
+		for (DecisionTableRuleNode node: index.nodes()){
 			indexNode(node, condN, info);
 		}
 		indexNode(index.getEmptyOrFormulaNodes(), condN, info);

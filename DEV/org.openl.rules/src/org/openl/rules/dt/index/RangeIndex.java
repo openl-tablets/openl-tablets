@@ -1,11 +1,9 @@
 package org.openl.rules.dt.index;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
-import org.openl.util.OpenIterator;
 
 public class RangeIndex extends ARuleIndex {
 
@@ -46,7 +44,7 @@ public class RangeIndex extends ARuleIndex {
 	/**
 	 * Converts value for binary search in index(Because different subclasses of
 	 * {@link Number} are not comparable).
-	 * 
+	 *
 	 * @param value
 	 *            Value to convert
 	 * @return New value that is adapted for binary search.
@@ -64,13 +62,13 @@ public class RangeIndex extends ARuleIndex {
 	}
 
 	@Override
-	public Iterator<DecisionTableRuleNode> nodes() {
-		return OpenIterator.fromArray(rules);
+	public Iterable<DecisionTableRuleNode> nodes() {
+		return Arrays.asList(rules);
 	}
 
 	/**
 	 * Used for tests
-	 * 
+	 *
 	 * @param node
 	 * @return
 	 */
