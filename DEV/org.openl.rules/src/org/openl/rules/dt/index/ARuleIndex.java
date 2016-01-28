@@ -36,7 +36,7 @@ public abstract class ARuleIndex {
         return node == null ? emptyOrFormulaNodes : node;
     }
 
-    public abstract DecisionTableRuleNode findNodeInIndex(Object value);
+    abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
     public abstract Iterable<DecisionTableRuleNode> nodes();
 

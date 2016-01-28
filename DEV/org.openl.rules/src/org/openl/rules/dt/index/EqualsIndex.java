@@ -22,7 +22,7 @@ public class EqualsIndex extends ARuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNodeInIndex(Object value) {
+    DecisionTableRuleNode findNodeInIndex(Object value) {
         if (value != null) {
             return valueNodes.get(value);
         }

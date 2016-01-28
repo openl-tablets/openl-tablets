@@ -24,7 +24,7 @@ public class RangeIndex extends ARuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNodeInIndex(Object value) {
+    DecisionTableRuleNode findNodeInIndex(Object value) {
 
         int idx = Arrays.binarySearch(index, convertValueForSearch(value));
 
