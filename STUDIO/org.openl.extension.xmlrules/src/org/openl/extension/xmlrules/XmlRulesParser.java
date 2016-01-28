@@ -3,10 +3,7 @@ package org.openl.extension.xmlrules;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1413,7 +1410,10 @@ public class XmlRulesParser extends BaseParser {
     }
 
     protected List<String> getImports() {
-        return Collections.singletonList("org.openl.rules.enumeration");
+        return Arrays.asList(
+                "org.openl.rules.enumeration",
+                "org.openl.extension.xmlrules.java.api"
+        );
     }
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,

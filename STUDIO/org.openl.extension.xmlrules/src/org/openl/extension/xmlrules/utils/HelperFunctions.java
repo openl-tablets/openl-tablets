@@ -2,6 +2,8 @@ package org.openl.extension.xmlrules.utils;
 
 import java.lang.reflect.Array;
 
+import org.openl.extension.xmlrules.java.api.FilteredValue;
+
 public class HelperFunctions {
     public static <T> T[][] transpose(T[][] arr) {
         if (arr.length == 0) {
@@ -21,6 +23,10 @@ public class HelperFunctions {
     }
 
     public static Double toDouble(Object x) {
+        if (x instanceof FilteredValue) {
+            x = ((FilteredValue) x).getValue();
+        }
+
         if (x == null) {
             return null;
         }

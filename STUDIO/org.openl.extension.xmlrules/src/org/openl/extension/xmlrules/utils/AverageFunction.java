@@ -13,6 +13,8 @@ public class AverageFunction {
                     sum += ((Number) o).doubleValue();
                 } else if (o instanceof String) {
                     sum += Double.valueOf((String) o);
+                } else if (o instanceof Object[]) {
+                    sum += average((Object[]) o);
                 } else {
                     throw new IllegalArgumentException("Unsupported type '" + o.getClass().getCanonicalName() + "'");
                 }

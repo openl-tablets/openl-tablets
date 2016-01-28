@@ -56,6 +56,40 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                         ProjectData.setCurrentInstance(projectData);
                     }
                     try {
+                        for (int p = 0, paramsLength = params.length; p < paramsLength; p++) {
+                            Object param = params[p];
+                            if (param != null && param.getClass().isArray()) {
+                                if (((Object[]) param).getClass().getComponentType().isArray()) {
+                                    Object[][] array = (Object[][]) param;
+                                    Object[][] result;
+                                    result = new Object[array.length][array.length > 0 ? array[0].length : 0];
+                                    for (int i = 0; i < array.length; i++) {
+                                        Object[] row = array[i];
+                                        for (int j = 0; j < row.length; j++) {
+                                            Object[] newParams = new Object[params.length];
+                                            System.arraycopy(params, 0, newParams, 0, params.length);
+                                            newParams[p] = row[j];
+
+                                            result[i][j] = super.invoke(target, newParams, env);
+                                        }
+                                    }
+                                    return result;
+                                } else {
+                                    Object[] array = (Object[]) param;
+                                    Object[] result;
+                                    result = new Object[array.length];
+                                    for (int i = 0; i < array.length; i++) {
+                                        Object[] newParams = new Object[params.length];
+                                        System.arraycopy(params, 0, newParams, 0, params.length);
+                                        newParams[p] = array[i];
+
+                                        result[i] = super.invoke(target, newParams, env);
+                                    }
+                                    return result;
+                                }
+                            }
+                        }
+
                         return super.invoke(target, params, env);
                     } finally {
                         if (topLevel) {
