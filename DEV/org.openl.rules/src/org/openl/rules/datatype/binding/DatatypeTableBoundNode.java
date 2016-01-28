@@ -253,7 +253,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }
-                if (value != null) {
+                if (value != null && !(fieldDescription.hasEmptyKeyWord() && fieldDescription.getType().isArray())) {
                     // Validate not null default value
                     // The null value is allowed for alias types
                     try {

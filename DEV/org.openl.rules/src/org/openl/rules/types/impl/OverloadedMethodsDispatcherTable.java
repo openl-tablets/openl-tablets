@@ -3,7 +3,6 @@ package org.openl.rules.types.impl;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
@@ -49,13 +48,5 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
             }
         }
         return arguments;
-    }
-
-    public TableSyntaxNode getDispatcherTable() {
-        if (getDispatchingOpenMethod() != null) {
-            return (TableSyntaxNode) getDispatchingOpenMethod().getInfo().getSyntaxNode();
-        } else {
-            return super.getDispatcherTable();
-        }
     }
 }

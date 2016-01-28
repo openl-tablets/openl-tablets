@@ -271,7 +271,7 @@ public class Table implements ITable {
         }
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                    errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
+                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
         }
     }
 
@@ -287,7 +287,9 @@ public class Table implements ITable {
         }
     }
 
-    protected void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
+    protected void processRow(OpenlToolAdaptor openlAdapter,
+            int startRow,
+            int rowNum) throws OpenLCompilationException {
 
         boolean constructor = isConstructor();
         Object literal = null;
@@ -330,11 +332,11 @@ public class Table implements ITable {
                     logicalTable.getSubtable(columnNum, rowNum, 1, 1),
                     openlAdapter);
             } else {
-
                 try {
-                    columnDescriptor.populateLiteral(literal,
-                        logicalTable.getSubtable(columnNum, rowNum, 1, 1),
-                        openlAdapter);
+                    ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
+                    if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
+                        columnDescriptor.populateLiteral(literal, lTable, openlAdapter);
+                    }
                 } catch (SyntaxNodeException ex) {
                     tableSyntaxNode.addError(ex);
                     BindHelper.processError(ex);

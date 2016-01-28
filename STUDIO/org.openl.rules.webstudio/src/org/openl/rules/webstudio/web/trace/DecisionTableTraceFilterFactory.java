@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.webstudio.web.trace;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,6 @@ import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.CellStyleGridFilter;
@@ -17,13 +16,12 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.FontGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
     private static final int SELECTED_ITEM_INCREMENT_SIZE = 1;
 
-    private final ITableTracerObject selectedTraceObject;
+    private final ITracerObject selectedTraceObject;
     private final IColorFilter defaultColorFilter;
 
     private List<IGridRegion> successfulChecks = new ArrayList<IGridRegion>();
@@ -34,13 +32,13 @@ public class DecisionTableTraceFilterFactory {
     private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> indexedRegions = new ArrayList<IGridRegion>();
 
-    public DecisionTableTraceFilterFactory(ITableTracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
+    public DecisionTableTraceFilterFactory(ITracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
         this.selectedTraceObject = selectedTraceObject;
         this.defaultColorFilter = defaultColorFilter;
     }
 
     public IGridFilter[] createFilters() {
-        ITableTracerObject rootTraceObject = getRoot();
+        ITracerObject rootTraceObject = getRoot();
 
         fillRegions(rootTraceObject);
 
@@ -49,20 +47,19 @@ public class DecisionTableTraceFilterFactory {
         return filters.toArray(new IGridFilter[filters.size()]);
     }
 
-    private ITableTracerObject getRoot() {
-        ITableTracerObject rootTraceObject = selectedTraceObject;
+    private ITracerObject getRoot() {
+        ITracerObject rootTraceObject = selectedTraceObject;
         while (rootTraceObject.getParent() != null && rootTraceObject.getParent() instanceof DecisionTableTraceObject) {
-            rootTraceObject = (ITableTracerObject) rootTraceObject.getParent();
+            rootTraceObject = rootTraceObject.getParent();
         }
         return rootTraceObject;
     }
 
-    private void fillRegions(ITableTracerObject rootTraceObject) {
-        Iterable<? extends ITreeElement<ITracerObject>> children = rootTraceObject.getChildren();
-        for (ITreeElement<ITracerObject> item : children) {
+    private void fillRegions(ITracerObject rootTraceObject) {
+        Iterable<ITracerObject> children = rootTraceObject.getChildren();
+        for (ITracerObject child : children) {
             // TODO: Remove class casting
-            ITableTracerObject child = (ITableTracerObject) item;
-            List<IGridRegion> regions = child.getGridRegions();
+            List<IGridRegion> regions = RegionsExtractor.getGridRegions(child);
 
             if (child instanceof DTConditionTraceObject) {
             	DTConditionTraceObject conditionTrace = (DTConditionTraceObject) child;
@@ -97,7 +94,7 @@ public class DecisionTableTraceFilterFactory {
             }
         }
 
-        List<IGridRegion> selectedRegions = selectedTraceObject.getGridRegions();
+        List<IGridRegion> selectedRegions = RegionsExtractor.getGridRegions(selectedTraceObject);
         if (selectedRegions != null) {
             for (IGridRegion region : selectedRegions) {
                 if (successfulChecks.contains(region) || resultRegions.contains(region)) {

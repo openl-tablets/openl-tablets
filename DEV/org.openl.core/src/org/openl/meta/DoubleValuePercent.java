@@ -9,10 +9,6 @@ public class DoubleValuePercent extends DoubleValue {
 
     static public final String PERCENT_FORMAT = "#.####%";
 
-    public DoubleValuePercent() {
-        setFormat(PERCENT_FORMAT);
-    }
-
 	public DoubleValuePercent(double d) {
         super(d);
         setFormat(PERCENT_FORMAT);

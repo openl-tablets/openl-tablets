@@ -33,7 +33,7 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -588,7 +588,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
 	@Override
 	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			IDecisionTableTraceObject traceObject) {
+			DecisionTableTraceObject traceObject) {
 		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, conditionsStack, traceObject, info);
 	}
 

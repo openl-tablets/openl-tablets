@@ -1,11 +1,7 @@
 package org.openl.rules.dtx.trace;
 
-import java.util.List;
-
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.table.ATableTracerLeaf;
-import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 
@@ -17,42 +13,37 @@ import org.openl.rules.table.ILogicalTable;
 public class DTRuleTracerLeaf extends ATableTracerLeaf {
 
     private int ruleIndex;
-    private IDecisionTableTraceObject decisionTableTraceObject;
+    private DecisionTableTraceObject decisionTableTraceObject;
 
-    public DTRuleTracerLeaf(IDecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
+    public DTRuleTracerLeaf(DecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
         super("rule");
         this.ruleIndex = ruleIdx;
         this.decisionTableTraceObject = decisionTableTraceObject;
-    }
-
-    public String getDisplayName(int mode) {
-        return String.format("Returned rule: %s", getParentTraceObject().getDecisionTable().getRuleName(ruleIndex));
     }
 
     public IGridRegion getGridRegion() {
         return getRuleTable().getSource().getRegion();
     }
 
-    public IDecisionTableTraceObject getParentTraceObject() {
+    public DecisionTableTraceObject getParentTraceObject() {
         return decisionTableTraceObject;
     }
 
-    public ILogicalTable getRuleTable() {
-        return getParentTraceObject().getDecisionTable().getRuleTable(ruleIndex);
+    public int getRuleIndex() {
+        return ruleIndex;
     }
 
-    public TableSyntaxNode getTableSyntaxNode() {
-        return getParentTraceObject().getDecisionTable().getSyntaxNode();
+    public ILogicalTable getRuleTable() {
+        return getDecisionTable().getRuleTable(ruleIndex);
     }
 
     @Override
     public String getUri() {
-        return getRuleTable().getSource().getUri();
+        return getDecisionTable().getSyntaxNode().getUri();
     }
 
-    public List<IGridRegion> getGridRegions() {
-        ILogicalTable table = getRuleTable();
-        return GridTableUtils.getGridRegions(table);
+    private IDecisionTable getDecisionTable() {
+        return (IDecisionTable) getParentTraceObject().getTraceObject();
     }
 
     /**

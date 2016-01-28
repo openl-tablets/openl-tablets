@@ -260,7 +260,7 @@ public class DecisionTableHelper {
                 vColumnCounter++;
                 // write simple condition
                 //
-                if (i == 0 && numberOfHcondition == 0){
+                if (i == 0 && numberOfHcondition == 0 && numberOfConditions < 2){
                     grid.setCellValue(column, 0, (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + (i + 1)).intern());
                 }else{
                     grid.setCellValue(column, 0, (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern());

@@ -55,6 +55,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(char.class, new CharInitializationWriter());
         initializationWriters.put(Character.class, new CharInitializationWriter());
         initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
+        initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
+        initializationWriters.put(EmptyArrayMarkerClass.class, new DefaultEmptyArrayConstructorInitWriter());
     }
 
     public SimpleBeanJavaGenerator(Class<?> datatypeClass) {
@@ -265,6 +267,9 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             if ("_DEFAULT_".equals(defaultFieldValue)) {
                 writer = initializationWriters.get(MarkerClass.class);
             }
+            if ("_EMPTY_".equals(defaultFieldValue) && fieldValueClass.isArray()){
+                writer = initializationWriters.get(EmptyArrayMarkerClass.class);
+            }
         }
         return writer;
     }
@@ -282,4 +287,5 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     }
 
     private final class MarkerClass{}
+    private final class EmptyArrayMarkerClass{};
 }

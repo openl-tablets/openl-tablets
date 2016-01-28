@@ -13,6 +13,7 @@ public class StringUtils {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
+    public static final String EMPTY = "";
 
     /**
      * Convert the specified CharSequence to an array of bytes, encoded using

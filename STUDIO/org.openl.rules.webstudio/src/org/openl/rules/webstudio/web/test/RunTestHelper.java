@@ -10,9 +10,11 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
+import org.openl.vm.trace.ITracerObject;
 
 @ManagedBean
 @SessionScoped
@@ -22,6 +24,21 @@ public final class RunTestHelper {
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
+
+    public ITracerObject getTraceObject() {
+        catchParams();
+        TestSuite testSuite = getTestSuite();
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        return model.traceElement(testSuite);
+    }
+
+    public void initTrace() {
+        ITracerObject root = getTraceObject();
+
+        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
+        traceHelper.cacheTraceTree(root);// Register
+    }
+
 
     public void catchParams() {
         this.params = ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).getParams();

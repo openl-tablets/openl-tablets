@@ -40,7 +40,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     // <<< INSERT Functions >>>
-    private float value;
+    private final float value;
 
 
     /**
@@ -628,13 +628,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     */
     public float getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(float value) {
-        this.value = value;
     }
 
     //Equals

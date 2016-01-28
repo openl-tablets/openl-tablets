@@ -74,17 +74,11 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
             }
         }
         if (compiledOpenClass != null) {
-            if (log.isDebugEnabled()){
-                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
-            }
             return compiledOpenClass;
         }
         synchronized (CompiledOpenClassCache.getInstance()) {
             compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {
-                if (log.isDebugEnabled()){
-                    log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was returned from cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
-                }
                 return compiledOpenClass;
             }
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();

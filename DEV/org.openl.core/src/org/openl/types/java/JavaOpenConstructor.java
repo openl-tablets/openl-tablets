@@ -40,7 +40,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     }
 
     public String getDisplayName(int mode) {
-        return MethodUtil.printMethod(this, mode, false);
+        return MethodUtil.printSignature(this, mode);
     }
 
     /*

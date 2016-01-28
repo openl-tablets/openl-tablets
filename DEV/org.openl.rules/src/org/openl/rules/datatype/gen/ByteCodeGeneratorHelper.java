@@ -11,7 +11,18 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
-import org.openl.rules.datatype.gen.types.writers.*;
+import org.openl.rules.datatype.gen.types.writers.BooleanTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.CharTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.DateTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.DefaultConstructorTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.DefaultEmptyArrayConstructorTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.DoubleTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.FloatTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.LongTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.NumericTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.ObjectTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.StringTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.TypeWriter;
 import org.openl.types.IOpenField;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -65,7 +76,10 @@ public class ByteCodeGeneratorHelper {
     
     public static TypeWriter getTypeWriter(FieldDescription field) {
         if (field.hasDefaultKeyWord()) {
-            return new DefaultConstructorTypeWriter();
+           return new DefaultConstructorTypeWriter();
+        }
+        if (field.hasEmptyKeyWord() && field.getType().isArray()){
+            return new DefaultEmptyArrayConstructorTypeWriter();  
         }
         Class<?> clazz = field.getType();
         return getTypeWriter(clazz);

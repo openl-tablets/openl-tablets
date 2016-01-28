@@ -21,16 +21,13 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.ui.DecisionTableTraceFilterFactory;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.vm.trace.ITracerObject;
@@ -43,11 +40,10 @@ import org.openl.vm.trace.ITracerObject;
 @RequestScoped
 public class ShowTraceTableBean {
 
-    private ITableTracerObject tto;
+    private ITracerObject tto;
 
     public ShowTraceTableBean() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TraceHelper traceHelper = studio.getTraceHelper();
+        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
 
         String traceElementIdParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         int traceElementId = -100;
@@ -61,7 +57,8 @@ public class ShowTraceTableBean {
     }
 
     public IOpenLTable getTraceTable() {
-        TableSyntaxNode tsn = tto.getTableSyntaxNode();
+        String uri = tto.getUri();
+        TableSyntaxNode tsn = WebStudioUtils.getProjectModel().findNode(uri);
         return new TableSyntaxNodeAdapter(tsn);
     }
 
@@ -74,7 +71,7 @@ public class ShowTraceTableBean {
 
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        List<IGridRegion> r = tto.getGridRegions();
+        List<IGridRegion> r = RegionsExtractor.getGridRegions(tto);
         if (CollectionUtils.isNotEmpty(r)) {
             regions.addAll(r);
         } else {
@@ -86,7 +83,7 @@ public class ShowTraceTableBean {
 
         RegionGridSelector gridSelector = new RegionGridSelector(aRegions, true);
         ColorGridFilter colorGridFilter = new ColorGridFilter(gridSelector, defaultColorFilter);
-        return new IGridFilter[]{colorGridFilter};
+        return new IGridFilter[] { colorGridFilter };
     }
 
     public ParameterWithValueDeclaration[] getInputParameters() {
@@ -106,7 +103,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
             paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                    parameters[i]);
+                parameters[i]);
         }
         return paramDescriptions;
     }
@@ -146,7 +143,7 @@ public class ShowTraceTableBean {
 
     private void fillRegions(ITracerObject tto, List<IGridRegion> regions) {
         for (ITracerObject child : tto.getChildren()) {
-            List<IGridRegion> r = ((ITableTracerObject)child).getGridRegions();
+            List<IGridRegion> r = RegionsExtractor.getGridRegions(child);
             if (CollectionUtils.isNotEmpty(r)) {
                 regions.addAll(r);
             } else if (!child.isLeaf()) {
@@ -154,4 +151,5 @@ public class ShowTraceTableBean {
             }
         }
     }
+
 }

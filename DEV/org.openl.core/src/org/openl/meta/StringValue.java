@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     private final Logger log = LoggerFactory.getLogger(StringValue.class);
     private ValueMetaInfo metaInfo;
-    private String value;
+    private final String value;
     
     public static class StringValueAdapter extends XmlAdapter<String,StringValue> {
         public StringValue unmarshal(String val) throws Exception {
@@ -144,15 +144,6 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
      */
     public void setMetaInfo(ValueMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
-    }
-
-    /**
-     * Sets a value for the current StringValue variable
-     *
-     * @param value
-     */
-    public void setValue(String value) {
-        this.value = value;
     }
 
     /**

@@ -3,18 +3,18 @@ package org.openl.rules.dt.index;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.trace.TraceStack;
 
 public class ComparableIndexTraceDecorator<T> implements Comparable<T> {
     protected final Comparable<T> delegate;
     protected final DecisionTableRuleNode linkedRule;
     protected final ICondition condition;
-    protected final IDecisionTableTraceObject baseTraceObject;
+    protected final DecisionTableTraceObject baseTraceObject;
     protected final TraceStack traceStack;
 
     public ComparableIndexTraceDecorator(Comparable<T> delegate, DecisionTableRuleNode linkedRule,
-            ICondition condition, IDecisionTableTraceObject baseTraceObject, TraceStack traceStack) {
+            ICondition condition, DecisionTableTraceObject baseTraceObject, TraceStack traceStack) {
         this.delegate = delegate;
         this.linkedRule = linkedRule;
         this.condition = condition;

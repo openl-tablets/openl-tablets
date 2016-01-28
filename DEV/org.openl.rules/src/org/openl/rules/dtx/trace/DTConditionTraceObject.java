@@ -1,37 +1,39 @@
 package org.openl.rules.dtx.trace;
 
-import java.util.List;
-
 import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.table.GridTableUtils;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ATableTracerNode;
 
-public class DTConditionTraceObject extends DecisionTableTraceObject {
-    private static final String TRACE_OBJECT_TYPE = "decisionTableCondition";
-    private final IDecisionTableTraceObject baseTraceObject;
+public class DTConditionTraceObject extends ATableTracerNode {
+    private final DecisionTableTraceObject baseTraceObject;
     protected final IBaseCondition condition;
     protected boolean successful;
     protected final int ruleIndex;
+    private String conditionName;
 
-    public DTConditionTraceObject(IDecisionTableTraceObject baseTraceObject, IBaseCondition condition, int ruleIndex,
-                                  boolean successful) {
-        // Avoid cloning parameters for every instance - instead override the method getParameters()
-        super(baseTraceObject.getDecisionTable(), new Object[0]);
+    public DTConditionTraceObject(DecisionTableTraceObject baseTraceObject,
+            IBaseCondition condition,
+            int ruleIndex,
+            boolean successful) {
+        // Avoid cloning parameters for every instance - instead override the
+        // method getParameters()
+        super("decisionTableCondition", "DT", baseTraceObject.getTraceObject(), new Object[0]);
         this.baseTraceObject = baseTraceObject;
         this.condition = condition;
         this.successful = successful;
         this.ruleIndex = ruleIndex;
+        this.conditionName = condition.getName();
     }
 
-    @Override
-    public String getDisplayName(int mode) {
-        return String.format("Rule: %s, Condition: %s", getDecisionTable().getRuleName(ruleIndex), condition.getName());
+    public String getConditionName() {
+        return conditionName;
     }
 
-    @Override
-    public String getType() {
-        return TRACE_OBJECT_TYPE;
+    public int getRuleIndex() {
+        return ruleIndex;
+    }
+
+    public IBaseCondition getCondition() {
+        return condition;
     }
 
     public void setSuccessful(boolean successful) {
@@ -50,11 +52,5 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
     @Override
     public Object getResult() {
         return baseTraceObject.getResult();
-    }
-
-    @Override
-    public List<IGridRegion> getGridRegions() {
-        ILogicalTable table = condition.getValueCell(ruleIndex);
-        return GridTableUtils.getGridRegions(table);
     }
 }

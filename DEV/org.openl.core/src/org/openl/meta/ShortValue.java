@@ -39,7 +39,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     // <<< INSERT Functions >>>
-    private short value;
+    private final short value;
 
 
     /**
@@ -391,8 +391,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * @param value1 org.openl.meta.ShortValue
-     * @param value2 org.openl.meta.ShortValue
+     * @param number org.openl.meta.ShortValue
+     * @param divisor org.openl.meta.ShortValue
      * @return LongValue the result of division  operation
      */
     public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
@@ -599,13 +599,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     */
     public short getValue() {
         return value;
-    }
-
-    /**
-    * Sets the value of the current variable
-    */
-    public void setValue(short value) {
-        this.value = value;
     }
 
     //Equals

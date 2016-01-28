@@ -8,17 +8,17 @@ import java.util.TreeMap;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.dtx.trace.IDecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.trace.TraceStack;
 
 public class TraceableEqualsIndex extends EqualsIndex {
     private final ICondition condition;
-    private final IDecisionTableTraceObject baseTraceObject;
+    private final DecisionTableTraceObject baseTraceObject;
     private final TraceStack traceStack;
 
     public TraceableEqualsIndex(EqualsIndex delegate,
                                 ICondition condition,
-                                IDecisionTableTraceObject baseTraceObject,
+            DecisionTableTraceObject baseTraceObject,
                                 TraceStack traceStack) {
         super(delegate.emptyOrFormulaNodes);
         this.condition = condition;

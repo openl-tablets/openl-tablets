@@ -10,10 +10,11 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.IConvertor;
 import org.openl.util.print.Formatter;
 
@@ -23,30 +24,37 @@ import org.openl.util.print.Formatter;
  */
 public class MethodUtil {
 
-    public static StringBuilder printMethod(IOpenMethod method, StringBuilder buf) {
-        return printMethod(method.getName(), method.getSignature(), buf);
+    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = new IConvertor<IOpenClass, String>() {
+        @Override public String convert(IOpenClass type) {
+            return printType(type);
+        }
+    };
+
+    public static String printType(IOpenClass type) {
+        return type instanceof OpenClassDelegator ? type.getName() : type.getDisplayName(INamedThing.SHORT);
     }
 
-    public static String printMethod(IOpenMethodHeader methodHeader, final int mode, boolean printType) {
+    public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {
+        buf.append(DEFAULT_TYPE_CONVERTER.convert(method.getType())).append(' ');
+        printMethod(method, buf, DEFAULT_TYPE_CONVERTER);
+        return buf;
+    }
+
+    public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         StringBuilder buf = new StringBuilder(100);
         IConvertor<IOpenClass, String> typeConverter = new IConvertor<IOpenClass, String>() {
             @Override public String convert(IOpenClass type) {
                 return type.getDisplayName(mode);
             }
         };
-
-        printMethod(methodHeader, printType, buf, typeConverter);
+        printMethod(methodHeader, buf, typeConverter);
 
         return buf.toString();
     }
 
-    public static void printMethod(IOpenMethodHeader methodHeader,
-            boolean printType,
+    private static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
             IConvertor<IOpenClass, String> typeConverter) {
-        if (printType) {
-            buf.append(typeConverter.convert(methodHeader.getType())).append(' ');
-        }
 
         startPrintingMethodName(methodHeader.getName(), buf);
 
@@ -74,17 +82,6 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuilder printMethod(String name, IMethodSignature signature, StringBuilder buf) {
-        startPrintingMethodName(name, buf);
-        
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            printParameterInfo(signature.getParameterType(i).getName(), signature.getParameterName(i), i == 0, buf);
-        }
-        
-        endPrintingMethodName(buf);
-        return buf;
-    }
-
     public static String printMethod(String name, IOpenClass[] params) {
         return printMethod(name, params, new StringBuilder()).toString();
     }
@@ -99,7 +96,7 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuilder printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode, StringBuilder buf) {
+    public static StringBuilder printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode, StringBuilder buf) {
         startPrintingMethodName(method.getName(), buf);
 
         IMethodSignature signature = method.getSignature();
@@ -112,7 +109,7 @@ public class MethodUtil {
         return buf;
     }
     
-    public static String printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode) {
+    public static String printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode) {
         return printMethodWithParameterValues(method, params, mode, new StringBuilder()).toString();
     }
     

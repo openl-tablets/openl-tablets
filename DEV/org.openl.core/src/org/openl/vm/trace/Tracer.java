@@ -72,10 +72,6 @@ public final class Tracer implements TraceStack {
 
         root = new SimpleTracerObject("traceroot") {
 
-            public String getDisplayName(int mode) {
-                return "Trace";
-            }
-
             @Override
             public String getUri() {
                 return null;

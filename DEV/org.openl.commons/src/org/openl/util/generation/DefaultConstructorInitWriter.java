@@ -9,6 +9,6 @@ public class DefaultConstructorInitWriter implements TypeInitializationWriter {
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
-        return String.format("new %s()", value .getClass().getCanonicalName());
+        return String.format("new %s()", value.getClass().getCanonicalName());
     }
 }
