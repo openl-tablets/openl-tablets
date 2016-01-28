@@ -16,17 +16,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  */
 public abstract class ARuleIndex {
 
-//	boolean hasMetaInfo = false;
-//
-//    public boolean isHasMetaInfo() {
-//		return hasMetaInfo;
-//	}
-//
-//	public void setHasMetaInfo(boolean hasMetaInfo) {
-//		this.hasMetaInfo = hasMetaInfo;
-//	}
-
-	protected DecisionTableRuleNode emptyOrFormulaNodes;
+    protected DecisionTableRuleNode emptyOrFormulaNodes;
 
     public ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
@@ -50,37 +40,35 @@ public abstract class ARuleIndex {
 
     public abstract Iterable<DecisionTableRuleNode> nodes();
 
-	public int[] collectRules() {
-		Set<Integer> set = new HashSet<Integer>();
+    public int[] collectRules() {
+        Set<Integer> set = new HashSet<Integer>();
 
-        for (DecisionTableRuleNode node:nodes()) {
-			int[] rules = node.getRules();
-			for (int i = 0; i < rules.length; i++) {
-				set.add(rules[i]);
-			}
-		}
+        for (DecisionTableRuleNode node : nodes()) {
+            int[] rules = node.getRules();
+            for (int i = 0; i < rules.length; i++) {
+                set.add(rules[i]);
+            }
+        }
 
-		if (emptyOrFormulaNodes != null)
-		{
-			int[] rules = emptyOrFormulaNodes.getRules();
-			for (int i = 0; i < rules.length; i++) {
-				set.add(rules[i]);
-			}
+        if (emptyOrFormulaNodes != null) {
+            int[] rules = emptyOrFormulaNodes.getRules();
+            for (int i = 0; i < rules.length; i++) {
+                set.add(rules[i]);
+            }
 
-		}
+        }
 
+        int[] res = new int[set.size()];
 
-		int[] res = new int[ set.size()];
+        Iterator<Integer> it = set.iterator();
 
-		Iterator<Integer> it = set.iterator();
+        for (int i = 0; i < res.length && it.hasNext(); i++) {
+            res[i] = it.next();
+        }
 
-		for (int i = 0; i < res.length && it.hasNext(); i++) {
-			res[i] = it.next();
-		}
+        Arrays.sort(res);
 
-		Arrays.sort(res);
-
-		return res;
-	}
+        return res;
+    }
 
 }
