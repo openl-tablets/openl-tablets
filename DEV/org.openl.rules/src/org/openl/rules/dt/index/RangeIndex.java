@@ -65,20 +65,4 @@ public class RangeIndex extends ARuleIndex {
         return Arrays.asList(rules);
     }
 
-    /**
-     * Used for tests
-     *
-     * @param node
-     * @return
-     */
-    public int getNodeIndex(DecisionTableRuleNode node) {
-        for (int i = 0; i < rules.length; i++) {
-            // check the node by the link
-            if (rules[i] == node) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
 }
