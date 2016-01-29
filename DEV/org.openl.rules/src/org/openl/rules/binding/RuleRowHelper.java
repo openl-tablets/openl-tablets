@@ -1,10 +1,7 @@
 package org.openl.rules.binding;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -85,11 +82,6 @@ public class RuleRowHelper {
      * value. Split it by {@link #ARRAY_ELEMENTS_SEPARATOR}, and process every
      * token as single parameter. Returns array of parameters.
      * 
-     * @param paramType
-     * @param paramName
-     * @param ruleName
-     * @param cell
-     * @param openlAdaptor
      * @return Array of parameters.
      * @throws SyntaxNodeException
      */
@@ -161,9 +153,7 @@ public class RuleRowHelper {
             return baseType.getAggregateInfo().getIndexedAggregateType(baseType, dims);
         }
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
-
-        return type;
+        return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
     }
 
     public static void loadParams(Object[] array,
@@ -416,7 +406,8 @@ public class RuleRowHelper {
         if (metaInfo != null) {
             SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                     nodeType);
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false,
+                    Collections.singletonList(nodeUsage));
             ICell cell = logicalCell.getSource().getCell(0, 0);
             cell.setMetaInfo(meta);
         }

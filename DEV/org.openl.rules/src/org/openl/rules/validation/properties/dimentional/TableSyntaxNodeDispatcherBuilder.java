@@ -187,9 +187,9 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
         int numberOfAllLocalParameters = 0;
-        for (int i = 0; i < conditions.size(); i++) {
-            if (conditions.get(i).getNumberOfLocalParameters() > 0) {
-                numberOfAllLocalParameters += conditions.get(i).getNumberOfLocalParameters();
+        for (IDecisionTableColumn condition : conditions) {
+            if (condition.getNumberOfLocalParameters() > 0) {
+                numberOfAllLocalParameters += condition.getNumberOfLocalParameters();
             }
         }
         return numberOfAllLocalParameters;
