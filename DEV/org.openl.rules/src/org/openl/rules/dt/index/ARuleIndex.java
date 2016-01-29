@@ -15,18 +15,8 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  *
  */
 public abstract class ARuleIndex {
-	
-//	boolean hasMetaInfo = false;
-//
-//    public boolean isHasMetaInfo() {
-//		return hasMetaInfo;
-//	}
-//
-//	public void setHasMetaInfo(boolean hasMetaInfo) {
-//		this.hasMetaInfo = hasMetaInfo;
-//	}
 
-	protected DecisionTableRuleNode emptyOrFormulaNodes;
+    protected DecisionTableRuleNode emptyOrFormulaNodes;
 
     public ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
@@ -46,43 +36,39 @@ public abstract class ARuleIndex {
         return node == null ? emptyOrFormulaNodes : node;
     }
 
-    public abstract DecisionTableRuleNode findNodeInIndex(Object value);
+    abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
-    public abstract Iterator<DecisionTableRuleNode> nodes();
+    public abstract Iterable<? extends DecisionTableRuleNode> nodes();
 
-	public int[] collectRules() {
-		Set<Integer> set = new HashSet<Integer>();
+    public int[] collectRules() {
+        Set<Integer> set = new HashSet<Integer>();
 
-		for (Iterator<DecisionTableRuleNode> iterator = nodes(); iterator.hasNext();) {
-			DecisionTableRuleNode node = (DecisionTableRuleNode) iterator.next();
-			
-			int[] rules = node.getRules();
-			for (int i = 0; i < rules.length; i++) {
-				set.add(rules[i]);
-			}
-		} 
-	
-		if (emptyOrFormulaNodes != null)
-		{
-			int[] rules = emptyOrFormulaNodes.getRules();
-			for (int i = 0; i < rules.length; i++) {
-				set.add(rules[i]);
-			}
-			
-		}	
-		
-		
-		int[] res = new int[ set.size()];
-		
-		Iterator<Integer> it = set.iterator();
-		
-		for (int i = 0; i < res.length && it.hasNext(); i++) {
-			res[i] = it.next();
-		}
-		
-		Arrays.sort(res);
-		
-		return res;
-	}
+        for (DecisionTableRuleNode node : nodes()) {
+            int[] rules = node.getRules();
+            for (int i = 0; i < rules.length; i++) {
+                set.add(rules[i]);
+            }
+        }
+
+        if (emptyOrFormulaNodes != null) {
+            int[] rules = emptyOrFormulaNodes.getRules();
+            for (int i = 0; i < rules.length; i++) {
+                set.add(rules[i]);
+            }
+
+        }
+
+        int[] res = new int[set.size()];
+
+        Iterator<Integer> it = set.iterator();
+
+        for (int i = 0; i < res.length && it.hasNext(); i++) {
+            res[i] = it.next();
+        }
+
+        Arrays.sort(res);
+
+        return res;
+    }
 
 }

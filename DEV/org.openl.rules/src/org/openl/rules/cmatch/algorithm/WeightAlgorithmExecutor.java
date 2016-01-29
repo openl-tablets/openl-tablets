@@ -13,12 +13,16 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
         WScoreTraceObject wScore = new WScoreTraceObject(columnMatch, params);
         // score
+        Integer sumScore;
+
         Tracer.begin(wScore);
+        try {
+            sumScore = (Integer) super.invoke(target, params, env, columnMatch);
+            wScore.setResult(sumScore);
+        } finally {
+            Tracer.end();
+        }
 
-        Integer sumScore = (Integer) super.invoke(target, params, env, columnMatch);
-
-        wScore.setResult(sumScore);
-        Tracer.end();
         MatchNode totalScore = columnMatch.getTotalScore();
         IMatcher matcher = totalScore.getMatcher();
         // totalScore -> resultValue

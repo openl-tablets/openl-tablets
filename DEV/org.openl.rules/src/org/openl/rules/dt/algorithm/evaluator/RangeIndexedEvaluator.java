@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.rules.dt.DecisionTableIndexedRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
@@ -137,8 +138,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         Collections.sort(points);
         SortedSet<Integer> values = new TreeSet<Integer>();
 
-        List<Comparable<?>> index = new ArrayList<Comparable<?>>();
-        List<DecisionTableRuleNode> rules = new ArrayList<DecisionTableRuleNode>();
+        List<DecisionTableIndexedRuleNode<?>> index = new ArrayList<DecisionTableIndexedRuleNode<?>>();
 
         DecisionTableRuleNode emptyNode = emptyBuilder.makeNode();
 
@@ -155,7 +155,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 values.remove(intervalPoint.value);
             }
             if (i == length - 1 || intervalPoint.compareTo(points.get(i + 1)) != 0) {
-                Comparable<?> indexedValue = intervalPoint;
+                Comparable<Point<Integer>> indexedValue = intervalPoint;
                 int[] rulesIndexesArray = null;
                 if (emptyNode.getRules().length > 0) {
                     rulesIndexesArray = merge(values, emptyNode.getRules());
@@ -163,14 +163,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                     rulesIndexesArray = collectionToPrimitiveArray(values);
                 }
 
-                rules.add(new DecisionTableRuleNode(rulesIndexesArray));
-                index.add(indexedValue);
+                index.add(new DecisionTableIndexedRuleNode<Point<Integer>>(rulesIndexesArray, indexedValue));
             }
         }
-        return new RangeIndex(emptyNode,
-            index.toArray(new Comparable[index.size()]),
-            rules.toArray(new DecisionTableRuleNode[rules.size()]),
-            new PointRangeAdaptor<Integer>(rangeAdaptor));
+        return new RangeIndex(emptyNode, index, new PointRangeAdaptor<Integer>(rangeAdaptor));
     }
 
     static class PointRangeAdaptor<K> implements IRangeAdaptor<Point<K>, Comparable<? extends Object>> {
