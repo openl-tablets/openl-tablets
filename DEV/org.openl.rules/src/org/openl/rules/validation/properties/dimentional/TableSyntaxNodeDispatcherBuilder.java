@@ -254,7 +254,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         //
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             final IOpenClass parameterType = originalSignature.getParameterType(j);
-            if (!(parameterType instanceof NullOpenClass)) {
+            if (!(parameterType instanceof NullOpenClass) && parameterType.getInstanceClass() != null) {
                 /*
                  * on compare in repository tutorial10, all original parameter
                  * types are instances of NullOpenClass. it causes

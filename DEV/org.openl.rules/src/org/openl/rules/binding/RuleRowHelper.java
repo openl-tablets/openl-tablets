@@ -202,7 +202,7 @@ public class RuleRowHelper {
         	 theValueCell = theCell.getTopLeftCellFromRegion();
         }	
 
-        if (paramType.getInstanceClass().equals(String.class)) {
+        if (String.class.equals(paramType.getInstanceClass())) {
             // if param type is of type String, load as String
             String src = theValueCell.getStringValue();
             if (src != null) src = src.length() <=4 ? src.intern() : src;
@@ -546,7 +546,7 @@ public class RuleRowHelper {
      */
     private static Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
         List<CompositeMethod> methodsList = null;
-        Object ary = null;
+        Object ary;
         int paramsLength = paramsArray.length;
         ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
         for (int i = 0; i < paramsLength; i++) {
