@@ -506,10 +506,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IRuntimeEnv env,
             DefaultAlgorithmDecoratorFactory decoratorFactory) {
 
-        // Select rules set using indexed mode
-        //
-//        ICondition[] conditions = table.getConditionRows();
-
         IIntIterator iterator = null;
         int conditionNumber = info.fromCondition;
 
@@ -519,7 +515,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             ARuleIndex index = indexRoot;
 
-            for (; conditionNumber <= info.toCondition; conditionNumber++) {
+            while(conditionNumber <= info.toCondition) {
+
                 index = decoratorFactory.create(index, table.getCondition(conditionNumber));
 
                 Object testValue = evaluateTestValue(table.getCondition(conditionNumber), target, params, env);
@@ -533,10 +530,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 }
 
                 index = node.getNextIndex();
+                conditionNumber++;
             }
         }
 
-        for (; conditionNumber <= info.toCondition; conditionNumber++) {
+        while (conditionNumber <= info.toCondition) {
 
             ICondition condition = table.getCondition(conditionNumber);
             IConditionEvaluator evaluator = evaluators[conditionNumber];
@@ -545,6 +543,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             sel = decoratorFactory.create(sel, condition);
 
             iterator = iterator.select(sel);
+            conditionNumber++;
         }
 
         return iterator;
