@@ -396,7 +396,7 @@ public class RuleRowHelper {
         String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
 
         if (stringValue != null) {
-            stringValue.trim();
+            stringValue = stringValue.trim();
             return stringValue.startsWith("=");
         }
 
