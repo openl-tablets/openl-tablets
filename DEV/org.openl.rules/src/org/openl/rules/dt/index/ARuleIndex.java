@@ -38,7 +38,7 @@ public abstract class ARuleIndex {
 
     abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
-    public abstract Iterable<DecisionTableRuleNode> nodes();
+    public abstract Iterable<? extends DecisionTableRuleNode> nodes();
 
     public int[] collectRules() {
         Set<Integer> set = new HashSet<Integer>();

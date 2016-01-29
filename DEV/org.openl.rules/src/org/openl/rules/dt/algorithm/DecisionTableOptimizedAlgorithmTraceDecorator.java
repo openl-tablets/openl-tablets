@@ -3,7 +3,7 @@ package org.openl.rules.dt.algorithm;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.dt.DecisionTableIndexedRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
@@ -64,13 +64,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
             public ARuleIndex create(ARuleIndex index, final ICondition condition) {
                 if (index instanceof RangeIndex) {
                     RangeIndex rIndex = (RangeIndex) index;
-                    final DecisionTableRuleNode rule = rIndex.rules[0];
-                    rIndex.comparator = new Comparator<Object>() {
-                        @Override public int compare(Object o1, Object o2) {
-                            Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
-                            return ((Comparable<Object>)o1).compareTo(o2);
-                        }
-                    };
+                    rIndex.comparator = createComparator(condition);
                 } else if (index instanceof EqualsIndex) {
                     index = new TraceableEqualsIndex((EqualsIndex) index, condition, baseTraceObject, conditionsStack);
                 }
@@ -83,6 +77,24 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                 return new SelectorTracer(selector, condition, baseTraceObject, new ChildTraceStack(conditionsStack));
             }
         });
+    }
+
+    private Comparator<Object> createComparator(final ICondition condition) {
+        return new Comparator<Object>() {
+            @Override public int compare(Object o1, Object o2) {
+                DecisionTableIndexedRuleNode rule;
+                Object value;
+                if (o1 instanceof DecisionTableIndexedRuleNode) {
+                    rule = (DecisionTableIndexedRuleNode) o1;
+                    value = o2;
+                } else {
+                    rule = (DecisionTableIndexedRuleNode) o2;
+                    value = o1;
+                }
+                Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
+                return rule.compareTo(value);
+            }
+        };
     }
 
     private static class SelectorTracer implements IIntSelector {

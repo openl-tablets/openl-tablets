@@ -1,33 +1,32 @@
 package org.openl.rules.dt.index;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
+import org.openl.rules.dt.DecisionTableIndexedRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeIndex extends ARuleIndex {
 
-    protected Comparable<?>[] index;
+    protected List<DecisionTableIndexedRuleNode<?>> index;
     public Comparator<? super Object> comparator = null;
-    public DecisionTableRuleNode[] rules;
 
     protected IRangeAdaptor<?, ?> adaptor;
 
     public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-            Comparable<?>[] index,
-            DecisionTableRuleNode[] rules,
+            List<DecisionTableIndexedRuleNode<?>> index,
             IRangeAdaptor<?, ?> adaptor) {
         super(emptyOrFormulaNodes);
 
         this.index = index;
-        this.rules = rules;
         this.adaptor = adaptor;
     }
 
     @Override
     DecisionTableRuleNode findNodeInIndex(Object value) {
-        if (index.length < 1) {
+        if (index.isEmpty()) {
             // there is no values in index to compare => no reason to search
             return null;
         }
@@ -38,24 +37,23 @@ public class RangeIndex extends ARuleIndex {
             value = adaptor.adaptValueType(value);
         }
 
-        int idx = Arrays.binarySearch(index, value, comparator);
+        int idx = Collections.binarySearch(index, value, comparator);
 
         if (idx >= 0) {
-            return rules[idx];
+            return index.get(idx);
         }
 
         int insertionPoint = -(idx + 1);
 
-        if (insertionPoint < index.length && insertionPoint > 0) {
-            return rules[insertionPoint - 1];
+        if (insertionPoint < index.size() && insertionPoint > 0) {
+            return index.get(insertionPoint - 1);
         }
 
         return null;
     }
 
     @Override
-    public Iterable<DecisionTableRuleNode> nodes() {
-        return Arrays.asList(rules);
+    public Iterable<DecisionTableIndexedRuleNode<?>> nodes() {
+        return index;
     }
-
 }
