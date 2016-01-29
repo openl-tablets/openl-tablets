@@ -1,6 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -8,7 +9,8 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class RangeIndex extends ARuleIndex {
 
     protected Comparable<?>[] index;
-    protected DecisionTableRuleNode[] rules;
+    public Comparator<? super Object> comparator = null;
+    public DecisionTableRuleNode[] rules;
 
     protected IRangeAdaptor<?, ?> adaptor;
 
@@ -25,8 +27,18 @@ public class RangeIndex extends ARuleIndex {
 
     @Override
     DecisionTableRuleNode findNodeInIndex(Object value) {
+        if (index.length < 1) {
+            // there is no values in index to compare => no reason to search
+            return null;
+        }
 
-        int idx = Arrays.binarySearch(index, convertValueForSearch(value));
+        if (adaptor != null) {
+            // Converts value for binary search in index
+            // Because different subclasses of Number are not comparable.
+            value = adaptor.adaptValueType(value);
+        }
+
+        int idx = Arrays.binarySearch(index, value, comparator);
 
         if (idx >= 0) {
             return rules[idx];
@@ -39,25 +51,6 @@ public class RangeIndex extends ARuleIndex {
         }
 
         return null;
-    }
-
-    /**
-     * Converts value for binary search in index(Because different subclasses of
-     * {@link Number} are not comparable).
-     *
-     * @param value Value to convert
-     * @return New value that is adapted for binary search.
-     */
-    protected Object convertValueForSearch(Object value) {
-        if (index.length < 1) {
-            // there is no values in index to compare => no reason to convert
-            return value;
-        }
-
-        if (adaptor != null) {
-            return adaptor.adaptValueType(value);
-        }
-        return value;
     }
 
     @Override
