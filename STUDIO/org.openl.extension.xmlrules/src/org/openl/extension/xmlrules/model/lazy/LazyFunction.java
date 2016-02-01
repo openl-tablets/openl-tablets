@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.openl.extension.xmlrules.model.Function;
+import org.openl.extension.xmlrules.model.Segment;
 import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.FunctionImpl;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
@@ -36,6 +37,11 @@ public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function
     @Override
     public List<Attribute> getAttributes() {
         return getInfo().getAttributes();
+    }
+
+    @Override
+    public Segment getSegment() {
+        return getInfo().getSegment();
     }
 
 }

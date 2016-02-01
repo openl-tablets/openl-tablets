@@ -15,4 +15,6 @@ public interface Function {
     String getCellAddress();
 
     List<Attribute> getAttributes();
+
+    Segment getSegment();
 }

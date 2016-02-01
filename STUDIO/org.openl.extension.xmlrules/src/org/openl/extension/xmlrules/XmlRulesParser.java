@@ -309,11 +309,29 @@ public class XmlRulesParser extends BaseParser {
             if (sheet.getTables() == null) {
                 return;
             }
+
+            Set<String> tablesNamesWithAttributes = new HashSet<String>();
+            for (Table table : sheet.getTables()) {
+                if (!table.getAttributes().isEmpty()) {
+                    tablesNamesWithAttributes.add(table.getName());
+                }
+            }
+
+
             for (Table table : sheet.getTables()) {
                 table = prepareTable(table);
+                Segment segment = table.getSegment();
+                if (segment != null && (segment.getTotalSegments() == 1 || tablesNamesWithAttributes.contains(table.getName()))) {
+                    segment = null;
+                }
+
                 boolean hasFunctionArguments = table.getParameters().size() > table.getHorizontalConditions().size() +
                         table.getVerticalConditions().size();
                 if (hasFunctionArguments) {
+                    if (segment != null && segment.getSegmentNumber() > 1) {
+                        return;
+                    }
+
                     createFunctionTable(gridBuilder, sheet, table);
                 }
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
@@ -327,10 +345,6 @@ public class XmlRulesParser extends BaseParser {
                 int headerHeight = 0;
                 int headerWidth = 0;
 
-                Segment segment = table.getSegment();
-                if (segment != null && segment.getTotalSegments() == 1) {
-                    segment = null;
-                }
                 if (segment != null) {
                     String tablePartHeader = "TablePart " + table.getName() +
                             (segment.isColumnSegment() ? " column " : " row ")
@@ -919,8 +933,27 @@ public class XmlRulesParser extends BaseParser {
         if (sheet.getFunctions() == null) {
             return;
         }
+        Set<String> functionNamesWithAttributes = new HashSet<String>();
+        for (Function function : sheet.getFunctions()) {
+            if (!function.getAttributes().isEmpty()) {
+                functionNamesWithAttributes.add(function.getName());
+            }
+        }
         for (Function function : sheet.getFunctions()) {
             try {
+                List<Attribute> attributes = function.getAttributes();
+                int width = attributes.isEmpty() ? 1 : 3;
+
+                Segment segment = function.getSegment();
+                if (segment != null && segment.getTotalSegments() == 1) {
+                    segment = null;
+                }
+                if (segment != null && !functionNamesWithAttributes.contains(function.getName())) {
+                    String message = "Function " + function.getName() + " with several segments but without attributes";
+                    log.warn(message);
+                    OpenLMessagesUtils.addWarn(message);
+                }
+
                 StringBuilder headerBuilder = new StringBuilder();
                 String returnType = "Object"; // Until it will be fixed on LE side
 //                String returnType = function.getReturnType();
@@ -954,9 +987,6 @@ public class XmlRulesParser extends BaseParser {
                             .append(cellReference.getColumn());
                 }
                 headerBuilder.append(')');
-
-                List<Attribute> attributes = function.getAttributes();
-                int width = attributes.isEmpty() ? 1 : 3;
 
                 gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
 

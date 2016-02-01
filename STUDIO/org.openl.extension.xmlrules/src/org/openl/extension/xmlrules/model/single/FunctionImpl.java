@@ -20,6 +20,7 @@ public class FunctionImpl implements Function {
     private List<ParameterImpl> parameters = new ArrayList<ParameterImpl>();
     private String cellAddress;
     private List<Attribute> attributes = new ArrayList<Attribute>();
+    private SegmentImpl segment;
 
     @Override
     public String getName() {
@@ -69,5 +70,13 @@ public class FunctionImpl implements Function {
 
     public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public SegmentImpl getSegment() {
+        return segment;
+    }
+
+    public void setSegment(SegmentImpl segment) {
+        this.segment = segment;
     }
 }
