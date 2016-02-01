@@ -14,13 +14,6 @@ public class EqualsIndex extends ARuleIndex {
         assert valueNodes != null;
     }
 
-    /**
-     * For traceable purposes. See {@link TraceableEqualsIndex}.
-     */
-    EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
-        super(emptyOrFormulaNodes);
-    }
-
     @Override
     DecisionTableRuleNode findNodeInIndex(Object value) {
         if (value != null) {
